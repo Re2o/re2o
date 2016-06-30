@@ -13,18 +13,23 @@ class User(models.Model):
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
-    pseudo = models.CharField(max_length=255)
+    pseudo = models.CharField(max_length=255, unique=True)
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT)
     promo = models.CharField(max_length=255)
     pwd_ssha = models.CharField(max_length=255)
     pwd_ntlm = models.CharField(max_length=255)
     #location = models.ForeignKey('Location', on_delete=models.SET_DEFAULT)
-    state = models.CharField(max_length=30, choices=STATES, default=STATE_ACTIVE)
+    state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
 
+    def __str__(self):
+        return self.name
 
 class School(models.Model):
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 class UserForm(ModelForm):
     class Meta:

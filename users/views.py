@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 
-from users.models import UserForm
+from users.models import UserForm, InfoForm
 
 
 def form(ctx, template, request):
@@ -16,9 +16,10 @@ def form(ctx, template, request):
 
 def new_user(request):
     if request.method == 'POST':
-        user = UserForm(request.Post)
+        user = InfoForm(request.POST)
         if user.is_valid():
             user.save()
+        return form({'userform': user}, 'users/new_user.html', request)
     else:
-        user = UserForm()
+        user = InfoForm()
         return form({'userform': user}, 'users/new_user.html', request)
