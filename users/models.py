@@ -29,7 +29,22 @@ class School(models.Model):
 class UserForm(ModelForm):
     class Meta:
         model = User
-        fields = ['name','surname','pseudo','email','school','promo','pwd_ssha','pwd_ntlm','state']
+        fields = '__all__'
+
+class InfoForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['name','surname','pseudo','email']
+
+class PasswordForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['pwd_ssha','pwd_ntlm']
+
+class ArchiveForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['state']
 
 class SchoolForm(ModelForm):
     class Meta:
