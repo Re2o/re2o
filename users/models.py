@@ -34,7 +34,7 @@ class UserForm(ModelForm):
 class InfoForm(ModelForm):
     class Meta:
         model = User
-        fields = ['name','surname','pseudo','email']
+        fields = ['name','surname','pseudo','email', 'school', 'promo']
 
 class PasswordForm(ModelForm):
     class Meta:
