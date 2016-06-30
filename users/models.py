@@ -6,9 +6,9 @@ class User(models.Model):
     STATE_DEACTIVATED = 1
     STATE_ARCHIVED = 2
     STATES = (
-            (0, 'STATE_ACTIVE')
-            (1, 'STATE_DEACTIVATED')
-            (2, 'STATE_ARCHIVED')
+            (0, 'STATE_ACTIVE'),
+            (1, 'STATE_DEACTIVATED'),
+            (2, 'STATE_ARCHIVED'),
             )
 
     name = models.CharField(max_length=255)
