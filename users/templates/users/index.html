@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Re2o : Utilisateurs{% endblock %}
+
+{% block content %}
+    {% url "users-new-user" as new_user %}
+    {% bootstrap_button "Créer un utilisateur" button_type="link" button_class="btn-primary" icon="user" href=new_user %}
+{% endblock %}
+
