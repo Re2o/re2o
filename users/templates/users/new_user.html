@@ -1,5 +1,14 @@
-<form class="form-full-width" method="post">{% csrf_token %}
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Re2o : création d'utilisateur{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors userform %}
+
+<form class="form" method="post">
     {% csrf_token %}
-    {{ userform.as_p }}
-    <input type="submit" value="Créer" />
+    {% bootstrap_form userform %}
+    {% bootstrap_button "Créer" button_type="submit" icon="star" %}
 </form>
+{% endblock %}
