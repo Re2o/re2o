@@ -10,7 +10,6 @@
         {% bootstrap_css %}
         <link rel="stylesheet" href="{% static "/static/css/base.css" %}">
 
-        <script type="text/javascript" src="{% static "/static/js/jquery-2.2.4.min.js" %}"></script>
         {% bootstrap_javascript %}
         <title>{% block title %}Re2o{% endblock %}</title>
     </head>
@@ -76,8 +75,10 @@
             </div>
         </div>
 
-        <footer class="container-fluid text-center">
+        <footer class="navbar navbar-fixed-bottom">
+            <div class="containerfluid text-center">
             <p>Footer Text</p>
+            </div>
         </footer>
 
 
