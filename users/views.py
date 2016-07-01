@@ -10,6 +10,8 @@ from django.contrib import messages
 from users.models import User, UserForm, InfoForm, PasswordForm, StateForm
 from users.forms  import PassForm
 
+from re2o.login import makeSecret, hashNT
+
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
@@ -55,7 +57,13 @@ def password(request, userid):
         return redirect("/users/")
     user_form = PassForm(request.POST or None)
     if user_form.is_valid():
-        user.pwd_ssha = user_form.cleaned_data['passwd']
-        user.pwd_ntlm = user_form.cleaned_data['passwd'] 
+        if user_form.cleaned_data['passwd1'] != user_form.cleaned_data['passwd2']:
+            messages.error(request, u"Les 2 mots de passe différent" )
+            return form({'userform': user_form}, 'users/user.html', request)
+        user.pwd_ssha = makeSecret(user_form.cleaned_data['passwd1'])
+        user.pwd_ntlm = hashNT(user_form.cleaned_data['passwd1'])
         user.save()
     return form({'userform': user_form}, 'users/user.html', request)
+
+def index(request):
+    return render(request, 'users/index.html')
