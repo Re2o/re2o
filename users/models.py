@@ -32,11 +32,23 @@ class School(models.Model):
         return self.name
 
 class UserForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(InfoForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Nom'
+        self.fields['surname'].label = 'Prenom'
+        self.fields['school'].label = 'Etablissement'
+
     class Meta:
         model = User
         fields = '__all__'
 
 class InfoForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(InfoForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Nom'
+        self.fields['surname'].label = 'Prenom'
+        self.fields['school'].label = 'Etablissement'
+
     class Meta:
         model = User
         fields = ['name','surname','pseudo','email', 'school', 'promo']
@@ -46,7 +58,7 @@ class PasswordForm(ModelForm):
         model = User
         fields = ['pwd_ssha','pwd_ntlm']
 
-class ArchiveForm(ModelForm):
+class StateForm(ModelForm):
     class Meta:
         model = User
         fields = ['state']
