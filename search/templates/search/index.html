@@ -51,6 +51,7 @@
                 <th>Prix unitaire</th>
                 <th>Moyen de paiement</th>
                 <th>Date</th>
+                <th></th>
             </tr>
         </thead>
         {% for facture in facture_list %}
@@ -61,6 +62,7 @@
             <td>{{ facture.prix }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
+            <td><a href="{% url 'cotisations:edit-facture' facture.id %}">Editer</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -74,6 +76,7 @@
                 <th>Raison</th>
                 <th>Date de début</th>
                 <th>Date de fin</th>
+                <th></th>
             </tr>
         </thead>
         {% for ban in ban_list %}
@@ -82,9 +85,16 @@
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
+            <td><a href="{% url 'users:edit-ban' ban.id %}">Editer</a></td>
         </tr>
         {% endfor %}
     </table>
     {% endif %}
+    {% if not ban_list and not machine_list and not users_list and not facture_list%}
+        <h3>Aucun résultat</h3>
+    {% endif %}
+    <br />
+    <br />
+    <br />
 {% endblock %}
 
