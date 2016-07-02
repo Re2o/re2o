@@ -13,13 +13,16 @@ class Facture(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
+    valid = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.name) + ' ' + str(self.date) + ' ' + str(self.user)
 
 class Article(models.Model):
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
+    cotisation = models.BooleanField()
+    duration = models.DurationField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -35,6 +38,14 @@ class Paiement(models.Model):
 
     def __str__(self):
         return self.moyen
+
+class Cotisation(models.Model):
+    facture = models.ForeignKey('Facture', on_delete=models.PROTECT)
+    date_start = models.DateTimeField(auto_now_add=True)
+    date_end = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.facture)
 
 class NewFactureForm(ModelForm):
     article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
