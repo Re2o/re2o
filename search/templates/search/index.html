@@ -1,0 +1,90 @@
+{% extends "users/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block content %}
+    {% if users_list %}
+    <h2>Résultats dans les utilisateurs</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Pseudo</th>
+                <th>Modifier</th>
+            </tr>
+        </thead>
+        {% for user in users_list %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.surname }}</td>
+            <td>{{ user.pseudo }}</td>
+            <td><a href="{% url 'users:edit-info' user.id %}">Editer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif%}
+    {% if machine_list %}
+    <h2>Résultats dans les machines : </h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+            </tr>
+        </thead>
+        {% for machine in machine_list %}
+        <tr>
+            <td>{{ machine.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if facture_list %}
+    <h2>Résultats dans les factures : </h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Designation</th>
+                <th>Nombre</th>
+                <th>Prix unitaire</th>
+                <th>Moyen de paiement</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        {% for facture in facture_list %}
+        <tr>
+            <td>{{ facture.user }}</td>
+            <td>{{ facture.name }}</td>
+            <td>{{ facture.number }}</td>
+            <td>{{ facture.prix }}</td>
+            <td>{{ facture.paiement }}</td>
+            <td>{{ facture.date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if ban_list %}
+    <h2>Résultats dans les banissements : </h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Raison</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+            </tr>
+        </thead>
+        {% for ban in ban_list %}
+        <tr>
+            <td>{{ ban.user }}</td>
+            <td>{{ ban.raison }}</td>
+            <td>{{ ban.date_start }}</td>
+            <td>{{ ban.date_end }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endblock %}
+
