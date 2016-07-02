@@ -12,6 +12,11 @@ from users.forms  import PassForm
 
 from re2o.login import makeSecret, hashNT
 
+def end_ban(user):
+    """ Renvoie la date de fin de ban d'un user, False sinon """
+    date_max = Ban.objects.all().filter(user=user).aggregate(Max('date_end'))['date_end__max']
+    return date_max
+
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
