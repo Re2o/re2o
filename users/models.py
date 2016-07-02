@@ -21,6 +21,7 @@ class User(models.Model):
     pwd_ssha = models.CharField(max_length=255)
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
+    registered = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.pseudo
@@ -50,7 +51,7 @@ class ListRight(models.Model):
 class Ban(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
-    date_start = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')
+    date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')    
 
     def __str__(self):
@@ -113,7 +114,6 @@ class DelRightForm(ModelForm):
 class BanForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BanForm, self).__init__(*args, **kwargs)
-        self.fields['date_start'].label = 'Date de début'
         self.fields['date_end'].label = 'Date de fin'
 
     class Meta:
