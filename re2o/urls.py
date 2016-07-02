@@ -20,6 +20,7 @@ from logs.views import index
 urlpatterns = [
     url(r'^$', index),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^users/', include('users.urls')),
-    url(r'^search/', include('search.urls')),
+    url(r'^users/', include('users.urls', namespace='users')),
+    url(r'^search/', include('search.urls', namespace='search')),
+    #url(r'^logs/', include('logs.urls', namespace='logs')),
 ]
