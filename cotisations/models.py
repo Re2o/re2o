@@ -6,17 +6,16 @@ from users.models import User
 
 class Facture(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
-    article = models.ForeignKey('Article', on_delete=models.PROTECT)
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
-    banque = models.ForeignKey('Banque', on_delete=models.PROTECT)
-    cheque = models.CharField(max_length=255)
+    banque = models.ForeignKey('Banque', on_delete=models.PROTECT, blank=True, null=True)
+    cheque = models.CharField(max_length=255, blank=True)
     number = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return str(self.name) + ' ' + str(self.article)
+        return str(self.name)
 
 class Article(models.Model):
     name = models.CharField(max_length=255)
@@ -42,7 +41,6 @@ class NewFactureForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(NewFactureForm, self).__init__(*args, **kwargs)
-        self.fields['user'].label = 'Adherent'
         self.fields['number'].label = 'Quantité'
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
@@ -50,7 +48,7 @@ class NewFactureForm(ModelForm):
 
     class Meta:
         model = Facture
-        exclude = ['name', 'prix']
+        exclude = ['user', 'prix', 'name']
 
 class EditFactureForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -65,4 +63,4 @@ class EditFactureForm(ModelForm):
 
     class Meta:
         model = Facture
-        exclude = ['user']
+        fields = '__all__'

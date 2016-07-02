@@ -7,20 +7,22 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Designation</th>
                 <th>Utilisateur</th>
-                <th>Article</th>
+                <th>Designation</th>
+                <th>Nombre</th>
+                <th>Prix unitaire</th>
                 <th>Moyen de paiement</th>
                 <th>Date</th>
             </tr>
         </thead>
-        {% for user in users_list %}
+        {% for facture in facture_list %}
         <tr>
-            <td>{{ facture_list.name }}</td>
-            <td>{{ facture_list.user }}</td>
-            <td>{{ facture_list.article }}</td>
-            <td>{{ facture_list.paiement }}</td>
-            <td>{{ facture_list.date }}</td>
+            <td>{{ facture.user }}</td>
+            <td>{{ facture.name }}</td>
+            <td>{{ facture.number }}</td>
+            <td>{{ facture.prix }}</td>
+            <td>{{ facture.paiement }}</td>
+            <td>{{ facture.date }}</td>
         </tr>
         {% endfor %}
     </table>
