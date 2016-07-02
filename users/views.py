@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 
-from users.models import User, UserForm, InfoForm, PasswordForm, StateForm
+from users.models import User, UserForm, InfoForm, PasswordForm, StateForm, RightForm
 from users.forms  import PassForm
 
 from re2o.login import makeSecret, hashNT
@@ -65,5 +65,12 @@ def password(request, userid):
         user.save()
     return form({'userform': user_form}, 'users/user.html', request)
 
+def add_right(request):
+    right = RightForm(request.POST or None)
+    if right.is_valid():
+        right.save()
+    return form({'userform': right}, 'users/user.html', request)
+
 def index(request):
-    return render(request, 'users/index.html')
+    users_list = User.objects.order_by('pk')
+    return render(request, 'users/index.html', {'users_list': users_list})
