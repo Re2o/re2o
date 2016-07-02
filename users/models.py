@@ -25,11 +25,24 @@ class User(models.Model):
     def __str__(self):
         return self.name
 
+class Right(models.Model):
+    user = models.ForeignKey('User', on_delete=models.PROTECT) 
+    right = models.ForeignKey('ListRight', on_delete=models.PROTECT)
+    
+    class Meta:
+        unique_together = ("user", "right")
+
 class School(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
+
+class ListRight(models.Model):
+    listright = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.listright
 
 class UserForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -67,3 +80,13 @@ class SchoolForm(ModelForm):
     class Meta:
         model = School
         fields = ['name']
+
+class RightForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(RightForm, self).__init__(*args, **kwargs)
+        self.fields['user'].label = 'Utilisateur'
+        self.fields['right'].label = 'Droit'
+
+    class Meta:
+        model = Right
+        fields = ['user', 'right']
