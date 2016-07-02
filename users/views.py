@@ -18,14 +18,12 @@ def form(ctx, template, request):
     return render_to_response(template, c, context_instance=RequestContext(request))
 
 def new_user(request):
-    if request.method == 'POST':
-        user = InfoForm(request.POST)
-        if user.is_valid():
-            user.save()
-        return form({'userform': user}, 'users/user.html', request)
-    else:
-        user = InfoForm()
-        return form({'userform': user}, 'users/user.html', request)
+    user = InfoForm(request.POST or None)
+    if user.is_valid():
+        user.save()
+        messages.success(request, "L'utilisateur a été crée")
+        return redirect("/users/")
+    return form({'userform': user}, 'users/user.html', request)
 
 def edit_info(request, userid):
     try:
@@ -36,6 +34,8 @@ def edit_info(request, userid):
     user = InfoForm(request.POST or None, instance=user)
     if user.is_valid():
         user.save()
+        messages.success(request, "L'user a bien été modifié")
+        return redirect("/users/")
     return form({'userform': user}, 'users/user.html', request)
 
 def state(request, userid):
@@ -47,6 +47,8 @@ def state(request, userid):
     user = StateForm(request.POST or None, instance=user)
     if user.is_valid():
         user.save()
+        messages.success(request, "Etat changé avec succès")
+        return redirect("/users/")
     return form({'userform': user}, 'users/user.html', request)
 
 def password(request, userid):
@@ -63,12 +65,16 @@ def password(request, userid):
         user.pwd_ssha = makeSecret(user_form.cleaned_data['passwd1'])
         user.pwd_ntlm = hashNT(user_form.cleaned_data['passwd1'])
         user.save()
+        messages.success(request, "Le mot de passe a changé")
+        return redirect("/users/")
     return form({'userform': user_form}, 'users/user.html', request)
 
 def add_right(request):
     right = RightForm(request.POST or None)
     if right.is_valid():
         right.save()
+        messages.success(request, "Droit ajouté")
+        return redirect("/users/")
     return form({'userform': right}, 'users/user.html', request)
 
 def index(request):
