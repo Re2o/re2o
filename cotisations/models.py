@@ -22,7 +22,7 @@ class Article(models.Model):
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     cotisation = models.BooleanField()
-    duration = models.DurationField(blank=True, null=True)
+    duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -41,7 +41,7 @@ class Paiement(models.Model):
 
 class Cotisation(models.Model):
     facture = models.ForeignKey('Facture', on_delete=models.PROTECT)
-    date_start = models.DateTimeField(auto_now_add=True)
+    date_start = models.DateTimeField()
     date_end = models.DateTimeField()
 
     def __str__(self):
@@ -59,7 +59,7 @@ class NewFactureForm(ModelForm):
 
     class Meta:
         model = Facture
-        exclude = ['user', 'prix', 'name']
+        exclude = ['user', 'prix', 'name', 'valid']
 
 class EditFactureForm(ModelForm):
     def __init__(self, *args, **kwargs):

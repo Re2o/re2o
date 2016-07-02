@@ -101,3 +101,4 @@ class DelRightForm(ModelForm):
     class Meta:
         model = Right
         exclude = ['user', 'right']
+
