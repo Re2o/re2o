@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 
-from users.models import User, Right, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm
 from users.forms  import PassForm
 
 from re2o.login import makeSecret, hashNT
@@ -85,6 +85,33 @@ def del_right(request):
         messages.success(request, "Droit retiré avec succès")
         return redirect("/users/")
     return form({'userform': right}, 'users/user.html', request)
+
+def add_ban(request, userid):
+    try:
+        user = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
+        return redirect("/users/")
+    ban_instance = Ban(user=user)
+    ban = BanForm(request.POST or None, instance=ban_instance)
+    if ban.is_valid():
+        ban.save()
+        messages.success(request, "Bannissement ajouté")
+        return redirect("/users/")
+    return form({'userform': ban}, 'users/user.html', request)
+
+def edit_ban(request, banid):
+    try:
+        ban_instance = Ban.objects.get(pk=banid)
+    except User.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/users/")
+    ban = BanForm(request.POST or None, instance=ban_instance)
+    if ban.is_valid():
+        ban.save()
+        messages.success(request, "Bannissement modifié")
+        return redirect("/users/")
+    return form({'userform': ban}, 'users/user.html', request)
 
 def index(request):
     users_list = User.objects.order_by('pk')
