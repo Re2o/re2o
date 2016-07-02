@@ -20,7 +20,6 @@ class User(models.Model):
     promo = models.CharField(max_length=255)
     pwd_ssha = models.CharField(max_length=255)
     pwd_ntlm = models.CharField(max_length=255)
-    #location = models.ForeignKey('Location', on_delete=models.SET_DEFAULT)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
 
     def __str__(self):
@@ -47,6 +46,15 @@ class ListRight(models.Model):
 
     def __str__(self):
         return self.listright
+
+class Ban(models.Model):
+    user = models.ForeignKey('User', on_delete=models.PROTECT)
+    raison = models.CharField(max_length=255)
+    date_start = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')
+    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')    
+
+    def __str__(self):
+        return str(self.user) + ' ' + str(self.raison)
 
 class UserForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -102,3 +110,12 @@ class DelRightForm(ModelForm):
         model = Right
         exclude = ['user', 'right']
 
+class BanForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BanForm, self).__init__(*args, **kwargs)
+        self.fields['date_start'].label = 'Date de début'
+        self.fields['date_end'].label = 'Date de fin'
+
+    class Meta:
+        model = Ban
+        exclude = ['user']
