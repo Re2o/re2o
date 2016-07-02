@@ -12,7 +12,7 @@ from cotisations.models import NewFactureForm, EditFactureForm, Facture, Article
 from users.models import User
 
 from dateutil.relativedelta import relativedelta
-import datetime
+from django.utils import timezone
 
 def form(ctx, template, request):
     c = ctx
@@ -27,9 +27,10 @@ def end_adhesion(user):
 def create_cotis(facture, user, article):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(facture=facture)
-    date_max = end_adhesion(user) or datetime.datetime.now()
-    if date_max:
-        cotisation.date_start=date_max
+    date_max = end_adhesion(user) or timezone.now()
+    if date_max < timezone.now():
+        datemax = timezone.now()
+    cotisation.date_start=date_max
     cotisation.date_end = cotisation.date_start + relativedelta(months=article[0].duration*facture.number) 
     cotisation.save()
     return
