@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+    <p><a href="{% url "search:search" %}">Créer une facture</a></p>
+    <p><a href="{% url "search:search" %}">Editer une facture</a></p>
+    <p><a href="{% url "cotisations:index" %}">Liste des factures</a></p>
+{% endblock %}
