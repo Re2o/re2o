@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="{% static "/static/css/base.css" %}">
 
         {% bootstrap_javascript %}
-        <title>{% block title %}Re2o{% endblock %}</title>
+        <title>Re2o : {% block title %}Accueil{% endblock %}</title>
     </head>
 
     <body>
@@ -23,14 +23,14 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Re2o</a>
+                    <a class="navbar-brand" href="/">Re2o</a>
                 </div>
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Projects</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="{% url "users:index" %}">Adhérents</a></li>
+                        <li><a href="#">Machines</a></li>
+                        <li><a href="#">Topologie</a></li>
+                        <li><a href="#">Statistiques</a></li>
                     </ul>
                     <div class="col-sm-3 col-md-3 navbar-right">
                         <form class="navbar-form" role="search">
@@ -52,9 +52,11 @@
         <div class="container-fluid text-center">
             <div class="row content">
                 <div class="col-sm-2 sidenav">
+                    {% block sidebar %}
                     <p><a href="#">Link</a></p>
                     <p><a href="#">Link</a></p>
                     <p><a href="#">Link</a></p>
+                    {% endblock %}
                 </div>
                 <div class="col-sm-8 text-left">
                     {# Display django.contrib.messages as Bootstrap alerts #}

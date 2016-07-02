@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+    <p><a href="{% url "users:new-user" %}">Créer un adhérent</a></p>
+    <p><a href="{% url "users:index" %}">Liste des adhérents</a></p>
+{% endblock %}

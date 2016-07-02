@@ -1,10 +1,24 @@
-{% extends "base.html" %}
+{% extends "users/sidebar.html" %}
 {% load bootstrap3 %}
 
-{% block title %}Re2o : Utilisateurs{% endblock %}
+{% block title %}Utilisateurs{% endblock %}
 
 {% block content %}
-    {% url "users-new-user" as new_user %}
-    {% bootstrap_button "Créer un utilisateur" button_type="link" button_class="btn-primary" icon="user" href=new_user %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Pseudo</th>
+            </tr>
+        </thead>
+        {% for user in users_list %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.surname }}</td>
+            <td>{{ user.pseudo }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
 
