@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, School, Right, ListRight
+from .models import User, School, Right, ListRight, Ban
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name','surname','pseudo','email', 'school', 'state')
@@ -14,7 +14,11 @@ class ListRightAdmin(admin.ModelAdmin):
 class RightAdmin(admin.ModelAdmin):
     list_display = ('user', 'right')
 
+class BanAdmin(admin.ModelAdmin):
+    list_display = ('user', 'raison', 'date_start', 'date_end')
+
 admin.site.register(User, UserAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Right, RightAdmin)
 admin.site.register(ListRight, ListRightAdmin)
+admin.site.register(Ban, BanAdmin)
