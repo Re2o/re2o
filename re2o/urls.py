@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include('users.urls', namespace='users')),
     url(r'^search/', include('search.urls', namespace='search')),
+    url(r'^cotisations/', include('cotisations.urls', namespace='cotisations')),
     #url(r'^logs/', include('logs.urls', namespace='logs')),
 ]

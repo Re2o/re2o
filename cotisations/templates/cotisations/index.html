@@ -1,0 +1,28 @@
+{% extends "cotisations/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Facture{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Designation</th>
+                <th>Utilisateur</th>
+                <th>Article</th>
+                <th>Moyen de paiement</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        {% for user in users_list %}
+        <tr>
+            <td>{{ facture_list.name }}</td>
+            <td>{{ facture_list.user }}</td>
+            <td>{{ facture_list.article }}</td>
+            <td>{{ facture_list.paiement }}</td>
+            <td>{{ facture_list.date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+
