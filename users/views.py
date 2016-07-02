@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 
-from users.models import User, UserForm, InfoForm, PasswordForm, StateForm, RightForm
+from users.models import User, Right, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm
 from users.forms  import PassForm
 
 from re2o.login import makeSecret, hashNT
@@ -74,6 +74,15 @@ def add_right(request):
     if right.is_valid():
         right.save()
         messages.success(request, "Droit ajouté")
+        return redirect("/users/")
+    return form({'userform': right}, 'users/user.html', request)
+
+def del_right(request):
+    right = DelRightForm(request.POST or None)
+    if right.is_valid():
+        right_del = right.cleaned_data['rights']
+        right_del.delete()
+        messages.success(request, "Droit retiré avec succès")
         return redirect("/users/")
     return form({'userform': right}, 'users/user.html', request)
 

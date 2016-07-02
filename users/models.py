@@ -1,5 +1,6 @@
 from django.db import models
 from django.forms import ModelForm
+from django import forms
 
 class User(models.Model):
     STATE_ACTIVE = 0
@@ -23,7 +24,7 @@ class User(models.Model):
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
 
     def __str__(self):
-        return self.name
+        return self.pseudo
 
 class Right(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT) 
@@ -31,6 +32,9 @@ class Right(models.Model):
     
     class Meta:
         unique_together = ("user", "right")
+
+    def __str__(self):
+        return str(self.user) + " - " + str(self.right)
 
 class School(models.Model):
     name = models.CharField(max_length=255)
@@ -90,3 +94,10 @@ class RightForm(ModelForm):
     class Meta:
         model = Right
         fields = ['user', 'right']
+
+class DelRightForm(ModelForm):
+    rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = Right
+        exclude = ['user', 'right']

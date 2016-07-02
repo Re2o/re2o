@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^state/(?P<userid>[0-9]+)$', views.state, name='state'),
     url(r'^password/(?P<userid>[0-9]+)$', views.password, name='password'),
     url(r'^add_right/$', views.add_right, name='add-right'),
+    url(r'^del_right/$', views.del_right, name='del-right'),
     url(r'^$', views.index, name='index'),
 ]
 
