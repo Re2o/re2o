@@ -6,6 +6,15 @@ from django.utils import timezone
 
 from topologie.models import Room
 
+def remove_user_room(room):
+    """ Déménage de force l'ancien locataire de la chambre """
+    try:
+        user = User.objects.get(room=room)
+    except User.DoesNotExist:
+        return
+    user.room = None
+    user.save()
+
 class User(models.Model):
     STATE_ACTIVE = 0
     STATE_DEACTIVATED = 1
@@ -74,11 +83,18 @@ class UserForm(ModelForm):
         fields = '__all__'
 
 class InfoForm(ModelForm):
+    force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
+
     def __init__(self, *args, **kwargs):
         super(InfoForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Nom'
         self.fields['surname'].label = 'Prenom'
         self.fields['school'].label = 'Etablissement'
+
+    def clean_force(self):
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
 
     class Meta:
         model = User
