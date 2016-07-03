@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Machine, MachineType
+from .models import Machine, MachineType, IpList, Interface
 
 class MachineAdmin(admin.ModelAdmin):
     list_display = ('user','type')
@@ -8,5 +8,13 @@ class MachineAdmin(admin.ModelAdmin):
 class MachineTypeAdmin(admin.ModelAdmin):
     list_display = ('type',)
 
+class IpListAdmin(admin.ModelAdmin):
+    list_display = ('ipv4',)
+
+class InterfaceAdmin(admin.ModelAdmin):
+    list_display = ('machine','name','mac_address','ipv4','details')
+
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
+admin.site.register(IpList, IpListAdmin)
+admin.site.register(Interface, InterfaceAdmin)
