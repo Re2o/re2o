@@ -14,7 +14,7 @@ from cotisations.models import Facture
 from machines.models import Machine
 from users.forms  import PassForm
 from search.models import SearchForm
-from cotisations.views import is_adherent
+from cotisations.views import is_adherent, end_adhesion
 
 from re2o.login import makeSecret, hashNT
 
@@ -156,7 +156,10 @@ def profil(request):
             machines = None
             factures = Facture.objects.filter(user__pseudo = users)
             bans = Ban.objects.filter(user__pseudo = users)
-            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans})
+            end = None
+            if(is_ban(users)):
+                end=end_ban(users)
+            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'end_ban':end, 'end_adhesion':end_adhesion(users), 'actif':has_access(users)})
         return redirect("/users/")
     return redirect("/users/")
 

@@ -5,6 +5,7 @@
                 <th>Nom</th>
                 <th>Pseudo</th>
                 <th>Inscrit le</th>
+                <th>Etat</th>
                 <th>Profil</th>
             </tr>
         </thead>
@@ -14,6 +15,14 @@
             <td>{{ user.surname }}</td>
             <td>{{ user.pseudo }}</td>
             <td>{{ user.registered }}</td>
+            <td>{% if user.state == 0 %}
+                <font color="green">Actif</font>
+                {% elif user.state == 1 %}
+                <font color="red">Désactivé</font>
+                {% else %}
+                <font color="orange">Archivé</font>
+                {% endif %}
+            </td>
             <td><form method="POST" action="{% url "users:profil"%}">
                   {% csrf_token %}
                      <input type="hidden" name="user" id="user" value="{{ user.pseudo }}"></input>

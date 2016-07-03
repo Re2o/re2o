@@ -33,8 +33,37 @@
             <th>Chambre</th>
             <td>{{ user.room }}</td>
             <th>Date d'inscription</th>
-            <td>{{ user.registered}}</td>
+            <td>{{ user.registered }}</td>
         </tr>
+        <tr>
+            <th>Fin d'adhésion</th>
+            {% if end_adhesion != None %}
+            <td><font color="green">{{ end_adhesion }}</font></td>
+            {% else %}
+            <td><font color="red">Non adhérent</font></td>
+            {% endif %}
+            <th>Bannissement</th>
+            {% if end_ban != None %}
+            <td><font color="red">{{ end_ban }}</font></td>
+            {% else %}
+            <td><font color="green">Non banni</font></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Connexion</th>
+            {% if actif == True %}
+            <td><font color="green">Active</font></td>
+            {% else %}
+            <td><font color="red">Désactivée</font></td>
+            {% endif %}
+            <th>Statut</th>
+            {% if user.state == 0 %}
+            <td><font color="green">Actif</font></td>
+            {% elif user.state == 1 %}
+            <td><font color="red">Désactivé</font></td>
+            {% else %}
+            <td><font color="orange">Archivé</font></td>
+            {% endif %}
     </table>
     <h2>Machines :</h2>
     {% if machine_list %}
