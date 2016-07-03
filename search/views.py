@@ -22,8 +22,12 @@ def search(request):
     if request.method == 'POST':
         search = SearchForm(request.POST or None)
         if search.is_valid():
+            states = search.cleaned_data['filtre']
             search = search.cleaned_data['search_field']
-            users = User.objects.filter(Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search))
+            query = Q() 
+            for s in states:
+                query = query | Q(state = s)
+            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)
             connexion = []
             for user in users:
                 connexion.append([user, has_access(user)])
