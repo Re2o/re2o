@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('topologie', '0001_initial'),
+        ('topologie', '0006_auto_20160703_1129'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='room',
-            name='room',
-            field=models.CharField(unique=True, max_length=255),
+            name='number',
+            field=models.IntegerField(null=True, blank=True),
         ),
     ]
