@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import User, School, Right, ListRight, Ban
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('name','surname','pseudo','email', 'school', 'state')
+    list_display = ('name','surname','pseudo','room','email', 'school', 'state')
 
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ('name',)

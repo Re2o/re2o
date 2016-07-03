@@ -1,8 +1,10 @@
 from django.db import models
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from django import forms
 
 from django.utils import timezone
+
+from topologie.models import Room
 
 class User(models.Model):
     STATE_ACTIVE = 0
@@ -20,6 +22,7 @@ class User(models.Model):
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT)
     promo = models.CharField(max_length=255)
+    room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ssha = models.CharField(max_length=255)
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
@@ -79,7 +82,7 @@ class InfoForm(ModelForm):
 
     class Meta:
         model = User
-        fields = ['name','surname','pseudo','email', 'school', 'promo']
+        fields = ['name','surname','pseudo','email', 'school', 'promo', 'room']
 
 class PasswordForm(ModelForm):
     class Meta:
@@ -127,3 +130,6 @@ class BanForm(ModelForm):
         if date_end < timezone.now():
             raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
         return date_end
+
+class ProfilForm(Form):
+    user =forms.CharField(label ='Ok', max_length=100)
