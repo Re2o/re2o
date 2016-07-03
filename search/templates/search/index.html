@@ -1,29 +1,12 @@
-{% extends "search/sidebar.html" %}
+{% extends "users/sidebar.html" %}
 {% load bootstrap3 %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}Résultats de la recherche{% endblock %}
 
 {% block content %}
     {% if users_list %}
     <h2>Résultats dans les utilisateurs</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Pseudo</th>
-                <th>Modifier</th>
-            </tr>
-        </thead>
-        {% for user in users_list %}
-        <tr>
-            <td>{{ user.name }}</td>
-            <td>{{ user.surname }}</td>
-            <td>{{ user.pseudo }}</td>
-            <td><a href="{% url 'users:edit-info' user.id %}">Editer</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% include "users/aff_users.html" with users_list=users_list %}
     {% endif%}
     {% if machine_list %}
     <h2>Résultats dans les machines : </h2>
@@ -42,53 +25,11 @@
     {% endif %}
     {% if facture_list %}
     <h2>Résultats dans les factures : </h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Designation</th>
-                <th>Nombre</th>
-                <th>Prix unitaire</th>
-                <th>Moyen de paiement</th>
-                <th>Date</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for facture in facture_list %}
-        <tr>
-            <td>{{ facture.user }}</td>
-            <td>{{ facture.name }}</td>
-            <td>{{ facture.number }}</td>
-            <td>{{ facture.prix }}</td>
-            <td>{{ facture.paiement }}</td>
-            <td>{{ facture.date }}</td>
-            <td><a href="{% url 'cotisations:edit-facture' facture.id %}">Editer</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% endif %}
     {% if ban_list %}
     <h2>Résultats dans les banissements : </h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Raison</th>
-                <th>Date de début</th>
-                <th>Date de fin</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for ban in ban_list %}
-        <tr>
-            <td>{{ ban.user }}</td>
-            <td>{{ ban.raison }}</td>
-            <td>{{ ban.date_start }}</td>
-            <td>{{ ban.date_end }}</td>
-            <td><a href="{% url 'users:edit-ban' ban.id %}">Editer</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% endif %}
     {% if not ban_list and not machine_list and not users_list and not facture_list%}
         <h3>Aucun résultat</h3>

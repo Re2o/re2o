@@ -9,8 +9,11 @@ from django.contrib import messages
 from django.db.models import Max
 from django.utils import timezone
 
-from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm
+from cotisations.models import Facture
+from machines.models import Machine
 from users.forms  import PassForm
+from search.models import SearchForm
 from cotisations.views import is_adherent
 
 from re2o.login import makeSecret, hashNT
@@ -32,7 +35,7 @@ def is_ban(user):
 
 def has_access(user):
    """ Renvoie si un utilisateur a accès à internet"""
-   if user.state == 0 and not is_ban(user) and is_adherent(user):
+   if user.state == User.STATE_ACTIVE and not is_ban(user) and is_adherent(user):
        return True
    else:
        return False
@@ -143,3 +146,17 @@ def edit_ban(request, banid):
 def index(request):
     users_list = User.objects.order_by('pk')
     return render(request, 'users/index.html', {'users_list': users_list})
+
+def profil(request):
+    if request.method == 'POST':
+        profil = ProfilForm(request.POST or None)
+        if profil.is_valid():
+            profils = profil.cleaned_data['user']
+            users = User.objects.get(pseudo = profils)
+            machines = None
+            factures = Facture.objects.filter(user__pseudo = users)
+            bans = Ban.objects.filter(user__pseudo = users)
+            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans})
+        return redirect("/users/")
+    return redirect("/users/")
+

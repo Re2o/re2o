@@ -1,0 +1,25 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Designation</th>
+                <th>Nombre</th>
+                <th>Prix unitaire</th>
+                <th>Moyen de paiement</th>
+                <th>Date</th>
+  		<th></th>
+            </tr>
+        </thead>
+        {% for facture in facture_list %}
+        <tr>
+            <td>{{ facture.user }}</td>
+            <td>{{ facture.name }}</td>
+            <td>{{ facture.number }}</td>
+            <td>{{ facture.prix }}</td>
+            <td>{{ facture.paiement }}</td>
+            <td>{{ facture.date }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-tree-conifer"></i> Editer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+

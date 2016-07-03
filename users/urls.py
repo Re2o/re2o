@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^edit_ban/(?P<banid>[0-9]+)$', views.edit_ban, name='edit-ban'),
     url(r'^add_right/$', views.add_right, name='add-right'),
     url(r'^del_right/$', views.del_right, name='del-right'),
+    url(r'^profil/$', views.profil, name='profil'),
     url(r'^$', views.index, name='index'),
 ]
 

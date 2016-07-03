@@ -1,0 +1,63 @@
+{% extends "users/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+    <h2>Adhérent</h2>
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}"><i class="glyphicon glyphicon-fire"></i> Editer</a>  
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-leaf"></i> Changer le mot de passe</a>  
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}"><i class="glyphicon glyphicon-flash"></i> Changer le statut</a>
+    <br />
+    <br />
+    <table class="table table-striped">
+        <tr>
+            <th>Prénom</th>
+            <td>{{ user.name }}</td>
+            <th>Nom</th>
+            <td>{{ user.surname }}</td>
+        </tr>
+        <tr>
+            <th>Pseudo</th>
+            <td>{{ user.pseudo }}</td>
+            <th>E-mail</th>
+            <td>{{ user.email }}</td>
+        </tr>
+        <tr>
+            <th>Ecole</th>
+            <td>{{ user.school }}</td>
+            <th>Promo</th>
+            <td>{{ user.promo }}</td>
+        </tr>
+        <tr>
+            <th>Chambre</th>
+            <td>{{ user.room }}</td>
+            <th>Date d'inscription</th>
+            <td>{{ user.registered}}</td>
+        </tr>
+    </table>
+    <h2>Machines :</h2>
+    {% if machine_list %}
+    <!-- {% include "machine/aff_machines.html" with machine_list=machine_list } -->
+    {% else %}
+    <p>Aucune machine</p>
+    {% endif %}
+    <h2>Cotisations :</h2>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a></h4>
+    {% if facture_list %}
+    {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
+    {% else %}
+    <p>Aucune facture</p>
+    {% endif %}
+    <h2>Bannissements :</h2>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-tint"></i> Ajouter un bannissement</a></h4>
+    {% if ban_list %}
+    {% include "users/aff_bans.html" with ban_list=ban_list %}
+    {% else %}
+    <p>Aucun bannissement</p>
+    {% endif %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
+

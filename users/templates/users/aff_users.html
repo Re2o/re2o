@@ -1,0 +1,26 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Pseudo</th>
+                <th>Inscrit le</th>
+                <th>Profil</th>
+            </tr>
+        </thead>
+        {% for user in users_list %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.surname }}</td>
+            <td>{{ user.pseudo }}</td>
+            <td>{{ user.registered }}</td>
+            <td><form method="POST" action="{% url "users:profil"%}">
+                  {% csrf_token %}
+                     <input type="hidden" name="user" id="user" value="{{ user.pseudo }}"></input>
+                     <button class="btn btn-primary btn-sm" type="submit"><i class="glyphicon glyphicon-tree-deciduous"></i></button>
+                  </form>
+               </td>
+        </tr>
+        {% endfor %}
+    </table>
+
