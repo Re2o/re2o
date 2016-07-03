@@ -110,6 +110,7 @@ class StateForm(ModelForm):
         model = User
         fields = ['state']
 
+
 class SchoolForm(ModelForm):
     class Meta:
         model = School
