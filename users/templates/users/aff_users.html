@@ -5,27 +5,25 @@
                 <th>Nom</th>
                 <th>Pseudo</th>
                 <th>Inscrit le</th>
-                <th>Etat</th>
+                <th>Connexion</th>
                 <th>Profil</th>
             </tr>
         </thead>
-        {% for user in users_list %}
+        {% for donnee in users_list %}    
         <tr>
-            <td>{{ user.name }}</td>
-            <td>{{ user.surname }}</td>
-            <td>{{ user.pseudo }}</td>
-            <td>{{ user.registered }}</td>
-            <td>{% if user.state == 0 %}
-                <font color="green">Actif</font>
-                {% elif user.state == 1 %}
-                <font color="red">Désactivé</font>
+            <td>{{ donnee.0.name }}</td>
+            <td>{{ donnee.0.surname }}</td>
+            <td>{{ donnee.0.pseudo }}</td>
+            <td>{{ donnee.0.registered }}</td>
+            <td>{% if donnee.1 == True %}
+                <font color="green">Active</font>
                 {% else %}
-                <font color="orange">Archivé</font>
+                <font color="red">Désactivée</font>
                 {% endif %}
             </td>
             <td><form method="POST" action="{% url "users:profil"%}">
                   {% csrf_token %}
-                     <input type="hidden" name="user" id="user" value="{{ user.pseudo }}"></input>
+                     <input type="hidden" name="user" id="user" value="{{ donnee.0.pseudo }}"></input>
                      <button class="btn btn-primary btn-sm" type="submit"><i class="glyphicon glyphicon-tree-deciduous"></i></button>
                   </form>
                </td>
