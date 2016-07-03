@@ -2,6 +2,8 @@ from django.db import models
 from django.forms import ModelForm
 from django import forms
 
+from django.utils import timezone
+
 class User(models.Model):
     STATE_ACTIVE = 0
     STATE_DEACTIVATED = 1
@@ -119,3 +121,9 @@ class BanForm(ModelForm):
     class Meta:
         model = Ban
         exclude = ['user']
+
+    def clean_date_end(self):
+        date_end = self.cleaned_data['date_end']
+        if date_end < timezone.now():
+            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        return date_end

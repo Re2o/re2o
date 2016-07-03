@@ -6,9 +6,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
+from django.db.models import Max
+from django.utils import timezone
 
 from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm
 from users.forms  import PassForm
+from cotisations.views import is_adherent
 
 from re2o.login import makeSecret, hashNT
 
@@ -16,6 +19,23 @@ def end_ban(user):
     """ Renvoie la date de fin de ban d'un user, False sinon """
     date_max = Ban.objects.all().filter(user=user).aggregate(Max('date_end'))['date_end__max']
     return date_max
+
+def is_ban(user):
+    """ Renvoie si un user est banni ou non """
+    end = end_ban(user)
+    if not end:
+        return False
+    elif end < timezone.now():
+        return False
+    else:
+        return True 
+
+def has_access(user):
+   """ Renvoie si un utilisateur a accès à internet"""
+   if user.state == 0 and not is_ban(user) and is_adherent(user):
+       return True
+   else:
+       return False
 
 def form(ctx, template, request):
     c = ctx
@@ -103,6 +123,8 @@ def add_ban(request, userid):
         ban.save()
         messages.success(request, "Bannissement ajouté")
         return redirect("/users/")
+    if is_ban(user):
+        messages.error(request, u"Attention, cet utilisateur a deja un bannissement actif" )
     return form({'userform': ban}, 'users/user.html', request)
 
 def edit_ban(request, banid):

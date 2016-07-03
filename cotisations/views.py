@@ -24,6 +24,16 @@ def end_adhesion(user):
     date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=user)).aggregate(Max('date_end'))['date_end__max']
     return date_max
 
+def is_adherent(user):
+    """ Renvoie si un user est à jour de cotisation """
+    end = end_adhesion(user)
+    if not end:
+        return False
+    elif end < timezone.now():
+        return False
+    else:
+        return True
+
 def create_cotis(facture, user, article):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(facture=facture)
