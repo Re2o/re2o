@@ -4,25 +4,9 @@
 {% block title %}Utilisateurs{% endblock %}
 
 {% block content %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Pseudo</th>
-                <th>Inscrit le</th>
-                <th>Modifier</th>
-            </tr>
-        </thead>
-        {% for user in users_list %}
-        <tr>
-            <td>{{ user.name }}</td>
-            <td>{{ user.surname }}</td>
-            <td>{{ user.pseudo }}</td>
-            <td>{{ user.registered }}</td>
-            <td><a href="{% url 'users:edit-info' user.id %}">Editer</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+  {%  include "users/aff_users.html" with  users_list=users_list %}
+  <br />
+  <br />
+  <br />
 {% endblock %}
 

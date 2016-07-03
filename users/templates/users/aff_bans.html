@@ -1,0 +1,21 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Raison</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for ban in ban_list %}
+        <tr>
+            <td>{{ ban.user }}</td>
+            <td>{{ ban.raison }}</td>
+            <td>{{ ban.date_start }}</td>
+            <td>{{ ban.date_end }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-ban' ban.id %}"><i class="glyphicon glyphicon-grain"></i> Editer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+

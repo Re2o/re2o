@@ -8,3 +8,4 @@ from users.models import User
 
 class SearchForm(Form):
     search_field = forms.CharField(label = 'Search', max_length = 100)
+
