@@ -145,7 +145,10 @@ def edit_ban(request, banid):
 
 def index(request):
     users_list = User.objects.order_by('pk')
-    return render(request, 'users/index.html', {'users_list': users_list})
+    connexion = []
+    for user in users_list:
+        connexion.append([user, has_access(user)])
+    return render(request, 'users/index.html', {'users_list': connexion})
 
 def profil(request):
     if request.method == 'POST':
