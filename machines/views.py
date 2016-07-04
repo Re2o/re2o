@@ -47,7 +47,7 @@ def edit_machine(request, interfaceid):
         machine_form.save()
         interface_form.save()
         messages.success(request, "La machine a été modifiée")
-        return redirect("/users/")
+        return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 def new_interface(request, machineid):
@@ -64,7 +64,7 @@ def new_interface(request, machineid):
         new_interface.machine = machine
         new_interface.save()
         messages.success(request, "L'interface a été ajoutée")
-        return redirect("/users/")
+        return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 def index(request):
