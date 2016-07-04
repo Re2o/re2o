@@ -8,7 +8,7 @@ from django.template import Context, RequestContext, loader
 
 from django.db.models import Q
 from users.models import User, Ban
-from machines.models import Machine
+from machines.models import Machine, Interface
 from cotisations.models import Facture
 from search.models import SearchForm
 from users.views import has_access
@@ -31,8 +31,8 @@ def search(request):
             connexion = []
             for user in users:
                 connexion.append([user, has_access(user)])
-            machines = None
             query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
+            machines = Interface.objects.filter(machine=Machine.objects.filter(query)) | Interface.objects.filter(Q(dns__icontains = search))
             factures = Facture.objects.filter(query)
             bans = Ban.objects.filter(query)
             return form({'users_list': connexion, 'machine_list' : machines, 'facture_list' : factures, 'ban_list' : bans}, 'search/index.html',request)
