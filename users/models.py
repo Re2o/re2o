@@ -131,12 +131,11 @@ class SchoolForm(ModelForm):
 class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RightForm, self).__init__(*args, **kwargs)
-        self.fields['user'].label = 'Utilisateur'
         self.fields['right'].label = 'Droit'
 
     class Meta:
         model = Right
-        fields = ['user', 'right']
+        fields = ['right']
 
 class DelRightForm(ModelForm):
     rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)

@@ -8,6 +8,7 @@
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}"><i class="glyphicon glyphicon-fire"></i> Editer</a>  
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-lock"></i> Changer le mot de passe</a>  
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}"><i class="glyphicon glyphicon-flash"></i> Changer le statut</a>
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-right' user.id %}"><i class="glyphicon glyphicon-ok"></i> Ajouter un droit</a>
     <br />
     <br />
     <table class="table table-striped">
@@ -70,6 +71,12 @@
             <td><font color="green">Active</font></td>
             {% else %}
             <td><font color="red">Désactivée</font></td>
+            {% endif %}
+            <th>Droits</th>
+            {% if list_droits %}
+            <td>{% for droit in list_droits %}{{ droit.right }} - {% endfor %}</td>
+            {% else %}
+            <td>Aucun</td>
             {% endif %}
     </table>
     <h2>Machines :</h2>
