@@ -1,4 +1,4 @@
-{% extends "users/sidebar.html" %}
+{% extends "search/sidebar.html" %}
 {% load bootstrap3 %}
 
 {% block title %}Résultats de la recherche{% endblock %}
@@ -16,11 +16,15 @@
     <h2>Résultats dans les factures : </h2>
         {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% endif %}
+    {% if white_list %}
+    <h2>Résultats dans les accès à titre gracieux : </h2>
+        {% include "users/aff_whitelists.html" with white_list=white_list %}
+    {% endif %}
     {% if ban_list %}
     <h2>Résultats dans les banissements : </h2>
         {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% endif %}
-    {% if not ban_list and not machine_list and not users_list and not facture_list%}
+    {% if not ban_list and not machine_list and not users_list and not facture_list and not white_list%}
         <h3>Aucun résultat</h3>
     {% endif %}
     <br />
