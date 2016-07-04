@@ -15,13 +15,18 @@ from machines.models import Machine, Interface
 from users.forms  import PassForm
 from search.models import SearchForm
 from cotisations.views import is_adherent, end_adhesion
-from machines.views import unassign_ips
+from machines.views import unassign_ips, assign_ips
 
 from re2o.login import makeSecret, hashNT
 
 def archive(user):
     """ Archive un utilisateur """
     unassign_ips(user)
+    return
+
+def unarchive(user):
+    """ Triger actions au desarchivage d'un user """
+    assign_ips(user)
     return
 
 def end_ban(user):
@@ -83,6 +88,8 @@ def state(request, userid):
         if state.has_changed():
             if state.cleaned_data['state'] == User.STATE_ARCHIVED:
                 archive(user)
+            else:
+                unarchive(user)
         state.save()
         messages.success(request, "Etat changé avec succès")
         return redirect("/users/")
