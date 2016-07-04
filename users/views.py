@@ -7,6 +7,7 @@ from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.db.models import Max
+from django.db import IntegrityError
 from django.utils import timezone
 
 from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm
@@ -128,11 +129,21 @@ def password(request, userid):
         return redirect("/users/")
     return form({'userform': user_form}, 'users/user.html', request)
 
-def add_right(request):
+def add_right(request, userid):
+    try:
+        user = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
+        return redirect("/users/")
     right = RightForm(request.POST or None)
     if right.is_valid():
-        right.save()
-        messages.success(request, "Droit ajouté")
+        right = right.save(commit=False)
+        right.user = user
+        try:
+            right.save()
+            messages.success(request, "Droit ajouté")
+        except IntegrityError:
+            pass
         return redirect("/users/")
     return form({'userform': right}, 'users/user.html', request)
 
@@ -226,7 +237,8 @@ def profil(request):
                 end_bans=end_ban(users)
             if(is_whitelisted(users)):
                 end_whitelists=end_whitelist(users)
-            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users)})
+            list_droits = Right.objects.filter(user=users)
+            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
         return redirect("/users/")
     return redirect("/users/")
 
