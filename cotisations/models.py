@@ -40,7 +40,7 @@ class Paiement(models.Model):
         return self.moyen
 
 class Cotisation(models.Model):
-    facture = models.ForeignKey('Facture', on_delete=models.PROTECT)
+    facture = models.OneToOneField('Facture', on_delete=models.PROTECT)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
 
