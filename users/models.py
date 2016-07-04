@@ -30,7 +30,7 @@ class User(models.Model):
     pseudo = models.CharField(max_length=255, unique=True)
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT)
-    promo = models.CharField(max_length=255)
+    comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ssha = models.CharField(max_length=255)
     pwd_ntlm = models.CharField(max_length=255)
@@ -77,6 +77,8 @@ class UserForm(ModelForm):
         self.fields['name'].label = 'Nom'
         self.fields['surname'].label = 'Prenom'
         self.fields['school'].label = 'Etablissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Chambre'
 
     class Meta:
         model = User
@@ -90,6 +92,8 @@ class InfoForm(ModelForm):
         self.fields['name'].label = 'Nom'
         self.fields['surname'].label = 'Prenom'
         self.fields['school'].label = 'Etablissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Chambre'
 
     def clean_force(self):
         if self.cleaned_data.get('force', False):
@@ -98,7 +102,7 @@ class InfoForm(ModelForm):
 
     class Meta:
         model = User
-        fields = ['name','surname','pseudo','email', 'school', 'promo', 'room']
+        fields = ['name','surname','pseudo','email', 'school', 'comment', 'room']
 
 class PasswordForm(ModelForm):
     class Meta:
