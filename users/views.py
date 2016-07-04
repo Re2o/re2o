@@ -15,8 +15,14 @@ from machines.models import Machine, Interface
 from users.forms  import PassForm
 from search.models import SearchForm
 from cotisations.views import is_adherent, end_adhesion
+from machines.views import unassign_ips
 
 from re2o.login import makeSecret, hashNT
+
+def archive(user):
+    """ Archive un utilisateur """
+    unassign_ips(user)
+    return
 
 def end_ban(user):
     """ Renvoie la date de fin de ban d'un user, False sinon """
@@ -72,12 +78,15 @@ def state(request, userid):
     except User.DoesNotExist:
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/users/")
-    user = StateForm(request.POST or None, instance=user)
-    if user.is_valid():
-        user.save()
+    state = StateForm(request.POST or None, instance=user)
+    if state.is_valid():
+        if state.has_changed():
+            if state.cleaned_data['state'] == User.STATE_ARCHIVED:
+                archive(user)
+        state.save()
         messages.success(request, "Etat changé avec succès")
         return redirect("/users/")
-    return form({'userform': user}, 'users/user.html', request)
+    return form({'userform': state}, 'users/user.html', request)
 
 def password(request, userid):
     try:
