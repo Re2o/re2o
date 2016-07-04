@@ -21,7 +21,7 @@ def form(ctx, template, request):
 
 def end_adhesion(user):
     """ Renvoie la date de fin d'adhésion d'un user, False sinon """
-    date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=user)).aggregate(Max('date_end'))['date_end__max']
+    date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=user).exclude(valid=False)).aggregate(Max('date_end'))['date_end__max']
     return date_max
 
 def is_adherent(user):
