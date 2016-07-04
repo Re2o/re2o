@@ -8,8 +8,29 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 
 from .models import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm
-from .models import Machine, Interface
+from .models import Machine, Interface, IpList
 from users.models import User
+
+def unassign_ip(machine):
+    machine.ipv4 = None
+    machine.save()
+
+def unassign_ips(user):
+    machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
+    for machine in machines:
+        unassign_ip(machine)
+    return
+
+def free_ip():
+    """ Renvoie la liste des ip disponibles """
+    return IpList.objects.filter(interface__isnull=True)
+
+def assign_ipv4(interface):
+    """ Assigne une ip à l'interface """
+    free_ips = free_ip()
+    if free_ips:
+        interface.ipv4 = free_ips[0]
+    return interface
 
 def form(ctx, template, request):
     c = ctx
@@ -30,6 +51,10 @@ def new_machine(request, userid):
         new_machine.save()
         new_interface = interface.save(commit=False)
         new_interface.machine = new_machine
+        if free_ip():
+            new_interface = assign_ipv4(new_interface)
+        else:
+            messages.error(request, u"Il n'y a plus d'ip disponibles")
         new_interface.save()
         messages.success(request, "La machine a été crée")
         return redirect("/users/")
