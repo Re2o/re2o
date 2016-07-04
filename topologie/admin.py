@@ -10,7 +10,7 @@ class PortAdmin(admin.ModelAdmin):
     list_display = ('switch', 'port','room','details')
 
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ('building','room','number','details')
+    list_display = ('name',)
 
 admin.site.register(Port, PortAdmin)
 admin.site.register(Room, RoomAdmin)

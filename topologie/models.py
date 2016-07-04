@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
- 
+
 
 class Switch(models.Model):
     building = models.CharField(max_length=10)
@@ -19,6 +19,7 @@ class Port(models.Model):
     port = models.IntegerField()
     details = models.CharField(max_length=255, blank=True)
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
+#    machine_interface = models.OneToOneField('machines.Interface', on_delete=models.PROTECT, blank=True, null=True)
 
     class Meta:
         unique_together = ('_content_type', '_object_id')
@@ -26,7 +27,7 @@ class Port(models.Model):
     _content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, blank=True, null=True)
     _object_id = models.PositiveIntegerField(blank=True, null=True)
     goto = GenericForeignKey('_content_type', '_object_id')
- 
+
     @property
     def comefrom(self):
         ctype = ContentType.objects.get_for_model(self.__class__)
@@ -40,14 +41,8 @@ class Port(models.Model):
         return str(self.switch) + " - " + str(self.port)
 
 class Room(models.Model):
-    details = models.CharField(max_length=255, blank=True)
-    building = models.CharField(max_length=255)
-    room = models.IntegerField()
-    number = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ('building', 'room', 'number')
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
-        return str(self.building) + str(self.room) + '-' + str(self.number)
+        return str(self.name)
 
