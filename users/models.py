@@ -99,8 +99,8 @@ class InfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(InfoForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Nom'
-        self.fields['surname'].label = 'Prenom'
-        self.fields['school'].label = 'Etablissement'
+        self.fields['surname'].label = 'Prénom'
+        self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
         self.fields['room'].label = 'Chambre'
 
