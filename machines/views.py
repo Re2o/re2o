@@ -11,14 +11,19 @@ from .models import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInter
 from .models import Machine, Interface, IpList
 from users.models import User
 
-def unassign_ip(machine):
-    machine.ipv4 = None
-    machine.save()
-
 def unassign_ips(user):
     machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
     for machine in machines:
-        unassign_ip(machine)
+        unassign_ipv4(machine)
+    return
+
+def assign_ips(user):
+    """ Assign une ipv4 aux machines d'un user """
+    machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
+    for machine in machines:
+        if not machine.ipv4:
+            interface = assign_ipv4(machine)
+            interface.save()
     return
 
 def free_ip():
@@ -31,6 +36,10 @@ def assign_ipv4(interface):
     if free_ips:
         interface.ipv4 = free_ips[0]
     return interface
+
+def unassign_ipv4(interface):
+    interface.ipv4 = None
+    interface.save()
 
 def form(ctx, template, request):
     c = ctx
