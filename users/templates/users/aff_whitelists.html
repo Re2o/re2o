@@ -1,0 +1,21 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Raison</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for whitelist in white_list %}
+        <tr>
+            <td>{{ whitelist.user }}</td>
+            <td>{{ whitelist.raison }}</td>
+            <td>{{ whitelist.date_start }}</td>
+            <td>{{ whitelist.date_end }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-whitelist' whitelist.id %}"><i class="glyphicon glyphicon-grain"></i> Editer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
