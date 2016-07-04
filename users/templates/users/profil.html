@@ -6,7 +6,7 @@
 {% block content %}
     <h2>Adhérent</h2>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}"><i class="glyphicon glyphicon-fire"></i> Editer</a>  
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-leaf"></i> Changer le mot de passe</a>  
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-lock"></i> Changer le mot de passe</a>  
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}"><i class="glyphicon glyphicon-flash"></i> Changer le statut</a>
     <br />
     <br />
@@ -66,8 +66,9 @@
             {% endif %}
     </table>
     <h2>Machines :</h2>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
     {% if machine_list %}
-    <!-- {% include "machine/aff_machines.html" with machine_list=machine_list } -->
+    {% include "machines/aff_machines.html" with machine_list=machine_list %}
     {% else %}
     <p>Aucune machine</p>
     {% endif %}
@@ -79,7 +80,7 @@
     <p>Aucune facture</p>
     {% endif %}
     <h2>Bannissements :</h2>
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-tint"></i> Ajouter un bannissement</a></h4>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>
     {% if ban_list %}
     {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% else %}

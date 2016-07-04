@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm
 from cotisations.models import Facture
-from machines.models import Machine
+from machines.models import Machine, Interface
 from users.forms  import PassForm
 from search.models import SearchForm
 from cotisations.views import is_adherent, end_adhesion
@@ -156,7 +156,7 @@ def profil(request):
         if profil.is_valid():
             profils = profil.cleaned_data['user']
             users = User.objects.get(pseudo = profils)
-            machines = None
+            machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
             factures = Facture.objects.filter(user__pseudo = users)
             bans = Ban.objects.filter(user__pseudo = users)
             end = None
