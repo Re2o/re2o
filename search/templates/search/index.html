@@ -10,18 +10,7 @@
     {% endif%}
     {% if machine_list %}
     <h2>Résultats dans les machines : </h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-            </tr>
-        </thead>
-        {% for machine in machine_list %}
-        <tr>
-            <td>{{ machine.name }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% include "machines/aff_machines.html" with machine_list=machine_list %}
     {% endif %}
     {% if facture_list %}
     <h2>Résultats dans les factures : </h2>

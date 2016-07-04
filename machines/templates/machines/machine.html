@@ -1,0 +1,19 @@
+{% extends "machines/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Création et modification de machines{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors machineform %}
+{% bootstrap_form_errors interfaceform %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form machineform %}
+    {% bootstrap_form interfaceform %}
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+</form>
+  <br />
+  <br />
+  <br />
+{% endblock %}
