@@ -71,6 +71,15 @@ class Ban(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
+class Whitelist(models.Model):
+    user = models.ForeignKey('User', on_delete=models.PROTECT)
+    raison = models.CharField(max_length=255)
+    date_start = models.DateTimeField(auto_now_add=True)
+    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')
+
+    def __str__(self):
+        return str(self.user) + ' ' + str(self.raison)
+
 class UserForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(InfoForm, self).__init__(*args, **kwargs)
@@ -143,6 +152,21 @@ class BanForm(ModelForm):
 
     class Meta:
         model = Ban
+        exclude = ['user']
+
+    def clean_date_end(self):
+        date_end = self.cleaned_data['date_end']
+        if date_end < timezone.now():
+            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        return date_end
+
+class WhitelistForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(WhitelistForm, self).__init__(*args, **kwargs)
+        self.fields['date_end'].label = 'Date de fin'
+
+    class Meta:
+        model = Whitelist
         exclude = ['user']
 
     def clean_date_end(self):

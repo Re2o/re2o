@@ -42,19 +42,18 @@
             {% else %}
             <td><font color="red">Non adhérent</font></td>
             {% endif %}
+            <th>Accès gracieux</th>
+            {% if end_whitelist != None %}
+            <td><font color="green">{{ end_whitelist }}</font></td>
+            {% else %}
+            <td><font color="orange">Aucun</font></td>
+            {% endif %}
+        <tr>
             <th>Bannissement</th>
             {% if end_ban != None %}
             <td><font color="red">{{ end_ban }}</font></td>
             {% else %}
             <td><font color="green">Non banni</font></td>
-            {% endif %}
-        </tr>
-        <tr>
-            <th>Connexion</th>
-            {% if actif == True %}
-            <td><font color="green">Active</font></td>
-            {% else %}
-            <td><font color="red">Désactivée</font></td>
             {% endif %}
             <th>Statut</th>
             {% if user.state == 0 %}
@@ -63,6 +62,14 @@
             <td><font color="red">Désactivé</font></td>
             {% else %}
             <td><font color="orange">Archivé</font></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Connexion</th>
+            {% if actif == True %}
+            <td><font color="green">Active</font></td>
+            {% else %}
+            <td><font color="red">Désactivée</font></td>
             {% endif %}
     </table>
     <h2>Machines :</h2>
@@ -85,6 +92,13 @@
     {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% else %}
     <p>Aucun bannissement</p>
+    {% endif %}
+    <h2>Accès à titre gracieux :</h2>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Accorder un accès à titre gracieux</a></h4>
+    {% if white_list %}
+    {% include "users/aff_whitelists.html" with white_list=white_list %}
+    {% else %}
+    <p>Aucun accès gracieux</p>
     {% endif %}
     <br />
     <br />

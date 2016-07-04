@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Max
 from django.utils import timezone
 
-from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms  import PassForm
@@ -34,6 +34,11 @@ def end_ban(user):
     date_max = Ban.objects.all().filter(user=user).aggregate(Max('date_end'))['date_end__max']
     return date_max
 
+def end_whitelist(user):
+    """ Renvoie la date de fin de ban d'un user, False sinon """
+    date_max = Whitelist.objects.all().filter(user=user).aggregate(Max('date_end'))['date_end__max']
+    return date_max
+
 def is_ban(user):
     """ Renvoie si un user est banni ou non """
     end = end_ban(user)
@@ -44,9 +49,19 @@ def is_ban(user):
     else:
         return True 
 
+def is_whitelisted(user):
+    """ Renvoie si un user est whitelisté ou non """
+    end = end_whitelist(user)
+    if not end:
+        return False
+    elif end < timezone.now():
+        return False
+    else:
+        return True
+
 def has_access(user):
    """ Renvoie si un utilisateur a accès à internet"""
-   if user.state == User.STATE_ACTIVE and not is_ban(user) and is_adherent(user):
+   if user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user)):
        return True
    else:
        return False
@@ -149,7 +164,7 @@ def add_ban(request, userid):
 def edit_ban(request, banid):
     try:
         ban_instance = Ban.objects.get(pk=banid)
-    except User.DoesNotExist:
+    except Ban.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/users/")
     ban = BanForm(request.POST or None, instance=ban_instance)
@@ -158,6 +173,35 @@ def edit_ban(request, banid):
         messages.success(request, "Bannissement modifié")
         return redirect("/users/")
     return form({'userform': ban}, 'users/user.html', request)
+
+def add_whitelist(request, userid):
+    try:
+        user = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
+        return redirect("/users/")
+    whitelist_instance = Whitelist(user=user)
+    whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
+    if whitelist.is_valid():
+        whitelist.save()
+        messages.success(request, "Accès à titre gracieux accordé")
+        return redirect("/users/")
+    if is_whitelisted(user):
+        messages.error(request, u"Attention, cet utilisateur a deja un accès gracieux actif" )
+    return form({'userform': whitelist}, 'users/user.html', request)
+
+def edit_whitelist(request, whitelistid):
+    try:
+        whitelist_instance = Whitelist.objects.get(pk=whitelistid)
+    except Whitelist.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/users/")
+    whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
+    if whitelist.is_valid():
+        whitelist.save()
+        messages.success(request, "Whitelist modifiée")
+        return redirect("/users/")
+    return form({'userform': whitelist}, 'users/user.html', request)
 
 def index(request):
     users_list = User.objects.order_by('pk')
@@ -175,10 +219,14 @@ def profil(request):
             machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
             factures = Facture.objects.filter(user__pseudo = users)
             bans = Ban.objects.filter(user__pseudo = users)
-            end = None
+            whitelists = Whitelist.objects.filter(user__pseudo = users)
+            end_bans = None
+            end_whitelists = None
             if(is_ban(users)):
-                end=end_ban(users)
-            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'end_ban':end, 'end_adhesion':end_adhesion(users), 'actif':has_access(users)})
+                end_bans=end_ban(users)
+            if(is_whitelisted(users)):
+                end_whitelists=end_whitelist(users)
+            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users)})
         return redirect("/users/")
     return redirect("/users/")
 
