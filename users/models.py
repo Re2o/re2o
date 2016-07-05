@@ -66,7 +66,7 @@ class Ban(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')    
+    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')    
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -75,7 +75,7 @@ class Whitelist(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')
+    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
