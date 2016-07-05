@@ -63,6 +63,16 @@ class NewFactureForm(ModelForm):
         model = Facture
         fields = ['paiement','banque','cheque','number']
 
+    def clean(self):
+        cleaned_data=super(NewFactureForm, self).clean()
+        paiement = cleaned_data.get("paiement")
+        cheque = cleaned_data.get("cheque")
+        banque = cleaned_data.get("banque")
+        print(paiement.moyen)
+        if paiement.moyen=="chèque" and not (cheque and banque):
+            raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
+        return cleaned_data
+
 class EditFactureForm(NewFactureForm):
     class Meta(NewFactureForm.Meta):
         fields = '__all__'
