@@ -82,5 +82,5 @@ def edit_facture(request, factureid):
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
 def index(request):
-    facture_list = Facture.objects.order_by('pk')
+    facture_list = Facture.objects.order_by('date').reverse()
     return render(request, 'cotisations/index.html', {'facture_list': facture_list})
