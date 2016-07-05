@@ -221,7 +221,12 @@ def index(request):
     users_list = User.objects.order_by('pk')
     connexion = []
     for user in users_list:
-        connexion.append([user, has_access(user)])
+        end = end_adhesion(user)
+        access = has_access(user)
+        if(end!=None): 
+            connexion.append([user, access, end])
+        else:
+            connexion.append([user, access, "Non adhérent"])
     return render(request, 'users/index.html', {'users_list': connexion})
 
 def index_ban(request):
