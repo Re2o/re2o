@@ -25,7 +25,7 @@ class Interface(models.Model):
     mac_address = MACAddressField(integer=False, unique=True)
     machine = models.ForeignKey('Machine', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    dns = models.CharField(help_text="Obligatoire et unique", max_length=255, unique=True)
+    dns = models.CharField(help_text="Obligatoire et unique, doit se terminer en .rez et ne pas comporter de points", max_length=255, unique=True)
 
     def __str__(self):
         return self.dns
@@ -45,6 +45,7 @@ class EditMachineForm(ModelForm):
         super(EditMachineForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Nom de la machine'
         self.fields['type'].label = 'Type de machine'
+        self.fields['type'].empty_label = "Séléctionner un type de machine"
 
 class NewMachineForm(EditMachineForm):
     class Meta(EditMachineForm.Meta):

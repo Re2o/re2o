@@ -56,6 +56,8 @@ class NewFactureForm(ModelForm):
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
         self.fields['cheque'].label = 'Numero de chèque'
+        self.fields['banque'].empty_label = "Non renseigné"
+        self.fields['paiement'].empty_label = "Séléctionner un moyen de paiement"
 
     class Meta:
         model = Facture
@@ -71,6 +73,9 @@ class EditFactureForm(ModelForm):
         self.fields['cheque'].label = 'Numero de chèque'
         self.fields['name'].label = 'Designation'
         self.fields['prix'].label = 'Prix unitaire'
+        self.fields['banque'].empty_label = "Non renseigné"
+        self.fields['paiement'].empty_label = "Séléctionner un moyen de paiement"
+        self.fields['user'].empty_label = "Séléctionner l'adhérent propriétaire"
 
     class Meta:
         model = Facture
