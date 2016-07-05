@@ -64,6 +64,12 @@ def has_access(user):
    """ Renvoie si un utilisateur a accès à internet"""
    return user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user))
 
+def is_active(interface):
+    """ Renvoie si une interface doit avoir accès ou non """
+    machine = interface.machine
+    user = machine.user
+    return machine.active and has_access(user)
+
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
