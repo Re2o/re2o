@@ -3,10 +3,10 @@ from django.contrib import admin
 from .models import Facture, Article, Banque, Paiement, Cotisation
 
 class FactureAdmin(admin.ModelAdmin):
-    list_display = ('user','paiement','name', 'number', 'date')
+    list_display = ('user','paiement','name', 'number','prix', 'date','valid')
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('name','prix','cotisation')
+    list_display = ('name','prix','cotisation','duration')
 
 class BanqueAdmin(admin.ModelAdmin):
     list_display = ('name',)
