@@ -23,7 +23,7 @@ def search_result(search, type):
     date_fin = None 
     states=[]
     co=[]
-    aff=[0,1,2,3,4]
+    aff=['0','1','2','3','4']
     if(type):
         aff = search.cleaned_data['affichage']
         co = search.cleaned_data['connexion']
@@ -32,7 +32,7 @@ def search_result(search, type):
         date_fin = search.cleaned_data['date_fin']
     date_query = Q()
     if aff==[]:
-        aff = [0,1,2,3,4]
+        aff = ['0','1','2','3','4']
     if date_deb != None:
         date_query = date_query & Q(date__gte=date_deb)
     if date_fin != None:
