@@ -16,7 +16,7 @@
             <td>{{ machine.machine.type }}</td>
             <td>{{ machine.mac_address }}</td>
             <td>{{ machine.ipv4 }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machine' machine.id %}"><i class="glyphicon glyphicon-tree-conifer"></i> Editer</a></td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machine' machine.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a></td>
         </tr>
         {% endfor %}
     </table>

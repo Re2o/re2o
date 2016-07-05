@@ -2,9 +2,8 @@
 
 {% block sidebar %}
     <p><a href="{% url "users:new-user" %}">Créer un adhérent</a></p>
-    <p><a href="{% url "search:search" %}">Editer un adhérent</a></p>
     <p><a href="{% url "users:index" %}">Liste des adhérents</a></p>
-    <p><a href="{% url "search:search" %}">Ajouter un bannissement</a></p>
-    <p><a href="{% url "search:search" %}">Gérer les bannissements</a></p>
+    <p><a href="{% url "users:index-ban" %}">Liste des bannissements</a></p>
+    <p><a href="{% url "users:index-white" %}">Liste des accès à titre gracieux</a></p>
     <p><a href="{% url "users:del-right" %}">Retirer un droit rezo</a></p>
 {% endblock %}

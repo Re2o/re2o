@@ -224,24 +224,30 @@ def index(request):
         connexion.append([user, has_access(user)])
     return render(request, 'users/index.html', {'users_list': connexion})
 
-def profil(request):
-    if request.method == 'POST':
-        profil = ProfilForm(request.POST or None)
-        if profil.is_valid():
-            profils = profil.cleaned_data['user']
-            users = User.objects.get(pseudo = profils)
-            machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
-            factures = Facture.objects.filter(user__pseudo = users)
-            bans = Ban.objects.filter(user__pseudo = users)
-            whitelists = Whitelist.objects.filter(user__pseudo = users)
-            end_bans = None
-            end_whitelists = None
-            if(is_ban(users)):
-                end_bans=end_ban(users)
-            if(is_whitelisted(users)):
-                end_whitelists=end_whitelist(users)
-            list_droits = Right.objects.filter(user=users)
-            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
+def index_ban(request):
+    ban_list = Ban.objects.order_by('date_start')
+    return render(request, 'users/index_ban.html', {'ban_list':ban_list})
+
+def index_white(request):
+    white_list = Whitelist.objects.order_by('date_start')
+    return render(request, 'users/index_whitelist.html', {'white_list':white_list})
+
+def profil(request, userid):
+    try:
+        users = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
         return redirect("/users/")
-    return redirect("/users/")
+    machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
+    factures = Facture.objects.filter(user__pseudo = users)
+    bans = Ban.objects.filter(user__pseudo = users)
+    whitelists = Whitelist.objects.filter(user__pseudo = users)
+    end_bans = None
+    end_whitelists = None
+    if(is_ban(users)):
+        end_bans=end_ban(users)
+    if(is_whitelisted(users)):
+         end_whitelists=end_whitelist(users)
+    list_droits = Right.objects.filter(user=users)
+    return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
 

@@ -13,7 +13,9 @@ urlpatterns = [
     url(r'^edit_whitelist/(?P<whitelistid>[0-9]+)$', views.edit_whitelist, name='edit-whitelist'),
     url(r'^add_right/(?P<userid>[0-9]+)$', views.add_right, name='add-right'),
     url(r'^del_right/$', views.del_right, name='del-right'),
-    url(r'^profil/$', views.profil, name='profil'),
+    url(r'^profil/(?P<userid>[0-9]+)$', views.profil, name='profil'),
+    url(r'^index_ban/$', views.index_ban, name='index-ban'),
+    url(r'^index_white/$', views.index_white, name='index-white'),
     url(r'^$', views.index, name='index'),
 ]
 
