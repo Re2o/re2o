@@ -74,7 +74,7 @@
             {% endif %}
             <th>Droits</th>
             {% if list_droits %}
-            <td>{% for droit in list_droits %}{{ droit.right }} - {% endfor %}</td>
+            <td>{% for droit in list_droits %}{{ droit.right }}{% if list_droits|length != forloop.counter %}  - {% endif %} {% endfor %}</td>
             {% else %}
             <td>Aucun</td>
             {% endif %}

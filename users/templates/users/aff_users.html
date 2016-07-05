@@ -4,7 +4,7 @@
                 <th>Prénom</th>
                 <th>Nom</th>
                 <th>Pseudo</th>
-                <th>Inscrit le</th>
+                <th>Fin de cotisation le</th>
                 <th>Connexion</th>
                 <th>Profil</th>
             </tr>
@@ -14,7 +14,7 @@
             <td>{{ donnee.0.name }}</td>
             <td>{{ donnee.0.surname }}</td>
             <td>{{ donnee.0.pseudo }}</td>
-            <td>{{ donnee.0.registered }}</td>
+            <td>{{ donnee.2 }}</td>
             <td>{% if donnee.1 == True %}
                 <font color="green">Active</font>
                 {% else %}
