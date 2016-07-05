@@ -68,7 +68,6 @@ class NewFactureForm(ModelForm):
         paiement = cleaned_data.get("paiement")
         cheque = cleaned_data.get("cheque")
         banque = cleaned_data.get("banque")
-        print(paiement.moyen)
         if paiement.moyen=="chèque" and not (cheque and banque):
             raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
         return cleaned_data
