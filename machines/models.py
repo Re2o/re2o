@@ -8,6 +8,7 @@ class Machine(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     name = models.CharField(max_length=255, help_text="Optionnel", blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' +  str(self.name)
