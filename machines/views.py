@@ -10,7 +10,6 @@ from django.contrib import messages
 from .models import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm
 from .models import Machine, Interface, IpList
 from users.models import User
-from users.views import has_access
 
 def unassign_ips(user):
     machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
@@ -41,11 +40,6 @@ def assign_ipv4(interface):
 def unassign_ipv4(interface):
     interface.ipv4 = None
     interface.save()
-
-def is_active(interface):
-    machine = interface.machine
-    user = machine.user
-    return machine.active and has_access(user) 
 
 def form(ctx, template, request):
     c = ctx
