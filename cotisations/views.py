@@ -34,14 +34,14 @@ def is_adherent(user):
     else:
         return True
 
-def create_cotis(facture, user, article):
+def create_cotis(facture, user, duration):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(facture=facture)
     date_max = end_adhesion(user) or timezone.now()
     if date_max < timezone.now():
         datemax = timezone.now()
     cotisation.date_start=date_max
-    cotisation.date_end = cotisation.date_start + relativedelta(months=article[0].duration*facture.number) 
+    cotisation.date_end = cotisation.date_start + relativedelta(months=duration) 
     cotisation.save()
     return
 
@@ -56,11 +56,12 @@ def new_facture(request, userid):
     if facture_form.is_valid():
         new_facture = facture_form.save(commit=False)
         article = facture_form.cleaned_data['article']
-        new_facture.prix = article[0].prix
-        new_facture.name = article[0].name
+        new_facture.prix = sum(art.prix for art in article)
+        new_facture.name = ' - '.join(art.name for art in article)
         new_facture.save()
-        if article[0].cotisation == True:
-            create_cotis(new_facture, user, article)
+        if any(art.cotisation for art in article):
+            duration = sum(art.duration*facture.number for art in article if art.cotisation)
+            create_cotis(new_facture, user, duration)
             messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
         else:
             messages.success(request, "La facture a été crée")
