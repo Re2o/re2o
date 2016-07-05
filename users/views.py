@@ -62,10 +62,7 @@ def is_whitelisted(user):
 
 def has_access(user):
    """ Renvoie si un utilisateur a accès à internet"""
-   if user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user)):
-       return True
-   else:
-       return False
+   return user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user))
 
 def form(ctx, template, request):
     c = ctx
