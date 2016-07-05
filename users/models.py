@@ -29,7 +29,7 @@ class User(models.Model):
     surname = models.CharField(max_length=255)
     pseudo = models.CharField(max_length=255, unique=True)
     email = models.EmailField()
-    school = models.ForeignKey('School', on_delete=models.PROTECT)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ssha = models.CharField(max_length=255)
@@ -80,19 +80,6 @@ class Whitelist(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
-class UserForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(InfoForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = 'Nom'
-        self.fields['surname'].label = 'Prénom'
-        self.fields['school'].label = 'Établissement'
-        self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Chambre'
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
 class InfoForm(ModelForm):
     force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
 
@@ -103,6 +90,8 @@ class InfoForm(ModelForm):
         self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
         self.fields['room'].label = 'Chambre'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
 
     def clean_force(self):
         if self.cleaned_data.get('force', False):
@@ -112,6 +101,10 @@ class InfoForm(ModelForm):
     class Meta:
         model = User
         fields = ['name','surname','pseudo','email', 'school', 'comment', 'room']
+
+class UserForm(InfoForm):
+    class Meta(InfoForm.Meta):
+        fields = '__all__'
 
 class PasswordForm(ModelForm):
     class Meta:
@@ -132,6 +125,7 @@ class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RightForm, self).__init__(*args, **kwargs)
         self.fields['right'].label = 'Droit'
+        self.fields['right'].empty_label = "Choisir un nouveau droit"
 
     class Meta:
         model = Right
