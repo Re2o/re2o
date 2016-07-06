@@ -20,6 +20,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
+
+# Auth definition
+
+PASSWORD_HASHERS = (
+    're2o.login.SSHAPasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+)
+
+
 # Application definition
 
 INSTALLED_APPS = (
