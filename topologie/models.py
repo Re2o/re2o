@@ -26,7 +26,7 @@ class Switch(models.Model):
         return str(self.building) + str(self.number)
 
 class Port(models.Model):
-    switch = models.ForeignKey(Switch, related_name="ports")
+    switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
     machine_interface = models.OneToOneField('machines.Interface', on_delete=models.PROTECT, blank=True, null=True)

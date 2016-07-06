@@ -4,6 +4,9 @@
 {% block title %}Ports du switch{% endblock %}
 
 {% block content %}
+<h2>Switch {{ nom_switch }}</h2>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-switch'  id_switch %}"><i class="glyphicon glyphicon-edit"></i> Editer</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port'  id_switch %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un port</a>
     {% include "topologie/aff_port.html" with port_list=port_list %}
     <br />
     <br />
