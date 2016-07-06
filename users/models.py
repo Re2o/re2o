@@ -37,7 +37,7 @@ class User(models.Model):
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
-    pseudo = models.CharField(max_length=255, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
+    pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
