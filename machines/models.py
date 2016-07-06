@@ -56,6 +56,9 @@ class Interface(models.Model):
     def __str__(self):
         return self.dns
 
+    def clean(self):
+        self.dns=self.dns.lower()
+
 class IpList(models.Model):
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
 
