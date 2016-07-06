@@ -3,9 +3,6 @@ from django import forms
 from django.forms import Form
 from django.forms import ModelForm
 
-from users.models import User
-# Create your models here.
-
 CHOICES = (
     ('0', 'Actifs'),
     ('1', 'Désactivés'),
