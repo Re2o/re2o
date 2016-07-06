@@ -1,0 +1,23 @@
+<h2>Switch {% if port_list.0 %}{{ port_list.0.switch }}{% endif %}</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Port</th>
+            <th>Room</th>
+            <th>Interface machine</th>
+            <th>Related</th>
+            <th>Détails</th>
+            <th></th>
+        </tr>
+   </thead>
+   {% for port in port_list %}
+   <tr>
+       <td>{{ port.port }}</td>
+       <td>{{ port.room }}</td>
+       <td>{{ port.machine_interface }}</td>
+       <td>{{ port.related }}</td>
+       <td>{{ port.details }}</td>
+       <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-port' port.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a></td>
+   </tr>
+   {% endfor %}
+</table>

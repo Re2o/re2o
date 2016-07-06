@@ -1,0 +1,11 @@
+{% extends "topologie/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Switchs{% endblock %}
+
+{% block content %}
+    {% include "topologie/aff_switch.html" with switch_list=switch_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}

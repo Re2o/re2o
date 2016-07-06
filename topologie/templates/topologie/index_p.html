@@ -1,0 +1,11 @@
+{% extends "topologie/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Ports du switch{% endblock %}
+
+{% block content %}
+    {% include "topologie/aff_port.html" with port_list=port_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
