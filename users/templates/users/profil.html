@@ -5,7 +5,7 @@
 
 {% block content %}
     <h2>Adhérent</h2>
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}"><i class="glyphicon glyphicon-fire"></i> Editer</a>  
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}"><i class="glyphicon glyphicon-edit"></i> Editer</a>  
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-lock"></i> Changer le mot de passe</a>  
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}"><i class="glyphicon glyphicon-flash"></i> Changer le statut</a>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-right' user.id %}"><i class="glyphicon glyphicon-ok"></i> Ajouter un droit</a>
@@ -74,7 +74,7 @@
             {% endif %}
             <th>Droits</th>
             {% if list_droits %}
-            <td>{% for droit in list_droits %}{{ droit.right }} - {% endfor %}</td>
+            <td>{% for droit in list_droits %}{{ droit.right }}{% if list_droits|length != forloop.counter %}  - {% endif %} {% endfor %}</td>
             {% else %}
             <td>Aucun</td>
             {% endif %}
@@ -101,7 +101,7 @@
     <p>Aucun bannissement</p>
     {% endif %}
     <h2>Accès à titre gracieux :</h2>
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Accorder un accès à titre gracieux</a></h4>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>
     {% if white_list %}
     {% include "users/aff_whitelists.html" with white_list=white_list %}
     {% else %}

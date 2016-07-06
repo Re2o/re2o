@@ -1,8 +1,5 @@
 from django.db import models
-from django import forms
-from django.forms import ModelForm
 
-from users.models import User
 
 class Facture(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
@@ -47,31 +44,3 @@ class Cotisation(models.Model):
     def __str__(self):
         return str(self.facture)
 
-class NewFactureForm(ModelForm):
-    article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
-
-    def __init__(self, *args, **kwargs):
-        super(NewFactureForm, self).__init__(*args, **kwargs)
-        self.fields['number'].label = 'Quantité'
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = 'Numero de chèque'
-
-    class Meta:
-        model = Facture
-        exclude = ['user', 'prix', 'name', 'valid']
-
-class EditFactureForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(EditFactureForm, self).__init__(*args, **kwargs)
-        self.fields['user'].label = 'Adherent'
-        self.fields['number'].label = 'Quantité'
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = 'Numero de chèque'
-        self.fields['name'].label = 'Designation'
-        self.fields['prix'].label = 'Prix unitaire'
-
-    class Meta:
-        model = Facture
-        fields = '__all__'

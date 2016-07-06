@@ -6,11 +6,11 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
-from django.db.models import Max
+from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
 from django.utils import timezone
 
-from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm, DelSchoolForm, SchoolForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms  import PassForm
@@ -62,10 +62,13 @@ def is_whitelisted(user):
 
 def has_access(user):
    """ Renvoie si un utilisateur a accès à internet"""
-   if user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user)):
-       return True
-   else:
-       return False
+   return user.state == User.STATE_ACTIVE and not is_ban(user) and ( is_adherent(user) or is_whitelisted(user))
+
+def is_active(interface):
+    """ Renvoie si une interface doit avoir accès ou non """
+    machine = interface.machine
+    user = machine.user
+    return machine.active and has_access(user)
 
 def form(ctx, template, request):
     c = ctx
@@ -214,31 +217,63 @@ def edit_whitelist(request, whitelistid):
         return redirect("/users/")
     return form({'userform': whitelist}, 'users/user.html', request)
 
+def add_school(request):
+    school = SchoolForm(request.POST or None)
+    if school.is_valid():
+        school.save()
+        messages.success(request, "L'établissement a été ajouté")
+        return redirect("/users/")
+    return form({'userform': school}, 'users/user.html', request) 
+
+def del_school(request):
+    school = DelSchoolForm(request.POST or None)
+    if school.is_valid():
+        school_dels = school.cleaned_data['schools']
+        for school_del in school_dels:
+            try:
+                school_del.delete()
+                messages.success(request, "L'établissement a été supprimé")
+            except ProtectedError:
+                messages.error(request, "L'établissement %s est affecté à au moins un user, vous ne pouvez pas le supprimer" % school_del)
+        return redirect("/users/")
+    return form({'userform': school}, 'users/user.html', request)
+
 def index(request):
     users_list = User.objects.order_by('pk')
     connexion = []
     for user in users_list:
-        connexion.append([user, has_access(user)])
+        end = end_adhesion(user)
+        access = has_access(user)
+        if(end!=None): 
+            connexion.append([user, access, end])
+        else:
+            connexion.append([user, access, "Non adhérent"])
     return render(request, 'users/index.html', {'users_list': connexion})
 
-def profil(request):
-    if request.method == 'POST':
-        profil = ProfilForm(request.POST or None)
-        if profil.is_valid():
-            profils = profil.cleaned_data['user']
-            users = User.objects.get(pseudo = profils)
-            machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
-            factures = Facture.objects.filter(user__pseudo = users)
-            bans = Ban.objects.filter(user__pseudo = users)
-            whitelists = Whitelist.objects.filter(user__pseudo = users)
-            end_bans = None
-            end_whitelists = None
-            if(is_ban(users)):
-                end_bans=end_ban(users)
-            if(is_whitelisted(users)):
-                end_whitelists=end_whitelist(users)
-            list_droits = Right.objects.filter(user=users)
-            return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
+def index_ban(request):
+    ban_list = Ban.objects.order_by('date_start')
+    return render(request, 'users/index_ban.html', {'ban_list':ban_list})
+
+def index_white(request):
+    white_list = Whitelist.objects.order_by('date_start')
+    return render(request, 'users/index_whitelist.html', {'white_list':white_list})
+
+def profil(request, userid):
+    try:
+        users = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
         return redirect("/users/")
-    return redirect("/users/")
+    machines = Interface.objects.filter(machine=Machine.objects.filter(user__pseudo = users))
+    factures = Facture.objects.filter(user__pseudo = users)
+    bans = Ban.objects.filter(user__pseudo = users)
+    whitelists = Whitelist.objects.filter(user__pseudo = users)
+    end_bans = None
+    end_whitelists = None
+    if(is_ban(users)):
+        end_bans=end_ban(users)
+    if(is_whitelisted(users)):
+         end_whitelists=end_whitelist(users)
+    list_droits = Right.objects.filter(user=users)
+    return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.forms import ModelForm, Form
 from django import forms
+import re
 
 from django.utils import timezone
 
@@ -15,6 +16,15 @@ def remove_user_room(room):
     user.room = None
     user.save()
 
+def linux_user_validator(login):
+    """ Validation du pseudo pour respecter les contraintes unix"""
+    UNIX_LOGIN_PATTERN = re.compile("^[a-z_][a-z0-9_-]*[$]?$")
+    if not UNIX_LOGIN_PATTERN.match(login):
+        raise forms.ValidationError(
+                ", ce pseudo ('%(label)s') contient des carractères interdits",
+                params={'label': login},
+        )
+
 class User(models.Model):
     STATE_ACTIVE = 0
     STATE_DEACTIVATED = 1
@@ -27,9 +37,9 @@ class User(models.Model):
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
-    pseudo = models.CharField(max_length=255, unique=True)
+    pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
-    school = models.ForeignKey('School', on_delete=models.PROTECT)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ssha = models.CharField(max_length=255)
@@ -66,7 +76,7 @@ class Ban(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')    
+    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')    
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -75,23 +85,10 @@ class Whitelist(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')
+    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
-
-class UserForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(InfoForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = 'Nom'
-        self.fields['surname'].label = 'Prénom'
-        self.fields['school'].label = 'Établissement'
-        self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Chambre'
-
-    class Meta:
-        model = User
-        fields = '__all__'
 
 class InfoForm(ModelForm):
     force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
@@ -103,6 +100,8 @@ class InfoForm(ModelForm):
         self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
         self.fields['room'].label = 'Chambre'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
 
     def clean_force(self):
         if self.cleaned_data.get('force', False):
@@ -112,6 +111,10 @@ class InfoForm(ModelForm):
     class Meta:
         model = User
         fields = ['name','surname','pseudo','email', 'school', 'comment', 'room']
+
+class UserForm(InfoForm):
+    class Meta(InfoForm.Meta):
+        fields = '__all__'
 
 class PasswordForm(ModelForm):
     class Meta:
@@ -128,10 +131,22 @@ class SchoolForm(ModelForm):
         model = School
         fields = ['name']
 
+    def __init__(self, *args, **kwargs):
+        super(SchoolForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Établissement à ajouter'
+
+class DelSchoolForm(ModelForm):
+    schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['name']
+        model = School
+
 class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RightForm, self).__init__(*args, **kwargs)
         self.fields['right'].label = 'Droit'
+        self.fields['right'].empty_label = "Choisir un nouveau droit"
 
     class Meta:
         model = Right
