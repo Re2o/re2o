@@ -24,7 +24,15 @@
     <h2>Résultats dans les banissements : </h2>
         {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% endif %}
-    {% if not ban_list and not machine_list and not users_list and not facture_list and not white_list%}
+    {% if switch_list %}
+    <h2>Résultats dans les switchs : </h2>
+        {% include "topologie/aff_switch.html" with switch_list=switch_list %}
+    {% endif %}
+    {% if port_list %}
+    <h2>Résultats dans les ports : </h2>
+        {% include "topologie/aff_port.html" with port_list=port_list %}
+    {% endif %}
+    {% if not ban_list and not machine_list and not users_list and not facture_list and not white_list and not port_list and not switch_list%}
         <h3>Aucun résultat</h3>
     {% endif %}
     <br />

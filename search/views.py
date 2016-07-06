@@ -9,6 +9,7 @@ from django.template import Context, RequestContext, loader
 from django.db.models import Q
 from users.models import User, Ban, Whitelist
 from machines.models import Machine, Interface
+from topologie.models import Port, Switch
 from cotisations.models import Facture
 from search.models import SearchForm, SearchFormPlus
 from users.views import has_access
@@ -24,7 +25,7 @@ def search_result(search, type):
     date_fin = None 
     states=[]
     co=[]
-    aff=['0','1','2','3','4']
+    aff=[]
     if(type):
         aff = search.cleaned_data['affichage']
         co = search.cleaned_data['connexion']
@@ -33,7 +34,7 @@ def search_result(search, type):
         date_fin = search.cleaned_data['date_fin']
     date_query = Q()
     if aff==[]:
-        aff = ['0','1','2','3','4']
+        aff = ['0','1','2','3','4','5','6']
     if date_deb != None:
         date_query = date_query & Q(date__gte=date_deb)
     if date_fin != None:
@@ -48,6 +49,8 @@ def search_result(search, type):
     factures = None
     bans = None
     whitelists = None
+    switchlist = None
+    portlist = None
     connexion = []
 
     for i in aff:
@@ -71,7 +74,11 @@ def search_result(search, type):
             bans = Ban.objects.filter(query)
         if i == '4':    
             whitelists = Whitelist.objects.filter(query)
-    return {'users_list': connexion, 'machine_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists}
+        if i == '5':    
+            portlist = Port.objects.filter(details__icontains = search)
+        if i == '6':    
+            switchlist = Switch.objects.filter(details__icontains = search)
+    return {'users_list': connexion, 'machine_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
 
 def search(request):
     if request.method == 'POST':
