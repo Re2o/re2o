@@ -8,7 +8,8 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
-from cotisations.models import NewFactureForm, EditFactureForm, Facture, Article, Cotisation, Article, ArticleForm, DelArticleForm, Paiement, PaiementForm, DelPaiementForm
+from .models import Facture, Article, Cotisation, Article
+from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, DelPaiementForm
 from users.models import User
 
 from dateutil.relativedelta import relativedelta
