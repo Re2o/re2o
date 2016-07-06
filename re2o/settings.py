@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS
+from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ALLOWED_EXTENSIONS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
