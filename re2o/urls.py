@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^search/', include('search.urls', namespace='search')),
     url(r'^cotisations/', include('cotisations.urls', namespace='cotisations')),
     url(r'^machines/', include('machines.urls', namespace='machines')),
+    url(r'^topologie/', include('topologie.urls', namespace='topologie')),
     #url(r'^logs/', include('logs.urls', namespace='logs')),
 ]
