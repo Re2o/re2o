@@ -20,6 +20,8 @@ CHOICES3 = (
     ('2', 'Factures'),
     ('3', 'Bannissements'),
     ('4', 'Accès à titre gracieux'),
+    ('6', 'Switchs'),
+    ('5', 'Ports'),
 )
  
 
