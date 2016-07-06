@@ -6,9 +6,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
-from django.db.models import Max
+from django.db.models import Max, ProtectedError
 
-from cotisations.models import NewFactureForm, EditFactureForm, Facture, Article, Cotisation
+from cotisations.models import NewFactureForm, EditFactureForm, Facture, Article, Cotisation, Article, ArticleForm, DelArticleForm, Paiement, PaiementForm, DelPaiementForm
 from users.models import User
 
 from dateutil.relativedelta import relativedelta
@@ -80,6 +80,23 @@ def edit_facture(request, factureid):
         messages.success(request, "La facture a bien été modifiée")
         return redirect("/cotisations/")
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
+
+def add_article(request):
+    article = ArticleForm(request.POST or None)
+    if article.is_valid():
+        article.save()
+        messages.success(request, "L'article a été ajouté")
+        return redirect("/cotisations/")
+    return form({'factureform': article}, 'cotisations/facture.html', request)
+
+def del_article(request):
+    article = DelArticleForm(request.POST or None)
+    if article.is_valid():
+        article_del = article.cleaned_data['articles']
+        article_del.delete()
+        messages.success(request, "Le/les articles ont été supprimé")
+        return redirect("/cotisations/")
+    return form({'factureform': article}, 'cotisations/facture.html', request)
 
 def index(request):
     facture_list = Facture.objects.order_by('date').reverse()

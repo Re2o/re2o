@@ -82,3 +82,35 @@ class EditFactureForm(NewFactureForm):
         self.fields['prix'].label = 'Prix unitaire'
         self.fields['user'].empty_label = "Séléctionner l'adhérent propriétaire"
         self.fields.pop('article')
+
+class ArticleForm(ModelForm):
+    class Meta:
+        model = Article
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(ArticleForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = "Désignation de l'article"
+
+class DelArticleForm(ModelForm):
+    articles = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Articles actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        fields = ['articles']
+        model = Article
+
+class PaiementForm(ModelForm):
+    class Meta:
+        model = Paiement
+        fields = ['moyen']
+
+    def __init__(self, *args, **kwargs):
+        super(PaiementForm, self).__init__(*args, **kwargs)
+        self.fields['moyen'].label = 'Moyen de paiement à ajouter'
+
+class DelPaiementForm(ModelForm):
+    paiements = forms.ModelMultipleChoiceField(queryset=Paiement.objects.all(), label="Moyens de paiement actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['moyen']
+        model = Paiement
