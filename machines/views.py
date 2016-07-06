@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 
-from .models import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm
 from .models import Machine, Interface, IpList
 from users.models import User
 
