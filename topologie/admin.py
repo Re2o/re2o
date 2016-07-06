@@ -7,7 +7,7 @@ class SwitchAdmin(admin.ModelAdmin):
     list_display = ('building','number','details')
 
 class PortAdmin(admin.ModelAdmin):
-    list_display = ('switch', 'port','room','details')
+    list_display = ('switch', 'port','room','machine_interface','details')
 
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('name',)

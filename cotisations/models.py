@@ -2,7 +2,6 @@ from django.db import models
 from django import forms
 from django.forms import ModelForm
 
-from users.models import User
 
 class Facture(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)

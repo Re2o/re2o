@@ -19,7 +19,7 @@ class Port(models.Model):
     port = models.IntegerField()
     details = models.CharField(max_length=255, blank=True)
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
-#    machine_interface = models.OneToOneField('machines.Interface', on_delete=models.PROTECT, blank=True, null=True)
+    machine_interface = models.OneToOneField('machines.Interface', on_delete=models.PROTECT, blank=True, null=True)
 
     class Meta:
         unique_together = ('_content_type', '_object_id')

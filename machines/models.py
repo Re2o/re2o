@@ -2,7 +2,6 @@ from django.db import models
 from django.forms import ModelForm, Form, ValidationError
 from macaddress.fields import MACAddressField
 
-from users.models import User
 from django.conf import settings
 import re
 
