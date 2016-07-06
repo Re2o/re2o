@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Article, Paiement, Facture
+from .models import Article, Paiement, Facture, Banque
 
 class NewFactureForm(ModelForm):
     article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
@@ -71,3 +71,18 @@ class DelPaiementForm(ModelForm):
         exclude = ['moyen']
         model = Paiement
 
+class BanqueForm(ModelForm):
+    class Meta:
+        model = Banque
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super(BanqueForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Banque à ajouter'
+
+class DelBanqueForm(ModelForm):
+    banques = forms.ModelMultipleChoiceField(queryset=Banque.objects.all(), label="Banques actuelles",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['name']
+        model = Banque

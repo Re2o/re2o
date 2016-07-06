@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
 from .models import Facture, Article, Cotisation, Article
-from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm
+from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm
 from users.models import User
 
 from dateutil.relativedelta import relativedelta
@@ -119,6 +119,27 @@ def del_paiement(request):
                 messages.error(request, "Le moyen de paiement %s est affecté à au moins une facture, vous ne pouvez pas le supprimer" % paiement_del)
         return redirect("/cotisations/")
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
+
+def add_banque(request):
+    banque = BanqueForm(request.POST or None)
+    if banque.is_valid():
+        banque.save()
+        messages.success(request, "La banque a été ajoutée")
+        return redirect("/cotisations/")
+    return form({'factureform': banque}, 'cotisations/facture.html', request)
+
+def del_banque(request):
+    banque = DelBanqueForm(request.POST or None)
+    if banque.is_valid():
+        banque_dels = banque.cleaned_data['banques']
+        for banque_del in banque_dels:
+            try:
+                banque_del.delete()
+                messages.success(request, "La banque a été supprimée")
+            except ProtectedError:
+                messages.error(request, "La banque %s est affectée à au moins une facture, vous ne pouvez pas la supprimer" % banque_del)
+        return redirect("/cotisations/")
+    return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 def index(request):
     facture_list = Facture.objects.order_by('date').reverse()
