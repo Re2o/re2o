@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
 from .models import Facture, Article, Cotisation, Article
-from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, DelPaiementForm
+from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm
 from users.models import User
 
 from dateutil.relativedelta import relativedelta
@@ -98,6 +98,27 @@ def del_article(request):
         messages.success(request, "Le/les articles ont été supprimé")
         return redirect("/cotisations/")
     return form({'factureform': article}, 'cotisations/facture.html', request)
+
+def add_paiement(request):
+    paiement = PaiementForm(request.POST or None)
+    if paiement.is_valid():
+        paiement.save()
+        messages.success(request, "Le moyen de paiement a été ajouté")
+        return redirect("/cotisations/")
+    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+
+def del_paiement(request):
+    paiement = DelPaiementForm(request.POST or None)
+    if paiement.is_valid():
+        paiement_dels = paiement.cleaned_data['paiements']
+        for paiement_del in paiement_dels:
+            try:
+                paiement_del.delete()
+                messages.success(request, "Le moyen de paiement a été supprimé")
+            except ProtectedError:
+                messages.error(request, "Le moyen de paiement %s est affecté à au moins une facture, vous ne pouvez pas le supprimer" % paiement_del)
+        return redirect("/cotisations/")
+    return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 def index(request):
     facture_list = Facture.objects.order_by('date').reverse()
