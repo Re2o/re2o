@@ -131,6 +131,17 @@ class SchoolForm(ModelForm):
         model = School
         fields = ['name']
 
+    def __init__(self, *args, **kwargs):
+        super(SchoolForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Établissement à ajouter'
+
+class DelSchoolForm(ModelForm):
+    schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['name']
+        model = School
+
 class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RightForm, self).__init__(*args, **kwargs)

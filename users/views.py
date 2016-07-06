@@ -6,11 +6,11 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
-from django.db.models import Max
+from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
 from django.utils import timezone
 
-from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm, DelSchoolForm, SchoolForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms  import PassForm
@@ -216,6 +216,27 @@ def edit_whitelist(request, whitelistid):
         messages.success(request, "Whitelist modifiée")
         return redirect("/users/")
     return form({'userform': whitelist}, 'users/user.html', request)
+
+def add_school(request):
+    school = SchoolForm(request.POST or None)
+    if school.is_valid():
+        school.save()
+        messages.success(request, "L'établissement a été ajouté")
+        return redirect("/users/")
+    return form({'userform': school}, 'users/user.html', request) 
+
+def del_school(request):
+    school = DelSchoolForm(request.POST or None)
+    if school.is_valid():
+        school_dels = school.cleaned_data['schools']
+        for school_del in school_dels:
+            try:
+                school_del.delete()
+                messages.success(request, "L'établissement a été supprimé")
+            except ProtectedError:
+                messages.error(request, "L'établissement %s est affecté à au moins un user, vous ne pouvez pas le supprimer" % school_del)
+        return redirect("/users/")
+    return form({'userform': school}, 'users/user.html', request)
 
 def index(request):
     users_list = User.objects.order_by('pk')
