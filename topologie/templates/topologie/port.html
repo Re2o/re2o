@@ -1,0 +1,17 @@
+{% extends "topologie/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Création et modificationd 'utilisateur{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors topoform %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form topoform %}
+    {%bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
+</form>
+  <br />
+  <br />
+  <br />
+{% endblock %}

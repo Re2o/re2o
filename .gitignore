@@ -1,4 +1,4 @@
-settings.py
-settings*
+settings_local.py
 *.swp
 *.pyc
+__pycache__

@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import Machine, MachineType, IpList, Interface
 
 class MachineAdmin(admin.ModelAdmin):
-    list_display = ('user','name','type')
+    list_display = ('user','name','type','active')
 
 class MachineTypeAdmin(admin.ModelAdmin):
     list_display = ('type',)

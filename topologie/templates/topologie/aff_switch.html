@@ -1,0 +1,18 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Bâtiment</th>
+            <th>Numero</th>
+            <th>Détails</th>
+            <th></th>
+        </tr>
+   </thead>
+   {% for switch in switch_list %}
+   <tr>
+       <td>{{switch.building}}</td>
+       <td>{{switch.number}}</td>
+       <td>{{switch.details}}</td>
+       <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:index-port' switch.pk %}"><i class="glyphicon glyphicon-list-alt"></i> Editer</a></td>
+   </tr>
+   {% endfor %}
+</table>

@@ -4,7 +4,7 @@
                 <th>Prénom</th>
                 <th>Nom</th>
                 <th>Pseudo</th>
-                <th>Inscrit le</th>
+                <th>Fin de cotisation le</th>
                 <th>Connexion</th>
                 <th>Profil</th>
             </tr>
@@ -14,19 +14,15 @@
             <td>{{ donnee.0.name }}</td>
             <td>{{ donnee.0.surname }}</td>
             <td>{{ donnee.0.pseudo }}</td>
-            <td>{{ donnee.0.registered }}</td>
+            <td>{{ donnee.2 }}</td>
             <td>{% if donnee.1 == True %}
                 <font color="green">Active</font>
                 {% else %}
                 <font color="red">Désactivée</font>
                 {% endif %}
             </td>
-            <td><form method="POST" action="{% url "users:profil"%}">
-                  {% csrf_token %}
-                     <input type="hidden" name="user" id="user" value="{{ donnee.0.pseudo }}"></input>
-                     <button class="btn btn-primary btn-sm" type="submit"><i class="glyphicon glyphicon-tree-deciduous"></i></button>
-                  </form>
-               </td>
+            <td><a href="{% url "users:profil" donnee.0.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
+            </td>
         </tr>
         {% endfor %}
     </table>
