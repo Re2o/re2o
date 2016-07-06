@@ -66,7 +66,7 @@ def new_machine(request, userid):
             messages.error(request, u"Il n'y a plus d'ip disponibles")
         new_interface.save()
         messages.success(request, "La machine a été crée")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
 
 def edit_machine(request, interfaceid):
