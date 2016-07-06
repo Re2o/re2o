@@ -93,7 +93,7 @@ def edit_info(request, userid):
     if user.is_valid():
         user.save()
         messages.success(request, "L'user a bien été modifié")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     return form({'userform': user}, 'users/user.html', request)
 
 def state(request, userid):
@@ -111,7 +111,7 @@ def state(request, userid):
                 unarchive(user)
         state.save()
         messages.success(request, "Etat changé avec succès")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     return form({'userform': state}, 'users/user.html', request)
 
 def password(request, userid):
@@ -129,7 +129,7 @@ def password(request, userid):
         user.pwd_ntlm = hashNT(user_form.cleaned_data['passwd1'])
         user.save()
         messages.success(request, "Le mot de passe a changé")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     return form({'userform': user_form}, 'users/user.html', request)
 
 def add_right(request, userid):
@@ -147,7 +147,7 @@ def add_right(request, userid):
             messages.success(request, "Droit ajouté")
         except IntegrityError:
             pass
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     return form({'userform': right}, 'users/user.html', request)
 
 def del_right(request):
@@ -170,7 +170,7 @@ def add_ban(request, userid):
     if ban.is_valid():
         ban.save()
         messages.success(request, "Bannissement ajouté")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     if is_ban(user):
         messages.error(request, u"Attention, cet utilisateur a deja un bannissement actif" )
     return form({'userform': ban}, 'users/user.html', request)
@@ -199,7 +199,7 @@ def add_whitelist(request, userid):
     if whitelist.is_valid():
         whitelist.save()
         messages.success(request, "Accès à titre gracieux accordé")
-        return redirect("/users/")
+        return redirect("/users/profil/" + userid)
     if is_whitelisted(user):
         messages.error(request, u"Attention, cet utilisateur a deja un accès gracieux actif" )
     return form({'userform': whitelist}, 'users/user.html', request)

@@ -34,7 +34,7 @@ def new_port(request, switch_id):
             port.save()
             messages.success(request, "Port ajouté")
         except IntegrityError:
-            pass
+            messages.error(request,"Ce port existe déjà" )
         return redirect("/topologie/switch/" + switch_id)
     return form({'topoform':port}, 'topologie/port.html', request)
 
