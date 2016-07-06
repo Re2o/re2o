@@ -1,6 +1,7 @@
 from django.db import models
 from django.forms import ModelForm, Form
 from django import forms
+import re
 
 from django.utils import timezone
 
@@ -15,6 +16,15 @@ def remove_user_room(room):
     user.room = None
     user.save()
 
+def linux_user_validator(login):
+    """ Validation du pseudo pour respecter les contraintes unix"""
+    UNIX_LOGIN_PATTERN = re.compile("^[a-z_][a-z0-9_-]*[$]?$")
+    if not UNIX_LOGIN_PATTERN.match(login):
+        raise forms.ValidationError(
+                ", ce pseudo ('%(label)s') contient des carractères interdits",
+                params={'label': login},
+        )
+
 class User(models.Model):
     STATE_ACTIVE = 0
     STATE_DEACTIVATED = 1
@@ -27,7 +37,7 @@ class User(models.Model):
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
-    pseudo = models.CharField(max_length=255, unique=True)
+    pseudo = models.CharField(max_length=255, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
