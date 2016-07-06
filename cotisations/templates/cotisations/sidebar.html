@@ -2,4 +2,8 @@
 
 {% block sidebar %}
     <p><a href="{% url "cotisations:index" %}">Liste des factures</a></p>
+    <p><a href="{% url "cotisations:add-article" %}">Ajouter un article</a></p>
+    <p><a href="{% url "cotisations:del-article" %}">Retirer un article</a></p>
+    <p><a href="{% url "cotisations:add-paiement" %}">Ajouter un moyen de paiement</a></p>
+    <p><a href="{% url "cotisations:del-paiement" %}">Retirer un moyen de paiement</a></p>
 {% endblock %}
