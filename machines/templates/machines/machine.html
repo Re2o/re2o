@@ -5,12 +5,16 @@
 
 {% block content %}
 {% bootstrap_form_errors machineform %}
+{% if interfaceform %}
 {% bootstrap_form_errors interfaceform %}
+{% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form machineform %}
+    {% if interfaceform %}
     {% bootstrap_form interfaceform %}
+    {% endif %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
   <br />

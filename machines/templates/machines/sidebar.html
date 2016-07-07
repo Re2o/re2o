@@ -1,4 +1,6 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
+    <p><a href="{% url "machines:add-machinetype" %}">Ajouter un type de machine</a></p>
+    <p><a href="{% url "machines:del-machinetype" %}">Retirer un type de machine</a></p>
 {% endblock %}

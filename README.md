@@ -31,3 +31,8 @@ Ensuite, effectuer les migrations. Un squelette de base de donnée, via un mysql
 ## Mise en production avec apache
 
 re2o/wsgi.py permet de fonctionner avec apache2 en production
+
+## Fonctionnement avec les services
+
+Pour charger les objets django, il suffit de faire User.objects.all() pour tous les users par exemple. 
+Cependant, pour que les services fonctionnent de manière simple, des fonctions toutes prètes existent deja pour charger la liste des users autorisés à se connecter ( has_access(user)), etc. Ces fonctions sont personnalisables, et permettent un fonctionnement très simple des services.
