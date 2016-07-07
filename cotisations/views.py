@@ -66,7 +66,7 @@ def new_facture(request, userid):
             messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
         else:
             messages.success(request, "La facture a été crée")
-        return redirect("/cotisations/profil/" + userid)
+        return redirect("/users/profil/" + userid)
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
 def edit_facture(request, factureid):

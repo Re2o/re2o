@@ -6,8 +6,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
+from django.db.models import ProtectedError
 
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm
 from .models import Machine, Interface, IpList
 from users.models import User
 
@@ -100,6 +101,27 @@ def new_interface(request, machineid):
         messages.success(request, "L'interface a été ajoutée")
         return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+
+def add_machinetype(request):
+    machinetype = MachineTypeForm(request.POST or None)
+    if machinetype.is_valid():
+        machinetype.save()
+        messages.success(request, "Ce type de machine a été ajouté")
+        return redirect("/machines/")
+    return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
+
+def del_machinetype(request):
+    machinetype = DelMachineTypeForm(request.POST or None)
+    if machinetype.is_valid():
+        machinetype_dels = machinetype.cleaned_data['machinetypes']
+        for machinetype_del in machinetype_dels:
+            try:
+                machinetype_del.delete()
+                messages.success(request, "Le type de machine a été supprimé")
+            except ProtectedError:
+                messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
+        return redirect("/machines/")
+    return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 def index(request):
     machine_list = Interface.objects.order_by('pk')
