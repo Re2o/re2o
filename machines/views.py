@@ -54,16 +54,16 @@ def new_machine(request, userid):
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/machines/")
     machine = NewMachineForm(request.POST or None)
-    interface = NewInterfaceForm(request.POST or None) 
+    interface = AddInterfaceForm(request.POST or None) 
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
         new_machine.user = user
         new_machine.save()
         new_interface = interface.save(commit=False)
         new_interface.machine = new_machine
-        if free_ip():
+        if free_ip() and not new_interface.ipv4:
             new_interface = assign_ipv4(new_interface)
-        else:
+        elif not new_interface.ipv4:
             messages.error(request, u"Il n'y a plus d'ip disponibles")
         new_interface.save()
         messages.success(request, "La machine a été crée")
