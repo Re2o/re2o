@@ -78,7 +78,7 @@ def search_result(search, type):
             portlist = Port.objects.filter(details__icontains = search)
         if i == '6':    
             switchlist = Switch.objects.filter(details__icontains = search)
-    return {'users_list': connexion, 'machine_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
+    return {'users_list': connexion, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
 
 def search(request):
     if request.method == 'POST':

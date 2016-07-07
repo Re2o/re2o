@@ -8,9 +8,9 @@
     <h2>Résultats dans les utilisateurs</h2>
         {% include "users/aff_users.html" with users_list=users_list %}
     {% endif%}
-    {% if machine_list %}
+    {% if interfaces_list %}
     <h2>Résultats dans les machines : </h2>
-        {% include "machines/aff_machines.html" with machine_list=machine_list %}
+        {% include "machines/aff_machines.html" with interfaces_list=interfaces_list %}
     {% endif %}
     {% if facture_list %}
     <h2>Résultats dans les factures : </h2>
@@ -32,7 +32,7 @@
     <h2>Résultats dans les ports : </h2>
         {% include "topologie/aff_port.html" with port_list=port_list %}
     {% endif %}
-    {% if not ban_list and not machine_list and not users_list and not facture_list and not white_list and not port_list and not switch_list%}
+    {% if not ban_list and not interfaces_list and not users_list and not facture_list and not white_list and not port_list and not switch_list%}
         <h3>Aucun résultat</h3>
     {% endif %}
     <br />

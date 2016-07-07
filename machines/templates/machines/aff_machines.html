@@ -9,14 +9,15 @@
                 <th></th>
             </tr>
         </thead>
-        {% for machine in machine_list %}
+        {% for interface in interfaces_list %}
         <tr>
-            <td>{{ machine.dns }}</td>
-            <td>{{ machine.machine.user }}</td>
-            <td>{{ machine.machine.type }}</td>
-            <td>{{ machine.mac_address }}</td>
-            <td>{{ machine.ipv4 }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machine' machine.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a></td>
+            <td>{{ interface.dns }}</td>
+            <td>{{ interface.machine.user }}</td>
+            <td>{{ interface.machine.type }}</td>
+            <td>{{ interface.mac_address }}</td>
+            <td>{{ interface.ipv4 }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machine' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a>
+            <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-interface'  interface.machine.id %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une interface</a></td>
         </tr>
         {% endfor %}
     </table>

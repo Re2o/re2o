@@ -275,5 +275,5 @@ def profil(request, userid):
     if(is_whitelisted(users)):
          end_whitelists=end_whitelist(users)
     list_droits = Right.objects.filter(user=users)
-    return render(request, 'users/profil.html', {'user': users, 'machine_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
+    return render(request, 'users/profil.html', {'user': users, 'interfaces_list' :machines, 'facture_list':factures, 'ban_list':bans, 'white_list':whitelists,'end_ban':end_bans,'end_whitelist':end_whitelists, 'end_adhesion':end_adhesion(users), 'actif':has_access(users), 'list_droits': list_droits})
 
