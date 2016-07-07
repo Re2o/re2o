@@ -97,6 +97,10 @@ def new_interface(request, machineid):
         machine_form.save()
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
+        if free_ip() and not new_interface.ipv4:
+            new_interface = assign_ipv4(new_interface)
+        elif not new_interface.ipv4:
+            messages.error(request, u"Il n'y a plus d'ip disponibles")
         new_interface.save()
         messages.success(request, "L'interface a été ajoutée")
         return redirect("/machines/")
@@ -124,5 +128,5 @@ def del_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 def index(request):
-    machine_list = Interface.objects.order_by('pk')
-    return render(request, 'machines/index.html', {'machine_list': machine_list})
+    interfaces_list = Interface.objects.order_by('pk')
+    return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})

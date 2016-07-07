@@ -31,10 +31,13 @@ class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['ipv4','mac_address','dns','details']
 
+    def __init__(self, *args, **kwargs):
+        super(AddInterfaceForm, self).__init__(*args, **kwargs)
+        self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['mac_address','dns','details']
-
 
 class MachineTypeForm(ModelForm):
     class Meta:
