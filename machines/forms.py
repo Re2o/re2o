@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Machine, Interface, MachineType
+from .models import Machine, Interface, MachineType, Extension
 
 class EditMachineForm(ModelForm):
     class Meta:
@@ -42,7 +42,7 @@ class NewInterfaceForm(EditInterfaceForm):
 class MachineTypeForm(ModelForm):
     class Meta:
         model = MachineType
-        fields = ['type']
+        fields = ['type','extension']
 
     def __init__(self, *args, **kwargs):
         super(MachineTypeForm, self).__init__(*args, **kwargs)
@@ -52,5 +52,21 @@ class DelMachineTypeForm(ModelForm):
     machinetypes = forms.ModelMultipleChoiceField(queryset=MachineType.objects.all(), label="Types de machines actuelles",  widget=forms.CheckboxSelectMultiple)
 
     class Meta:
-        exclude = ['type']
+        exclude = ['type','extension']
         model = MachineType
+
+class ExtensionForm(ModelForm):
+    class Meta:
+        model = Extension
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super(ExtensionForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Exstension à ajouter'
+
+class DelExtensionForm(ModelForm):
+    extensions = forms.ModelMultipleChoiceField(queryset=Extension.objects.all(), label="Extensions actuelles",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['name']
+        model = Extension

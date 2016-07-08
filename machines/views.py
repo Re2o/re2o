@@ -9,8 +9,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import ProtectedError
 
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm
-from .models import Machine, Interface, IpList, MachineType
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm
+from .models import Machine, Interface, IpList, MachineType, Extension
 from users.models import User
 
 def unassign_ips(user):
@@ -148,6 +148,43 @@ def del_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+def add_extension(request):
+    extension = ExtensionForm(request.POST or None)
+    if extension.is_valid():
+        extension.save()
+        messages.success(request, "Cette extension a été ajoutée")
+        return redirect("/machines/index_extension")
+    return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+def edit_extension(request, extensionid):
+    try:
+        extension_instance = Extension.objects.get(pk=extensionid)
+    except Extension.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    extension = ExtensionForm(request.POST or None, instance=extension_instance)
+    if extension.is_valid():
+        extension.save()
+        messages.success(request, "Extension modifiée")
+        return redirect("/machines/index_extension/")
+    return form({'machineform': extension}, 'machines/machine.html', request)
+
+@login_required
+def del_extension(request):
+    extension = DelExtensionForm(request.POST or None)
+    if extension.is_valid():
+        extension_dels = extension.cleaned_data['extensions']
+        for extension_del in extension_dels:
+            try:
+                extension_del.delete()
+                messages.success(request, "L'extension a été supprimée")
+            except ProtectedError:
+                messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
+        return redirect("/machines/index_extension")
+    return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 def index(request):
     interfaces_list = Interface.objects.order_by('pk')
     return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})
@@ -156,3 +193,8 @@ def index(request):
 def index_machinetype(request):
     machinetype_list = MachineType.objects.order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
+
+@login_required
+def index_extension(request):
+    extension_list = Extension.objects.order_by('name')
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list})
