@@ -1,0 +1,124 @@
+{% load i18n %}
+{% language 'fr' %}
+\nonstopmode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Invoice Template
+% LaTeX Template
+% Version 1.0 (3/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Trey Hunner (http://www.treyhunner.com/)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+% Important note:
+% This template requires the invoice.cls file to be in the same directory as 
+% the .tex file. The invoice.cls file provides the style used for structuring the
+% document.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT CONFIGURATION
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt]{article} % Use the custom invoice class (invoice.cls)
+\usepackage[utf8]{inputenc}
+\usepackage[frenchb]{babel}
+\usepackage{eurosym}
+\usepackage{tabularx}
+\usepackage[letterpaper,hmargin=0.79in,vmargin=0.79in]{geometry}
+\usepackage[parfill]{parskip} % Do not indent paragraphs
+\usepackage{fp} % Fixed-point arithmetic
+\usepackage{calc} % Counters for totaling hours and cost
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage[absolute]{textpos} 
+\usepackage{calc}
+\usepackage{xparse}
+
+\pagestyle{empty} % No page numbers
+\linespread{1.5} % Line spacing
+
+\setlength{\doublerulesep}{\arrayrulewidth} % Double rules look like one thick one
+\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+
+
+
+
+\begin{document}
+%\newcommand{\product}[5][0][0][0][0][0]{
+%\setlength{ptotal}{#3*\real{#4}}
+%\addtolength{total}{#3*\real{#4}}
+\DeclareDocumentCommand{\product}{ O{0} O{0} O{0} O{0} O{0} }{
+#1 & #2 & #3 & #4 & #5 \\
+\hline
+}
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTION
+%----------------------------------------------------------------------------------------
+\begin{titlepage}
+\begin{textblock*}{4cm}(20mm,5mm) 
+%\includegraphics[scale=0.3]{% templatetag openbrace %}{{tpl_path}}/logo.png}
+\end{textblock*}
+\end{titlepage} 
+\hfil{\Huge\bf ReZo Metz}\hfil % Company providing the invoice
+\bigskip\break % Whitespace
+\hrule % Horizontal line
+2 rue Edouard Belin  \\ % Your address and contact information
+57070 Metz \hfill augustin.lemesle@supelec.fr \\
+Siret :
+\\ \\
+{\bf À :} \tab {{f.user.name}} {{f.user.surname}} \\ % Invoice recipient
+
+{\bf Date:} \tab {{DATE}} \\ % Invoice date
+
+{\bf Facture \no:} \tab {{fid}} \\ % Invoice number
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF EXPENSES
+%----------------------------------------------------------------------------------------
+
+
+\begin{tabularx}{\textwidth}{|l|X|r|r|r|}
+\hline
+  \textbf{Code} & \textbf{Désignation} & \textbf{Qté.} & \textbf{Prix Unit.} \euro & \textbf{Prix Tot.} \euro\\
+\hline
+
+{% for a in f.article %}
+\product[{{a.code}}][{{a.designation}}][{{a.nombre}}][{{a.pu|floatformat:2}}][{{a.ptotal|floatformat:2}}]
+{% endfor %}
+
+	\hline
+\end{tabularx}
+
+%\setcounter{paid}{0}
+%\setcounter{topay}{\real{\value{total}}-\value{paid}}
+
+\hfill
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Total} & {{total|floatformat:2}}\euro \\
+\textbf{Votre règlement} & {{paid|floatformat:2}}\euro \\
+\hline
+\textbf{À PAYER} & {{topay|floatformat:2}}\euro \\
+\hline
+\hline
+
+\end{tabular}
+
+\vspace{1.5cm} % Whitespace
+\hrule % Horizontal line
+\footnotesize{TVA non applicable, art. 293 B du CGI}
+	
+{% endlanguage %}
+%----------------------------------------------------------------------------------------
+
+\end{document}
+
+
