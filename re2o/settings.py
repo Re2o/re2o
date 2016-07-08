@@ -28,6 +28,8 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
+AUTH_USER_MODEL = 'users.User'
+
 
 # Application definition
 
