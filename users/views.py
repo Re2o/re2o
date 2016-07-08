@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response, render, redirect
 from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
 from django.utils import timezone
@@ -91,7 +92,7 @@ def form(ctx, template, request):
         context_instance=RequestContext(request)
     )
 
-
+@login_required
 def new_user(request):
     user = InfoForm(request.POST or None)
     if user.is_valid():
@@ -100,7 +101,7 @@ def new_user(request):
         return redirect("/users/")
     return form({'userform': user}, 'users/user.html', request)
 
-
+@login_required
 def edit_info(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -114,7 +115,7 @@ def edit_info(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'userform': user}, 'users/user.html', request)
 
-
+@login_required
 def state(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -133,7 +134,7 @@ def state(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'userform': state}, 'users/user.html', request)
 
-
+@login_required
 def password(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -152,6 +153,7 @@ def password(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'userform': u_form}, 'users/user.html', request)
 
+@login_required
 def add_right(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -170,7 +172,7 @@ def add_right(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'userform': right}, 'users/user.html', request)
 
-
+@login_required
 def del_right(request):
     right = DelRightForm(request.POST or None)
     if right.is_valid():
@@ -180,7 +182,7 @@ def del_right(request):
         return redirect("/users/")
     return form({'userform': right}, 'users/user.html', request)
 
-
+@login_required
 def add_ban(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -200,7 +202,7 @@ def add_ban(request, userid):
         )
     return form({'userform': ban}, 'users/user.html', request)
 
-
+@login_required
 def edit_ban(request, banid):
     try:
         ban_instance = Ban.objects.get(pk=banid)
@@ -214,7 +216,7 @@ def edit_ban(request, banid):
         return redirect("/users/")
     return form({'userform': ban}, 'users/user.html', request)
 
-
+@login_required
 def add_whitelist(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -234,7 +236,7 @@ def add_whitelist(request, userid):
         )
     return form({'userform': whitelist}, 'users/user.html', request)
 
-
+@login_required
 def edit_whitelist(request, whitelistid):
     try:
         whitelist_instance = Whitelist.objects.get(pk=whitelistid)
@@ -248,7 +250,7 @@ def edit_whitelist(request, whitelistid):
         return redirect("/users/")
     return form({'userform': whitelist}, 'users/user.html', request)
 
-
+@login_required
 def add_school(request):
     school = SchoolForm(request.POST or None)
     if school.is_valid():
@@ -257,6 +259,7 @@ def add_school(request):
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
+@login_required
 def edit_school(request, schoolid):
     try:
         school_instance = School.objects.get(pk=schoolid)
@@ -270,6 +273,7 @@ def edit_school(request, schoolid):
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
+@login_required
 def del_school(request):
     school = DelSchoolForm(request.POST or None)
     if school.is_valid():
@@ -286,7 +290,7 @@ def del_school(request):
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
-
+@login_required
 def index(request):
     users_list = User.objects.order_by('pk')
     connexion = []
@@ -299,12 +303,12 @@ def index(request):
             connexion.append([user, access, "Non adhérent"])
     return render(request, 'users/index.html', {'users_list': connexion})
 
-
+@login_required
 def index_ban(request):
     ban_list = Ban.objects.order_by('date_start')
     return render(request, 'users/index_ban.html', {'ban_list': ban_list})
 
-
+@login_required
 def index_white(request):
     white_list = Whitelist.objects.order_by('date_start')
     return render(
@@ -313,11 +317,12 @@ def index_white(request):
         {'white_list': white_list}
     )
 
-
+@login_required
 def index_school(request):
     school_list = School.objects.order_by('name')
     return render(request, 'users/index_schools.html', {'school_list':school_list})
 
+@login_required
 def profil(request, userid):
     try:
         users = User.objects.get(pk=userid)

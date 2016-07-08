@@ -1,10 +1,11 @@
 # App de recherche pour re2o
-# Gabriel Détraz, Goulven Kermarec
+# Augustin lemesle, Gabriel Détraz, Goulven Kermarec
 # Gplv2
 from django.shortcuts import render
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
+from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 from users.models import User, Ban, Whitelist
@@ -20,6 +21,7 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
+@login_required
 def search_result(search, type):
     date_deb = None
     date_fin = None 
@@ -80,6 +82,7 @@ def search_result(search, type):
             switchlist = Switch.objects.filter(details__icontains = search)
     return {'users_list': connexion, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
 
+@login_required
 def search(request):
     if request.method == 'POST':
         search = SearchForm(request.POST or None)
@@ -90,6 +93,7 @@ def search(request):
         search = SearchForm(request.POST or None) 
         return form({'searchform': search}, 'search/search.html',request)
 
+@login_required
 def searchp(request):
     if request.method == 'POST':
         search = SearchFormPlus(request.POST or None)
