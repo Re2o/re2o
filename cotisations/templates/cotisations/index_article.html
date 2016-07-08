@@ -1,0 +1,15 @@
+{% extends "cotisations/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Articles{% endblock %}
+
+{% block content %}
+  <h2>Liste des types d'articles</h2>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'articles</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:del-article'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'articles</a>
+  {%  include "cotisations/aff_article.html" with  article_list=article_list %}
+  <br />
+  <br />
+  <br />
+{% endblock %}
+

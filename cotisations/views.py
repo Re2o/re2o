@@ -8,9 +8,10 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
-from .models import Facture, Article, Cotisation, Article
+from .models import Facture, Article, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm
 from users.models import User
+from .tex import render_tex
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -69,6 +70,9 @@ def new_facture(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
+def new_facture_pdf(request):
+    return render_tex(request, 'cotisations/factures.tex', {'DATE':None})
+
 def edit_facture(request, factureid):
     try:
         facture = Facture.objects.get(pk=factureid)
@@ -87,7 +91,20 @@ def add_article(request):
     if article.is_valid():
         article.save()
         messages.success(request, "L'article a été ajouté")
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_article/")
+    return form({'factureform': article}, 'cotisations/facture.html', request)
+
+def edit_article(request, articleid):
+    try:
+        article_instance = Article.objects.get(pk=articleid)
+    except Article.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/cotisations/index_article/")
+    article = ArticleForm(request.POST or None, instance=article_instance)
+    if article.is_valid():
+        article.save()
+        messages.success(request, "Type d'article modifié")
+        return redirect("/cotisations/index_article/")
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 def del_article(request):
@@ -96,7 +113,7 @@ def del_article(request):
         article_del = article.cleaned_data['articles']
         article_del.delete()
         messages.success(request, "Le/les articles ont été supprimé")
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_article")
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 def add_paiement(request):
@@ -104,7 +121,20 @@ def add_paiement(request):
     if paiement.is_valid():
         paiement.save()
         messages.success(request, "Le moyen de paiement a été ajouté")
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_paiement/")
+    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+
+def edit_paiement(request, paiementid):
+    try:
+        paiement_instance = Paiement.objects.get(pk=paiementid)
+    except Paiement.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/cotisations/index_paiement/")
+    paiement = PaiementForm(request.POST or None, instance=paiement_instance)
+    if paiement.is_valid():
+        paiement.save()
+        messages.success(request, "Type de paiement modifié")
+        return redirect("/cotisations/index_paiement/")
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 def del_paiement(request):
@@ -117,7 +147,7 @@ def del_paiement(request):
                 messages.success(request, "Le moyen de paiement a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le moyen de paiement %s est affecté à au moins une facture, vous ne pouvez pas le supprimer" % paiement_del)
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_paiement/")
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 def add_banque(request):
@@ -125,7 +155,20 @@ def add_banque(request):
     if banque.is_valid():
         banque.save()
         messages.success(request, "La banque a été ajoutée")
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_banque/")
+    return form({'factureform': banque}, 'cotisations/facture.html', request)
+
+def edit_banque(request, banqueid):
+    try:
+        banque_instance = Article.objects.get(pk=banqueid)
+    except Banque.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/cotisations/index_banque/")
+    banque = BanqueForm(request.POST or None, instance=banque_instance)
+    if banque.is_valid():
+        banque.save()
+        messages.success(request, "Banque modifiée")
+        return redirect("/cotisations/index_banque/")
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 def del_banque(request):
@@ -138,8 +181,20 @@ def del_banque(request):
                 messages.success(request, "La banque a été supprimée")
             except ProtectedError:
                 messages.error(request, "La banque %s est affectée à au moins une facture, vous ne pouvez pas la supprimer" % banque_del)
-        return redirect("/cotisations/")
+        return redirect("/cotisations/index_banque/")
     return form({'factureform': banque}, 'cotisations/facture.html', request)
+
+def index_article(request):
+    article_list = Article.objects.order_by('name')
+    return render(request, 'cotisations/index_article.html', {'article_list':article_list})
+
+def index_paiement(request):
+    paiement_list = Paiement.objects.order_by('moyen')
+    return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list})
+
+def index_banque(request):
+    banque_list = Banque.objects.order_by('name')
+    return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list})
 
 def index(request):
     facture_list = Facture.objects.order_by('date').reverse()
