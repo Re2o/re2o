@@ -46,7 +46,17 @@
                        </form>
                     </div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                        <li>
+                            {% if request.user.is_authenticated %}
+                            <a href="{% url 'logout' %}">
+                                <span class="glyphicon glyphicon-log-out"></span> Logout
+                            </a>
+                            {% else %}
+                            <a href="{% url 'login' %}">
+                                <span class="glyphicon glyphicon-log-in"></span> Login
+                            </a>
+                            {% endif %}
+                        </li>
                     </ul>
                 </div>
             </div>
