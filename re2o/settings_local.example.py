@@ -17,4 +17,3 @@ DATABASES = {
     }
 }
 
-ALLOWED_EXTENSIONS = ['.example']

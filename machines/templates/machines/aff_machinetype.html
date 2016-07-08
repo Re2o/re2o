@@ -2,12 +2,14 @@
         <thead>
             <tr>
                 <th>Type de machine</th>
+                <th>Extension</th>
                 <th></th>
             </tr>
         </thead>
         {% for type in machinetype_list %}
         <tr>
             <td>{{ type.type }}</td>
+            <td>{{ type.extension }}</td>
             <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machinetype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
         </tr>
         {% endfor %}
