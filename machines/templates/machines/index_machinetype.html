@@ -1,0 +1,15 @@
+{% extends "machines/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Machines{% endblock %}
+
+{% block content %}
+  <h2>Liste des types de machines</h2>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-machinetype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type de machine</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:del-machinetype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types de machines</a>
+  {%  include "machines/aff_machinetype.html" with  machinetype_list=machinetype_list %}
+  <br />
+  <br />
+  <br />
+{% endblock %}
+
