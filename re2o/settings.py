@@ -29,6 +29,8 @@ PASSWORD_HASHERS = (
 )
 
 AUTH_USER_MODEL = 'users.User'
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/'
 
 
 # Application definition
@@ -80,6 +82,10 @@ TEMPLATES = [
     },
 ]
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+        'django.core.context_processors.request',
+    )
+
 WSGI_APPLICATION = 're2o.wsgi.application'
 
 
@@ -119,5 +125,3 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
-
-LOGIN_URL = '/admin/'
