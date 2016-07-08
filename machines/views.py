@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import ProtectedError
 
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm
@@ -47,6 +48,7 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
+@login_required
 def new_machine(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -70,6 +72,7 @@ def new_machine(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
 
+@login_required
 def edit_machine(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -85,6 +88,7 @@ def edit_machine(request, interfaceid):
         return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
+@login_required
 def new_interface(request, machineid):
     try:
         machine = Machine.objects.get(pk=machineid)
@@ -106,6 +110,7 @@ def new_interface(request, machineid):
         return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
+@login_required
 def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -114,6 +119,7 @@ def add_machinetype(request):
         return redirect("/machines/index_machinetype")
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
+@login_required
 def edit_machinetype(request, machinetypeid):
     try:
         machinetype_instance = MachineType.objects.get(pk=machinetypeid)
@@ -127,6 +133,7 @@ def edit_machinetype(request, machinetypeid):
         return redirect("/machines/index_machinetype/")
     return form({'machineform': machinetype}, 'machines/machine.html', request)
 
+@login_required
 def del_machinetype(request):
     machinetype = DelMachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -140,10 +147,12 @@ def del_machinetype(request):
         return redirect("/machines/index_machinetype")
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
+@login_required
 def index(request):
     interfaces_list = Interface.objects.order_by('pk')
     return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})
 
+@login_required
 def index_machinetype(request):
     machinetype_list = MachineType.objects.order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
