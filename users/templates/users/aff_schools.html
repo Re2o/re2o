@@ -1,0 +1,15 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Etablissement</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for school in school_list %}
+        <tr>
+            <td>{{ school.name }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-school' school.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+

@@ -14,10 +14,12 @@ urlpatterns = [
     url(r'^add_right/(?P<userid>[0-9]+)$', views.add_right, name='add-right'),
     url(r'^del_right/$', views.del_right, name='del-right'),
     url(r'^add_school/$', views.add_school, name='add-school'),
+    url(r'^edit_school/(?P<schoolid>[0-9]+)$', views.edit_school, name='edit-school'),
     url(r'^del_school/$', views.del_school, name='del-school'),
     url(r'^profil/(?P<userid>[0-9]+)$', views.profil, name='profil'),
     url(r'^index_ban/$', views.index_ban, name='index-ban'),
     url(r'^index_white/$', views.index_white, name='index-white'),
+    url(r'^index_school/$', views.index_school, name='index-school'),
     url(r'^$', views.index, name='index'),
 ]
 

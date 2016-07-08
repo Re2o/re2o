@@ -10,7 +10,7 @@ from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
 from django.utils import timezone
 
-from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm, DelSchoolForm, SchoolForm
+from users.models import User, Right, Ban, DelRightForm, UserForm, InfoForm, PasswordForm, StateForm, RightForm, BanForm, ProfilForm, Whitelist, WhitelistForm, DelSchoolForm, SchoolForm, School
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms  import PassForm
@@ -222,8 +222,21 @@ def add_school(request):
     if school.is_valid():
         school.save()
         messages.success(request, "L'établissement a été ajouté")
-        return redirect("/users/")
+        return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request) 
+
+def edit_school(request, schoolid):
+    try:
+        school_instance = School.objects.get(pk=schoolid)
+    except School.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/users/")
+    school = SchoolForm(request.POST or None, instance=school_instance)
+    if school.is_valid():
+        school.save()
+        messages.success(request, "Établissement modifié")
+        return redirect("/users/index_school/")
+    return form({'userform': school}, 'users/user.html', request)
 
 def del_school(request):
     school = DelSchoolForm(request.POST or None)
@@ -235,7 +248,7 @@ def del_school(request):
                 messages.success(request, "L'établissement a été supprimé")
             except ProtectedError:
                 messages.error(request, "L'établissement %s est affecté à au moins un user, vous ne pouvez pas le supprimer" % school_del)
-        return redirect("/users/")
+        return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
 def index(request):
@@ -257,6 +270,10 @@ def index_ban(request):
 def index_white(request):
     white_list = Whitelist.objects.order_by('date_start')
     return render(request, 'users/index_whitelist.html', {'white_list':white_list})
+
+def index_school(request):
+    school_list = School.objects.order_by('name')
+    return render(request, 'users/index_schools.html', {'school_list':school_list})
 
 def profil(request, userid):
     try:
