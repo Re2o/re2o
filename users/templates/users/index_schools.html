@@ -1,0 +1,15 @@
+{% extends "users/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block content %}
+  <h2>Liste des Établissements</h2>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-school'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un établissement</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:del-school'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs établissements</a>
+  {%  include "users/aff_schools.html" with  school_list=school_list %}
+  <br />
+  <br />
+  <br />
+{% endblock %}
+

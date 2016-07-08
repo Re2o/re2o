@@ -133,7 +133,7 @@ class SchoolForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SchoolForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = 'Établissement à ajouter'
+        self.fields['name'].label = 'Établissement'
 
 class DelSchoolForm(ModelForm):
     schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
