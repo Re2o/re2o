@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import ProtectedError
 
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm
-from .models import Machine, Interface, IpList
+from .models import Machine, Interface, IpList, MachineType
 from users.models import User
 
 def unassign_ips(user):
@@ -111,8 +111,21 @@ def add_machinetype(request):
     if machinetype.is_valid():
         machinetype.save()
         messages.success(request, "Ce type de machine a été ajouté")
-        return redirect("/machines/")
+        return redirect("/machines/index_machinetype")
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
+
+def edit_machinetype(request, machinetypeid):
+    try:
+        machinetype_instance = MachineType.objects.get(pk=machinetypeid)
+    except MachineType.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_machinetype/")
+    machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
+    if machinetype.is_valid():
+        machinetype.save()
+        messages.success(request, "Type de machine modifié")
+        return redirect("/machines/index_machinetype/")
+    return form({'machineform': machinetype}, 'machines/machine.html', request)
 
 def del_machinetype(request):
     machinetype = DelMachineTypeForm(request.POST or None)
@@ -124,9 +137,13 @@ def del_machinetype(request):
                 messages.success(request, "Le type de machine a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
-        return redirect("/machines/")
+        return redirect("/machines/index_machinetype")
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 def index(request):
     interfaces_list = Interface.objects.order_by('pk')
     return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})
+
+def index_machinetype(request):
+    machinetype_list = MachineType.objects.order_by('type')
+    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
