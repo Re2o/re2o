@@ -21,7 +21,6 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
-@login_required
 def search_result(search, type):
     date_deb = None
     date_fin = None 
