@@ -10,9 +10,10 @@ from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
 from .models import Facture, Article, Cotisation, Paiement, Banque
-from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm
+from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf
 from users.models import User
 from .tex import render_tex
+from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -75,7 +76,20 @@ def new_facture(request, userid):
 
 @login_required
 def new_facture_pdf(request):
-    return render_tex(request, 'cotisations/factures.tex', {'DATE':None})
+    facture_form = NewFactureFormPdf(request.POST or None)
+    if facture_form.is_valid():
+        tbl = []
+        article = facture_form.cleaned_data['article']
+        quantite = facture_form.cleaned_data['number']
+        paid = facture_form.cleaned_data['paid']
+        destinataire = facture_form.cleaned_data['dest']
+        objet = facture_form.cleaned_data['obj']
+        detail = facture_form.cleaned_data['detail']
+        for a in article:
+            tbl.append([a, quantite, a.prix * quantite])
+        prix_total = sum(a[2] for a in tbl)
+        return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':destinataire, 'obj':objet, 'detail':detail, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE})
+    return form({'factureform': facture_form}, 'cotisations/facture.html', request) 
 
 @login_required
 @permission_required('cableur')

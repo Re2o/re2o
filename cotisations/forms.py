@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from .models import Article, Paiement, Facture, Banque
 
 class NewFactureForm(ModelForm):
@@ -26,6 +26,14 @@ class NewFactureForm(ModelForm):
         if paiement.moyen=="chèque" and not (cheque and banque):
             raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
         return cleaned_data
+
+class NewFactureFormPdf(Form):
+    article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
+    number = forms.IntegerField(label="Quantité")
+    paid = forms.BooleanField(label="Payé", required=False)
+    dest = forms.CharField(required=True, max_length=255, label="Destinataire")
+    obj = forms.CharField(required=False, label="Objet")
+    detail = forms.CharField(required=False, max_length=255, label="Détails")
 
 class EditFactureForm(NewFactureForm):
     class Meta(NewFactureForm.Meta):
