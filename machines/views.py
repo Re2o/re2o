@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm
@@ -111,6 +111,7 @@ def new_interface(request, machineid):
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -120,6 +121,7 @@ def add_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def edit_machinetype(request, machinetypeid):
     try:
         machinetype_instance = MachineType.objects.get(pk=machinetypeid)
@@ -134,6 +136,7 @@ def edit_machinetype(request, machinetypeid):
     return form({'machineform': machinetype}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def del_machinetype(request):
     machinetype = DelMachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -148,6 +151,7 @@ def del_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def add_extension(request):
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
@@ -157,6 +161,7 @@ def add_extension(request):
     return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def edit_extension(request, extensionid):
     try:
         extension_instance = Extension.objects.get(pk=extensionid)
@@ -171,6 +176,7 @@ def edit_extension(request, extensionid):
     return form({'machineform': extension}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('admin')
 def del_extension(request):
     extension = DelExtensionForm(request.POST or None)
     if extension.is_valid():
@@ -191,10 +197,12 @@ def index(request):
 
 @login_required
 def index_machinetype(request):
+    is_admin = request.user.has_perms(('admin',))
     machinetype_list = MachineType.objects.order_by('type')
-    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
+    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list, 'is_admin':is_admin})
 
 @login_required
 def index_extension(request):
+    is_admin = request.user.has_perms(('admin',))
     extension_list = Extension.objects.order_by('name')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list})
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'is_admin':is_admin})
