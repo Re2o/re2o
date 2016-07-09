@@ -21,7 +21,7 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
-def search_result(search, type):
+def search_result(search, type, request):
     date_deb = None
     date_fin = None 
     states=[]
@@ -53,6 +53,8 @@ def search_result(search, type):
     switchlist = None
     portlist = None
     connexion = []
+    is_cableur = request.user.has_perms(('cableur',))
+    is_bofh = request.user.has_perms(('bofh',))
 
     for i in aff:
         if i == '0':
@@ -79,26 +81,18 @@ def search_result(search, type):
             portlist = Port.objects.filter(details__icontains = search)
         if i == '6':    
             switchlist = Switch.objects.filter(details__icontains = search)
-    return {'users_list': connexion, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
+    return {'users_list': connexion, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist, 'is_cableur':is_cableur, 'is_bofh':is_bofh}
 
 @login_required
 def search(request):
-    if request.method == 'POST':
-        search = SearchForm(request.POST or None)
-        if search.is_valid():
-            return form(search_result(search, False), 'search/index.html',request)
-        return form({'searchform' : search}, 'search/search.html', request)
-    else:
-        search = SearchForm(request.POST or None) 
-        return form({'searchform': search}, 'search/search.html',request)
+    search = SearchForm(request.POST or None)
+    if search.is_valid():
+        return form(search_result(search, False, request), 'search/index.html',request)
+    return form({'searchform' : search}, 'search/search.html', request)
 
 @login_required
 def searchp(request):
-    if request.method == 'POST':
-        search = SearchFormPlus(request.POST or None)
-        if search.is_valid():
-            return form(search_result(search, True), 'search/index.html',request)
-        return form({'searchform' : search}, 'search/search.html', request)
-    else:
-        search = SearchFormPlus(request.POST or None) 
-        return form({'searchform': search}, 'search/search.html',request)
+    search = SearchFormPlus(request.POST or None)
+    if search.is_valid():
+        return form(search_result(search, True, request), 'search/index.html',request)
+    return form({'searchform' : search}, 'search/search.html', request)
