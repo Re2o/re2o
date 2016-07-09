@@ -207,12 +207,9 @@ class Whitelist(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
-
-class InfoForm(ModelForm):
-    force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
-
+class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        super(InfoForm, self).__init__(*args, **kwargs)
+        super(BaseInfoForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Nom'
         self.fields['surname'].label = 'Prénom'
         self.fields['school'].label = 'Établissement'
@@ -220,11 +217,6 @@ class InfoForm(ModelForm):
         self.fields['room'].label = 'Chambre'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
-
-    def clean_force(self):
-        if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
-        return
 
     class Meta:
         model = User
@@ -238,6 +230,13 @@ class InfoForm(ModelForm):
             'room',
         ]
 
+class InfoForm(BaseInfoForm):
+    force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
+
+    def clean_force(self):
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
 
 class UserForm(InfoForm):
     class Meta(InfoForm.Meta):
