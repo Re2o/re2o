@@ -167,7 +167,6 @@ def del_paiement(request):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
 def add_banque(request):
     banque = BanqueForm(request.POST or None)
     if banque.is_valid():
@@ -208,18 +207,21 @@ def del_banque(request):
 
 @login_required
 def index_article(request):
+    is_trez = request.user.has_perms(('trésorier',))
     article_list = Article.objects.order_by('name')
-    return render(request, 'cotisations/index_article.html', {'article_list':article_list})
+    return render(request, 'cotisations/index_article.html', {'article_list':article_list, 'is_trez':is_trez})
 
 @login_required
 def index_paiement(request):
+    is_trez = request.user.has_perms(('trésorier',))
     paiement_list = Paiement.objects.order_by('moyen')
-    return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list})
+    return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list, 'is_trez':is_trez})
 
 @login_required
 def index_banque(request):
+    is_trez = request.user.has_perms(('trésorier',))
     banque_list = Banque.objects.order_by('name')
-    return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list})
+    return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list, 'is_trez':is_trez})
 
 @login_required
 def index(request):

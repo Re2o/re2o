@@ -140,6 +140,9 @@ class User(AbstractBaseUser):
                 return False
         return True
 
+    def has_perm(self, perm, obj=None):
+        return True
+
     def has_module_perms(self, app_label):
         # Simplest version again
         return True

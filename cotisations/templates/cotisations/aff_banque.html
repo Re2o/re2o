@@ -8,7 +8,7 @@
         {% for banque in banque_list %}
         <tr>
             <td>{{ banque.name }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-banque' banque.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+            <td>{% if is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-banque' banque.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>
