@@ -6,7 +6,9 @@
 {% block content %}
   <h2>Liste des banques</h2>
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-banque'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une banque</a>
+  {% if is_trez %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:del-banque'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs banques</a>
+  {% endif %}
   {%  include "cotisations/aff_banque.html" with  banque_list=banque_list %}
   <br />
   <br />

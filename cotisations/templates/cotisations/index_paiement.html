@@ -5,8 +5,10 @@
 
 {% block content %}
   <h2>Liste des types de paiements</h2>
+  {% if is_trez %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-paiement'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type de paiement</a>
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:del-paiement'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types de paiements</a>
+  {% endif %}
   {%  include "cotisations/aff_paiement.html" with  paiement_list=paiement_list %}
   <br />
   <br />

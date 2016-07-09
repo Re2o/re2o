@@ -8,7 +8,7 @@
         {% for paiement in paiement_list %}
         <tr>
             <td>{{ paiement.moyen }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-paiement' paiement.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+            <td>{% if is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-paiement' paiement.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>

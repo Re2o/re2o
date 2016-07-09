@@ -5,8 +5,10 @@
 
 {% block content %}
   <h2>Liste des types d'articles</h2>
+  {% if is_trez %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'articles</a>
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:del-article'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'articles</a>
+  {% endif %}
   {%  include "cotisations/aff_article.html" with  article_list=article_list %}
   <br />
   <br />

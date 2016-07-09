@@ -14,7 +14,7 @@
             <td>{{ article.prix }}</td>
             <td>{{ article.cotisation }}</td>
             <td>{{ article.duration }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-article' article.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+            <td>{% if is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-article' article.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>
