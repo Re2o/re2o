@@ -5,7 +5,7 @@
 
 {% block content %}
   <h2>Liste des types de machines</h2>
-  {% if is_admin %}
+  {% if is_infra %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-machinetype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type de machine</a>
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:del-machinetype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types de machines</a>
   {% endif %}

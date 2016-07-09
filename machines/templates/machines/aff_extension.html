@@ -8,7 +8,7 @@
         {% for extension in extension_list %}
         <tr>
             <td>{{ extension.name }}</td>
-            <td>{% if is_admin %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-extension' extension.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
+            <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-extension' extension.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>
