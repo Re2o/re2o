@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .models import Machine, Interface, IpList, MachineType, Extension
 from users.models import User
 
@@ -82,16 +82,20 @@ def edit_machine(request, interfaceid):
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
-    if not request.user.has_perms(('cableur',)) and str(interface.machine.user.id)!=str(request.user.id):
-        messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
-    machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
-    interface_form = EditInterfaceForm(request.POST or None, instance=interface)
+    if not request.user.has_perms(('cableur',)):
+        if str(interface.machine.user.id)!=str(request.user.id):
+            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+        machine_form = BaseEditMachineForm(request.POST or None, instance=interface.machine)
+        interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface)
+    else:
+        machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
+        interface_form = EditInterfaceForm(request.POST or None, instance=interface)
     if machine_form.is_valid() and interface_form.is_valid():
         machine_form.save()
         interface_form.save()
         messages.success(request, "La machine a été modifiée")
-        return redirect("/machines/")
+        return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
@@ -101,11 +105,14 @@ def new_interface(request, machineid):
     except Machine.DoesNotExist:
         messages.error(request, u"Machine inexistante" )
         return redirect("/machines")
-    if not request.user.has_perms(('cableur',)) and str(machine.user.id)!=str(request.user.id):
-        messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+    if not request.user.has_perms(('cableur',)):
+        if str(machine.user.id)!=str(request.user.id):
+            messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+        machine_form = BaseEditMachineForm(request.POST or None, instance=machine)
+    else:
+        machine_form = EditMachineForm(request.POST or None, instance=machine)
     interface_form = AddInterfaceForm(request.POST or None)
-    machine_form = EditMachineForm(request.POST or None, instance=machine)
     if interface_form.is_valid() and machine_form.is_valid():
         machine_form.save()
         new_interface = interface_form.save(commit=False)

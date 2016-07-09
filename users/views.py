@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from users.models import User, Right, Ban, Whitelist, School
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
-from users.models import InfoForm, StateForm, RightForm, SchoolForm
+from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import PassForm
@@ -112,7 +112,10 @@ def edit_info(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
-    user = InfoForm(request.POST or None, instance=user)
+    if not request.user.has_perms(('cableur',)):
+        user = BaseInfoForm(request.POST or None, instance=user)
+    else:
+        user = InfoForm(request.POST or None, instance=user)
     if user.is_valid():
         user.save()
         messages.success(request, "L'user a bien été modifié")
