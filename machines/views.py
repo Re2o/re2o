@@ -111,7 +111,7 @@ def new_interface(request, machineid):
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -121,7 +121,7 @@ def add_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def edit_machinetype(request, machinetypeid):
     try:
         machinetype_instance = MachineType.objects.get(pk=machinetypeid)
@@ -136,7 +136,7 @@ def edit_machinetype(request, machinetypeid):
     return form({'machineform': machinetype}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def del_machinetype(request):
     machinetype = DelMachineTypeForm(request.POST or None)
     if machinetype.is_valid():
@@ -151,7 +151,7 @@ def del_machinetype(request):
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def add_extension(request):
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
@@ -161,7 +161,7 @@ def add_extension(request):
     return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def edit_extension(request, extensionid):
     try:
         extension_instance = Extension.objects.get(pk=extensionid)
@@ -176,7 +176,7 @@ def edit_extension(request, extensionid):
     return form({'machineform': extension}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('admin')
+@permission_required('infra')
 def del_extension(request):
     extension = DelExtensionForm(request.POST or None)
     if extension.is_valid():
@@ -197,12 +197,12 @@ def index(request):
 
 @login_required
 def index_machinetype(request):
-    is_admin = request.user.has_perms(('admin',))
+    is_infra = request.user.has_perms(('infra',))
     machinetype_list = MachineType.objects.order_by('type')
-    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list, 'is_admin':is_admin})
+    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list, 'is_infra':is_infra})
 
 @login_required
 def index_extension(request):
-    is_admin = request.user.has_perms(('admin',))
+    is_infra = request.user.has_perms(('infra',))
     extension_list = Extension.objects.order_by('name')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'is_admin':is_admin})
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'is_infra':is_infra})

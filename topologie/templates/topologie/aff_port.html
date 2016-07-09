@@ -16,7 +16,7 @@
        <td>{{ port.machine_interface }}</td>
        <td>{{ port.related }}</td>
        <td>{{ port.details }}</td>
-       <td>{% if is_admin %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-port' port.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>{% endif %}</td>
+       <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-port' port.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>{% endif %}</td>
    </tr>
    {% endfor %}
 </table>

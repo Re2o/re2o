@@ -4,7 +4,7 @@
 {% block title %}Switchs{% endblock %}
 
 {% block content %}
-{% if is_admin %}
+{% if is_infra %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un switch</a>
 {% endif %}
     {% include "topologie/aff_switch.html" with switch_list=switch_list %}
