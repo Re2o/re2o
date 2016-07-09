@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
 from django.template import Context, RequestContext, loader
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
@@ -91,6 +91,7 @@ def edit_facture(request, factureid):
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def add_article(request):
     article = ArticleForm(request.POST or None)
     if article.is_valid():
@@ -100,6 +101,7 @@ def add_article(request):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def edit_article(request, articleid):
     try:
         article_instance = Article.objects.get(pk=articleid)
@@ -114,6 +116,7 @@ def edit_article(request, articleid):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def del_article(request):
     article = DelArticleForm(request.POST or None)
     if article.is_valid():
@@ -124,6 +127,7 @@ def del_article(request):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def add_paiement(request):
     paiement = PaiementForm(request.POST or None)
     if paiement.is_valid():
@@ -133,6 +137,7 @@ def add_paiement(request):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def edit_paiement(request, paiementid):
     try:
         paiement_instance = Paiement.objects.get(pk=paiementid)
@@ -147,6 +152,7 @@ def edit_paiement(request, paiementid):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def del_paiement(request):
     paiement = DelPaiementForm(request.POST or None)
     if paiement.is_valid():
@@ -161,6 +167,7 @@ def del_paiement(request):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def add_banque(request):
     banque = BanqueForm(request.POST or None)
     if banque.is_valid():
@@ -170,6 +177,7 @@ def add_banque(request):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def edit_banque(request, banqueid):
     try:
         banque_instance = Article.objects.get(pk=banqueid)
@@ -184,6 +192,7 @@ def edit_banque(request, banqueid):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('trésorier')
 def del_banque(request):
     banque = DelBanqueForm(request.POST or None)
     if banque.is_valid():

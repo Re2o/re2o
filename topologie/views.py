@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 
 from topologie.models import Switch, Port
@@ -23,6 +23,7 @@ def index_port(request, switch_id):
     return render(request, 'topologie/index_p.html', {'port_list':port_list, 'id_switch':switch_id, 'nom_switch':switch})
 
 @login_required
+@permission_required('admin')
 def new_port(request, switch_id):
     try:
         switch = Switch.objects.get(pk=switch_id)
@@ -42,6 +43,7 @@ def new_port(request, switch_id):
     return form({'topoform':port}, 'topologie/port.html', request)
 
 @login_required
+@permission_required('admin')
 def edit_port(request, port_id):
     try:
         port = Port.objects.get(pk=port_id)
@@ -56,6 +58,7 @@ def edit_port(request, port_id):
     return form({'topoform':port}, 'topologie/port.html', request)
 
 @login_required
+@permission_required('admin')
 def new_switch(request):
     switch = EditSwitchForm(request.POST or None)
     if switch.is_valid():
@@ -65,6 +68,7 @@ def new_switch(request):
     return form({'topoform':switch}, 'topologie/port.html', request)
 
 @login_required
+@permission_required('admin')
 def edit_switch(request, switch_id):
     try:
         switch = Switch.objects.get(pk=switch_id)
