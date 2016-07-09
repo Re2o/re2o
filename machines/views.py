@@ -191,17 +191,20 @@ def del_extension(request):
     return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def index(request):
     interfaces_list = Interface.objects.order_by('pk')
     return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})
 
 @login_required
+@permission_required('cableur')
 def index_machinetype(request):
     is_infra = request.user.has_perms(('infra',))
     machinetype_list = MachineType.objects.order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list, 'is_infra':is_infra})
 
 @login_required
+@permission_required('cableur')
 def index_extension(request):
     is_infra = request.user.has_perms(('infra',))
     extension_list = Extension.objects.order_by('name')

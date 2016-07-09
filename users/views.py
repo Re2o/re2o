@@ -93,6 +93,7 @@ def form(ctx, template, request):
     )
 
 @login_required
+@permission_required('cableur')
 def new_user(request):
     user = InfoForm(request.POST or None)
     if user.is_valid():
@@ -116,6 +117,7 @@ def edit_info(request, userid):
     return form({'userform': user}, 'users/user.html', request)
 
 @login_required
+@permission_required('bureau')
 def state(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -135,6 +137,7 @@ def state(request, userid):
     return form({'userform': state}, 'users/user.html', request)
 
 @login_required
+@permission_required('bureau')
 def password(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -185,6 +188,7 @@ def del_right(request):
     return form({'userform': right}, 'users/user.html', request)
 
 @login_required
+@permission_required('bofh')
 def add_ban(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -205,6 +209,7 @@ def add_ban(request, userid):
     return form({'userform': ban}, 'users/user.html', request)
 
 @login_required
+@permission_required('bofh')
 def edit_ban(request, banid):
     try:
         ban_instance = Ban.objects.get(pk=banid)
@@ -219,6 +224,7 @@ def edit_ban(request, banid):
     return form({'userform': ban}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def add_whitelist(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -239,6 +245,7 @@ def add_whitelist(request, userid):
     return form({'userform': whitelist}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def edit_whitelist(request, whitelistid):
     try:
         whitelist_instance = Whitelist.objects.get(pk=whitelistid)
@@ -253,6 +260,7 @@ def edit_whitelist(request, whitelistid):
     return form({'userform': whitelist}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def add_school(request):
     school = SchoolForm(request.POST or None)
     if school.is_valid():
@@ -262,6 +270,7 @@ def add_school(request):
     return form({'userform': school}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def edit_school(request, schoolid):
     try:
         school_instance = School.objects.get(pk=schoolid)
@@ -276,6 +285,7 @@ def edit_school(request, schoolid):
     return form({'userform': school}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def del_school(request):
     school = DelSchoolForm(request.POST or None)
     if school.is_valid():
@@ -306,11 +316,14 @@ def index(request):
     return render(request, 'users/index.html', {'users_list': connexion})
 
 @login_required
+@permission_required('cableur')
 def index_ban(request):
+    is_bofh = request.user.has_perms(('bofh',))
     ban_list = Ban.objects.order_by('date_start')
-    return render(request, 'users/index_ban.html', {'ban_list': ban_list})
+    return render(request, 'users/index_ban.html', {'ban_list': ban_list, 'is_bofh':is_bofh})
 
 @login_required
+@permission_required('cableur')
 def index_white(request):
     white_list = Whitelist.objects.order_by('date_start')
     return render(
@@ -320,6 +333,7 @@ def index_white(request):
     )
 
 @login_required
+@permission_required('cableur')
 def index_school(request):
     school_list = School.objects.order_by('name')
     return render(request, 'users/index_schools.html', {'school_list':school_list})
@@ -344,6 +358,9 @@ def profil(request, userid):
     if(is_whitelisted(users)):
         end_whitelists = end_whitelist(users)
     list_droits = Right.objects.filter(user=users)
+    is_bofh = request.user.has_perms(('bofh',))
+    is_bureau = request.user.has_perms(('bureau',))
+    is_cableur = request.user.has_perms(('cableur',))
     return render(
         request,
         'users/profil.html',
@@ -357,7 +374,10 @@ def profil(request, userid):
             'end_whitelist': end_whitelists,
             'end_adhesion': end_adhesion(users),
             'actif':has_access(users),
-            'list_droits': list_droits
+            'list_droits': list_droits,
+            'is_bofh': is_bofh,
+            'is_bureau': is_bureau,
+            'is_cableur': is_cableur,
         }
     )
 

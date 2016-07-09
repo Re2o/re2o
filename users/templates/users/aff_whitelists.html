@@ -14,7 +14,7 @@
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-whitelist' whitelist.id %}"><i class="glyphicon glyphicon-flag"></i> Editer</a></td>
+            <td>{% if is_cableur %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-whitelist' whitelist.id %}"><i class="glyphicon glyphicon-flag"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>

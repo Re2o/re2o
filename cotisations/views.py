@@ -49,6 +49,7 @@ def create_cotis(facture, user, duration):
     return
 
 @login_required
+@permission_required('cableur')
 def new_facture(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -77,6 +78,7 @@ def new_facture_pdf(request):
     return render_tex(request, 'cotisations/factures.tex', {'DATE':None})
 
 @login_required
+@permission_required('cableur')
 def edit_facture(request, factureid):
     try:
         facture = Facture.objects.get(pk=factureid)
@@ -167,6 +169,7 @@ def del_paiement(request):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('cableur')
 def add_banque(request):
     banque = BanqueForm(request.POST or None)
     if banque.is_valid():
@@ -206,24 +209,29 @@ def del_banque(request):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('cableur')
 def index_article(request):
     is_trez = request.user.has_perms(('trésorier',))
     article_list = Article.objects.order_by('name')
     return render(request, 'cotisations/index_article.html', {'article_list':article_list, 'is_trez':is_trez})
 
 @login_required
+@permission_required('cableur')
 def index_paiement(request):
     is_trez = request.user.has_perms(('trésorier',))
     paiement_list = Paiement.objects.order_by('moyen')
     return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list, 'is_trez':is_trez})
 
 @login_required
+@permission_required('cableur')
 def index_banque(request):
     is_trez = request.user.has_perms(('trésorier',))
     banque_list = Banque.objects.order_by('name')
     return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list, 'is_trez':is_trez})
 
 @login_required
+@permission_required('cableur')
 def index(request):
+    is_cableur = request.user.has_perms(('cableur',))
     facture_list = Facture.objects.order_by('date').reverse()
-    return render(request, 'cotisations/index.html', {'facture_list': facture_list})
+    return render(request, 'cotisations/index.html', {'facture_list': facture_list, 'is_cableur': is_cableur})
