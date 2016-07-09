@@ -20,6 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
+# Association information
+
+ASSO_NAME = "ReZo Metz"
+ASSO_ADDRESS_LINE1 = "2, rue Edouard Belin"
+ASSO_ADDRESS_LINE2 = "57070 Metz"
+ASSO_SIRET = ""
+ASSO_EMAIL = "tresorier@ecole.fr"
+ASSO_PHONE = "01 02 03 04 05"
 
 # Auth definition
 
