@@ -104,6 +104,9 @@ def new_user(request):
 
 @login_required
 def edit_info(request, userid):
+    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -137,13 +140,18 @@ def state(request, userid):
     return form({'userform': state}, 'users/user.html', request)
 
 @login_required
-@permission_required('bureau')
 def password(request, userid):
+    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
+    if not request.user.has_perms(('bureau',)) and str(userid)!=str(request.user.id) and Right.objects.filter(user=user):
+        messages.error(request, "Il faut les droits bureau pour modifier le mot de passe d'un membre actif")
+        return redirect("/users/profil/" + str(request.user.id))
     u_form = PassForm(request.POST or None)
     if u_form.is_valid():
         if u_form.cleaned_data['passwd1'] != u_form.cleaned_data['passwd2']:
@@ -303,6 +311,7 @@ def del_school(request):
     return form({'userform': school}, 'users/user.html', request)
 
 @login_required
+@permission_required('cableur')
 def index(request):
     users_list = User.objects.order_by('pk')
     connexion = []
@@ -340,6 +349,9 @@ def index_school(request):
 
 @login_required
 def profil(request, userid):
+    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
     try:
         users = User.objects.get(pk=userid)
     except User.DoesNotExist:

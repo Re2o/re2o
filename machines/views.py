@@ -55,6 +55,9 @@ def new_machine(request, userid):
     except User.DoesNotExist:
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/machines/")
+    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None) 
     if machine.is_valid() and interface.is_valid():
@@ -79,6 +82,9 @@ def edit_machine(request, interfaceid):
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
+    if not request.user.has_perms(('cableur',)) and str(interface.machine.user.id)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
     machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
     interface_form = EditInterfaceForm(request.POST or None, instance=interface)
     if machine_form.is_valid() and interface_form.is_valid():
@@ -95,6 +101,9 @@ def new_interface(request, machineid):
     except Machine.DoesNotExist:
         messages.error(request, u"Machine inexistante" )
         return redirect("/machines")
+    if not request.user.has_perms(('cableur',)) and str(machine.user.id)!=str(request.user.id):
+        messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None)
     machine_form = EditMachineForm(request.POST or None, instance=machine)
     if interface_form.is_valid() and machine_form.is_valid():
