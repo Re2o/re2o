@@ -8,12 +8,14 @@ from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm
 from users.views import form
 
 @login_required
+@permission_required('cableur')
 def index(request):
     is_infra = request.user.has_perms(('infra',))
     switch_list = Switch.objects.order_by('building', 'number')
     return render(request, 'topologie/index.html', {'switch_list': switch_list, 'is_infra':is_infra})
 
 @login_required
+@permission_required('cableur')
 def index_port(request, switch_id):
     is_infra = request.user.has_perms(('infra',))
     try:

@@ -18,7 +18,7 @@
             <td>{{ facture.prix }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a></td>
+            <td>{% if is_cableur %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a>{% endif %}</td>
         </tr>
         {% endfor %}
     </table>
