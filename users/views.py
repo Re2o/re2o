@@ -5,12 +5,12 @@ from django.shortcuts import render_to_response, render, redirect
 from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
 from django.utils import timezone
 
-from users.models import User, Right, Ban, Whitelist
+from users.models import User, Right, Ban, Whitelist, School
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.models import InfoForm, StateForm, RightForm, SchoolForm
 from cotisations.models import Facture
@@ -154,6 +154,7 @@ def password(request, userid):
     return form({'userform': u_form}, 'users/user.html', request)
 
 @login_required
+@permission_required('bureau')
 def add_right(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -173,6 +174,7 @@ def add_right(request, userid):
     return form({'userform': right}, 'users/user.html', request)
 
 @login_required
+@permission_required('bureau')
 def del_right(request):
     right = DelRightForm(request.POST or None)
     if right.is_valid():

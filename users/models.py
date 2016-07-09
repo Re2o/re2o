@@ -8,7 +8,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from topologie.models import Room
 
-
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
     try:
@@ -133,8 +132,12 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         return self.name
 
-    def has_perm(self, perm, obj=None):
-        # Simplest version
+    def has_perms(self, perms, obj=None):
+        for perm in perms:
+            try:
+                Right.objects.get(user=self, right__listright=perm)
+            except Right.DoesNotExist:
+                return False
         return True
 
     def has_module_perms(self, app_label):
