@@ -23,25 +23,10 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
-def end_adhesion(user):
-    """ Renvoie la date de fin d'adhésion d'un user, False sinon """
-    date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=user).exclude(valid=False)).aggregate(Max('date_end'))['date_end__max']
-    return date_max
-
-def is_adherent(user):
-    """ Renvoie si un user est à jour de cotisation """
-    end = end_adhesion(user)
-    if not end:
-        return False
-    elif end < timezone.now():
-        return False
-    else:
-        return True
-
 def create_cotis(facture, user, duration):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(facture=facture)
-    date_max = end_adhesion(user) or timezone.now()
+    date_max = user.end_adhesion() or timezone.now()
     if date_max < timezone.now():
         datemax = timezone.now()
     cotisation.date_start=date_max
@@ -225,27 +210,23 @@ def del_banque(request):
 @login_required
 @permission_required('cableur')
 def index_article(request):
-    is_trez = request.user.has_perms(('trésorier',))
     article_list = Article.objects.order_by('name')
-    return render(request, 'cotisations/index_article.html', {'article_list':article_list, 'is_trez':is_trez})
+    return render(request, 'cotisations/index_article.html', {'article_list':article_list})
 
 @login_required
 @permission_required('cableur')
 def index_paiement(request):
-    is_trez = request.user.has_perms(('trésorier',))
     paiement_list = Paiement.objects.order_by('moyen')
-    return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list, 'is_trez':is_trez})
+    return render(request, 'cotisations/index_paiement.html', {'paiement_list':paiement_list})
 
 @login_required
 @permission_required('cableur')
 def index_banque(request):
-    is_trez = request.user.has_perms(('trésorier',))
     banque_list = Banque.objects.order_by('name')
-    return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list, 'is_trez':is_trez})
+    return render(request, 'cotisations/index_banque.html', {'banque_list':banque_list})
 
 @login_required
 @permission_required('cableur')
 def index(request):
-    is_cableur = request.user.has_perms(('cableur',))
     facture_list = Facture.objects.order_by('date').reverse()
-    return render(request, 'cotisations/index.html', {'facture_list': facture_list, 'is_cableur': is_cableur})
+    return render(request, 'cotisations/index.html', {'facture_list': facture_list})

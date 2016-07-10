@@ -13,8 +13,6 @@ from machines.models import Machine, Interface
 from topologie.models import Port, Switch
 from cotisations.models import Facture
 from search.models import SearchForm, SearchFormPlus
-from users.views import has_access
-from cotisations.views import end_adhesion
 
 def form(ctx, template, request):
     c = ctx
@@ -53,21 +51,10 @@ def search_result(search, type, request):
     switchlist = None
     portlist = None
     connexion = []
-    is_cableur = request.user.has_perms(('cableur',))
-    is_bofh = request.user.has_perms(('bofh',))
 
     for i in aff:
         if i == '0':
             users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)
-            connexion = []
-            for user in users:
-                end=end_adhesion(user)
-                access=has_access(user)
-                if(len(co)==0 or (len(co)==1 and bool(co[0])==access) or (len(co)==2 and (bool(co[0])==access or bool(co[1])==access))):
-                    if(end!=None):
-                        connexion.append([user, access, end])
-                    else:
-                        connexion.append([user, access, "Non adhérent"])
         query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
         if i == '1':
             machines = Interface.objects.filter(machine=Machine.objects.filter(query)) | Interface.objects.filter(Q(dns__icontains = search))
@@ -81,7 +68,7 @@ def search_result(search, type, request):
             portlist = Port.objects.filter(details__icontains = search)
         if i == '6':    
             switchlist = Switch.objects.filter(details__icontains = search)
-    return {'users_list': connexion, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist, 'is_cableur':is_cableur, 'is_bofh':is_bofh}
+    return {'users_list': users, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
 
 @login_required
 def search(request):

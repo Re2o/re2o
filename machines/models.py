@@ -33,6 +33,12 @@ class Machine(models.Model):
     name = models.CharField(max_length=255, help_text="Optionnel", blank=True, null=True)
     active = models.BooleanField(default=True)
 
+    def is_active(self):
+        """ Renvoie si une interface doit avoir accès ou non """
+        machine = self.machine
+        user = machine.user
+        return machine.active and user.has_access()
+
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' +  str(self.name)
 

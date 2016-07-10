@@ -9,19 +9,19 @@
                 <th>Profil</th>
             </tr>
         </thead>
-        {% for donnee in users_list %}    
+        {% for user in users_list %}    
         <tr>
-            <td>{{ donnee.0.name }}</td>
-            <td>{{ donnee.0.surname }}</td>
-            <td>{{ donnee.0.pseudo }}</td>
-            <td>{{ donnee.2 }}</td>
-            <td>{% if donnee.1 == True %}
+            <td>{{ user.name }}</td>
+            <td>{{ user.surname }}</td>
+            <td>{{ user.pseudo }}</td>
+            <td>{% if user.is_adherent %}{{ user.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
+            <td>{% if user.has_access == True %}
                 <font color="green">Active</font>
                 {% else %}
                 <font color="red">Désactivée</font>
                 {% endif %}
             </td>
-            <td><a href="{% url "users:profil" donnee.0.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
+            <td><a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
             </td>
         </tr>
         {% endfor %}

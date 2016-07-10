@@ -1,12 +1,14 @@
 from django.db import models
 from django.forms import ModelForm, Form
 from django import forms
+
 import re
 
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from topologie.models import Room
+from cotisations.models import Cotisation, Facture
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
@@ -142,6 +144,54 @@ class User(AbstractBaseUser):
 
     def has_perm(self, perm, obj=None):
         return True
+
+    def end_adhesion(self):
+        date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=self).exclude(valid=False)).aggregate(models.Max('date_end'))['date_end__max']
+        return date_max
+
+    def is_adherent(self):
+        end = self.end_adhesion()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def end_ban(self):
+        """ Renvoie la date de fin de ban d'un user, False sinon """
+        date_max = Ban.objects.all().filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        return date_max
+
+    def end_whitelist(self):
+        """ Renvoie la date de fin de ban d'un user, False sinon """
+        date_max = Whitelist.objects.all().filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        return date_max
+
+    def is_ban(self):
+        """ Renvoie si un user est banni ou non """
+        end = self.end_ban()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def is_whitelisted(self):
+        """ Renvoie si un user est whitelisté ou non """
+        end = self.end_whitelist()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def has_access(self):
+        """ Renvoie si un utilisateur a accès à internet """
+        return self.state == User.STATE_ACTIVE \
+            and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
 
     def has_module_perms(self, app_label):
         # Simplest version again
