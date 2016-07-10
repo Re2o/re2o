@@ -215,13 +215,11 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_machinetype(request):
-    is_infra = request.user.has_perms(('infra',))
     machinetype_list = MachineType.objects.order_by('type')
-    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list, 'is_infra':is_infra})
+    return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
 
 @login_required
 @permission_required('cableur')
 def index_extension(request):
-    is_infra = request.user.has_perms(('infra',))
     extension_list = Extension.objects.order_by('name')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'is_infra':is_infra})
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list})

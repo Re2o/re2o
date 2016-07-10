@@ -28,11 +28,14 @@
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
+                            <li><a href="{% url "users:mon-profil" %}">Mon profil</a></li>
+                            {% if is_cableur %}
                             <li><a href="{% url "users:index" %}">Adhérents</a></li>
                             <li><a href="{% url "machines:index" %}">Machines</a></li>
                             <li><a href="{% url "cotisations:index" %}">Cotisations</a></li>
                             <li><a href="{% url "topologie:index" %}">Topologie</a></li>
                             <li><a href="#">Statistiques</a></li>
+                            {% endif %}
                         </ul>
                         <div class="col-sm-3 col-md-3 navbar-right">
                             <form action="{% url "search:search"%}"  method="POST" class="navbar-form" role="search">
@@ -82,7 +85,16 @@
                     </div>
                     <div class="col-sm-2 sidenav">
                         <div class="well">
-                            <p>ADS</p>
+                            {% if user.is_authenticated %}
+                            <li>{{ user.name }} {{ user.surname }}</li>
+                            <li>Pseudo : {{ user.pseudo }}</li>
+                            <li>Chambre : {{ user.room }}</li>
+                            <li>Connexion : {% if user.actif == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
+                            <li>Fin d'adhésion : {% if user.end_adhesion != None %}<font color="green">{{ user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
+                            <p><a href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
+                            {% else %}
+                            <p>Vous n'êtes pas authentifié</p>
+                            {% endif %}
                         </div>
                         <div class="well">
                             <p>ADS</p>

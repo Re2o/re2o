@@ -1,17 +1,43 @@
-/* Remove the navbar's default margin-bottom and rounded borders */ 
+/* Sticky footer hacks */
+html, body {
+    height: 100%;
+}
+
+#wrap {
+    min-height: 100%;
+}
+
+#main {
+    overflow:auto;
+    padding-bottom:60px; /* this needs to be bigger than footer height*/
+}
+
+footer {
+    position: relative;
+    margin-top: -50px; /* negative value of footer height */
+    height: 50px;
+    clear:both;
+    padding-top:20px;
+}
+
+/* Remove the navbar's default margin-bottom and rounded borders */
 .navbar {
     margin-bottom: 0;
     border-radius: 0;
 }
 
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-.row.content {height: 450px}
+.row.content {
+    height: 100%;
+    overflow: hidden;
+}
 
 /* Set gray background color and 100% height */
 .sidenav {
     padding-top: 20px;
     background-color: #f1f1f1;
-    height: 100%;
+    margin-bottom: -9999px;
+    padding-bottom: 9999px;
 }
 
 /* Set black background color, white text and some padding */
@@ -27,5 +53,5 @@ footer {
         height: auto;
         padding: 15px;
     }
-    .row.content {height:auto;} 
+    .row.content {height:auto;}
 }

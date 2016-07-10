@@ -38,21 +38,21 @@
         </tr>
         <tr>
             <th>Fin d'adhésion</th>
-            {% if end_adhesion != None %}
-            <td><font color="green">{{ end_adhesion }}</font></td>
+            {% if user.end_adhesion != None %}
+            <td><font color="green">{{ user.end_adhesion }}</font></td>
             {% else %}
             <td><font color="red">Non adhérent</font></td>
             {% endif %}
             <th>Accès gracieux</th>
-            {% if end_whitelist != None %}
-            <td><font color="green">{{ end_whitelist }}</font></td>
+            {% if user.end_whitelist != None %}
+            <td><font color="green">{{ user.end_whitelist }}</font></td>
             {% else %}
             <td><font color="orange">Aucun</font></td>
             {% endif %}
         <tr>
             <th>Bannissement</th>
-            {% if end_ban != None %}
-            <td><font color="red">{{ end_ban }}</font></td>
+            {% if user.end_ban != None %}
+            <td><font color="red">{{ user.end_ban }}</font></td>
             {% else %}
             <td><font color="green">Non banni</font></td>
             {% endif %}
@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <th>Connexion</th>
-            {% if actif == True %}
+            {% if user.actif == True %}
             <td><font color="green">Active</font></td>
             {% else %}
             <td><font color="red">Désactivée</font></td>

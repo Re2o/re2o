@@ -16,7 +16,6 @@ from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolFor
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import PassForm
-from cotisations.views import is_adherent, end_adhesion
 from machines.views import unassign_ips, assign_ips
 
 from re2o.login import hashNT
@@ -32,56 +31,6 @@ def unarchive(user):
     """ Triger actions au desarchivage d'un user """
     assign_ips(user)
     return
-
-
-def end_ban(user):
-    """ Renvoie la date de fin de ban d'un user, False sinon """
-    date_max = Ban.objects.all().filter(
-        user=user).aggregate(Max('date_end'))['date_end__max']
-    return date_max
-
-
-def end_whitelist(user):
-    """ Renvoie la date de fin de ban d'un user, False sinon """
-    date_max = Whitelist.objects.all().filter(
-        user=user).aggregate(Max('date_end'))['date_end__max']
-    return date_max
-
-
-def is_ban(user):
-    """ Renvoie si un user est banni ou non """
-    end = end_ban(user)
-    if not end:
-        return False
-    elif end < timezone.now():
-        return False
-    else:
-        return True
-
-
-def is_whitelisted(user):
-    """ Renvoie si un user est whitelisté ou non """
-    end = end_whitelist(user)
-    if not end:
-        return False
-    elif end < timezone.now():
-        return False
-    else:
-        return True
-
-
-def has_access(user):
-    """ Renvoie si un utilisateur a accès à internet """
-    return user.state == User.STATE_ACTIVE \
-        and not is_ban(user) and (is_adherent(user) or is_whitelisted(user))
-
-
-def is_active(interface):
-    """ Renvoie si une interface doit avoir accès ou non """
-    machine = interface.machine
-    user = machine.user
-    return machine.active and has_access(user)
-
 
 def form(ctx, template, request):
     c = ctx
@@ -317,22 +266,13 @@ def del_school(request):
 @permission_required('cableur')
 def index(request):
     users_list = User.objects.order_by('pk')
-    connexion = []
-    for user in users_list:
-        end = end_adhesion(user)
-        access = has_access(user)
-        if(end is not None):
-            connexion.append([user, access, end])
-        else:
-            connexion.append([user, access, "Non adhérent"])
-    return render(request, 'users/index.html', {'users_list': connexion})
+    return render(request, 'users/index.html', {'users_list': users_list})
 
 @login_required
 @permission_required('cableur')
 def index_ban(request):
-    is_bofh = request.user.has_perms(('bofh',))
     ban_list = Ban.objects.order_by('date_start')
-    return render(request, 'users/index_ban.html', {'ban_list': ban_list, 'is_bofh':is_bofh})
+    return render(request, 'users/index_ban.html', {'ban_list': ban_list})
 
 @login_required
 @permission_required('cableur')
@@ -351,6 +291,10 @@ def index_school(request):
     return render(request, 'users/index_schools.html', {'school_list':school_list})
 
 @login_required
+def mon_profil(request):
+    return redirect("/users/profil/" + str(request.user.id))
+
+@login_required
 def profil(request, userid):
     if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
         messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
@@ -366,16 +310,7 @@ def profil(request, userid):
     factures = Facture.objects.filter(user__pseudo=users)
     bans = Ban.objects.filter(user__pseudo=users)
     whitelists = Whitelist.objects.filter(user__pseudo=users)
-    end_bans = None
-    end_whitelists = None
-    if(is_ban(users)):
-        end_bans = end_ban(users)
-    if(is_whitelisted(users)):
-        end_whitelists = end_whitelist(users)
     list_droits = Right.objects.filter(user=users)
-    is_bofh = request.user.has_perms(('bofh',))
-    is_bureau = request.user.has_perms(('bureau',))
-    is_cableur = request.user.has_perms(('cableur',))
     return render(
         request,
         'users/profil.html',
@@ -385,14 +320,7 @@ def profil(request, userid):
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,
-            'end_ban': end_bans,
-            'end_whitelist': end_whitelists,
-            'end_adhesion': end_adhesion(users),
-            'actif':has_access(users),
             'list_droits': list_droits,
-            'is_bofh': is_bofh,
-            'is_bureau': is_bureau,
-            'is_cableur': is_cableur,
         }
     )
 
