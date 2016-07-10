@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='interface',
             name='dns',
-            field=models.CharField(unique=True, validators=[machines.models.full_domain_validator], help_text="Obligatoire et unique, doit se terminer en .example et ne pas comporter d'autres points", max_length=255),
+            field=models.CharField(unique=True, help_text="Obligatoire et unique, doit se terminer en .example et ne pas comporter d'autres points", max_length=255),
         ),
     ]
