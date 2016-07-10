@@ -161,7 +161,7 @@ def add_ban(request, userid):
         ban.save()
         messages.success(request, "Bannissement ajouté")
         return redirect("/users/profil/" + userid)
-    if is_ban(user):
+    if user.is_ban():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un bannissement actif"

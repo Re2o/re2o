@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.forms import ModelForm, Form
 from django import forms
 
+from re2o.settings import RIGHTS_LINK
 import re
 
 from django.utils import timezone
@@ -137,8 +138,12 @@ class User(AbstractBaseUser):
 
     def has_perms(self, perms, obj=None):
         for perm in perms:
-            if perm == 'cableur' and Right.objects.filter(Q(user=self) & (Q(right__listright='admin') | Q(right__listright='bureau') | Q(right__listright='infra'))):
-                return True
+            if perm in RIGHTS_LINK:
+                query = Q()
+                for right in RIGHTS_LINK[perm]:
+                    query = query | Q(right__listright=right)
+                if Right.objects.filter(Q(user=self) & query):
+                    return True 
             try:
                 Right.objects.get(user=self, right__listright=perm)
             except Right.DoesNotExist:

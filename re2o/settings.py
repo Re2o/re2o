@@ -12,22 +12,13 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS
+from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# Association information
-
-ASSO_NAME = "ReZo Metz"
-ASSO_ADDRESS_LINE1 = "2, rue Edouard Belin"
-ASSO_ADDRESS_LINE2 = "57070 Metz"
-ASSO_SIRET = ""
-ASSO_EMAIL = "tresorier@ecole.fr"
-ASSO_PHONE = "01 02 03 04 05"
 
 # Auth definition
 
@@ -134,3 +125,9 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+
+RIGHTS_LINK = {
+    'cableur' : ['bureau','infra','bofh','trésorier','bofh'],
+    'bofh' : ['bureau','trésorier'],
+    }
+
