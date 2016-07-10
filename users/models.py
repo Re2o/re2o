@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.forms import ModelForm, Form
 from django import forms
 
@@ -136,6 +137,8 @@ class User(AbstractBaseUser):
 
     def has_perms(self, perms, obj=None):
         for perm in perms:
+            if perm == 'cableur' and Right.objects.filter(Q(user=self) & (Q(right__listright='admin') | Q(right__listright='bureau') | Q(right__listright='infra'))):
+                return True
             try:
                 Right.objects.get(user=self, right__listright=perm)
             except Right.DoesNotExist:
