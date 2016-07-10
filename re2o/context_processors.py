@@ -1,7 +1,12 @@
+from machines.models import Interface, Machine
 
 
 def context_user(request):
     user = request.user
+    if user.is_authenticated():
+        interfaces = Interface.objects.filter(machine=Machine.objects.filter(user=user, active=True))
+    else:
+        interfaces = None
     is_cableur = user.has_perms(('cableur',))
     is_bureau = user.has_perms(('bureau',))
     is_bofh = user.has_perms(('bofh',))
@@ -14,4 +19,5 @@ def context_user(request):
         'is_bofh': is_bofh,
         'is_trez': is_trez,
         'is_infra': is_infra,
+        'interfaces': interfaces,
     }
