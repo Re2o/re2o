@@ -96,9 +96,15 @@
                             <p>Vous n'êtes pas authentifié</p>
                             {% endif %}
                         </div>
+                        {% if request_user.is_authenticated %}
                         <div class="well">
-                            <p>ADS</p>
+                        {{ interfaces|length }} machines actives
+                        {% for interface in interfaces|slice:":5" %}
+                        <li>{{interface.dns}}</li>
+                        {% endfor %}
+                        <p><a href="{% url "users:mon-profil" %}">Voir toutes mes machines</a></p>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
