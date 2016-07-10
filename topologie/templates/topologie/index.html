@@ -4,6 +4,7 @@
 {% block title %}Switchs{% endblock %}
 
 {% block content %}
+  <h2>Switchs</h2>
 {% if is_infra %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un switch</a>
 {% endif %}

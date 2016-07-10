@@ -90,7 +90,7 @@
                             <li>Pseudo : {{ request_user.pseudo }}</li>
                             <li>Chambre : {{ request_user.room }}</li>
                             <li>Connexion : {% if request_user.actif == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
-                            <li>Fin d'adhésion : {% if request_user.end_adhesion != None %}<font color="green">{{ user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
+                            <li>Fin d'adhésion : {% if request_user.end_adhesion != None %}<font color="green">{{ request_user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
                             <p><a href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
                             {% else %}
                             <p>Vous n'êtes pas authentifié</p>
