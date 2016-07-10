@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='interface',
             name='dns',
-            field=models.CharField(unique=True, max_length=255, validators=[machines.models.full_domain_validator], help_text="Obligatoire et unique, doit se terminer en .rez et ne pas comporter d'autres points"),
+            field=models.CharField(unique=True, max_length=255, help_text="Obligatoire et unique, doit se terminer en .rez et ne pas comporter d'autres points"),
         ),
         migrations.AddField(
             model_name='machinetype',
