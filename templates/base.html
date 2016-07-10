@@ -85,12 +85,12 @@
                     </div>
                     <div class="col-sm-2 sidenav">
                         <div class="well">
-                            {% if user.is_authenticated %}
-                            <li>{{ user.name }} {{ user.surname }}</li>
-                            <li>Pseudo : {{ user.pseudo }}</li>
-                            <li>Chambre : {{ user.room }}</li>
-                            <li>Connexion : {% if user.actif == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
-                            <li>Fin d'adhésion : {% if user.end_adhesion != None %}<font color="green">{{ user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
+                            {% if request_user.is_authenticated %}
+                            <li>{{ request_user.name }} {{ request_user.surname }}</li>
+                            <li>Pseudo : {{ request_user.pseudo }}</li>
+                            <li>Chambre : {{ request_user.room }}</li>
+                            <li>Connexion : {% if request_user.actif == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
+                            <li>Fin d'adhésion : {% if request_user.end_adhesion != None %}<font color="green">{{ user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
                             <p><a href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
                             {% else %}
                             <p>Vous n'êtes pas authentifié</p>
