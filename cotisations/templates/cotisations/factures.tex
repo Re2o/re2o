@@ -54,8 +54,8 @@
 %----------------------------------------------------------------------------------------
 \begin{titlepage}
 %\begin{textblock}{4cm}(20mm,5mm) 
-%\includegraphics[scale=0.3]{% templatetag openbrace %}{{tpl_path}}/logo.png}
-%\end{textblock}
+%\includegraphics[scale=0.3]{/static_files/rezo-logo.png}
+%\end{textblock} 
 \end{titlepage} 
 \hfil{\Huge\bf {{asso_name}} }\hfil % Company providing the invoice
 \bigskip\break % Whitespace
@@ -65,12 +65,12 @@
 {{line2}} \hfill {{email}} \\
 Siret : {{siret}}
 \\ \\
-{\bf À :} \tab {{dest}} \\ % Invoice recipient
+{\bf À :} \tab {{dest.name}} {{dest.surname}}  \\ % Invoice recipient
+{\bf Chambre :} \tab {% if dest.room = None %} Aucune chambre {% else %}{{dest.room}}{% endif %} \\
 
 {\bf Date:} \tab {{DATE}} \\ % Invoice date
 
-{\bf Objet:} \tab {{obj}} \\ % Objet
-\tab \tab {{detail}} \\ % Details
+{\bf Facture \no :} \tab {{ fid }} \\ %
 %----------------------------------------------------------------------------------------
 %	TABLE OF EXPENSES
 %----------------------------------------------------------------------------------------
@@ -107,6 +107,7 @@ Siret : {{siret}}
 
 \vspace{1.5cm} % Whitespace
 \hrule % Horizontal line
+\vspace{0.25cm}
 \footnotesize{TVA non applicable, art. 293 B du CGI}
 	
 {% endlanguage %}

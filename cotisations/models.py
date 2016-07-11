@@ -14,6 +14,9 @@ class Facture(models.Model):
         prix = Vente.objects.all().filter(facture=self).aggregate(models.Sum('prix'))['prix__sum']
         return prix
 
+    def prix_total(self):
+        return self.prix()*self.number
+
     def name(self):
         name = ' - '.join(vente.name for vente in Vente.objects.all().filter(facture=self))
         return name
