@@ -13,7 +13,7 @@ from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf
 from users.models import User
 from .tex import render_tex
-from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE
+from re2o.settings_local import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -61,6 +61,7 @@ def new_facture(request, userid):
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
 @login_required
+@permission_required('cableur')
 def new_facture_pdf(request):
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
@@ -76,6 +77,22 @@ def new_facture_pdf(request):
         prix_total = sum(a[2] for a in tbl)
         return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':destinataire, 'obj':objet, 'detail':detail, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE})
     return form({'factureform': facture_form}, 'cotisations/facture.html', request) 
+
+@login_required
+def facture_pdf(request, factureid):
+    try:
+        facture = Facture.objects.get(pk=factureid)
+    except Facture.DoesNotExist:
+        messages.error(request, u"Facture inexistante" )
+        return redirect("/cotisations/")
+    if not request.user.has_perms(('cableur',)) and facture.user != request.user:
+        messages.error(request, "Vous ne pouvez pas afficher une facture ne vous appartenant pas sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
+    vente = Vente.objects.all().filter(facture=facture)
+    ventes = []
+    for v in vente:
+        ventes.append([v, facture.number, v.prix * facture.number])
+    return render_tex(request, 'cotisations/factures.tex', {'paid':True, 'fid':facture.id, 'DATE':facture.date,'dest':facture.user, 'article':ventes, 'total': facture.prix_total(), 'asso_name':ASSO_NAME, 'line1': ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path':LOGO_PATH})
 
 @permission_required('cableur')
 def edit_facture(request, factureid):
