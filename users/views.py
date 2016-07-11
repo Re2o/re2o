@@ -53,14 +53,14 @@ def new_user(request):
 
 @login_required
 def edit_info(request, userid):
-    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
-        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
-        return redirect("/users/profil/" + str(request.user.id))
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
+    if not request.user.has_perms(('cableur',)) and user != request.user:
+        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
     if not request.user.has_perms(('cableur',)):
         user = BaseInfoForm(request.POST or None, instance=user)
     else:
@@ -93,15 +93,15 @@ def state(request, userid):
 
 @login_required
 def password(request, userid):
-    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
-        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
-        return redirect("/users/profil/" + str(request.user.id))
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
-    if not request.user.has_perms(('bureau',)) and str(userid)!=str(request.user.id) and Right.objects.filter(user=user):
+    if not request.user.has_perms(('cableur',)) and user != request.user:
+        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
+    if not request.user.has_perms(('bureau',)) and user != request.user and Right.objects.filter(user=user):
         messages.error(request, "Il faut les droits bureau pour modifier le mot de passe d'un membre actif")
         return redirect("/users/profil/" + str(request.user.id))
     u_form = PassForm(request.POST or None)
@@ -296,14 +296,14 @@ def mon_profil(request):
 
 @login_required
 def profil(request, userid):
-    if not request.user.has_perms(('cableur',)) and str(userid)!=str(request.user.id):
-        messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
-        return redirect("/users/profil/" + str(request.user.id))
     try:
         users = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
+    if not request.user.has_perms(('cableur',)) and users != request.user:
+        messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
+        return redirect("/users/profil/" + str(request.user.id))
     machines = Interface.objects.filter(
         machine=Machine.objects.filter(user__pseudo=users)
     )
