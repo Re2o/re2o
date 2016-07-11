@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <th>Connexion</th>
-            {% if user.actif == True %}
+            {% if user.has_access == True %}
             <td><font color="green">Active</font></td>
             {% else %}
             <td><font color="red">Désactivée</font></td>
