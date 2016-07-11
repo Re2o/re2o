@@ -1,9 +1,12 @@
 from django.contrib import admin
 
-from .models import Facture, Article, Banque, Paiement, Cotisation
+from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
 class FactureAdmin(admin.ModelAdmin):
-    list_display = ('user','paiement','name', 'number','prix', 'date','valid')
+    list_display = ('user','paiement','number', 'date','valid')
+
+class VenteAdmin(admin.ModelAdmin):
+    list_display = ('facture','name','prix','cotisation','duration')
 
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ('name','prix','cotisation','duration')
@@ -24,4 +27,5 @@ admin.site.register(Facture, FactureAdmin)
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(Banque, BanqueAdmin)
 admin.site.register(Paiement, PaiementAdmin)
+admin.site.register(Vente, VenteAdmin)
 admin.site.register(Cotisation, CotisationAdmin)

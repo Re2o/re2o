@@ -42,8 +42,6 @@ class EditFactureForm(NewFactureForm):
     def __init__(self, *args, **kwargs):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
-        self.fields['name'].label = 'Designation'
-        self.fields['prix'].label = 'Prix unitaire'
         self.fields['user'].empty_label = "Séléctionner l'adhérent propriétaire"
         self.fields.pop('article')
 

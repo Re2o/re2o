@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import Max, ProtectedError
 
-from .models import Facture, Article, Cotisation, Paiement, Banque
+from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf
 from users.models import User
 from .tex import render_tex
@@ -47,9 +47,10 @@ def new_facture(request, userid):
     if facture_form.is_valid():
         new_facture = facture_form.save(commit=False)
         article = facture_form.cleaned_data['article']
-        new_facture.prix = sum(art.prix for art in article)
-        new_facture.name = ' - '.join(art.name for art in article)
         new_facture.save()
+        for art in article:
+            new_vente = Vente.objects.create(facture=new_facture, name=art.name, prix=art.prix, cotisation=art.cotisation, duration=art.duration)
+            new_vente.save()
         if any(art.cotisation for art in article):
             duration = sum(art.duration*facture.number for art in article if art.cotisation)
             create_cotis(new_facture, user, duration)
@@ -76,7 +77,6 @@ def new_facture_pdf(request):
         return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':destinataire, 'obj':objet, 'detail':detail, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE})
     return form({'factureform': facture_form}, 'cotisations/facture.html', request) 
 
-@login_required
 @permission_required('cableur')
 def edit_facture(request, factureid):
     try:
