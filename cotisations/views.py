@@ -8,12 +8,15 @@ from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import Max, ProtectedError
+from django.forms import modelformset_factory, formset_factory
+import os
 
 from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf
 from users.models import User
 from .tex import render_tex
 from re2o.settings_local import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
+from re2o import settings
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -44,15 +47,16 @@ def new_facture(request, userid):
         return redirect("/cotisations/")
     facture = Facture(user=user)
     facture_form = NewFactureForm(request.POST or None, instance=facture)
+    ArticleFormSet = formset_factory(ArticleForm)
     if facture_form.is_valid():
         new_facture = facture_form.save(commit=False)
         article = facture_form.cleaned_data['article']
         new_facture.save()
         for art in article:
-            new_vente = Vente.objects.create(facture=new_facture, name=art.name, prix=art.prix, cotisation=art.cotisation, duration=art.duration)
+            new_vente = Vente.objects.create(facture=new_facture, name=art.name, prix=art.prix, cotisation=art.cotisation, duration=art.duration, number=1)
             new_vente.save()
         if any(art.cotisation for art in article):
-            duration = sum(art.duration*facture.number for art in article if art.cotisation)
+            duration = sum(art.duration for art in article if art.cotisation)
             create_cotis(new_facture, user, duration)
             messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
         else:
@@ -61,7 +65,7 @@ def new_facture(request, userid):
     return form({'factureform': facture_form}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('cableur')
+@permission_required('trésorier')
 def new_facture_pdf(request):
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
@@ -70,12 +74,13 @@ def new_facture_pdf(request):
         quantite = facture_form.cleaned_data['number']
         paid = facture_form.cleaned_data['paid']
         destinataire = facture_form.cleaned_data['dest']
-        objet = facture_form.cleaned_data['obj']
-        detail = facture_form.cleaned_data['detail']
+        chambre = facture_form.cleaned_data['chambre']
+        fid = facture_form.cleaned_data['fid']
         for a in article:
             tbl.append([a, quantite, a.prix * quantite])
         prix_total = sum(a[2] for a in tbl)
-        return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':destinataire, 'obj':objet, 'detail':detail, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE})
+        user = {'name':destinataire, 'room':chambre}
+        return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':user,'fid':fid, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)})
     return form({'factureform': facture_form}, 'cotisations/facture.html', request) 
 
 @login_required
@@ -91,9 +96,10 @@ def facture_pdf(request, factureid):
     vente = Vente.objects.all().filter(facture=facture)
     ventes = []
     for v in vente:
-        ventes.append([v, facture.number, v.prix * facture.number])
-    return render_tex(request, 'cotisations/factures.tex', {'paid':True, 'fid':facture.id, 'DATE':facture.date,'dest':facture.user, 'article':ventes, 'total': facture.prix_total(), 'asso_name':ASSO_NAME, 'line1': ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path':LOGO_PATH})
+        ventes.append([v, v.number, v.prix_total])
+    return render_tex(request, 'cotisations/factures.tex', {'paid':True, 'fid':facture.id, 'DATE':facture.date,'dest':facture.user, 'article':ventes, 'total': facture.prix_total(), 'asso_name':ASSO_NAME, 'line1': ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path':os.path.join(settings.BASE_DIR, LOGO_PATH)})
 
+@login_required
 @permission_required('cableur')
 def edit_facture(request, factureid):
     try:
@@ -102,11 +108,15 @@ def edit_facture(request, factureid):
         messages.error(request, u"Facture inexistante" )
         return redirect("/cotisations/")
     facture_form = EditFactureForm(request.POST or None, instance=facture)
-    if facture_form.is_valid():
+    ventes_objects = Vente.objects.filter(facture=facture)
+    vente_form_set = modelformset_factory(Vente, fields=('name','prix','number'), can_delete=True)
+    vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
+    if facture_form.is_valid() and vente_form.is_valid():
         facture_form.save()
+        vente_form.save()
         messages.success(request, "La facture a bien été modifiée")
         return redirect("/cotisations/")
-    return form({'factureform': facture_form}, 'cotisations/facture.html', request)
+    return form({'factureform': facture_form, 'venteform': vente_form}, 'cotisations/facture.html', request)
 
 @login_required
 @permission_required('trésorier')

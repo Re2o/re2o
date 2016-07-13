@@ -1,13 +1,13 @@
 from django import forms
 from django.forms import ModelForm, Form
-from .models import Article, Paiement, Facture, Banque
+from django import forms
+from .models import Article, Paiement, Facture, Banque, Vente
 
 class NewFactureForm(ModelForm):
-    article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
+    article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article", widget=forms.CheckboxSelectMultiple())
 
     def __init__(self, *args, **kwargs):
         super(NewFactureForm, self).__init__(*args, **kwargs)
-        self.fields['number'].label = 'Quantité'
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
         self.fields['cheque'].label = 'Numero de chèque'
@@ -16,7 +16,7 @@ class NewFactureForm(ModelForm):
 
     class Meta:
         model = Facture
-        fields = ['paiement','banque','cheque','number']
+        fields = ['paiement','banque','cheque']
 
     def clean(self):
         cleaned_data=super(NewFactureForm, self).clean()
@@ -27,13 +27,17 @@ class NewFactureForm(ModelForm):
             raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
         return cleaned_data
 
+class SelectArticleForm(Form):
+    article = forms.ModelChoiceField(queryset=Article.objects.all(), label="Article")
+    quantity = forms.IntegerField(label="Quantité")
+
 class NewFactureFormPdf(Form):
     article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
     number = forms.IntegerField(label="Quantité")
     paid = forms.BooleanField(label="Payé", required=False)
     dest = forms.CharField(required=True, max_length=255, label="Destinataire")
-    obj = forms.CharField(required=False, label="Objet")
-    detail = forms.CharField(required=False, max_length=255, label="Détails")
+    chambre = forms.CharField(required=False, max_length=10, label="Adresse")
+    fid = forms.CharField(required=True, max_length=10, label="Numéro de la facture")
 
 class EditFactureForm(NewFactureForm):
     class Meta(NewFactureForm.Meta):

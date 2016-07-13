@@ -9,6 +9,10 @@
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form factureform %}
+    {% for vente in venteform %}
+    {% bootstrap_form vente %}
+    {% endfor %}
+    {{ venteform.management_form }}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
 {% endblock %}

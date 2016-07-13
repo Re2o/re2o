@@ -5,4 +5,5 @@
     <p><a href="{% url "cotisations:index-article" %}">Liste des articles en vente</a></p>
     <p><a href="{% url "cotisations:index-banque" %}">Liste des banques</a></p>
     <p><a href="{% url "cotisations:index-paiement" %}">Liste des moyens de paiement</a></p>
+    {% if is_trez %}<p><a href="{% url "cotisations:new-facture-pdf" %}">Créer une nouvelle facture</a></p>{% endif %}
 {% endblock %}

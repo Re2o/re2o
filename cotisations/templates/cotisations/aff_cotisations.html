@@ -3,8 +3,7 @@
             <tr>
                 <th>Utilisateur</th>
                 <th>Designation</th>
-                <th>Nombre</th>
-                <th>Prix unitaire</th>
+                <th>Prix total</th>
                 <th>Moyen de paiement</th>
                 <th>Date</th>
   		<th></th>
@@ -15,8 +14,7 @@
         <tr>
             <td>{{ facture.user }}</td>
             <td>{{ facture.name }}</td>
-            <td>{{ facture.number }}</td>
-            <td>{{ facture.prix }}</td>
+            <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
             <td>{% if is_cableur %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a>{% endif %}</td>
