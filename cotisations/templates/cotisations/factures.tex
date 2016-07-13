@@ -34,6 +34,7 @@
 \usepackage{graphicx}
 \usepackage{calc}
 \usepackage{tabularx}
+\usepackage{eurosym}
 
 \pagestyle{empty} % No page numbers
 \linespread{1.5} % Line spacing
@@ -52,12 +53,8 @@
 %----------------------------------------------------------------------------------------
 %	HEADING SECTION
 %----------------------------------------------------------------------------------------
-\begin{titlepage}
-%\begin{textblock}{4cm}(20mm,5mm) 
-%\includegraphics[scale=0.3]{/static_files/rezo-logo.png}
-%\end{textblock} 
-\end{titlepage} 
-\hfil{\Huge\bf {{asso_name}} }\hfil % Company providing the invoice
+\includegraphics[width=3.5cm]{% templatetag openbrace %}{{ tpl_path }}} 
+\tab \tab \tab \tab \tab {\Huge\bf {{asso_name}} }\hfil % Company providing the invoice
 \bigskip\break % Whitespace
 \hrule % Horizontal line \\
 \vspace{0.5cm}
@@ -66,7 +63,7 @@
 Siret : {{siret}}
 \\ \\
 {\bf À :} \tab {{dest.name}} {{dest.surname}}  \\ % Invoice recipient
-{\bf Chambre :} \tab {% if dest.room = None %} Aucune chambre {% else %}{{dest.room}}{% endif %} \\
+{\bf Adresse :} \tab {% if dest.room = None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} \\
 
 {\bf Date:} \tab {{DATE}} \\ % Invoice date
 
@@ -77,29 +74,27 @@ Siret : {{siret}}
 
 \begin{tabularx}{\textwidth}{|X|r|r|r|}
 \hline
-   \textbf{Désignation} & \textbf{Prix Unit.} & \textbf{Quantité} & \textbf{Prix total} \\
+   \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
 \hline
 
 
 {% for a in article %}
 \hline
-    {{a.0.name}} & {{a.0.prix}} & {{a.1}} & {{a.2}}\\
+    {{a.0.name}} & {{a.0.prix}} \euro & {{a.1}} & {{a.2}} \euro\\
 \hline
 {% endfor %}
 
 	\hline
 \end{tabularx}
 
-%\setcounter{paid}{0}
-%\setcounter{topay}{\real{\value{total}}-\value{paid}}
 \vspace{1cm}
 \hfill
 \begin{tabular}{|l|r|}
 \hline
-\textbf{Total} & {{total|floatformat:2}} \\
-\textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \\
+\textbf{Total} & {{total|floatformat:2}} \euro \\
+\textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro \\
 \hline
-\textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %}\\
+\textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
 \hline
 \hline
 

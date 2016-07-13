@@ -15,6 +15,8 @@ Dépendances :
  * django-bootstrap3 (pip install)
  * python3-django-macaddress (stretch)
  * python3-dateutil (jessie-backports)
+ * texlive-latex-base
+ * texlive-fonts-recommended
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer :
