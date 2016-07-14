@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
 class FactureAdmin(admin.ModelAdmin):
-    list_display = ('user','paiement','date','valid')
+    list_display = ('user','paiement','date','valid','control')
 
 class VenteAdmin(admin.ModelAdmin):
     list_display = ('facture','name','prix','number','cotisation','duration')
