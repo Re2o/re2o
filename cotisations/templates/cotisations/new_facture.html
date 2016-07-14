@@ -1,0 +1,114 @@
+{% extends "cotisations/sidebar.html" %}
+{% load bootstrap3 %}
+{% load staticfiles%}
+
+{% block title %}Création et modification de factures{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors factureform %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form factureform %}
+    {{ venteform.management_form }}
+    <div id="form_set">
+    {% for form in venteform.forms %}
+        <div class='product_to_sell'>
+            {{ form.as_p }}
+        </div>
+    {% endfor %}
+    </div>
+    <input class="btn btn-primary btn-sm" role="button" value="Ajouter un article" id="add_one">
+    <p>
+        Prix total : <span id="total_price">0,00</span> €
+    </p>
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+</form>
+
+<script type="text/javascript">
+
+    // id from database from checks
+    var CHECK_ID = 1;
+
+    var prices = {} 
+    {% for article in articlelist %}
+        prices[{{ article.id|escapejs }}] = {{ article.prix }};
+    {% endfor %}
+
+    var template = `{{ venteform.empty_form.as_p }}`;
+
+    function add_article(){
+        // Index start at 0 => new_index = number of items
+        var new_index =
+            document.getElementsByClassName('product_to_sell').length;
+        document.getElementById('id_form-TOTAL_FORMS').value =
+            parseInt(document.getElementById('id_form-TOTAL_FORMS').value) + 1;
+        var new_article = document.createElement('div');
+        new_article.className = 'product_to_sell';
+        new_article.innerHTML = template.replace(/__prefix__/g, new_index);
+        document.getElementById('form_set')
+            .appendChild(new_article);
+        add_listenner_for_id(new_index);
+    }
+
+    function update_price(){
+        var price = 0;
+        var product_count =
+            document.getElementsByClassName('product_to_sell').length;
+        var article, article_price, quantity;
+        for (i = 0; i < product_count; ++i){
+            article = document.getElementById(
+                'id_form-' + i.toString() + '-article').value;
+            if (article == '') {
+                continue;
+            }
+            article_price = prices[article];
+            quantity = document.getElementById(
+                'id_form-' + i.toString() + '-quantity').value;
+            price += article_price * quantity;
+        }
+        document.getElementById('total_price').innerHTML =
+            price.toFixed(2).toString().replace('.', ',');
+    }
+
+    function add_listenner_for_id(i){
+        document.getElementById('id_form-' + i.toString() + '-article')
+            .addEventListener("change", update_price, true);
+        document.getElementById('id_form-' + i.toString() + '-article')
+            .addEventListener("onkeypress", update_price, true);
+        document.getElementById('id_form-' + i.toString() + '-quantity')
+            .addEventListener("change", update_price, true);
+    }
+
+    function set_cheque_info_visibility(){
+        // May break in various ways...
+        // Requires CHECK_ID to be the right one
+        // and fields to hide to be 2nd and 3rd elements with class form-group
+        var visible = document.getElementById("id_paiement").value == CHECK_ID;
+        var display = 'none';
+        if (visible) {
+            display = 'block';
+        }
+        var elements = document.getElementsByClassName('form-group');
+        elements[1].style.display = display;
+        elements[2].style.display = display;
+    }
+
+    // Add events manager when DOM is fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("add_one")
+            .addEventListener("click", add_article, true);
+        var product_count =
+            document.getElementsByClassName('product_to_sell').length;
+        for (i = 0; i < product_count; ++i){
+            add_listenner_for_id(i);
+        }
+        document.getElementById("id_paiement")
+            .addEventListener("change", set_cheque_info_visibility, true);
+        set_cheque_info_visibility();
+        update_price();
+    });
+
+</script>
+
+{% endblock %}
