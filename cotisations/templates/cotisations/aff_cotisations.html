@@ -17,8 +17,9 @@
             <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
-            <td>{% if is_cableur %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}"><i class="glyphicon glyphicon-save"></i> PDF</a></td>
+            <td>{% if is_cableur %}{% if facture.valid and not facture.control or is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a>{% endif %}{% endif %}</td>
+            <td>{% if is_cableur %}{% if facture.valid and not facture.control or is_trez %}<a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a>{% else %}Facture controlée{% endif %}{% endif %}</td>
+            <td>{% if facture.valid %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}"><i class="glyphicon glyphicon-save"></i> PDF</a>{% else %}Facture invalide{% endif %}</td>
         </tr>
         {% endfor %}
     </table>

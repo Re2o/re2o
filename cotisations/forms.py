@@ -42,13 +42,22 @@ class NewFactureFormPdf(Form):
 
 class EditFactureForm(NewFactureForm):
     class Meta(NewFactureForm.Meta):
-        fields = '__all__'
+        fields = ['paiement','banque','cheque','user']
 
     def __init__(self, *args, **kwargs):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
         self.fields['user'].empty_label = "Séléctionner l'adhérent propriétaire"
+
+class TrezEditFactureForm(EditFactureForm):
+    class Meta(EditFactureForm.Meta):
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(TrezEditFactureForm, self).__init__(*args, **kwargs)
         self.fields['valid'].label = 'Validité de la facture'
+        self.fields['control'].label = 'Controle de la facture'
+
 
 class ArticleForm(ModelForm):
     class Meta:

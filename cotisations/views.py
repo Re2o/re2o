@@ -12,7 +12,7 @@ from django.forms import modelformset_factory, formset_factory
 import os
 
 from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
-from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
+from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
 from users.models import User
 from .tex import render_tex
 from re2o.settings_local import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
@@ -104,6 +104,9 @@ def facture_pdf(request, factureid):
     if not request.user.has_perms(('cableur',)) and facture.user != request.user:
         messages.error(request, "Vous ne pouvez pas afficher une facture ne vous appartenant pas sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
+    if not facture.valid:
+        messages.error(request, "Vous ne pouvez pas afficher une facture non valide")
+        return redirect("/users/profil/" + str(request.user.id))
     vente = Vente.objects.all().filter(facture=facture)
     ventes = []
     for v in vente:
@@ -118,7 +121,13 @@ def edit_facture(request, factureid):
     except Facture.DoesNotExist:
         messages.error(request, u"Facture inexistante" )
         return redirect("/cotisations/")
-    facture_form = EditFactureForm(request.POST or None, instance=facture)
+    if request.user.has_perms(['trésorier']):
+        facture_form = TrezEditFactureForm(request.POST or None, instance=facture)
+    elif facture.control or not facture.valid:
+        messages.error(request, "Vous ne pouvez pas editer une facture controlée ou invalidée par le trésorier")
+        return redirect("/cotisations/")
+    else:
+        facture_form = EditFactureForm(request.POST or None, instance=facture)
     ventes_objects = Vente.objects.filter(facture=facture)
     vente_form_set = modelformset_factory(Vente, fields=('name','number'), extra=0, max_num=len(ventes_objects))
     vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
@@ -128,6 +137,21 @@ def edit_facture(request, factureid):
         messages.success(request, "La facture a bien été modifiée")
         return redirect("/cotisations/")
     return form({'factureform': facture_form, 'venteform': vente_form}, 'cotisations/facture.html', request)
+
+@login_required
+@permission_required('cableur')
+def del_facture(request, factureid):
+    try:
+        facture = Facture.objects.get(pk=factureid)
+    except Facture.DoesNotExist:
+        messages.error(request, u"Facture inexistante" )
+        return redirect("/cotisations/")
+    if (facture.control or not facture.valid):
+        messages.error(request, "Vous ne pouvez pas editer une facture controlée ou invalidée par le trésorier")
+        return redirect("/cotisations/")
+    facture.delete()
+    messages.success(request, "La facture a bien été supprimée")
+    return redirect("/cotisations/")
 
 @login_required
 @permission_required('trésorier')
