@@ -6,7 +6,6 @@ class Facture(models.Model):
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
     banque = models.ForeignKey('Banque', on_delete=models.PROTECT, blank=True, null=True)
     cheque = models.CharField(max_length=255, blank=True)
-    number = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
 
@@ -15,7 +14,7 @@ class Facture(models.Model):
         return prix
 
     def prix_total(self):
-        return self.prix()*self.number
+        return Vente.objects.all().filter(facture=self).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total']
 
     def name(self):
         name = ' - '.join(vente.name for vente in Vente.objects.all().filter(facture=self))
@@ -26,10 +25,14 @@ class Facture(models.Model):
 
 class Vente(models.Model):
     facture = models.ForeignKey('Facture', on_delete=models.PROTECT)
+    number = models.IntegerField()
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     cotisation = models.BooleanField()
     duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
+
+    def prix_total(self):
+        return self.prix*self.number
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
