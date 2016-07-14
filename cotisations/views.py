@@ -46,29 +46,34 @@ def new_facture(request, userid):
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/cotisations/")
     facture = Facture(user=user)
+    # Le template a besoin de connaitre les articles pour le js
+    article_list = Article.objects.all()
+    # On envoie la form fature et un formset d'articles
     facture_form = NewFactureForm(request.POST or None, instance=facture)
-    article_formset = formset_factory(SelectArticleForm)
-    article_formset = article_formset(request.POST or None)
+    article_formset = formset_factory(SelectArticleForm)(request.POST or None)
     if facture_form.is_valid() and article_formset.is_valid():
         new_facture = facture_form.save(commit=False)
         articles = article_formset
+        # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
             new_facture.save()
+            duration = 0
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
                     quantity = art_item.cleaned_data['quantity']
                     new_vente = Vente.objects.create(facture=new_facture, name=article.name, prix=article.prix, cotisation=article.cotisation, duration=article.duration, number=quantity)
                     new_vente.save()
-            if any(art.cleaned_data['article'].cotisation for art in articles):
-                duration = sum(art.cleaned_data['article'].duration*art.cleaned_data['quantity'] for art in articles if art.cleaned_data['article'].cotisation)
+                    if art_item.cleaned_data['article'].cotisation:
+                        duration += art_item.cleaned_data['article'].duration*art_item.cleaned_data['quantity']
+            if duration:
                 create_cotis(new_facture, user, duration)
-                messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
+                messages.success(request, "La cotisation a été prolongée pour l'adhérent %s jusqu'au %s" % (user.name, user.end_adhesion()) )
             else:
                 messages.success(request, "La facture a été crée")
             return redirect("/users/profil/" + userid)
         messages.error(request, u"Il faut au moins un article valide pour créer une facture" )
-    return form({'factureform': facture_form, 'venteform': article_formset}, 'cotisations/facture.html', request)
+    return form({'factureform': facture_form, 'venteform': article_formset, 'articlelist': article_list}, 'cotisations/new_facture.html', request)
 
 @login_required
 @permission_required('trésorier')
@@ -115,7 +120,7 @@ def edit_facture(request, factureid):
         return redirect("/cotisations/")
     facture_form = EditFactureForm(request.POST or None, instance=facture)
     ventes_objects = Vente.objects.filter(facture=facture)
-    vente_form_set = modelformset_factory(Vente, fields=('name','prix','number'), can_delete=True)
+    vente_form_set = modelformset_factory(Vente, fields=('name','number'), extra=0, max_num=len(ventes_objects))
     vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
     if facture_form.is_valid() and vente_form.is_valid():
         facture_form.save()

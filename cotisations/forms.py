@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm, Form
 from django import forms
+from django.core.validators import MinValueValidator
 from .models import Article, Paiement, Facture, Banque, Vente
 
 class NewFactureForm(ModelForm):
@@ -29,11 +30,11 @@ class NewFactureForm(ModelForm):
 
 class SelectArticleForm(Form):
     article = forms.ModelChoiceField(queryset=Article.objects.all(), label="Article", required=True)
-    quantity = forms.IntegerField(label="Quantité", required=True)
+    quantity = forms.IntegerField(label="Quantité", validators=[MinValueValidator(1)], required=True)
 
 class NewFactureFormPdf(Form):
     article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
-    number = forms.IntegerField(label="Quantité")
+    number = forms.IntegerField(label="Quantité", validators=[MinValueValidator(1)])
     paid = forms.BooleanField(label="Payé", required=False)
     dest = forms.CharField(required=True, max_length=255, label="Destinataire")
     chambre = forms.CharField(required=False, max_length=10, label="Adresse")
@@ -47,7 +48,7 @@ class EditFactureForm(NewFactureForm):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
         self.fields['user'].empty_label = "Séléctionner l'adhérent propriétaire"
-        self.fields.pop('article')
+        self.fields['valid'].label = 'Validité de la facture'
 
 class ArticleForm(ModelForm):
     class Meta:
