@@ -17,3 +17,12 @@ DATABASES = {
     }
 }
 
+# Association information
+
+LOGO_PATH = "static_files/logo.png"
+ASSO_NAME = "Asso reseau"
+ASSO_ADDRESS_LINE1 = "2, rue Edouard Belin"
+ASSO_ADDRESS_LINE2 = "57070 Metz"
+ASSO_SIRET = ""
+ASSO_EMAIL = "tresorier@ecole.fr"
+ASSO_PHONE = "01 02 03 04 05"
