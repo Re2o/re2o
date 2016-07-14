@@ -12,7 +12,7 @@ from django.forms import modelformset_factory, formset_factory
 import os
 
 from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
-from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf
+from .forms import NewFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
 from users.models import User
 from .tex import render_tex
 from re2o.settings_local import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
@@ -47,22 +47,28 @@ def new_facture(request, userid):
         return redirect("/cotisations/")
     facture = Facture(user=user)
     facture_form = NewFactureForm(request.POST or None, instance=facture)
-    ArticleFormSet = formset_factory(ArticleForm)
-    if facture_form.is_valid():
+    article_formset = formset_factory(SelectArticleForm)
+    article_formset = article_formset(request.POST or None)
+    if facture_form.is_valid() and article_formset.is_valid():
         new_facture = facture_form.save(commit=False)
-        article = facture_form.cleaned_data['article']
-        new_facture.save()
-        for art in article:
-            new_vente = Vente.objects.create(facture=new_facture, name=art.name, prix=art.prix, cotisation=art.cotisation, duration=art.duration, number=1)
-            new_vente.save()
-        if any(art.cotisation for art in article):
-            duration = sum(art.duration for art in article if art.cotisation)
-            create_cotis(new_facture, user, duration)
-            messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
-        else:
-            messages.success(request, "La facture a été crée")
-        return redirect("/users/profil/" + userid)
-    return form({'factureform': facture_form}, 'cotisations/facture.html', request)
+        articles = article_formset
+        if any(art.cleaned_data for art in articles):
+            new_facture.save()
+            for art_item in articles:
+                if art_item.cleaned_data:
+                    article = art_item.cleaned_data['article']
+                    quantity = art_item.cleaned_data['quantity']
+                    new_vente = Vente.objects.create(facture=new_facture, name=article.name, prix=article.prix, cotisation=article.cotisation, duration=article.duration, number=quantity)
+                    new_vente.save()
+            if any(art.cleaned_data['article'].cotisation for art in articles):
+                duration = sum(art.cleaned_data['article'].duration*art.cleaned_data['quantity'] for art in articles if art.cleaned_data['article'].cotisation)
+                create_cotis(new_facture, user, duration)
+                messages.success(request, "La cotisation a été prolongée pour l'adhérent %s " % user.name )
+            else:
+                messages.success(request, "La facture a été crée")
+            return redirect("/users/profil/" + userid)
+        messages.error(request, u"Il faut au moins un article valide pour créer une facture" )
+    return form({'factureform': facture_form, 'venteform': article_formset}, 'cotisations/facture.html', request)
 
 @login_required
 @permission_required('trésorier')

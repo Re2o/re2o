@@ -1,5 +1,6 @@
 {% extends "cotisations/sidebar.html" %}
 {% load bootstrap3 %}
+{% load staticfiles%}
 
 {% block title %}Création et modification de factures{% endblock %}
 
@@ -9,10 +10,33 @@
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form factureform %}
-    {% for vente in venteform %}
-    {% bootstrap_form vente %}
-    {% endfor %}
     {{ venteform.management_form }}
+    <div id="form_set">
+    {% for form in venteform.forms %}
+            {{ form.as_p }}
+    {% endfor %}
+    </div>
+    <input class="btn btn-primary btn-sm" role="button" value="Ajouter un article" id="add_one">
+    <input class="btn btn-primary btn-sm" role="button" value="Supprimer un article" id="del_one">
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
+
+<div id="empty_form" style="display:none">
+    <table class='no_error'>
+        {{ venteform.empty_form.as_p }}
+    </table>
+</div>
+
+<script>
+    $('#add_one').click(function() {
+        var form_idx = $('#id_form-TOTAL_FORMS').val();
+        $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
+        $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+    });
+    $('#del_one').click(function() {
+        var forms = $('.dynamic-form');
+        $('#id_form-TOTAL_FORMS').val(forms.length);
+    });
+</script>
+
 {% endblock %}

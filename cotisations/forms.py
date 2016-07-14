@@ -4,8 +4,6 @@ from django import forms
 from .models import Article, Paiement, Facture, Banque, Vente
 
 class NewFactureForm(ModelForm):
-    article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article", widget=forms.CheckboxSelectMultiple())
-
     def __init__(self, *args, **kwargs):
         super(NewFactureForm, self).__init__(*args, **kwargs)
         self.fields['cheque'].required = False
@@ -23,13 +21,15 @@ class NewFactureForm(ModelForm):
         paiement = cleaned_data.get("paiement")
         cheque = cleaned_data.get("cheque")
         banque = cleaned_data.get("banque")
-        if paiement.moyen=="chèque" and not (cheque and banque):
+        if not paiement:
+            raise forms.ValidationError("Le moyen de paiement est obligatoire")
+        elif paiement.moyen=="chèque" and not (cheque and banque):
             raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
         return cleaned_data
 
 class SelectArticleForm(Form):
-    article = forms.ModelChoiceField(queryset=Article.objects.all(), label="Article")
-    quantity = forms.IntegerField(label="Quantité")
+    article = forms.ModelChoiceField(queryset=Article.objects.all(), label="Article", required=True)
+    quantity = forms.IntegerField(label="Quantité", required=True)
 
 class NewFactureFormPdf(Form):
     article = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Article")
