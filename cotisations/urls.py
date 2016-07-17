@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^index_article/$', views.index_article, name='index-article'),
     url(r'^index_banque/$', views.index_banque, name='index-banque'),
     url(r'^index_paiement/$', views.index_paiement, name='index-paiement'),
+    url(r'^control/$', views.control, name='control'),
     url(r'^$', views.index, name='index'),
 ]
 

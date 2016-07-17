@@ -1,0 +1,43 @@
+{% extends "cotisations/sidebar.html" %}
+{% load bootstrap3 %}
+{% load staticfiles%}
+
+{% block title %}Controle des factures{% endblock %}
+
+{% block content %}
+<h2>Controle et validité des factures</h2>
+<form class="form" method="post">
+    {% csrf_token %}
+    {{ controlform.management_form }}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Designation</th>
+                <th>Prix total</th>
+                <th>Moyen de paiement</th>
+                <th>Date</th>
+                <th>Validité</th>
+                <th>Controle trésorier</th>
+            </tr>
+        </thead>
+        {% for form in controlform.forms %}
+        {% bootstrap_form_errors form %}
+        <tr>
+            <td>{{ form.instance.user }}</td>
+            <td>{{ form.instance.name }}</td>
+            <td>{{ form.instance.prix_total }}</td>
+            <td>{{ form.instance.paiement }}</td>
+            <td>{{ form.instance.date }}</td>
+            <td>{{ form.valid }}</td>
+            <td>{{ form.control }}</td>
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% bootstrap_button "Modifier" button_type="submit" icon="star" %}
+</form>
+
+{% endblock %}

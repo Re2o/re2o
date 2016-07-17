@@ -12,6 +12,7 @@
     {% bootstrap_form factureform %}
     {{ venteform.management_form }}
     {% for form in venteform.forms %}
+            {% bootstrap_form_errors form %}
             {{ form.as_p }}
     {% endfor %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}

@@ -6,10 +6,10 @@ class FactureAdmin(admin.ModelAdmin):
     list_display = ('user','paiement','date','valid','control')
 
 class VenteAdmin(admin.ModelAdmin):
-    list_display = ('facture','name','prix','number','cotisation','duration')
+    list_display = ('facture','name','prix','number','iscotisation','duration')
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('name','prix','cotisation','duration')
+    list_display = ('name','prix','iscotisation','duration')
 
 class BanqueAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -21,7 +21,7 @@ class PaiementAdmin(admin.ModelAdmin):
     list_display = ('moyen',)
 
 class CotisationAdmin(admin.ModelAdmin):
-    list_display = ('facture','date_start','date_end')
+    list_display = ('vente','date_start','date_end')
 
 admin.site.register(Facture, FactureAdmin)
 admin.site.register(Article, ArticleAdmin)
