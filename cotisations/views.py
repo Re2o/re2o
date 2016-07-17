@@ -134,7 +134,7 @@ def edit_facture(request, factureid):
         vente_form.save()
         messages.success(request, "La facture a bien été modifiée")
         return redirect("/cotisations/")
-    return form({'factureform': facture_form, 'venteform': vente_form}, 'cotisations/facture.html', request)
+    return form({'factureform': facture_form, 'venteform': vente_form}, 'cotisations/edit_facture.html', request)
 
 @login_required
 @permission_required('cableur')
@@ -241,7 +241,7 @@ def add_banque(request):
 @permission_required('trésorier')
 def edit_banque(request, banqueid):
     try:
-        banque_instance = Article.objects.get(pk=banqueid)
+        banque_instance = Banque.objects.get(pk=banqueid)
     except Banque.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/cotisations/index_banque/")

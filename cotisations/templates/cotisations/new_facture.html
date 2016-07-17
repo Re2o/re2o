@@ -9,16 +9,22 @@
 
 <form class="form" method="post">
     {% csrf_token %}
+    <h3>Nouvelle facture</h3>
     {% bootstrap_form factureform %}
     {{ venteform.management_form }}
+    <h3>Articles de la facture</h3>
     <div id="form_set">
     {% for form in venteform.forms %}
         <div class='product_to_sell'>
-            {{ form.as_p }}
+        <p>
+            {{ form.as_table }}
+        </p>
         </div>
     {% endfor %}
     </div>
+    <p>
     <input class="btn btn-primary btn-sm" role="button" value="Ajouter un article" id="add_one">
+    </p>
     <p>
         Prix total : <span id="total_price">0,00</span> €
     </p>
@@ -35,7 +41,7 @@
         prices[{{ article.id|escapejs }}] = {{ article.prix }};
     {% endfor %}
 
-    var template = `{{ venteform.empty_form.as_p }}`;
+    var template = `<p>{{ venteform.empty_form.as_table }}</p>`;
 
     function add_article(){
         // Index start at 0 => new_index = number of items
