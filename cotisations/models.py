@@ -1,5 +1,7 @@
 from django.db import models
 
+from dateutil.relativedelta import relativedelta
+from django.core.validators import MinValueValidator
 
 class Facture(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
@@ -8,6 +10,7 @@ class Facture(models.Model):
     cheque = models.CharField(max_length=255, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
+    control = models.BooleanField(default=False)
 
     def prix(self):
         prix = Vente.objects.all().filter(facture=self).aggregate(models.Sum('prix'))['prix__sum']
@@ -24,15 +27,21 @@ class Facture(models.Model):
         return str(self.date) + ' ' + str(self.user)
 
 class Vente(models.Model):
-    facture = models.ForeignKey('Facture', on_delete=models.PROTECT)
-    number = models.IntegerField()
+    facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
+    number = models.IntegerField(validators=[MinValueValidator(1)])
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
-    cotisation = models.BooleanField()
+    iscotisation = models.BooleanField()
     duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
 
     def prix_total(self):
         return self.prix*self.number
+
+    def clean(self):
+        if hasattr(self, 'cotisation'):
+            cotisation = self.cotisation
+            cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number)
+            cotisation.save()
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
@@ -40,7 +49,7 @@ class Vente(models.Model):
 class Article(models.Model):
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
-    cotisation = models.BooleanField()
+    iscotisation = models.BooleanField()
     duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
 
     def __str__(self):
@@ -59,10 +68,10 @@ class Paiement(models.Model):
         return self.moyen
 
 class Cotisation(models.Model):
-    facture = models.OneToOneField('Facture', on_delete=models.PROTECT)
+    vente = models.OneToOneField('Vente', on_delete=models.CASCADE, null=True)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
 
     def __str__(self):
-        return str(self.facture)
+        return str(self.vente)
 

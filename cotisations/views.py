@@ -26,9 +26,9 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
-def create_cotis(facture, user, duration):
+def create_cotis(vente, user, duration):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
-    cotisation=Cotisation(facture=facture)
+    cotisation=Cotisation(vente=vente)
     date_max = user.end_adhesion() or timezone.now()
     if date_max < timezone.now():
         datemax = timezone.now()
@@ -57,17 +57,15 @@ def new_facture(request, userid):
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
             new_facture.save()
-            duration = 0
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
                     quantity = art_item.cleaned_data['quantity']
-                    new_vente = Vente.objects.create(facture=new_facture, name=article.name, prix=article.prix, cotisation=article.cotisation, duration=article.duration, number=quantity)
+                    new_vente = Vente.objects.create(facture=new_facture, name=article.name, prix=article.prix, iscotisation=article.iscotisation, duration=article.duration, number=quantity)
                     new_vente.save()
-                    if art_item.cleaned_data['article'].cotisation:
-                        duration += art_item.cleaned_data['article'].duration*art_item.cleaned_data['quantity']
-            if duration:
-                create_cotis(new_facture, user, duration)
+                    if art_item.cleaned_data['article'].iscotisation:
+                        create_cotis(new_vente, user, art_item.cleaned_data['article'].duration*art_item.cleaned_data['quantity'])
+            if any(art_item.cleaned_data['article'].iscotisation for art_item in articles if art_item.cleaned_data):
                 messages.success(request, "La cotisation a été prolongée pour l'adhérent %s jusqu'au %s" % (user.name, user.end_adhesion()) )
             else:
                 messages.success(request, "La facture a été crée")
@@ -268,6 +266,17 @@ def del_banque(request):
                 messages.error(request, "La banque %s est affectée à au moins une facture, vous ne pouvez pas la supprimer" % banque_del)
         return redirect("/cotisations/index_banque/")
     return form({'factureform': banque}, 'cotisations/facture.html', request)
+
+@login_required
+@permission_required('trésorier')
+def control(request):
+    facture_list = Facture.objects.order_by('date').reverse()
+    controlform_set = modelformset_factory(Facture, fields=('control','valid'), extra=0)
+    controlform = controlform_set(request.POST or None, queryset=facture_list)
+    if controlform.is_valid():
+        controlform.save()
+        return redirect("/cotisations/control/")
+    return render(request, 'cotisations/control.html', {'controlform': controlform})
 
 @login_required
 @permission_required('cableur')
