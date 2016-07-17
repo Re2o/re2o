@@ -1,0 +1,37 @@
+{% extends "cotisations/sidebar.html" %}
+{% load bootstrap3 %}
+{% load staticfiles%}
+
+{% block title %}Création et modification de factures{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors factureform %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    <h3>Editer la facture</h3>
+    {% bootstrap_form factureform %}
+    {{ venteform.management_form }}
+    <h3>Articles de la facture</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Désignation</th>
+                <th>Quantité</th>
+            </tr>
+        </thead>
+            {% for form in venteform.forms %}
+            {% bootstrap_form_errors form %}
+        <tr>
+            <td>{{ form.name }}</td>
+            <td>{{ form.number }}</td>
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+         </tr>
+         {% endfor %}
+    </table>
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+</form>
+
+{% endblock %}
