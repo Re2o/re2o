@@ -135,9 +135,11 @@ def del_machine(request, machineid):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-    machine.delete()
-    messages.success(request, "La machine a été détruite")
-    return redirect("/users/profil/" + str(request.user.id))
+    if request.method == "POST":
+        machine.delete()
+        messages.success(request, "La machine a été détruite")
+        return redirect("/users/profil/" + str(request.user.id))
+    return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
 
 @login_required
 def new_interface(request, machineid):
@@ -175,9 +177,11 @@ def del_interface(request, interfaceid):
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-    interface.delete()
-    messages.success(request, "L'interface a été détruite")
-    return redirect("/users/profil/" + str(request.user.id))
+    if request.method == "POST":
+        interface.delete()
+        messages.success(request, "L'interface a été détruite")
+        return redirect("/users/profil/" + str(request.user.id))
+    return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
 
 @login_required
 @permission_required('infra')
