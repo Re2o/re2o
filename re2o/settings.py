@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'topologie',
     'search',
     'logs',
+    'rest_framework'
 )
 
 MIDDLEWARE_CLASSES = (

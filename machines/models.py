@@ -7,12 +7,6 @@ class Machine(models.Model):
     name = models.CharField(max_length=255, help_text="Optionnel", blank=True, null=True)
     active = models.BooleanField(default=True)
 
-    def is_active(self):
-        """ Renvoie si une interface doit avoir accès ou non """
-        machine = self.machine
-        user = machine.user
-        return machine.active and user.has_access()
-
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' +  str(self.name)
 
@@ -37,6 +31,12 @@ class Interface(models.Model):
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
     dns = models.CharField(help_text="Obligatoire et unique, doit se terminer en %s et ne pas comporter d'autres points" % ", ".join(Extension.objects.values_list('name', flat=True)), max_length=255, unique=True)
+
+    def is_active(self):
+        """ Renvoie si une interface doit avoir accès ou non """
+        machine = self.machine
+        user = self.machine.user
+        return machine.active and user.has_access()
 
     def __str__(self):
         return self.dns

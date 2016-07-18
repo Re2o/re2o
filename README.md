@@ -17,6 +17,7 @@ Dépendances :
  * python3-dateutil (jessie-backports)
  * texlive-latex-base
  * texlive-fonts-recommended
+ * python3-djangorestframework
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer :

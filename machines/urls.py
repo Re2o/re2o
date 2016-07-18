@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^edit_extension/(?P<extensionid>[0-9]+)$', views.edit_extension, name='edit-extension'),
     url(r'^del_extension/$', views.del_extension, name='del-extension'),
     url(r'^index_extension/$', views.index_extension, name='index-extension'),
+    url(r'^rest/mac-ip/$', views.interface_list, name='interface-list'),
     url(r'^$', views.index, name='index'),
 ]
