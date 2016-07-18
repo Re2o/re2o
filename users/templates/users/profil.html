@@ -81,8 +81,8 @@
     </table>
     <h2>Machines :</h2>
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
-    {% if interfaces_list %}
-    {% include "machines/aff_machines.html" with interfaces_list=interfaces_list %}
+    {% if machines_list %}
+    {% include "machines/aff_machines.html" with machines_list=machines_list %}
     {% else %}
     <p>Aucune machine</p>
     {% endif %}
