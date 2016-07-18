@@ -4,14 +4,18 @@
 {% block title %}Création et modification de machines{% endblock %}
 
 {% block content %}
+{% if machineform %}
 {% bootstrap_form_errors machineform %}
+{% endif %}
 {% if interfaceform %}
 {% bootstrap_form_errors interfaceform %}
 {% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
+    {% if machineform %}
     {% bootstrap_form machineform %}
+    {% endif %}
     {% if interfaceform %}
     {% bootstrap_form interfaceform %}
     {% endif %}

@@ -150,12 +150,8 @@ def new_interface(request, machineid):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        machine_form = BaseEditMachineForm(request.POST or None, instance=machine)
-    else:
-        machine_form = EditMachineForm(request.POST or None, instance=machine)
     interface_form = AddInterfaceForm(request.POST or None)
-    if interface_form.is_valid() and machine_form.is_valid():
-        machine_form.save()
+    if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
         if full_domain_validator(request, new_interface, machine):
@@ -166,7 +162,7 @@ def new_interface(request, machineid):
             new_interface.save()
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/machines/")
-    return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+    return form({'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
