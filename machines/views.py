@@ -99,7 +99,7 @@ def new_machine(request, userid):
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
 
 @login_required
-def edit_machine(request, interfaceid):
+def edit_interface(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
@@ -123,6 +123,21 @@ def edit_machine(request, interfaceid):
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+
+@login_required
+def del_machine(request, machineid):
+    try:
+        machine = Machine.objects.get(pk=machineid)
+    except Machine.DoesNotExist:
+        messages.error(request, u"Machine inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('cableur',)):
+        if machine.user != request.user:
+            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+    machine.delete()
+    messages.success(request, "La machine a été détruite")
+    return redirect("/users/profil/" + str(request.user.id))
 
 @login_required
 def new_interface(request, machineid):
@@ -152,6 +167,21 @@ def new_interface(request, machineid):
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/machines/")
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+
+@login_required
+def del_interface(request, interfaceid):
+    try:
+        interface = Interface.objects.get(pk=interfaceid)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('cableur',)):
+        if interface.machine.user != request.user:
+            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+    interface.delete()
+    messages.success(request, "L'interface a été détruite")
+    return redirect("/users/profil/" + str(request.user.id))
 
 @login_required
 @permission_required('infra')
@@ -236,8 +266,8 @@ def del_extension(request):
 @login_required
 @permission_required('cableur')
 def index(request):
-    interfaces_list = Interface.objects.order_by('pk')
-    return render(request, 'machines/index.html', {'interfaces_list': interfaces_list})
+    machines_list = Machine.objects.order_by('pk')
+    return render(request, 'machines/index.html', {'machines_list': machines_list})
 
 @login_required
 @permission_required('cableur')

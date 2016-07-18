@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from topologie.models import Room
-from cotisations.models import Cotisation, Facture
+from cotisations.models import Cotisation, Facture, Vente
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
@@ -154,7 +154,7 @@ class User(AbstractBaseUser):
         return True
 
     def end_adhesion(self):
-        date_max = Cotisation.objects.all().filter(facture=Facture.objects.all().filter(user=self).exclude(valid=False)).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Cotisation.objects.all().filter(vente=Vente.objects.all().filter(facture=Facture.objects.all().filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     def is_adherent(self):

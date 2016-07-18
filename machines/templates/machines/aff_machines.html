@@ -1,23 +1,36 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Nom dns</th>
                 <th>Proprietaire</th>
                 <th>Type</th>
+                <th>Interfaces</th>
+            </tr>
+        </thead>
+       {% for machine in machines_list %}
+        <tr>
+            <td>{{ machine.user }}</td>
+            <td>{{ machine.type }}
+            <p><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-interface'  machine.id %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une interface</p></a>
+            <p><a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machine' machine.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer la machine</a></p></td>
+            <td><table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Nom dns</th>
                 <th>Mac</th>
                 <th>Ipv4</th>
                 <th></th>
             </tr>
-        </thead>
-        {% for interface in interfaces_list %}
-        <tr>
+            </thead>
+            {% for interface in machine.interface_set.all %}
+            <tr>
             <td>{{ interface.dns }}</td>
-            <td>{{ interface.machine.user }}</td>
-            <td>{{ interface.machine.type }}</td>
             <td>{{ interface.mac_address }}</td>
             <td>{{ interface.ipv4 }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machine' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a>
-            <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-interface'  interface.machine.id %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une interface</a></td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-interface' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a>
+            <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-interface' interface.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></td>
+            </tr>
+            {% endfor %}
+            </table>
         </tr>
         {% endfor %}
     </table>

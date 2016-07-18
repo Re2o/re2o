@@ -304,9 +304,7 @@ def profil(request, userid):
     if not request.user.has_perms(('cableur',)) and users != request.user:
         messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
-    machines = Interface.objects.filter(
-        machine=Machine.objects.filter(user__pseudo=users)
-    )
+    machines = Machine.objects.filter(user__pseudo=users)
     factures = Facture.objects.filter(user__pseudo=users)
     bans = Ban.objects.filter(user__pseudo=users)
     whitelists = Whitelist.objects.filter(user__pseudo=users)
@@ -316,7 +314,7 @@ def profil(request, userid):
         'users/profil.html',
         {
             'user': users,
-            'interfaces_list': machines,
+            'machines_list': machines,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,

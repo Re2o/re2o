@@ -34,7 +34,7 @@ class Interface(models.Model):
     ipv4 = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
     #ipv6 = models.GenericIPAddressField(protocol='IPv6', null=True)
     mac_address = MACAddressField(integer=False, unique=True)
-    machine = models.ForeignKey('Machine', on_delete=models.PROTECT)
+    machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     details = models.CharField(max_length=255, blank=True)
     dns = models.CharField(help_text="Obligatoire et unique, doit se terminer en %s et ne pas comporter d'autres points" % ", ".join(Extension.objects.values_list('name', flat=True)), max_length=255, unique=True)
 
