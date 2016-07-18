@@ -1,6 +1,7 @@
 # App de gestion des machines pour re2o
 # Gabriel Détraz
 # Gplv2
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
@@ -9,6 +10,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 from django.forms import ValidationError
+
+from rest_framework.renderers import JSONRenderer
+from machines.serializers import InterfaceSerializer
+
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
@@ -280,3 +285,26 @@ def index_machinetype(request):
 def index_extension(request):
     extension_list = Extension.objects.order_by('name')
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list})
+
+""" Framework Rest """
+
+class JSONResponse(HttpResponse):
+    def __init__(self, data, **kwargs):
+        datas=[]
+        for d in data:
+            interface = Interface.objects.get(pk=d["id"])
+            d.pop("id")
+            if d["ipv4"] and interface.is_active():
+                d["ipv4"]= IpList.objects.get(pk=d["ipv4"]).__str__()
+                datas.append(d)
+        content = JSONRenderer().render(datas)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
+
+def interface_list(request):
+    interfaces = Interface.objects.all()
+    seria = InterfaceSerializer(interfaces, many=True)
+    return JSONResponse(seria.data)
+
+
