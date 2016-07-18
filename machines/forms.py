@@ -10,16 +10,14 @@ class EditMachineForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditMachineForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Nom de la machine'
-        self.fields['type'].label = 'Type de machine'
-        self.fields['type'].empty_label = "Séléctionner un type de machine"
 
 class NewMachineForm(EditMachineForm):
     class Meta(EditMachineForm.Meta):
-        fields = ['type','name']
+        fields = ['name']
 
 class BaseEditMachineForm(EditMachineForm):
     class Meta(EditMachineForm.Meta):
-        fields = ['type','name','active']
+        fields = ['name','active']
 
 class EditInterfaceForm(ModelForm):
     class Meta:
@@ -30,10 +28,12 @@ class EditInterfaceForm(ModelForm):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['dns'].label = 'Nom dns de la machine'
         self.fields['mac_address'].label = 'Adresse mac'
+        self.fields['type'].label = 'Type de machine'
+        self.fields['type'].empty_label = "Séléctionner un type de machine"
 
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','dns','details']
+        fields = ['ipv4','mac_address','dns','type','details']
 
     def __init__(self, *args, **kwargs):
         super(AddInterfaceForm, self).__init__(*args, **kwargs)
@@ -41,11 +41,11 @@ class AddInterfaceForm(EditInterfaceForm):
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['mac_address','dns','details']
+        fields = ['mac_address','dns','type','details']
 
 class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','dns','details']
+        fields = ['ipv4','mac_address','dns','type','details']
 
     def __init__(self, *args, **kwargs):
         super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)

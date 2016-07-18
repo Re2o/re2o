@@ -11,15 +11,15 @@ from django.db.models import ProtectedError
 from django.forms import ValidationError
 
 import re
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, NewInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .models import Machine, Interface, IpList, MachineType, Extension
 from users.models import User
 
-def full_domain_validator(request, interface, machine):
+def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
     HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
     dns = interface.dns.lower()
-    allowed_extension = machine.type.extension.name
+    allowed_extension = interface.type.extension.name
     if not dns.endswith(allowed_extension):
         messages.error(request,
                 "Le nom de domaine %s doit comporter une extension valide en %s" % (dns, allowed_extension) )
@@ -86,7 +86,7 @@ def new_machine(request, userid):
         new_machine = machine.save(commit=False)
         new_machine.user = user
         new_interface = interface.save(commit=False)
-        if full_domain_validator(request, new_interface, new_machine):
+        if full_domain_validator(request, new_interface):
             new_machine.save()
             new_interface.machine = new_machine
             if free_ip() and not new_interface.ipv4:
@@ -117,7 +117,7 @@ def edit_interface(request, interfaceid):
     if machine_form.is_valid() and interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
-        if full_domain_validator(request, new_interface, new_machine):
+        if full_domain_validator(request, new_interface):
             new_machine.save()
             new_interface.save()
             messages.success(request, "La machine a été modifiée")
@@ -156,14 +156,14 @@ def new_interface(request, machineid):
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
-        if full_domain_validator(request, new_interface, machine):
+        if full_domain_validator(request, new_interface):
             if free_ip() and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
             new_interface.save()
             messages.success(request, "L'interface a été ajoutée")
-            return redirect("/machines/")
+            return redirect("/users/profil/" + str(request.user.id))
     return form({'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
