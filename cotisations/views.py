@@ -147,9 +147,11 @@ def del_facture(request, factureid):
     if (facture.control or not facture.valid):
         messages.error(request, "Vous ne pouvez pas editer une facture controlée ou invalidée par le trésorier")
         return redirect("/cotisations/")
-    facture.delete()
-    messages.success(request, "La facture a bien été supprimée")
-    return redirect("/cotisations/")
+    if request.method == "POST":
+        facture.delete()
+        messages.success(request, "La facture a été détruite")
+        return redirect("/cotisations/")
+    return form({'objet': facture, 'objet_name': 'facture'}, 'cotisations/delete.html', request)
 
 @login_required
 @permission_required('trésorier')
