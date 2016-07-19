@@ -290,21 +290,31 @@ def index_extension(request):
 
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
-        datas=[]
         for d in data:
-            interface = Interface.objects.get(pk=d["id"])
-            d.pop("id")
-            if d["ipv4"] and interface.is_active():
+            if d["ipv4"]:
                 d["ipv4"]= IpList.objects.get(pk=d["ipv4"]).__str__()
-                datas.append(d)
-        content = JSONRenderer().render(datas)
+        content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
 
 def interface_list(request):
     interfaces = Interface.objects.all()
-    seria = InterfaceSerializer(interfaces, many=True)
-    return JSONResponse(seria.data)
+    interface = []
+    for i in interfaces :
+        if i.ipv4 and i.is_active():
+            interface.append(i)
+    seria = InterfaceSerializer(interface, many=True) 
+    return seria.data
 
+def mac_ip(request):
+    seria = interface_list(request)
+    for s in seria:
+        s.pop('dns')
+    return JSONResponse(seria)
 
+def dns_ip(request):
+    seria = interface_list(request)
+    for s in seria:
+        s.pop('mac_address')
+    return JSONResponse(seria)
