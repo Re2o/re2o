@@ -70,9 +70,6 @@
                 <div class="row content">
                     <div class="col-sm-2 sidenav">
                         {% block sidebar %}
-                        <p><a href="#">Link</a></p>
-                        <p><a href="#">Link</a></p>
-                        <p><a href="#">Link</a></p>
                         {% endblock %}
                     </div>
                     <div class="col-sm-8 text-left">
@@ -91,7 +88,7 @@
                             <li>Chambre : {{ request_user.room }}</li>
                             <li>Connexion : {% if request_user.has_access == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
                             <li>Fin d'adhésion : {% if request_user.end_adhesion != None %}<font color="green">{{ request_user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
-                            <p><a href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
+                            <p><a class="btn btn-success btn-sm" role="button"href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
                             {% else %}
                             <p>Vous n'êtes pas authentifié</p>
                             {% endif %}
@@ -102,7 +99,7 @@
                         {% for interface in interfaces|slice:":5" %}
                         <li>{{interface.dns}}</li>
                         {% endfor %}
-                        <p><a href="{% url "users:mon-profil" %}">Voir toutes mes machines</a></p>
+                        <p><a class="btn btn-warning btn-sm" role="button" href="{% url "users:mon-profil" %}">Voir mes machines</a></p>
                         </div>
                         {% endif %}
                     </div>

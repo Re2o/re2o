@@ -26,8 +26,15 @@
             <td>{{ interface.type }}</td>
             <td>{{ interface.mac_address }}</td>
             <td>{{ interface.ipv4 }}</td>
-            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-interface' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a>
-            <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-interface' interface.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></td>
+            <td><div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Modifier
+            <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="editioninterface">
+            <li><a href="{% url 'machines:edit-interface' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a></li>
+            <li><a href="{% url 'machines:del-interface' interface.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
+            </ul></div></td>
             </tr>
             {% endfor %}
             </table>
