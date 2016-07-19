@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
+from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH, services_urls
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'cotisations',
     'topologie',
     'search',
+    're2o',
     'logs',
     'rest_framework'
 )
