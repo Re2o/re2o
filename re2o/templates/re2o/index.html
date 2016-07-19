@@ -8,59 +8,95 @@
     <h1>Bienvenue sur re2o.rez !</h1>
 
 <div class="row">
+  {% if services_urls.zerobin %}
   <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
-      <img src="{% static "logo/zerobin.png" %}" alt="zerobin">
+      <img src="{% static "logo/"|add:services_urls.zerobin.logo %}" alt="zerobin">
       <div class="caption">
         <h3>Zerobin</h3>
         <p>Le zerobin, un service pour partager un contenu avec un lien. Copier-coller, envoyer ! Le lien peut être à usage unique</p>
-        <p><a href="{{ services_urls.zerobin }}" class="btn btn-primary" role="button">Accéder au zerobin</a></p>
+        <p><a href="{{ services_urls.zerobin.url }}" class="btn btn-primary" role="button">Accéder au zerobin</a></p>
       </div>
     </div>
   </div>
+  {% endif %}
+  {% if services_urls.wiki %}
    <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
-      <img src="{% static "logo/etherpad.png" %}" alt="etherpad">
+      <img src="{% static "logo/"|add:services_urls.wiki.logo %}" alt="wiki">
       <div class="caption">
-        <h3>Etherpad</h3>
-        <p>Etherpad, un pad collaboratif, ouvert, editable par tous ! Un editeur de texte libre qui permet une édition collaborative
-       avec un chat</p>
-        <p><a href="{{ services_urls.etherpad }}" class="btn btn-primary" role="button">Accéder au pad</a></p>
+        <h3>Wiki</h3>
+        <p>Le wiki, toutes les informations et les données techniques à propos de la structure du réseau et de sa gestion,
+         ainsi que les personnes qui le gèrent</p>
+        <p><a href="{{ services_urls.wiki.url }}" class="btn btn-primary" role="button">Accéder au wiki</a></p>
       </div>
     </div>
-  </div>
+   </div>
+  {% endif %}
+  {% if services_urls.gitlab %}
   <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
-      <img src="{% static "logo/gitlab.png" %}" alt="gitlab">
+      <img src="{% static "logo/"|add:services_urls.gitlab.logo %}" alt="gitlab">
       <div class="caption">
         <h3>Gitlab</h3>
         <p>Découvrez le gitlab hébérgé par nos soins ! Idéal pour vos projets personnels, ou pour des projets collaboratif !
         Accès avec votre compte</p>
-        <p><a href="{{ services_urls.gitlab }}" class="btn btn-primary" role="button">Accéder au gitlab</a></p>
+        <p><a href="{{ services_urls.gitlab.url }}" class="btn btn-primary" role="button">Accéder au gitlab</a></p>
       </div>
     </div>
   </div>
+  {% endif %}
+  {% if services_urls.kanboard %}
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/"|add:services_urls.kanboard.logo %}" alt="kanboard">
+      <div class="caption">
+        <h3>Kanboard</h3>
+        <p>Découvrez kanboard, pour gérer un projet complexe et le diviser en minitaches. Conçu pour travailler en groupe sur 
+        des projets, accessible avec votre compte</p>
+        <p><a href="{{ services_urls.kanboard.url }}" class="btn btn-primary" role="button">Accéder au kanboard</a></p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if services_urls.etherpad %}
+   <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/"|add:services_urls.etherpad.logo %}" alt="etherpad">
+      <div class="caption">
+        <h3>Etherpad</h3>
+        <p>Etherpad, un pad collaboratif, ouvert, editable par tous ! Un editeur de texte libre qui permet une édition collaborative
+       avec un chat</p>
+        <p><a href="{{ services_urls.etherpad.url }}" class="btn btn-primary" role="button">Accéder au pad</a></p>
+      </div>
+    </div>
+   </div>
+  {% endif %}
+  {% if services_urls.planner %}
   <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
       <div class="caption">
         <h3>Planner</h3>
         <p>Planner, un service pour planifier les événements à plusieurs, et choisir une date commune. Version open source
         mise en place par framasoft</p>
-        <p><a href="{{ services_urls.planner }}" class="btn btn-primary" role="button">Accéder au planner</a></p>
+        <p><a href="{{ services_urls.planner.url }}" class="btn btn-primary" role="button">Accéder au planner</a></p>
       </div>
     </div>
   </div>
+  {% endif %}
+   {% if services_urls.federez %}
   <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
-      <img src="{% static "logo/kanboard.png" %}" alt="kanboard">
+      <img src="{% static "logo/"|add:services_urls.federez.logo %}" alt="federez">
       <div class="caption">
-        <h3>Kanboard</h3>
-        <p>Découvrez kanboard, pour gérer un projet complexe et le diviser en minitaches. Conçu pour travailler en groupe sur 
-        des projets, accessible avec votre compte</p>
-        <p><a href="{{ services_urls.kanboard }}" class="btn btn-primary" role="button">Accéder au kanboard</a></p>
+        <h3>FedeRez</h3>
+        <p>La fédération française des associations réseaux étudiants des grandes écoles et université, FedeRez, vous propose
+        de découvrir les nombreux services hébergés par ses membres</p>
+        <p><a href="{{ services_urls.federez.url }}" class="btn btn-primary" role="button">Accéder au site de FedeRez</a></p>
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 
 {% endblock %}
