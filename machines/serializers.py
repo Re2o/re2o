@@ -4,6 +4,7 @@ from machines.models import Interface
 class InterfaceSerializer( serializers.ModelSerializer):
     class Meta:
         model = Interface
-        fields = ('id','ipv4', 'mac_address')
+        fields = ('ipv4', 'mac_address', 'dns')
+
 
 
