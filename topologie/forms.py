@@ -1,4 +1,4 @@
-from .models import Port, Switch
+from .models import Port, Switch, Room
 from django.forms import ModelForm, Form
 
 class PortForm(ModelForm):
@@ -23,3 +23,7 @@ class EditSwitchForm(ModelForm):
     class Meta(SwitchForm.Meta):
         fields = ['building', 'number', 'details']
 
+class EditRoomForm(ModelForm):
+    class Meta:
+        model = Room
+        fields = '__all__'

@@ -1,0 +1,17 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Chambre</th>
+            <th>Commentaire</th>
+            <th></th>
+        </tr>
+   </thead>
+   {% for room in room_list %}
+   <tr>
+       <td>{{room.name}}</td>
+       <td>{{room.details}}</td>
+       <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-room' room.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>
+       <a class="btn btn-danger btn-sm" role="button" href="{% url 'topologie:del-room' room.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a>{% endif %}</td>
+   </tr>
+   {% endfor %}
+</table>

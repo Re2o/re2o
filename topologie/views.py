@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 
-from topologie.models import Switch, Port
-from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm
+from topologie.models import Switch, Port, Room
+from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm, EditRoomForm
 from users.views import form
 
 @login_required
@@ -25,6 +25,12 @@ def index_port(request, switch_id):
     return render(request, 'topologie/index_p.html', {'port_list':port_list, 'id_switch':switch_id, 'nom_switch':switch})
 
 @login_required
+@permission_required('cableur')
+def index_room(request):
+    room_list = Room.objects.order_by('name')
+    return render(request, 'topologie/index_room.html', {'room_list': room_list})
+
+@login_required
 @permission_required('infra')
 def new_port(request, switch_id):
     try:
@@ -42,7 +48,7 @@ def new_port(request, switch_id):
         except IntegrityError:
             messages.error(request,"Ce port existe déjà" )
         return redirect("/topologie/switch/" + switch_id)
-    return form({'topoform':port}, 'topologie/port.html', request)
+    return form({'topoform':port}, 'topologie/topo.html', request)
 
 @login_required
 @permission_required('infra')
@@ -57,7 +63,7 @@ def edit_port(request, port_id):
         port.save()
         messages.success(request, "Le port a bien été modifié")
         return redirect("/topologie/")
-    return form({'topoform':port}, 'topologie/port.html', request)
+    return form({'topoform':port}, 'topologie/topo.html', request)
 
 @login_required
 @permission_required('infra')
@@ -67,7 +73,7 @@ def new_switch(request):
         switch.save()
         messages.success(request, "Le switch a été créé")
         return redirect("/topologie/")
-    return form({'topoform':switch}, 'topologie/port.html', request)
+    return form({'topoform':switch}, 'topologie/topo.html', request)
 
 @login_required
 @permission_required('infra')
@@ -82,4 +88,43 @@ def edit_switch(request, switch_id):
         switch.save()
         messages.success(request, "Le switch a bien été modifié")
         return redirect("/topologie/")
-    return form({'topoform':switch}, 'topologie/port.html', request)
+    return form({'topoform':switch}, 'topologie/topo.html', request)
+
+@login_required
+@permission_required('infra')
+def new_room(request):
+    room = EditRoomForm(request.POST or None)
+    if room.is_valid():
+        room.save()
+        messages.success(request, "La chambre a été créé")
+        return redirect("/topologie/index_room/")
+    return form({'topoform':room}, 'topologie/topo.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_room(request, room_id):
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        messages.error(request, u"Chambre inexistante")
+        return redirect("/topologie/index_room/")
+    room = EditRoomForm(request.POST or None, instance=room)
+    if room.is_valid():
+        room.save()
+        messages.success(request, "La chambre a bien été modifiée")
+        return redirect("/topologie/index_room/")
+    return form({'topoform':room}, 'topologie/topo.html', request)
+
+@login_required
+@permission_required('infra')
+def del_room(request, room_id):
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        messages.error(request, u"Chambre inexistante" )
+        return redirect("/topologie/index_room/")
+    if request.method == "POST":
+        room.delete()
+        messages.success(request, "La chambre/prise a été détruite")
+        return redirect("/topologie/index_room/")
+    return form({'objet': room, 'objet_name': 'Chambre'}, 'topologie/delete.html', request)
