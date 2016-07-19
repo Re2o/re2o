@@ -1,0 +1,67 @@
+{% extends "re2o/sidebar.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+    <h1>Bienvenue sur re2o.rez !</h1>
+
+<div class="row">
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/zerobin.png" %}" alt="zerobin">
+      <div class="caption">
+        <h3>Zerobin</h3>
+        <p>Le zerobin, un service pour partager un contenu avec un lien. Copier-coller, envoyer ! Le lien peut être à usage unique</p>
+        <p><a href="{{ services_urls.zerobin }}" class="btn btn-primary" role="button">Accéder au zerobin</a></p>
+      </div>
+    </div>
+  </div>
+   <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/etherpad.png" %}" alt="etherpad">
+      <div class="caption">
+        <h3>Etherpad</h3>
+        <p>Etherpad, un pad collaboratif, ouvert, editable par tous ! Un editeur de texte libre qui permet une édition collaborative
+       avec un chat</p>
+        <p><a href="{{ services_urls.etherpad }}" class="btn btn-primary" role="button">Accéder au pad</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/gitlab.png" %}" alt="gitlab">
+      <div class="caption">
+        <h3>Gitlab</h3>
+        <p>Découvrez le gitlab hébérgé par nos soins ! Idéal pour vos projets personnels, ou pour des projets collaboratif !
+        Accès avec votre compte</p>
+        <p><a href="{{ services_urls.gitlab }}" class="btn btn-primary" role="button">Accéder au gitlab</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <div class="caption">
+        <h3>Planner</h3>
+        <p>Planner, un service pour planifier les événements à plusieurs, et choisir une date commune. Version open source
+        mise en place par framasoft</p>
+        <p><a href="{{ services_urls.planner }}" class="btn btn-primary" role="button">Accéder au planner</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="{% static "logo/kanboard.png" %}" alt="kanboard">
+      <div class="caption">
+        <h3>Kanboard</h3>
+        <p>Découvrez kanboard, pour gérer un projet complexe et le diviser en minitaches. Conçu pour travailler en groupe sur 
+        des projets, accessible avec votre compte</p>
+        <p><a href="{{ services_urls.kanboard }}" class="btn btn-primary" role="button">Accéder au kanboard</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
