@@ -1,0 +1,15 @@
+Bonjour {{ name }},
+
+Vous trouverez ci-dessous une url permetant d'initialiser ou de reinitialiser votre
+compte {{ site_name }}. Celui-ci vous permet de gérer l'ensemble de vos équipements
+connectés, votre compte, vos factures, et tous les services proposés sur le réseau.
+
+    {{ url }}
+
+Contactez les administrateurs si vous n'êtes pas à l'origine de cette requête.
+
+Ce lien expirera dans {{ expire_in }}.
+
+Cordialement,
+
+L'équipe de {{ asso }} {{ asso_mail }}.
