@@ -1,16 +1,18 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz
 # Gplv2
-from django.shortcuts import render_to_response, render, redirect
+from django.shortcuts import render_to_response, get_object_or_404, render, redirect
 from django.core.context_processors import csrf
-from django.template import RequestContext
+from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Max, ProtectedError
 from django.db import IntegrityError
+from django.core.mail import send_mail
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
-from users.models import User, Right, Ban, Whitelist, School
+from users.models import User, Right, Ban, Whitelist, School, Request
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
 from cotisations.models import Facture
@@ -19,7 +21,7 @@ from users.forms import PassForm
 from machines.views import unassign_ips, assign_ips
 
 from re2o.login import hashNT
-
+from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
 
 def archive(user):
     """ Archive un utilisateur """
@@ -41,14 +43,49 @@ def form(ctx, template, request):
         context_instance=RequestContext(request)
     )
 
+def password_change_action(u_form, user, request, req=False):
+    """ Fonction qui effectue le changeemnt de mdp bdd"""
+    if u_form.cleaned_data['passwd1'] != u_form.cleaned_data['passwd2']:
+        messages.error(request, "Les 2 mots de passe différent")
+        return form({'userform': u_form}, 'users/user.html', request)
+    user.set_password(u_form.cleaned_data['passwd1'])
+    user.pwd_ntlm = hashNT(u_form.cleaned_data['passwd1'])
+    user.save()
+    messages.success(request, "Le mot de passe a changé")
+    if req:
+        req.delete()
+        return redirect("/")
+    return redirect("/users/profil/" + str(user.id))
+
+def reset_passwd_mail(req, request):
+    t = loader.get_template('users/email_passwd_request')
+    c = Context({
+      'name': str(req.user.name) + ' ' + str(req.user.surname),
+      'asso': ASSO_NAME,
+      'asso_mail': ASSO_EMAIL,
+      'site_name': SITE_NAME,
+      'url': request.build_absolute_uri(
+       reverse('users:process', kwargs={'token': req.token})),
+       'expire_in': REQ_EXPIRE_STR,
+    })
+    send_mail('Changement de mot de passe', t.render(c),
+    EMAIL_FROM, [req.user.email], fail_silently=False)
+    return
+
 @login_required
 @permission_required('cableur')
 def new_user(request):
     user = InfoForm(request.POST or None)
     if user.is_valid():
+        user = user.save(commit=False)
         user.save()
-        messages.success(request, "L'utilisateur a été crée")
-        return redirect("/users/")
+        req = Request()
+        req.type = Request.PASSWD
+        req.user = user
+        req.save()
+        reset_passwd_mail(req, request)
+        messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
+        redirect("/users/profil/" + user.id)
     return form({'userform': user}, 'users/user.html', request)
 
 @login_required
@@ -106,14 +143,7 @@ def password(request, userid):
         return redirect("/users/profil/" + str(request.user.id))
     u_form = PassForm(request.POST or None)
     if u_form.is_valid():
-        if u_form.cleaned_data['passwd1'] != u_form.cleaned_data['passwd2']:
-            messages.error(request, "Les 2 mots de passe différent")
-            return form({'userform': u_form}, 'users/user.html', request)
-        user.set_password(u_form.cleaned_data['passwd1'])
-        user.pwd_ntlm = hashNT(u_form.cleaned_data['passwd1'])
-        user.save()
-        messages.success(request, "Le mot de passe a changé")
-        return redirect("/users/profil/" + userid)
+        return password_change_action(u_form, user, request)
     return form({'userform': u_form}, 'users/user.html', request)
 
 @login_required
@@ -322,3 +352,20 @@ def profil(request, userid):
         }
     )
 
+def process(request, token):
+    valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
+    req = get_object_or_404(valid_reqs, token=token)
+
+    if req.type == Request.PASSWD:
+        return process_passwd(request, req)
+    elif req.type == Request.EMAIL:
+        return process_email(request, req=req)
+    else:
+        return error(request, 'Entrée incorrecte, contactez un admin')
+
+def process_passwd(request, req):
+    u_form = PassForm(request.POST or None)
+    user = req.user
+    if u_form.is_valid():
+        return password_change_action(u_form, user, request, req=req)
+    return form({'userform': u_form}, 'users/user.html', request)

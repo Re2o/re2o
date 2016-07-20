@@ -3,8 +3,9 @@ from django.db.models import Q
 from django.forms import ModelForm, Form
 from django import forms
 
-from re2o.settings import RIGHTS_LINK
-import re
+from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS
+import re, uuid
+import datetime
 
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -264,6 +265,27 @@ class Whitelist(models.Model):
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
+
+class Request(models.Model):
+    PASSWD = 'PW'
+    EMAIL = 'EM'
+    TYPE_CHOICES = (
+        (PASSWD, 'Mot de passe'),
+        (EMAIL, 'Email'),
+    )
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES)
+    token = models.CharField(max_length=32)
+    user = models.ForeignKey('User', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    expires_at = models.DateTimeField()
+
+    def save(self):
+        if not self.expires_at:
+            self.expires_at = timezone.now() \
+                + datetime.timedelta(hours=REQ_EXPIRE_HRS)
+        if not self.token:
+            self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
+        super(Request, self).save()
 
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):

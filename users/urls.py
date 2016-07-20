@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^index_white/$', views.index_white, name='index-white'),
     url(r'^index_school/$', views.index_school, name='index-school'),
     url(r'^mon_profil/$', views.mon_profil, name='mon-profil'),
+    url(r'^process/(?P<token>[a-z0-9]{32})/$', views.process, name='process'),
     url(r'^$', views.index, name='index'),
 ]
 
