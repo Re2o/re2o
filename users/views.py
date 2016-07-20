@@ -17,7 +17,7 @@ from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
-from users.forms import PassForm
+from users.forms import PassForm, ResetPasswordForm
 from machines.views import unassign_ips, assign_ips
 
 from re2o.login import hashNT
@@ -352,6 +352,23 @@ def profil(request, userid):
         }
     )
 
+def reset_password(request):
+    userform = ResetPasswordForm(request.POST or None)
+    if userform.is_valid():
+        try:
+            user = User.objects.get(pseudo=userform.cleaned_data['pseudo'],email=userform.cleaned_data['email'])
+        except User.DoesNotExist:
+            messages.error(request, "Cet utilisateur n'existe pas")
+            return form({'userform': userform}, 'users/user.html', request)   
+        req = Request()
+        req.type = Request.PASSWD
+        req.user = user
+        req.save()
+        reset_passwd_mail(req, request)
+        messages.success(request, "Un mail pour l'initialisation du mot de passe a été envoyé")
+        redirect("/") 
+    return form({'userform': userform}, 'users/user.html', request)
+
 def process(request, token):
     valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
     req = get_object_or_404(valid_reqs, token=token)
@@ -361,7 +378,8 @@ def process(request, token):
     elif req.type == Request.EMAIL:
         return process_email(request, req=req)
     else:
-        return error(request, 'Entrée incorrecte, contactez un admin')
+        messages.error(request, "Entrée incorrecte, contactez un admin")
+        redirect("/")
 
 def process_passwd(request, req):
     u_form = PassForm(request.POST or None)
