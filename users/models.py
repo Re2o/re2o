@@ -322,7 +322,6 @@ class UserForm(InfoForm):
     class Meta(InfoForm.Meta):
         fields = '__all__'
 
-
 class PasswordForm(ModelForm):
     class Meta:
         model = User

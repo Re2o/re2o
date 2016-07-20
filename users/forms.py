@@ -70,3 +70,7 @@ class UserChangeForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+class ResetPasswordForm(forms.Form):
+    pseudo = forms.CharField(label=u'Pseudo', max_length=255)
+    email = forms.EmailField(max_length=255)
