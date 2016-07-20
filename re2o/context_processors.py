@@ -1,5 +1,5 @@
 from machines.models import Interface, Machine
-
+from .settings import SITE_NAME
 
 def context_user(request):
     user = request.user
@@ -20,4 +20,5 @@ def context_user(request):
         'is_trez': is_trez,
         'is_infra': is_infra,
         'interfaces': interfaces,
+        'site_name': SITE_NAME,
     }
