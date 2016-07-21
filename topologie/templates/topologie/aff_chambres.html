@@ -11,7 +11,8 @@
        <td>{{room.name}}</td>
        <td>{{room.details}}</td>
        <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-room' room.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>
-       <a class="btn btn-danger btn-sm" role="button" href="{% url 'topologie:del-room' room.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a>{% endif %}</td>
+       <a class="btn btn-danger btn-sm" role="button" href="{% url 'topologie:del-room' room.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a>{% endif %}
+       <a class="btn btn-info btn-sm" role="button" href="{% url 'topologie:history' 'room' room.pk %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
    </tr>
    {% endfor %}
 </table>

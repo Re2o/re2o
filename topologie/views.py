@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
+from django.db import transaction
+from reversion import revisions as reversion
 
 from topologie.models import Switch, Port, Room
 from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm, EditRoomForm
@@ -12,6 +14,33 @@ from users.views import form
 def index(request):
     switch_list = Switch.objects.order_by('building', 'number')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
+
+@login_required
+@permission_required('cableur')
+def history(request, object, id):
+    if object == 'switch':
+        try:
+             object_instance = Switch.objects.get(pk=id)
+        except Switch.DoesNotExist:
+             messages.error(request, "Switch inexistant")
+             return redirect("/topologie/")
+    elif object == 'port':
+        try:
+             object_instance = Port.objects.get(pk=id)
+        except Port.DoesNotExist:
+             messages.error(request, "Port inexistant")
+             return redirect("/topologie/") 
+    elif object == 'room':  
+        try:
+             object_instance = Room.objects.get(pk=id)
+        except Room.DoesNotExist:
+             messages.error(request, "Chambre inexistante")
+             return redirect("/topologie/")
+    else:
+        messages.error(request, "Objet  inconnu")
+        return redirect("/topologie/")
+    reversions = reversion.get_for_object(object_instance)
+    return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
 @login_required
 @permission_required('cableur')
@@ -43,7 +72,10 @@ def new_port(request, switch_id):
         port = port.save(commit=False)
         port.switch = switch
         try:
-            port.save()
+            with transaction.atomic(), reversion.create_revision():
+                port.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             messages.success(request, "Port ajouté")
         except IntegrityError:
             messages.error(request,"Ce port existe déjà" )
@@ -60,7 +92,10 @@ def edit_port(request, port_id):
         return redirect("/topologie/")
     port = EditPortForm(request.POST or None, instance=port)
     if port.is_valid():
-        port.save()
+        with transaction.atomic(), reversion.create_revision():
+            port.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in port.changed_data))
         messages.success(request, "Le port a bien été modifié")
         return redirect("/topologie/")
     return form({'topoform':port}, 'topologie/topo.html', request)
@@ -70,7 +105,10 @@ def edit_port(request, port_id):
 def new_switch(request):
     switch = EditSwitchForm(request.POST or None)
     if switch.is_valid():
-        switch.save()
+        with transaction.atomic(), reversion.create_revision():
+            switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "Le switch a été créé")
         return redirect("/topologie/")
     return form({'topoform':switch}, 'topologie/topo.html', request)
@@ -85,7 +123,10 @@ def edit_switch(request, switch_id):
         return redirect("/topologie/")
     switch = EditSwitchForm(request.POST or None, instance=switch)
     if switch.is_valid():
-        switch.save()
+        with transaction.atomic(), reversion.create_revision():
+            switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch.changed_data))
         messages.success(request, "Le switch a bien été modifié")
         return redirect("/topologie/")
     return form({'topoform':switch}, 'topologie/topo.html', request)
@@ -95,7 +136,10 @@ def edit_switch(request, switch_id):
 def new_room(request):
     room = EditRoomForm(request.POST or None)
     if room.is_valid():
-        room.save()
+        with transaction.atomic(), reversion.create_revision():
+            room.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "La chambre a été créé")
         return redirect("/topologie/index_room/")
     return form({'topoform':room}, 'topologie/topo.html', request)
@@ -110,7 +154,10 @@ def edit_room(request, room_id):
         return redirect("/topologie/index_room/")
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
-        room.save()
+        with transaction.atomic(), reversion.create_revision():
+            room.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in room.changed_data))
         messages.success(request, "La chambre a bien été modifiée")
         return redirect("/topologie/index_room/")
     return form({'topoform':room}, 'topologie/topo.html', request)
@@ -124,7 +171,10 @@ def del_room(request, room_id):
         messages.error(request, u"Chambre inexistante" )
         return redirect("/topologie/index_room/")
     if request.method == "POST":
-        room.delete()
+        with transaction.atomic(), reversion.create_revision():
+            room.delete()
+            reversion.set_user(request.user)
+            reversion.set_comment("Destruction")
         messages.success(request, "La chambre/prise a été détruite")
         return redirect("/topologie/index_room/")
     return form({'objet': room, 'objet_name': 'Chambre'}, 'topologie/delete.html', request)

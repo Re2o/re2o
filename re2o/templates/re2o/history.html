@@ -1,0 +1,12 @@
+{% extends "re2o/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Historique{% endblock %}
+
+{% block content %}
+<h2>Historique de {{ object }}</h2>
+    {% include "re2o/aff_history.html" with reversions=reversions %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
