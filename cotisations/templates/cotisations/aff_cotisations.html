@@ -8,6 +8,7 @@
                 <th>Date</th>
   		<th></th>
   		<th></th>
+                <th></th>
             </tr>
         </thead>
         {% for facture in facture_list %}
@@ -17,9 +18,23 @@
             <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
-            <td>{% if is_cableur %}{% if facture.valid and not facture.control or is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a>{% endif %}{% endif %}</td>
-            <td>{% if is_cableur %}{% if facture.valid and not facture.control or is_trez %}<a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a>{% else %}Facture controlée{% endif %}{% endif %}</td>
+            {% if is_cableur %}
+            <td><div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Modifier
+            <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="editionfacture">
+            {% if facture.valid and not facture.control or is_trez %}
+            <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a></li>
+            <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
+            {% else %}
+            <li>Facture controlée</li>
+            {% endif %}
+            </ul></div></td>
+            {% endif %}
             <td>{% if facture.valid %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}"><i class="glyphicon glyphicon-save"></i> PDF</a>{% else %}Facture invalide{% endif %}</td>
+            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
         </tr>
         {% endfor %}
     </table>

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from reversion.admin import VersionAdmin
 
 from .models import User, School, Right, ListRight, Ban, Whitelist, Request
 from .forms import UserChangeForm, UserCreationForm
@@ -18,11 +19,11 @@ class UserAdmin(admin.ModelAdmin):
     )
 
 
-class SchoolAdmin(admin.ModelAdmin):
+class SchoolAdmin(VersionAdmin):
     list_display = ('name',)
 
 
-class ListRightAdmin(admin.ModelAdmin):
+class ListRightAdmin(VersionAdmin):
     list_display = ('listright',)
 
 
@@ -32,15 +33,15 @@ class RightAdmin(admin.ModelAdmin):
 class RequestAdmin(admin.ModelAdmin):
     list_display = ('user', 'type', 'created_at', 'expires_at')
 
-class BanAdmin(admin.ModelAdmin):
+class BanAdmin(VersionAdmin):
     list_display = ('user', 'raison', 'date_start', 'date_end')
 
 
-class WhitelistAdmin(admin.ModelAdmin):
+class WhitelistAdmin(VersionAdmin):
     list_display = ('user', 'raison', 'date_start', 'date_end')
 
 
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(VersionAdmin, BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm

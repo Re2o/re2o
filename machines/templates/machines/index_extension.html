@@ -7,7 +7,7 @@
   <h2>Liste des extensions</h2>
   {% if is_infra %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-extension'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une extension</a>
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:del-extension'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs extensions</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-extension'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs extensions</a>
   {% endif %}
   {%  include "machines/aff_extension.html" with  extension_list=extension_list %}
   <br />

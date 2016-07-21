@@ -11,7 +11,9 @@ from django.db import IntegrityError
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
+from reversion import revisions as reversion
 from users.models import User, Right, Ban, Whitelist, School, Request
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
@@ -50,7 +52,9 @@ def password_change_action(u_form, user, request, req=False):
         return form({'userform': u_form}, 'users/user.html', request)
     user.set_password(u_form.cleaned_data['passwd1'])
     user.pwd_ntlm = hashNT(u_form.cleaned_data['passwd1'])
-    user.save()
+    with transaction.atomic(), reversion.create_revision():
+        user.save()
+        reversion.set_comment("Réinitialisation du mot de passe")
     messages.success(request, "Le mot de passe a changé")
     if req:
         req.delete()
@@ -78,14 +82,17 @@ def new_user(request):
     user = InfoForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
-        user.save()
+        with transaction.atomic(), reversion.create_revision():
+            user.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         req = Request()
         req.type = Request.PASSWD
         req.user = user
         req.save()
         reset_passwd_mail(req, request)
         messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
-        redirect("/users/profil/" + user.id)
+        return redirect("/users/profil/" + user.id)
     return form({'userform': user}, 'users/user.html', request)
 
 @login_required
@@ -103,7 +110,10 @@ def edit_info(request, userid):
     else:
         user = InfoForm(request.POST or None, instance=user)
     if user.is_valid():
-        user.save()
+        with transaction.atomic(), reversion.create_revision():
+            user.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in user.changed_data))
         messages.success(request, "L'user a bien été modifié")
         return redirect("/users/profil/" + userid)
     return form({'userform': user}, 'users/user.html', request)
@@ -123,7 +133,10 @@ def state(request, userid):
                 archive(user)
             else:
                 unarchive(user)
-        state.save()
+        with transaction.atomic(), reversion.create_revision():
+            state.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in state.changed_data))
         messages.success(request, "Etat changé avec succès")
         return redirect("/users/profil/" + userid)
     return form({'userform': state}, 'users/user.html', request)
@@ -188,7 +201,10 @@ def add_ban(request, userid):
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        ban.save()
+        with transaction.atomic(), reversion.create_revision():
+            ban.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "Bannissement ajouté")
         return redirect("/users/profil/" + userid)
     if user.is_ban():
@@ -208,7 +224,10 @@ def edit_ban(request, banid):
         return redirect("/users/")
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        ban.save()
+        with transaction.atomic(), reversion.create_revision():
+            ban.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ban.changed_data))
         messages.success(request, "Bannissement modifié")
         return redirect("/users/")
     return form({'userform': ban}, 'users/user.html', request)
@@ -224,7 +243,10 @@ def add_whitelist(request, userid):
     whitelist_instance = Whitelist(user=user)
     whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
     if whitelist.is_valid():
-        whitelist.save()
+        with transaction.atomic(), reversion.create_revision():
+            whitelist.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "Accès à titre gracieux accordé")
         return redirect("/users/profil/" + userid)
     if is_whitelisted(user):
@@ -244,7 +266,10 @@ def edit_whitelist(request, whitelistid):
         return redirect("/users/")
     whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
     if whitelist.is_valid():
-        whitelist.save()
+        with transaction.atomic(), reversion.create_revision():
+            whitelist.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in whitelist.changed_data))
         messages.success(request, "Whitelist modifiée")
         return redirect("/users/")
     return form({'userform': whitelist}, 'users/user.html', request)
@@ -254,7 +279,10 @@ def edit_whitelist(request, whitelistid):
 def add_school(request):
     school = SchoolForm(request.POST or None)
     if school.is_valid():
-        school.save()
+        with transaction.atomic(), reversion.create_revision():
+            school.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "L'établissement a été ajouté")
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
@@ -269,7 +297,10 @@ def edit_school(request, schoolid):
         return redirect("/users/")
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
-        school.save()
+        with transaction.atomic(), reversion.create_revision():
+            school.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in school.changed_data))
         messages.success(request, "Établissement modifié")
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
@@ -282,7 +313,9 @@ def del_school(request):
         school_dels = school.cleaned_data['schools']
         for school_del in school_dels:
             try:
-                school_del.delete()
+                with transaction.atomic(), reversion.create_revision():
+                    school_del.delete()
+                    reversion.set_comment("Destruction")
                 messages.success(request, "L'établissement a été supprimé")
             except ProtectedError:
                 messages.error(
@@ -319,6 +352,48 @@ def index_white(request):
 def index_school(request):
     school_list = School.objects.order_by('name')
     return render(request, 'users/index_schools.html', {'school_list':school_list})
+
+@login_required
+def history(request, object, id):
+    if object == 'user':
+        try:
+             object_instance = User.objects.get(pk=id)
+        except User.DoesNotExist:
+             messages.error(request, "Utilisateur inexistant")
+             return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and object_instance != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher l'historique d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'ban':
+        try:
+             object_instance = Ban.objects.get(pk=id)
+        except Ban.DoesNotExist:
+             messages.error(request, "Bannissement inexistant")
+             return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher les bans d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'whitelist':
+        try:
+             object_instance = Whitelist.objects.get(pk=id)
+        except Whiltelist.DoesNotExist:
+             messages.error(request, "Whitelist inexistant")
+             return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher les whitelist d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'school' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = School.objects.get(pk=id)
+        except School.DoesNotExist:
+             messages.error(request, "Ecole inexistante")
+             return redirect("/users/")
+    else:
+        messages.error(request, "Objet  inconnu")
+        return redirect("/users/")
+    reversions = reversion.get_for_object(object_instance)
+    return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
+
 
 @login_required
 def mon_profil(request):

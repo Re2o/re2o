@@ -10,9 +10,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 from django.forms import ValidationError
+from django.db import transaction
 
 from rest_framework.renderers import JSONRenderer
 from machines.serializers import InterfaceSerializer
+from reversion import revisions as reversion
 
 
 import re
@@ -52,7 +54,9 @@ def assign_ips(user):
     for machine in machines:
         if not machine.ipv4:
             interface = assign_ipv4(machine)
-            interface.save()
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_comment("Assignation ipv4")
+                interface.save()
     return
 
 def free_ip():
@@ -68,7 +72,9 @@ def assign_ipv4(interface):
 
 def unassign_ipv4(interface):
     interface.ipv4 = None
-    interface.save()
+    with transaction.atomic(), reversion.create_revision():
+        reversion.set_comment("Désassignation ipv4")
+        interface.save()
 
 def form(ctx, template, request):
     c = ctx
@@ -92,13 +98,19 @@ def new_machine(request, userid):
         new_machine.user = user
         new_interface = interface.save(commit=False)
         if full_domain_validator(request, new_interface):
-            new_machine.save()
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             new_interface.machine = new_machine
             if free_ip() and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
-            new_interface.save()
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             messages.success(request, "La machine a été crée")
             return redirect("/users/profil/" + userid)
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
@@ -123,8 +135,14 @@ def edit_interface(request, interfaceid):
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
         if full_domain_validator(request, new_interface):
-            new_machine.save()
-            new_interface.save()
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
@@ -141,7 +159,9 @@ def del_machine(request, machineid):
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
     if request.method == "POST":
-        machine.delete()
+        with transaction.atomic(), reversion.create_revision():
+            machine.delete()
+            reversion.set_user(request.user)
         messages.success(request, "La machine a été détruite")
         return redirect("/users/profil/" + str(request.user.id))
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
@@ -166,7 +186,10 @@ def new_interface(request, machineid):
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
-            new_interface.save()
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(request.user.id))
     return form({'interfaceform': interface_form}, 'machines/machine.html', request)
@@ -183,7 +206,9 @@ def del_interface(request, interfaceid):
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
     if request.method == "POST":
-        interface.delete()
+        with transaction.atomic(), reversion.create_revision():
+            interface.delete()
+            reversion.set_user(request.user)
         messages.success(request, "L'interface a été détruite")
         return redirect("/users/profil/" + str(request.user.id))
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
@@ -193,7 +218,10 @@ def del_interface(request, interfaceid):
 def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
-        machinetype.save()
+        with transaction.atomic(), reversion.create_revision():
+            machinetype.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "Ce type de machine a été ajouté")
         return redirect("/machines/index_machinetype")
     return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
@@ -208,7 +236,10 @@ def edit_machinetype(request, machinetypeid):
         return redirect("/machines/index_machinetype/")
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
-        machinetype.save()
+        with transaction.atomic(), reversion.create_revision():
+            machinetype.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machinetype.changed_data))
         messages.success(request, "Type de machine modifié")
         return redirect("/machines/index_machinetype/")
     return form({'machineform': machinetype}, 'machines/machine.html', request)
@@ -221,7 +252,9 @@ def del_machinetype(request):
         machinetype_dels = machinetype.cleaned_data['machinetypes']
         for machinetype_del in machinetype_dels:
             try:
-                machinetype_del.delete()
+                with transaction.atomic(), reversion.create_revision():
+                    machinetype_del.delete()
+                    reversion.set_user(request.user)
                 messages.success(request, "Le type de machine a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
@@ -233,7 +266,10 @@ def del_machinetype(request):
 def add_extension(request):
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
-        extension.save()
+        with transaction.atomic(), reversion.create_revision():
+            extension.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
         messages.success(request, "Cette extension a été ajoutée")
         return redirect("/machines/index_extension")
     return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
@@ -248,7 +284,10 @@ def edit_extension(request, extensionid):
         return redirect("/machines/index_extension/")
     extension = ExtensionForm(request.POST or None, instance=extension_instance)
     if extension.is_valid():
-        extension.save()
+        with transaction.atomic(), reversion.create_revision():
+            extension.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
         messages.success(request, "Extension modifiée")
         return redirect("/machines/index_extension/")
     return form({'machineform': extension}, 'machines/machine.html', request)
@@ -261,7 +300,9 @@ def del_extension(request):
         extension_dels = extension.cleaned_data['extensions']
         for extension_del in extension_dels:
             try:
-                extension_del.delete()
+                with transaction.atomic(), reversion.create_revision():
+                    extension_del.delete()
+                    reversion.set_user(request.user)
                 messages.success(request, "L'extension a été supprimée")
             except ProtectedError:
                 messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
@@ -285,6 +326,45 @@ def index_machinetype(request):
 def index_extension(request):
     extension_list = Extension.objects.order_by('name')
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list})
+
+@login_required
+def history(request, object, id):
+    if object == 'machine':
+        try:
+             object_instance = Machine.objects.get(pk=id)
+        except Machine.DoesNotExist:
+             messages.error(request, "Machine inexistante")
+             return redirect("/machines/")
+        if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher l'historique d'une machine d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'interface':
+        try:
+             object_instance = Interface.objects.get(pk=id)
+        except Interface.DoesNotExist:
+             messages.error(request, "Interface inexistante")
+             return redirect("/machines/")
+        if not request.user.has_perms(('cableur',)) and object_instance.machine.user != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher l'historique d'une interface d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'machinetype' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = MachineType.objects.get(pk=id)
+        except MachineType.DoesNotExist:
+             messages.error(request, "Type de machine inexistant")
+             return redirect("/machines/")
+    elif object == 'extension' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Extension.objects.get(pk=id)
+        except Extension.DoesNotExist:
+             messages.error(request, "Extension inexistante")
+             return redirect("/machines/")
+    else:
+        messages.error(request, "Objet  inconnu")
+        return redirect("/machines/")
+    reversions = reversion.get_for_object(object_instance)
+    return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
+
 
 """ Framework Rest """
 
