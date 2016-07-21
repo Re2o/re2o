@@ -1,26 +1,24 @@
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
-class FactureAdmin(admin.ModelAdmin):
+class FactureAdmin(VersionAdmin):
     list_display = ('user','paiement','date','valid','control')
 
-class VenteAdmin(admin.ModelAdmin):
+class VenteAdmin(VersionAdmin):
     list_display = ('facture','name','prix','number','iscotisation','duration')
 
-class ArticleAdmin(admin.ModelAdmin):
+class ArticleAdmin(VersionAdmin):
     list_display = ('name','prix','iscotisation','duration')
 
-class BanqueAdmin(admin.ModelAdmin):
+class BanqueAdmin(VersionAdmin):
     list_display = ('name',)
 
-class PaiementAdmin(admin.ModelAdmin):
+class PaiementAdmin(VersionAdmin):
     list_display = ('moyen',)
 
-class PaiementAdmin(admin.ModelAdmin):
-    list_display = ('moyen',)
-
-class CotisationAdmin(admin.ModelAdmin):
+class CotisationAdmin(VersionAdmin):
     list_display = ('vente','date_start','date_end')
 
 admin.site.register(Facture, FactureAdmin)

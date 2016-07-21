@@ -3,12 +3,14 @@
             <tr>
                 <th>Etablissement</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         {% for school in school_list %}
         <tr>
             <td>{{ school.name }}</td>
             <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-school' school.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'school' school.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
         </tr>
         {% endfor %}
     </table>

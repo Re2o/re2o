@@ -1,20 +1,21 @@
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 
 from .models import Machine, MachineType, IpList, Interface, Extension
 
-class MachineAdmin(admin.ModelAdmin):
+class MachineAdmin(VersionAdmin):
     list_display = ('user','name','active')
 
-class MachineTypeAdmin(admin.ModelAdmin):
+class MachineTypeAdmin(VersionAdmin):
     list_display = ('type','extension')
 
-class ExtensionAdmin(admin.ModelAdmin):
+class ExtensionAdmin(VersionAdmin):
     list_display = ('name',)
 
-class IpListAdmin(admin.ModelAdmin):
+class IpListAdmin(VersionAdmin):
     list_display = ('ipv4',)
 
-class InterfaceAdmin(admin.ModelAdmin):
+class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','dns','mac_address','ipv4','details')
 
 admin.site.register(Machine, MachineAdmin)

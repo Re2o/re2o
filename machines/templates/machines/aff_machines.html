@@ -9,7 +9,8 @@
         <tr>
             <td><p>{{ machine.user }}</p>
             <p><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-interface'  machine.id %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une interface</p></a>
-            <p><a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machine' machine.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer la machine</a></p></td>
+            <p><a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machine' machine.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer la machine</a></p>
+            <p><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machine' machine.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></p></td>
             <td><table class="table table-striped">
             <thead>
             <tr>
@@ -33,6 +34,7 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="editioninterface">
             <li><a href="{% url 'machines:edit-interface' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a></li>
+            <li><a href="{% url 'machines:history' 'interface' interface.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></li>
             <li><a href="{% url 'machines:del-interface' interface.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
             </ul></div></td>
             </tr>
