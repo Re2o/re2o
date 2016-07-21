@@ -16,7 +16,8 @@
        <td>{{ port.machine_interface }}</td>
        <td>{{ port.related }}</td>
        <td>{{ port.details }}</td>
-       <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-port' port.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>{% endif %}</td>
+       <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-port' port.id %}"><i class="glyphicon glyphicon-random"></i>  Editer</a>{% endif %}
+       <a class="btn btn-info btn-sm" role="button" href="{% url 'topologie:history' 'port' port.pk %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
    </tr>
    {% endfor %}
 </table>

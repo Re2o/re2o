@@ -3,6 +3,7 @@ from django.forms import ModelForm, Form
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
+import reversion
 
 def make_port_related(port):
     related_port = port.related

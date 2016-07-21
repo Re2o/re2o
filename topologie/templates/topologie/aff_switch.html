@@ -12,7 +12,8 @@
        <td>{{switch.building}}</td>
        <td>{{switch.number}}</td>
        <td>{{switch.details}}</td>
-       <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:index-port' switch.pk %}"><i class="glyphicon glyphicon-cog"></i> Configurer</a></td>
+       <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:index-port' switch.pk %}"><i class="glyphicon glyphicon-cog"></i> Configurer</a>
+       <a class="btn btn-info btn-sm" role="button" href="{% url 'topologie:history' 'switch' switch.pk %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
    </tr>
    {% endfor %}
 </table>

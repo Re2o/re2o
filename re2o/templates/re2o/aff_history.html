@@ -1,0 +1,16 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Cableur</th>
+            <th>Commentaire</th>
+        </tr>
+   </thead>
+   {% for rev in reversions %}
+   <tr>
+       <td>{{ rev.revision.date_created }}</td>
+       <td>{{ rev.revision.user }}</td>
+       <td>{{ rev.revision.comment }}</td>
+   </tr>
+   {% endfor %}
+</table>

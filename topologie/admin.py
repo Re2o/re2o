@@ -1,15 +1,16 @@
 
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 
 from .models import Port, Room, Switch
 
-class SwitchAdmin(admin.ModelAdmin):
+class SwitchAdmin(VersionAdmin):
     list_display = ('building','number','details')
 
-class PortAdmin(admin.ModelAdmin):
+class PortAdmin(VersionAdmin):
     list_display = ('switch', 'port','room','machine_interface','details')
 
-class RoomAdmin(admin.ModelAdmin):
+class RoomAdmin(VersionAdmin):
     list_display = ('name','details')
 
 admin.site.register(Port, PortAdmin)
