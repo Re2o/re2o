@@ -49,7 +49,8 @@ INSTALLED_APPS = (
     'search',
     're2o',
     'logs',
-    'rest_framework'
+    'rest_framework',
+    'reversion'
 )
 
 MIDDLEWARE_CLASSES = (
