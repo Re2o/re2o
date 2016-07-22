@@ -8,7 +8,7 @@ html, body {
 }
 
 #main {
-    overflow:auto;
+    overflow: auto;
     padding-bottom:60px; /* this needs to be bigger than footer height*/
 }
 
@@ -36,8 +36,6 @@ footer {
 .sidenav {
     padding-top: 20px;
     background-color: #f1f1f1;
-    margin-bottom: -9999px;
-    padding-bottom: 9999px;
 }
 
 /* Set black background color, white text and some padding */
