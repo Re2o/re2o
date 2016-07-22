@@ -1,3 +1,18 @@
+ {% if machines_list.paginator %}
+ <ul class="pagination nav navbar-nav">
+    {% if machines_list.has_previous %}
+            <li><a href="?page={{ machines_list.previous_page_number }}">Suivants</a></li>
+    {% endif %}
+    {% for page in machines_list.paginator.page_range %}
+        <li class="{% if machines_list.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
+    {% endfor %}
+
+    {% if machines_list.has_next %}
+        <li> <a href="?page={{ machines_list.next_page_number }}">Précédents</a></li>
+    {% endif %}
+ </ul>
+ {% endif %}    
+
     <table class="table table-striped">
         <thead>
             <tr>

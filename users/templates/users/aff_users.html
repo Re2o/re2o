@@ -1,3 +1,18 @@
+ {% if users_list.paginator %}
+ <ul class="pagination nav navbar-nav">
+    {% if users_list.has_previous %}
+            <li><a href="?page={{ users_list.previous_page_number }}">Suivants</a></li>
+    {% endif %}
+    {% for page in users_list.paginator.page_range %}
+        <li class="{% if users_list.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
+    {% endfor %}
+
+    {% if users_list.has_next %}
+        <li> <a href="?page={{ users_list.next_page_number }}">Précédents</a></li>
+    {% endif %}
+ </ul>
+ {% endif %}
+
     <table class="table table-striped">
         <thead>
             <tr>

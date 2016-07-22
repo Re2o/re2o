@@ -4,6 +4,7 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
@@ -17,7 +18,7 @@ from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
 from users.models import User
 from .tex import render_tex
-from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
+from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH, PAGINATION_NUMBER
 from re2o import settings
 
 from dateutil.relativedelta import relativedelta
@@ -341,6 +342,16 @@ def index_banque(request):
 @permission_required('cableur')
 def index(request):
     facture_list = Facture.objects.order_by('date').reverse()
+    paginator = Paginator(facture_list, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        facture_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        facture_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        facture_list = paginator.page(paginator.num_pages)
     return render(request, 'cotisations/index.html', {'facture_list': facture_list})
 
 @login_required

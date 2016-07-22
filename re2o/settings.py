@@ -131,3 +131,4 @@ RIGHTS_LINK = {
     'bofh' : ['bureau','trésorier'],
     }
 
+PAGINATION_NUMBER = 5

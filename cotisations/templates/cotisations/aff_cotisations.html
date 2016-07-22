@@ -1,3 +1,18 @@
+ {% if facture_list.paginator %}
+ <ul class="pagination nav navbar-nav">
+    {% if facture_list.has_previous %}
+            <li><a href="?page={{ facture_list.previous_page_number }}">Suivantes</a></li>
+    {% endif %}
+    {% for page in facture_list.paginator.page_range %}
+        <li class="{% if facture_list.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
+    {% endfor %}
+
+    {% if facture_list.has_next %}
+        <li> <a href="?page={{ facture_list.next_page_number }}">Précédentes</a></li>
+    {% endif %}
+ </ul>
+ {% endif %}
+
     <table class="table table-striped">
         <thead>
             <tr>

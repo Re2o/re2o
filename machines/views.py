@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.context_processors import csrf
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -21,6 +22,7 @@ import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .models import Machine, Interface, IpList, MachineType, Extension
 from users.models import User
+from re2o.settings import PAGINATION_NUMBER
 
 def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
@@ -313,6 +315,16 @@ def del_extension(request):
 @permission_required('cableur')
 def index(request):
     machines_list = Machine.objects.order_by('pk')
+    paginator = Paginator(machines_list, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        machines_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        machines_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        machines_list = paginator.page(paginator.num_pages)
     return render(request, 'machines/index.html', {'machines_list': machines_list})
 
 @login_required

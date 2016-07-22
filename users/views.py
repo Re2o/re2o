@@ -3,6 +3,7 @@
 # Gplv2
 from django.shortcuts import render_to_response, get_object_or_404, render, redirect
 from django.core.context_processors import csrf
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -14,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from reversion import revisions as reversion
-from users.models import User, Right, Ban, Whitelist, School, Request
+from users.models import User, Right, Ban, Whitelist, School, ListRight, Request
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
 from cotisations.models import Facture
@@ -23,7 +24,7 @@ from users.forms import PassForm, ResetPasswordForm
 from machines.views import unassign_ips, assign_ips
 
 from re2o.login import hashNT
-from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
+from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME, PAGINATION_NUMBER
 
 def archive(user):
     """ Archive un utilisateur """
@@ -182,13 +183,14 @@ def add_right(request, userid):
 @login_required
 @permission_required('bureau')
 def del_right(request):
-    right = DelRightForm(request.POST or None)
-    if right.is_valid():
-        right_del = right.cleaned_data['rights']
+    user_right_list = DelRightForm(request.POST or None)
+    right_list = ListRight.objects.all()
+    if user_right_list.is_valid():
+        right_del = user_right_list.cleaned_data['rights']
         right_del.delete()
         messages.success(request, "Droit retiré avec succès")
         return redirect("/users/")
-    return form({'userform': right}, 'users/user.html', request)
+    return form({'user_right_list': user_right_list, 'right_list': right_list}, 'users/index_rights.html', request)
 
 @login_required
 @permission_required('bofh')
@@ -329,6 +331,16 @@ def del_school(request):
 @permission_required('cableur')
 def index(request):
     users_list = User.objects.order_by('pk')
+    paginator = Paginator(users_list, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        users_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        users_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        users_list = paginator.page(paginator.num_pages)
     return render(request, 'users/index.html', {'users_list': users_list})
 
 @login_required
