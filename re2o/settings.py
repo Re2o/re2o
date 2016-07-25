@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH, services_urls, REQ_EXPIRE_HRS, REQ_EXPIRE_STR, EMAIL_FROM, SITE_NAME
+from .settings_local import SECRET_KEY, DATABASES, DEBUG, ALLOWED_HOSTS, ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH, services_urls, REQ_EXPIRE_HRS, REQ_EXPIRE_STR, EMAIL_FROM, SITE_NAME, LDAP_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -101,6 +101,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 
 # django-bootstrap3 config dictionnary
