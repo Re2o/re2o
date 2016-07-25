@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from dateutil.relativedelta import relativedelta
 from django.core.validators import MinValueValidator
 
@@ -26,6 +28,17 @@ class Facture(models.Model):
     def __str__(self):
         return str(self.date) + ' ' + str(self.user)
 
+@receiver(post_save, sender=Facture)
+def facture_post_save(sender, **kwargs):
+    facture = kwargs['instance']
+    user = facture.user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
+@receiver(post_delete, sender=Facture)
+def facture_post_delete(sender, **kwargs):
+    user = kwargs['instance'].user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
 class Vente(models.Model):
     facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
     number = models.IntegerField(validators=[MinValueValidator(1)])
@@ -45,6 +58,20 @@ class Vente(models.Model):
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
+
+@receiver(post_save, sender=Vente)
+def vente_post_save(sender, **kwargs):
+    vente = kwargs['instance']
+    if vente.iscotisation:
+        user = vente.facture.user
+        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
+@receiver(post_delete, sender=Vente)
+def vente_post_delete(sender, **kwargs):
+    vente = kwargs['instance']
+    if vente.iscotisation:
+        user = vente.facture.user
+        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Article(models.Model):
     name = models.CharField(max_length=255)
