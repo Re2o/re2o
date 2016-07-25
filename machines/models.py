@@ -1,6 +1,11 @@
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.forms import ValidationError
 from macaddress.fields import MACAddressField
+
+
+
 
 class Machine(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
@@ -38,6 +43,11 @@ class Interface(models.Model):
         user = self.machine.user
         return machine.active and user.has_access()
 
+    #def save(self, *args, **kwargs):
+    #    user = self.machine.user
+    #    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    #    super(Interface, self).save(*args, **kwargs)
+
     def __str__(self):
         return self.dns
 
@@ -47,3 +57,13 @@ class IpList(models.Model):
     def __str__(self):
         return self.ipv4
 
+
+@receiver(post_save, sender=Interface)
+def interface_post_save(sender, **kwargs):
+    user = kwargs['instance'].machine.user
+    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+
+@receiver(post_delete, sender=Interface)
+def interface_post_delete(sender, **kwargs):
+    user = kwargs['instance'].machine.user
+    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
