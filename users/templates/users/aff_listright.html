@@ -1,0 +1,19 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Droit</th>
+                <th>Gid</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for listright in listright_list %}
+        <tr>
+            <td>{{ listright.listright }}</td>
+            <td>{{ listright.gid }}</td>
+            <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-listright' listright.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a></td>
+            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'listright' listright.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+

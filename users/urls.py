@@ -16,10 +16,14 @@ urlpatterns = [
     url(r'^add_school/$', views.add_school, name='add-school'),
     url(r'^edit_school/(?P<schoolid>[0-9]+)$', views.edit_school, name='edit-school'),
     url(r'^del_school/$', views.del_school, name='del-school'),
+    url(r'^add_listright/$', views.add_listright, name='add-listright'),
+    url(r'^edit_listright/(?P<listrightid>[0-9]+)$', views.edit_listright, name='edit-listright'),
+    url(r'^del_listright/$', views.del_listright, name='del-listright'),
     url(r'^profil/(?P<userid>[0-9]+)$', views.profil, name='profil'),
     url(r'^index_ban/$', views.index_ban, name='index-ban'),
     url(r'^index_white/$', views.index_white, name='index-white'),
     url(r'^index_school/$', views.index_school, name='index-school'),
+    url(r'^index_listright/$', views.index_listright, name='index-listright'),
     url(r'^mon_profil/$', views.mon_profil, name='mon-profil'),
     url(r'^process/(?P<token>[a-z0-9]{32})/$', views.process, name='process'),
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
@@ -27,6 +31,7 @@ urlpatterns = [
     url(r'^history/(?P<object>ban)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>whitelist)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>school)/(?P<id>[0-9]+)$', views.history, name='history'),
+    url(r'^history/(?P<object>listright)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^$', views.index, name='index'),
 ]
 
