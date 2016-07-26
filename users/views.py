@@ -16,8 +16,8 @@ from django.db import transaction
 
 from reversion import revisions as reversion
 from users.models import User, Right, Ban, Whitelist, School, ListRight, Request
-from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
-from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm
+from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
+from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, ListRightForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import PassForm, ResetPasswordForm
@@ -93,7 +93,7 @@ def new_user(request):
         req.save()
         reset_passwd_mail(req, request)
         messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
-        return redirect("/users/profil/" + user.id)
+        return redirect("/users/profil/" + str(user.id))
     return form({'userform': user}, 'users/user.html', request)
 
 @login_required
@@ -328,6 +328,57 @@ def del_school(request):
     return form({'userform': school}, 'users/user.html', request)
 
 @login_required
+@permission_required('bureau')
+def add_listright(request):
+    listright = NewListRightForm(request.POST or None)
+    if listright.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            listright.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Le droit/groupe a été ajouté")
+        return redirect("/users/index_listright/")
+    return form({'userform': listright}, 'users/user.html', request)
+
+@login_required
+@permission_required('bureau')
+def edit_listright(request, listrightid):
+    try:
+        listright_instance = ListRight.objects.get(pk=listrightid)
+    except ListRight.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/users/")
+    listright = ListRightForm(request.POST or None, instance=listright_instance)
+    if listright.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            listright.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in listright.changed_data))
+        messages.success(request, "Droit modifié")
+        return redirect("/users/index_listright/")
+    return form({'userform': listright}, 'users/user.html', request)
+
+@login_required
+@permission_required('bureau')
+def del_listright(request):
+    listright = DelListRightForm(request.POST or None)
+    if listright.is_valid():
+        listright_dels = listright.cleaned_data['listrights']
+        for listright_del in listright_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    listright_del.delete()
+                    reversion.set_comment("Destruction")
+                messages.success(request, "Le droit/groupe a été supprimé")
+            except ProtectedError:
+                messages.error(
+                    request,
+                    "L'établissement %s est affecté à au moins un user, \
+                        vous ne pouvez pas le supprimer" % listright_del)
+        return redirect("/users/index_listright/")
+    return form({'userform': listright}, 'users/user.html', request)
+
+@login_required
 @permission_required('cableur')
 def index(request):
     users_list = User.objects.order_by('pk')
@@ -366,6 +417,12 @@ def index_school(request):
     return render(request, 'users/index_schools.html', {'school_list':school_list})
 
 @login_required
+@permission_required('cableur')
+def index_listright(request):
+    listright_list = ListRight.objects.order_by('listright')
+    return render(request, 'users/index_listright.html', {'listright_list':listright_list})
+
+@login_required
 def history(request, object, id):
     if object == 'user':
         try:
@@ -399,6 +456,12 @@ def history(request, object, id):
              object_instance = School.objects.get(pk=id)
         except School.DoesNotExist:
              messages.error(request, "Ecole inexistante")
+             return redirect("/users/")
+    elif object == 'listright' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = ListRight.objects.get(pk=id)
+        except ListRight.DoesNotExist:
+             messages.error(request, "Droit inexistant")
              return redirect("/users/")
     else:
         messages.error(request, "Objet  inconnu")

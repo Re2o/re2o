@@ -1,0 +1,17 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {% for right in right_list %}
+                <th>{{ right }}</th>
+                <th></th>
+                {% endfor %}
+            </tr>
+        </thead>
+        {% for user_right in user_right_list %}
+        <tr>
+            <td> {{ user_right }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+

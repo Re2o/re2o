@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from .models import User, School, Right, ListRight, Ban, Whitelist, Request
+from .models import User, School, Right, ListRight, ListShell, Ban, Whitelist, Request, LdapUser, LdapUserGroup
 from .forms import UserChangeForm, UserCreationForm
 
 
@@ -15,17 +15,28 @@ class UserAdmin(admin.ModelAdmin):
         'room',
         'email',
         'school',
+        'shell',
         'state'
     )
+    search_fields = ('name','surname','pseudo','room')
 
+
+class LdapUserAdmin(admin.ModelAdmin):
+    list_display = ('name','uidNumber','loginShell')
+    search_fields = ('name',)
+
+class LdapUserGroupAdmin(admin.ModelAdmin):
+    list_display = ('name','members','gid')
+    search_fields = ('name',)
 
 class SchoolAdmin(VersionAdmin):
     list_display = ('name',)
 
-
 class ListRightAdmin(VersionAdmin):
     list_display = ('listright',)
 
+class ListShellAdmin(VersionAdmin):
+    list_display = ('shell',)
 
 class RightAdmin(admin.ModelAdmin):
     list_display = ('user', 'right')
@@ -49,11 +60,11 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('pseudo', 'name', 'surname', 'email', 'school', 'is_admin')
+    list_display = ('pseudo', 'name', 'surname', 'email', 'school', 'is_admin', 'shell')
     list_filter = ()
     fieldsets = (
         (None, {'fields': ('pseudo', 'password')}),
-        ('Personal info', {'fields': ('name', 'surname', 'email', 'school')}),
+        ('Personal info', {'fields': ('name', 'surname', 'email', 'school','shell')}),
         ('Permissions', {'fields': ('is_admin', )}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -69,9 +80,12 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     filter_horizontal = ()
 
 admin.site.register(User, UserAdmin)
+admin.site.register(LdapUser, LdapUserAdmin)
+admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Right, RightAdmin)
 admin.site.register(ListRight, ListRightAdmin)
+admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)

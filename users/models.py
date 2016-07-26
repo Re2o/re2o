@@ -2,8 +2,13 @@ from django.db import models
 from django.db.models import Q
 from django.forms import ModelForm, Form
 from django import forms
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
-from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS
+import ldapdb.models
+import ldapdb.models.fields
+
+from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP_SETTINGS
 import re, uuid
 import datetime
 
@@ -12,6 +17,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Vente
+from machines.models import Interface, Machine
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
@@ -97,6 +103,7 @@ class User(AbstractBaseUser):
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
+    shell = models.ForeignKey('ListShell', on_delete=models.PROTECT, null=False, blank=False, default=1)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ntlm = models.CharField(max_length=255)
@@ -218,9 +225,46 @@ class User(AbstractBaseUser):
             return
         user_right.delete()
 
+    def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
+        try:
+            user_ldap = LdapUser.objects.get(name=self.pseudo)
+        except LdapUser.DoesNotExist:
+            user_ldap = LdapUser(name=self.pseudo)
+        if base:
+            user_ldap.sn = self.pseudo
+            user_ldap.dialupAccess = str(self.has_access())
+            user_ldap.uidNumber = self.id
+            user_ldap.home_directory = '/home/' + self.pseudo
+            user_ldap.mail = self.email
+            user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
+            user_ldap.gid = LDAP_SETTINGS['user_gid']
+            user_ldap.user_password = self.password
+            user_ldap.sambat_nt_password = self.pwd_ntlm
+        if access_refresh:
+            user_ldap.dialupAccess = str(self.has_access())
+        if mac_refresh:
+            user_ldap.macs = [inter.mac_address for inter in Interface.objects.filter(machine=Machine.objects.filter(user=self))]
+        user_ldap.save()
+
+    def ldap_del(self):
+        try:
+            user_ldap = LdapUser.objects.get(name=self.pseudo)
+            user_ldap.delete()
+        except LdapUser.DoesNotExist:
+            pass
+
     def __str__(self):
         return self.pseudo
 
+@receiver(post_save, sender=User)
+def user_post_save(sender, **kwargs):
+    user = kwargs['instance']
+    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+
+@receiver(post_delete, sender=User)
+def user_post_delete(sender, **kwargs):
+    user = kwargs['instance']
+    user.ldap_del()
 
 class Right(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -232,6 +276,15 @@ class Right(models.Model):
     def __str__(self):
         return str(self.user) + " - " + str(self.right)
 
+@receiver(post_save, sender=Right)
+def right_post_save(sender, **kwargs):
+    right = kwargs['instance'].right
+    right.ldap_sync()
+
+@receiver(post_delete, sender=Right)
+def right_post_delete(sender, **kwargs):
+    right = kwargs['instance'].right
+    right.ldap_sync()
 
 class School(models.Model):
     name = models.CharField(max_length=255)
@@ -242,10 +295,42 @@ class School(models.Model):
 
 class ListRight(models.Model):
     listright = models.CharField(max_length=255, unique=True)
+    gid = models.IntegerField(unique=True, null=True)
 
     def __str__(self):
         return self.listright
 
+    def ldap_sync(self):
+        try:
+            group_ldap = LdapUserGroup.objects.get(gid=self.gid)
+        except LdapUserGroup.DoesNotExist:
+            group_ldap = LdapUserGroup(gid=self.gid)
+        group_ldap.name = self.listright
+        group_ldap.members = [right.user.pseudo for right in Right.objects.filter(right=self)]
+        group_ldap.save()
+
+    def ldap_del(self):
+        try:
+            group_ldap = LdapUserGroup.objects.get(gid=self.gid)
+            group_ldap.delete()
+        except LdapUserGroup.DoesNotExist:
+            pass
+
+@receiver(post_save, sender=ListRight)
+def listright_post_save(sender, **kwargs):
+    right = kwargs['instance']
+    right.ldap_sync()
+
+@receiver(post_delete, sender=ListRight)
+def listright_post_delete(sender, **kwargs):
+    right = kwargs['instance']
+    right.ldap_del()
+
+class ListShell(models.Model):
+    shell = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.shell
 
 class Ban(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -286,6 +371,59 @@ class Request(models.Model):
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()
+
+class LdapUser(ldapdb.models.Model):
+    """
+    Class for representing an LDAP user entry.
+    """
+    # LDAP meta-data
+    base_dn = LDAP_SETTINGS['base_user_dn']
+    object_classes = ['inetOrgPerson','top','posixAccount','sambaSamAccount','radiusprofile']
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
+    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    uid = ldapdb.models.fields.CharField(db_column='uid', max_length=200)
+    uidNumber = ldapdb.models.fields.IntegerField(db_column='uidNumber', unique=True)
+    sn = ldapdb.models.fields.CharField(db_column='sn', max_length=200)
+    loginShell = ldapdb.models.fields.CharField(db_column='loginShell', max_length=200, default="/bin/zsh")
+    mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200) 
+    given_name = ldapdb.models.fields.CharField(db_column='givenName', max_length=200)
+    home_directory = ldapdb.models.fields.CharField(db_column='homeDirectory', max_length=200)
+    display_name = ldapdb.models.fields.CharField(db_column='displayName', max_length=200)
+    dialupAccess = ldapdb.models.fields.CharField(db_column='dialupAccess')
+    sambaSID = ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True)
+    user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
+    sambat_nt_password = ldapdb.models.fields.CharField(db_column='sambaNTPassword', max_length=200, blank=True, null=True)
+    macs = ldapdb.models.fields.ListField(db_column='radiusCallingStationId', max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.sn = self.name
+        self.uid = self.name
+        self.sambaSID = self.uidNumber
+        super(LdapUser, self).save(*args, **kwargs)
+
+class LdapUserGroup(ldapdb.models.Model):
+    """
+    Class for representing an LDAP user entry.
+    """
+    # LDAP meta-data
+    base_dn = LDAP_SETTINGS['base_usergroup_dn']
+    object_classes = ['posixGroup']
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
+    members = ldapdb.models.fields.ListField(db_column='memberUid', blank=True)
+    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+
+    def __str__(self):
+        return self.name
 
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -343,6 +481,29 @@ class SchoolForm(ModelForm):
         super(SchoolForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Établissement'
 
+class ListRightForm(ModelForm):
+    class Meta:
+        model = ListRight
+        fields = ['listright']
+
+    def __init__(self, *args, **kwargs):
+        super(ListRightForm, self).__init__(*args, **kwargs)
+        self.fields['listright'].label = 'Nom du droit/groupe'
+
+class NewListRightForm(ListRightForm):
+    class Meta(ListRightForm.Meta):
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(NewListRightForm, self).__init__(*args, **kwargs)
+        self.fields['gid'].label = 'Gid, attention, cet attribut ne doit pas être modifié après création'
+
+class DelListRightForm(ModelForm):
+    listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all(), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['listright','gid']
+        model = ListRight
 
 class DelSchoolForm(ModelForm):
     schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
