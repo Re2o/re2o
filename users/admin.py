@@ -23,6 +23,7 @@ class UserAdmin(admin.ModelAdmin):
 
 class LdapUserAdmin(admin.ModelAdmin):
     list_display = ('name','uidNumber','loginShell')
+    exclude = ('user_password','sambat_nt_password')
     search_fields = ('name',)
 
 class LdapUserGroupAdmin(admin.ModelAdmin):
