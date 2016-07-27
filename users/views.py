@@ -17,7 +17,7 @@ from django.db import transaction
 from reversion import revisions as reversion
 from users.models import User, Right, Ban, Whitelist, School, ListRight, Request
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
-from users.models import InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, ListRightForm
+from users.models import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, ListRightForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import PassForm, ResetPasswordForm
@@ -109,7 +109,7 @@ def edit_info(request, userid):
     if not request.user.has_perms(('cableur',)):
         user = BaseInfoForm(request.POST or None, instance=user)
     else:
-        user = InfoForm(request.POST or None, instance=user)
+        user = EditInfoForm(request.POST or None, instance=user)
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()

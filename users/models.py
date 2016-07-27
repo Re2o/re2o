@@ -8,7 +8,7 @@ from django.dispatch import receiver
 import ldapdb.models
 import ldapdb.models.fields
 
-from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP_SETTINGS
+from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP
 import re, uuid
 import datetime
 
@@ -103,7 +103,7 @@ class User(AbstractBaseUser):
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
     school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
-    shell = models.ForeignKey('ListShell', on_delete=models.PROTECT, null=False, blank=False, default=1)
+    shell = models.ForeignKey('ListShell', on_delete=models.PROTECT, null=True, blank=True)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
     pwd_ntlm = models.CharField(max_length=255)
@@ -237,9 +237,10 @@ class User(AbstractBaseUser):
             user_ldap.home_directory = '/home/' + self.pseudo
             user_ldap.mail = self.email
             user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
-            user_ldap.gid = LDAP_SETTINGS['user_gid']
+            user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password
             user_ldap.sambat_nt_password = self.pwd_ntlm
+            user_ldap.loginShell = self.shell.shell 
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
@@ -377,7 +378,7 @@ class LdapUser(ldapdb.models.Model):
     Class for representing an LDAP user entry.
     """
     # LDAP meta-data
-    base_dn = LDAP_SETTINGS['base_user_dn']
+    base_dn = LDAP['base_user_dn']
     object_classes = ['inetOrgPerson','top','posixAccount','sambaSamAccount','radiusprofile']
 
     # attributes
@@ -386,11 +387,11 @@ class LdapUser(ldapdb.models.Model):
     uid = ldapdb.models.fields.CharField(db_column='uid', max_length=200)
     uidNumber = ldapdb.models.fields.IntegerField(db_column='uidNumber', unique=True)
     sn = ldapdb.models.fields.CharField(db_column='sn', max_length=200)
-    loginShell = ldapdb.models.fields.CharField(db_column='loginShell', max_length=200, default="/bin/zsh")
+    loginShell = ldapdb.models.fields.CharField(db_column='loginShell', max_length=200, blank=True, null=True)
     mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200) 
     given_name = ldapdb.models.fields.CharField(db_column='givenName', max_length=200)
     home_directory = ldapdb.models.fields.CharField(db_column='homeDirectory', max_length=200)
-    display_name = ldapdb.models.fields.CharField(db_column='displayName', max_length=200)
+    display_name = ldapdb.models.fields.CharField(db_column='displayName', max_length=200, blank=True, null=True)
     dialupAccess = ldapdb.models.fields.CharField(db_column='dialupAccess')
     sambaSID = ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True)
     user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
@@ -414,7 +415,7 @@ class LdapUserGroup(ldapdb.models.Model):
     Class for representing an LDAP user entry.
     """
     # LDAP meta-data
-    base_dn = LDAP_SETTINGS['base_usergroup_dn']
+    base_dn = LDAP['base_usergroup_dn']
     object_classes = ['posixGroup']
 
     # attributes
@@ -446,6 +447,19 @@ class BaseInfoForm(ModelForm):
             'school',
             'comment',
             'room',
+        ]
+
+class EditInfoForm(BaseInfoForm):
+    class Meta(BaseInfoForm.Meta):
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'shell',
         ]
 
 class InfoForm(BaseInfoForm):
