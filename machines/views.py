@@ -22,7 +22,7 @@ import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .models import Machine, Interface, IpList, MachineType, Extension
 from users.models import User
-from re2o.settings import PAGINATION_NUMBER
+from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
 
 def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
@@ -315,7 +315,7 @@ def del_extension(request):
 @permission_required('cableur')
 def index(request):
     machines_list = Machine.objects.order_by('pk')
-    paginator = Paginator(machines_list, PAGINATION_NUMBER)
+    paginator = Paginator(machines_list, PAGINATION_LARGE_NUMBER)
     page = request.GET.get('page')
     try:
         machines_list = paginator.page(page)
@@ -375,6 +375,16 @@ def history(request, object, id):
         messages.error(request, "Objet  inconnu")
         return redirect("/machines/")
     reversions = reversion.get_for_object(object_instance)
+    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        reversions = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reversions = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reversions = paginator.page(paginator.num_pages)
     return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
 

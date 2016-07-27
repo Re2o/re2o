@@ -467,6 +467,16 @@ def history(request, object, id):
         messages.error(request, "Objet  inconnu")
         return redirect("/users/")
     reversions = reversion.get_for_object(object_instance)
+    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        reversions = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reversions = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reversions = paginator.page(paginator.num_pages)
     return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
 
