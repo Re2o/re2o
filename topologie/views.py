@@ -3,11 +3,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 
 from topologie.models import Switch, Port, Room
 from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm, EditRoomForm
 from users.views import form
+
+from re2o.settings import PAGINATION_NUMBER
 
 @login_required
 @permission_required('cableur')
@@ -40,6 +43,16 @@ def history(request, object, id):
         messages.error(request, "Objet  inconnu")
         return redirect("/topologie/")
     reversions = reversion.get_for_object(object_instance)
+    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        reversions = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reversions = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reversions = paginator.page(paginator.num_pages)
     return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
 @login_required
