@@ -1,5 +1,7 @@
 # Re2o
 
+Gnu public license v2.0
+
 ## Avant propos 
 
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il se veut agnostique au réseau considéré, de manière à être installable en quelques clics.
