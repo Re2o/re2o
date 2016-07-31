@@ -226,6 +226,7 @@ class User(AbstractBaseUser):
         user_right.delete()
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
+        self.refresh_from_db()
         try:
             user_ldap = LdapUser.objects.get(name=self.pseudo)
         except LdapUser.DoesNotExist:
@@ -240,7 +241,8 @@ class User(AbstractBaseUser):
             user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password
             user_ldap.sambat_nt_password = self.pwd_ntlm
-            user_ldap.loginShell = self.shell.shell 
+            if self.shell:
+                user_ldap.loginShell = self.shell.shell 
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
@@ -266,6 +268,42 @@ def user_post_save(sender, **kwargs):
 def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
     user.ldap_del()
+
+class ServiceUser(AbstractBaseUser):
+
+    pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
+
+    USERNAME_FIELD = 'pseudo'
+ 
+    objects = UserManager()
+
+    def ldap_sync(self):
+        try:
+            user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
+        except LdapServiceUser.DoesNotExist:
+            user_ldap = LdapServiceUser(name=self.pseudo)
+        user_ldap.user_password = self.password
+        user_ldap.save()
+
+    def ldap_del(self):
+        try:
+            user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
+            user_ldap.delete()
+        except LdapUser.DoesNotExist:
+            pass
+
+    def __str__(self):
+        return self.pseudo
+
+@receiver(post_save, sender=ServiceUser)
+def service_user_post_save(sender, **kwargs):
+    service_user = kwargs['instance']
+    service_user.ldap_sync()
+
+@receiver(post_delete, sender=ServiceUser)
+def service_user_post_delete(sender, **kwargs):
+    service_user = kwargs['instance']
+    service_user.ldap_del()
 
 class Right(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -426,6 +464,18 @@ class LdapUserGroup(ldapdb.models.Model):
     def __str__(self):
         return self.name
 
+class LdapServiceUser(ldapdb.models.Model):
+    """
+    Class for representing an LDAP userservice entry.
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_userservice_dn']
+    object_classes = ['applicationProcess','simpleSecurityObject']
+
+    # attributes
+    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
+
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BaseInfoForm, self).__init__(*args, **kwargs)
@@ -479,6 +529,15 @@ class PasswordForm(ModelForm):
         model = User
         fields = ['password', 'pwd_ntlm']
 
+class ServiceUserForm(ModelForm):
+    class Meta:
+        model = ServiceUser
+        fields = ('pseudo','password')
+
+class ServicePasswordForm(ModelForm):
+    class Meta:
+        model = ServiceUser
+        fields = ('password',)
 
 class StateForm(ModelForm):
     class Meta:
