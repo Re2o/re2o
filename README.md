@@ -11,13 +11,17 @@ De cette manière, il est possible de pluguer très facilement des services dess
 
 Dépendances :
 
+Avec apt (recommandé):
  * python3-django (1.8, jessie-backports)
- * django-bootstrap3 (pip install)
  * python3-django-macaddress (stretch)
  * python3-dateutil (jessie-backports)
- * texlive-latex-base
- * texlive-fonts-recommended
- * python3-djangorestframework
+ * texlive-latex-base (jessie)
+ * texlive-fonts-recommended (jessie)
+ * python3-djangorestframework (stretch)
+
+Avec pip3:
+ * django-bootstrap3 (pip install)
+ * django-ldapdb
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer :
