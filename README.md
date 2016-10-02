@@ -29,8 +29,11 @@ Avec pip3:
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer :
 
- * mysql-server (jessie)
  * python3-mysqldb (jessie-backports)
+
+Sur le serveur mysql :
+ * mysql-server (jessie)
+
 
 ## Configuration 
 
