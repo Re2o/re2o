@@ -19,7 +19,7 @@ Avec apt (recommandé):
  * python3-dateutil (jessie-backports)
  * texlive-latex-base (jessie)
  * texlive-fonts-recommended (jessie)
- * python3-djangorestframework (stretch)
+ * python3-djangorestframework (jessie)
  * python3-django-reversion (stretch)
 
 Avec pip3:
