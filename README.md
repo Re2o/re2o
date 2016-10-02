@@ -20,6 +20,7 @@ Avec apt (recommandé):
  * texlive-latex-base (jessie)
  * texlive-fonts-recommended (jessie)
  * python3-djangorestframework (stretch)
+ * python3-django-reversion (stretch)
 
 Avec pip3:
  * django-bootstrap3 (pip install)
