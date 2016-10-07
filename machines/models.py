@@ -66,4 +66,4 @@ def interface_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Interface)
 def interface_post_delete(sender, **kwargs):
     user = kwargs['instance'].machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    #user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)

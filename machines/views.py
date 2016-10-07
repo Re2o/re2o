@@ -415,8 +415,7 @@ def mac_ip(request):
         s.pop('dns')
     return JSONResponse(seria)
 
-def dns_ip(request):
+def mac_ip_dns(request):
     seria = interface_list(request)
-    for s in seria:
-        s.pop('mac_address')
     return JSONResponse(seria)
+
