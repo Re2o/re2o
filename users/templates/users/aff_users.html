@@ -19,6 +19,7 @@
                 <th>Prénom</th>
                 <th>Nom</th>
                 <th>Pseudo</th>
+                <th>Uid</th>
                 <th>Fin de cotisation le</th>
                 <th>Connexion</th>
                 <th>Profil</th>
@@ -29,6 +30,7 @@
             <td>{{ user.name }}</td>
             <td>{{ user.surname }}</td>
             <td>{{ user.pseudo }}</td>
+            <td>{{ user.uid_number }}</td>
             <td>{% if user.is_adherent %}{{ user.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
             <td>{% if user.has_access == True %}
                 <font color="green">Active</font>

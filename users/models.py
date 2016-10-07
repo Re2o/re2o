@@ -116,6 +116,7 @@ class User(AbstractBaseUser):
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     uid_number = models.IntegerField(default=auto_uid, unique=True)
+    rezo_rez_uid =  models.IntegerField(unique=True, blank=True, null=True)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['name', 'surname', 'email']
@@ -235,9 +236,9 @@ class User(AbstractBaseUser):
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
         self.refresh_from_db()
         try:
-            user_ldap = LdapUser.objects.get(uidNumber=self.id)
+            user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
         except LdapUser.DoesNotExist:
-            user_ldap = LdapUser(uidNumber=self.id)
+            user_ldap = LdapUser(uidNumber=self.uid_number)
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
