@@ -54,21 +54,21 @@ def search_result(search, type, request):
 
     for i in aff:
         if i == '0':
-            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)
+            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)[:15]
         query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
         if i == '1':
-            machines = Interface.objects.filter(machine=Machine.objects.filter(query)) | Interface.objects.filter(Q(dns__icontains = search))
+            machines = Machine.objects.filter(query)[:15]
         if i == '2':   
-            factures = Facture.objects.filter(query & date_query)
+            factures = Facture.objects.filter(query & date_query)[:15]
         if i == '3':    
-            bans = Ban.objects.filter(query)
+            bans = Ban.objects.filter(query)[:15]
         if i == '4':    
-            whitelists = Whitelist.objects.filter(query)
+            whitelists = Whitelist.objects.filter(query)[:15]
         if i == '5':    
-            portlist = Port.objects.filter(details__icontains = search)
+            portlist = Port.objects.filter(details__icontains = search)[:15]
         if i == '6':    
-            switchlist = Switch.objects.filter(details__icontains = search)
-    return {'users_list': users, 'interfaces_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
+            switchlist = Switch.objects.filter(details__icontains = search)[:15]
+    return {'users_list': users, 'machines_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
 
 @login_required
 def search(request):
