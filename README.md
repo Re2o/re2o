@@ -19,7 +19,8 @@ Avec apt (recommandé):
  * python3-dateutil (jessie-backports)
  * texlive-latex-base (jessie)
  * texlive-fonts-recommended (jessie)
- * python3-djangorestframework (stretch)
+ * python3-djangorestframework (jessie)
+ * python3-django-reversion (stretch)
 
 Avec pip3:
  * django-bootstrap3 (pip install)
@@ -28,8 +29,11 @@ Avec pip3:
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer :
 
- * mysql-server (jessie)
  * python3-mysqldb (jessie-backports)
+
+Sur le serveur mysql :
+ * mysql-server (jessie)
+
 
 ## Configuration 
 

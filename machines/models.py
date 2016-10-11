@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.forms import ValidationError
 from macaddress.fields import MACAddressField
 
-
+from re2o.settings import MAIN_EXTENSION
 
 
 class Machine(models.Model):
@@ -35,18 +35,13 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    dns = models.CharField(help_text="Obligatoire et unique, doit se terminer en %s et ne pas comporter d'autres points" % ", ".join(Extension.objects.values_list('name', flat=True)), max_length=255, unique=True)
+    dns = models.CharField(help_text="Obligatoire et unique, doit se terminer par exemple en %s et ne pas comporter d'autres points" % MAIN_EXTENSION, max_length=255, unique=True)
 
     def is_active(self):
         """ Renvoie si une interface doit avoir accès ou non """
         machine = self.machine
         user = self.machine.user
         return machine.active and user.has_access()
-
-    #def save(self, *args, **kwargs):
-    #    user = self.machine.user
-    #    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
-    #    super(Interface, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.dns
