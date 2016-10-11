@@ -108,7 +108,7 @@ class User(AbstractBaseUser):
     surname = models.CharField(max_length=255)
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     email = models.EmailField()
-    school = models.ForeignKey('School', on_delete=models.PROTECT, null=False, blank=False)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
     shell = models.ForeignKey('ListShell', on_delete=models.PROTECT, null=True, blank=True)
     comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
     room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
@@ -235,9 +235,9 @@ class User(AbstractBaseUser):
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
         self.refresh_from_db()
         try:
-            user_ldap = LdapUser.objects.get(uidNumber=self.id)
+            user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
         except LdapUser.DoesNotExist:
-            user_ldap = LdapUser(uidNumber=self.id)
+            user_ldap = LdapUser(uidNumber=self.uid_number)
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
