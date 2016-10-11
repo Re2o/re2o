@@ -1,17 +1,6 @@
- {% if users_list.paginator %}
- <ul class="pagination nav navbar-nav">
-    {% if users_list.has_previous %}
-            <li><a href="?page={{ users_list.previous_page_number }}">Suivants</a></li>
-    {% endif %}
-    {% for page in users_list.paginator.page_range %}
-        <li class="{% if users_list.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
-    {% endfor %}
-
-    {% if users_list.has_next %}
-        <li> <a href="?page={{ users_list.next_page_number }}">Précédents</a></li>
-    {% endif %}
- </ul>
- {% endif %}
+{% if users_list.paginator %}
+{% include "pagination.html" with list=users_list %} 
+{% endif %}
 
     <table class="table table-striped">
         <thead>
@@ -19,6 +8,7 @@
                 <th>Prénom</th>
                 <th>Nom</th>
                 <th>Pseudo</th>
+                <th>Uid</th>
                 <th>Fin de cotisation le</th>
                 <th>Connexion</th>
                 <th>Profil</th>
@@ -29,6 +19,7 @@
             <td>{{ user.name }}</td>
             <td>{{ user.surname }}</td>
             <td>{{ user.pseudo }}</td>
+            <td>{{ user.uid_number }}</td>
             <td>{% if user.is_adherent %}{{ user.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
             <td>{% if user.has_access == True %}
                 <font color="green">Active</font>

@@ -116,6 +116,7 @@ class User(AbstractBaseUser):
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     uid_number = models.IntegerField(default=auto_uid, unique=True)
+    rezo_rez_uid =  models.IntegerField(unique=True, blank=True, null=True)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['name', 'surname', 'email']
