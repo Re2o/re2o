@@ -8,7 +8,7 @@ from django.dispatch import receiver
 import ldapdb.models
 import ldapdb.models.fields
 
-from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP, UID_RANGES
+from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP, GID_RANGES,UID_RANGES
 import re, uuid
 import datetime
 
@@ -42,12 +42,24 @@ def linux_user_validator(login):
                 params={'label': login},
         )
 
+def get_fresh_user_uid():
+    uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
+    used_uids = [ user.uid_number for user in User.objects.all()]
+    free_uids = [ id for id in uids if id not in used_uids]
+    return min(free_uids)
+
+def get_fresh_gid():
+    gids = list(range(int(min(GID_RANGES['posix'])),int(max(GID_RANGES['posix']))))
+    used_gids = [ right.gid for right in ListRight.objects.all()]
+    free_gids = [ id for id in gids if id not in used_gids]
+    return min(free_gids)
 
 def get_admin_right():
     try:
         admin_right = ListRight.objects.get(listright="admin")
     except ListRight.DoesNotExist:
         admin_right = ListRight(listright="admin")
+        admin_right.gid = get_fresh_gid()
         admin_right.save()
     return admin_right
 
@@ -99,10 +111,7 @@ class User(AbstractBaseUser):
             )
 
     def auto_uid():
-        uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
-        used_uids = [ user.id for user in User.objects.all()]
-        free_uids = [ id for id in uids if id not in used_uids]
-        return min(free_uids)
+        return get_fresh_user_uid()
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
