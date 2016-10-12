@@ -1,5 +1,5 @@
 settings_local.py
 *.swp
 *.pyc
-__pycache__
+__pycache__/*
 static_files/*
