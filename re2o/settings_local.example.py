@@ -14,7 +14,13 @@ DATABASES = {
         'USER': 're2o',
         'PASSWORD': DB_PASSWORD,
         'HOST': 'localhost',
-    }
+    },
+    'ldap': {
+        'ENGINE': 'ldapdb.backends.ldap',
+        'NAME': 'ldap://10.0.0.0/',
+        'USER': 'cn=admin,dc=ldap,dc=example,dc=org',
+        'PASSWORD': 'SUPER_SECRET',
+     }
 }
 
 # Association information
@@ -40,3 +46,25 @@ REQ_EXPIRE_STR = '48 heures'
 
 # Email `From` field
 EMAIL_FROM = 'www-data@serveur.net'
+
+# Reglages pour la bdd ldap
+LDAP = {
+    'base_user_dn' : 'cn=Utilisateurs,dc=ldap,dc=example,dc=org',
+    'base_userservice_dn' : 'ou=service-users,dc=ldap,dc=example,dc=org',
+    'base_usergroup_dn' : 'ou=posix,ou=groups,dc=ldap,dc=example,dc=org',
+    'user_gid' : 500,
+    }
+
+UID_RANGES = {
+    'users' : [21001,30000],
+    'service-users' : [20000,21000],
+}
+
+# Chaque groupe a un gid assigné, voici la place libre pour assignation
+GID_RANGES = {
+    'posix' : [501, 600],
+}
+
+# Main extension used in asso
+MAIN_EXTENSION = ".rez"
+
