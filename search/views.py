@@ -14,6 +14,8 @@ from topologie.models import Port, Switch
 from cotisations.models import Facture
 from search.models import SearchForm, SearchFormPlus
 
+from re2o.settings import SEARCH_RESULT
+
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
@@ -54,21 +56,21 @@ def search_result(search, type, request):
 
     for i in aff:
         if i == '0':
-            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)[:15]
+            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)[:SEARCH_RESULT]
         query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
         if i == '1':
-            machines = Machine.objects.filter(query)[:15]
+            machines = Machine.objects.filter(query)[:SEARCH_RESULT]
         if i == '2':   
-            factures = Facture.objects.filter(query & date_query)[:15]
+            factures = Facture.objects.filter(query & date_query)[:SEARCH_RESULT]
         if i == '3':    
-            bans = Ban.objects.filter(query)[:15]
+            bans = Ban.objects.filter(query)[:SEARCH_RESULT]
         if i == '4':    
-            whitelists = Whitelist.objects.filter(query)[:15]
+            whitelists = Whitelist.objects.filter(query)[:SEARCH_RESULT]
         if i == '5':    
-            portlist = Port.objects.filter(details__icontains = search)[:15]
+            portlist = Port.objects.filter(details__icontains = search)[:SEARCH_RESULT]
         if i == '6':    
-            switchlist = Switch.objects.filter(details__icontains = search)[:15]
-    return {'users_list': users, 'machines_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist}
+            switchlist = Switch.objects.filter(details__icontains = search)[:SEARCH_RESULT]
+    return {'users_list': users, 'machines_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist, 'max_result' : SEARCH_RESULT}
 
 @login_required
 def search(request):
