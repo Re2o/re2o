@@ -11,6 +11,8 @@ De cette manière, il est possible de pluguer très facilement des services dess
 
 ## Installation
 
+### Prérequis
+
 Dépendances :
 
 Avec apt (recommandé):
@@ -21,6 +23,7 @@ Avec apt (recommandé):
  * texlive-fonts-recommended (jessie)
  * python3-djangorestframework (jessie)
  * python3-django-reversion (stretch)
+ * slapd (jessie)
 
 Avec pip3:
  * django-bootstrap3 (pip install)
@@ -34,6 +37,39 @@ Pour mysql, il faut installer :
 Sur le serveur mysql :
  * mysql-server (jessie)
 
+## Installation du ldap, opérations à réaliser en root
+
+### Insérer le mot de passe dans FILL_IN du schema.ldiff et db.ldiff, en hashant le mdp à l'aide de slappasswd
+
+### Remplacer dans schema.ldiff et db.ldiff 'dc=example,dc=org' par le suffixe de l'association
+
+### Arréter slapd
+
+service slapd stop
+
+### Supprimer les données existantes
+
+rm -rf /etc/ldap/slapd.d/*
+
+rm -rf /var/lib/ldap/*
+
+mkdir /var/lib/ldap/accesslog
+
+### Ajoute les données et le schema
+
+slapadd -n 0 -l schema.ldiff -F /etc/ldap/slapd.d/
+
+slapadd -n 1 -l db.ldiff
+
+chown -R openldap:openldap /etc/ldap/slapd.d
+
+chown -R openldap:openldap /var/lib/ldap
+
+service slapd start
+
+## Installation du sql et démarage django
+
+### Créer settings_local.py à partir de settings_local.example.py
 
 ## Configuration 
 
