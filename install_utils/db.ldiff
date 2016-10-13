@@ -1,0 +1,184 @@
+dn: dc=ldap,dc=example,dc=org
+o: rezo
+dc: ldap
+structuralObjectClass: organization
+entryUUID: fc97a0fe-514b-1034-9e4d-59675b32507b
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20150225150906Z
+description: ldap
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+entryCSN: 20151003212702.245118Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20151003212702Z
+contextCSN: 20161004233332.689769Z#000000#000#000000
+
+dn: cn=admin,dc=ldap,dc=example,dc=org
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+structuralObjectClass: organizationalRole
+entryUUID: fc97fa72-514b-1034-9e4e-59675b32507b
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20150225150906Z
+description:: TERBUCBhZG1pbmlzdHJhdG9yDQo=
+userPassword: FILL_IT
+entryCSN: 20160604005945.576566Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160604005945Z
+
+dn: cn=Utilisateurs,dc=ldap,dc=example,dc=org
+gidNumber: 500
+cn: Utilisateurs
+structuralObjectClass: posixGroup
+entryUUID: 5d53854e-5204-1034-8c61-8da535cabdfc
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20150226130856Z
+sambaSID: 500
+uid: Users
+objectClass: posixGroup
+objectClass: top
+objectClass: sambaSamAccount
+objectClass: radiusprofile
+entryCSN: 20150226130950.194154Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20150226130950Z
+
+dn: ou=groups,dc=ldap,dc=example,dc=org
+objectClass: organizationalUnit
+description: Groupes d'utilisateurs
+ou: groups
+structuralObjectClass: organizationalUnit
+entryUUID: 986aa1b6-bb86-1035-9a4c-2ff0c800ec24
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160531142039Z
+entryCSN: 20160531142039.780151Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160531142039Z
+
+dn: ou=services,ou=groups,dc=ldap,dc=example,dc=org
+objectClass: organizationalUnit
+description: Groupes de comptes techniques
+ou: services
+structuralObjectClass: organizationalUnit
+entryUUID: cbb56904-bc6a-1035-9fbb-3dc3850d88ba
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160601173411Z
+entryCSN: 20160601173411.088359Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160601173411Z
+
+dn: ou=service-users,dc=ldap,dc=example,dc=org
+objectClass: organizationalUnit
+description: Utilisateurs techniques de l'annuaire
+ou: service-users
+structuralObjectClass: organizationalUnit
+entryUUID: 0e397270-bc6b-1035-9fbd-3dc3850d88ba
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160601173602Z
+entryCSN: 20160601173602.683304Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160601173602Z
+
+dn: cn=freeradius,ou=service-users,dc=ldap,dc=example,dc=org
+objectClass: applicationProcess
+objectClass: simpleSecurityObject
+cn: freeradius
+userPassword: FILL_IT
+structuralObjectClass: applicationProcess
+entryUUID: 8596e4ec-bc6b-1035-9fbf-3dc3850d88ba
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160601173922Z
+entryCSN: 20160601173922.944598Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160601173922Z
+
+dn: cn=nssauth,ou=service-users,dc=ldap,dc=example,dc=org
+objectClass: applicationProcess
+objectClass: simpleSecurityObject
+cn: nssauth
+structuralObjectClass: applicationProcess
+entryUUID: cfbdadc6-bc6b-1035-9fc4-3dc3850d88ba
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160601174127Z
+userPassword: FILL_IT
+entryCSN: 20160603093724.770069Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160603093724Z
+
+dn: cn=auth,ou=services,ou=groups,dc=ldap,dc=example,dc=org
+objectClass: groupOfNames
+cn: auth
+member: cn=nssauth,ou=service-users,dc=ldap,dc=example,dc=org
+structuralObjectClass: groupOfNames
+entryUUID: 98524836-bc6d-1035-9fc7-3dc3850d88ba
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160601175413Z
+entryCSN: 20160620005705.309928Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160620005705Z
+
+dn: ou=posix,ou=groups,dc=ldap,dc=example,dc=org
+objectClass: organizationalUnit
+description: Groupes de comptes POSIX
+ou: posix
+structuralObjectClass: organizationalUnit
+entryUUID: fbd89c4a-bdb5-1035-9045-d5a09894d93e
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160603090455Z
+entryCSN: 20160603090455.267192Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160603090455Z
+
+dn: cn=wifi,ou=service-users,dc=ldap,dc=example,dc=org
+objectClass: applicationProcess
+objectClass: simpleSecurityObject
+cn: wifi
+structuralObjectClass: applicationProcess
+entryUUID: 8cc2d1a6-bdc2-1035-9051-d5a09894d93e
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160603103452Z
+userPassword: FILL_IT
+entryCSN: 20160603103638.682210Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160603103638Z
+
+dn: cn=usermgmt,ou=services,ou=groups,dc=ldap,dc=example,dc=org
+objectClass: groupOfNames
+cn: usermgmt
+structuralObjectClass: groupOfNames
+entryUUID: ec01e206-bdc2-1035-9054-d5a09894d93e
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160603103732Z
+member: cn=wifi,ou=service-users,dc=ldap,dc=example,dc=org
+entryCSN: 20160603103746.897151Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160603103746Z
+
+dn: cn=replica,ou=service-users,dc=ldap,dc=example,dc=org
+objectClass: applicationProcess
+objectClass: simpleSecurityObject
+cn: replica
+structuralObjectClass: applicationProcess
+entryUUID: caef5c54-c0e4-1035-948f-dfe369fe3d4f
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160607101733Z
+userPassword: FILL_IT
+entryCSN: 20160607101829.424643Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160607101829Z
+
+dn: cn=readonly,ou=services,ou=groups,dc=ldap,dc=example,dc=org
+objectClass: groupOfNames
+cn: readonly
+structuralObjectClass: groupOfNames
+entryUUID: f6bd2366-c0e4-1035-9492-dfe369fe3d4f
+creatorsName: cn=admin,dc=ldap,dc=example,dc=org
+createTimestamp: 20160607101846Z
+member: cn=replica,ou=service-users,dc=ldap,dc=example,dc=org
+member: cn=freeradius,ou=service-users,dc=ldap,dc=example,dc=org
+entryCSN: 20160619214628.287369Z#000000#000#000000
+modifiersName: cn=admin,dc=ldap,dc=example,dc=org
+modifyTimestamp: 20160619214628Z
+
