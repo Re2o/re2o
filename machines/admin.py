@@ -7,13 +7,13 @@ class MachineAdmin(VersionAdmin):
     list_display = ('user','name','active')
 
 class MachineTypeAdmin(VersionAdmin):
-    list_display = ('type','extension')
+    list_display = ('type','extension','need_infra')
 
 class ExtensionAdmin(VersionAdmin):
     list_display = ('name',)
 
 class IpListAdmin(VersionAdmin):
-    list_display = ('ipv4',)
+    list_display = ('ipv4','ip_type')
 
 class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','dns','mac_address','ipv4','details')
