@@ -61,13 +61,13 @@ def assign_ips(user):
                 interface.save()
     return
 
-def free_ip():
+def free_ip(type):
     """ Renvoie la liste des ip disponibles """
-    return IpList.objects.filter(interface__isnull=True)
+    return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
 
 def assign_ipv4(interface):
     """ Assigne une ip à l'interface """
-    free_ips = free_ip()
+    free_ips = free_ip(interface.type)
     if free_ips:
         interface.ipv4 = free_ips[0]
     return interface
@@ -94,7 +94,7 @@ def new_machine(request, userid):
         messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
         return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(request.POST or None) 
+    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
         new_machine.user = user
@@ -105,7 +105,7 @@ def new_machine(request, userid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             new_interface.machine = new_machine
-            if free_ip() and not new_interface.ipv4:
+            if free_ip(new_interface.type) and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
@@ -124,15 +124,15 @@ def edit_interface(request, interfaceid):
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
-    if not request.user.has_perms(('cableur',)):
+    if not request.user.has_perms(('infra',)):
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
         machine_form = BaseEditMachineForm(request.POST or None, instance=interface.machine)
-        interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface)
+        interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface, infra=False)
     else:
         machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
-        interface_form = EditInterfaceForm(request.POST or None, instance=interface)
+        interface_form = EditInterfaceForm(request.POST or None, instance=interface, infra=True)
     if machine_form.is_valid() and interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
@@ -179,12 +179,12 @@ def new_interface(request, machineid):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-    interface_form = AddInterfaceForm(request.POST or None)
+    interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
         if full_domain_validator(request, new_interface):
-            if free_ip() and not new_interface.ipv4:
+            if free_ip(new_interface.type) and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")

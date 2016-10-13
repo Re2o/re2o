@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Machine, Interface, MachineType, Extension
+from .models import Machine, Interface, IpList, MachineType, Extension
 
 class EditMachineForm(ModelForm):
     class Meta:
@@ -36,8 +36,12 @@ class AddInterfaceForm(EditInterfaceForm):
         fields = ['ipv4','mac_address','dns','type','details']
 
     def __init__(self, *args, **kwargs):
+        infra = kwargs.pop('infra')
         super(AddInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+        if not infra:
+            self.fields['type'].queryset = MachineType.objects.filter(need_infra=False)
+            self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=MachineType.objects.filter(need_infra=False))
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
@@ -47,14 +51,18 @@ class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['ipv4','mac_address','dns','type','details']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, infra=False, *args, **kwargs):
+        infra = kwargs.pop('infra')
         super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+        if not infra:
+            self.fields['type'].queryset = MachineType.objects.filter(need_infra=False)
+            self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=MachineType.objects.filter(need_infra=False))
 
 class MachineTypeForm(ModelForm):
     class Meta:
         model = MachineType
-        fields = ['type','extension']
+        fields = ['type','extension','need_infra']
 
     def __init__(self, *args, **kwargs):
         super(MachineTypeForm, self).__init__(*args, **kwargs)
