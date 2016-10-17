@@ -69,6 +69,10 @@ service slapd start
 
 ## Installation du sql et démarage django
 
+Installer mysql ou postgresql
+
+Créer la base de donnée re2o, en créant un utilisateur re2o avec des droits sur une bdd re2o
+
 ### Créer settings_local.py à partir de settings_local.example.py
 
 ## Configuration 
