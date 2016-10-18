@@ -102,12 +102,12 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     STATE_ACTIVE = 0
-    STATE_DEACTIVATED = 1
-    STATE_ARCHIVED = 2
+    STATE_DISABLED = 1
+    STATE_ARCHIVE = 2
     STATES = (
             (0, 'STATE_ACTIVE'),
-            (1, 'STATE_DEACTIVATED'),
-            (2, 'STATE_ARCHIVED'),
+            (1, 'STATE_DISABLED'),
+            (2, 'STATE_ARCHIVE'),
             )
 
     def auto_uid():
@@ -276,15 +276,15 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.pseudo
 
-@receiver(post_save, sender=User)
-def user_post_save(sender, **kwargs):
-    user = kwargs['instance']
-    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+#@receiver(post_save, sender=User)
+#def user_post_save(sender, **kwargs):
+#    user = kwargs['instance']
+    #user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 @receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
-    user.ldap_del()
+    #user.ldap_del()
 
 class ServiceUser(AbstractBaseUser):
 
