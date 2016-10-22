@@ -2,8 +2,7 @@
         <thead>
             <tr>
                 <th>Type de machine</th>
-                <th>Extension</th>
-                <th>Nécessite l'autorisation infra</th>
+                <th>Type d'ip correspondant</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -11,8 +10,7 @@
         {% for type in machinetype_list %}
         <tr>
             <td>{{ type.type }}</td>
-            <td>{{ type.extension }}</td>
-            <td>{{ type.need_infra }}</td>
+            <td>{{ type.ip_type }}</td>
             <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machinetype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
             <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machinetype' type.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
         </tr>
