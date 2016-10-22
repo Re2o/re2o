@@ -20,7 +20,8 @@ from reversion import revisions as reversion
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .models import Machine, Interface, IpList, MachineType, Extension
+from .forms import IpTypeForm, DelIpTypeForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
 
@@ -28,7 +29,7 @@ def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
     HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
     dns = interface.dns.lower()
-    allowed_extension = interface.type.extension.name
+    allowed_extension = interface.ipv4.type.extension.name
     if not dns.endswith(allowed_extension):
         messages.error(request,
                 "Le nom de domaine %s doit comporter une extension valide en %s" % (dns, allowed_extension) )
@@ -67,7 +68,7 @@ def free_ip(type):
 
 def assign_ipv4(interface):
     """ Assigne une ip à l'interface """
-    free_ips = free_ip(interface.type)
+    free_ips = free_ip(interface.type.ip_type)
     if free_ips:
         interface.ipv4 = free_ips[0]
     return interface
@@ -105,7 +106,7 @@ def new_machine(request, userid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             new_interface.machine = new_machine
-            if free_ip(new_interface.type) and not new_interface.ipv4:
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
@@ -184,7 +185,7 @@ def new_interface(request, machineid):
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
         if full_domain_validator(request, new_interface):
-            if free_ip(new_interface.type) and not new_interface.ipv4:
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
                 messages.error(request, u"Il n'y a plus d'ip disponibles")
@@ -214,6 +215,54 @@ def del_interface(request, interfaceid):
         messages.success(request, "L'interface a été détruite")
         return redirect("/users/profil/" + str(request.user.id))
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
+
+@login_required
+@permission_required('infra')
+def add_iptype(request):
+    iptype = IpTypeForm(request.POST or None)
+    if iptype.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            iptype.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Ce type d'ip a été ajouté")
+        return redirect("/machines/index_iptype")
+    return form({'machineform': iptype, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_iptype(request, iptypeid):
+    try:
+        iptype_instance = IpType.objects.get(pk=iptypeid)
+    except IpType.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_iptype/")
+    iptype = IpTypeForm(request.POST or None, instance=iptype_instance)
+    if iptype.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            iptype.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in iptype.changed_data))
+        messages.success(request, "Type d'ip modifié")
+        return redirect("/machines/index_iptype/")
+    return form({'machineform': iptype}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_iptype(request):
+    iptype = DelIpTypeForm(request.POST or None)
+    if iptype.is_valid():
+        iptype_dels = iptype.cleaned_data['iptypes']
+        for iptype_del in iptype_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    iptype_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le type d'ip a été supprimé")
+            except ProtectedError:
+                messages.error(request, "Le type d'ip %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % iptype_del)
+        return redirect("/machines/index_iptype")
+    return form({'machineform': iptype, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -329,6 +378,12 @@ def index(request):
 
 @login_required
 @permission_required('cableur')
+def index_iptype(request):
+    iptype_list = IpType.objects.order_by('type')
+    return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
+
+@login_required
+@permission_required('cableur')
 def index_machinetype(request):
     machinetype_list = MachineType.objects.order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
@@ -364,6 +419,12 @@ def history(request, object, id):
              object_instance = MachineType.objects.get(pk=id)
         except MachineType.DoesNotExist:
              messages.error(request, "Type de machine inexistant")
+             return redirect("/machines/")
+    elif object == 'iptype' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = IpType.objects.get(pk=id)
+        except IpType.DoesNotExist:
+             messages.error(request, "Type d'ip inexistant")
              return redirect("/machines/")
     elif object == 'extension' and request.user.has_perms(('cableur',)):
         try:

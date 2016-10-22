@@ -1,0 +1,17 @@
+{% extends "machines/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Ip{% endblock %}
+
+{% block content %}
+  <h2>Liste des types d'ip</h2>
+  {% if is_infra %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'ip</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'ip</a>
+  {% endif %}
+  {%  include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
+  <br />
+  <br />
+  <br />
+{% endblock %}
+

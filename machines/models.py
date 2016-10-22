@@ -17,6 +17,13 @@ class Machine(models.Model):
 
 class MachineType(models.Model):
     type = models.CharField(max_length=255)
+    ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT, blank=True, null=True)
+
+    def __str__(self):
+         return self.type
+
+class IpType(models.Model):
+    type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
 
@@ -49,7 +56,7 @@ class Interface(models.Model):
 
 class IpList(models.Model):
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
-    ip_type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
+    ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT)
 
     def __str__(self):
         return self.ipv4
