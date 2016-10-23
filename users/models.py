@@ -496,8 +496,8 @@ class LdapServiceUser(ldapdb.models.Model):
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BaseInfoForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = 'Nom'
-        self.fields['surname'].label = 'Prénom'
+        self.fields['name'].label = 'Prénom'
+        self.fields['surname'].label = 'Nom'
         self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
         self.fields['room'].label = 'Chambre'
