@@ -65,9 +65,9 @@ class IpList(models.Model):
 @receiver(post_save, sender=Interface)
 def interface_post_save(sender, **kwargs):
     user = kwargs['instance'].machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    #user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
 
 @receiver(post_delete, sender=Interface)
 def interface_post_delete(sender, **kwargs):
     user = kwargs['instance'].machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    #user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)

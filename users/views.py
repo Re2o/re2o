@@ -130,7 +130,7 @@ def state(request, userid):
     state = StateForm(request.POST or None, instance=user)
     if state.is_valid():
         if state.has_changed():
-            if state.cleaned_data['state'] == User.STATE_ARCHIVED:
+            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
                 archive(user)
             else:
                 unarchive(user)
@@ -251,7 +251,7 @@ def add_whitelist(request, userid):
             reversion.set_comment("Création")
         messages.success(request, "Accès à titre gracieux accordé")
         return redirect("/users/profil/" + userid)
-    if is_whitelisted(user):
+    if user.is_whitelisted():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
