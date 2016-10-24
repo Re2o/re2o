@@ -29,17 +29,11 @@ def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
     HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
     dns = interface.dns.lower()
-    allowed_extension = interface.ipv4.type.extension.name
-    if not dns.endswith(allowed_extension):
-        messages.error(request,
-                "Le nom de domaine %s doit comporter une extension valide en %s" % (dns, allowed_extension) )
-        return False
-    dns_short=re.sub('%s$' % allowed_extension, '', dns)
-    if len(dns_short) > 63:
+    if len(dns) > 63:
         messages.error(request,
                 "Le nom de domaine %s est trop long (maximum de 63 caractères)." % dns)
         return False
-    if not HOSTNAME_LABEL_PATTERN.match(dns_short):
+    if not HOSTNAME_LABEL_PATTERN.match(dns):
         messages.error(request,
                 "Ce nom de domaine %s contient des carractères interdits." % dns)
         return False
@@ -133,7 +127,7 @@ def edit_interface(request, interfaceid):
         interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface, infra=False)
     else:
         machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
-        interface_form = EditInterfaceForm(request.POST or None, instance=interface, infra=True)
+        interface_form = EditInterfaceForm(request.POST or None, instance=interface)
     if machine_form.is_valid() and interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
