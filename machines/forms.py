@@ -51,12 +51,12 @@ class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['ipv4','mac_address','dns','type','details']
 
-    def __init__(self, infra=False, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
         super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
-            self.fields['type'].queryset = MachineType.objects.filter(IpType.objects.filter(need_infra=False))
+            self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
             self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
 
 class MachineTypeForm(ModelForm):

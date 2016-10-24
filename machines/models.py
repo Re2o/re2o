@@ -43,7 +43,7 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    dns = models.CharField(help_text="Obligatoire et unique, doit se terminer par exemple en %s et ne pas comporter d'autres points" % MAIN_EXTENSION, max_length=255, unique=True)
+    dns = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255, unique=True)
 
     def is_active(self):
         """ Renvoie si une interface doit avoir accès ou non """
