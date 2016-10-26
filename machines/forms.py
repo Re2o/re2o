@@ -100,7 +100,7 @@ class ExtensionForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ExtensionForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = 'Exstension à ajouter'
+        self.fields['name'].label = 'Extension à ajouter'
 
 class DelExtensionForm(ModelForm):
     extensions = forms.ModelMultipleChoiceField(queryset=Extension.objects.all(), label="Extensions actuelles",  widget=forms.CheckboxSelectMultiple)

@@ -16,15 +16,13 @@ def clean_port_related(port):
     related_port.save()
 
 class Switch(models.Model):
-    building = models.CharField(max_length=10)
+    switch_interface = models.OneToOneField('machines.Interface', on_delete=models.CASCADE)
+    location = models.CharField(max_length=255)
     number = models.IntegerField()
     details = models.CharField(max_length=255, blank=True)
 
-    class Meta:
-        unique_together = ('building', 'number')
-
     def __str__(self):
-        return str(self.building) + str(self.number)
+        return str(self.location)
 
 class Port(models.Model):
     switch = models.ForeignKey('Switch', related_name="ports")

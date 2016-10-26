@@ -15,7 +15,7 @@ from re2o.settings import PAGINATION_NUMBER
 @login_required
 @permission_required('cableur')
 def index(request):
-    switch_list = Switch.objects.order_by('building', 'number')
+    switch_list = Switch.objects.order_by('location')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
 
 @login_required

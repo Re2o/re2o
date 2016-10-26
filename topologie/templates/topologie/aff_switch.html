@@ -1,15 +1,19 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Bâtiment</th>
-            <th>Numero</th>
+            <th>Dns</th>
+            <th>Ipv4</th>
+            <th>Localisation</th>
+            <th>Nombre de ports</th>
             <th>Détails</th>
             <th></th>
         </tr>
    </thead>
    {% for switch in switch_list %}
    <tr>
-       <td>{{switch.building}}</td>
+       <td>{{switch.switch_interface.dns}}</td>
+       <td>{{switch.switch_interface.ipv4}}</td>
+       <td>{{switch.location}}</td>
        <td>{{switch.number}}</td>
        <td>{{switch.details}}</td>
        <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:index-port' switch.pk %}"><i class="glyphicon glyphicon-cog"></i> Configurer</a>
