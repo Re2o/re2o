@@ -29,12 +29,13 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render_to_response(template, c, context_instance=RequestContext(request))
 
-def create_cotis(vente, user, duration):
+def create_cotis(vente, user, duration, date_start=False):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(vente=vente)
-    date_max = user.end_adhesion() or timezone.now()
-    if date_max < timezone.now():
-        datemax = timezone.now()
+    date_start = date_start or timezone.now()
+    date_max = user.end_adhesion() or date_start
+    if date_max < date_start:
+        date_max = date_start
     cotisation.date_start=date_max
     cotisation.date_end = cotisation.date_start + relativedelta(months=duration) 
     cotisation.save()

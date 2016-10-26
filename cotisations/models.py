@@ -32,12 +32,12 @@ class Facture(models.Model):
 def facture_post_save(sender, **kwargs):
     facture = kwargs['instance']
     user = facture.user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 @receiver(post_delete, sender=Facture)
 def facture_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Vente(models.Model):
     facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
@@ -64,14 +64,14 @@ def vente_post_save(sender, **kwargs):
     vente = kwargs['instance']
     if vente.iscotisation:
         user = vente.facture.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 @receiver(post_delete, sender=Vente)
 def vente_post_delete(sender, **kwargs):
     vente = kwargs['instance']
     if vente.iscotisation:
         user = vente.facture.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Article(models.Model):
     name = models.CharField(max_length=255)
