@@ -14,14 +14,19 @@ class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['port', 'room', 'machine_interface', 'related', 'details']
 
-class SwitchForm(ModelForm):
+class EditSwitchForm(ModelForm):
     class Meta:
         model = Switch
         fields = '__all__'
 
-class EditSwitchForm(ModelForm):
-    class Meta(SwitchForm.Meta):
-        fields = ['building', 'number', 'details']
+    def __init__(self, *args, **kwargs):
+        super(EditSwitchForm, self).__init__(*args, **kwargs)
+        self.fields['location'].label = 'Localisation'
+        self.fields['number'].label = 'Nombre de ports'
+
+class NewSwitchForm(ModelForm):
+    class Meta(EditSwitchForm.Meta):
+        fields = ['location', 'number', 'details']
 
 class EditRoomForm(ModelForm):
     class Meta:
