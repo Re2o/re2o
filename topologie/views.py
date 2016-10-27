@@ -7,10 +7,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 
 from topologie.models import Switch, Port, Room
-from topologie.forms import EditPortForm, EditSwitchForm, AddPortForm, EditRoomForm
+from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm, AddPortForm, EditRoomForm
 from users.views import form
+from users.models import User
 
-from re2o.settings import PAGINATION_NUMBER
+from machines.forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.views import free_ip, full_domain_validator, assign_ipv4
+
+from re2o.settings import ASSO_PSEUDO, PAGINATION_NUMBER
 
 @login_required
 @permission_required('cableur')
@@ -116,15 +120,41 @@ def edit_port(request, port_id):
 @login_required
 @permission_required('infra')
 def new_switch(request):
-    switch = EditSwitchForm(request.POST or None)
-    if switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        messages.success(request, "Le switch a été créé")
-        return redirect("/topologie/")
-    return form({'topoform':switch}, 'topologie/topo.html', request)
+    switch = NewSwitchForm(request.POST or None)
+    machine = NewMachineForm(request.POST or None)
+    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    if switch.is_valid() and machine.is_valid() and interface.is_valid():
+        try:
+            user = User.objects.get(pseudo=ASSO_PSEUDO)
+        except User.DoesNotExist:
+            messages.error(request, "L'user %s n'existe pas encore, veuillez le créer" % ASSO_PSEUDO)
+            return redirect("/topologie/")
+        new_machine = machine.save(commit=False)
+        new_machine.user = user
+        new_interface = interface.save(commit=False)
+        new_switch = switch.save(commit=False)
+        if full_domain_validator(request, new_interface):
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_interface.machine = new_machine
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+                new_interface = assign_ipv4(new_interface)
+            elif not new_interface.ipv4:
+                messages.error(request, "Il n'y a plus d'ip disponibles")
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_switch.switch_interface = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_switch.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "Le switch a été crée")
+            return redirect("/topologie/")
+    return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
