@@ -1,0 +1,34 @@
+{% extends "topologie/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Création et modification d'un switch{% endblock %}
+
+{% block content %}
+{% if topoform %}
+{% bootstrap_form_errors topoform %}
+{% endif %}
+{% if machineform %}
+{% bootstrap_form_errors machineform %}
+{% endif %}
+{% if interfaceform %}
+{% bootstrap_form_errors interfaceform %}
+{% endif %}
+
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% if topoform %}
+    {% bootstrap_form topoform %}
+    {% endif %}
+    {% if machineform %}
+    {% bootstrap_form machineform %}
+    {% endif %}
+    {% if interfaceform %}
+    {% bootstrap_form interfaceform %}
+    {% endif %}
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
+</form>
+  <br />
+  <br />
+  <br />
+{% endblock %}
