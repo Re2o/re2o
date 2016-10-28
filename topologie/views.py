@@ -164,15 +164,29 @@ def edit_switch(request, switch_id):
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
-    switch = EditSwitchForm(request.POST or None, instance=switch)
-    if switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch.changed_data))
-        messages.success(request, "Le switch a bien été modifié")
-        return redirect("/topologie/")
-    return form({'topoform':switch}, 'topologie/topo.html', request)
+    switch_form = EditSwitchForm(request.POST or None, instance=switch)
+    machine_form = EditMachineForm(request.POST or None, instance=switch.switch_interface.machine)
+    interface_form = EditInterfaceForm(request.POST or None, instance=switch.switch_interface)
+    if switch_form.is_valid() and machine_form.is_valid() and interface_form.is_valid():
+        new_interface = interface_form.save(commit=False)
+        new_machine = machine_form.save(commit=False)
+        new_switch = switch_form.save(commit=False)
+        if full_domain_validator(request, new_interface):
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
+                new_switch.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch_form.changed_data))
+            messages.success(request, "Le switch a bien été modifié")
+            return redirect("/topologie/")
+    return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
