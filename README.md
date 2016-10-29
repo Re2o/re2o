@@ -19,6 +19,7 @@ Avec apt (recommandé):
  * python3-django (1.8, jessie-backports)
  * python3-django-macaddress (stretch)
  * python3-dateutil (jessie-backports)
+ * texlive (jessie)
  * texlive-latex-base (jessie)
  * texlive-fonts-recommended (jessie)
  * python3-djangorestframework (jessie)
