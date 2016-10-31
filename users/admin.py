@@ -44,7 +44,7 @@ class ListRightAdmin(VersionAdmin):
 class ListShellAdmin(VersionAdmin):
     list_display = ('shell',)
 
-class RightAdmin(admin.ModelAdmin):
+class RightAdmin(VersionAdmin):
     list_display = ('user', 'right')
 
 class RequestAdmin(admin.ModelAdmin):
