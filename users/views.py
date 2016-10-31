@@ -173,7 +173,10 @@ def add_right(request, userid):
         right = right.save(commit=False)
         right.user = user
         try:
-            right.save()
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                reversion.set_comment("Ajout du droit %s" % right.right)
+                right.save()
             messages.success(request, "Droit ajouté")
         except IntegrityError:
             pass
@@ -184,13 +187,15 @@ def add_right(request, userid):
 @permission_required('bureau')
 def del_right(request):
     user_right_list = DelRightForm(request.POST or None)
-    right_list = ListRight.objects.all()
     if user_right_list.is_valid():
         right_del = user_right_list.cleaned_data['rights']
-        right_del.delete()
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(request.user)
+            reversion.set_comment("Retrait des droit %s" % ','.join(str(deleted_right) for deleted_right in right_del))
+            right_del.delete()
         messages.success(request, "Droit retiré avec succès")
         return redirect("/users/")
-    return form({'user_right_list': user_right_list, 'right_list': right_list}, 'users/index_rights.html', request)
+    return form({'userform': user_right_list}, 'users/user.html', request)
 
 @login_required
 @permission_required('bofh')
