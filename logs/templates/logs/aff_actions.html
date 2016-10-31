@@ -1,0 +1,26 @@
+{% if revisions_list.paginator %}
+{% include "pagination.html" with list=revisions_list %}
+{% endif %}
+
+{% load logs_extra %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Objet modifié</th>
+                <th>Type de l'objet</th>
+                <th>Modification par</th>
+                <th>Date de modification</th>
+                <th>Commentaire</th>
+            </tr>
+        </thead>
+       {% for revision in revisions_list %}
+        <tr>
+            <td>{% for reversion in revision.version_set.all %}{{ reversion.object|truncatechars:20 }}{% endfor %}</td>
+            <td>{% for reversion in revision.version_set.all %}{{ reversion.object|classname }}{% endfor %}</td>
+            <td>{{ revision.user }}</td>
+            <td>{{ revision.date_created }}</td>
+            <td>{{ revision.comment }}</td>
+        </tr>
+        {% endfor %}
+    </table>
