@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 from django.forms import ValidationError
 from django.db import transaction
+from django.db.models import Count
 
 from reversion.models import Revision
 from reversion.models import Version
@@ -94,5 +95,28 @@ def stats_models(request):
     'port' : [Port.PRETTY_NAME, Port.objects.count()],
     'chambre' : [Room.PRETTY_NAME, Room.objects.count()],
     },
+    'Actions effectuées sur la base' : 
+    {
+    'revision' : ["Nombre d'actions", Revision.objects.count()],
+    },
     }
     return render(request, 'logs/stats_models.html', {'stats_list': stats}) 
+
+@login_required
+@permission_required('cableur')
+def stats_users(request):
+    stats = {
+    'Machines' : User.objects.annotate(num=Count('machine')).order_by('-num')[:10],
+    'Facture' : User.objects.annotate(num=Count('facture')).order_by('-num')[:10],
+    'Bannissement' : User.objects.annotate(num=Count('ban')).order_by('-num')[:10],
+    'Accès gracieux' : User.objects.annotate(num=Count('whitelist')).order_by('-num')[:10],
+    }
+    return render(request, 'logs/stats_users.html', {'stats_list': stats})
+
+@login_required
+@permission_required('cableur')
+def stats_actions(request):
+    stats = {
+    'Action' : User.objects.annotate(num=Count('revision')).order_by('-num')[:40],
+    }
+    return render(request, 'logs/stats_users.html', {'stats_list': stats})

@@ -3,5 +3,7 @@
 {% block sidebar %}
     {% if is_cableur %}
     <p><a href="{% url "logs:stats-models" %}">Statistiques base de donnée</a></p>
+    <p><a href="{% url "logs:stats-actions" %}">Statistiques des actions de cablage</a></p>
+    <p><a href="{% url "logs:stats-users" %}">Statistiques utilisateurs</a></p>
     {% endif %}
 {% endblock %}

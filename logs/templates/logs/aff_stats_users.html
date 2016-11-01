@@ -1,0 +1,19 @@
+    {% for key, stats in stats_list.items %}
+    <table class="table table-striped">
+      <h4>Statistiques par utilisateur de {{ key }}</h4>
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Nombre d'objets de l'utilisateur</th>
+		<th>Rang</th>
+            </tr>
+        </thead>
+       {% for stat in stats %}
+        <tr>
+            <td>{{ stat }}</td>
+            <td>{{ stat.num }}</td>
+	    <td>{{ forloop.counter }}</td>
+	</tr>
+        {% endfor %}
+    </table>
+        {% endfor %}
