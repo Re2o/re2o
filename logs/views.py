@@ -106,13 +106,22 @@ def stats_models(request):
 @permission_required('cableur')
 def stats_users(request):
     stats = {
+    'Utilisateur' : {
     'Machines' : User.objects.annotate(num=Count('machine')).order_by('-num')[:10],
     'Facture' : User.objects.annotate(num=Count('facture')).order_by('-num')[:10],
     'Bannissement' : User.objects.annotate(num=Count('ban')).order_by('-num')[:10],
     'Accès gracieux' : User.objects.annotate(num=Count('whitelist')).order_by('-num')[:10],
-    'Etablissements' : School.objects.annotate(num=Count('user')).order_by('-num')[:10],
-    'Moyen de paiment' : Paiement.objects.annotate(num=Count('facture')).order_by('-num')[:10],
-    'Banque' : Banque.objects.annotate(num=Count('facture')).order_by('-num')[:10],
+    'Droits' : User.objects.annotate(num=Count('right')).order_by('-num')[:10],
+    },
+    'Etablissement' : {
+    'Utilisateur' : School.objects.annotate(num=Count('user')).order_by('-num')[:10],
+    },
+    'Moyen de paiement' : {
+    'Utilisateur' : Paiement.objects.annotate(num=Count('facture')).order_by('-num')[:10],
+    },
+    'Banque' : {
+    'Utilisateur' : Banque.objects.annotate(num=Count('facture')).order_by('-num')[:10],
+    },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
 
@@ -120,6 +129,8 @@ def stats_users(request):
 @permission_required('cableur')
 def stats_actions(request):
     stats = {
+    'Utilisateur' : {
     'Action' : User.objects.annotate(num=Count('revision')).order_by('-num')[:40],
+    },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})

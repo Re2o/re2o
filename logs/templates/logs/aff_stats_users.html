@@ -1,10 +1,11 @@
-    {% for key, stats in stats_list.items %}
+    {% for key_dict, stats_dict in stats_list.items %}
+    {% for key, stats in stats_dict.items %}
     <table class="table table-striped">
-      <h4>Statistiques par utilisateur de {{ key }}</h4>
+	<h4>Statistiques par {{ key_dict }} de {{ key }}</h4>
         <thead>
             <tr>
-                <th>Utilisateur</th>
-                <th>Nombre d'objets de l'utilisateur</th>
+		<th>{{ key_dict }}</th>
+		<th>Nombre de {{ key }} par {{ key_dict }}</th>
 		<th>Rang</th>
             </tr>
         </thead>
@@ -17,3 +18,4 @@
         {% endfor %}
     </table>
         {% endfor %}
+	{% endfor %}
