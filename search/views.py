@@ -23,7 +23,7 @@ def form(ctx, template, request):
 
 def search_result(search, type, request):
     date_deb = None
-    date_fin = None 
+    date_fin = None
     states=[]
     co=[]
     aff=[]
@@ -41,36 +41,49 @@ def search_result(search, type, request):
     if date_fin != None:
         date_query = date_query & Q(date__lte=date_fin)
     search = search.cleaned_data['search_field']
-    query = Q() 
+    query = Q()
     for s in states:
         query = query | Q(state = s)
-    
-    users = None
-    machines = None
-    factures = None
-    bans = None
-    whitelists = None
-    switchlist = None
-    portlist = None
+
+
     connexion = []
+
+    recherche = {'users_list': None, 'machines_list' : None, 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
+
+    query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
 
     for i in aff:
         if i == '0':
-            users = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query)[:SEARCH_RESULT]
-        query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
+            recherche['users_list'] = User.objects.filter(Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search))
         if i == '1':
-            machines = Machine.objects.filter(query)[:SEARCH_RESULT]
-        if i == '2':   
-            factures = Facture.objects.filter(query & date_query)[:SEARCH_RESULT]
-        if i == '3':    
-            bans = Ban.objects.filter(query)[:SEARCH_RESULT]
-        if i == '4':    
-            whitelists = Whitelist.objects.filter(query)[:SEARCH_RESULT]
-        if i == '5':    
-            portlist = Port.objects.filter(details__icontains = search)[:SEARCH_RESULT]
-        if i == '6':    
-            switchlist = Switch.objects.filter(details__icontains = search)[:SEARCH_RESULT]
-    return {'users_list': users, 'machines_list' : machines, 'facture_list' : factures, 'ban_list' : bans, 'white_list': whitelists, 'port_list':portlist, 'switch_list':switchlist, 'max_result' : SEARCH_RESULT}
+            recherche['machines_list'] = Machine.objects.filter(query | Q(interface__dns__icontains = search) | Q(interface__mac_address__icontains = search))
+        if i == '2':
+            recherche['facture_list'] = Facture.objects.filter(query & date_query)
+        if i == '3':
+            recherche['ban_list'] = Ban.objects.filter(query)
+        if i == '4':
+            recherche['white_list'] = Whitelist.objects.filter(query)
+        if i == '5':
+            recherche['port_list'] = Port.objects.filter(details__icontains = search)
+        if i == '6':
+            recherche['switch_list'] = Switch.objects.filter(details__icontains = search)
+
+    if not request.user.has_perms(('cableur',)):
+        for r in recherche:
+            if r == 'users_list':
+                recherche[r] = recherche[r].filter(id=request.user.id)
+            elif r in ('switch_list','port_list'):
+                recherche[r] = None
+            elif recherche[r]:
+                recherche[r] = recherche[r].filter(user = request.user)
+
+    for r in recherche:
+        if recherche[r] != None:
+            recherche[r] = recherche[r][:SEARCH_RESULT]
+
+    recherche.update({'max_result': SEARCH_RESULT})
+
+    return recherche
 
 @login_required
 def search(request):

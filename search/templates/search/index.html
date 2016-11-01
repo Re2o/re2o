@@ -8,9 +8,9 @@
     <h2>Résultats dans les utilisateurs</h2>
         {% include "users/aff_users.html" with users_list=users_list %}
     {% endif%}
-    {% if interfaces_list %}
+    {% if machines_list %}
     <h2>Résultats dans les machines : </h2>
-        {% include "machines/aff_machines.html" with interfaces_list=interfaces_list %}
+        {% include "machines/aff_machines.html" with machines_list=machines_list %}
     {% endif %}
     {% if facture_list %}
     <h2>Résultats dans les factures : </h2>
@@ -40,4 +40,3 @@
     <br />
     <br />
 {% endblock %}
-
