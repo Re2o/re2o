@@ -402,7 +402,17 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_ban(request):
-    ban_list = Ban.objects.order_by('date_start')
+    ban_list = Ban.objects.order_by('date_start').reverse()
+    paginator = Paginator(ban_list, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        ban_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page isn't an integer, deliver first page
+        ban_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results. 
+        ban_list = paginator.page(paginator.num_pages) 
     return render(request, 'users/index_ban.html', {'ban_list': ban_list})
 
 @login_required
