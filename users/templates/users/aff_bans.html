@@ -1,3 +1,7 @@
+{% if ban_list.paginator %}
+{% include "pagination.html" with list=ban_list %}
+{% endif %}
+
     <table class="table table-striped">
         <thead>
             <tr>
