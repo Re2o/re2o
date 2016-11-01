@@ -11,7 +11,7 @@
         </thead>
        {% for stat in stats %}
         <tr>
-            <td>{{ stat }}</td>
+            <td>{{ stat|truncatechars:25 }}</td>
             <td>{{ stat.num }}</td>
 	    <td>{{ forloop.counter }}</td>
 	</tr>
