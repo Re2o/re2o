@@ -12,6 +12,7 @@
                 <th>Modification par</th>
                 <th>Date de modification</th>
                 <th>Commentaire</th>
+		<th></th>
             </tr>
         </thead>
        {% for revision in revisions_list %}
@@ -21,6 +22,7 @@
             <td>{{ revision.user }}</td>
             <td>{{ revision.date_created }}</td>
             <td>{{ revision.comment }}</td>
-        </tr>
+	    {% if is_bureau %}<td><a class="btn btn-info btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}"><i class="glyphicon glyphicon-repeat"></i>Annuler</a></p></td>{% endif %}
+	</tr>
         {% endfor %}
     </table>

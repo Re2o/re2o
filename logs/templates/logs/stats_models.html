@@ -1,0 +1,12 @@
+{% extends "logs/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Statistiques des objets base de données{% endblock %}
+
+{% block content %}
+  <h2>Statistiques bdd</h2>
+  {%  include "logs/aff_stats_models.html" with stats_list=stats_list %}
+  <br />
+  <br />
+  <br />
+ {% endblock %}

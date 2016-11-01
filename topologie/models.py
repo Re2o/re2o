@@ -16,6 +16,8 @@ def clean_port_related(port):
     related_port.save()
 
 class Switch(models.Model):
+    PRETTY_NAME = "Switch / Commutateur"
+
     switch_interface = models.OneToOneField('machines.Interface', on_delete=models.CASCADE)
     location = models.CharField(max_length=255)
     number = models.IntegerField()
@@ -25,6 +27,8 @@ class Switch(models.Model):
         return str(self.location)
 
 class Port(models.Model):
+    PRETTY_NAME = "Port de switch"
+
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
@@ -36,6 +40,8 @@ class Port(models.Model):
         unique_together = ('switch', 'port')
 
     def clean(self):
+        if self.port > self.switch.number:
+            raise ValidationError("Ce port ne peut exister, numero trop élevé")
         if self.room and self.machine_interface or self.room and self.related or self.machine_interface and self.related:
             raise ValidationError("Chambre, interface et related_port sont mutuellement exclusifs")
         if self.related==self:
@@ -52,6 +58,8 @@ class Port(models.Model):
         return str(self.switch) + " - " + str(self.port)
 
 class Room(models.Model):
+    PRETTY_NAME = "Chambre/ Prise murale"
+
     name = models.CharField(max_length=255, unique=True)
     details = models.CharField(max_length=255, blank=True)
 

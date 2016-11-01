@@ -2,5 +2,6 @@
 
 {% block sidebar %}
     {% if is_cableur %}
+    <p><a href="{% url "logs:stats-models" %}">Statistiques base de donnée</a></p>
     {% endif %}
 {% endblock %}
