@@ -1,0 +1,16 @@
+{% extends "logs/sidebar.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Supression d'action{% endblock %}
+
+{% block content %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    <h4>Attention, voulez-vous vraiment annuler cette action {{ objet_name }} ( {{ objet }} ) ?</h4>
+    {% bootstrap_button "Confirmer" button_type="submit" icon="trash" %}
+</form>
+  <br />
+  <br />
+  <br />
+{% endblock %}

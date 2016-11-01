@@ -101,6 +101,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    PRETTY_NAME = "Utilisateurs"
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
@@ -287,6 +288,7 @@ def user_post_delete(sender, **kwargs):
     #user.ldap_del()
 
 class ServiceUser(AbstractBaseUser):
+    PRETTY_NAME = "Utilisateurs de service"
 
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
 
@@ -323,6 +325,8 @@ def service_user_post_delete(sender, **kwargs):
     service_user.ldap_del()
 
 class Right(models.Model):
+    PRETTY_NAME = "Droits affectés à des users"
+
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     right = models.ForeignKey('ListRight', on_delete=models.PROTECT)
 
@@ -343,6 +347,8 @@ def right_post_delete(sender, **kwargs):
     right.ldap_sync()
 
 class School(models.Model):
+    PRETTY_NAME = "Etablissements enregistrés"
+
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -350,6 +356,8 @@ class School(models.Model):
 
 
 class ListRight(models.Model):
+    PRETTY_NAME = "Liste des droits existants"
+
     listright = models.CharField(max_length=255, unique=True)
     gid = models.IntegerField(unique=True, null=True)
 
@@ -383,12 +391,16 @@ def listright_post_delete(sender, **kwargs):
     right.ldap_del()
 
 class ListShell(models.Model):
+    PRETTY_NAME = "Liste des shells disponibles"
+
     shell = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.shell
 
 class Ban(models.Model):
+    PRETTY_NAME = "Liste des bannissements"
+
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
@@ -399,6 +411,8 @@ class Ban(models.Model):
 
 
 class Whitelist(models.Model):
+    PRETTY_NAME = "Liste des accès gracieux"
+
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)

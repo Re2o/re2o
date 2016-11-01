@@ -1,0 +1,17 @@
+    {% for key, stats in stats_list.items %}
+    <table class="table table-striped">
+      <h4>Statistiques de l'ensemble {{ key }}</h4>
+        <thead>
+            <tr>
+                <th>Type d'objet</th>
+                <th>Nombre d'entrée stockées</th>
+            </tr>
+        </thead>
+       {% for key, stat in stats.items %}
+        <tr>
+            <td>{{ stat.0 }}</td>
+            <td>{{ stat.1 }}</td>
+	</tr>
+        {% endfor %}
+    </table>
+        {% endfor %}

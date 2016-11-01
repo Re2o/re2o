@@ -8,6 +8,8 @@ from re2o.settings import MAIN_EXTENSION
 
 
 class Machine(models.Model):
+    PRETTY_NAME = "Machine"
+    
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     name = models.CharField(max_length=255, help_text="Optionnel", blank=True, null=True)
     active = models.BooleanField(default=True)
@@ -16,6 +18,8 @@ class Machine(models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' +  str(self.name)
 
 class MachineType(models.Model):
+    PRETTY_NAME = "Type de machine"
+
     type = models.CharField(max_length=255)
     ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT, blank=True, null=True)
 
@@ -23,6 +27,8 @@ class MachineType(models.Model):
          return self.type
 
 class IpType(models.Model):
+    PRETTY_NAME = "Type d'ip"
+
     type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
@@ -31,12 +37,16 @@ class IpType(models.Model):
         return self.type
 
 class Extension(models.Model):
+    PRETTY_NAME = "Extensions dns"
+
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 class Interface(models.Model):
+    PRETTY_NAME = "Interface"
+
     ipv4 = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
     #ipv6 = models.GenericIPAddressField(protocol='IPv6', null=True)
     mac_address = MACAddressField(integer=False, unique=True)
@@ -54,7 +64,18 @@ class Interface(models.Model):
     def __str__(self):
         return self.dns
 
+class Alias(models.Model):
+    PRETTY_NAME = "Alias dns"
+
+    interface_parent = models.ForeignKey('Interface', on_delete=models.CASCADE)
+    alias = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255, unique=True)
+
+    def __str__(self):
+        return self.alias
+
 class IpList(models.Model):
+    PRETTY_NAME = "Addresses ipv4"
+
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
     ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT)
 

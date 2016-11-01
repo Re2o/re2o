@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.validators import MinValueValidator
 
 class Facture(models.Model):
+    PRETTY_NAME = "Factures émises"
+
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
     banque = models.ForeignKey('Banque', on_delete=models.PROTECT, blank=True, null=True)
@@ -40,6 +42,8 @@ def facture_post_delete(sender, **kwargs):
     #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Vente(models.Model):
+    PRETTY_NAME = "Ventes effectuées"
+
     facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
     number = models.IntegerField(validators=[MinValueValidator(1)])
     name = models.CharField(max_length=255)
@@ -74,6 +78,8 @@ def vente_post_delete(sender, **kwargs):
         #user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Article(models.Model):
+    PRETTY_NAME = "Articles en vente"
+
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
@@ -83,18 +89,24 @@ class Article(models.Model):
         return self.name
 
 class Banque(models.Model):
+    PRETTY_NAME = "Banques enregistrées"
+
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 class Paiement(models.Model):
+    PRETTY_NAME = "Moyens de paiement"
+
     moyen = models.CharField(max_length=255)
 
     def __str__(self):
         return self.moyen
 
 class Cotisation(models.Model):
+    PRETTY_NAME = "Cotisations"
+
     vente = models.OneToOneField('Vente', on_delete=models.CASCADE, null=True)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()

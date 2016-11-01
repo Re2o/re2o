@@ -20,7 +20,7 @@ from reversion import revisions as reversion
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import IpTypeForm, DelIpTypeForm
+from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasFullForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER

@@ -16,7 +16,17 @@ from django.db import transaction
 from reversion.models import Revision
 from reversion.models import Version
 
+from users.models import User, ServiceUser, Right, School, ListRight, ListShell, Ban, Whitelist
+from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
+from machines.models import Machine, MachineType, IpType, Extension, Interface, Alias, IpList
+from topologie.models import Switch, Port, Room
+
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
+
+def form(ctx, template, request):
+    c = ctx
+    c.update(csrf(request))
+    return render_to_response(template, c, context_instance=RequestContext(request))
 
 @login_required
 @permission_required('cableur')
@@ -34,3 +44,55 @@ def index(request):
         revisions = paginator.page(paginator.num_pages)
     return render(request, 'logs/index.html', {'revisions_list': revisions})
 
+@login_required
+@permission_required('bureau')
+def revert_action(request, revision_id):
+    """ Annule l'action en question """
+    try:
+        revision = Revision.objects.get(id=revision_id)
+    except Revision.DoesNotExist:
+        messages.error(request, u"Revision inexistante" )
+    if request.method == "POST":
+        revision.revert()
+        messages.success(request, "L'action a été supprimée")
+        return redirect("/logs/")
+    return form({'objet': revision, 'objet_name': revision.__class__.__name__ }, 'logs/delete.html', request)
+
+@login_required
+@permission_required('cableur')
+def stats_models(request):
+    stats = {
+    'Users' : {
+    'users' : [User.PRETTY_NAME, User.objects.count()],
+    'serviceuser' : [ServiceUser.PRETTY_NAME, ServiceUser.objects.count()],
+    'right' : [Right.PRETTY_NAME, Right.objects.count()],
+    'school' : [School.PRETTY_NAME, School.objects.count()],
+    'listright' : [ListRight.PRETTY_NAME, ListRight.objects.count()],
+    'listshell' : [ListShell.PRETTY_NAME, ListShell.objects.count()],
+    'ban' : [Ban.PRETTY_NAME, Ban.objects.count()],
+    'whitelist' : [Whitelist.PRETTY_NAME, Whitelist.objects.count()]
+    },
+    'Cotisations' : {
+    'factures' : [Facture.PRETTY_NAME, Facture.objects.count()],
+    'vente' : [Vente.PRETTY_NAME, Vente.objects.count()],
+    'cotisation' : [Cotisation.PRETTY_NAME, Cotisation.objects.count()],
+    'article' : [Article.PRETTY_NAME, Article.objects.count()],
+    'banque' : [Banque.PRETTY_NAME, Banque.objects.count()],
+    'cotisation' : [Cotisation.PRETTY_NAME, Cotisation.objects.count()],
+    },
+    'Machines' : {
+    'machine' : [Machine.PRETTY_NAME, Machine.objects.count()],
+    'typemachine' : [MachineType.PRETTY_NAME, MachineType.objects.count()],
+    'typeip' : [IpType.PRETTY_NAME, IpType.objects.count()],
+    'extension' : [Extension.PRETTY_NAME, Extension.objects.count()],
+    'interface' : [Interface.PRETTY_NAME, Interface.objects.count()],
+    'alias' : [Alias.PRETTY_NAME, Alias.objects.count()],
+    'iplist' : [IpList.PRETTY_NAME, IpList.objects.count()],
+    },
+    'Topologie' : {
+    'switch' : [Switch.PRETTY_NAME, Switch.objects.count()],
+    'port' : [Port.PRETTY_NAME, Port.objects.count()],
+    'chambre' : [Room.PRETTY_NAME, Room.objects.count()],
+    },
+    }
+    return render(request, 'logs/stats_models.html', {'stats_list': stats}) 

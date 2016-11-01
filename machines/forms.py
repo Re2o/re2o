@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Machine, Interface, IpList, MachineType, Extension, IpType
+from .models import Alias, Machine, Interface, IpList, MachineType, Extension, IpType
 
 class EditMachineForm(ModelForm):
     class Meta:
@@ -58,6 +58,15 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
             self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
+
+class NewAliasForm(ModelForm):
+    class Meta:
+        model = Alias
+        fields = ['alias']
+
+class EditAliasFullForm(NewAliasForm):
+    class Meta(NewAliasForm.Meta):
+        fields = '__all__'
 
 class MachineTypeForm(ModelForm):
     class Meta:
