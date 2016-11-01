@@ -339,12 +339,12 @@ class Right(models.Model):
 @receiver(post_save, sender=Right)
 def right_post_save(sender, **kwargs):
     right = kwargs['instance'].right
-    right.ldap_sync()
+    #right.ldap_sync()
 
 @receiver(post_delete, sender=Right)
 def right_post_delete(sender, **kwargs):
     right = kwargs['instance'].right
-    right.ldap_sync()
+    #right.ldap_sync()
 
 class School(models.Model):
     PRETTY_NAME = "Etablissements enregistrés"
@@ -383,12 +383,12 @@ class ListRight(models.Model):
 @receiver(post_save, sender=ListRight)
 def listright_post_save(sender, **kwargs):
     right = kwargs['instance']
-    right.ldap_sync()
+    #right.ldap_sync()
 
 @receiver(post_delete, sender=ListRight)
 def listright_post_delete(sender, **kwargs):
     right = kwargs['instance']
-    right.ldap_del()
+    #right.ldap_del()
 
 class ListShell(models.Model):
     PRETTY_NAME = "Liste des shells disponibles"
