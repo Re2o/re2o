@@ -67,11 +67,11 @@
             {% endif %}
         </tr>
         <tr>
-            <th>Connexion</th>
+            <th>Accès internet</th>
             {% if user.has_access == True %}
-            <td><font color="green">Active</font></td>
+            <td><font color="green">Actif</font></td>
             {% else %}
-            <td><font color="red">Désactivée</font></td>
+            <td><font color="red">Désactivé</font></td>
             {% endif %}
             <th>Droits</th>
             {% if list_droits %}
@@ -79,6 +79,10 @@
             {% else %}
             <td>Aucun</td>
             {% endif %}
+        <tr>
+            <th>Dernière connexion</th>
+            <td>{{ user.last_login }}</td>
+        </tr>
     </table>
     <h2>Machines :</h2>
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
