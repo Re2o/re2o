@@ -29,7 +29,7 @@ footer {
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
 .row.content {
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
 }
 
 /* Set gray background color and 100% height */
@@ -40,7 +40,7 @@ footer {
 
 /* Set black background color, white text and some padding */
 footer {
-    background-color: #555;
+    background-color: #ff69b4;
     color: white;
     padding: 15px;
 }

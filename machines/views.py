@@ -1,5 +1,5 @@
 # App de gestion des machines pour re2o
-# Gabriel Détraz
+# Gabriel Détraz, Augustin Lemesle
 # Gplv2
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
 from django.forms import ValidationError
 from django.db import transaction
+from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
 from machines.serializers import InterfaceSerializer
@@ -449,12 +451,16 @@ class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         for d in data:
             if d["ipv4"]:
-                d["ipv4"]= IpList.objects.get(pk=d["ipv4"]).__str__()
+                ip = IpList.objects.get(pk=d["ipv4"])
+                d["ipv4"]= ip.__str__()
+                d["type"]= ip.ip_type.__str__()
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
-
+@csrf_exempt
+@login_required
+@permission_required('serveur')
 def interface_list(request):
     interfaces = Interface.objects.all()
     interface = []
@@ -464,13 +470,24 @@ def interface_list(request):
     seria = InterfaceSerializer(interface, many=True) 
     return seria.data
 
+@csrf_exempt
+@login_required
+@permission_required('serveur')
 def mac_ip(request):
     seria = interface_list(request)
     for s in seria:
         s.pop('dns')
     return JSONResponse(seria)
 
+@csrf_exempt
+@login_required
+@permission_required('serveur')
 def mac_ip_dns(request):
     seria = interface_list(request)
     return JSONResponse(seria)
 
+@csrf_exempt
+def login_user(request):
+    user = authenticate(username=request.POST['username'], password=request.POST['password'])
+    login(request, user)
+    return HttpResponse("Logged In")
