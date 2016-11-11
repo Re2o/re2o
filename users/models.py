@@ -317,12 +317,12 @@ class ServiceUser(AbstractBaseUser):
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
     service_user = kwargs['instance']
-    service_user.ldap_sync()
+#    service_user.ldap_sync()
 
 @receiver(post_delete, sender=ServiceUser)
 def service_user_post_delete(sender, **kwargs):
     service_user = kwargs['instance']
-    service_user.ldap_del()
+#    service_user.ldap_del()
 
 class Right(models.Model):
     PRETTY_NAME = "Droits affectés à des users"
