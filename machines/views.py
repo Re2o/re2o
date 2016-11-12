@@ -122,7 +122,7 @@ def edit_interface(request, interfaceid):
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
     if not request.user.has_perms(('infra',)):
-        if interface.machine.user != request.user:
+        if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
         machine_form = BaseEditMachineForm(request.POST or None, instance=interface.machine)
