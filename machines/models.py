@@ -3,6 +3,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from macaddress.fields import MACAddressField
+from netaddr import EUI
 
 from re2o.settings import MAIN_EXTENSION
 
@@ -60,6 +61,9 @@ class Interface(models.Model):
         machine = self.machine
         user = self.machine.user
         return machine.active and user.has_access()
+
+    def clean(self, *args, **kwargs):
+        self.mac_address = str(EUI(self.mac_address)) or None
 
     def __str__(self):
         return self.dns
