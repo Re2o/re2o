@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.forms import ValidationError
 from macaddress.fields import MACAddressField
 from netaddr import EUI
+from django.core.validators import MinValueValidator,MaxValueValidator
 
 from re2o.settings import MAIN_EXTENSION
 
@@ -33,6 +34,8 @@ class IpType(models.Model):
     type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
+    domaine_ip = models.GenericIPAddressField(protocol='IPv4', unique=True, blank=True, null=True)
+    domaine_range = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(8), MaxValueValidator(32)])
 
     def __str__(self):
         return self.type

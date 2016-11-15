@@ -4,7 +4,9 @@
                 <th>Type d'ip</th>
                 <th>Extension</th>
                 <th>Nécessite l'autorisation infra</th>
-                <th></th>
+                <th>Domaine d'ip</th>
+                <th>Range</th>
+		<th></th>
                 <th></th>
             </tr>
         </thead>
@@ -13,7 +15,9 @@
             <td>{{ type.type }}</td>
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra }}</td>
-            <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-iptype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
+            <td>{{ type.domaine_ip }}</td>
+            <td>{{ type.domaine_range }}</td>
+	    <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-iptype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
             <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'iptype' type.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
         </tr>
         {% endfor %}

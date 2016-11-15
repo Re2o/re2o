@@ -24,6 +24,18 @@ from topologie.models import Switch, Port, Room
 
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
 
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
+
+STATS_DICT = {
+        0 : ["Tout", 36],
+        1 : ["1 mois", 1],
+        2 : ["2 mois", 2],
+        3 : ["6 mois", 6],
+        4 : ["1 an", 12],
+        5 : ["2 an", 24],
+}
+
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
@@ -105,11 +117,18 @@ def stats_models(request):
 @login_required
 @permission_required('cableur')
 def stats_users(request):
+    onglet = request.GET.get('onglet')
+    try:
+        search_field = STATS_DICT[onglet]
+    except:
+        search_field = STATS_DICT[0]
+        onglet = 0
+    start_date = timezone.now() + relativedelta(months=-search_field[1])
     stats = {
     'Utilisateur' : {
-    'Machines' : User.objects.annotate(num=Count('machine')).order_by('-num')[:10],
-    'Facture' : User.objects.annotate(num=Count('facture')).order_by('-num')[:10],
-    'Bannissement' : User.objects.annotate(num=Count('ban')).order_by('-num')[:10],
+    'Machines' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('machine')).order_by('-num')[:10],
+    'Facture' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('facture')).order_by('-num')[:10],
+    'Bannissement' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('ban')).order_by('-num')[:10],
     'Accès gracieux' : User.objects.annotate(num=Count('whitelist')).order_by('-num')[:10],
     'Droits' : User.objects.annotate(num=Count('right')).order_by('-num')[:10],
     },
@@ -123,11 +142,12 @@ def stats_users(request):
     'Utilisateur' : Banque.objects.annotate(num=Count('facture')).order_by('-num')[:10],
     },
     }
-    return render(request, 'logs/stats_users.html', {'stats_list': stats})
+    return render(request, 'logs/stats_users.html', {'stats_list': stats, 'stats_dict' : STATS_DICT, 'active_field': onglet})
 
 @login_required
 @permission_required('cableur')
 def stats_actions(request):
+    onglet = request.GET.get('onglet')
     stats = {
     'Utilisateur' : {
     'Action' : User.objects.annotate(num=Count('revision')).order_by('-num')[:40],
