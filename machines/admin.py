@@ -7,7 +7,7 @@ class MachineAdmin(VersionAdmin):
     list_display = ('user','name','active')
 
 class IpTypeAdmin(VersionAdmin):
-    list_display = ('type','extension','need_infra')
+    list_display = ('type','extension','need_infra','domaine_ip','domaine_range')
 
 class MachineTypeAdmin(VersionAdmin):
     list_display = ('type','ip_type')
