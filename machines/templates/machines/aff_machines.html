@@ -1,50 +1,71 @@
 {% if machines_list.paginator %}
-{% include "pagination.html" with list=machines_list %} 
-{% endif %}    
+{% include "pagination.html" with list=machines_list %}
+{% endif %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Proprietaire</th>
-                <th>Interfaces</th>
-            </tr>
-        </thead>
-       {% for machine in machines_list %}
+<table class="table">
+    <thead>
         <tr>
-            <td><p>{{ machine.user }}</p>
-            <p><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-interface'  machine.id %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une interface</p></a>
-            <p><a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machine' machine.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer la machine</a></p>
-            <p><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machine' machine.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></p></td>
-            <td><table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Nom dns</th>
-                <th>Type</th>
-                <th>Mac</th>
-                <th>Ipv4</th>
-                <th></th>
-            </tr>
-            </thead>
-            {% for interface in machine.interface_set.all %}
-            <tr>
+            <th>Actions</th>
+            <th>Proprietaire</th>
+            <th>Nom dns</th>
+            <th>Type</th>
+            <th>Mac</th>
+            <th>Ipv4</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for machine in machines_list %}
+        {% for interface in machine.interface_set.all %}
+        <tr class="active">
+            {% if forloop.first %}
+            <td rowspan="{{ machine.interface_set.all|length }}">
+                <a class="btn btn-primary" role="button" href="{% url 'machines:new-interface'  machine.id %}" title="Ajouter une interface">
+                    <i class="glyphicon glyphicon-plus"></i>
+                </a>
+                <a class="btn btn-danger" role="button" href="{% url 'machines:del-machine' machine.id %}" title="Supprimer la machine">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </a>
+                <a class="btn btn-info" role="button" href="{% url 'machines:history' 'machine' machine.id %}" title="Historique">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+            </td>
+            <td rowspan="{{ machine.interface_set.all|length }}">
+                <p><b>{{ machine.user }}</b</p>
+            </td>
+            {% endif %}
             <td>{{ interface.dns }}</td>
             <td>{{ interface.type }}</td>
             <td>{{ interface.mac_address }}</td>
             <td>{{ interface.ipv4 }}</td>
-            <td><div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Modifier
-            <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="editioninterface">
-            <li><a href="{% url 'machines:edit-interface' interface.id %}"><i class="glyphicon glyphicon-hdd"></i> Editer</a></li>
-            <li><a href="{% url 'machines:history' 'interface' interface.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></li>
-            <li><a href="{% url 'machines:del-interface' interface.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
-            </ul></div></td>
-            </tr>
-            {% endfor %}
-            </table>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Modifier <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="editioninterface">
+                        <li>
+                            <a href="{% url 'machines:edit-interface' interface.id %}">
+                                <i class="glyphicon glyphicon-edit"></i> Editer
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'machines:history' 'interface' interface.id %}">
+                                <i class="glyphicon glyphicon-time"></i> Historique
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'machines:del-interface' interface.id %}">
+                                <i class="glyphicon glyphicon-trash"></i> Supprimer
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
         </tr>
         {% endfor %}
-    </table>
+        <tr>
+            <td colspan="8"></td>
+        </tr>
+    {% endfor %}
+</table>
 
