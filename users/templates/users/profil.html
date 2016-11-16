@@ -9,7 +9,7 @@
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}"><i class="glyphicon glyphicon-lock"></i> Changer le mot de passe</a>  
     {% if is_bureau %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}"><i class="glyphicon glyphicon-flash"></i> Changer le statut</a>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-right' user.id %}"><i class="glyphicon glyphicon-ok"></i> Ajouter un droit</a>{% endif %}
-    <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' user.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a>
+    <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' user.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a>
     <br />
     <br />
     <table class="table table-striped">

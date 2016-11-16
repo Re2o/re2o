@@ -12,7 +12,7 @@
             <td>{{ type.type }}</td>
             <td>{{ type.ip_type }}</td>
             <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machinetype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machinetype' type.id %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
+            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machinetype' type.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
         </tr>
         {% endfor %}
     </table>
