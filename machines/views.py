@@ -449,25 +449,9 @@ def history(request, object, id):
 
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
-        for d in data:
-            if d["ipv4"]:
-                ip = IpList.objects.get(pk=d["ipv4"])
-                d["ipv4"]= ip.__str__()
-                d["type"]= ip.ip_type.__str__()
-                d["extension"] = ip.ip_type.extension.__str__()
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
-
-class JSONRespType(HttpResponse):
-    def __init__(self, data, **kwargs):
-        for d in data:
-            if d["extension"]:
-                extension = Extension.objects.get(pk=d["extension"])
-                d["extension"]=extension.__str__()
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONRespType, self).__init__(content, **kwargs)
 
 @csrf_exempt
 @login_required
@@ -510,7 +494,7 @@ def mac_ip_dns(request):
 @permission_required('serveur')
 def corresp(request):
     seria = type_list(request)
-    return JSONRespType(seria)
+    return JSONResponse(seria)
 
 @csrf_exempt
 def login_user(request):
