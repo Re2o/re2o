@@ -36,7 +36,10 @@ ASSO_EMAIL = "tresorier@ecole.fr"
 ASSO_PHONE = "01 02 03 04 05"
 
 services_urls = {
-   #Fill IT  : ex :  'gitlab': {'url': 'https://gitlab.rezometz.org', 'logo': 'gitlab.png'},
+#Fill IT  : ex :  'gitlab': {
+#                           'url': 'https://gitlab.rezometz.org',
+#                           'logo': 'gitlab.png',
+#                           'description': 'Gitlab is cool 8-)'},
     }
 
 # Number of hours a token remains valid after having been created.  Numeric and string
