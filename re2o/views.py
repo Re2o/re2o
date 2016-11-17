@@ -11,4 +11,12 @@ def form(ctx, template, request):
 
 
 def index(request):
-    return form({'services_urls': services_urls}, 're2o/index.html', request)
+    i = 0
+    services = [{}]
+    for key, s in services_urls.items():
+        if len(services) <= i:
+            services += [{}]
+        services[i][key] = s
+        i = i + 1 if i < 2 else 0
+
+    return form({'services_urls': services}, 're2o/index.html', request)
