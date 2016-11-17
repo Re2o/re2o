@@ -8,9 +8,9 @@
     <head>
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
-        <link rel="stylesheet" href="{% static "/static/css/base.css" %}">
 
         {% bootstrap_javascript %}
+        <link rel="stylesheet" href="{% static "/static/css/base.css" %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
     </head>
