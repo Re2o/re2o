@@ -67,6 +67,9 @@ class Interface(models.Model):
 
     def clean(self, *args, **kwargs):
         self.mac_address = str(EUI(self.mac_address)) or None
+        alias = Alias.objects.filter(alias=self.dns).filter(extension=self.ipv4.ip_type.extension)
+        if alias:
+            raise ValidationError("Impossible, le dns est déjà utilisé par un alias (%s)" % alias[0])
 
     def __str__(self):
         return self.dns
@@ -75,7 +78,15 @@ class Alias(models.Model):
     PRETTY_NAME = "Alias dns"
 
     interface_parent = models.ForeignKey('Interface', on_delete=models.CASCADE)
-    alias = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255, unique=True)
+    alias = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255)
+    extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
+
+    class Meta:
+        unique_together = ("alias", "extension")
+
+    def clean(self, *args, **kwargs):
+        if Interface.objects.filter(dns=self.alias).filter(ipv4=IpList.objects.filter(ip_type=IpType.objects.filter(extension=self.extension))):
+            raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
 
     def __str__(self):
         return self.alias
