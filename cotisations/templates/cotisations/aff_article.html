@@ -1,10 +1,10 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Nom de l'article</th>
+                <th>Article</th>
                 <th>Prix</th>
                 <th>Cotisation</th>
-                <th>Durée (en mois)</th>
+                <th>Durée (mois)</th>
                 <th></th>
             </tr>
         </thead>
@@ -14,8 +14,16 @@
             <td>{{ article.prix }}</td>
             <td>{{ article.cotisation }}</td>
             <td>{{ article.duration }}</td>
-            <td>{% if is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-article' article.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}
-            <a class="btn btn-info btn-sm" role="button" href="{% url 'cotisations:history' 'article' article.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_trez %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'cotisations:edit-article' article.id %}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            {% endif %}
+                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'article' article.id %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </table>

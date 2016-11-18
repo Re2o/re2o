@@ -6,7 +6,6 @@
                 <th>Date de début</th>
                 <th>Date de fin</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         {% for whitelist in white_list %}
@@ -15,8 +14,12 @@
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
-            <td>{% if is_cableur %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-whitelist' whitelist.id %}"><i class="glyphicon glyphicon-flag"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'whitelist' whitelist.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_cableur %}
+                {% include 'buttons/edit.html' with href='users:edit-whitelist' id=whitelist.id %}
+            {% endif %}
+                {% include 'buttons/history.html' with href='users:history' name='whitelist' id=whitelist.id %}
+            </td>
         </tr>
         {% endfor %}
     </table>

@@ -1,5 +1,5 @@
 {% if facture_list.paginator %}
-{% include "pagination.html" with list=facture_list %} 
+{% include "pagination.html" with list=facture_list %}
 {% endif %}
 
     <table class="table table-striped">
@@ -10,8 +10,8 @@
                 <th>Prix total</th>
                 <th>Moyen de paiement</th>
                 <th>Date</th>
-  		<th></th>
-  		<th></th>
+                <th></th>
+                <th></th>
                 <th></th>
             </tr>
         </thead>
@@ -23,22 +23,38 @@
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
             {% if is_cableur %}
-            <td><div class="dropdown">
+            <td>
+            <div class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             Modifier
             <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="editionfacture">
             {% if facture.valid and not facture.control or is_trez %}
-            <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a></li>
-            <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
+                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a></li>
+                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
             {% else %}
-            <li>Facture controlée</li>
+                <li>Facture controlée</li>
             {% endif %}
-            </ul></div></td>
+            </ul>
+            </div>
+            </td>
             {% endif %}
-            <td>{% if facture.valid %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}"><i class="glyphicon glyphicon-save"></i> PDF</a>{% else %}Facture invalide{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td>
+            {% if facture.valid %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}">
+                    <i class="glyphicon glyphicon-save"></i>
+                    PDF
+                </a>
+            {% else %}
+                <font color="red">Facture invalide</font>
+            {% endif %}
+            </td>
+            <td class="text-right">
+                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'facture' facture.id %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </table>

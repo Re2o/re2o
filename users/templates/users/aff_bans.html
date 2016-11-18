@@ -10,7 +10,6 @@
                 <th>Date de début</th>
                 <th>Date de fin</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         {% for ban in ban_list %}
@@ -19,8 +18,12 @@
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
-            <td>{% if is_bofh %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-ban' ban.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'ban' ban.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_bofh %}
+                {% include 'buttons/edit.html' with href='users:edit-ban' id=ban.id %}
+            {% endif %}
+                {% include 'buttons/history.html' with href='users:history' name='ban' id=ban.id %}
+            </td>
         </tr>
         {% endfor %}
     </table>

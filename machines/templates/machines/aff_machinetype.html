@@ -4,15 +4,18 @@
                 <th>Type de machine</th>
                 <th>Type d'ip correspondant</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         {% for type in machinetype_list %}
         <tr>
             <td>{{ type.type }}</td>
             <td>{{ type.ip_type }}</td>
-            <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-machinetype' type.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'machinetype' type.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_infra %}
+                {% include 'buttons/edit.html' with href='machines:edit-machinetype' id=type.id %}
+            {% endif %}
+                {% include 'buttons/history.html' with href='machines:history' name='machinetype' id=type.id %}
+            </td>
         </tr>
         {% endfor %}
     </table>
