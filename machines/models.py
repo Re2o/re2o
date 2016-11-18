@@ -67,7 +67,10 @@ class Interface(models.Model):
 
     def clean(self, *args, **kwargs):
         self.mac_address = str(EUI(self.mac_address)) or None
-        alias = Alias.objects.filter(alias=self.dns).filter(extension=self.ipv4.ip_type.extension)
+        if self.ipv4:
+            alias = Alias.objects.filter(alias=self.dns).filter(extension=self.ipv4.ip_type.extension)
+        else:
+            alias = Alias.objects.filter(alias=self.dns)
         if alias:
             raise ValidationError("Impossible, le dns est déjà utilisé par un alias (%s)" % alias[0])
 
