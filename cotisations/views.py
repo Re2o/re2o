@@ -315,11 +315,20 @@ def del_banque(request):
 def control(request):
     facture_list = Facture.objects.order_by('date').reverse()
     controlform_set = modelformset_factory(Facture, fields=('control','valid'), extra=0)
-    controlform = controlform_set(request.POST or None, queryset=facture_list)
+    paginator = Paginator(facture_list, PAGINATION_NUMBER)
+    page = request.GET.get('page')
+    try:
+        facture_list = paginator.page(page)
+    except PageNotAnInteger:
+        facture_list = paginator.page(1)
+    except EmptyPage:
+        facture_list = paginator.page(paginator.num.pages)
+    page_query = Facture.objects.order_by('date').reverse().filter(id__in=[facture.id for facture in facture_list]) 
+    controlform = controlform_set(request.POST or None, queryset=page_query)
     if controlform.is_valid():
         controlform.save()
         return redirect("/cotisations/control/")
-    return render(request, 'cotisations/control.html', {'controlform': controlform})
+    return render(request, 'cotisations/control.html', {'facture_list': facture_list, 'controlform': controlform})
 
 @login_required
 @permission_required('cableur')
