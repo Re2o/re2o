@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
-    <p><a href="{% url "search:search" %}">Recherche simple</a></p>
-    <p><a href="{% url "search:searchp" %}">Recherche avancée</a></p>
+    <a class="list-group-item list-group-item-warning" href="{% url "search:search" %}">
+        <i class="glyphicon glyphicon-search"></i>
+        Recherche simple
+    </a>
+    <a class="list-group-item list-group-item-warning" href="{% url "search:searchp" %}">
+        <i class="glyphicon glyphicon-zoom-in"></i>
+        Recherche avancée
+    </a>
 {% endblock %}

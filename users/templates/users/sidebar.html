@@ -2,14 +2,35 @@
 
 {% block sidebar %}
     {% if is_cableur %}
-    <p><a href="{% url "users:new-user" %}">Créer un adhérent</a></p>
-    <p><a href="{% url "users:index" %}">Liste des adhérents</a></p>
-    <p><a href="{% url "users:index-ban" %}">Liste des bannissements</a></p>
-    <p><a href="{% url "users:index-white" %}">Liste des accès à titre gracieux</a></p>
-    <p><a href="{% url "users:index-school" %}">Liste des établissements</a></p>
-    <p><a href="{% url "users:index-listright" %}">Liste des droits</a></p>
-    {% if is_bureau %}
-    <p><a href="{% url "users:del-right" %}">Retirer un droit</a></p>
-    {% endif %}
+        <a class="list-group-item list-group-item-success" href="{% url "users:new-user" %}">
+            <i class="glyphicon glyphicon-plus"></i>
+            Créer un adhérent
+        </a>
+        <a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Adhérents
+        </a>
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-ban" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Bannissements
+        </a>
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-white" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Accès à titre gracieux
+        </a>
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-school" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Établissements
+        </a>
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-listright" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Droits
+        </a>
+        {% if is_bureau %}
+        <a class="list-group-item list-group-item-danger" href="{% url "users:del-right" %}">
+            <i class="glyphicon glyphicon-trash"></i>
+            Retirer un droit
+        </a>
+        {% endif %}
     {% endif %}
 {% endblock %}

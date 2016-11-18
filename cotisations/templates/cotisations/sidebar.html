@@ -1,10 +1,30 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
-    <p><a href="{% url "cotisations:index" %}">Liste des factures</a></p>
-    <p><a href="{% url "cotisations:index-article" %}">Liste des articles en vente</a></p>
-    <p><a href="{% url "cotisations:index-banque" %}">Liste des banques</a></p>
-    <p><a href="{% url "cotisations:index-paiement" %}">Liste des moyens de paiement</a></p>
-    {% if is_trez %}<p><a href="{% url "cotisations:control" %}">Controler les factures</a></p>
-    <p><a href="{% url "cotisations:new-facture-pdf" %}">Créer une nouvelle facture</a></p>{% endif %}
+    {% if is_trez %}
+    <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-facture-pdf" %}">
+        <i class="glyphicon glyphicon-plus"></i>
+        Créer une facture
+    </a>
+    <a class="list-group-item list-group-item-warning" href="{% url "cotisations:control" %}">
+        <i class="glyphicon glyphicon-eye-open"></i>
+        Contrôler les factures
+    </a>
+    {% endif %}
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Factures
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-article" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Articles en vente
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-banque" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Banques
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-paiement" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Moyens de paiement
+    </a>
 {% endblock %}

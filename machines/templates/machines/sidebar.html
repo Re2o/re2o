@@ -2,8 +2,21 @@
 
 {% block sidebar %}
     {% if is_cableur %}
-    <p><a href="{% url "machines:index-machinetype" %}">Liste des types de machine</a></p>
-    <p><a href="{% url "machines:index-extension" %}">Liste des types des extensions</a></p>
-    <p><a href="{% url "machines:index-iptype" %}">Liste des types d'ip</a></p>
+    <a class="list-group-item list-group-item-info" href="{% url "machines:index" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Machines
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "machines:index-machinetype" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Types de machines
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "machines:index-extension" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Extensions (zones)
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "machines:index-iptype" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Plages d'IP
+    </a>
     {% endif %}
 {% endblock %}

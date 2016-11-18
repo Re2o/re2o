@@ -8,8 +8,16 @@
         {% for banque in banque_list %}
         <tr>
             <td>{{ banque.name }}</td>
-            <td>{% if is_trez %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:edit-banque' banque.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}
-            <a class="btn btn-info btn-sm" role="button" href="{% url 'cotisations:history' 'banque' banque.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_trez %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'cotisations:edit-banque' banque.id %}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            {% endif %}
+                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'banque' banque.id %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </table>

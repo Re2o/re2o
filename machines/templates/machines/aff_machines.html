@@ -19,15 +19,9 @@
         <tr class="active">
             {% if forloop.first %}
             <td rowspan="{{ machine.interface_set.all|length }}">
-                <a class="btn btn-primary" role="button" href="{% url 'machines:new-interface'  machine.id %}" title="Ajouter une interface">
-                    <i class="glyphicon glyphicon-plus"></i>
-                </a>
-                <a class="btn btn-danger" role="button" href="{% url 'machines:del-machine' machine.id %}" title="Supprimer la machine">
-                    <i class="glyphicon glyphicon-trash"></i>
-                </a>
-                <a class="btn btn-info" role="button" href="{% url 'machines:history' 'machine' machine.id %}" title="Historique">
-                    <i class="glyphicon glyphicon-time"></i>
-                </a>
+                {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc='Ajouter une interface' %}
+                {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
+                {% include 'buttons/history.html' with href='machines:history' name='machine' id=machine.id %}
             </td>
             <td rowspan="{{ machine.interface_set.all|length }}">
                 <p><b>{{ machine.user }}</b</p>

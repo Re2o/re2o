@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
-    <p><a href="{% url "topologie:index" %}">Liste des switchs</a></p>
-    <p><a href="{% url "topologie:index-room" %}">Liste des chambres</a></p>
+    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-room" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Chambres
+    </a>
+    <a class="list-group-item list-group-item-info" href="{% url "topologie:index" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Switchs
+    </a>
 {% endblock %}

@@ -3,14 +3,17 @@
             <tr>
                 <th>Extension</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         {% for extension in extension_list %}
         <tr>
             <td>{{ extension.name }}</td>
-            <td>{% if is_infra %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:edit-extension' extension.id %}"><i class="glyphicon glyphicon-pushpin"></i> Editer</a>{% endif %}</td>
-            <td><a class="btn btn-info btn-sm" role="button" href="{% url 'machines:history' 'extension' extension.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></td>
+            <td class="text-right">
+            {% if is_infra %}
+                {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
+            {% endif %}
+                {% include 'buttons/history.html' with href='machines:history' name='extension' id=extension.id %}
+            </td>
         </tr>
         {% endfor %}
     </table>

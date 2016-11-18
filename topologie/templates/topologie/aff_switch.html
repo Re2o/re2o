@@ -4,20 +4,27 @@
             <th>Dns</th>
             <th>Ipv4</th>
             <th>Localisation</th>
-            <th>Nombre de ports</th>
+            <th>Ports</th>
             <th>Détails</th>
             <th></th>
         </tr>
    </thead>
    {% for switch in switch_list %}
    <tr>
-       <td>{{switch.switch_interface.dns}}</td>
+       <td>
+           <a title="Configuer" href="{% url 'topologie:index-port' switch.pk %}">
+               {{switch.switch_interface.dns}}
+           </a>
+       </td>
        <td>{{switch.switch_interface.ipv4}}</td>
        <td>{{switch.location}}</td>
        <td>{{switch.number}}</td>
        <td>{{switch.details}}</td>
-       <td><a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:index-port' switch.pk %}"><i class="glyphicon glyphicon-cog"></i> Configurer</a>
-       <a class="btn btn-info btn-sm" role="button" href="{% url 'topologie:history' 'switch' switch.pk %}"><i class="glyphicon glyphicon-repeat"></i> Historique</a></td>
+       <td class="text-right">
+           <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'switch' switch.pk %}">
+               <i class="glyphicon glyphicon-time"></i>
+           </a>
+       </td>
    </tr>
    {% endfor %}
 </table>
