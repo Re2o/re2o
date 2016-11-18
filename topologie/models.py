@@ -24,7 +24,7 @@ class Switch(models.Model):
     details = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return str(self.location)
+        return str(self.location) + ' ' + str(self.switch_interface)
 
 class Port(models.Model):
     PRETTY_NAME = "Port de switch"
@@ -32,7 +32,7 @@ class Port(models.Model):
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
-    machine_interface = models.OneToOneField('machines.Interface', on_delete=models.SET_NULL, blank=True, null=True)
+    machine_interface = models.ForeignKey('machines.Interface', on_delete=models.SET_NULL, blank=True, null=True)
     related = models.OneToOneField('self', null=True, blank=True, related_name='related_port')
     details = models.CharField(max_length=255, blank=True)
 

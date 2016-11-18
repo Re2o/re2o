@@ -103,18 +103,18 @@ def new_port(request, switch_id):
 @permission_required('infra')
 def edit_port(request, port_id):
     try:
-        port = Port.objects.get(pk=port_id)
+        port_object = Port.objects.get(pk=port_id)
     except Port.DoesNotExist:
         messages.error(request, u"Port inexistant")
         return redirect("/topologie/")
-    port = EditPortForm(request.POST or None, instance=port)
+    port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
         with transaction.atomic(), reversion.create_revision():
             port.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in port.changed_data))
         messages.success(request, "Le port a bien été modifié")
-        return redirect("/topologie/")
+        return redirect("/topologie/switch/" + str(port_object.switch.id))
     return form({'topoform':port}, 'topologie/topo.html', request)
 
 @login_required
