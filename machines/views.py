@@ -16,12 +16,12 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer
 from reversion import revisions as reversion
 
 
 import re
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm, Alias
 from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasFullForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension
 from users.models import User
@@ -468,10 +468,18 @@ def interface_list(request):
 @csrf_exempt
 @login_required
 @permission_required('serveur')
-def type_list(request):
+def alias(request):
+    alias = Alias.objects.all()
+    seria = AliasSerializer(alias, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def corresp(request):
     type = IpType.objects.all()
     seria = TypeSerializer(type, many=True)
-    return seria.data 
+    return JSONResponse(seria.data)
 
 @csrf_exempt
 @login_required
@@ -487,13 +495,6 @@ def mac_ip(request):
 @permission_required('serveur')
 def mac_ip_dns(request):
     seria = interface_list(request)
-    return JSONResponse(seria)
-
-@csrf_exempt
-@login_required
-@permission_required('serveur')
-def corresp(request):
-    seria = type_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt

@@ -29,5 +29,6 @@ urlpatterns = [
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/login/$', views.login_user, name='login'),
     url(r'^rest/mac-ip-dns/$', views.mac_ip_dns, name='mac-ip-dns'),
+    url(r'^rest/alias/$', views.alias, name='alias'),
     url(r'^rest/corresp/$', views.corresp, name='corresp'),
 ]
