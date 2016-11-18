@@ -6,6 +6,9 @@
 
 {% block content %}
 <h2>Controle et validité des factures</h2>
+{% if facture_list.paginator %}
+{% include "pagination.html" with list=facture_list %}
+{% endif %}
 <form class="form" method="post">
     {% csrf_token %}
     {{ controlform.management_form }}
