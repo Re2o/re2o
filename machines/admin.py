@@ -23,7 +23,7 @@ class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','dns','mac_address','ipv4','details')
 
 class AliasAdmin(VersionAdmin):
-    list_display = ('interface_parent', 'alias')
+    list_display = ('interface_parent', 'alias', 'extension')
 
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
