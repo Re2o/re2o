@@ -22,7 +22,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
         fields = ('ipv4', 'mac_address', 'dns')
 
 class ExtensionNameField(serializers.RelatedField):
-    def to_reprsentation(self, value):
+    def to_representation(self, value):
         return value.name
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -32,13 +32,7 @@ class TypeSerializer(serializers.ModelSerializer):
         model = IpType
         fields = ('type', 'extension', 'domaine_ip', 'domaine_range')
 
-class IpList_ExtensionField(serializers.RelatedField):
-    def to_representation(self, value):
-        return value.ipv4.ip_type.extension.name
-
 class InterfaceDNS_ExtensionSerializer(serializers.ModelSerializer):
-    ipv4 = IpList_ExtensionField(read_only=True)
-
     class Meta:
         model = Interface
         fields = ('ipv4', 'dns')

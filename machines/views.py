@@ -469,12 +469,14 @@ def interface_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    aliass = Alias.objects.all()
-    alias = []
-    for a in aliass:
-        if a.interface_parent.ipv4:
-            alias.append(a)
+    alias = Alias.objects.all()
     seria = AliasSerializer(alias, many=True)
+    for d in seria.data:
+        if d["interface_parent"]["ipv4"]:
+            id = d["interface_parent"]["ipv4"]
+            ip_list = IpList.objects.get(pk=id)
+            d["interface_parent"]["extension"] = ip_list.ip_type.extension.name
+            d["interface_parent"].pop("ipv4")
     return JSONResponse(seria.data)
 
 @csrf_exempt
