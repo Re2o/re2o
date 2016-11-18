@@ -82,25 +82,67 @@
                         {% block content %}{% endblock %}
                     </div>
                     <div class="col-sm-2 sidenav">
-                        <div class="well">
+                        <div class="panel panel-default">
                             {% if request_user.is_authenticated %}
-                            <li>{{ request_user.name }} {{ request_user.surname }}</li>
-                            <li>Pseudo : {{ request_user.pseudo }}</li>
-                            <li>Chambre : {{ request_user.room }}</li>
-                            <li>Connexion : {% if request_user.has_access == True %}<font color="green">Active</font>{% else %}<font color="red">Désactivée</font>{% endif %}</li>
-                            <li>Fin d'adhésion : {% if request_user.end_adhesion != None %}<font color="green">{{ request_user.end_adhesion }}</font>{% else %}<font color="red">Non adhérent</font>{% endif %}</li>
-                            <p><a class="btn btn-success btn-sm" role="button"href="{% url "users:mon-profil" %}">Voir mon profil</a></p>
+                            <div class="panel-heading">
+                                <h4>{{ request_user.name }} {{ request_user.surname }}</h4>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th scope="row">Pseudo</th>
+                                    <td class="text-right">{{ request_user.pseudo }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Chambre</th>
+                                    <td class="text-right">{{ request_user.room }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Connexion</th>
+                                    <td class="text-right">
+                                    {% if request_user.has_access %}
+                                        <font color="green">Active</font>
+                                    {% else %}
+                                        <font color="red">Désactivée</font>
+                                    {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Adhésion</th>
+                                    <td class="text-right">
+                                    {% if request_user.end_adhesion != None %}
+                                        <font color="green">{{ request_user.end_adhesion }}</font>
+                                    {% else %}
+                                        <font color="red">Non adhérent</font>
+                                    {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="list-group">
+                                <a class="list-group-item list-group-item-info" role="button"href="{% url "users:mon-profil" %}">
+                                    <i class="glyphicon glyphicon-user"></i>
+                                    Voir mon profil
+                                </a>
+                            </div>
                             {% else %}
                             <p>Vous n'êtes pas authentifié</p>
                             {% endif %}
                         </div>
                         {% if request_user.is_authenticated %}
-                        <div class="well">
-                        {{ interfaces|length }} machines actives
-                        {% for interface in interfaces|slice:":5" %}
-                        <li>{{interface.dns}}</li>
-                        {% endfor %}
-                        <p><a class="btn btn-warning btn-sm" role="button" href="{% url "users:mon-profil" %}">Voir mes machines</a></p>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4>{{ interfaces|length }} machines actives</h4>
+                            </div>
+                            <ul class="list-group">
+                            {% for interface in interfaces|slice:":5" %}
+                                <div class="list-group-item">{{interface.dns}}</div>
+                            {% endfor %}
+                            {% if interfaces|length > 5 %}
+                                <a class="list-group-item list-group-item-info" role="button" href="{% url "users:mon-profil" %}">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Voir mes machines
+                                </a>
+                            {% endif %}
+                            </ul>
                         </div>
                         {% endif %}
                     </div>
