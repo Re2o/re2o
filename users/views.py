@@ -77,6 +77,17 @@ def reset_passwd_mail(req, request):
     EMAIL_FROM, [req.user.email], fail_silently=False)
     return
 
+def notif_ban(ban):
+    t = loader.get_template('users/email_ban_notif')
+    c = Context({
+      'name': str(ban.user.name) + ' ' + str(ban.user.surname),
+      'raison': ban.raison,
+      'date_end': ban.date_end,
+    })
+    send_mail('Deconnexion disciplinaire', t.render(c),
+    EMAIL_FROM, [ban.user.email], fail_silently=False)
+    return
+
 @login_required
 @permission_required('cableur')
 def new_user(request):
@@ -209,7 +220,8 @@ def add_ban(request, userid):
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            ban.save()
+            ban_object = ban.save()
+            notif_ban(ban_object)
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Bannissement ajouté")
