@@ -469,7 +469,11 @@ def interface_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Alias.objects.all()
+    aliass = Alias.objects.all()
+    alias = []
+    for a in aliass:
+        if a.interface_parent.ipv4:
+            alias.append(a)
     seria = AliasSerializer(alias, many=True)
     return JSONResponse(seria.data)
 
