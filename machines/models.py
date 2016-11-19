@@ -108,8 +108,9 @@ class Alias(models.Model):
         unique_together = ("alias", "extension")
 
     def clean(self, *args, **kwargs):
-        if Interface.objects.filter(dns=self.alias).filter(ipv4=IpList.objects.filter(ip_type=IpType.objects.filter(extension=self.extension))):
-            raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
+        if hasattr(self, 'alias') and hasattr(self, 'extension'):
+            if Interface.objects.filter(dns=self.alias).filter(ipv4=IpList.objects.filter(ip_type=IpType.objects.filter(extension=self.extension))):
+                raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
 
     def __str__(self):
         return str(self.alias) + str(self.extension)
