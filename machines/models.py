@@ -44,6 +44,7 @@ class Extension(models.Model):
     PRETTY_NAME = "Extensions dns"
 
     name = models.CharField(max_length=255, unique=True)
+    need_infra = models.BooleanField(default=False)
     origin = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):

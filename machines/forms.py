@@ -64,6 +64,12 @@ class AliasForm(ModelForm):
         model = Alias
         fields = ['alias','extension']
 
+    def __init__(self, *args, **kwargs):
+        infra = kwargs.pop('infra')
+        super(AliasForm, self).__init__(*args, **kwargs)
+        if not infra:
+            self.fields['extension'].queryset = Extension.objects.filter(need_infra=False)
+ 
 class DelAliasForm(ModelForm):
     alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
 
@@ -113,7 +119,7 @@ class DelIpTypeForm(ModelForm):
 class ExtensionForm(ModelForm):
     class Meta:
         model = Extension
-        fields = ['name', 'origin']
+        fields = ['name', 'need_infra', 'origin']
 
     def __init__(self, *args, **kwargs):
         super(ExtensionForm, self).__init__(*args, **kwargs)
@@ -124,7 +130,7 @@ class DelExtensionForm(ModelForm):
     extensions = forms.ModelMultipleChoiceField(queryset=Extension.objects.all(), label="Extensions actuelles",  widget=forms.CheckboxSelectMultiple)
 
     class Meta:
-        exclude = ['name', 'origin']
+        exclude = ['name', 'need_infra', 'origin']
         model = Extension
 
 class MxForm(ModelForm):
