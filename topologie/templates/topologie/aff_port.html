@@ -12,9 +12,21 @@
    {% for port in port_list %}
    <tr>
         <td>{{ port.port }}</td>
-        <td>{{ port.room }}</td>
-        <td>{{ port.machine_interface }}</td>
-        <td>{{ port.related }}</td>
+        <td>
+        {% if port.room %}
+            {{ port.room }}
+        {% endif %}
+        </td>
+        <td>
+        {% if port.machine_interface %}
+            <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
+        {% endif %}
+        </td>
+        <td>
+        {% if port.related %}
+            <a href="{% url 'topologie:index-port' switch_id=port.related.switch.id %}">{{ port.related }}</a>
+        {% endif %}
+        </td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">

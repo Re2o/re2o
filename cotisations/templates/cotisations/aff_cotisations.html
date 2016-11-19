@@ -17,7 +17,7 @@
         </thead>
         {% for facture in facture_list %}
         <tr>
-            <td>{{ facture.user }}</td>
+            <td><a href="{% url 'users:profil' userid=facture.user.id %}">{{ facture.user }}</a></td>
             <td>{{ facture.name }}</td>
             <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
