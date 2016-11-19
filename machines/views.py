@@ -462,7 +462,7 @@ def add_alias(request, interfaceid):
     if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
         return redirect("/users/profil/" + str(request.user.id))
-    alias = AliasForm(request.POST or None)
+    alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
         alias.interface_parent = interface
@@ -484,7 +484,7 @@ def edit_alias(request, aliasid):
     if not request.user.has_perms(('cableur',)) and alias_instance.interface_parent.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
         return redirect("/users/profil/" + str(request.user.id))
-    alias = AliasForm(request.POST or None, instance=alias_instance)
+    alias = AliasForm(request.POST or None, instance=alias_instance, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         with transaction.atomic(), reversion.create_revision():
             alias_instance = alias.save()

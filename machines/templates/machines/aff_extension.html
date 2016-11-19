@@ -2,14 +2,16 @@
         <thead>
             <tr>
                 <th>Extension</th>
-                <th>Enregistrement A origin</th>
+                <th>Autorisation infra pour utiliser l'extension</th>
+		<th>Enregistrement A origin</th>
     		<th></th>
             </tr>
         </thead>
         {% for extension in extension_list %}
         <tr>
             <td>{{ extension.name }}</td>
-            <td>{{ extension.origin }}</td>
+            <td>{{ extension.need_infra  }}</td>
+	    <td>{{ extension.origin }}</td>
 	    <td class="text-right">
             {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
