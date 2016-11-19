@@ -59,17 +59,18 @@ class BaseEditInterfaceForm(EditInterfaceForm):
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
             self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
 
-class NewAliasForm(ModelForm):
+class AliasForm(ModelForm):
     class Meta:
         model = Alias
         fields = ['alias','extension']
 
-class EditAliasForm(NewAliasForm):
-    class Meta(NewAliasForm.Meta):
-        fields = ['alias','extension']
-
 class DelAliasForm(ModelForm):
-    del_alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
+    alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
+
+    def __init__(self, *args, **kwargs):
+        interface = kwargs.pop('interface')
+        super(DelAliasForm, self).__init__(*args, **kwargs)
+        self.fields['alias'].queryset = Alias.objects.filter(interface_parent=interface)
 
     class Meta:
         exclude = ['interface_parent', 'alias', 'extension']

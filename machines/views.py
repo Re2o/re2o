@@ -22,7 +22,7 @@ from reversion import revisions as reversion
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm, Alias
-from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
+from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
@@ -145,19 +145,6 @@ def edit_interface(request, interfaceid):
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
-
-@login_required
-def manage_alias(request, interfaceid):
-    try:
-        interface = Interface.objects.get(pk=interfaceid)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
-    if not request.user.has_perms(('infra',)):
-        if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
-            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
-
 
 @login_required
 def del_machine(request, machineid):
@@ -466,6 +453,72 @@ def del_ns(request):
     return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+def add_alias(request, interfaceid):
+    try:
+        interface = Interface.objects.get(pk=interfaceid)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
+        messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
+    alias = AliasForm(request.POST or None)
+    if alias.is_valid():
+        alias = alias.save(commit=False)
+        alias.interface_parent = interface
+        with transaction.atomic(), reversion.create_revision():
+            alias.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet alias a été ajouté")
+        return redirect("/machines/index_alias/" + str(interfaceid))
+    return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+def edit_alias(request, aliasid):
+    try:
+        alias_instance = Alias.objects.get(pk=aliasid)
+    except Alias.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    if not request.user.has_perms(('cableur',)) and alias_instance.interface_parent.machine.user != request.user:
+        messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
+    alias = AliasForm(request.POST or None, instance=alias_instance)
+    if alias.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            alias_instance = alias.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
+        messages.success(request, "Alias modifié")
+        return redirect("/machines/index_alias/" + str(alias_instance.interface_parent.id))
+    return form({'machineform': alias}, 'machines/machine.html', request)
+
+@login_required
+def del_alias(request, interfaceid):
+    try:
+        interface = Interface.objects.get(pk=interfaceid)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
+        messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
+    alias = DelAliasForm(request.POST or None, interface=interface)
+    if alias.is_valid():
+        alias_dels = alias.cleaned_data['alias']
+        for alias_del in alias_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    alias_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "L'alias %s a été supprimé" % alias_del)
+            except ProtectedError:
+                messages.error(request, "Erreur l'alias suivant %s ne peut être supprimé" % alias_del)
+        return redirect("/machines/index_alias/" + str(interfaceid))
+    return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 @permission_required('cableur')
 def index(request):
     machines_list = Machine.objects.order_by('pk')
@@ -502,6 +555,19 @@ def index_extension(request):
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
 
 @login_required
+def index_alias(request, interfaceid):
+    try:
+        interface = Interface.objects.get(pk=interfaceid)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
+        messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+        return redirect("/users/profil/" + str(request.user.id))
+    alias_list = Alias.objects.filter(interface_parent=interface).order_by('alias')
+    return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
+
+@login_required
 def history(request, object, id):
     if object == 'machine':
         try:
@@ -520,6 +586,15 @@ def history(request, object, id):
              return redirect("/machines/")
         if not request.user.has_perms(('cableur',)) and object_instance.machine.user != request.user:
              messages.error(request, "Vous ne pouvez pas afficher l'historique d'une interface d'un autre user que vous sans droit cableur")
+             return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'alias':
+        try:
+             object_instance = Alias.objects.get(pk=id)
+        except Alias.DoesNotExist:
+             messages.error(request, "Alias inexistant")
+             return redirect("/machines/")
+        if not request.user.has_perms(('cableur',)) and object_instance.interface_parent.machine.user != request.user:
+             messages.error(request, "Vous ne pouvez pas afficher l'historique d'un alias d'un autre user que vous sans droit cableur")
              return redirect("/users/profil/" + str(request.user.id))
     elif object == 'machinetype' and request.user.has_perms(('cableur',)):
         try:
