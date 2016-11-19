@@ -40,8 +40,9 @@ class Port(models.Model):
         unique_together = ('switch', 'port')
 
     def clean(self):
-        if self.port > self.switch.number:
-            raise ValidationError("Ce port ne peut exister, numero trop élevé")
+        if hasattr(self, 'switch'):
+            if self.port > self.switch.number:
+                raise ValidationError("Ce port ne peut exister, numero trop élevé")
         if self.room and self.machine_interface or self.room and self.related or self.machine_interface and self.related:
             raise ValidationError("Chambre, interface et related_port sont mutuellement exclusifs")
         if self.related==self:
