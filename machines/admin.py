@@ -14,7 +14,7 @@ class MachineTypeAdmin(VersionAdmin):
 
 
 class ExtensionAdmin(VersionAdmin):
-    list_display = ('name',)
+    list_display = ('name','origin')
 
 class MxAdmin(VersionAdmin):
     list_display = ('zone', 'priority', 'name')
