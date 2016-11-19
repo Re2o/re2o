@@ -10,8 +10,15 @@
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-extension'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs extensions</a>
   {% endif %}
   {%  include "machines/aff_extension.html" with  extension_list=extension_list %}
+
+  <h2>Liste des enregistrements MX</h2>
+   {% if is_infra %}
+   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-mx'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement MX</a>
+   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-mx'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement MX</a>
+   {% endif %}
+   {%  include "machines/aff_mx.html" with  mx_list=mx_list %}
   <br />
   <br />
   <br />
-{% endblock %}
+  {% endblock %}
 
