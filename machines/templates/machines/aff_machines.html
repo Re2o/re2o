@@ -24,10 +24,30 @@
                 {% include 'buttons/history.html' with href='machines:history' name='machine' id=machine.id %}
             </td>
             <td rowspan="{{ machine.interface_set.all|length }}">
-                <p><b>{{ machine.user }}</b</p>
+                <a href="{% url 'users:profil' userid=machine.user.id %}"><b>{{ machine.user }}</b></a>
             </td>
             {% endif %}
-            <td>{{ interface.dns }}</td>
+            <td>
+            {% if interface.alias_set.all %}
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{ interface.dns }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="editioninterface">
+                    {% for al in interface.alias_set.all %}
+                        <li>
+                            <a href="http://{{ al }}{{ al.extension }}">
+                                {{ al }}{{ al.extension }}
+                                <i class="glyphicon glyphicon-share-alt"></i>
+                            </a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                {{ interface.dns }}
+            {% endif %}
+            </td>
             <td>{{ interface.type }}</td>
             <td>{{ interface.mac_address }}</td>
             <td>{{ interface.ipv4 }}</td>
