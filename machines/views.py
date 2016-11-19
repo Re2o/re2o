@@ -22,8 +22,8 @@ from reversion import revisions as reversion
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm, Alias
-from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasFullForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension
+from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasForm, MxForm, DelMxForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
 
@@ -145,6 +145,19 @@ def edit_interface(request, interfaceid):
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+
+@login_required
+def manage_alias(request, interfaceid):
+    try:
+        interface = Interface.objects.get(pk=interfaceid)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not request.user.has_perms(('infra',)):
+        if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
+            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+
 
 @login_required
 def del_machine(request, machineid):
@@ -357,6 +370,54 @@ def del_extension(request):
     return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('infra')
+def add_mx(request):
+    mx = MxForm(request.POST or None)
+    if mx.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            mx.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement mx a été ajouté")
+        return redirect("/machines/index_extension")
+    return form({'machineform': mx, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_mx(request, mxid):
+    try:
+        mx_instance = Mx.objects.get(pk=mxid)
+    except Mx.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    mx = MxForm(request.POST or None, instance=mx_instance)
+    if mx.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            mx.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in mx.changed_data))
+        messages.success(request, "Mx modifié")
+        return redirect("/machines/index_extension/")
+    return form({'machineform': mx}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_mx(request):
+    mx = DelMxForm(request.POST or None)
+    if mx.is_valid():
+        mx_dels = mx.cleaned_data['mx']
+        for mx_del in mx_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    mx_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "L'mx a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le Mx suivant %s ne peut être supprimé" % mx_del)
+        return redirect("/machines/index_extension")
+    return form({'machineform': mx, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 @permission_required('cableur')
 def index(request):
     machines_list = Machine.objects.order_by('pk')
@@ -388,7 +449,9 @@ def index_machinetype(request):
 @permission_required('cableur')
 def index_extension(request):
     extension_list = Extension.objects.order_by('name')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list})
+    mx_list = Mx.objects.order_by('zone')
+    ns_list = Ns.objects.order_by('zone')
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
 
 @login_required
 def history(request, object, id):
@@ -427,6 +490,12 @@ def history(request, object, id):
              object_instance = Extension.objects.get(pk=id)
         except Extension.DoesNotExist:
              messages.error(request, "Extension inexistante")
+             return redirect("/machines/")
+    elif object == 'mx' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Mx.objects.get(pk=id)
+        except Mx.DoesNotExist:
+             messages.error(request, "Mx inexistant")
              return redirect("/machines/")
     else:
         messages.error(request, "Objet  inconnu")

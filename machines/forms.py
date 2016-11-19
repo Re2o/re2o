@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Alias, Machine, Interface, IpList, MachineType, Extension, IpType
+from .models import Alias, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
 
 class EditMachineForm(ModelForm):
     class Meta:
@@ -62,11 +62,18 @@ class BaseEditInterfaceForm(EditInterfaceForm):
 class NewAliasForm(ModelForm):
     class Meta:
         model = Alias
-        fields = ['alias']
+        fields = ['alias','extension']
 
-class EditAliasFullForm(NewAliasForm):
+class EditAliasForm(NewAliasForm):
     class Meta(NewAliasForm.Meta):
-        fields = '__all__'
+        fields = ['alias','extension']
+
+class DelAliasForm(ModelForm):
+    del_alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['interface_parent', 'alias', 'extension']
+        model = Alias
 
 class MachineTypeForm(ModelForm):
     class Meta:
@@ -117,3 +124,16 @@ class DelExtensionForm(ModelForm):
     class Meta:
         exclude = ['name']
         model = Extension
+
+class MxForm(ModelForm):
+    class Meta:
+        model = Mx
+        fields = ['zone', 'priority', 'name']
+        
+class DelMxForm(ModelForm):
+    mx = forms.ModelMultipleChoiceField(queryset=Mx.objects.all(), label="MX actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['zone', 'priority', 'name']
+        model = Mx
+

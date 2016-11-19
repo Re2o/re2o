@@ -34,8 +34,8 @@ class IpType(models.Model):
     type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
-    domaine_ip = models.GenericIPAddressField(protocol='IPv4', unique=True, blank=True, null=True)
-    domaine_range = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(8), MaxValueValidator(32)])
+    domaine_ip = models.GenericIPAddressField(protocol='IPv4')
+    domaine_range = models.IntegerField(validators=[MinValueValidator(8), MaxValueValidator(32)])
 
     def __str__(self):
         return self.type
@@ -47,6 +47,22 @@ class Extension(models.Model):
 
     def __str__(self):
         return self.name
+
+class Mx(models.Model):
+    PRETTY_NAME = "Enregistrements MX"
+
+    zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    priority = models.IntegerField(unique=True)
+    name = models.OneToOneField('Alias', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
+
+class Ns(models.Model):
+    PRETTY_NAME = "Enregistrements NS"
+
+    zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    interface = models.OneToOneField('Interface', on_delete=models.PROTECT)
 
 class Interface(models.Model):
     PRETTY_NAME = "Interface"
@@ -92,7 +108,7 @@ class Alias(models.Model):
             raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
 
     def __str__(self):
-        return self.alias
+        return str(self.alias) + str(self.extension)
 
 class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"

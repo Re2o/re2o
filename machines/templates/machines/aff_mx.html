@@ -1,0 +1,26 @@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+		    <th>Zone concernée</th>
+		    <th>Priorité</th>
+		    <th>Enregistrement</th>
+		    <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for mx in mx_list %}
+        <tr>
+            <td>{{ mx.zone }}</td>
+	    <td>{{ mx.priority }}</td>
+	    <td>{{ mx.name }}</td>
+            <td class="text-right">
+            {% if is_infra %}
+            {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
+            {% endif %}
+            {% include 'buttons/history.html' with href='machines:history' name='mx' id=mx.id %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+

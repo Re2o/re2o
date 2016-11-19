@@ -36,8 +36,8 @@
                     <ul class="dropdown-menu" aria-labelledby="editioninterface">
                     {% for al in interface.alias_set.all %}
                         <li>
-                            <a href="http://{{ al }}{{ al.extension }}">
-                                {{ al }}{{ al.extension }}
+                            <a href="http://{{ al }}">
+                                {{ al }}
                                 <i class="glyphicon glyphicon-share-alt"></i>
                             </a>
                         </li>
