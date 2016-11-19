@@ -22,7 +22,7 @@ from reversion import revisions as reversion
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm, Alias
-from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasForm, MxForm, DelMxForm
+from .forms import IpTypeForm, DelIpTypeForm, NewAliasForm, EditAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
@@ -418,6 +418,54 @@ def del_mx(request):
     return form({'machineform': mx, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('infra')
+def add_ns(request):
+    ns = NsForm(request.POST or None)
+    if ns.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            ns.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement ns a été ajouté")
+        return redirect("/machines/index_extension")
+    return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_ns(request, nsid):
+    try:
+        ns_instance = Ns.objects.get(pk=nsid)
+    except Ns.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    ns = NsForm(request.POST or None, instance=ns_instance)
+    if ns.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            ns.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ns.changed_data))
+        messages.success(request, "Ns modifié")
+        return redirect("/machines/index_extension/")
+    return form({'machineform': ns}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_ns(request):
+    ns = DelNsForm(request.POST or None)
+    if ns.is_valid():
+        ns_dels = ns.cleaned_data['ns']
+        for ns_del in ns_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    ns_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le ns a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le Ns suivant %s ne peut être supprimé" % ns_del)
+        return redirect("/machines/index_extension")
+    return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 @permission_required('cableur')
 def index(request):
     machines_list = Machine.objects.order_by('pk')
@@ -496,6 +544,12 @@ def history(request, object, id):
              object_instance = Mx.objects.get(pk=id)
         except Mx.DoesNotExist:
              messages.error(request, "Mx inexistant")
+             return redirect("/machines/")
+    elif object == 'ns' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Ns.objects.get(pk=id)
+        except Ns.DoesNotExist:
+             messages.error(request, "Ns inexistant")
              return redirect("/machines/")
     else:
         messages.error(request, "Objet  inconnu")

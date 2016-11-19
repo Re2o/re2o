@@ -17,7 +17,13 @@
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-mx'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement MX</a>
    {% endif %}
    {%  include "machines/aff_mx.html" with  mx_list=mx_list %}
-  <br />
+  <h2>Liste des enregistrements NS</h2>
+   {% if is_infra %}
+   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-ns'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement NS</a>
+   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-ns'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement NS</a>
+   {% endif %}
+   {%  include "machines/aff_ns.html" with  ns_list=ns_list %}
+   <br />
   <br />
   <br />
   {% endblock %}
