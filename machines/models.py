@@ -43,7 +43,8 @@ class IpType(models.Model):
 class Extension(models.Model):
     PRETTY_NAME = "Extensions dns"
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    origin = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.name

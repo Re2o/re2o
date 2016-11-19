@@ -112,17 +112,18 @@ class DelIpTypeForm(ModelForm):
 class ExtensionForm(ModelForm):
     class Meta:
         model = Extension
-        fields = ['name']
+        fields = ['name', 'origin']
 
     def __init__(self, *args, **kwargs):
         super(ExtensionForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Extension à ajouter'
+        self.fields['origin'].label = 'Enregistrement A origin'
 
 class DelExtensionForm(ModelForm):
     extensions = forms.ModelMultipleChoiceField(queryset=Extension.objects.all(), label="Extensions actuelles",  widget=forms.CheckboxSelectMultiple)
 
     class Meta:
-        exclude = ['name']
+        exclude = ['name', 'origin']
         model = Extension
 
 class MxForm(ModelForm):
