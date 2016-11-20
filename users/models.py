@@ -257,7 +257,7 @@ class User(AbstractBaseUser):
             user_ldap.mail = self.email
             user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
             user_ldap.gid = LDAP['user_gid']
-            user_ldap.user_password = self.password
+            user_ldap.user_password = self.password[:6] + self.password[7:]
             user_ldap.sambat_nt_password = self.pwd_ntlm
             if self.shell:
                 user_ldap.login_shell = self.shell.shell 
@@ -277,15 +277,15 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.pseudo
 
-#@receiver(post_save, sender=User)
-#def user_post_save(sender, **kwargs):
-#    user = kwargs['instance']
-    #user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+@receiver(post_save, sender=User)
+def user_post_save(sender, **kwargs):
+    user = kwargs['instance']
+    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 @receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
-    #user.ldap_del()
+    user.ldap_del()
 
 class ServiceUser(AbstractBaseUser):
     PRETTY_NAME = "Utilisateurs de service"
@@ -409,6 +409,16 @@ class Ban(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
+@receiver(post_save, sender=Ban)
+def ban_post_save(sender, **kwargs):
+    ban = kwargs['instance']
+    user = ban.user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
+@receiver(post_delete, sender=Ban)
+def ban_post_delete(sender, **kwargs):
+    user = kwargs['instance'].user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Whitelist(models.Model):
     PRETTY_NAME = "Liste des accès gracieux"
@@ -420,6 +430,17 @@ class Whitelist(models.Model):
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
+
+@receiver(post_save, sender=Whitelist)
+def whitelist_post_save(sender, **kwargs):
+    whitelist = kwargs['instance']
+    user = whitelist.user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
+@receiver(post_delete, sender=Whitelist)
+def whitelist_post_delete(sender, **kwargs):
+    user = kwargs['instance'].user
+    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 class Request(models.Model):
     PASSWD = 'PW'
