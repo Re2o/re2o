@@ -25,6 +25,13 @@ class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
         return value.alias
 
+class TypeSerializer(serializers.ModelSerializer):
+    extension = ExtensionNameField(read_only=True)
+
+    class Meta:
+        model = IpType
+        fields = ('type', 'extension', 'domaine_ip', 'domaine_range')
+
 class MxSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('get_alias_name')
     zone = serializers.SerializerMethodField('get_zone_name')
