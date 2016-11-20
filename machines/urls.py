@@ -44,4 +44,6 @@ urlpatterns = [
     url(r'^rest/mac-ip-dns/$', views.mac_ip_dns, name='mac-ip-dns'),
     url(r'^rest/alias/$', views.alias, name='alias'),
     url(r'^rest/corresp/$', views.corresp, name='corresp'),
-]
+    url(r'^rest/mx/$', views.mx, name='mx'),
+    url(r'^rest/ns/$', views.ns, name='ns'),
+    ]
