@@ -16,7 +16,7 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer, MxSerializer, NsSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer, MxSerializer, ExtensionSerializer, NsSerializer
 from reversion import revisions as reversion
 
 
@@ -693,6 +693,14 @@ def mx(request):
 def ns(request):
     ns = Ns.objects.filter(interface=Interface.objects.exclude(ipv4=None))
     seria = NsSerializer(ns, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def zones(request):
+    zones = Extension.objects.all()
+    seria = ExtensionSerializer(zones, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt

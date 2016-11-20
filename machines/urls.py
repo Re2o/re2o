@@ -46,4 +46,5 @@ urlpatterns = [
     url(r'^rest/corresp/$', views.corresp, name='corresp'),
     url(r'^rest/mx/$', views.mx, name='mx'),
     url(r'^rest/ns/$', views.ns, name='ns'),
+    url(r'^rest/zones/$', views.zones, name='zones'),
     ]
