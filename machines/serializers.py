@@ -32,6 +32,16 @@ class TypeSerializer(serializers.ModelSerializer):
         model = IpType
         fields = ('type', 'extension', 'domaine_ip', 'domaine_range')
 
+class ExtensionSerializer(serializers.ModelSerializer):
+    origin = serializers.SerializerMethodField('get_origin_ip')
+
+    class Meta:
+        model = Extension
+        fields = ('name', 'origin')
+
+    def get_origin_ip(self, obj):
+        return obj.origin.ipv4
+
 class MxSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('get_alias_name')
     zone = serializers.SerializerMethodField('get_zone_name')
