@@ -1,7 +1,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Alias
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Alias, Mx, Ns
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -23,24 +23,46 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
-        return value.name
+        return value.alias
 
-class TypeSerializer(serializers.ModelSerializer):
-    extension = ExtensionNameField(read_only=True)
+class MxSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('get_alias_name')
+    zone = serializers.SerializerMethodField('get_zone_name')
 
     class Meta:
-        model = IpType
-        fields = ('type', 'extension', 'domaine_ip', 'domaine_range')
+        model = Mx
+        fields = ('zone', 'priority', 'name')
 
-class InterfaceDNS_ExtensionSerializer(serializers.ModelSerializer):
+    def get_alias_name(self, obj):
+        return obj.name.alias + obj.name.extension.name
+
+    def get_zone_name(self, obj):
+        return obj.zone.name
+
+class NsSerializer(serializers.ModelSerializer):
+    zone = serializers.SerializerMethodField('get_zone_name')
+    interface = serializers.SerializerMethodField('get_interface_name')
+
     class Meta:
-        model = Interface
-        fields = ('ipv4', 'dns')
+        model = Ns
+        fields = ('zone', 'interface')
+
+    def get_zone_name(self, obj):
+        return obj.zone.name
+
+    def get_interface_name(self, obj):
+        return obj.interface.dns + obj.interface.ipv4.ip_type.extension.name
 
 class AliasSerializer(serializers.ModelSerializer):
-    interface_parent = InterfaceDNS_ExtensionSerializer(read_only=True)
-    extension = ExtensionNameField(read_only=True)
+    interface_parent = serializers.SerializerMethodField('get_interface_name')
+    extension = serializers.SerializerMethodField('get_zone_name')
 
     class Meta:
         model = Alias
         fields = ('interface_parent', 'alias', 'extension')
+
+    def get_zone_name(self, obj):
+        return obj.extension.name 
+
+    def get_interface_name(self, obj):
+        return obj.interface_parent.dns + obj.interface_parent.ipv4.ip_type.extension.name

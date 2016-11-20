@@ -16,7 +16,7 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer, MxSerializer, NsSerializer
 from reversion import revisions as reversion
 
 
@@ -667,14 +667,8 @@ def interface_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Alias.objects.all()
+    alias = Alias.objects.filter(interface_parent=Interface.objects.exclude(ipv4=None))
     seria = AliasSerializer(alias, many=True)
-    for d in seria.data:
-        if d["interface_parent"]["ipv4"]:
-            id = d["interface_parent"]["ipv4"]
-            ip_list = IpList.objects.get(pk=id)
-            d["interface_parent"]["extension"] = ip_list.ip_type.extension.name
-            d["interface_parent"].pop("ipv4")
     return JSONResponse(seria.data)
 
 @csrf_exempt
@@ -683,6 +677,22 @@ def alias(request):
 def corresp(request):
     type = IpType.objects.all()
     seria = TypeSerializer(type, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def mx(request):
+    mx = Mx.objects.all()
+    seria = MxSerializer(mx, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def ns(request):
+    ns = Ns.objects.filter(interface=Interface.objects.exclude(ipv4=None))
+    seria = NsSerializer(ns, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt
