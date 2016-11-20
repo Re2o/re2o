@@ -264,7 +264,7 @@ class User(AbstractBaseUser):
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
-            user_ldap.macs = [inter.mac_address for inter in Interface.objects.filter(machine=Machine.objects.filter(user=self))]
+            user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine=Machine.objects.filter(user=self))]
         user_ldap.save()
 
     def ldap_del(self):
