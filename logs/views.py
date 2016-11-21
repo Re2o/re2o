@@ -126,9 +126,9 @@ def stats_users(request):
     start_date = timezone.now() + relativedelta(months=-search_field[1])
     stats = {
     'Utilisateur' : {
-    'Machines' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('machine')).order_by('-num')[:10],
-    'Facture' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('facture')).order_by('-num')[:10],
-    'Bannissement' : User.objects.filter(registered__gt=search_field[1]).annotate(num=Count('ban')).order_by('-num')[:10],
+    'Machines' : User.objects.annotate(num=Count('machine')).order_by('-num')[:10],
+    'Facture' : User.objects.annotate(num=Count('facture')).order_by('-num')[:10],
+    'Bannissement' : User.objects.annotate(num=Count('ban')).order_by('-num')[:10],
     'Accès gracieux' : User.objects.annotate(num=Count('whitelist')).order_by('-num')[:10],
     'Droits' : User.objects.annotate(num=Count('right')).order_by('-num')[:10],
     },
