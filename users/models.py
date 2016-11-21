@@ -258,7 +258,7 @@ class User(AbstractBaseUser):
             user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
             user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password[:6] + self.password[7:]
-            user_ldap.sambat_nt_password = self.pwd_ntlm
+            user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
             if self.shell:
                 user_ldap.login_shell = self.shell.shell 
         if access_refresh:

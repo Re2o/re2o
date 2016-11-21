@@ -22,7 +22,6 @@ cn: module{0}
 olcModulePath: /usr/lib/ldap
 olcModuleLoad: {0}back_hdb
 olcModuleLoad: {1}syncprov
-olcModuleLoad: {2}accesslog
 structuralObjectClass: olcModuleList
 entryUUID: fc8f8478-514b-1034-9c34-0faf5bc7ead5
 creatorsName: cn=admin,cn=config
@@ -1068,7 +1067,7 @@ olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=extern
  al,cn=auth manage by * break
 olcAccess: {1}to dn.exact="" by * read
 olcAccess: {2}to dn.base="cn=Subschema" by * read
-olcSizeLimit: 500
+olcSizeLimit: 5000
 structuralObjectClass: olcDatabaseConfig
 entryUUID: fc8f0016-514b-1034-9c2d-0faf5bc7ead5
 creatorsName: cn=config
@@ -1179,51 +1178,4 @@ createTimestamp: 20150305013830Z
 entryCSN: 20160607103125.521039Z#000000#000#000000
 modifiersName: cn=config
 modifyTimestamp: 20160607103125Z
-
-dn: olcOverlay={1}accesslog,olcDatabase={1}hdb,cn=config
-objectClass: olcOverlayConfig
-objectClass: olcAccessLogConfig
-olcOverlay: {1}accesslog
-olcAccessLogDB: cn=accesslog
-olcAccessLogOps: writes
-olcAccessLogPurge: 07+00:00 01+00:00
-olcAccessLogSuccess: TRUE
-structuralObjectClass: olcAccessLogConfig
-entryUUID: 12c7b480-5724-1034-94b6-dd13061b01b4
-creatorsName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-createTimestamp: 20150305013830Z
-entryCSN: 20150305013830.947100Z#000000#000#000000
-modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-modifyTimestamp: 20150305013830Z
-
-dn: olcDatabase={2}hdb,cn=config
-objectClass: olcDatabaseConfig
-objectClass: olcHdbConfig
-olcDatabase: {2}hdb
-olcDbDirectory: /var/lib/ldap/accesslog
-olcSuffix: cn=accesslog
-olcRootDN: cn=admin,dc=example,dc=com
-olcDbIndex: default eq
-olcDbIndex: entryCSN,objectClass,reqEnd,reqResult,reqStart
-structuralObjectClass: olcHdbConfig
-entryUUID: 12c135a6-5724-1034-94b2-dd13061b01b4
-creatorsName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-createTimestamp: 20150305013830Z
-entryCSN: 20150305013830.904530Z#000000#000#000000
-modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-modifyTimestamp: 20150305013830Z
-
-dn: olcOverlay={0}syncprov,olcDatabase={2}hdb,cn=config
-objectClass: olcOverlayConfig
-objectClass: olcSyncProvConfig
-olcOverlay: {0}syncprov
-olcSpNoPresent: TRUE
-olcSpReloadHint: TRUE
-structuralObjectClass: olcSyncProvConfig
-entryUUID: 12c79342-5724-1034-94b4-dd13061b01b4
-creatorsName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-createTimestamp: 20150305013830Z
-entryCSN: 20150305013830.946247Z#000000#000#000000
-modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-modifyTimestamp: 20150305013830Z
 
