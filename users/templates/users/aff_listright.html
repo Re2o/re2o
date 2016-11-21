@@ -3,7 +3,8 @@
             <tr>
                 <th>Droit</th>
                 <th>Gid</th>
-                <th></th>
+                <th>Details</th>
+		<th></th>
                 <th></th>
             </tr>
         </thead>
@@ -11,6 +12,7 @@
         <tr>
             <td>{{ listright.listright }}</td>
             <td>{{ listright.gid }}</td>
+	    <td>{{ listright.details }}</td>
             <td class="text-right">
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}
                 {% include 'buttons/history.html' with href='users:history' name='listright' id=listright.id %}
