@@ -360,6 +360,7 @@ class ListRight(models.Model):
 
     listright = models.CharField(max_length=255, unique=True)
     gid = models.IntegerField(unique=True, null=True)
+    details = models.CharField(help_text="Description", max_length=255, blank=True)
 
     def __str__(self):
         return self.listright
@@ -609,7 +610,7 @@ class SchoolForm(ModelForm):
 class ListRightForm(ModelForm):
     class Meta:
         model = ListRight
-        fields = ['listright']
+        fields = ['listright', 'details']
 
     def __init__(self, *args, **kwargs):
         super(ListRightForm, self).__init__(*args, **kwargs)

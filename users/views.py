@@ -63,6 +63,7 @@ def password_change_action(u_form, user, request, req=False):
     return redirect("/users/profil/" + str(user.id))
 
 def reset_passwd_mail(req, request):
+    """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
     t = loader.get_template('users/email_passwd_request')
     c = Context({
       'name': str(req.user.name) + ' ' + str(req.user.surname),
@@ -78,6 +79,7 @@ def reset_passwd_mail(req, request):
     return
 
 def notif_ban(ban):
+    """ Prend en argument un objet ban, envoie un mail de notification """
     t = loader.get_template('users/email_ban_notif')
     c = Context({
       'name': str(ban.user.name) + ' ' + str(ban.user.surname),
@@ -91,6 +93,7 @@ def notif_ban(ban):
 @login_required
 @permission_required('cableur')
 def new_user(request):
+    """ Vue de création d'un nouvel utilisateur, envoie un mail pour le mot de passe"""
     user = InfoForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
@@ -109,6 +112,8 @@ def new_user(request):
 
 @login_required
 def edit_info(request, userid):
+    """ Edite un utilisateur à partir de son id, 
+    si l'id est différent de request.user, vérifie la possession du droit cableur """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -133,6 +138,7 @@ def edit_info(request, userid):
 @login_required
 @permission_required('bureau')
 def state(request, userid):
+    """ Changer l'etat actif/desactivé/archivé d'un user, need droit bureau """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -155,6 +161,9 @@ def state(request, userid):
 
 @login_required
 def password(request, userid):
+    """ Reinitialisation d'un mot de passe à partir de l'userid,
+    pour self par défaut, pour tous sans droit si droit cableur,
+    pour tous si droit bureau """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -174,6 +183,7 @@ def password(request, userid):
 @login_required
 @permission_required('bureau')
 def add_right(request, userid):
+    """ Ajout d'un droit à un user, need droit bureau """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -197,6 +207,7 @@ def add_right(request, userid):
 @login_required
 @permission_required('bureau')
 def del_right(request):
+    """ Supprimer un droit à un user, need droit bureau """
     user_right_list = DelRightForm(request.POST or None)
     if user_right_list.is_valid():
         right_del = user_right_list.cleaned_data['rights']
@@ -211,6 +222,8 @@ def del_right(request):
 @login_required
 @permission_required('bofh')
 def add_ban(request, userid):
+    """ Ajouter un banissement, nécessite au moins le droit bofh (a fortiori bureau)
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -236,6 +249,8 @@ def add_ban(request, userid):
 @login_required
 @permission_required('bofh')
 def edit_ban(request, banid):
+    """ Editer un bannissement, nécessite au moins le droit bofh (a fortiori bureau)
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     try:
         ban_instance = Ban.objects.get(pk=banid)
     except Ban.DoesNotExist:
@@ -254,6 +269,8 @@ def edit_ban(request, banid):
 @login_required
 @permission_required('cableur')
 def add_whitelist(request, userid):
+    """ Accorder un accès gracieux, temporaire ou permanent. Need droit cableur
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement, raison obligatoire"""
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -278,6 +295,8 @@ def add_whitelist(request, userid):
 @login_required
 @permission_required('cableur')
 def edit_whitelist(request, whitelistid):
+    """ Editer un accès gracieux, temporaire ou permanent. Need droit cableur
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement, raison obligatoire"""
     try:
         whitelist_instance = Whitelist.objects.get(pk=whitelistid)
     except Whitelist.DoesNotExist:
@@ -296,6 +315,7 @@ def edit_whitelist(request, whitelistid):
 @login_required
 @permission_required('cableur')
 def add_school(request):
+    """ Ajouter un établissement d'enseignement à la base de donnée, need cableur"""
     school = SchoolForm(request.POST or None)
     if school.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -309,6 +329,7 @@ def add_school(request):
 @login_required
 @permission_required('cableur')
 def edit_school(request, schoolid):
+    """ Editer un établissement d'enseignement à partir du schoolid dans la base de donnée, need cableur"""
     try:
         school_instance = School.objects.get(pk=schoolid)
     except School.DoesNotExist:
@@ -327,6 +348,8 @@ def edit_school(request, schoolid):
 @login_required
 @permission_required('cableur')
 def del_school(request):
+    """ Supprimer un établissement d'enseignement à la base de donnée, need cableur
+    Objet protégé, possible seulement si aucun user n'est affecté à l'établissement """
     school = DelSchoolForm(request.POST or None)
     if school.is_valid():
         school_dels = school.cleaned_data['schools']
@@ -347,6 +370,8 @@ def del_school(request):
 @login_required
 @permission_required('bureau')
 def add_listright(request):
+    """ Ajouter un droit/groupe, nécessite droit bureau.
+    Obligation de fournir un gid pour la synchro ldap, unique """
     listright = NewListRightForm(request.POST or None)
     if listright.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -360,6 +385,7 @@ def add_listright(request):
 @login_required
 @permission_required('bureau')
 def edit_listright(request, listrightid):
+    """ Editer un groupe/droit, necessite droit bureau, à partir du listright id """
     try:
         listright_instance = ListRight.objects.get(pk=listrightid)
     except ListRight.DoesNotExist:
@@ -378,6 +404,7 @@ def edit_listright(request, listrightid):
 @login_required
 @permission_required('bureau')
 def del_listright(request):
+    """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit bureau """
     listright = DelListRightForm(request.POST or None)
     if listright.is_valid():
         listright_dels = listright.cleaned_data['listrights']
@@ -398,6 +425,7 @@ def del_listright(request):
 @login_required
 @permission_required('cableur')
 def index(request):
+    """ Affiche l'ensemble des users, need droit cableur """
     users_list = User.objects.order_by('pk')
     paginator = Paginator(users_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
@@ -414,6 +442,7 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_ban(request):
+    """ Affiche l'ensemble des ban, need droit cableur """
     ban_list = Ban.objects.order_by('date_start').reverse()
     paginator = Paginator(ban_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
@@ -430,6 +459,7 @@ def index_ban(request):
 @login_required
 @permission_required('cableur')
 def index_white(request):
+    """ Affiche l'ensemble des whitelist, need droit cableur """
     white_list = Whitelist.objects.order_by('date_start')
     return render(
         request,
@@ -440,17 +470,25 @@ def index_white(request):
 @login_required
 @permission_required('cableur')
 def index_school(request):
+    """ Affiche l'ensemble des établissement, need droit cableur """
     school_list = School.objects.order_by('name')
     return render(request, 'users/index_schools.html', {'school_list':school_list})
 
 @login_required
 @permission_required('cableur')
 def index_listright(request):
+    """ Affiche l'ensemble des droits , need droit cableur """
     listright_list = ListRight.objects.order_by('listright')
     return render(request, 'users/index_listright.html', {'listright_list':listright_list})
 
 @login_required
 def history(request, object, id):
+    """ Affichage de l'historique : (acl, argument)
+    user : self or cableur, userid,
+    ban : self or cableur, banid,
+    whitelist : self or cableur, whitelistid,
+    school : cableur, schoolid,
+    listright : cableur, listrightid """
     if object == 'user':
         try:
              object_instance = User.objects.get(pk=id)
@@ -509,10 +547,12 @@ def history(request, object, id):
 
 @login_required
 def mon_profil(request):
+    """ Lien vers profil, renvoie request.id à la fonction """
     return redirect("/users/profil/" + str(request.user.id))
 
 @login_required
 def profil(request, userid):
+    """ Affiche un profil, self or cableur, prend un userid en argument """
     try:
         users = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -540,6 +580,7 @@ def profil(request, userid):
     )
 
 def reset_password(request):
+    """ Reintialisation du mot de passe si mdp oublié """
     userform = ResetPasswordForm(request.POST or None)
     if userform.is_valid():
         try:
