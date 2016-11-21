@@ -7,21 +7,16 @@ from django.core.validators import MinLengthValidator
 
 from .models import User, ServiceUser, get_admin_right
 
-def validate_password(value):
-    if not (any(x.isupper() for x in value) and any(x.islower() for x in value)):
-        raise forms.ValidationError("Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre")
-    return value
-
 class PassForm(forms.Form):
-    passwd1 = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8), validate_password], widget=forms.PasswordInput)
-    passwd2 = forms.CharField(label=u'Saisir à nouveau le mot de passe', max_length=255, validators=[MinLengthValidator(8), validate_password], widget=forms.PasswordInput)
+    passwd1 = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
+    passwd2 = forms.CharField(label=u'Saisir à nouveau le mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
 
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, validators=[MinLengthValidator(8), validate_password], max_length=255)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, validators=[MinLengthValidator(8), validate_password], max_length=255)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, validators=[MinLengthValidator(8)], max_length=255)
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, validators=[MinLengthValidator(8)], max_length=255)
     is_admin = forms.BooleanField(label='is admin')
 
     class Meta:
