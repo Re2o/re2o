@@ -26,7 +26,7 @@ def makeSecret(password):
 
 
 def hashNT(password):
-    hash = hashlib.new('md4', password.encode()).digest()
+    hash = hashlib.new('md4', password.encode('utf-16le')).digest()
     return binascii.hexlify(hash)
 
 
