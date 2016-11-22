@@ -81,6 +81,7 @@ def form(ctx, template, request):
     return render_to_response(template, c, context_instance=RequestContext(request))
 
 @login_required
+@permission_required('cableur')
 def new_machine(request, userid):
     try:
         user = User.objects.get(pk=userid)
@@ -115,6 +116,7 @@ def new_machine(request, userid):
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def edit_interface(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -147,6 +149,7 @@ def edit_interface(request, interfaceid):
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def del_machine(request, machineid):
     try:
         machine = Machine.objects.get(pk=machineid)
@@ -166,6 +169,7 @@ def del_machine(request, machineid):
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
 
 @login_required
+@permission_required('cableur')
 def new_interface(request, machineid):
     try:
         machine = Machine.objects.get(pk=machineid)
@@ -194,6 +198,7 @@ def new_interface(request, machineid):
     return form({'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def del_interface(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -453,6 +458,7 @@ def del_ns(request):
     return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def add_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -475,6 +481,7 @@ def add_alias(request, interfaceid):
     return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def edit_alias(request, aliasid):
     try:
         alias_instance = Alias.objects.get(pk=aliasid)
@@ -495,6 +502,7 @@ def edit_alias(request, aliasid):
     return form({'machineform': alias}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('cableur')
 def del_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
