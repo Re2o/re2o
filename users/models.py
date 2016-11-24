@@ -227,6 +227,9 @@ class User(AbstractBaseUser):
         return self.state == User.STATE_ACTIVE \
             and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
 
+    def user_interfaces(self):
+        return Interface.objects.filter(machine=Machine.objects.filter(user=self))
+
     def has_module_perms(self, app_label):
         # Simplest version again
         return True
