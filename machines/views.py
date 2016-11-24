@@ -21,11 +21,11 @@ from reversion import revisions as reversion
 
 
 import re
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm, Alias
+from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Alias
 from users.models import User
-from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
+from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER, MAX_INTERFACES, MAX_ALIAS
 
 def full_domain_validator(request, interface):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
@@ -81,16 +81,19 @@ def form(ctx, template, request):
     return render_to_response(template, c, context_instance=RequestContext(request))
 
 @login_required
-@permission_required('cableur')
 def new_machine(request, userid):
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/machines/")
-    if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+    if not request.user.has_perms(('cableur',)):
+        if user != request.user:
+            messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+        if user.user_interfaces().count() >= MAX_INTERFACES:
+            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % MAX_INTERFACES)
+            return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
     if machine.is_valid() and interface.is_valid():
@@ -116,7 +119,6 @@ def new_machine(request, userid):
     return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def edit_interface(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -149,7 +151,6 @@ def edit_interface(request, interfaceid):
     return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def del_machine(request, machineid):
     try:
         machine = Machine.objects.get(pk=machineid)
@@ -169,7 +170,6 @@ def del_machine(request, machineid):
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
 
 @login_required
-@permission_required('cableur')
 def new_interface(request, machineid):
     try:
         machine = Machine.objects.get(pk=machineid)
@@ -179,6 +179,9 @@ def new_interface(request, machineid):
     if not request.user.has_perms(('cableur',)):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+        if machine.user.user_interfaces().count() >= MAX_INTERFACES:
+            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % MAX_INTERFACES)
             return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if interface_form.is_valid():
@@ -198,7 +201,6 @@ def new_interface(request, machineid):
     return form({'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def del_interface(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -458,16 +460,19 @@ def del_ns(request):
     return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def add_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
-    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
-        messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+    if not request.user.has_perms(('cableur',)):
+        if interface.machine.user != request.user:
+            messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
+            return redirect("/users/profil/" + str(request.user.id))
+        if Alias.objects.filter(interface_parent=interface.machine.user.user_interfaces()).count() >= MAX_ALIAS:
+            messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % MAX_ALIAS)
+            return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -481,7 +486,6 @@ def add_alias(request, interfaceid):
     return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def edit_alias(request, aliasid):
     try:
         alias_instance = Alias.objects.get(pk=aliasid)
@@ -502,7 +506,6 @@ def edit_alias(request, aliasid):
     return form({'machineform': alias}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
 def del_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
