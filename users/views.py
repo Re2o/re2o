@@ -426,7 +426,7 @@ def del_listright(request):
 @permission_required('cableur')
 def index(request):
     """ Affiche l'ensemble des users, need droit cableur """
-    users_list = User.objects.order_by('pk')
+    users_list = User.objects.order_by('state', 'name')
     paginator = Paginator(users_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:

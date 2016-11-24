@@ -47,15 +47,17 @@ def search_result(search, type, request):
     
     connexion = [] 
    
-    recherche = {'users_list': None, 'machines_list' : None, 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
+    recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
 
     query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
 
     for i in aff:
         if i == '0':
-            recherche['users_list'] = User.objects.filter((Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query1)
+            recherche['users_list'] = User.objects.filter((Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query1).order_by('state', 'surname')
         if i == '1':
-            recherche['machines_list'] = Machine.objects.filter(query | Q(interface__dns__icontains = search) | Q(interface__mac_address__icontains = search))
+            data = Interface.objects.filter(Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(dns__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search))
+            for d in data:
+                  recherche['machines_list'].append(d.machine)
         if i == '2':
             recherche['facture_list'] = Facture.objects.filter(query & date_query)
         if i == '3':
