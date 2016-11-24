@@ -10,6 +10,10 @@ class EditPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['room', 'machine_interface', 'related', 'details']
 
+    def __init__(self, *args, **kwargs):
+        super(EditPortForm, self).__init__(*args, **kwargs)
+        self.fields['related'].queryset = Port.objects.all().order_by('switch', 'port')
+
 class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['port', 'room', 'machine_interface', 'related', 'details']
