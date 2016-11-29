@@ -33,7 +33,7 @@ def create_cotis(vente, user, duration, date_start=False):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(vente=vente)
     if date_start:
-        end_adhesion = Cotisation.objects.filter(vente=Vente.objects.filter(facture=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(models.Max('date_end'))['date_end__max']
+        end_adhesion = Cotisation.objects.filter(vente=Vente.objects.filter(facture=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
     else:
         end_adhesion = user.end_adhesion()
     date_start = date_start or timezone.now()
