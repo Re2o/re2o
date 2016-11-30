@@ -197,7 +197,7 @@ def new_interface(request, machineid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect("/users/profil/" + str(machine.user.id))
     return form({'interfaceform': interface_form}, 'machines/machine.html', request)
 
 @login_required
