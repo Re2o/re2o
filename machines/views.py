@@ -60,7 +60,10 @@ def assign_ips(user):
 
 def free_ip(type):
     """ Renvoie la liste des ip disponibles """
-    return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
+    if not type.need_infra:
+        return IpList.objects.filter(interface__isnull=True).filter(ip_type=type).filter(need_infra=False)
+    else:
+        return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
 
 def assign_ipv4(interface):
     """ Assigne une ip à l'interface """
@@ -142,6 +145,8 @@ def edit_interface(request, interfaceid):
                 new_machine.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+                new_interface = assign_ipv4(new_interface)
             with transaction.atomic(), reversion.create_revision():
                 new_interface.save()
                 reversion.set_user(request.user)
