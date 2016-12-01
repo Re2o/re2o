@@ -124,6 +124,7 @@ class IpList(models.Model):
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
     ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT)
+    need_infra = models.BooleanField(default=False)
 
     def __str__(self):
         return self.ipv4

@@ -125,7 +125,7 @@ def edit_info(request, userid):
     if not request.user.has_perms(('cableur',)):
         user = BaseInfoForm(request.POST or None, instance=user)
     else:
-        user = EditInfoForm(request.POST or None, instance=user)
+        user = InfoForm(request.POST or None, instance=user)
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()

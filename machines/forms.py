@@ -1,6 +1,7 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
 from .models import Alias, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
+from django.db.models import Q
 
 class EditMachineForm(ModelForm):
     class Meta:
@@ -41,7 +42,9 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
+        else:
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
@@ -57,7 +60,9 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
+        else:
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
 class AliasForm(ModelForm):
     class Meta:
