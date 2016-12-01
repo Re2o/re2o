@@ -42,7 +42,7 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
@@ -60,7 +60,7 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
