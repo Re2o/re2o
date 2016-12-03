@@ -90,6 +90,17 @@ def notif_ban(ban):
     EMAIL_FROM, [ban.user.email], fail_silently=False)
     return
 
+def notif_inscription(user):
+    """ Prend en argument un objet user, envoie un mail de bienvenue """
+    t = loader.get_template('users/email_welcome')
+    c = Context({
+      'nom': str(user.name) + ' ' + str(user.surname),
+    })
+    send_mail('Bienvenue au Rézo', t.render(c),
+    EMAIL_FROM, [user.email], fail_silently=False)
+    return
+
+
 @login_required
 @permission_required('cableur')
 def new_user(request):
@@ -106,6 +117,7 @@ def new_user(request):
         req.user = user
         req.save()
         reset_passwd_mail(req, request)
+        notif_inscription(user)
         messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect("/users/profil/" + str(user.id))
     return form({'userform': user}, 'users/user.html', request)
