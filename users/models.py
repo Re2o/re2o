@@ -31,7 +31,7 @@ def remove_user_room(room):
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-z_][a-z0-9_-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9_-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
@@ -568,7 +568,7 @@ class EditInfoForm(BaseInfoForm):
             'shell',
         ]
 
-class InfoForm(BaseInfoForm):
+class InfoForm(EditInfoForm):
     force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
 
     def clean_force(self):
