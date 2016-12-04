@@ -95,9 +95,11 @@ def notif_inscription(user):
     t = loader.get_template('users/email_welcome')
     c = Context({
       'nom': str(user.name) + ' ' + str(user.surname),
+      'asso_name': ASSO_NAME,
+      'asso_email':ASSO_EMAIL,
     })
-    send_mail('Bienvenue au Rézo', t.render(c),
-    EMAIL_FROM, [user.email], fail_silently=False)
+    send_mail('Bienvenue au Rézo', '',
+    EMAIL_FROM, [user.email], html_message=t.render(c))
     return
 
 
