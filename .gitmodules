@@ -1,0 +1,3 @@
+[submodule "pypureomapi"]
+	path = pypureomapi
+	url = https://github.com/CygnusNetworks/pypureomapi.git
