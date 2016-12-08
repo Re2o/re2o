@@ -36,7 +36,7 @@ class Port(models.Model):
             ('BLOQ', 'BLOQ'),
             ('COMMON', 'COMMON'),
             )
-    STATES = STATES_BASE + tuple([(id, id) for id in VLAN_ID_LIST])
+    STATES = STATES_BASE + tuple([(str(id), str(id)) for id in VLAN_ID_LIST])
 
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
