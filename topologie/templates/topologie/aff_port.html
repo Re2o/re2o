@@ -5,6 +5,7 @@
             <th>Room</th>
             <th>Interface machine</th>
             <th>Related</th>
+            <th>Radius</th>
             <th>Détails</th>
             <th></th>
         </tr>
@@ -27,6 +28,7 @@
             <a href="{% url 'topologie:index-port' switch_id=port.related.switch.id %}">{{ port.related }}</a>
         {% endif %}
         </td>
+        <td>{{ port.radius }}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
