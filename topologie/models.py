@@ -5,6 +5,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 import reversion
 
+from re2o.settings import VLAN_ID_LIST
+
 def make_port_related(port):
     related_port = port.related
     related_port.related = port
@@ -28,12 +30,20 @@ class Switch(models.Model):
 
 class Port(models.Model):
     PRETTY_NAME = "Port de switch"
+    STATES_BASE = (
+            ('NO', 'NO'),
+            ('STRICT', 'STRICT'),
+            ('BLOQ', 'BLOQ'),
+            ('COMMON', 'COMMON'),
+            )
+    STATES = STATES_BASE + tuple([(id, id) for id in VLAN_ID_LIST])
 
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
     machine_interface = models.ForeignKey('machines.Interface', on_delete=models.SET_NULL, blank=True, null=True)
     related = models.OneToOneField('self', null=True, blank=True, related_name='related_port')
+    radius = models.CharField(max_length=32, choices=STATES, default='NO')
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:

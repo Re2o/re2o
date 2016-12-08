@@ -8,7 +8,7 @@ class SwitchAdmin(VersionAdmin):
     list_display = ('switch_interface','location','number','details')
 
 class PortAdmin(VersionAdmin):
-    list_display = ('switch', 'port','room','machine_interface','details')
+    list_display = ('switch', 'port','room','machine_interface','radius','details')
 
 class RoomAdmin(VersionAdmin):
     list_display = ('name','details')
