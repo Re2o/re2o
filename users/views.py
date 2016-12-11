@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
+from reversion.models import Version
 from reversion import revisions as reversion
 from users.models import User, Right, Ban, Whitelist, School, ListRight, Request
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
@@ -545,7 +546,7 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/users/")
-    reversions = reversion.get_for_object(object_instance)
+    reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:

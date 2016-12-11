@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
+from reversion.models import Version
 
 from topologie.models import Switch, Port, Room
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm, AddPortForm, EditRoomForm
@@ -46,7 +47,7 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/topologie/")
-    reversions = reversion.get_for_object(object_instance)
+    reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:
