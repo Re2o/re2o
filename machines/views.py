@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer, MxSerializer, ExtensionSerializer, NsSerializer
 from reversion import revisions as reversion
-
+from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
@@ -645,7 +645,7 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/machines/")
-    reversions = reversion.get_for_object(object_instance)
+    reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:

@@ -13,6 +13,7 @@ from django.db import transaction
 from django.forms import modelformset_factory, formset_factory
 import os
 from reversion import revisions as reversion
+from reversion.models import Version
 
 from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
@@ -399,7 +400,7 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/cotisations/")
-    reversions = reversion.get_for_object(object_instance)
+    reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:
