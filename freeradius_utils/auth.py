@@ -95,90 +95,43 @@ def authorize(data):
     """Fonction qui aiguille entre nas, wifi et filaire pour authorize
     On se contecte de faire une verification basique de ce que contien la requète
     pour déterminer la fonction à utiliser"""
-    if data.get('NAS-Port-Type', '')==u'Ethernet':
+    if data.get('Service-Type', '')==u'NAS-Prompt-User' or data.get('Service-Type', '')==u'Administrative-User':
+        return authorize_user(data)
+    else:
         return authorize_fil(data)
-    elif u"Wireless" in data.get('NAS-Port-Type', ''):
-        return authorize_wifi(data)
 
 @radius_event
-def authorize_wifi(data):
-    """Section authorize pour le wifi
-    (NB: le filaire est en accept pour tout le monde)
-    Éxécuté avant l'authentification proprement dite. On peut ainsi remplir les
-    champs login et mot de passe qui serviront ensuite à l'authentification
-    (MschapV2/PEAP ou MschapV2/TTLS)"""
+def authorize_user(data):
+    nas = data.get('NAS-IP-Address', None)
+    nas_id = data.get('NAS-Identifier', None)
+    user = data.get('User-Name', None)
+    password = data.get('User-Password', None)
+    out = subprocess.check_output(['/usr/bin/python3', '/var/www/re2o/freeradius_utils/authenticate_user.py', user, password])
+    if out[:-1] == u"TRUE":
+        if data.get('Service-Type', '')==u'NAS-Prompt-User':
+            logger.info(u"Access of user %s on %s (%s)" % (user, nas, nas_id))
+        elif data.get('Service-Type', '')==u'Administrative-User':
+            logger.info(u"Enable manager for %s on %s (%s)" % (user, nas, nas_id))
+        return (radiusd.RLM_MODULE_UPDATED,
+            (),
+            (
+              ("Auth-Type", "Accept"),
+            ),
+            )
+    else:
+        return (radiusd.RLM_MODULE_UPDATED,
+            (),
+            (
+              ("Auth-Type", "Reject"),
+            ),
+            )
 
-    items = get_machines(data)
-
-    if not items:
-        logger.error('Nothing found')
-        return radiusd.RLM_MODULE_NOTFOUND
-
-    if len(items) > 1:
-        logger.warn('lc_ldap: Too many results (taking first)')
-
-    machine = items[0]
-
-    proprio = machine.proprio()
-    if isinstance(proprio, lc_ldap.objets.AssociationCrans):
-        logger.error('Crans machine trying to authenticate !')
-        return radiusd.RLM_MODULE_INVALID
-
-    for bl in machine.blacklist_actif():
-        if bl.value['type'] in BL_REJECT:
-            return radiusd.RLM_MODULE_REJECT
-        # Kludge : vlan isolement pas possible, donc reject quand-même
-        if not WIFI_DYN_VLAN and bl.value['type'] in BL_ISOLEMENT:
-            return radiusd.RLM_MODULE_REJECT
-
-
-    if not machine.get('ipsec', False):
-        logger.error('WiFi auth but machine has no password')
-        return radiusd.RLM_MODULE_REJECT
-
-    password = machine['ipsec'][0].value.encode('ascii', 'ignore')
-
-    # TODO: feed cert here
-    return (radiusd.RLM_MODULE_UPDATED,
-	    (),
-        (
-          ("Cleartext-Password", password),
-        ),
-      )
 
 @radius_event
 def authorize_fil(data):
     """
     Check le challenge chap, et accepte.
     """
-
-    chap_ok = False
-    # Teste l'authentification chap fournie
-    # password et challenge doivent être données
-    # en hexa (avec ou sans le 0x devant)
-    # le User-Name est en réalité la mac ( xx:xx:xx:xx:xx )
-    password = data.get('CHAP-Password', '')
-    challenge = data.get('CHAP-Challenge', '')
-    mac = data.get('User-Name', '')
-
-    logger.debug('(fil) authorize(%r)' % ((password, challenge, mac),))
-
-    try:
-        challenge = binascii.a2b_hex(challenge.replace('0x',''))
-        password = binascii.a2b_hex(password.replace('0x',''))
-        if hashlib.md5(password[0] + mac + challenge).digest() == password[1:]:
-            logger.info("(fil) Chap ok")
-            chap_ok = True
-        else:
-            logger.info("(fil) Chap wrong")
-    except Exception as err:
-        logger.info("(fil) Chap challenge check failed with %r" % err)
-
-    if not chap_ok:
-        if TEST_SERVER:
-            logger.debug('(fil) Continue auth (debug)')
-        else:
-            return radiusd.RLM_MODULE_REJECT
 
     return (radiusd.RLM_MODULE_UPDATED,
 	(),
@@ -230,14 +183,16 @@ def post_auth_fil(data):
     """Idem, mais en filaire.
     """
 
-    nas = data.get('NAS-Identifier', None)
+    nas = data.get('NAS-IP-Address', None)
     port = data.get('NAS-Port', None)
     mac = data.get('Calling-Station-Id', None)
+    # Hack, à cause d'une numérotation cisco baroque
+    port = port[-2:]
     out = subprocess.check_output(['/usr/bin/python3', '/var/www/re2o/freeradius_utils/authenticate_filaire.py', nas, port, mac])
-    reason, vlan_id = make_tuple(out)
+    sw_name, reason, vlan_id = make_tuple(out)
 
     log_message = '(fil) %s -> %s [%s%s]' % \
-      (nas + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
+      (sw_name + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
     logger.info(log_message)
 
     # Filaire
