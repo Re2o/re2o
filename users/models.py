@@ -44,8 +44,7 @@ def linux_user_validator(login):
 
 def get_fresh_user_uid():
     uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
-    #used_uids = [ user.uid_number for user in User.objects.all()]
-    used_uids = [10000]
+    used_uids = [ user.uid_number for user in User.objects.all()]
     free_uids = [ id for id in uids if id not in used_uids]
     return min(free_uids)
 
@@ -249,7 +248,6 @@ class User(AbstractBaseUser):
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
         self.refresh_from_db()
-        return
         try:
             user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
         except LdapUser.DoesNotExist:
@@ -302,7 +300,6 @@ class ServiceUser(AbstractBaseUser):
     objects = UserManager()
 
     def ldap_sync(self):
-        return
         try:
             user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
         except LdapServiceUser.DoesNotExist:
@@ -372,7 +369,6 @@ class ListRight(models.Model):
         return self.listright
 
     def ldap_sync(self):
-        return
         try:
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
         except LdapUserGroup.DoesNotExist:
