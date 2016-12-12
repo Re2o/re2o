@@ -5,7 +5,8 @@ DB_PASSWORD = 'SUPER_SECRET'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+# Obligatoire, liste des host autorisés
+ALLOWED_HOSTS = ['test.example.org']
 
 DATABASES = {
     'default': {
@@ -23,9 +24,21 @@ DATABASES = {
      }
 }
 
+# Security settings
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_AGE = 60 * 60 * 3
+
 # Association information
 
 SITE_NAME = "Re2o.rez"
+
+# Main extension used in asso
+MAIN_EXTENSION = ".rez"
 
 LOGO_PATH = "static_files/logo.png"
 ASSO_NAME = "Asso reseau"
@@ -34,6 +47,7 @@ ASSO_ADDRESS_LINE2 = "57070 Metz"
 ASSO_SIRET = ""
 ASSO_EMAIL = "tresorier@ecole.fr"
 ASSO_PHONE = "01 02 03 04 05"
+ASSO_PSEUDO = "rezo"
 
 services_urls = {
 #Fill IT  : ex :  'gitlab': {
@@ -49,6 +63,8 @@ REQ_EXPIRE_STR = '48 heures'
 
 # Email `From` field
 EMAIL_FROM = 'www-data@serveur.net'
+
+EMAIL_HOST = 'smtp.example.org'
 
 # Reglages pour la bdd ldap
 LDAP = {
@@ -68,6 +84,18 @@ GID_RANGES = {
     'posix' : [501, 600],
 }
 
-# Main extension used in asso
-MAIN_EXTENSION = ".rez"
+# Affchage des résultats
+SEARCH_RESULT = 15
 
+# Max machines et max alias autorisés par personne
+MAX_INTERFACES = 4
+MAX_ALIAS = 4
+
+# Liste des vlans id disponible sur un switch
+VLAN_ID_LIST = [7,8,42,69]
+
+# Décision radius à prendre
+RADIUS_VLAN_DECISION = {
+    'VLAN_NOK' : 42,
+    'VLAN_OK' : 69,
+}
