@@ -1,8 +1,8 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz, Lemesle Augustin
 # Gplv2
-from django.shortcuts import render_to_response, get_object_or_404, render, redirect
-from django.core.context_processors import csrf
+from django.shortcuts import get_object_or_404, render, redirect
+from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
@@ -41,11 +41,7 @@ def unarchive(user):
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
-    return render_to_response(
-        template,
-        c,
-        context_instance=RequestContext(request)
-    )
+    return render(request, template, c)
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""

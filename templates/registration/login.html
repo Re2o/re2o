@@ -19,7 +19,7 @@
     {% endif %}
 {% endif %}
 
-<p><form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+<p><form method="post" action="{% url 'login' %}">
     {% csrf_token %}
     {% bootstrap_form form %}
     {% bootstrap_button "Login" button_type="submit" icon="log-in" %}
