@@ -3,8 +3,8 @@
 # Gplv2
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.shortcuts import render_to_response, get_object_or_404
-from django.core.context_processors import csrf
+from django.shortcuts import get_object_or_404
+from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
@@ -81,7 +81,7 @@ def unassign_ipv4(interface):
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
-    return render_to_response(template, c, context_instance=RequestContext(request))
+    return render(request, template, c)
 
 @login_required
 def new_machine(request, userid):

@@ -2,8 +2,8 @@
 # Goulven Kermarec, Gabriel Détraz
 # Gplv2
 from django.shortcuts import render, redirect
-from django.shortcuts import render_to_response, get_object_or_404
-from django.core.context_processors import csrf
+from django.shortcuts import get_object_or_404
+from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required, permission_required
@@ -28,7 +28,7 @@ from django.utils import timezone
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
-    return render_to_response(template, c, context_instance=RequestContext(request))
+    return render(request, template, c)
 
 def create_cotis(vente, user, duration, date_start=False):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
