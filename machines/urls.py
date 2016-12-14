@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'machines'
 urlpatterns = [
     url(r'^new_machine/(?P<userid>[0-9]+)$', views.new_machine, name='new-machine'),
     url(r'^edit_interface/(?P<interfaceid>[0-9]+)$', views.edit_interface, name='edit-interface'),

@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'topologie'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^new_switch/$', views.new_switch, name='new-switch'),
