@@ -217,8 +217,11 @@ def del_interface(request, interfaceid):
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
     if request.method == "POST":
+        machine = interface.machine
         with transaction.atomic(), reversion.create_revision():
             interface.delete()
+            if not machine.interface_set.all():
+               machine.delete()
             reversion.set_user(request.user)
         messages.success(request, "L'interface a été détruite")
         return redirect("/users/profil/" + str(request.user.id))
