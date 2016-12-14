@@ -113,7 +113,7 @@ class Alias(models.Model):
 
     def clean(self, *args, **kwargs):
         if hasattr(self, 'alias') and hasattr(self, 'extension'):
-            if Interface.objects.filter(dns=self.alias).filter(ipv4=IpList.objects.filter(ip_type=IpType.objects.filter(extension=self.extension))):
+            if Interface.objects.filter(dns=self.alias).filter(ipv4__in=IpList.objects.filter(ip_type__in=IpType.objects.filter(extension=self.extension))):
                 raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
 
     def __str__(self):
