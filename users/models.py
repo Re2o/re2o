@@ -180,7 +180,7 @@ class User(AbstractBaseUser):
         return True
 
     def end_adhesion(self):
-        date_max = Cotisation.objects.all().filter(vente=Vente.objects.all().filter(facture=Facture.objects.all().filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     def is_adherent(self):
@@ -194,12 +194,12 @@ class User(AbstractBaseUser):
 
     def end_ban(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
-        date_max = Ban.objects.all().filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Ban.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     def end_whitelist(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
-        date_max = Whitelist.objects.all().filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Whitelist.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     def is_ban(self):
@@ -228,7 +228,7 @@ class User(AbstractBaseUser):
             and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
 
     def user_interfaces(self):
-        return Interface.objects.filter(machine=Machine.objects.filter(user=self))
+        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self))
 
     def has_module_perms(self, app_label):
         # Simplest version again
@@ -267,7 +267,7 @@ class User(AbstractBaseUser):
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
-            user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine=Machine.objects.filter(user=self))]
+            user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine__in=Machine.objects.filter(user=self))]
         user_ldap.save()
 
     def ldap_del(self):

@@ -34,7 +34,7 @@ def create_cotis(vente, user, duration, date_start=False):
     """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
     cotisation=Cotisation(vente=vente)
     if date_start:
-        end_adhesion = Cotisation.objects.filter(vente=Vente.objects.filter(facture=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
+        end_adhesion = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
     else:
         end_adhesion = user.end_adhesion()
     date_start = date_start or timezone.now()
@@ -330,7 +330,10 @@ def control(request):
     page_query = Facture.objects.order_by('date').reverse().filter(id__in=[facture.id for facture in facture_list]) 
     controlform = controlform_set(request.POST or None, queryset=page_query)
     if controlform.is_valid():
-        controlform.save()
+        with transaction.atomic(), reversion.create_revision():
+            controlform.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Controle trésorier")
         return redirect("/cotisations/control/")
     return render(request, 'cotisations/control.html', {'facture_list': facture_list, 'controlform': controlform})
 
