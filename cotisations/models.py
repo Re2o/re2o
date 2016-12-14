@@ -17,14 +17,14 @@ class Facture(models.Model):
     control = models.BooleanField(default=False)
 
     def prix(self):
-        prix = Vente.objects.all().filter(facture=self).aggregate(models.Sum('prix'))['prix__sum']
+        prix = Vente.objects.filter(facture=self).aggregate(models.Sum('prix'))['prix__sum']
         return prix
 
     def prix_total(self):
-        return Vente.objects.all().filter(facture=self).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total']
+        return Vente.objects.filter(facture=self).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total']
 
     def name(self):
-        name = ' - '.join(vente.name for vente in Vente.objects.all().filter(facture=self))
+        name = ' - '.join(vente.name for vente in Vente.objects.filter(facture=self))
         return name
 
     def __str__(self):

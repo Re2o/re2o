@@ -42,14 +42,14 @@ def full_domain_validator(request, interface):
     return True
 
 def unassign_ips(user):
-    machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
+    machines = user.user_interfaces()
     for machine in machines:
         unassign_ipv4(machine)
     return
 
 def assign_ips(user):
     """ Assign une ipv4 aux machines d'un user """
-    machines = Interface.objects.filter(machine=Machine.objects.filter(user=user))
+    machines = user.user_interfaces()
     for machine in machines:
         if not machine.ipv4:
             interface = assign_ipv4(machine)
@@ -475,7 +475,7 @@ def add_alias(request, interfaceid):
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        if Alias.objects.filter(interface_parent=interface.machine.user.user_interfaces()).count() >= MAX_ALIAS:
+        if Alias.objects.filter(interface_parent__in=interface.machine.user.user_interfaces()).count() >= MAX_ALIAS:
             messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % MAX_ALIAS)
             return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
@@ -683,7 +683,7 @@ def interface_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Alias.objects.filter(interface_parent=Interface.objects.exclude(ipv4=None))
+    alias = Alias.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))
     seria = AliasSerializer(alias, many=True)
     return JSONResponse(seria.data)
 
@@ -707,7 +707,7 @@ def mx(request):
 @login_required
 @permission_required('serveur')
 def ns(request):
-    ns = Ns.objects.filter(interface=Interface.objects.exclude(ipv4=None))
+    ns = Ns.objects.filter(interface__in=Interface.objects.exclude(ipv4=None))
     seria = NsSerializer(ns, many=True)
     return JSONResponse(seria.data)
 
