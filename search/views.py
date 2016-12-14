@@ -2,7 +2,7 @@
 # Augustin lemesle, Gabriel Détraz, Goulven Kermarec
 # Gplv2
 from django.shortcuts import render
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.template.context_processors import csrf
 from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required
@@ -19,7 +19,7 @@ from re2o.settings import SEARCH_RESULT
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
-    return render_to_response(template, c, context_instance=RequestContext(request))
+    return render(request, template, c)
 
 def search_result(search, type, request):
     date_deb = None
