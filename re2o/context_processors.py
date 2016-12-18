@@ -4,7 +4,7 @@ from .settings import SITE_NAME
 def context_user(request):
     user = request.user
     if user.is_authenticated():
-        interfaces = Interface.objects.filter(machine=Machine.objects.filter(user=user, active=True))
+        interfaces = user.user_interfaces()
     else:
         interfaces = None
     is_cableur = user.has_perms(('cableur',))

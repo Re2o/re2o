@@ -231,7 +231,7 @@ class User(AbstractBaseUser):
             and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
 
     def user_interfaces(self):
-        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self))
+        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=True))
 
     def has_module_perms(self, app_label):
         # Simplest version again
