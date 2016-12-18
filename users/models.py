@@ -44,7 +44,10 @@ def linux_user_validator(login):
 
 def get_fresh_user_uid():
     uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
-    used_uids = [ user.uid_number for user in User.objects.all()]
+    try:
+        used_uids = [ user.uid_number for user in User.objects.all()]
+    except:
+        used_uids = []
     free_uids = [ id for id in uids if id not in used_uids]
     return min(free_uids)
 
