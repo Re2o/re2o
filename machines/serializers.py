@@ -16,10 +16,14 @@ class IpListSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     ipv4 = IpListSerializer(read_only=True)
-   
+    mac_address = serializers.SerializerMethodField('get_macaddress')
+
     class Meta:
         model = Interface
         fields = ('ipv4', 'mac_address', 'dns')
+
+    def get_macaddress(self, obj):
+        return str(obj.mac_address)
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
