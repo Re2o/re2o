@@ -23,7 +23,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
-        return value.alias
+        return value.name
 
 class TypeSerializer(serializers.ModelSerializer):
     extension = ExtensionNameField(read_only=True)
