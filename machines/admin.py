@@ -26,7 +26,7 @@ class IpListAdmin(VersionAdmin):
     list_display = ('ipv4','ip_type')
 
 class InterfaceAdmin(VersionAdmin):
-    list_display = ('machine','type','dns','mac_address','ipv4','details')
+    list_display = ('machine','type','mac_address','ipv4','details')
 
 class DomainAdmin(VersionAdmin):
     list_display = ('interface_parent', 'name', 'extension', 'cname')
