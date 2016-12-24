@@ -12,7 +12,7 @@ from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm, AddPort
 from users.views import form
 from users.models import User
 
-from machines.forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
 from machines.views import free_ip, full_domain_validator, assign_ipv4
 
 from re2o.settings import ASSO_PSEUDO, PAGINATION_NUMBER
@@ -180,8 +180,8 @@ def edit_switch(request, switch_id):
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
         new_switch = switch_form.save(commit=False)
-        new_domain = domain.save(commit=False)
-        if full_domain_validator(request, new_interface):
+        new_domain = domain_form.save(commit=False)
+        if full_domain_validator(request, new_domain):
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
                 reversion.set_user(request.user)
