@@ -19,7 +19,7 @@ from reversion.models import Version
 
 from users.models import User, ServiceUser, Right, School, ListRight, ListShell, Ban, Whitelist
 from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
-from machines.models import Machine, MachineType, IpType, Extension, Interface, Alias, IpList
+from machines.models import Machine, MachineType, IpType, Extension, Interface, Domain, IpList
 from topologie.models import Switch, Port, Room
 
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
@@ -99,7 +99,7 @@ def stats_models(request):
     'typeip' : [IpType.PRETTY_NAME, IpType.objects.count()],
     'extension' : [Extension.PRETTY_NAME, Extension.objects.count()],
     'interface' : [Interface.PRETTY_NAME, Interface.objects.count()],
-    'alias' : [Alias.PRETTY_NAME, Alias.objects.count()],
+    'alias' : [Domain.PRETTY_NAME, Domain.objects.exclude(cname=None).count()],
     'iplist' : [IpList.PRETTY_NAME, IpList.objects.count()],
     },
     'Topologie' : {

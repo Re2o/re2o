@@ -28,13 +28,13 @@
             </td>
             {% endif %}
             <td>
-            {% if interface.alias_set.all %}
+            {% if interface.domain.related_domain.all %}
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{ interface.dns }} <span class="caret"></span>
+                        {{ interface.domain }} <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="editioninterface">
-                    {% for al in interface.alias_set.all %}
+                    {% for al in interface.domain.related_domain.all %}
                         <li>
                             <a href="http://{{ al }}">
                                 {{ al }}
@@ -45,7 +45,7 @@
                     </ul>
                 </div>
             {% else %}
-                {{ interface.dns }}
+                {{ interface.domain }}
             {% endif %}
             </td>
             <td>{{ interface.type }}</td>

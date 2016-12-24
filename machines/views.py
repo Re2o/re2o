@@ -16,21 +16,21 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, AliasSerializer, MxSerializer, ExtensionSerializer, NsSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, MxSerializer, ExtensionSerializer, NsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Alias
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
 from users.models import User
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER, MAX_INTERFACES, MAX_ALIAS
 
-def full_domain_validator(request, interface):
+def full_domain_validator(request, domain):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
     HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
-    dns = interface.dns.lower()
+    dns = domain.name.lower()
     if len(dns) > 63:
         messages.error(request,
                 "Le nom de domaine %s est trop long (maximum de 63 caractères)." % dns)
@@ -99,11 +99,13 @@ def new_machine(request, userid):
             return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
+    domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
         new_machine.user = user
         new_interface = interface.save(commit=False)
-        if full_domain_validator(request, new_interface):
+        new_domain = domain.save(commit=False)
+        if full_domain_validator(request, new_domain):
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
                 reversion.set_user(request.user)
@@ -117,9 +119,14 @@ def new_machine(request, userid):
                 new_interface.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
+            new_domain.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             messages.success(request, "La machine a été crée")
             return redirect("/users/profil/" + userid)
-    return form({'machineform': machine, 'interfaceform': interface}, 'machines/machine.html', request)
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -137,10 +144,12 @@ def edit_interface(request, interfaceid):
     else:
         machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
         interface_form = EditInterfaceForm(request.POST or None, instance=interface)
-    if machine_form.is_valid() and interface_form.is_valid():
+    domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), instance=interface.domain)
+    if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
-        if full_domain_validator(request, new_interface):
+        new_domain = domain_form.save(commit=False)
+        if full_domain_validator(request, new_domain):
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
                 reversion.set_user(request.user)
@@ -151,9 +160,13 @@ def edit_interface(request, interfaceid):
                 new_interface.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
-    return form({'machineform': machine_form, 'interfaceform': interface_form}, 'machines/machine.html', request)
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -189,10 +202,12 @@ def new_interface(request, machineid):
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % MAX_INTERFACES)
             return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
-        if full_domain_validator(request, new_interface):
+        new_domain = domain_form.save(commit=False)
+        if full_domain_validator(request, new_domain):
             if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
                 new_interface = assign_ipv4(new_interface)
             elif not new_interface.ipv4:
@@ -201,9 +216,14 @@ def new_interface(request, machineid):
                 new_interface.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
+            new_domain.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    return form({'interfaceform': interface_form}, 'machines/machine.html', request)
+    return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
@@ -478,13 +498,13 @@ def add_alias(request, interfaceid):
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        if Alias.objects.filter(interface_parent__in=interface.machine.user.user_interfaces()).count() >= MAX_ALIAS:
+        if Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent__in=interface.machine.user.user_interfaces())).count() >= MAX_ALIAS:
             messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % MAX_ALIAS)
             return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
-        alias.interface_parent = interface
+        alias.cname = interface.domain
         with transaction.atomic(), reversion.create_revision():
             alias.save()
             reversion.set_user(request.user)
@@ -496,11 +516,11 @@ def add_alias(request, interfaceid):
 @login_required
 def edit_alias(request, aliasid):
     try:
-        alias_instance = Alias.objects.get(pk=aliasid)
-    except Alias.DoesNotExist:
+        alias_instance = Domain.objects.get(pk=aliasid)
+    except Domain.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/machines/index_extension/")
-    if not request.user.has_perms(('cableur',)) and alias_instance.interface_parent.machine.user != request.user:
+    if not request.user.has_perms(('cableur',)) and alias_instance.cname.interface_parent.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
         return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, instance=alias_instance, infra=request.user.has_perms(('infra',)))
@@ -510,7 +530,7 @@ def edit_alias(request, aliasid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
         messages.success(request, "Alias modifié")
-        return redirect("/machines/index_alias/" + str(alias_instance.interface_parent.id))
+        return redirect("/machines/index_alias/" + str(alias_instance.cname.interface_parent.id))
     return form({'machineform': alias}, 'machines/machine.html', request)
 
 @login_required
@@ -583,7 +603,7 @@ def index_alias(request, interfaceid):
     if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
         return redirect("/users/profil/" + str(request.user.id))
-    alias_list = Alias.objects.filter(interface_parent=interface).order_by('alias')
+    alias_list = Domain.objects.filter(cname=Domain.objects.filter(interface_parent=interface)).order_by('name')
     return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
 
 @login_required
@@ -608,11 +628,11 @@ def history(request, object, id):
              return redirect("/users/profil/" + str(request.user.id))
     elif object == 'alias':
         try:
-             object_instance = Alias.objects.get(pk=id)
-        except Alias.DoesNotExist:
+             object_instance = Domain.objects.get(pk=id)
+        except Domain.DoesNotExist:
              messages.error(request, "Alias inexistant")
              return redirect("/machines/")
-        if not request.user.has_perms(('cableur',)) and object_instance.interface_parent.machine.user != request.user:
+        if not request.user.has_perms(('cableur',)) and object_instance.cname.interface_parent.machine.user != request.user:
              messages.error(request, "Vous ne pouvez pas afficher l'historique d'un alias d'un autre user que vous sans droit cableur")
              return redirect("/users/profil/" + str(request.user.id))
     elif object == 'machinetype' and request.user.has_perms(('cableur',)):
@@ -686,8 +706,8 @@ def interface_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Alias.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))
-    seria = AliasSerializer(alias, many=True)
+    alias = Domain.objects.filter(interface_parent=None).filter(cname=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None)))
+    seria = DomainSerializer(alias, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt

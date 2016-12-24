@@ -78,7 +78,6 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    dns = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255, unique=True)
 
     def is_active(self):
         """ Renvoie si une interface doit avoir accès ou non """
@@ -93,7 +92,11 @@ class Interface(models.Model):
         self.mac_address = str(EUI(self.mac_address)) or None
 
     def __str__(self):
-        return self.domain_set.all().first()
+        try:
+            domain = self.domain
+        except:
+            domain = None
+        return str(domain)
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
@@ -109,7 +112,7 @@ class Domain(models.Model):
     def clean(self):
         if self.interface_parent and self.cname:
             raise ValidationError("On ne peut créer à la fois A et CNAME")
-        if self.related==self:
+        if self.cname==self:
             raise ValidationError("On ne peut créer un cname sur lui même")
 
     def __str__(self):

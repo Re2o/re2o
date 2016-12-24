@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Alias, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
 from django.db.models import Q
 
 class EditMachineForm(ModelForm):
@@ -27,14 +27,13 @@ class EditInterfaceForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
-        self.fields['dns'].label = 'Nom dns de la machine'
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
 
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','dns','type','details']
+        fields = ['ipv4','mac_address','type','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -48,11 +47,11 @@ class AddInterfaceForm(EditInterfaceForm):
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['mac_address','dns','type','details']
+        fields = ['mac_address','type','details']
 
 class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','dns','type','details']
+        fields = ['ipv4','mac_address','type','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -66,8 +65,8 @@ class BaseEditInterfaceForm(EditInterfaceForm):
 
 class AliasForm(ModelForm):
     class Meta:
-        model = Alias
-        fields = ['alias','extension']
+        model = Domain
+        fields = ['name','extension']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -76,16 +75,16 @@ class AliasForm(ModelForm):
             self.fields['extension'].queryset = Extension.objects.filter(need_infra=False)
  
 class DelAliasForm(ModelForm):
-    alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
+    alias = forms.ModelMultipleChoiceField(queryset=Domain.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
         interface = kwargs.pop('interface')
         super(DelAliasForm, self).__init__(*args, **kwargs)
-        self.fields['alias'].queryset = Alias.objects.filter(interface_parent=interface)
+        self.fields['alias'].queryset = Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent=interface))
 
     class Meta:
-        exclude = ['interface_parent', 'alias', 'extension']
-        model = Alias
+        exclude = ['interface_parent', 'name', 'extension', 'cname']
+        model = Domain
 
 class MachineTypeForm(ModelForm):
     class Meta:
