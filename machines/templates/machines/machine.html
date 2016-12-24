@@ -10,6 +10,10 @@
 {% if interfaceform %}
 {% bootstrap_form_errors interfaceform %}
 {% endif %}
+{% if domainform %}
+{% bootstrap_form_errors interfaceform %}
+{% endif %}
+
 
 <form class="form" method="post">
     {% csrf_token %}

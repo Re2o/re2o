@@ -13,7 +13,7 @@
    <tr>
        <td>
            <a title="Configuer" href="{% url 'topologie:index-port' switch.pk %}">
-               {{switch.switch_interface.dns}}
+               {{switch.switch_interface}}
            </a>
        </td>
        <td>{{switch.switch_interface.ipv4}}</td>

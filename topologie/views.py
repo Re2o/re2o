@@ -124,6 +124,7 @@ def new_switch(request):
     switch = NewSwitchForm(request.POST or None)
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if switch.is_valid() and machine.is_valid() and interface.is_valid():
         try:
             user = User.objects.get(pseudo=ASSO_PSEUDO)
@@ -134,7 +135,8 @@ def new_switch(request):
         new_machine.user = user
         new_interface = interface.save(commit=False)
         new_switch = switch.save(commit=False)
-        if full_domain_validator(request, new_interface):
+        new_domain = domain.save(commit=False)
+        if full_domain_validator(request, new_domain):
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
                 reversion.set_user(request.user)
@@ -148,6 +150,11 @@ def new_switch(request):
                 new_interface.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
+            new_domain.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
             new_switch.switch_interface = new_interface
             with transaction.atomic(), reversion.create_revision():
                 new_switch.save()
@@ -155,7 +162,7 @@ def new_switch(request):
                 reversion.set_comment("Création")
             messages.success(request, "Le switch a été crée")
             return redirect("/topologie/")
-    return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface}, 'topologie/switch.html', request)
+    return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
@@ -168,10 +175,12 @@ def edit_switch(request, switch_id):
     switch_form = EditSwitchForm(request.POST or None, instance=switch)
     machine_form = EditMachineForm(request.POST or None, instance=switch.switch_interface.machine)
     interface_form = EditInterfaceForm(request.POST or None, instance=switch.switch_interface)
+    domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), instance=switch.switch_interface.domain)
     if switch_form.is_valid() and machine_form.is_valid() and interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
         new_switch = switch_form.save(commit=False)
+        new_domain = domain.save(commit=False)
         if full_domain_validator(request, new_interface):
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
@@ -182,12 +191,16 @@ def edit_switch(request, switch_id):
                 reversion.set_user(request.user)
                 reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
             with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
                 new_switch.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch_form.changed_data))
             messages.success(request, "Le switch a bien été modifié")
             return redirect("/topologie/")
-    return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form}, 'topologie/switch.html', request)
+    return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
