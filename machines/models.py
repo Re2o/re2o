@@ -55,7 +55,7 @@ class Mx(models.Model):
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     priority = models.IntegerField(unique=True)
-    name = models.OneToOneField('Alias', on_delete=models.PROTECT)
+    name = models.OneToOneField('Domain', on_delete=models.PROTECT)
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
@@ -91,33 +91,29 @@ class Interface(models.Model):
 
     def clean(self, *args, **kwargs):
         self.mac_address = str(EUI(self.mac_address)) or None
-        if self.ipv4:
-            alias = Alias.objects.filter(alias=self.dns).filter(extension=self.ipv4.ip_type.extension)
-        else:
-            alias = Alias.objects.filter(alias=self.dns)
-        if alias:
-            raise ValidationError("Impossible, le dns est déjà utilisé par un alias (%s)" % alias[0])
 
     def __str__(self):
-        return self.dns
+        return self.domain_set.all().first()
 
-class Alias(models.Model):
-    PRETTY_NAME = "Alias dns"
+class Domain(models.Model):
+    PRETTY_NAME = "Domaine dns"
 
-    interface_parent = models.ForeignKey('Interface', on_delete=models.CASCADE)
-    alias = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255)
+    interface_parent = models.OneToOneField('Interface', on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(help_text="Obligatoire et unique, ne doit pas comporter de points", max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    cname = models.ForeignKey('self', null=True, blank=True, related_name='related_domain')
 
     class Meta:
-        unique_together = ("alias", "extension")
+        unique_together = ("name", "extension")
 
-    def clean(self, *args, **kwargs):
-        if hasattr(self, 'alias') and hasattr(self, 'extension'):
-            if Interface.objects.filter(dns=self.alias).filter(ipv4__in=IpList.objects.filter(ip_type__in=IpType.objects.filter(extension=self.extension))):
-                raise ValidationError("Impossible d'ajouter l'alias, déjà utilisé par une machine")
+    def clean(self):
+        if self.interface_parent and self.cname:
+            raise ValidationError("On ne peut créer à la fois A et CNAME")
+        if self.related==self:
+            raise ValidationError("On ne peut créer un cname sur lui même")
 
     def __str__(self):
-        return str(self.alias) + str(self.extension)
+        return str(self.name) + str(self.extension)
 
 class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"
