@@ -1,7 +1,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Alias, Mx, Ns
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Mx, Ns
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -16,10 +16,14 @@ class IpListSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     ipv4 = IpListSerializer(read_only=True)
-   
+    dns = serializers.SerializerMethodField('get_dns')
+
     class Meta:
         model = Interface
-        fields = ('ipv4', 'mac_address', 'dns')
+        fields = ('ipv4', 'mac_address')
+
+    def get_dns(self, obj):
+        return obj.domain_set.all().first()
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
@@ -70,16 +74,20 @@ class NsSerializer(serializers.ModelSerializer):
     def get_interface_name(self, obj):
         return obj.interface.dns + obj.interface.ipv4.ip_type.extension.name
 
-class AliasSerializer(serializers.ModelSerializer):
+class DomainSerializer(serializers.ModelSerializer):
     interface_parent = serializers.SerializerMethodField('get_interface_name')
     extension = serializers.SerializerMethodField('get_zone_name')
+    cname = serializers.SerializerMethodField('get_cname')
 
     class Meta:
-        model = Alias
-        fields = ('interface_parent', 'alias', 'extension')
+        model = Domain
+        fields = ('interface_parent', 'name', 'extension', 'cname')
 
     def get_zone_name(self, obj):
         return obj.extension.name 
 
+    def get_cname(self, obj):
+        return obj.cname.name + obj.cname.extension.name
+
     def get_interface_name(self, obj):
-        return obj.interface_parent.dns + obj.interface_parent.ipv4.ip_type.extension.name
+        return obj.name + obj.extension.name
