@@ -16,14 +16,14 @@ class IpListSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     ipv4 = IpListSerializer(read_only=True)
-    dns = serializers.SerializerMethodField('get_dns')
+    domain = serializers.SerializerMethodField('get_dns')
 
     class Meta:
         model = Interface
-        fields = ('ipv4', 'mac_address')
+        fields = ('ipv4', 'mac_address', 'domain')
 
     def get_dns(self, obj):
-        return obj.domain_set.all().first()
+        return obj
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
@@ -47,15 +47,15 @@ class ExtensionSerializer(serializers.ModelSerializer):
         return obj.origin.ipv4
 
 class MxSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField('get_alias_name')
+    name = serializers.SerializerMethodField('get_name')
     zone = serializers.SerializerMethodField('get_zone_name')
 
     class Meta:
         model = Mx
         fields = ('zone', 'priority', 'name')
 
-    def get_alias_name(self, obj):
-        return obj.name.alias + obj.name.extension.name
+    def get_name(self, obj):
+        return obj.name
 
     def get_zone_name(self, obj):
         return obj.zone.name
@@ -72,22 +72,19 @@ class NsSerializer(serializers.ModelSerializer):
         return obj.zone.name
 
     def get_interface_name(self, obj):
-        return obj.interface.dns + obj.interface.ipv4.ip_type.extension.name
+        return obj.interface
 
 class DomainSerializer(serializers.ModelSerializer):
-    interface_parent = serializers.SerializerMethodField('get_interface_name')
     extension = serializers.SerializerMethodField('get_zone_name')
     cname = serializers.SerializerMethodField('get_cname')
 
     class Meta:
         model = Domain
-        fields = ('interface_parent', 'name', 'extension', 'cname')
+        fields = ('name', 'extension', 'cname')
 
     def get_zone_name(self, obj):
-        return obj.extension.name 
+        return obj.extension.name
 
     def get_cname(self, obj):
-        return obj.cname.name + obj.cname.extension.name
+        return obj.cname
 
-    def get_interface_name(self, obj):
-        return obj.name + obj.extension.name

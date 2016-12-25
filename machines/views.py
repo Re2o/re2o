@@ -747,8 +747,6 @@ def zones(request):
 @permission_required('serveur')
 def mac_ip(request):
     seria = interface_list(request)
-    for s in seria:
-        s.pop('dns')
     return JSONResponse(seria)
 
 @csrf_exempt
