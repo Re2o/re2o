@@ -20,7 +20,7 @@ class MxAdmin(VersionAdmin):
     list_display = ('zone', 'priority', 'name')
 
 class NsAdmin(VersionAdmin):
-    list_display = ('zone', 'interface')
+    list_display = ('zone', 'ns')
 
 class IpListAdmin(VersionAdmin):
     list_display = ('ipv4','ip_type')

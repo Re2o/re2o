@@ -10,7 +10,7 @@
         {% for ns in ns_list %}
         <tr>
             <td>{{ ns.zone }}</td>
-	    <td>{{ ns.interface }}</td>
+	    <td>{{ ns.ns }}</td>
             <td class="text-right">
             {% if is_infra %}
             {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
