@@ -17,9 +17,8 @@ class IpListSerializer(serializers.ModelSerializer):
 class InterfaceSerializer(serializers.ModelSerializer):
     ipv4 = IpListSerializer(read_only=True)
     mac_address = serializers.SerializerMethodField('get_macaddress')
-    dns = serializers.SerializerMethodField('get_dns')
     domain = serializers.SerializerMethodField('get_dns')
-    extension = serializers.SerializerMethodField('get_extension')
+    extension = serializers.SerializerMethodField('get_interface_extension')
 
     class Meta:
         model = Interface
@@ -28,7 +27,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
     def get_dns(self, obj):
         return obj.domain.name
 
-    def get_extension(self, obj):
+    def get_interface_extension(self, obj):
         return obj.domain.extension.name
 
     def get_macaddress(self, obj):
@@ -56,22 +55,22 @@ class ExtensionSerializer(serializers.ModelSerializer):
         return obj.origin.ipv4
 
 class MxSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField('get_name')
+    name = serializers.SerializerMethodField('get_mx_name')
     zone = serializers.SerializerMethodField('get_zone_name')
 
     class Meta:
         model = Mx
         fields = ('zone', 'priority', 'name')
 
-    def get_name(self, obj):
-        return obj.name
+    def get_mx_name(self, obj):
+        return str(obj.name)
 
     def get_zone_name(self, obj):
         return obj.zone.name
 
 class NsSerializer(serializers.ModelSerializer):
     zone = serializers.SerializerMethodField('get_zone_name')
-    ns = serializers.SerializerMethodField('get_interface_name')
+    ns = serializers.SerializerMethodField('get_domain_name')
 
     class Meta:
         model = Ns
@@ -80,12 +79,12 @@ class NsSerializer(serializers.ModelSerializer):
     def get_zone_name(self, obj):
         return obj.zone.name
 
-    def get_interface_name(self, obj):
-        return obj.ns
+    def get_domain_name(self, obj):
+        return str(obj.ns)
 
 class DomainSerializer(serializers.ModelSerializer):
     extension = serializers.SerializerMethodField('get_zone_name')
-    cname = serializers.SerializerMethodField('get_cname')
+    cname = serializers.SerializerMethodField('get_cname_name')
 
     class Meta:
         model = Domain
@@ -94,6 +93,6 @@ class DomainSerializer(serializers.ModelSerializer):
     def get_zone_name(self, obj):
         return obj.extension.name
 
-    def get_cname(self, obj):
-        return obj.cname
+    def get_cname_name(self, obj):
+        return str(obj.cname)
 
