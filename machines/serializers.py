@@ -17,13 +17,17 @@ class IpListSerializer(serializers.ModelSerializer):
 class InterfaceSerializer(serializers.ModelSerializer):
     ipv4 = IpListSerializer(read_only=True)
     domain = serializers.SerializerMethodField('get_dns')
+    extension = serializers.SerializerMethodField('get_extension')
 
     class Meta:
         model = Interface
-        fields = ('ipv4', 'mac_address', 'domain')
+        fields = ('ipv4', 'mac_address', 'domain', 'extension')
 
     def get_dns(self, obj):
-        return obj
+        return obj.domain.name
+
+    def get_extension(self, obj):
+        return obj.domain.extension.name
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
