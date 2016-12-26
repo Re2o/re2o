@@ -152,11 +152,11 @@ class DelMxForm(ModelForm):
 class NsForm(ModelForm):
     class Meta:
         model = Ns
-        fields = ['zone', 'interface']
+        fields = ['zone', 'ns']
 
 class DelNsForm(ModelForm):
     ns = forms.ModelMultipleChoiceField(queryset=Ns.objects.all(), label="Enregistrements NS actuels",  widget=forms.CheckboxSelectMultiple)
 
     class Meta:
-        exclude = ['zone', 'interface']
+        exclude = ['zone', 'ns']
         model = Ns
