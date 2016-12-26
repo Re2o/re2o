@@ -64,10 +64,10 @@ class Ns(models.Model):
     PRETTY_NAME = "Enregistrements NS"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    interface = models.OneToOneField('Interface', on_delete=models.PROTECT)
+    ns = models.OneToOneField('Domain', on_delete=models.PROTECT)
 
     def __str__(self):
-        return str(self.zone) + ' ' + str(self.interface)
+        return str(self.zone) + ' ' + str(self.ns)
 
 class Interface(models.Model):
     PRETTY_NAME = "Interface"

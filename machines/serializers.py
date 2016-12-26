@@ -27,7 +27,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
 class ExtensionNameField(serializers.RelatedField):
     def to_representation(self, value):
-        return value.alias
+        return value.name
 
 class TypeSerializer(serializers.ModelSerializer):
     extension = ExtensionNameField(read_only=True)
@@ -62,17 +62,17 @@ class MxSerializer(serializers.ModelSerializer):
 
 class NsSerializer(serializers.ModelSerializer):
     zone = serializers.SerializerMethodField('get_zone_name')
-    interface = serializers.SerializerMethodField('get_interface_name')
+    ns = serializers.SerializerMethodField('get_interface_name')
 
     class Meta:
         model = Ns
-        fields = ('zone', 'interface')
+        fields = ('zone', 'ns')
 
     def get_zone_name(self, obj):
         return obj.zone.name
 
     def get_interface_name(self, obj):
-        return obj.interface
+        return obj.ns
 
 class DomainSerializer(serializers.ModelSerializer):
     extension = serializers.SerializerMethodField('get_zone_name')

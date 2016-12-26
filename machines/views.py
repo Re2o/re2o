@@ -730,7 +730,7 @@ def mx(request):
 @login_required
 @permission_required('serveur')
 def ns(request):
-    ns = Ns.objects.filter(interface__in=Interface.objects.exclude(ipv4=None))
+    ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None)))
     seria = NsSerializer(ns, many=True)
     return JSONResponse(seria.data)
 
