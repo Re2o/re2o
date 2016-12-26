@@ -19,13 +19,17 @@ class InterfaceSerializer(serializers.ModelSerializer):
     mac_address = serializers.SerializerMethodField('get_macaddress')
     dns = serializers.SerializerMethodField('get_dns')
     domain = serializers.SerializerMethodField('get_dns')
+    extension = serializers.SerializerMethodField('get_extension')
 
     class Meta:
         model = Interface
-        fields = ('ipv4', 'mac_address', 'domain')
+        fields = ('ipv4', 'mac_address', 'domain', 'extension')
 
     def get_dns(self, obj):
-        return obj
+        return obj.domain.name
+
+    def get_extension(self, obj):
+        return obj.domain.extension.name
 
     def get_macaddress(self, obj):
         return str(obj.mac_address)
