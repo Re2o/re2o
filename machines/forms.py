@@ -154,6 +154,10 @@ class NsForm(ModelForm):
         model = Ns
         fields = ['zone', 'ns']
 
+    def __init__(self, *args, **kwargs):
+        super(NsForm, self).__init__(*args, **kwargs)
+        self.fields['ns'].queryset = Domain.objects.exclude(interface_parent=None)
+
 class DelNsForm(ModelForm):
     ns = forms.ModelMultipleChoiceField(queryset=Ns.objects.all(), label="Enregistrements NS actuels",  widget=forms.CheckboxSelectMultiple)
 

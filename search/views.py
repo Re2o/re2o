@@ -55,7 +55,7 @@ def search_result(search, type, request):
         if i == '0':
             recherche['users_list'] = User.objects.filter((Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query1).order_by('state', 'surname')
         if i == '1':
-            data = Interface.objects.filter(Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search))
+            data = Interface.objects.filter(Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search))
             for d in data:
                   recherche['machines_list'].append(d.machine)
         if i == '2':
