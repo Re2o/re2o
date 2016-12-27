@@ -9,13 +9,19 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il 
 Il utilise le framework django avec python3. Il permet de gérer les adhérents, les machines, les factures, les droits d'accès, les switchs et la topologie du réseau.
 De cette manière, il est possible de pluguer très facilement des services dessus, qui accèdent à la base de donnée en passant par django (ex : dhcp), en chargeant la liste de toutes les mac-ip, ou la liste des mac-ip autorisées sur le réseau (adhérent à jour de cotisation).
 
-## Installation
+## Installation des dépendances
 
-### Prérequis
+L'installation comporte 3 partie : le serveur web où se trouve le depot re2o ainsi que toutes ses dépendances, le serveur bdd (mysql ou pgsql) et le serveur ldap. Ces 3 serveurs peuvent en réalité être la même machine, ou séparés (recommandé en production).
+Le serveur web sera nommé serveur A, le serveur bdd serveur B et le serveur ldap serveur C.
 
-Dépendances :
+### Prérequis sur le serveur A
 
-Avec apt (recommandé):
+Voici la liste des dépendances à installer sur le serveur principal (A).
+
+### Avec apt :
+
+#### Sous debian 8
+Paquets obligatoires:
  * python3-django (1.8, jessie-backports)
  * python3-django-macaddress (stretch)
  * python3-dateutil (jessie-backports)
@@ -24,22 +30,73 @@ Avec apt (recommandé):
  * texlive-fonts-recommended (jessie)
  * python3-djangorestframework (jessie)
  * python3-django-reversion (stretch)
- * slapd (jessie)
+ * python3-pip (jessie)
 
-Avec pip3:
- * django-bootstrap3 (pip install)
+Paquet recommandés:
+ * python3-django-extensions (jessie)
+
+#### Sous debian 9
+
+Paquets obligatoires:
+ * python3-django (1.10, stretch)
+ * python3-dateutil (stretch)
+ * texlive (stretch)
+ * texlive-latex-base (stretch)
+ * texlive-fonts-recommended (strech)
+ * python3-djangorestframework (stretch)
+ * python3-django-reversion (stretch)
+ * python3-pip (stretch)
+
+Paquet recommandés:
+ * python3-django-extensions (stretch)
+
+
+### Autres dépendances : 
+
+Avec pip3 (pip3 install):
+ * django-bootstrap3
  * django-ldapdb
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
-Pour mysql, il faut installer :
-
+Pour mysql, il faut installer : 
  * python3-mysqldb (jessie-backports)
+ * mysql-client
 
-Sur le serveur mysql :
- * mysql-server (jessie)
+### Prérequis sur le serveur B
 
-## Installation du ldap, opérations à réaliser en root
+Sur le serveur B, installer mysql ou postgresql, dans la version jessie ou stretch.
+ * mysql-server (jessie/stretch) ou postgresql (jessie-stretch)
 
+### Prérequis sur le serveur C
+Sur le serveur C (ldap), avec apt :
+ * slapd (jessie/stretch)
+
+## Installation sur le serveur principal A
+
+Cloner le dépot re2o à partir du gitlab, par exemple dans /var/www/re2o.
+Ensuite, il faut créer le fichier settings_local.py dans le sous dossier re2o, un settings_local.example.py est présent. Les options sont commentées, et des options par défaut existent.
+
+En particulier, il est nécessaire de générer un login/mdp admin pour le ldap et un login/mdp pour l'utilisateur sql (cf ci-dessous), à mettre dans settings_local.py
+
+## Installation du serveur mysql/postgresql sur B
+
+Sur le serveur mysql ou postgresl, il est nécessaire de créer une base de donnée re2o, ainsi qu'un user re2o et un mot de passe associé. Ne pas oublier de faire écouter le serveur mysql ou postgresql avec les acl nécessaire pour que A puisse l'utiliser.
+
+Voici les étapes à éxecuter pour mysql :
+ * CREATE DATABASE re2o;
+ * CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+ * GRANT ALL PRIVILEGES ON re2o.* TO 'newuser'@'localhost';
+ * FLUSH PRIVILEGES;
+
+Si les serveurs A et B ne sont pas la même machine, il est nécessaire de remplacer localhost par l'ip avec laquelle A contacte B dans les commandes du dessus.
+Une fois ces commandes effectuées, ne pas oublier de vérifier que newuser et password sont présents dans settings_local.py
+
+### Installation du serveur ldap
+
+Ceci se fait en plusieurs étapes : 
+ * générer un login/mdp administrateur (par example mkpasswd sous debian)
+ * Copier depuis re2o/install_utils (dans le dépot re2o) les fichiers db.ldiff et schema.ldiff (normalement sur le serveur A) sur le serveur C (par ex dans /tmp)
+ * 
 ### Insérer le mot de passe dans FILL_IN du schema.ldiff et db.ldiff, en hashant le mdp à l'aide de slappasswd
 
 ### Remplacer dans schema.ldiff et db.ldiff 'dc=example,dc=org' par le suffixe de l'association
