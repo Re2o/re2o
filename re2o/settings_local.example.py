@@ -99,3 +99,5 @@ RADIUS_VLAN_DECISION = {
     'VLAN_NOK' : 42,
     'VLAN_OK' : 69,
 }
+
+OPTIONNAL_APPS = ()
