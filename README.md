@@ -133,9 +133,35 @@ Pour créer un premier user, faire '''python3 manage.py createsuperuser''' qui v
 Il est conseillé de créer alors les droits cableur, bureau, trésorier et infra, qui n'existent pas par défaut dans le menu adhérents.
 Il est également conseillé de créer un user portant le nom de l'association/organisation, qui possedera l'ensemble des machines.
 
+## Installations Optionnelles
+### Générer le schéma des dépendances
+
+Pour cela : 
+ * apt install python3-django-extensions
+ * python3 manage.py graph_models -a -g -o re2o.png
+
 # Fonctionnement interne
+
+## Fonctionnement général
+
+Re2o est séparé entre les models, qui sont visible sur le schéma des dépendances. Il s'agit en réalité des tables sql, et les fields etant les colonnes.
+Ceci dit il n'est jamais nécessaire de toucher directement au sql, django procédant automatiquement à tout cela. 
+On crée donc différents models (user, right pour les droits des users, interfaces, IpList pour l'ensemble des adresses ip, etc)
+
+Du coté des forms, il s'agit des formulaire d'édition des models. Il s'agit de ModelForms django, qui héritent des models très simplement, voir la documentation django models forms.
+
+Enfin les views, générent les pages web à partir des forms et des templates.
 
 ## Fonctionnement avec les services
 
+Les services dhcp.py, dns.py etc accèdent aux données via des vues rest.
+Celles-ci se trouvent dans machines/views.py. Elles sont générées via machines/serializers.py qui génère les vues. IL s'agit de vues en json utilisées par re2o-tools pour récupérer les données.
+Il est nécessaire de créer un user dans re2o avec le droit serveur qui permet d'accéder à ces vues, utilisé par re2o-tools.
+
+# Requète en base de donnée
+
+Pour avoir un shell, il suffit de lancer '''python3 manage.py shell'''
+Pour charger des objets, example avec User, faire : ''' from users.models import User'''
 Pour charger les objets django, il suffit de faire User.objects.all() pour tous les users par exemple. 
-Cependant, pour que les services fonctionnent de manière simple, des fonctions toutes prètes existent deja pour charger la liste des users autorisés à se connecter ( has_access(user)), etc. Ces fonctions sont personnalisables, et permettent un fonctionnement très simple des services.
+Il est ensuite aisé de faire des requètes, par exemple User.objects.filter(pseudo='test')
+Des exemples et la documentation complète sur les requètes django sont disponible sur le site officiel.
