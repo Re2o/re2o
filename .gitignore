@@ -1,5 +1,6 @@
 settings_local.py
 *.swp
 *.pyc
+re2o.png
 __pycache__/*
 static_files/*
