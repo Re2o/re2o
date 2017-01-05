@@ -141,7 +141,11 @@ class MxForm(ModelForm):
     class Meta:
         model = Mx
         fields = ['zone', 'priority', 'name']
-        
+      
+    def __init__(self, *args, **kwargs):
+        super(MxForm, self).__init__(*args, **kwargs)
+        self.fields['name'].queryset = Domain.objects.exclude(interface_parent=None)
+  
 class DelMxForm(ModelForm):
     mx = forms.ModelMultipleChoiceField(queryset=Mx.objects.all(), label="MX actuels",  widget=forms.CheckboxSelectMultiple)
 
