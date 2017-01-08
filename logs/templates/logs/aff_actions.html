@@ -16,20 +16,22 @@
             </tr>
         </thead>
         {% for revision in revisions_list %}
-        <tr>
-            <td>{% for reversion in revision.version_set.all %}{{ reversion.object|truncatechars:20 }}{% endfor %}</td>
-            <td>{% for reversion in revision.version_set.all %}{{ reversion.object|classname }}{% endfor %}</td>
-            <td>{{ revision.user }}</td>
-            <td>{{ revision.date_created }}</td>
-            <td>{{ revision.comment }}</td>
-            {% if is_bureau %}
-            <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
-                    Annuler
-                </a>
-            </td>
-            {% endif %}
-        </tr>
+        	{% for reversion in revision.version_set.all %}
+		<tr>
+            	    <td>{{ reversion.object|truncatechars:20 }}</td>
+                    <td>{{ reversion.object|classname }}</td>
+                    <td>{{ revision.user }}</td>
+                    <td>{{ revision.date_created }}</td>
+                    <td>{{ revision.comment }}</td>
+                    {% if is_bureau %}
+                    <td>
+                	<a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}">
+                    	<i class="glyphicon glyphicon-remove"></i>
+                    	Annuler
+                	</a>
+            	    </td>
+            	    {% endif %}
+        	</tr>
+		{% endfor %}
         {% endfor %}
     </table>

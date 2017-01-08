@@ -28,7 +28,7 @@ class Facture(models.Model):
         return name
 
     def __str__(self):
-        return str(self.date) + ' ' + str(self.user)
+        return str(self.user) + ' ' + str(self.date)
 
 @receiver(post_save, sender=Facture)
 def facture_post_save(sender, **kwargs):
