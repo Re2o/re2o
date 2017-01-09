@@ -99,7 +99,8 @@ def new_machine(request, userid):
             return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
-    domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    nb_machine = Interface.objects.filter(machine__user=userid).count()
+    domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), name_user=request.user.surname, nb_machine=nb_machine)
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
         new_machine.user = user
