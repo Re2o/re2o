@@ -70,11 +70,12 @@ class AliasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
-        name_user = kwargs.pop('name_user')
-        nb_machine = kwargs.pop('nb_machine')
-        initial = kwargs.get('initial', {})
-        initial['name'] = name_user.lower()+str(nb_machine)
-        kwargs['initial'] = initial 
+        if 'name_user' in kwargs:
+            name_user = kwargs.pop('name_user')
+            nb_machine = kwargs.pop('nb_machine')
+            initial = kwargs.get('initial', {})
+            initial['name'] = name_user.lower()+str(nb_machine)
+            kwargs['initial'] = initial 
         super(AliasForm, self).__init__(*args, **kwargs)
         if not infra:
             self.fields['extension'].queryset = Extension.objects.filter(need_infra=False)
