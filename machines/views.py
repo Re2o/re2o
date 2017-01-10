@@ -126,7 +126,7 @@ def new_machine(request, userid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été crée")
-            return redirect("/users/profil/" + userid)
+            return redirect("/users/profil/" + user)
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
 @login_required
@@ -179,13 +179,13 @@ def del_machine(request, machineid):
     if not request.user.has_perms(('cableur',)):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect("/users/profil/" + str(machine.user.id))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             machine.delete()
             reversion.set_user(request.user)
         messages.success(request, "La machine a été détruite")
-        return redirect("/users/profil/" + str(request.user.id))
+        return redirect("/users/profil/" + str(machine.user.id))
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
 
 @login_required
