@@ -102,6 +102,7 @@ def new_machine(request, userid):
     nb_machine = Interface.objects.filter(machine__user=userid).count()
     domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), name_user=user.surname, nb_machine=nb_machine)
 <<<<<<< HEAD
+<<<<<<< HEAD
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
         new_machine.user = user
@@ -140,6 +141,15 @@ def new_machine(request, userid):
                 messages.error(request, u"Adresse mac de taille incorrecte")
                 return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 >>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
+=======
+    try:
+         if machine.is_valid() and interface.is_valid() and domain.is_valid():
+            new_machine = machine.save(commit=False)
+            new_machine.user = user
+            if len(interface.cleaned_data['mac_address']) != 12:
+                messages.error(request, u"Adresse mac trop courte")
+                return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
+>>>>>>> 9be0510... Normalement ca gere les bugs d'ajout et verifie la validité du domaine
             new_interface = interface.save(commit=False)
             new_domain = domain.save(commit=False)
             if full_domain_validator(request, new_domain):
@@ -165,10 +175,13 @@ def new_machine(request, userid):
                 return redirect("/users/profil/" + str(user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
+<<<<<<< HEAD
 >>>>>>> b660cf0... Prise en compte des erreurs sur la mac
 =======
             return redirect("/users/profil/" + user)
 >>>>>>> 9b69205... Retour sur le profil de l'utilisateur apres suppression machine
+=======
+>>>>>>> 9be0510... Normalement ca gere les bugs d'ajout et verifie la validité du domaine
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
 @login_required

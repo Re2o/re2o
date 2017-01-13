@@ -76,7 +76,8 @@ class AliasForm(ModelForm):
         fields = ['name','extension']
 
     def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
+        if 'infra' in kwargs:
+            infra = kwargs.pop('infra')
         if 'name_user' in kwargs:
             name_user = kwargs.pop('name_user')
             nb_machine = kwargs.pop('nb_machine')
