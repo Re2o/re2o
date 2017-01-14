@@ -31,6 +31,12 @@ class EditInterfaceForm(ModelForm):
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
 
+    def clean(self):
+        data = super(EditInterfaceForm, self).clean()
+        mac = str(self.data['mac_address'])
+        if len(''.join(mac.replace("-",":").split(":"))) != 12:
+            self.add_error('mac_address', "Format de la mac incorrect")
+
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['ipv4','mac_address','type','details']
