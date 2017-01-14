@@ -2,6 +2,7 @@ from django.forms import ModelForm, Form, ValidationError
 from django import forms
 from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
 from django.db.models import Q
+from django.core.validators import validate_email
 
 class EditMachineForm(ModelForm):
     class Meta:
