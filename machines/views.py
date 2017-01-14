@@ -102,12 +102,9 @@ def new_machine(request, userid):
     nb_machine = Interface.objects.filter(machine__user=userid).count()
     domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), name_user=user.surname, nb_machine=nb_machine)
     try:
-         if machine.is_valid() and interface.is_valid() and domain.is_valid():
+        if machine.is_valid() and interface.is_valid() and domain.is_valid():
             new_machine = machine.save(commit=False)
             new_machine.user = user
-            if len(interface.cleaned_data['mac_address']) != 12:
-                messages.error(request, u"Adresse mac de taille incorrecte")
-                return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
             new_interface = interface.save(commit=False)
             new_domain = domain.save(commit=False)
             if full_domain_validator(request, new_domain):
@@ -156,9 +153,6 @@ def edit_interface(request, interfaceid):
         if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
             new_machine = machine_form.save(commit=False)
-            if len(interface_form.cleaned_data['mac_address']) != 12:
-                messages.error(request, u"Adresse mac de taille incorrecte")
-                return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
             new_domain = domain_form.save(commit=False)
             if full_domain_validator(request, new_domain):
                 with transaction.atomic(), reversion.create_revision():
@@ -219,9 +213,6 @@ def new_interface(request, machineid):
     try:
         if interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
-            if len(interface_form.cleaned_data['mac_address']) != 12:
-                messages.error(request, u"Adresse mac de taille incorrecte")
-                return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
             new_interface.machine = machine
             new_domain = domain_form.save(commit=False)
             if full_domain_validator(request, new_domain):
