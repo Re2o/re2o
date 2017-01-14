@@ -133,6 +133,12 @@ def new_machine(request, userid):
         if machine.is_valid() and interface.is_valid() and domain.is_valid():
             new_machine = machine.save(commit=False)
             new_machine.user = user
+<<<<<<< HEAD
+=======
+            if len(interface.cleaned_data['mac_address']) != 12:
+                messages.error(request, u"Adresse mac de taille incorrecte")
+                return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
             new_interface = interface.save(commit=False)
             new_domain = domain.save(commit=False)
             if full_domain_validator(request, new_domain):
@@ -179,6 +185,7 @@ def edit_interface(request, interfaceid):
         interface_form = EditInterfaceForm(request.POST or None, instance=interface)
     domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), instance=interface.domain)
 <<<<<<< HEAD
+<<<<<<< HEAD
     if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_machine = machine_form.save(commit=False)
@@ -201,10 +208,18 @@ def edit_interface(request, interfaceid):
             messages.success(request, "La machine a été modifiée")
             return redirect("/users/profil/" + str(interface.machine.user.id))
 =======
+=======
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
     try:
         if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
             new_machine = machine_form.save(commit=False)
+<<<<<<< HEAD
+=======
+            if len(interface_form.cleaned_data['mac_address']) != 12:
+                messages.error(request, u"Adresse mac de taille incorrecte")
+                return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
             new_domain = domain_form.save(commit=False)
             if full_domain_validator(request, new_domain):
                 with transaction.atomic(), reversion.create_revision():
@@ -225,7 +240,10 @@ def edit_interface(request, interfaceid):
                 return redirect("/users/profil/" + str(interface.machine.user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
+<<<<<<< HEAD
 >>>>>>> b660cf0... Prise en compte des erreurs sur la mac
+=======
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
@@ -264,6 +282,7 @@ def new_interface(request, machineid):
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
 <<<<<<< HEAD
+<<<<<<< HEAD
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
         new_interface.machine = machine
@@ -288,6 +307,14 @@ def new_interface(request, machineid):
     try:
         if interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
+=======
+    try:
+        if interface_form.is_valid() and domain_form.is_valid():
+            new_interface = interface_form.save(commit=False)
+            if len(interface_form.cleaned_data['mac_address']) != 12:
+                messages.error(request, u"Adresse mac de taille incorrecte")
+                return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
             new_interface.machine = machine
             new_domain = domain_form.save(commit=False)
             if full_domain_validator(request, new_domain):
@@ -308,7 +335,10 @@ def new_interface(request, machineid):
                 return redirect("/users/profil/" + str(machine.user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
+<<<<<<< HEAD
 >>>>>>> b660cf0... Prise en compte des erreurs sur la mac
+=======
+>>>>>>> 5a7c1b3... Gestion de l'erreur sur les autres fctions
     return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
