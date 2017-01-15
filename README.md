@@ -55,6 +55,11 @@ Paquet recommandés:
 
 ### Autres dépendances : 
 
+Paquets préalables à installer avec apt : 
+ * libsasl2-dev (stable)
+ * libldap2-dev (stable)
+ * libssl-dev (stable)
+
 Avec pip3 (pip3 install):
  * django-bootstrap3
  * django-ldapdb
