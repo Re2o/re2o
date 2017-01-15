@@ -5,6 +5,10 @@ DB_PASSWORD = 'SUPER_SECRET'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+ADMINS = [('Example', 'rezo-admin@example.org')]
+
+SERVER_EMAIL = 'no-reply@example.org'
+
 # Obligatoire, liste des host autorisés
 ALLOWED_HOSTS = ['test.example.org']
 
