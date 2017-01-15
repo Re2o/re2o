@@ -26,8 +26,13 @@ Avec apt (recommandé):
  * python3-django-reversion (stretch)
  * slapd (jessie)
 
-Avec pip3:
- * django-bootstrap3 (pip install)
+Paquets préalables à installer avec apt : 
+ * libsasl2-dev (stable)
+ * libldap2-dev (stable)
+ * libssl-dev (stable)
+
+Avec pip3 (pip3 install):
+ * django-bootstrap3
  * django-ldapdb
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
