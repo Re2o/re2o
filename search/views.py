@@ -49,13 +49,25 @@ def search_result(search, type, request):
    
     recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
 
-    query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
+    if request.user.has_perms(('cableur',)):
+        query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
+    else:
+        query = (Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)) & Q(user = request.user)
+
 
     for i in aff:
         if i == '0':
-            recherche['users_list'] = User.objects.filter((Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search)) & query1).order_by('state', 'surname')
+            query_user_list = Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search) & query1
+            if request.user.has_perms(('cableur',)):
+                recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname')
+            else :
+                recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname')
         if i == '1':
-            data = Interface.objects.filter(Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search))
+            query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
+            if request.user.has_perms(('cableur',)):
+                data = Interface.objects.filter(query_machine_list)
+            else:
+                data = Interface.objects.filter(query_machine_list & Q(machine__user__id = request.user.id))
             for d in data:
                   recherche['machines_list'].append(d.machine)
         if i == '2':
@@ -66,17 +78,12 @@ def search_result(search, type, request):
             recherche['white_list'] = Whitelist.objects.filter(query)
         if i == '5':
             recherche['port_list'] = Port.objects.filter(details__icontains = search)
+            if not request.user.has_perms(('cableur',)):
+                recherche['port_list'] = None
         if i == '6':
             recherche['switch_list'] = Switch.objects.filter(details__icontains = search)
-
-    if not request.user.has_perms(('cableur',)):
-        for r in recherche:
-            if r == 'users_list':
-                recherche[r] = recherche[r].filter(id=request.user.id)
-            elif r in ('switch_list','port_list'):
-                recherche[r] = None
-            elif recherche[r]:
-                recherche[r] = recherche[r].filter(user = request.user)
+            if not request.user.has_perms(('cableur',)):
+                recherche['switch_list'] = None
 
     for r in recherche:
         if recherche[r] != None:
