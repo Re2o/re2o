@@ -183,11 +183,11 @@ def post_auth_fil(data):
     """Idem, mais en filaire.
     """
 
-    nas = data.get('NAS-IP-Address', None)
-    port = data.get('NAS-Port', None)
+    nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
+    port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
     mac = data.get('Calling-Station-Id', None)
     # Hack, à cause d'une numérotation cisco baroque
-    port = port[-2:]
+    port = port.split(".")[0].split('/')[-1][-2:]
     out = subprocess.check_output(['/usr/bin/python3', '/var/www/re2o/freeradius_utils/authenticate_filaire.py', nas, port, mac])
     sw_name, reason, vlan_id = make_tuple(out)
 
