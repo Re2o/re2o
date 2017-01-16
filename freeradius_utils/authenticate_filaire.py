@@ -14,7 +14,8 @@ application = get_wsgi_application()
 
 import argparse
 
-from machines.models import Interface, IpList
+from django.db.models import Q
+from machines.models import Interface, IpList, Domain
 from topologie.models import Room, Port, Switch
 from users.models import User
 
@@ -23,9 +24,9 @@ from re2o.settings import RADIUS_VLAN_DECISION
 VLAN_NOK = RADIUS_VLAN_DECISION['VLAN_NOK']
 VLAN_OK = RADIUS_VLAN_DECISION['VLAN_OK']
 
-def decide_vlan(switch_ip, port_number, mac_address):
+def decide_vlan(switch_id, port_number, mac_address):
     # Get port from switch and port number
-    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(ipv4=IpList.objects.filter(ipv4=switch_ip)))
+    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(Q(ipv4=IpList.objects.filter(ipv4=switch_id)) | Q(domain=Domain.objects.filter(name=switch_id))))
     if not switch:
         return ('?', 'Switch inconnu', VLAN_OK)
 
@@ -70,9 +71,9 @@ def decide_vlan(switch_ip, port_number, mac_address):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Decide radius vlan attribution')
-    parser.add_argument('switch_ip', action="store")
+    parser.add_argument('switch_id', action="store")
     parser.add_argument('port_number', action="store", type=int)
     parser.add_argument('mac_address', action="store")
     args = parser.parse_args()
-    print(decide_vlan(args.switch_ip, args.port_number, args.mac_address))
+    print(decide_vlan(args.switch_id, args.port_number, args.mac_address))
 
