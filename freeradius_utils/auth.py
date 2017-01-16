@@ -1,3 +1,4 @@
+# ⁻*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -20,7 +21,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# ⁻*- mode: python; coding: utf-8 -*-
 """
 Backend python pour freeradius.
 
