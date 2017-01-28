@@ -737,6 +737,18 @@ def interface_list(request):
 @csrf_exempt
 @login_required
 @permission_required('serveur')
+def mac_ip_list(request):
+    interfaces = Interface.objects.all()
+    filter(
+        lambda interface: interface.ipv4 and interface.is_active(),
+        interfaces
+        )
+    seria = InterfaceSerializer(interfaces, many=True)
+    return seria.data
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
 def alias(request):
     alias = Domain.objects.filter(interface_parent=None).filter(cname=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None)))
     seria = DomainSerializer(alias, many=True)
@@ -778,7 +790,7 @@ def zones(request):
 @login_required
 @permission_required('serveur')
 def mac_ip(request):
-    seria = interface_list(request)
+    seria = mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
