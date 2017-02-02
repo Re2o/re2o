@@ -726,11 +726,11 @@ class JSONResponse(HttpResponse):
 @login_required
 @permission_required('serveur')
 def mac_ip_list(request):
-    interfaces = Interface.objects.select_related('ipv4').select_related('domain').all()
-    filter(
+    interf = Interface.objects.select_related('ipv4').select_related('domain__extension').all()
+    interfaces = list(filter(
         lambda interface: interface.ipv4 and interface.is_active(),
-        interfaces
-        )
+        interf
+        ))
     seria = InterfaceSerializer(interfaces, many=True)
     return seria.data
 
