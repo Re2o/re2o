@@ -725,13 +725,13 @@ class JSONResponse(HttpResponse):
 @csrf_exempt
 @login_required
 @permission_required('serveur')
-def interface_list(request):
-    interfaces = Interface.objects.all()
-    interface = []
-    for i in interfaces :
-        if i.ipv4 and i.is_active():
-            interface.append(i)
-    seria = InterfaceSerializer(interface, many=True) 
+def mac_ip_list(request):
+    interfaces = Interface.objects.select_related('ipv4').select_related('domain').all()
+    filter(
+        lambda interface: interface.ipv4 and interface.is_active(),
+        interfaces
+        )
+    seria = InterfaceSerializer(interfaces, many=True)
     return seria.data
 
 @csrf_exempt
@@ -778,14 +778,14 @@ def zones(request):
 @login_required
 @permission_required('serveur')
 def mac_ip(request):
-    seria = interface_list(request)
+    seria = mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
 @login_required
 @permission_required('serveur')
 def mac_ip_dns(request):
-    seria = interface_list(request)
+    seria = mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
