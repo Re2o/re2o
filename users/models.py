@@ -430,10 +430,20 @@ class ListShell(models.Model):
 class Ban(models.Model):
     PRETTY_NAME = "Liste des bannissements"
 
+    STATE_HARD = 0
+    STATE_SOFT = 1
+    STATE_BRIDAGE = 2
+    STATES = (
+            (0, 'HARD (aucun accès)'),
+            (1, 'SOFT (accès local seulement)'),
+            (2, 'BRIDAGE (bridage du débit)'),
+            )
+
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+    state = models.IntegerField(choices=STATES, default=STATE_HARD) 
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
