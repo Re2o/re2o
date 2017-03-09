@@ -150,6 +150,16 @@ class IpList(models.Model):
     def __str__(self):
         return self.ipv4
 
+@receiver(post_save, sender=Machine)
+def machine_post_save(sender, **kwargs):
+    user = kwargs['instance'].user
+    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+
+@receiver(post_delete, sender=Machine)
+def machine_post_delete(sender, **kwargs):
+    machine = kwargs['instance']
+    user = machine.user
+    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
 
 @receiver(post_save, sender=Interface)
 def interface_post_save(sender, **kwargs):
