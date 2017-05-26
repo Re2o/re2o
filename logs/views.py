@@ -95,7 +95,32 @@ def revert_action(request, revision_id):
 
 @login_required
 @permission_required('cableur')
+def stats_general(request):
+    all_active_users = User.objects.filter(state=User.STATE_ACTIVE)
+    ip = dict()
+    for ip_range in IpType.objects.all():
+        all_ip = IpList.objects.filter(ip_type=ip_range)
+        used_ip = Interface.objects.filter(ipv4__in=all_ip).count()
+        ip[ip_range] = [ip_range, all_ip.count(), used_ip, all_ip.count()-used_ip]
+    stats = [
+    [["Categorie", "Nombre d'utilisateurs"], {
+    'active_users' : ["Users actifs", User.objects.filter(state=User.STATE_ACTIVE).count()],
+    'inactive_users' : ["Users désactivés", User.objects.filter(state=User.STATE_DISABLED).count()],
+    'archive_users' : ["Users archivés", User.objects.filter(state=User.STATE_ARCHIVE).count()],
+    'adherent_users' : ["Adhérents à l'association", len([user for user in all_active_users if user.is_adherent()])],
+    'connexion_users' : ["Utilisateurs bénéficiant d'une connexion", len([user for user in all_active_users if user.has_access()])],
+    'ban_users' : ["Utilisateurs bannis", len([user for user in all_active_users if user.is_ban()])],
+    'whitelisted_user' : ["Utilisateurs bénéficiant d'une connexion gracieuse", len([user for user in all_active_users if user.is_whitelisted()])],
+    }],
+    [["Range d'ip", "Nombre d'ip totales", "Nombre d'ip utilisées", "Nombre d'ip libres"] ,ip]
+    ]
+    return render(request, 'logs/stats_general.html', {'stats_list': stats})
+
+
+@login_required
+@permission_required('cableur')
 def stats_models(request):
+    all_active_users = User.objects.filter(state=User.STATE_ACTIVE)
     stats = {
     'Users' : {
     'users' : [User.PRETTY_NAME, User.objects.count()],
