@@ -26,6 +26,7 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
+from django.utils import timezone
 
 from .models import User, ServiceUser, get_admin_right
 
@@ -137,3 +138,13 @@ class ServiceUserChangeForm(forms.ModelForm):
 class ResetPasswordForm(forms.Form):
     pseudo = forms.CharField(label=u'Pseudo', max_length=255)
     email = forms.EmailField(max_length=255)
+
+class MassArchiveForm(forms.Form):
+    date = forms.DateTimeField(help_text='%d/%m/%y')
+
+    def clean(self):
+        cleaned_data=super(MassArchiveForm, self).clean()
+        date = cleaned_data.get("date")
+        if date:
+            if date>timezone.now():
+                raise forms.ValidationError("Impossible d'archiver des utilisateurs dont la fin d'accès se situe dans le futur !")

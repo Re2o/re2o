@@ -223,7 +223,7 @@ class User(AbstractBaseUser):
         return date_max
 
     def end_whitelist(self):
-        """ Renvoie la date de fin de ban d'un user, False sinon """
+        """ Renvoie la date de fin de whitelist d'un user, False sinon """
         date_max = Whitelist.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
@@ -251,6 +251,19 @@ class User(AbstractBaseUser):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE \
             and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
+
+    def end_access(self):
+        """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
+        if not self.end_adhesion():
+            if not self.end_whitelist():
+                return None
+            else:
+                return self.end_whitelist()
+        else:
+            if not self.end_whitelist():
+                return self.end_adhesion()
+            else:        
+                return max(self.end_adhesion(), self.end_whitelist())
 
     def user_interfaces(self):
         return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=True))

@@ -43,7 +43,7 @@ from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, De
 from users.models import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, ListRightForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
-from users.forms import PassForm, ResetPasswordForm
+from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from machines.views import unassign_ips, assign_ips
 
 from re2o.login import hashNT
@@ -454,6 +454,26 @@ def del_listright(request):
                         vous ne pouvez pas le supprimer" % listright_del)
         return redirect("/users/index_listright/")
     return form({'userform': listright}, 'users/user.html', request)
+
+@login_required
+@permission_required('bureau')
+def mass_archive(request):
+    """ Permet l'archivage massif"""
+    to_archive_date = MassArchiveForm(request.POST or None)
+    to_archive_list = []
+    if to_archive_date.is_valid():
+        date = to_archive_date.cleaned_data['date']
+        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access() or user.end_access() < date]
+        if "valider" in request.POST:
+            for user in to_archive_list:
+                archive(user)
+                with transaction.atomic(), reversion.create_revision():
+                    user.state=User.STATE_ARCHIVE
+                    user.save()
+                    reversion.set_comment("Archivage")
+            messages.success(request, "%s users ont été archivés" % len(to_archive_list))
+            return redirect("/users/")        
+    return form({'userform': to_archive_date, 'to_archive_list': to_archive_list}, 'users/mass_archive.html', request)
 
 @login_required
 @permission_required('cableur')
