@@ -73,7 +73,7 @@ def decide_vlan(switch_id, port_number, mac_address):
         room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
         if not room_user:
             return (sw_name, 'Chambre non cotisante', VLAN_NOK)
-        elif not room_user[0].has_access():
+        elif not room_user[0].has_access:
             return (sw_name, 'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
@@ -82,7 +82,7 @@ def decide_vlan(switch_id, port_number, mac_address):
         interface = Interface.objects.filter(mac_address=mac_address)
         if not interface:
             return (sw_name, 'Machine inconnue', VLAN_NOK)
-        elif not interface[0].is_active():
+        elif not interface[0].is_active:
             return (sw_name, 'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
             return (sw_name, 'Machine OK', VLAN_OK)

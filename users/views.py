@@ -272,7 +272,7 @@ def add_ban(request, userid):
             reversion.set_comment("Création")
         messages.success(request, "Bannissement ajouté")
         return redirect("/users/profil/" + userid)
-    if user.is_ban():
+    if user.is_ban:
         messages.error(
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
@@ -318,7 +318,7 @@ def add_whitelist(request, userid):
             reversion.set_comment("Création")
         messages.success(request, "Accès à titre gracieux accordé")
         return redirect("/users/profil/" + userid)
-    if user.is_whitelisted():
+    if user.is_whitelisted:
         messages.error(
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
@@ -463,7 +463,7 @@ def mass_archive(request):
     to_archive_list = []
     if to_archive_date.is_valid():
         date = to_archive_date.cleaned_data['date']
-        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access() or user.end_access() < date]
+        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access or user.end_access < date]
         if "valider" in request.POST:
             for user in to_archive_list:
                 archive(user)

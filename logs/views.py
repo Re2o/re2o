@@ -40,6 +40,7 @@ from reversion.models import Revision
 from reversion.models import Version
 
 from users.models import User, ServiceUser, Right, School, ListRight, ListShell, Ban, Whitelist
+from users.models import all_has_access, all_whitelisted, all_baned, all_adherent
 from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
 from machines.models import Machine, MachineType, IpType, Extension, Interface, Domain, IpList
 from topologie.models import Switch, Port, Room
@@ -107,10 +108,10 @@ def stats_general(request):
     'active_users' : ["Users actifs", User.objects.filter(state=User.STATE_ACTIVE).count()],
     'inactive_users' : ["Users désactivés", User.objects.filter(state=User.STATE_DISABLED).count()],
     'archive_users' : ["Users archivés", User.objects.filter(state=User.STATE_ARCHIVE).count()],
-    'adherent_users' : ["Adhérents à l'association", len([user for user in all_active_users if user.is_adherent()])],
-    'connexion_users' : ["Utilisateurs bénéficiant d'une connexion", len([user for user in all_active_users if user.has_access()])],
-    'ban_users' : ["Utilisateurs bannis", len([user for user in all_active_users if user.is_ban()])],
-    'whitelisted_user' : ["Utilisateurs bénéficiant d'une connexion gracieuse", len([user for user in all_active_users if user.is_whitelisted()])],
+    'adherent_users' : ["Adhérents à l'association", all_adherent().count()],
+    'connexion_users' : ["Utilisateurs bénéficiant d'une connexion", all_has_access().count()],
+    'ban_users' : ["Utilisateurs bannis", all_baned().count()],
+    'whitelisted_user' : ["Utilisateurs bénéficiant d'une connexion gracieuse", all_whitelisted().count()],
     }],
     [["Range d'ip", "Nombre d'ip totales", "Nombre d'ip utilisées", "Nombre d'ip libres"] ,ip]
     ]

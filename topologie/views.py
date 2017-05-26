@@ -126,7 +126,7 @@ def new_port(request, switch_id):
 @permission_required('infra')
 def edit_port(request, port_id):
     try:
-        port_object = Port.objects.get(pk=port_id)
+        port_object = Port.objects.select_related('switch__switch_interface__domain__extension').select_related('machine_interface').select_related('room').select_related('related').get(pk=port_id)
     except Port.DoesNotExist:
         messages.error(request, u"Port inexistant")
         return redirect("/topologie/")

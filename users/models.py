@@ -26,6 +26,7 @@ from django.forms import ModelForm, Form
 from django import forms
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 
 import ldapdb.models
 import ldapdb.models.fields
@@ -88,6 +89,17 @@ def get_admin_right():
         admin_right.save()
     return admin_right
 
+def all_adherent():
+    return User.objects.filter(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=timezone.now())))).distinct()
+
+def all_baned():
+    return User.objects.filter(ban__in=Ban.objects.filter(date_end__gt=timezone.now())).distinct() 
+
+def all_whitelisted():
+    return User.objects.filter(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())).distinct()
+
+def all_has_access():
+    return User.objects.filter(Q(state=User.STATE_ACTIVE) & ~Q(ban__in=Ban.objects.filter(date_end__gt=timezone.now())) & (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())) | Q(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=timezone.now())))))).distinct()
 
 class UserManager(BaseUserManager):
     def _create_user(self, pseudo, name, surname, email, password=None, su=False):
@@ -204,12 +216,14 @@ class User(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         return True
 
+    @cached_property
     def end_adhesion(self):
         date_max = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
+    @cached_property
     def is_adherent(self):
-        end = self.end_adhesion()
+        end = self.end_adhesion
         if not end:
             return False
         elif end < timezone.now():
@@ -217,19 +231,22 @@ class User(AbstractBaseUser):
         else:
             return True
 
+    @cached_property
     def end_ban(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
         date_max = Ban.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
+    @cached_property
     def end_whitelist(self):
         """ Renvoie la date de fin de whitelist d'un user, False sinon """
         date_max = Whitelist.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
+    @cached_property
     def is_ban(self):
         """ Renvoie si un user est banni ou non """
-        end = self.end_ban()
+        end = self.end_ban
         if not end:
             return False
         elif end < timezone.now():
@@ -237,9 +254,10 @@ class User(AbstractBaseUser):
         else:
             return True
 
+    @cached_property
     def is_whitelisted(self):
         """ Renvoie si un user est whitelisté ou non """
-        end = self.end_whitelist()
+        end = self.end_whitelist
         if not end:
             return False
         elif end < timezone.now():
@@ -247,23 +265,25 @@ class User(AbstractBaseUser):
         else:
             return True
 
+    @cached_property
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE \
-            and not self.is_ban() and (self.is_adherent() or self.is_whitelisted())
+            and not self.is_ban and (self.is_adherent or self.is_whitelisted)
 
+    @cached_property
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
-        if not self.end_adhesion():
-            if not self.end_whitelist():
+        if not self.end_adhesion:
+            if not self.end_whitelist:
                 return None
             else:
-                return self.end_whitelist()
+                return self.end_whitelist
         else:
-            if not self.end_whitelist():
-                return self.end_adhesion()
+            if not self.end_whitelist:
+                return self.end_adhesion
             else:        
-                return max(self.end_adhesion(), self.end_whitelist())
+                return max(self.end_adhesion, self.end_whitelist)
 
     def user_interfaces(self):
         return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=True))
@@ -293,7 +313,7 @@ class User(AbstractBaseUser):
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
-            user_ldap.dialupAccess = str(self.has_access())
+            user_ldap.dialupAccess = str(self.has_access)
             user_ldap.home_directory = '/home/' + self.pseudo
             user_ldap.mail = self.email
             user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
@@ -303,7 +323,7 @@ class User(AbstractBaseUser):
             if self.shell:
                 user_ldap.login_shell = self.shell.shell 
         if access_refresh:
-            user_ldap.dialupAccess = str(self.has_access())
+            user_ldap.dialupAccess = str(self.has_access)
         if mac_refresh:
             user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine__in=Machine.objects.filter(user=self))]
         user_ldap.save()
