@@ -27,6 +27,7 @@ from django.forms import ValidationError
 from macaddress.fields import MACAddressField
 from netaddr import mac_bare, EUI
 from django.core.validators import MinValueValidator,MaxValueValidator
+from django.utils.functional import cached_property
 
 from re2o.settings import MAIN_EXTENSION
 
@@ -101,11 +102,12 @@ class Interface(models.Model):
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
 
+    @cached_property
     def is_active(self):
         """ Renvoie si une interface doit avoir accès ou non """
         machine = self.machine
         user = self.machine.user
-        return machine.active and user.has_access()
+        return machine.active and user.has_access
 
     def mac_bare(self):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
