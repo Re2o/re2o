@@ -728,7 +728,7 @@ class JSONResponse(HttpResponse):
 def mac_ip_list(request):
     interf = Interface.objects.select_related('ipv4').select_related('domain__extension').all()
     interfaces = list(filter(
-        lambda interface: interface.ipv4 and interface.is_active(),
+        lambda interface: interface.ipv4 and interface.is_active,
         interf
         ))
     seria = InterfaceSerializer(interfaces, many=True)
