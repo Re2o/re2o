@@ -31,7 +31,6 @@ from django.utils.functional import cached_property
 
 from re2o.settings import MAIN_EXTENSION
 
-
 class Machine(models.Model):
     PRETTY_NAME = "Machine"
     

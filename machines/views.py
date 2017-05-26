@@ -47,6 +47,7 @@ from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterf
 from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
 from users.models import User
+from users.models import all_has_access
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER, MAX_INTERFACES, MAX_ALIAS
 
 def full_domain_validator(request, domain):
@@ -62,6 +63,14 @@ def full_domain_validator(request, domain):
                 "Ce nom de domaine %s contient des carractères interdits." % dns)
         return False
     return True
+
+def all_active_interfaces():
+    """Renvoie l'ensemble des machines autorisées à sortir sur internet """
+    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain__extension').select_related('ipv4__ip_type').distinct()
+
+def all_active_assigned_interfaces():
+    """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de l'accès internet"""
+    return all_active_interfaces().filter(ipv4__isnull=False)
 
 def unassign_ips(user):
     machines = user.user_interfaces()
@@ -726,11 +735,7 @@ class JSONResponse(HttpResponse):
 @login_required
 @permission_required('serveur')
 def mac_ip_list(request):
-    interf = Interface.objects.select_related('ipv4').select_related('domain__extension').all()
-    interfaces = list(filter(
-        lambda interface: interface.ipv4 and interface.is_active,
-        interf
-        ))
+    interfaces = all_active_assigned_interfaces()
     seria = InterfaceSerializer(interfaces, many=True)
     return seria.data
 
