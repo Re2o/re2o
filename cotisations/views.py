@@ -58,7 +58,7 @@ def create_cotis(vente, user, duration, date_start=False):
     if date_start:
         end_adhesion = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
     else:
-        end_adhesion = user.end_adhesion()
+        end_adhesion = user.end_adhesion
     date_start = date_start or timezone.now()
     end_adhesion = end_adhesion or date_start
     date_max = max(end_adhesion, date_start)
@@ -102,7 +102,7 @@ def new_facture(request, userid):
                     if art_item.cleaned_data['article'].iscotisation:
                         create_cotis(new_vente, user, art_item.cleaned_data['article'].duration*art_item.cleaned_data['quantity'])
             if any(art_item.cleaned_data['article'].iscotisation for art_item in articles if art_item.cleaned_data):
-                messages.success(request, "La cotisation a été prolongée pour l'adhérent %s jusqu'au %s" % (user.name, user.end_adhesion()) )
+                messages.success(request, "La cotisation a été prolongée pour l'adhérent %s jusqu'au %s" % (user.name, user.end_adhesion) )
             else:
                 messages.success(request, "La facture a été crée")
             return redirect("/users/profil/" + userid)
