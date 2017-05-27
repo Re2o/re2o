@@ -216,6 +216,30 @@ class User(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         return True
 
+
+    def has_right(self, right):
+        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright=right)).exists()
+
+    @cached_property
+    def is_bureau(self):
+        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='bureau')).exists()
+
+    @cached_property
+    def is_bofh(self):
+        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='bofh')).exists()
+
+    @cached_property
+    def is_cableur(self):
+        return self.has_right('cableur') or self.has_right('bureau') or self.has_right('infra') or self.has_right('bofh')
+
+    @cached_property
+    def is_trez(self):
+        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='trésorier')).exists()
+
+    @cached_property
+    def is_infra(self):
+        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='infra')).exists()
+
     @cached_property
     def end_adhesion(self):
         date_max = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
