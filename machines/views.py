@@ -637,15 +637,9 @@ def index_machinetype(request):
 @login_required
 @permission_required('cableur')
 def index_extension(request):
-<<<<<<< HEAD
-    extension_list = Extension.objects.order_by('name')
-    mx_list = Mx.objects.order_by('zone')
-    ns_list = Ns.objects.order_by('zone')
-=======
     extension_list = Extension.objects.select_related('origin').order_by('name')
     mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
     ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
->>>>>>> 39f3994... Select_related et accélération des vues rest
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
 
 @login_required
