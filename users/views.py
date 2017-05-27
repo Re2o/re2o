@@ -496,7 +496,7 @@ def index(request):
 @permission_required('cableur')
 def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
-    ban_list = Ban.objects.order_by('date_start').reverse()
+    ban_list = Ban.objects.order_by('date_start').select_related('user').reverse()
     paginator = Paginator(ban_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:
@@ -513,7 +513,7 @@ def index_ban(request):
 @permission_required('cableur')
 def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
-    white_list = Whitelist.objects.order_by('date_start')
+    white_list = Whitelist.objects.select_related('user').order_by('date_start')
     return render(
         request,
         'users/index_whitelist.html',

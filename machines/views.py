@@ -625,21 +625,21 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_iptype(request):
-    iptype_list = IpType.objects.order_by('type')
+    iptype_list = IpType.objects.select_related('extension').order_by('type')
     return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
 
 @login_required
 @permission_required('cableur')
 def index_machinetype(request):
-    machinetype_list = MachineType.objects.order_by('type')
+    machinetype_list = MachineType.objects.select_related('ip_type').order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
 
 @login_required
 @permission_required('cableur')
 def index_extension(request):
     extension_list = Extension.objects.order_by('name')
-    mx_list = Mx.objects.order_by('zone')
-    ns_list = Ns.objects.order_by('zone')
+    mx_list = Mx.objects.order_by('zone').select_related('zone')
+    ns_list = Ns.objects.order_by('zone').select_related('zone')
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
 
 @login_required
