@@ -479,7 +479,7 @@ def mass_archive(request):
 @permission_required('cableur')
 def index(request):
     """ Affiche l'ensemble des users, need droit cableur """
-    users_list = User.objects.order_by('state', 'name')
+    users_list = User.objects.select_related('room').order_by('state', 'name')
     paginator = Paginator(users_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:

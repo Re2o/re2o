@@ -380,7 +380,7 @@ def index_banque(request):
 @login_required
 @permission_required('cableur')
 def index(request):
-    facture_list = Facture.objects.order_by('date').reverse()
+    facture_list = Facture.objects.order_by('date').select_related('user').select_related('paiement').prefetch_related('vente_set').reverse()
     paginator = Paginator(facture_list, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:
