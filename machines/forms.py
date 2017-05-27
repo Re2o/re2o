@@ -26,6 +26,8 @@ from .models import Domain, Machine, Interface, IpList, MachineType, Extension, 
 from django.db.models import Q
 from django.core.validators import validate_email
 
+from users.models import User
+
 class EditMachineForm(ModelForm):
     class Meta:
         model = Machine
@@ -53,6 +55,7 @@ class EditInterfaceForm(ModelForm):
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
+        self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
     def clean(self):
         data = super(EditInterfaceForm, self).clean()
