@@ -609,7 +609,7 @@ def del_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index(request):
-    machines_list = Machine.objects.order_by('pk')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').order_by('pk')
     paginator = Paginator(machines_list, PAGINATION_LARGE_NUMBER)
     page = request.GET.get('page')
     try:
@@ -751,7 +751,7 @@ def mac_ip_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Domain.objects.filter(interface_parent=None).filter(cname=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension')
+    alias = Domain.objects.filter(interface_parent=None).filter(cname=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
     seria = DomainSerializer(alias, many=True)
     return JSONResponse(seria.data)
 
@@ -759,7 +759,7 @@ def alias(request):
 @login_required
 @permission_required('serveur')
 def corresp(request):
-    type = IpType.objects.all()
+    type = IpType.objects.all().select_related('extension')
     seria = TypeSerializer(type, many=True)
     return JSONResponse(seria.data)
 
@@ -767,7 +767,7 @@ def corresp(request):
 @login_required
 @permission_required('serveur')
 def mx(request):
-    mx = Mx.objects.all()
+    mx = Mx.objects.all().select_related('zone').select_related('name__extension')
     seria = MxSerializer(mx, many=True)
     return JSONResponse(seria.data)
 
@@ -775,7 +775,7 @@ def mx(request):
 @login_required
 @permission_required('serveur')
 def ns(request):
-    ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None)))
+    ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None))).select_related('zone').select_related('ns__extension')
     seria = NsSerializer(ns, many=True)
     return JSONResponse(seria.data)
 
@@ -783,7 +783,7 @@ def ns(request):
 @login_required
 @permission_required('serveur')
 def zones(request):
-    zones = Extension.objects.all()
+    zones = Extension.objects.all().select_related('origin')
     seria = ExtensionSerializer(zones, many=True)
     return JSONResponse(seria.data)
 
