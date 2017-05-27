@@ -27,13 +27,18 @@ def context_user(request):
     user = request.user
     if user.is_authenticated():
         interfaces = user.user_interfaces()
+        is_cableur = user.is_cableur
+        is_bureau = user.is_bureau
+        is_bofh = user.is_bofh
+        is_trez = user.is_trez
+        is_infra = user.is_infra
     else:
         interfaces = None
-    is_cableur = user.has_perms(('cableur',))
-    is_bureau = user.has_perms(('bureau',))
-    is_bofh = user.has_perms(('bofh',))
-    is_trez = user.has_perms(('trésorier',))
-    is_infra = user.has_perms(('infra',))
+        is_cableur = False
+        is_bureau = False
+        is_bofh = False
+        is_trez = False
+        is_infra = False
     return {
         'request_user': user,
         'is_cableur': is_cableur,
