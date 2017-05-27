@@ -609,7 +609,7 @@ def del_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index(request):
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').order_by('pk')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain').order_by('pk')
     paginator = Paginator(machines_list, PAGINATION_LARGE_NUMBER)
     page = request.GET.get('page')
     try:
@@ -637,9 +637,15 @@ def index_machinetype(request):
 @login_required
 @permission_required('cableur')
 def index_extension(request):
+<<<<<<< HEAD
     extension_list = Extension.objects.order_by('name')
     mx_list = Mx.objects.order_by('zone')
     ns_list = Ns.objects.order_by('zone')
+=======
+    extension_list = Extension.objects.select_related('origin').order_by('name')
+    mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
+    ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
+>>>>>>> 39f3994... Select_related et accélération des vues rest
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
 
 @login_required

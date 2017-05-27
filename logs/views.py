@@ -68,7 +68,7 @@ def form(ctx, template, request):
 @login_required
 @permission_required('cableur')
 def index(request):
-    revisions = Revision.objects.all().order_by('date_created').reverse()
+    revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
     paginator = Paginator(revisions, PAGINATION_NUMBER)
     page = request.GET.get('page')
     try:
