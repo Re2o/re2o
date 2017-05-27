@@ -72,6 +72,14 @@ def all_active_assigned_interfaces():
     """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de l'accès internet"""
     return all_active_interfaces().filter(ipv4__isnull=False)
 
+def all_active_interfaces_count():
+    """ Version light seulement pour compter"""
+    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True))
+
+def all_active_assigned_interfaces_count():
+    """ Version light seulement pour compter"""
+    return all_active_interfaces_count().filter(ipv4__isnull=False)
+
 def unassign_ips(user):
     machines = user.user_interfaces()
     for machine in machines:

@@ -43,6 +43,7 @@ from users.models import User, ServiceUser, Right, School, ListRight, ListShell,
 from users.models import all_has_access, all_whitelisted, all_baned, all_adherent
 from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
 from machines.models import Machine, MachineType, IpType, Extension, Interface, Domain, IpList
+from machines.views import all_active_assigned_interfaces_count, all_active_interfaces_count
 from topologie.models import Switch, Port, Room
 
 from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
@@ -102,7 +103,8 @@ def stats_general(request):
     for ip_range in IpType.objects.all():
         all_ip = IpList.objects.filter(ip_type=ip_range)
         used_ip = Interface.objects.filter(ipv4__in=all_ip).count()
-        ip[ip_range] = [ip_range, all_ip.count(), used_ip, all_ip.count()-used_ip]
+        active_ip = all_active_assigned_interfaces_count().filter(ipv4__in=IpList.objects.filter(ip_type=ip_range)).count()
+        ip[ip_range] = [ip_range, all_ip.count(), used_ip, active_ip, all_ip.count()-used_ip]
     stats = [
     [["Categorie", "Nombre d'utilisateurs"], {
     'active_users' : ["Users actifs", User.objects.filter(state=User.STATE_ACTIVE).count()],
@@ -112,8 +114,10 @@ def stats_general(request):
     'connexion_users' : ["Utilisateurs bénéficiant d'une connexion", all_has_access().count()],
     'ban_users' : ["Utilisateurs bannis", all_baned().count()],
     'whitelisted_user' : ["Utilisateurs bénéficiant d'une connexion gracieuse", all_whitelisted().count()],
+    'actives_interfaces' : ["Interfaces actives (ayant accès au reseau)", all_active_interfaces_count().count()],
+    'actives_assigned_interfaces' : ["Interfaces actives et assignées ipv4", all_active_assigned_interfaces_count().count()]
     }],
-    [["Range d'ip", "Nombre d'ip totales", "Nombre d'ip utilisées", "Nombre d'ip libres"] ,ip]
+    [["Range d'ip", "Nombre d'ip totales", "Ip assignées", "Ip assignées à une machine active", "Ip non assignées"] ,ip]
     ]
     return render(request, 'logs/stats_general.html', {'stats_list': stats})
 
