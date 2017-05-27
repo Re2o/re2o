@@ -22,6 +22,7 @@
 
 from .models import Port, Switch, Room
 from django.forms import ModelForm, Form
+from machines.models import Interface
 
 class PortForm(ModelForm):
     class Meta:
@@ -30,11 +31,12 @@ class PortForm(ModelForm):
 
 class EditPortForm(ModelForm):
     class Meta(PortForm.Meta):
-        fields = ['room', 'related', 'radius', 'details']
+        fields = ['room', 'related', 'machine_interface', 'radius', 'details']
 
-#    def __init__(self, *args, **kwargs):
-#        super(EditPortForm, self).__init__(*args, **kwargs)
-#        self.fields['related'].queryset = Port.objects.all().order_by('switch', 'port')
+    def __init__(self, *args, **kwargs):
+        super(EditPortForm, self).__init__(*args, **kwargs)
+        self.fields['machine_interface'].queryset = Interface.objects.all().select_related('domain__extension')
+        self.fields['related'].queryset = Port.objects.all().select_related('switch__switch_interface__domain__extension').order_by('switch', 'port')
 
 class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):

@@ -42,7 +42,7 @@ from re2o.settings import ASSO_PSEUDO, PAGINATION_NUMBER
 @login_required
 @permission_required('cableur')
 def index(request):
-    switch_list = Switch.objects.order_by('location')
+    switch_list = Switch.objects.order_by('location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
 
 @login_required
@@ -90,7 +90,7 @@ def index_port(request, switch_id):
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
-    port_list = Port.objects.filter(switch = switch).order_by('port')
+    port_list = Port.objects.filter(switch = switch).select_related('room').select_related('machine_interface__domain__extension').select_related('related').select_related('switch').order_by('port')
     return render(request, 'topologie/index_p.html', {'port_list':port_list, 'id_switch':switch_id, 'nom_switch':switch})
 
 @login_required
@@ -126,7 +126,7 @@ def new_port(request, switch_id):
 @permission_required('infra')
 def edit_port(request, port_id):
     try:
-        port_object = Port.objects.select_related('switch__switch_interface__domain__extension').select_related('machine_interface').select_related('room').select_related('related').get(pk=port_id)
+        port_object = Port.objects.select_related('switch__switch_interface__domain__extension').select_related('machine_interface__domain__extension').select_related('machine_interface__switch').select_related('room').select_related('related').get(pk=port_id)
     except Port.DoesNotExist:
         messages.error(request, u"Port inexistant")
         return redirect("/topologie/")
