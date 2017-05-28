@@ -609,7 +609,7 @@ def del_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index(request):
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain').order_by('pk')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain__extension').order_by('pk')
     paginator = Paginator(machines_list, PAGINATION_LARGE_NUMBER)
     page = request.GET.get('page')
     try:
