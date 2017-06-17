@@ -751,7 +751,7 @@ def mac_ip_list(request):
 @login_required
 @permission_required('serveur')
 def alias(request):
-    alias = Domain.objects.filter(interface_parent=None).filter(cname=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
+    alias = Domain.objects.filter(interface_parent=None).filter(cname__in=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
     seria = DomainSerializer(alias, many=True)
     return JSONResponse(seria.data)
 

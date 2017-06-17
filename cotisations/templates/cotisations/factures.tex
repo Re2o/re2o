@@ -60,7 +60,7 @@
 Siret : {{siret}}
 \\ \\
 {\bf À :} \tab {{dest.name}} {{dest.surname}}  \\ % Invoice recipient
-{\bf Adresse :} \tab {% if dest.room = None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} \\
+{\bf Adresse :} \tab {% if dest.room == None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} \\
 
 {\bf Date:} \tab {{DATE}} \\ % Invoice date
 
