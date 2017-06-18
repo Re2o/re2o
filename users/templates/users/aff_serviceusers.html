@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Nom</th>
                 <th>Rôle</th>
+                <th>Commentaire</th>
 		<th></th>
             </tr>
         </thead>
@@ -34,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ serviceuser.pseudo }}</td>
             <td>{{ serviceuser.access_group }}</td>
+            <td>{{ serviceuser.comment }}</td>
             <td class="text-right">
 		{% include 'buttons/suppr.html' with href='users:del-serviceuser' id=serviceuser.id %}
 		{% include 'buttons/edit.html' with href='users:edit-serviceuser' id=serviceuser.id %}
