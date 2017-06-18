@@ -29,6 +29,9 @@ urlpatterns = [
     url(r'^edit_info/(?P<userid>[0-9]+)$', views.edit_info, name='edit-info'),
     url(r'^state/(?P<userid>[0-9]+)$', views.state, name='state'),
     url(r'^password/(?P<userid>[0-9]+)$', views.password, name='password'),
+    url(r'^new_serviceuser/$', views.new_serviceuser, name='new-serviceuser'),
+    url(r'^edit_serviceuser/(?P<userid>[0-9]+)$', views.edit_serviceuser, name='edit-serviceuser'),
+    url(r'^del_serviceuser/(?P<userid>[0-9]+)$', views.del_serviceuser, name='del-serviceuser'),
     url(r'^add_ban/(?P<userid>[0-9]+)$', views.add_ban, name='add-ban'),
     url(r'^edit_ban/(?P<banid>[0-9]+)$', views.edit_ban, name='edit-ban'),
     url(r'^add_whitelist/(?P<userid>[0-9]+)$', views.add_whitelist, name='add-whitelist'),
@@ -46,6 +49,7 @@ urlpatterns = [
     url(r'^index_white/$', views.index_white, name='index-white'),
     url(r'^index_school/$', views.index_school, name='index-school'),
     url(r'^index_listright/$', views.index_listright, name='index-listright'),
+    url(r'^index_serviceusers/$', views.index_serviceusers, name='index-serviceusers'),
     url(r'^mon_profil/$', views.mon_profil, name='mon-profil'),
     url(r'^process/(?P<token>[a-z0-9]{32})/$', views.process, name='process'),
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
@@ -55,6 +59,7 @@ urlpatterns = [
     url(r'^history/(?P<object>whitelist)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>school)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>listright)/(?P<id>[0-9]+)$', views.history, name='history'),
+    url(r'^history/(?P<object>serviceuser)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^$', views.index, name='index'),
 ]
 

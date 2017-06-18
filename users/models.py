@@ -38,6 +38,7 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
+from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
@@ -373,9 +374,17 @@ def user_post_delete(sender, **kwargs):
     user.ldap_del()
 
 class ServiceUser(AbstractBaseUser):
+    readonly = 'readonly'
+    ACCESS = (
+            ('auth', 'auth'),
+            ('readonly', 'readonly'),
+            ('usermgmt', 'usermgmt'),
+            )
+
     PRETTY_NAME = "Utilisateurs de service"
 
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
+    access_group = models.CharField(choices=ACCESS, default=readonly, max_length=32)
 
     USERNAME_FIELD = 'pseudo'
  
@@ -386,8 +395,9 @@ class ServiceUser(AbstractBaseUser):
             user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
         except LdapServiceUser.DoesNotExist:
             user_ldap = LdapServiceUser(name=self.pseudo)
-        user_ldap.user_password = self.password
+        user_ldap.user_password = self.password[:6] + self.password[7:]
         user_ldap.save()
+        self.serviceuser_group_sync()
 
     def ldap_del(self):
         try:
@@ -395,6 +405,15 @@ class ServiceUser(AbstractBaseUser):
             user_ldap.delete()
         except LdapUser.DoesNotExist:
             pass
+        self.serviceuser_group_sync()
+
+    def serviceuser_group_sync(self):
+        try:
+            group = LdapServiceUserGroup.objects.get(name=self.access_group)
+        except:
+            group = LdapServiceUserGroup(name=self.access_group)
+        group.members = [serviceuser.dn for serviceuser in LdapServiceUser.objects.filter(name__in=[user.pseudo for user in ServiceUser.objects.filter(access_group=self.access_group)])]
+        group.save()
 
     def __str__(self):
         return self.pseudo
@@ -402,12 +421,12 @@ class ServiceUser(AbstractBaseUser):
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
     service_user = kwargs['instance']
-#    service_user.ldap_sync()
+    service_user.ldap_sync()
 
 @receiver(post_delete, sender=ServiceUser)
 def service_user_post_delete(sender, **kwargs):
     service_user = kwargs['instance']
-#    service_user.ldap_del()
+    service_user.ldap_del()
 
 class Right(models.Model):
     PRETTY_NAME = "Droits affectés à des users"
@@ -624,6 +643,24 @@ class LdapServiceUser(ldapdb.models.Model):
     name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
     user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
+class LdapServiceUserGroup(ldapdb.models.Model):
+    """
+    Class for representing an LDAP userservice entry.
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_userservicegroup_dn']
+    object_classes = ['groupOfNames']
+
+    # attributes
+    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    members = ldapdb.models.fields.ListField(db_column='member', blank=True)
+
+    def __str__(self):
+        return self.name
+
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BaseInfoForm, self).__init__(*args, **kwargs)
@@ -678,14 +715,15 @@ class PasswordForm(ModelForm):
         fields = ['password', 'pwd_ntlm']
 
 class ServiceUserForm(ModelForm):
+    password = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput, required=False)
+    
     class Meta:
         model = ServiceUser
-        fields = ('pseudo','password')
+        fields = ('pseudo','access_group')
 
-class ServicePasswordForm(ModelForm):
-    class Meta:
-        model = ServiceUser
-        fields = ('password',)
+class EditServiceUserForm(ServiceUserForm):
+    class Meta(ServiceUserForm.Meta):
+        fields = ['access_group']
 
 class StateForm(ModelForm):
     class Meta:

@@ -25,7 +25,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from .models import User, ServiceUser, School, Right, ListRight, ListShell, Ban, Whitelist, Request, LdapUser, LdapServiceUser, LdapUserGroup
+from .models import User, ServiceUser, School, Right, ListRight, ListShell, Ban, Whitelist, Request, LdapUser, LdapServiceUser, LdapServiceUserGroup, LdapUserGroup
 from .forms import UserChangeForm, UserCreationForm, ServiceUserChangeForm, ServiceUserCreationForm
 
 
@@ -55,6 +55,10 @@ class LdapServiceUserAdmin(admin.ModelAdmin):
 
 class LdapUserGroupAdmin(admin.ModelAdmin):
     list_display = ('name','members','gid')
+    search_fields = ('name',)
+
+class LdapServiceUserGroupAdmin(admin.ModelAdmin):
+    list_display = ('name',)
     search_fields = ('name',)
 
 class SchoolAdmin(VersionAdmin):
@@ -116,10 +120,10 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('pseudo',)
+    list_display = ('pseudo', 'access_group')
     list_filter = ()
     fieldsets = (
-        (None, {'fields': ('pseudo', 'password')}),
+        (None, {'fields': ('pseudo', 'password', 'access_group')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -138,6 +142,7 @@ admin.site.register(ServiceUser, ServiceUserAdmin)
 admin.site.register(LdapUser, LdapUserAdmin)
 admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
 admin.site.register(LdapServiceUser, LdapServiceUserAdmin)
+admin.site.register(LdapServiceUserGroup, LdapServiceUserGroupAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Right, RightAdmin)
 admin.site.register(ListRight, ListRightAdmin)
