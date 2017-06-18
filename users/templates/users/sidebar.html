@@ -50,7 +50,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-list"></i>
             Droits
         </a>
-        {% if is_bureau %}
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-serviceusers" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Gérer les service users
+        </a>
+	{% if is_bureau %}
         <a class="list-group-item list-group-item-danger" href="{% url "users:del-right" %}">
             <i class="glyphicon glyphicon-trash"></i>
             Retirer un droit

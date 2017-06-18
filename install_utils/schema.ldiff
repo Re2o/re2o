@@ -219,7 +219,7 @@ olcObjectClasses: {6}( 2.5.6.8 NAME 'organizationalRole' DESC 'RFC2256: an o
  street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOffic
  eName $ ou $ st $ l $ description ) )
 olcObjectClasses: {7}( 2.5.6.9 NAME 'groupOfNames' DESC 'RFC2256: a group of
-  names (DNs)' SUP top STRUCTURAL MUST ( member $ cn ) MAY ( businessCategor
+  names (DNs)' SUP top STRUCTURAL MUST ( cn ) MAY ( member $ businessCategor
  y $ seeAlso $ owner $ ou $ o $ description ) )
 olcObjectClasses: {8}( 2.5.6.10 NAME 'residentialPerson' DESC 'RFC2256: an r
  esidential person' SUP person STRUCTURAL MUST l MAY ( businessCategory $ x1

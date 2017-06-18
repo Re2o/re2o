@@ -38,9 +38,9 @@ from django.db import transaction
 
 from reversion.models import Version
 from reversion import revisions as reversion
-from users.models import User, Right, Ban, Whitelist, School, ListRight, Request
+from users.models import User, Right, Ban, Whitelist, School, ListRight, Request, ServiceUser
 from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
-from users.models import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, ListRightForm
+from users.models import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, EditServiceUserForm, ServiceUserForm, ListRightForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
@@ -212,6 +212,61 @@ def password(request, userid):
     if u_form.is_valid():
         return password_change_action(u_form, user, request)
     return form({'userform': u_form}, 'users/user.html', request)
+
+@login_required
+@permission_required('infra')
+def new_serviceuser(request):
+    """ Vue de création d'un nouvel utilisateur service"""
+    user = ServiceUserForm(request.POST or None)
+    if user.is_valid():
+        user_object = user.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            user_object.set_password(user.cleaned_data['password'])
+            user_object.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "L'utilisateur %s a été crée" % user_object.pseudo)
+        return redirect("/users/index_serviceusers/")
+    return form({'userform': user}, 'users/user.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_serviceuser(request, userid):
+    """ Edite un utilisateur à partir de son id, 
+    si l'id est différent de request.user, vérifie la possession du droit cableur """
+    try:
+        user = ServiceUser.objects.get(pk=userid)
+    except ServiceUser.DoesNotExist:
+        messages.error(request, "Utilisateur inexistant")
+        return redirect("/users/")
+    user = EditServiceUserForm(request.POST or None, instance=user)
+    if user.is_valid():
+        user_object = user.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            if user.cleaned_data['password']:
+                user_object.set_password(user.cleaned_data['password'])
+            user_object.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in user.changed_data))
+        messages.success(request, "L'user a bien été modifié")
+        return redirect("/users/index_serviceusers")
+    return form({'userform': user}, 'users/user.html', request)
+
+@login_required
+@permission_required('infra')
+def del_serviceuser(request, userid):
+    try:
+        user = ServiceUser.objects.get(pk=userid)
+    except ServiceUser.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
+        return redirect("/users/")
+    if request.method == "POST":
+        with transaction.atomic(), reversion.create_revision():
+            user.delete()
+            reversion.set_user(request.user)
+        messages.success(request, "L'user a été détruite")
+        return redirect("/users/index_serviceusers/")
+    return form({'objet': user, 'objet_name': 'serviceuser'}, 'users/delete.html', request)
 
 @login_required
 @permission_required('bureau')
@@ -535,6 +590,13 @@ def index_listright(request):
     return render(request, 'users/index_listright.html', {'listright_list':listright_list})
 
 @login_required
+@permission_required('cableur')
+def index_serviceusers(request):
+    """ Affiche les users de services (pour les accès ldap)"""
+    serviceusers_list = ServiceUser.objects.order_by('pseudo')
+    return render(request, 'users/index_serviceusers.html', {'serviceusers_list':serviceusers_list})
+
+@login_required
 def history(request, object, id):
     """ Affichage de l'historique : (acl, argument)
     user : self or cableur, userid,
@@ -551,6 +613,12 @@ def history(request, object, id):
         if not request.user.has_perms(('cableur',)) and object_instance != request.user:
              messages.error(request, "Vous ne pouvez pas afficher l'historique d'un autre user que vous sans droit cableur")
              return redirect("/users/profil/" + str(request.user.id))
+    elif object == 'serviceuser' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = ServiceUser.objects.get(pk=id)
+        except ServiceUser.DoesNotExist:
+             messages.error(request, "User service inexistant")
+             return redirect("/users/")
     elif object == 'ban':
         try:
              object_instance = Ban.objects.get(pk=id)
