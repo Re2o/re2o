@@ -385,6 +385,7 @@ class ServiceUser(AbstractBaseUser):
 
     pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
     access_group = models.CharField(choices=ACCESS, default=readonly, max_length=32)
+    comment = models.CharField(help_text="Commentaire", max_length=255, blank=True)
 
     USERNAME_FIELD = 'pseudo'
  
@@ -723,7 +724,7 @@ class ServiceUserForm(ModelForm):
 
 class EditServiceUserForm(ServiceUserForm):
     class Meta(ServiceUserForm.Meta):
-        fields = ['access_group']
+        fields = ['access_group','comment']
 
 class StateForm(ModelForm):
     class Meta:

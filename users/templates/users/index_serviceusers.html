@@ -28,7 +28,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Utilisateurs{% endblock %}
 
 {% block content %}
-  <h2>Liste des service users</h2>
+  <h2>Liste des service users LDAP</h2>
+  <h5>Les service users LDAP sont des utilisateurs spéciaux qui disposent d'un accès uniquement sur le ldap pour effectuer des opération d'authentification.
+  Il est recommandé de créer un service-user doté d'un login/mdp par service concerné</h5>
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:new-serviceuser'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service user</a>
   {%  include "users/aff_serviceusers.html" with  serviceusers_list=serviceusers_list %}
   <br />
