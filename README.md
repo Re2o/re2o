@@ -22,21 +22,6 @@ Voici la liste des dépendances à installer sur le serveur principal (A).
 
 ### Avec apt :
 
-#### Sous debian 8
-Paquets obligatoires:
- * python3-django (1.8, jessie-backports)
- * python3-django-macaddress (stretch)
- * python3-dateutil (jessie-backports)
- * texlive (jessie)
- * texlive-latex-base (jessie)
- * texlive-fonts-recommended (jessie)
- * python3-djangorestframework (jessie)
- * python3-django-reversion (stretch)
- * python3-pip (jessie)
-
-Paquet recommandés:
- * python3-django-extensions (jessie)
-
 #### Sous debian 9
 
 Paquets obligatoires:
@@ -63,20 +48,21 @@ Paquets préalables à installer avec apt :
 Avec pip3 (pip3 install):
  * django-bootstrap3
  * django-ldapdb
+ * django-macaddress
 
 Moteur de db conseillé (mysql), postgresql fonctionne également.
 Pour mysql, il faut installer : 
- * python3-mysqldb (jessie-backports)
+ * python3-mysqldb
  * mysql-client
 
 ### Prérequis sur le serveur B
 
-Sur le serveur B, installer mysql ou postgresql, dans la version jessie ou stretch.
- * mysql-server (jessie/stretch) ou postgresql (jessie-stretch)
+Sur le serveur B, installer mysql ou postgresql, dans la version stretch.
+ * mysql-server (stretch) ou postgresql (stretch)
 
 ### Prérequis sur le serveur C
 Sur le serveur C (ldap), avec apt :
- * slapd (jessie/stretch)
+ * slapd (stretch)
 
 ### Installation sur le serveur principal A
 
