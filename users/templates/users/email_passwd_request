@@ -13,3 +13,21 @@ Ce lien expirera dans {{ expire_in }}.
 Cordialement,
 
 L'équipe de {{ asso }} {{ asso_mail }}.
+
+----------------------
+
+Hi {{ name }},
+
+You will find a link allowing you to change the password of your account on {{ site_name }}.
+On this website you will then be able to manage your devices on the Rézo.
+
+    {{ url }}
+
+This link will expire in {{ expire_in }}.
+
+Send an email at {{ asso_mail }} if you didn't request this or if you have
+any other question.
+
+Thanks
+
+The team of {{ asso }}
