@@ -33,7 +33,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='article',
+            name='duration',
+            ),
+        migrations.AddField(
             model_name='article',
             name='duration',
             field=models.IntegerField(null=True, help_text='Durée exprimée en mois entiers', blank=True),
