@@ -70,16 +70,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ user.email }}</td>
         </tr>
         <tr>
+            <th>Chambre</th>
+            <td>{{ user.room }}</td>
+            <th>Téléphone</th>
+	    <td>{{ user.telephone }}</td>
+        </tr>
+        <tr>
             <th>École</th>
             <td>{{ user.school }}</td>
             <th>Commentaire</th>
             <td>{{ user.comment }}</td>
         </tr>
-        <tr>
-            <th>Chambre</th>
-            <td>{{ user.room }}</td>
+ 
+	<tr>
             <th>Date d'inscription</th>
             <td>{{ user.registered }}</td>
+            <th>Dernière connexion</th>
+            <td>{{ user.last_login }}</td>
         </tr>
         <tr>
             <th>Fin d'adhésion</th>
@@ -123,10 +130,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% else %}
             <td>Aucun</td>
             {% endif %}
-        <tr>
-            <th>Dernière connexion</th>
-            <td>{{ user.last_login }}</td>
-        </tr>
     </table>
     <h2>Machines :</h2>
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>

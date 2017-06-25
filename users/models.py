@@ -163,6 +163,7 @@ class User(AbstractBaseUser):
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
+    telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.IntegerField(default=auto_uid, unique=True)
     rezo_rez_uid =  models.IntegerField(unique=True, blank=True, null=True)
 
@@ -683,6 +684,7 @@ class BaseInfoForm(ModelForm):
             'school',
             'comment',
             'room',
+            'telephone',
         ]
 
 class EditInfoForm(BaseInfoForm):
@@ -696,6 +698,7 @@ class EditInfoForm(BaseInfoForm):
             'comment',
             'room',
             'shell',
+            'telephone',
         ]
 
 class InfoForm(EditInfoForm):
@@ -822,7 +825,3 @@ class WhitelistForm(ModelForm):
         if date_end < timezone.now():
             raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
         return date_end
-
-
-class ProfilForm(Form):
-    user = forms.CharField(label='Ok', max_length=100)
