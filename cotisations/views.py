@@ -41,8 +41,9 @@ from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
 from users.models import User
 from .tex import render_tex
-from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH, PAGINATION_NUMBER
+from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
 from re2o import settings
+from preferences.models import GeneralOption
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -339,9 +340,11 @@ def del_banque(request):
 @login_required
 @permission_required('trésorier')
 def control(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     facture_list = Facture.objects.order_by('date').reverse()
     controlform_set = modelformset_factory(Facture, fields=('control','valid'), extra=0)
-    paginator = Paginator(facture_list, PAGINATION_NUMBER)
+    paginator = Paginator(facture_list, pagination_number)
     page = request.GET.get('page')
     try:
         facture_list = paginator.page(page)
@@ -380,8 +383,10 @@ def index_banque(request):
 @login_required
 @permission_required('cableur')
 def index(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     facture_list = Facture.objects.order_by('date').select_related('user').select_related('paiement').prefetch_related('vente_set').reverse()
-    paginator = Paginator(facture_list, PAGINATION_NUMBER)
+    paginator = Paginator(facture_list, pagination_number)
     page = request.GET.get('page')
     try:
         facture_list = paginator.page(page)
@@ -425,8 +430,10 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/cotisations/")
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
         reversions = paginator.page(page)

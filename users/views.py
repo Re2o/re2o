@@ -45,9 +45,10 @@ from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from machines.views import unassign_ips, assign_ips
+from preferences.models import GeneralOption
 
 from re2o.login import hashNT
-from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME, PAGINATION_NUMBER
+from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
 
 def archive(user):
     """ Archive un utilisateur """
@@ -534,8 +535,10 @@ def mass_archive(request):
 @permission_required('cableur')
 def index(request):
     """ Affiche l'ensemble des users, need droit cableur """
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     users_list = User.objects.select_related('room').order_by('state', 'name')
-    paginator = Paginator(users_list, PAGINATION_NUMBER)
+    paginator = Paginator(users_list, pagination_number)
     page = request.GET.get('page')
     try:
         users_list = paginator.page(page)
@@ -551,8 +554,10 @@ def index(request):
 @permission_required('cableur')
 def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     ban_list = Ban.objects.order_by('date_start').select_related('user').reverse()
-    paginator = Paginator(ban_list, PAGINATION_NUMBER)
+    paginator = Paginator(ban_list, pagination_number)
     page = request.GET.get('page')
     try:
         ban_list = paginator.page(page)
@@ -652,8 +657,10 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/users/")
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
         reversions = paginator.page(page)

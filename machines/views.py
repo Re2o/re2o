@@ -48,7 +48,7 @@ from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, D
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
 from users.models import User
 from users.models import all_has_access
-from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER, MAX_INTERFACES, MAX_ALIAS
+from preferences.models import GeneralOption, OptionalMachine
 
 def full_domain_validator(request, domain):
     """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
@@ -129,12 +129,14 @@ def new_machine(request, userid):
     except User.DoesNotExist:
         messages.error(request, u"Utilisateur inexistant" )
         return redirect("/machines/")
+    options, created = OptionalMachine.objects.get_or_create()
+    max_lambdauser_interfaces = options.max_lambdauser_interfaces
     if not request.user.has_perms(('cableur',)):
         if user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        if user.user_interfaces().count() >= MAX_INTERFACES:
-            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % MAX_INTERFACES)
+        if user.user_interfaces().count() >= max_lambdauser_interfaces:
+            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
@@ -241,11 +243,13 @@ def new_interface(request, machineid):
         messages.error(request, u"Machine inexistante" )
         return redirect("/machines")
     if not request.user.has_perms(('cableur',)):
+        options, created = OptionalMachine.objects.get_or_create()
+        max_lambdauser_interfaces = options.max_lambdauser_interfaces
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        if machine.user.user_interfaces().count() >= MAX_INTERFACES:
-            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % MAX_INTERFACES)
+        if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
+            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
@@ -544,11 +548,13 @@ def add_alias(request, interfaceid):
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
     if not request.user.has_perms(('cableur',)):
+        options, created = OptionalMachine.objects.get_or_create()
+        max_lambdauser_aliases = options.max_lambdauser_aliases
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        if Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent__in=interface.machine.user.user_interfaces())).count() >= MAX_ALIAS:
-            messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % MAX_ALIAS)
+        if Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent__in=interface.machine.user.user_interfaces())).count() >= max_lambdauser_aliases:
+            messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_aliases)
             return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
@@ -609,8 +615,10 @@ def del_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_large_number = options.pagination_large_number
     machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain__extension').order_by('pk')
-    paginator = Paginator(machines_list, PAGINATION_LARGE_NUMBER)
+    paginator = Paginator(machines_list, pagination_large_number)
     page = request.GET.get('page')
     try:
         machines_list = paginator.page(page)
@@ -717,8 +725,10 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/machines/")
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
         reversions = paginator.page(page)

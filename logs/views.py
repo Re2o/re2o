@@ -45,8 +45,7 @@ from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisa
 from machines.models import Machine, MachineType, IpType, Extension, Interface, Domain, IpList
 from machines.views import all_active_assigned_interfaces_count, all_active_interfaces_count
 from topologie.models import Switch, Port, Room
-
-from re2o.settings import PAGINATION_NUMBER, PAGINATION_LARGE_NUMBER
+from preferences.models import GeneralOption
 
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
@@ -68,8 +67,10 @@ def form(ctx, template, request):
 @login_required
 @permission_required('cableur')
 def index(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
-    paginator = Paginator(revisions, PAGINATION_NUMBER)
+    paginator = Paginator(revisions, pagination_number)
     page = request.GET.get('page')
     try:
         revisions = paginator.page(page)
