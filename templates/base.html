@@ -85,9 +85,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <span class="glyphicon glyphicon-log-in"></span> Login
                                 </a>
                                 {% endif %}
-                            </li>
-                        </ul>
-                    </div>
+			    </li>
+			</ul>
+                        {% if is_cableur %}
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="{% url 'preferences:display-options' %}">
+                                    <span class="glyphicon glyphicon-cog"></span> Preferences
+                                </a>
+			    </li>
+			</ul>
+                        {% endif %}	    
+		    </div>
                 </div>
             </nav>
 

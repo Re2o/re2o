@@ -51,4 +51,6 @@ urlpatterns = [
     url(r'^machines/', include('machines.urls', namespace='machines')),
     url(r'^topologie/', include('topologie.urls', namespace='topologie')),
     url(r'^logs/', include('logs.urls', namespace='logs')),
+    url(r'^preferences/', include('preferences.urls', namespace='preferences')),
+
 ]

@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'topologie',
     'search',
     're2o',
+    'preferences',
     'logs',
     'rest_framework',
     'reversion'
