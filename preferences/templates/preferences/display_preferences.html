@@ -1,0 +1,79 @@
+{% extends "preferences/sidebar.html" %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+
+{% block title %}Création et modification des préférences{% endblock %}
+
+{% block content %}
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' %}">
+	    <i class="glyphicon glyphicon-edit"></i>
+            Editer
+	</a>
+    {% endif %}
+    <h4>Préférences utilisateur</h4>
+    <table class="table table-striped">
+        <tr>
+            <th>Téléphone obligatoirement requis</th>
+            <td>{{ useroptions.is_tel_mandatory }}</td>
+            <th>Activation du solde pour les utilisateurs</th>
+            <td>{{ useroptions.user_solde }}</td>
+        </tr>
+        <tr>
+            <th>Champ gpg fingerprint</th>
+            <td>{{ useroptions.gpg_fingerprint }}</td>
+        </tr>
+    </table>
+    <h4>Préférences machines</h4>
+    <table class="table table-striped">
+        <tr>
+            <th>Mot de passe par machine</th>
+            <td>{{ machineoptions.password_machine }}</td>
+            <th>Machines/interfaces autorisées par utilisateurs</th>
+            <td>{{ machineoptions.max_lambdauser_interfaces }}</td>
+        </tr>
+        <tr>
+            <th>Alias dns autorisé par utilisateur</th>
+            <td>{{ machineoptions.max_lambdauser_aliases }}</td>
+        </tr>
+    </table>
+    <h4>Préférences generales</h4>
+    <table class="table table-striped">
+        <tr>
+            <th>Affichage de résultats dans le champ de recherche</th>
+            <td>{{ generaloptions.search_display_page }}</td>
+            <th>Nombre d'items affichés en liste (taille normale)</th>
+            <td>{{ generaloptions.pagination_number }}</td>
+        </tr>
+        <tr>
+            <th>Nombre d'items affichés en liste (taille élevée)</th>
+            <td>{{ generaloptions.pagination_large_number }}</td>
+        </tr>
+    </table>
+  <br />
+  <br />
+  <br />
+{% endblock %}
