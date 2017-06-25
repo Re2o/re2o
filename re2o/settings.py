@@ -156,10 +156,6 @@ RIGHTS_LINK = {
     'bofh' : ['bureau','trésorier'],
     }
 
-PAGINATION_NUMBER = 25
-
-PAGINATION_LARGE_NUMBER = 8
-
 GRAPH_MODELS = {
   'all_applications': True,
   'group_models': True,

@@ -42,6 +42,7 @@ from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
+from preferences.models import OptionalUser
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
@@ -686,6 +687,13 @@ class BaseInfoForm(ModelForm):
             'room',
             'telephone',
         ]
+
+    def clean_telephone(self):
+        telephone = self.cleaned_data['telephone']
+        preferences, created = OptionalUser.objects.get_or_create()
+        if not telephone and preferences.is_tel_mandatory:
+            raise forms.ValidationError("Un numéro de téléphone valide est requis")
+        return telephone
 
 class EditInfoForm(BaseInfoForm):
     class Meta(BaseInfoForm.Meta):

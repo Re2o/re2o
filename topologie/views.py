@@ -36,8 +36,9 @@ from users.models import User
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
 from machines.views import free_ip, full_domain_validator, assign_ipv4
+from preferences.models import GeneralOption
 
-from re2o.settings import ASSO_PSEUDO, PAGINATION_NUMBER
+from re2o.settings import ASSO_PSEUDO
 
 @login_required
 @permission_required('cableur')
@@ -69,8 +70,10 @@ def history(request, object, id):
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/topologie/")
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, PAGINATION_NUMBER)
+    paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
         reversions = paginator.page(page)

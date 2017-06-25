@@ -35,8 +35,7 @@ from machines.models import Machine, Interface
 from topologie.models import Port, Switch
 from cotisations.models import Facture
 from search.models import SearchForm, SearchFormPlus
-
-from re2o.settings import SEARCH_RESULT
+from preferences.models import GeneralOption
 
 def form(ctx, template, request):
     c = ctx
@@ -106,12 +105,14 @@ def search_result(search, type, request):
             recherche['switch_list'] = Switch.objects.filter(details__icontains = search)
             if not request.user.has_perms(('cableur',)):
                 recherche['switch_list'] = None
+    options, created = GeneralOption.objects.get_or_create()
+    search_display_page = options.search_display_page
 
     for r in recherche:
         if recherche[r] != None:
-            recherche[r] = recherche[r][:SEARCH_RESULT]
+            recherche[r] = recherche[r][:search_display_page]
 
-    recherche.update({'max_result': SEARCH_RESULT})
+    recherche.update({'max_result': search_display_page})
 
     return recherche
 
