@@ -22,12 +22,17 @@
 
 
 from django.db import models
-
+from cotisations.models import Paiement
 
 class OptionalUser(models.Model):
     is_tel_mandatory = models.BooleanField(default=True)
     user_solde = models.BooleanField(default=False)
+    solde_negatif = models.DecimalField(max_digits=5, decimal_places=2, default=0) 
     gpg_fingerprint = models.BooleanField(default=True)
+
+    def clean(self):
+        if self.user_solde:
+            Paiement.objects.get_or_create(moyen="Solde")
 
 class OptionalMachine(models.Model):
     password_machine = models.BooleanField(default=False)

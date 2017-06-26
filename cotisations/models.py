@@ -25,7 +25,9 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from dateutil.relativedelta import relativedelta
+from django.forms import ValidationError
 from django.core.validators import MinValueValidator
+
 
 class Facture(models.Model):
     PRETTY_NAME = "Factures émises"
@@ -107,6 +109,11 @@ class Article(models.Model):
     iscotisation = models.BooleanField()
     duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
 
+
+    def clean(self):
+        if self.name.lower() == "solde":
+            raise ValidationError("Solde est un nom d'article invalide")
+
     def __str__(self):
         return self.name
 
@@ -125,6 +132,9 @@ class Paiement(models.Model):
 
     def __str__(self):
         return self.moyen
+
+    def clean(self):
+        self.moyen = self.moyen.title()
 
 class Cotisation(models.Model):
     PRETTY_NAME = "Cotisations"

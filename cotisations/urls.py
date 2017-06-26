@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^del_facture/(?P<factureid>[0-9]+)$', views.del_facture, name='del-facture'),
     url(r'^facture_pdf/(?P<factureid>[0-9]+)$', views.facture_pdf, name='facture-pdf'),
     url(r'^new_facture_pdf/$', views.new_facture_pdf, name='new-facture-pdf'),
+    url(r'^credit_solde/(?P<userid>[0-9]+)$', views.credit_solde, name='credit-solde'),
     url(r'^add_article/$', views.add_article, name='add-article'),
     url(r'^edit_article/(?P<articleid>[0-9]+)$', views.edit_article, name='edit-article'),
     url(r'^del_article/$', views.del_article, name='del-article'),
