@@ -360,7 +360,11 @@ class User(AbstractBaseUser):
             user_ldap.user_password = self.password[:6] + self.password[7:]
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
             if self.shell:
-                user_ldap.login_shell = self.shell.shell 
+                user_ldap.login_shell = self.shell.shell
+            if self.state == self.STATE_DISABLED:
+                user_ldap.shadowexpire = str(0)
+            else:
+                user_ldap.shadowexpire = None
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access)
         if mac_refresh:
@@ -599,7 +603,7 @@ class LdapUser(ldapdb.models.Model):
     """
     # LDAP meta-data
     base_dn = LDAP['base_user_dn']
-    object_classes = ['inetOrgPerson','top','posixAccount','sambaSamAccount','radiusprofile']
+    object_classes = ['inetOrgPerson','top','posixAccount','sambaSamAccount','radiusprofile', 'shadowAccount']
 
     # attributes
     gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
@@ -617,6 +621,7 @@ class LdapUser(ldapdb.models.Model):
     user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
     sambat_nt_password = ldapdb.models.fields.CharField(db_column='sambaNTPassword', max_length=200, blank=True, null=True)
     macs = ldapdb.models.fields.ListField(db_column='radiusCallingStationId', max_length=200, blank=True, null=True)
+    shadowexpire = ldapdb.models.fields.CharField(db_column='shadowExpire', blank=True, null=True)
 
     def __str__(self):
         return self.name
