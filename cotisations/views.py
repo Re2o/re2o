@@ -38,12 +38,12 @@ from reversion import revisions as reversion
 from reversion.models import Version
 
 from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
-from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, SelectArticleForm
+from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, CreditSoldeForm, SelectArticleForm
 from users.models import User
 from .tex import render_tex
 from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
 from re2o import settings
-from preferences.models import GeneralOption
+from preferences.models import OptionalUser, GeneralOption
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -87,6 +87,19 @@ def new_facture(request, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
+            options, created = OptionalUser.objects.get_or_create()
+            user_solde = options.user_solde
+            solde_negatif = options.solde_negatif
+            # Si on paye par solde, que l'option est activée, on vérifie que le négatif n'est pas atteint
+            if user_solde:
+                if new_facture.paiement == Paiement.objects.get_or_create(moyen='solde')[0]:
+                    prix_total = 0
+                    for art_item in articles:
+                        if art_item.cleaned_data:
+                            prix_total += art_item.cleaned_data['article'].prix*art_item.cleaned_data['quantity']
+                    if float(user.solde) - float(prix_total) < solde_negatif:
+                        messages.error(request, "Le solde est insuffisant pour effectuer l'opération")
+                        return redirect("/users/profil/" + userid)
             with transaction.atomic(), reversion.create_revision():
                 new_facture.save()
                 reversion.set_user(request.user)
@@ -194,6 +207,33 @@ def del_facture(request, factureid):
         messages.success(request, "La facture a été détruite")
         return redirect("/cotisations/")
     return form({'objet': facture, 'objet_name': 'facture'}, 'cotisations/delete.html', request)
+
+@login_required
+@permission_required('cableur')
+def credit_solde(request, userid):
+    """ Credit ou débit de solde """
+    try:
+        user = User.objects.get(pk=userid)
+    except User.DoesNotExist:
+        messages.error(request, u"Utilisateur inexistant" )
+        return redirect("/cotisations/")
+    facture = CreditSoldeForm(request.POST or None)
+    if facture.is_valid():
+        facture_instance = facture.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            facture_instance.user = user
+            facture_instance.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création") 
+        new_vente = Vente.objects.create(facture=facture_instance, name="solde", prix=facture.cleaned_data['montant'], iscotisation=False, duration=0, number=1)
+        with transaction.atomic(), reversion.create_revision():
+            new_vente.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Solde modifié")
+        return redirect("/cotisations/")
+    return form({'factureform': facture}, 'cotisations/facture.html', request)
+
 
 @login_required
 @permission_required('trésorier')

@@ -46,9 +46,21 @@ class NewFactureForm(ModelForm):
         banque = cleaned_data.get("banque")
         if not paiement:
             raise forms.ValidationError("Le moyen de paiement est obligatoire")
-        elif paiement.moyen=="chèque" and not (cheque and banque):
+        elif paiement.moyen.lower()=="chèque" or paiement.moyen.lower()=="cheque" and not (cheque and banque):
             raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
         return cleaned_data
+
+class CreditSoldeForm(NewFactureForm):
+    class Meta(NewFactureForm.Meta):
+        model = Facture
+        fields = ['paiement','banque','cheque']
+
+    def __init__(self, *args, **kwargs):
+        super(CreditSoldeForm, self).__init__(*args, **kwargs)
+        self.fields['paiement'].queryset = Paiement.objects.exclude(moyen='solde').exclude(moyen="Solde")
+
+
+    montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 class SelectArticleForm(Form):
     article = forms.ModelChoiceField(queryset=Article.objects.all(), label="Article", required=True)

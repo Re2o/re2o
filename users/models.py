@@ -40,7 +40,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from django.core.validators import MinLengthValidator
 from topologie.models import Room
-from cotisations.models import Cotisation, Facture, Vente
+from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Interface, Machine
 from preferences.models import OptionalUser
 
@@ -311,6 +311,18 @@ class User(AbstractBaseUser):
                 return self.end_adhesion
             else:        
                 return max(self.end_adhesion, self.end_whitelist)
+
+    @cached_property
+    def solde(self):
+        options, created = OptionalUser.objects.get_or_create()
+        user_solde = options.user_solde
+        if user_solde:
+            solde_object, created=Paiement.objects.get_or_create(moyen='Solde')
+            somme_debit = Vente.objects.filter(facture__in=Facture.objects.filter(user=self, paiement=solde_object)).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total'] or 0
+            somme_credit =Vente.objects.filter(facture__in=Facture.objects.filter(user=self), name="solde").aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total'] or 0
+            return somme_credit - somme_debit
+        else:
+            return 0
 
     def user_interfaces(self):
         return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=True))

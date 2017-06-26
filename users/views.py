@@ -45,7 +45,7 @@ from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from machines.views import unassign_ips, assign_ips
-from preferences.models import GeneralOption
+from preferences.models import OptionalUser, GeneralOption
 
 from re2o.login import hashNT
 from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
@@ -694,6 +694,8 @@ def profil(request, userid):
     bans = Ban.objects.filter(user__pseudo=users)
     whitelists = Whitelist.objects.filter(user__pseudo=users)
     list_droits = Right.objects.filter(user=users)
+    options, created = OptionalUser.objects.get_or_create()
+    user_solde = options.user_solde
     return render(
         request,
         'users/profil.html',
@@ -704,6 +706,7 @@ def profil(request, userid):
             'ban_list': bans,
             'white_list': whitelists,
             'list_droits': list_droits,
+            'user_solde': user_solde,
         }
     )
 
