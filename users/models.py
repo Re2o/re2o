@@ -221,15 +221,20 @@ class User(AbstractBaseUser):
 
 
     def has_right(self, right):
-        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright=right)).exists()
+        try:
+            list_right = ListRight.objects.get(listright=right)
+        except:
+            list_right = ListRight(listright=right, gid=get_fresh_gid())
+            list_right.save()
+        return Right.objects.filter(user=self).filter(right=list_right).exists()
 
     @cached_property
     def is_bureau(self):
-        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='bureau')).exists()
+        return self.has_right('bureau')
 
     @cached_property
     def is_bofh(self):
-        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='bofh')).exists()
+        return self.has_right('bofh')
 
     @cached_property
     def is_cableur(self):
@@ -237,11 +242,11 @@ class User(AbstractBaseUser):
 
     @cached_property
     def is_trez(self):
-        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='trésorier')).exists()
+        return self.has_right('trésorier')
 
     @cached_property
     def is_infra(self):
-        return Right.objects.filter(user=self).filter(right=ListRight.objects.get(listright='infra')).exists()
+        return self.has_right('infra')
 
     @cached_property
     def end_adhesion(self):
