@@ -27,7 +27,6 @@ Voici la liste des dépendances à installer sur le serveur principal (A).
 Paquets obligatoires:
  * python3-django (1.10, stretch)
  * python3-dateutil (stretch)
- * texlive (stretch)
  * texlive-latex-base (stretch)
  * texlive-fonts-recommended (strech)
  * python3-djangorestframework (stretch)
