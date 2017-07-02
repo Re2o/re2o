@@ -97,8 +97,10 @@ LDAP = {
     'base_user_dn' : 'cn=Utilisateurs,dc=ldap,dc=example,dc=org',
     'base_userservice_dn' : 'ou=service-users,dc=ldap,dc=example,dc=org',
     'base_usergroup_dn' : 'ou=posix,ou=groups,dc=ldap,dc=example,dc=org',
+    'base_userservicegroup_dn' : 'ou=services,ou=groups,dc=ldap,dc=example,dc=org',
     'user_gid' : 500,
     }
+
 
 UID_RANGES = {
     'users' : [21001,30000],
@@ -110,13 +112,6 @@ GID_RANGES = {
     'posix' : [501, 600],
 }
 
-# Affchage des résultats
-SEARCH_RESULT = 15
-
-# Max machines et max alias autorisés par personne
-MAX_INTERFACES = 4
-MAX_ALIAS = 4
-
 # Liste des vlans id disponible sur un switch
 VLAN_ID_LIST = [7,8,42,69]
 
@@ -127,3 +122,4 @@ RADIUS_VLAN_DECISION = {
 }
 
 OPTIONNAL_APPS = ()
+
