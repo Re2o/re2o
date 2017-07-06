@@ -39,8 +39,8 @@ from django.db import transaction
 from reversion.models import Version
 from reversion import revisions as reversion
 from users.models import User, Right, Ban, Whitelist, School, ListRight, Request, ServiceUser
-from users.models import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
-from users.models import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, EditServiceUserForm, ServiceUserForm, ListRightForm
+from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
+from users.forms import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, EditServiceUserForm, ServiceUserForm, ListRightForm
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
@@ -85,7 +85,7 @@ def password_change_action(u_form, user, request, req=False):
 def reset_passwd_mail(req, request):
     """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
     t = loader.get_template('users/email_passwd_request')
-    c = Context({
+    c = {
       'name': str(req.user.name) + ' ' + str(req.user.surname),
       'asso': ASSO_NAME,
       'asso_mail': ASSO_EMAIL,
@@ -93,7 +93,7 @@ def reset_passwd_mail(req, request):
       'url': request.build_absolute_uri(
        reverse('users:process', kwargs={'token': req.token})),
        'expire_in': REQ_EXPIRE_STR,
-    })
+    }
     send_mail('Changement de mot de passe', t.render(c),
     EMAIL_FROM, [req.user.email], fail_silently=False)
     return

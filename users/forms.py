@@ -24,11 +24,14 @@
 
 
 from django import forms
+from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
+from preferences.models import OptionalUser
 from django.utils import timezone
+from .models import User, ServiceUser, Right, School, ListRight, Whitelist, Ban, Request
 
-from .models import User, ServiceUser, get_admin_right
+from .models import get_admin_right
 
 class PassForm(forms.Form):
     passwd1 = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
@@ -148,3 +151,173 @@ class MassArchiveForm(forms.Form):
         if date:
             if date>timezone.now():
                 raise forms.ValidationError("Impossible d'archiver des utilisateurs dont la fin d'accès se situe dans le futur !")
+
+class BaseInfoForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BaseInfoForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Prénom'
+        self.fields['surname'].label = 'Nom'
+        self.fields['school'].label = 'Établissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Chambre'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
+
+    class Meta:
+        model = User
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'telephone',
+        ]
+
+    def clean_telephone(self):
+        telephone = self.cleaned_data['telephone']
+        preferences, created = OptionalUser.objects.get_or_create()
+        if not telephone and preferences.is_tel_mandatory:
+            raise forms.ValidationError("Un numéro de téléphone valide est requis")
+        return telephone
+
+class EditInfoForm(BaseInfoForm):
+    class Meta(BaseInfoForm.Meta):
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'shell',
+            'telephone',
+        ]
+
+class InfoForm(EditInfoForm):
+    force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
+
+    def clean_force(self):
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
+
+class UserForm(InfoForm):
+    class Meta(InfoForm.Meta):
+        fields = '__all__'
+
+class PasswordForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['password', 'pwd_ntlm']
+
+class ServiceUserForm(ModelForm):
+    password = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput, required=False)
+
+    class Meta:
+        model = ServiceUser
+        fields = ('pseudo','access_group')
+
+class EditServiceUserForm(ServiceUserForm):
+    class Meta(ServiceUserForm.Meta):
+        fields = ['access_group','comment']
+
+class StateForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['state']
+
+
+class SchoolForm(ModelForm):
+    class Meta:
+        model = School
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super(SchoolForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Établissement'
+
+class ListRightForm(ModelForm):
+    class Meta:
+        model = ListRight
+        fields = ['listright', 'details']
+
+    def __init__(self, *args, **kwargs):
+        super(ListRightForm, self).__init__(*args, **kwargs)
+        self.fields['listright'].label = 'Nom du droit/groupe'
+
+class NewListRightForm(ListRightForm):
+    class Meta(ListRightForm.Meta):
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(NewListRightForm, self).__init__(*args, **kwargs)
+        self.fields['gid'].label = 'Gid, attention, cet attribut ne doit pas être modifié après création'
+
+class DelListRightForm(ModelForm):
+    listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all().select_related('user'), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['listright','gid']
+        model = ListRight
+
+class DelSchoolForm(ModelForm):
+    schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        exclude = ['name']
+        model = School
+
+
+class RightForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(RightForm, self).__init__(*args, **kwargs)
+        self.fields['right'].label = 'Droit'
+        self.fields['right'].empty_label = "Choisir un nouveau droit"
+
+    class Meta:
+        model = Right
+        fields = ['right']
+
+
+class DelRightForm(ModelForm):
+    rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = Right
+        exclude = ['user', 'right']
+
+
+class BanForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BanForm, self).__init__(*args, **kwargs)
+        self.fields['date_end'].label = 'Date de fin'
+
+    class Meta:
+        model = Ban
+        exclude = ['user']
+
+    def clean_date_end(self):
+        date_end = self.cleaned_data['date_end']
+        if date_end < timezone.now():
+            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        return date_end
+
+
+class WhitelistForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(WhitelistForm, self).__init__(*args, **kwargs)
+        self.fields['date_end'].label = 'Date de fin'
+
+    class Meta:
+        model = Whitelist
+        exclude = ['user']
+
+    def clean_date_end(self):
+        date_end = self.cleaned_data['date_end']
+        if date_end < timezone.now():
+            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        return date_end
