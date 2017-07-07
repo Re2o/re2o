@@ -461,7 +461,7 @@ class Right(models.Model):
         unique_together = ("user", "right")
 
     def __str__(self):
-        return str(self.user) + " - " + str(self.right)
+        return str(self.user)
 
 @receiver(post_save, sender=Right)
 def right_post_save(sender, **kwargs):

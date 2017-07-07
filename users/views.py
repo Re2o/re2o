@@ -297,16 +297,19 @@ def add_right(request, userid):
 @permission_required('bureau')
 def del_right(request):
     """ Supprimer un droit à un user, need droit bureau """
-    user_right_list = DelRightForm(request.POST or None)
-    if user_right_list.is_valid():
-        right_del = user_right_list.cleaned_data['rights']
-        with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(request.user)
-            reversion.set_comment("Retrait des droit %s" % ','.join(str(deleted_right) for deleted_right in right_del))
-            right_del.delete()
-        messages.success(request, "Droit retiré avec succès")
-        return redirect("/users/")
-    return form({'userform': user_right_list}, 'users/user.html', request)
+    user_right_list = dict()
+    for right in ListRight.objects.all():
+        user_right_list[right]= DelRightForm(right, request.POST or None)
+    for keys, right_item in user_right_list.items():
+        if right_item.is_valid():
+            right_del = right_item.cleaned_data['rights']
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                reversion.set_comment("Retrait des droit %s" % ','.join(str(deleted_right) for deleted_right in right_del))
+                right_del.delete()
+            messages.success(request, "Droit retiré avec succès")
+            return redirect("/users/")
+    return form({'userform': user_right_list}, 'users/del_right.html', request)
 
 @login_required
 @permission_required('bofh')
