@@ -258,7 +258,7 @@ class NewListRightForm(ListRightForm):
         self.fields['gid'].label = 'Gid, attention, cet attribut ne doit pas être modifié après création'
 
 class DelListRightForm(ModelForm):
-    listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all().select_related('user'), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+    listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all().select_related('user'), label="Droits actuels", widget=forms.CheckboxSelectMultiple)
 
     class Meta:
         exclude = ['listright','gid']
@@ -284,7 +284,12 @@ class RightForm(ModelForm):
 
 
 class DelRightForm(ModelForm):
-    rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(), label="Droits actuels",  widget=forms.CheckboxSelectMultiple)
+    rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(),  widget=forms.CheckboxSelectMultiple)
+
+    def __init__(self, right, *args, **kwargs):
+        super(DelRightForm, self).__init__(*args, **kwargs)
+        self.fields['rights'].queryset = Right.objects.filter(right=right)
+
 
     class Meta:
         model = Right
