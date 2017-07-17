@@ -529,6 +529,7 @@ def mass_archive(request):
                 with transaction.atomic(), reversion.create_revision():
                     user.state=User.STATE_ARCHIVE
                     user.save()
+                    reversion.set_user(request.user)
                     reversion.set_comment("Archivage")
             messages.success(request, "%s users ont été archivés" % len(to_archive_list))
             return redirect("/users/")        
