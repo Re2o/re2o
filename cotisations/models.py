@@ -107,8 +107,11 @@ class Article(models.Model):
     name = models.CharField(max_length=255, unique=True)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
-    duration = models.IntegerField(validators=[MinValueValidator(0)], help_text="Durée exprimée en mois entiers", blank=True, null=True)
-
+    duration = models.IntegerField(
+        help_text="Durée exprimée en mois entiers",
+        blank=True,
+        null=True,
+        min_value=0)
 
     def clean(self):
         if self.name.lower() == "solde":
