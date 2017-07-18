@@ -247,14 +247,12 @@ class User(AbstractBaseUser):
     def is_infra(self):
         return self.has_right('infra')
 
-    @cached_property
     def end_adhesion(self):
         date_max = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
-    @cached_property
     def is_adherent(self):
-        end = self.end_adhesion
+        end = self.end_adhesion()
         if not end:
             return False
         elif end < timezone.now():
@@ -296,25 +294,23 @@ class User(AbstractBaseUser):
         else:
             return True
 
-    @cached_property
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE \
-            and not self.is_ban and (self.is_adherent or self.is_whitelisted)
+            and not self.is_ban and (self.is_adherent() or self.is_whitelisted)
 
-    @cached_property
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
-        if not self.end_adhesion:
+        if not self.end_adhesion():
             if not self.end_whitelist:
                 return None
             else:
                 return self.end_whitelist
         else:
             if not self.end_whitelist:
-                return self.end_adhesion
+                return self.end_adhesion()
             else:        
-                return max(self.end_adhesion, self.end_whitelist)
+                return max(self.end_adhesion(), self.end_whitelist)
 
     @cached_property
     def solde(self):
@@ -356,7 +352,7 @@ class User(AbstractBaseUser):
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
-            user_ldap.dialupAccess = str(self.has_access)
+            user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
             user_ldap.mail = self.email
             user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
@@ -370,7 +366,7 @@ class User(AbstractBaseUser):
             else:
                 user_ldap.shadowexpire = None
         if access_refresh:
-            user_ldap.dialupAccess = str(self.has_access)
+            user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
             user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine__in=Machine.objects.filter(user=self))]
         user_ldap.save()

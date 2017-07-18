@@ -106,7 +106,7 @@ class Interface(models.Model):
         """ Renvoie si une interface doit avoir accès ou non """
         machine = self.machine
         user = self.machine.user
-        return machine.active and user.has_access
+        return machine.active and user.has_access()
 
     def mac_bare(self):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
