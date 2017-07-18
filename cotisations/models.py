@@ -104,10 +104,10 @@ def vente_post_delete(sender, **kwargs):
 class Article(models.Model):
     PRETTY_NAME = "Articles en vente"
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
-    duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
+    duration = models.IntegerField(validators=[MinValueValidator(0)], help_text="Durée exprimée en mois entiers", blank=True, null=True)
 
 
     def clean(self):
