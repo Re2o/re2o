@@ -45,9 +45,9 @@ class NewFactureForm(ModelForm):
         cheque = cleaned_data.get("cheque")
         banque = cleaned_data.get("banque")
         if not paiement:
-            raise forms.ValidationError("Le moyen de paiement est obligatoire")
+            raise forms.ValidationError("Le moyen de paiement est obligatoire.")
         elif paiement.moyen.lower()=="chèque" or paiement.moyen.lower()=="cheque" and not (cheque and banque):
-            raise forms.ValidationError("Le numero de chèque et la banque sont obligatoires")
+            raise forms.ValidationError("Le numéro de chèque et la banque sont obligatoires.")
         return cleaned_data
 
 class CreditSoldeForm(NewFactureForm):
@@ -90,7 +90,7 @@ class TrezEditFactureForm(EditFactureForm):
     def __init__(self, *args, **kwargs):
         super(TrezEditFactureForm, self).__init__(*args, **kwargs)
         self.fields['valid'].label = 'Validité de la facture'
-        self.fields['control'].label = 'Controle de la facture'
+        self.fields['control'].label = 'Contrôle de la facture'
 
 
 class ArticleForm(ModelForm):
