@@ -130,8 +130,13 @@ class Banque(models.Model):
 
 class Paiement(models.Model):
     PRETTY_NAME = "Moyens de paiement"
+    PAYMENT_TYPES = (
+        ('check', 'Chèque'),
+        (None, 'Autre'),
+    )
 
     moyen = models.CharField(max_length=255)
+    type_ = models.ChoiceField(choices=PAYMENT_TYPES)
 
     def __str__(self):
         return self.moyen

@@ -46,7 +46,7 @@ class NewFactureForm(ModelForm):
         banque = cleaned_data.get("banque")
         if not paiement:
             raise forms.ValidationError("Le moyen de paiement est obligatoire.")
-        elif paiement.moyen.lower()=="chèque" or paiement.moyen.lower()=="cheque" and not (cheque and banque):
+        elif paiement.type_ == "check" and not (cheque and banque):
             raise forms.ValidationError("Le numéro de chèque et la banque sont obligatoires.")
         return cleaned_data
 
@@ -112,11 +112,12 @@ class DelArticleForm(ModelForm):
 class PaiementForm(ModelForm):
     class Meta:
         model = Paiement
-        fields = ['moyen']
+        fields = ['moyen', 'type_']
 
     def __init__(self, *args, **kwargs):
         super(PaiementForm, self).__init__(*args, **kwargs)
         self.fields['moyen'].label = 'Moyen de paiement à ajouter'
+        self.fields['type_'].label = 'Type de paiement à ajouter'
 
 class DelPaiementForm(ModelForm):
     paiements = forms.ModelMultipleChoiceField(queryset=Paiement.objects.all(), label="Moyens de paiement actuels",  widget=forms.CheckboxSelectMultiple)

@@ -36,6 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>Nouvelle facture</h3>
     {% bootstrap_form factureform %}
     {{ venteform.management_form }}
+    <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
     <h3>Articles de la facture</h3>
     <div id="form_set">
     {% for form in venteform.forms %}
@@ -57,10 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <script type="text/javascript">
 
-    // id from database from checks
-    var CHECK_ID = 2;
-
-    var prices = {} 
+    var prices = {};
     {% for article in articlelist %}
         prices[{{ article.id|escapejs }}] = {{ article.prix }};
     {% endfor %}
@@ -111,17 +109,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     }
 
     function set_cheque_info_visibility(){
-        // May break in various ways...
-        // Requires CHECK_ID to be the right one
-        // and fields to hide to be 2nd and 3rd elements with class form-group
-        var visible = document.getElementById("id_paiement").value == CHECK_ID;
+        var paiement = document.getElementById("id_paiement");
+        var visible = paiement.value != '' &&
+            paiement.children[paiement.value].dataset['type'] == 'check';
         var display = 'none';
         if (visible) {
             display = 'block';
         }
-        var elements = document.getElementsByClassName('form-group');
-        elements[1].style.display = display;
-        elements[2].style.display = display;
+        document.getElementById("id_cheque").parentNode.style.display = display;
+        document.getElementById("id_banque").parentNode.style.display = display;
     }
 
     // Add events manager when DOM is fully loaded
