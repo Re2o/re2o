@@ -35,7 +35,6 @@ from users.views import form
 from users.models import User
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
-from machines.views import free_ip, assign_ipv4
 from preferences.models import GeneralOption
 
 from re2o.settings import ASSO_PSEUDO
@@ -166,10 +165,6 @@ def new_switch(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         new_interface.machine = new_machine
-        if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-            new_interface = assign_ipv4(new_interface)
-        elif not new_interface.ipv4:
-            messages.error(request, "Il n'y a plus d'ip disponibles")
         with transaction.atomic(), reversion.create_revision():
             new_interface.save()
             reversion.set_user(request.user)

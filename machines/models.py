@@ -29,6 +29,7 @@ from macaddress.fields import MACAddressField
 from netaddr import mac_bare, EUI, IPSet, IPNetwork
 from django.core.validators import MinValueValidator,MaxValueValidator
 import re
+from reversion import revisions as reversion
 
 from re2o.settings import MAIN_EXTENSION
 
@@ -76,9 +77,11 @@ class IpType(models.Model):
     def ip_set_as_str(self):
         return [str(x) for x in self.ip_set]
 
-    @cached_property
     def ip_objects(self):
-        return IpList.objects.filter(ipv4__in=self.ip_set_as_str)
+        return IpList.objects.filter(ip_type=self)
+
+    def free_ip(self):
+        return IpList.objects.filter(interface__isnull=True).filter(ip_type=self)
 
     def gen_ip_range(self):
         # Creation du range d'ip dans les objets iplist
@@ -86,7 +89,7 @@ class IpType(models.Model):
             obj, created = IpList.objects.get_or_create(ip_type=self, ipv4=str(ip))
 
     def del_ip_range(self):
-        if Interface.objects.filter(ipv4__in=self.ip_objects):
+        if Interface.objects.filter(ipv4__in=self.ip_objects()):
             raise ValidationError("Une ou plusieurs ip du range sont affectées, impossible de supprimer le range")
         for ip in self.ip_objects():
             ip.delete()
@@ -156,6 +159,20 @@ class Interface(models.Model):
 
     def clean(self, *args, **kwargs):
         self.mac_address = str(EUI(self.mac_address)) or None
+        if not self.ipv4:
+            self.assign_ipv4()
+
+    def assign_ipv4(self):
+        """ Assigne une ip à l'interface """
+        free_ips = self.type.ip_type.free_ip()
+        if free_ips:
+            self.ipv4 = free_ips[0]
+        else:
+            raise ValidationError("Il n'y a plus d'ip disponibles dans le slash")
+        return
+
+    def unassign_ipv4(self):
+        self.ipv4 = None
 
     def __str__(self):
         try:
@@ -227,7 +244,8 @@ def machine_post_delete(sender, **kwargs):
 
 @receiver(post_save, sender=Interface)
 def interface_post_save(sender, **kwargs):
-    user = kwargs['instance'].machine.user
+    interface = kwargs['instance']
+    user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
 
 @receiver(post_delete, sender=Interface)
