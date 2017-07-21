@@ -44,22 +44,11 @@ from users.forms import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightFo
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
-from machines.views import unassign_ips, assign_ips
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.login import hashNT
 from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
 
-def archive(user):
-    """ Archive un utilisateur """
-    unassign_ips(user)
-    return
-
-
-def unarchive(user):
-    """ Triger actions au desarchivage d'un user """
-    assign_ips(user)
-    return
 
 def form(ctx, template, request):
     c = ctx
@@ -180,15 +169,16 @@ def state(request, userid):
         return redirect("/users/")
     state = StateForm(request.POST or None, instance=user)
     if state.is_valid():
-        if state.has_changed():
-            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
-                archive(user)
-            else:
-                unarchive(user)
         with transaction.atomic(), reversion.create_revision():
-            state.save()
+            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
+                user.archive()
+            elif state.cleaned_data['state'] == User.STATE_ACTIVE:
+                user.unarchive()
+            elif state.cleaned_data['state'] == User.STATE_DISABLED:
+                user.state = User.STATE_DISABLED
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in state.changed_data))
+            user.save()
         messages.success(request, "Etat changé avec succès")
         return redirect("/users/profil/" + userid)
     return form({'userform': state}, 'users/user.html', request)
@@ -525,9 +515,8 @@ def mass_archive(request):
         to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access or user.end_access < date]
         if "valider" in request.POST:
             for user in to_archive_list:
-                archive(user)
                 with transaction.atomic(), reversion.create_revision():
-                    user.state=User.STATE_ARCHIVE
+                    user.archive()
                     user.save()
                     reversion.set_user(request.user)
                     reversion.set_comment("Archivage")

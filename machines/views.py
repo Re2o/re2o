@@ -66,40 +66,6 @@ def all_active_assigned_interfaces_count():
     """ Version light seulement pour compter"""
     return all_active_interfaces_count().filter(ipv4__isnull=False)
 
-def unassign_ips(user):
-    machines = user.user_interfaces()
-    for machine in machines:
-        unassign_ipv4(machine)
-    return
-
-def assign_ips(user):
-    """ Assign une ipv4 aux machines d'un user """
-    machines = user.user_interfaces()
-    for machine in machines:
-        if not machine.ipv4:
-            interface = assign_ipv4(machine)
-            with transaction.atomic(), reversion.create_revision():
-                reversion.set_comment("Assignation ipv4")
-                interface.save()
-    return
-
-def free_ip(type):
-    """ Renvoie la liste des ip disponibles """
-    return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
-
-def assign_ipv4(interface):
-    """ Assigne une ip à l'interface """
-    free_ips = free_ip(interface.type.ip_type)
-    if free_ips:
-        interface.ipv4 = free_ips[0]
-    return interface
-
-def unassign_ipv4(interface):
-    interface.ipv4 = None
-    with transaction.atomic(), reversion.create_revision():
-        reversion.set_comment("Désassignation ipv4")
-        interface.save()
-
 def form(ctx, template, request):
     c = ctx
     c.update(csrf(request))
@@ -136,10 +102,6 @@ def new_machine(request, userid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             new_interface.machine = new_machine
-            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                new_interface = assign_ipv4(new_interface)
-            elif not new_interface.ipv4:
-                messages.error(request, u"Il n'y a plus d'ip disponibles")
             with transaction.atomic(), reversion.create_revision():
                 new_interface.save()
                 reversion.set_user(request.user)
@@ -181,8 +143,6 @@ def edit_interface(request, interfaceid):
                 new_machine.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
-            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                new_interface = assign_ipv4(new_interface)
             with transaction.atomic(), reversion.create_revision():
                 new_interface.save()
                 reversion.set_user(request.user)
@@ -239,10 +199,6 @@ def new_interface(request, machineid):
             new_interface = interface_form.save(commit=False)
             new_interface.machine = machine
             new_domain = domain_form.save(commit=False)
-            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                new_interface = assign_ipv4(new_interface)
-            elif not new_interface.ipv4:
-                messages.error(request, u"Il n'y a plus d'ip disponibles")
             with transaction.atomic(), reversion.create_revision():
                 new_interface.save()
                 reversion.set_user(request.user)

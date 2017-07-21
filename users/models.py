@@ -27,6 +27,9 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 
+from reversion import revisions as reversion
+from django.db import transaction
+
 import ldapdb.models
 import ldapdb.models.fields
 
@@ -326,6 +329,32 @@ class User(AbstractBaseUser):
 
     def user_interfaces(self):
         return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=True))
+
+    def assign_ips(self):
+        """ Assign une ipv4 aux machines d'un user """
+        interfaces = self.user_interfaces()
+        for interface in interfaces:
+            if not interface.ipv4:
+                with transaction.atomic(), reversion.create_revision():
+                    interface.assign_ipv4()
+                    reversion.set_comment("Assignation ipv4")
+                    interface.save()
+
+    def unassign_ips(self):
+        interfaces = self.user_interfaces()
+        for interface in interfaces:
+            with transaction.atomic(), reversion.create_revision():
+                interface.unassign_ipv4()
+                reversion.set_comment("Désassignation ipv4")
+                interface.save()
+
+    def archive(self):
+        self.unassign_ips()
+        self.state = User.STATE_ARCHIVE 
+
+    def unarchive(self):
+        self.assign_ips()
+        self.state = User.STATE_ACTIVE
 
     def has_module_perms(self, app_label):
         # Simplest version again
