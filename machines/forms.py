@@ -74,7 +74,7 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
@@ -92,7 +92,7 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).filter(need_infra=False)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
@@ -152,13 +152,12 @@ class IpTypeForm(ModelForm):
         super(IpTypeForm, self).__init__(*args, **kwargs)
         self.fields['type'].label = 'Type ip à ajouter'
 
-class DelIpTypeForm(ModelForm):
+class EditIpTypeForm(IpTypeForm):
+    class Meta(IpTypeForm.Meta):
+        fields = ['extension','type','need_infra']
+
+class DelIpTypeForm(forms.Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['type','extension','need_infra','domaine_ip','domaine_range']
-        model = IpType
-
 
 class ExtensionForm(ModelForm):
     class Meta:

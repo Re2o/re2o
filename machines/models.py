@@ -21,13 +21,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
-from macaddress.fields import MACAddressField
-from netaddr import mac_bare, EUI
-from django.core.validators import MinValueValidator,MaxValueValidator
 from django.utils.functional import cached_property
+from macaddress.fields import MACAddressField
+from netaddr import mac_bare, EUI, IPSet, IPNetwork
+from django.core.validators import MinValueValidator,MaxValueValidator
+import re
 
 from re2o.settings import MAIN_EXTENSION
 
@@ -58,6 +59,48 @@ class IpType(models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip = models.GenericIPAddressField(protocol='IPv4')
     domaine_range = models.IntegerField(validators=[MinValueValidator(8), MaxValueValidator(32)])
+
+    @cached_property
+    def network(self):
+        return str(self.domaine_ip) + '/' + str(self.domaine_range)
+
+    @cached_property
+    def ip_network(self):
+        return IPNetwork(self.network)
+
+    @cached_property
+    def ip_set(self):
+        return IPSet(self.ip_network)
+
+    @cached_property
+    def ip_set_as_str(self):
+        return [str(x) for x in self.ip_set]
+
+    @cached_property
+    def ip_objects(self):
+        return IpList.objects.filter(ipv4__in=self.ip_set_as_str)
+
+    def gen_ip_range(self):
+        # Creation du range d'ip dans les objets iplist
+        for ip in self.ip_network.iter_hosts():
+            obj, created = IpList.objects.get_or_create(ip_type=self, ipv4=str(ip))
+
+    def del_ip_range(self):
+        if Interface.objects.filter(ipv4__in=self.ip_objects):
+            raise ValidationError("Une ou plusieurs ip du range sont affectées, impossible de supprimer le range")
+        for ip in self.ip_objects():
+            ip.delete()
+
+    def clean(self):
+        # On check que les / ne se recoupent pas
+        for element in IpType.objects.all():
+            if not self.ip_set.isdisjoint(element.ip_set):
+                raise ValidationError("Le range indiqué n'est pas disjoint des ranges existants")
+        return
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(IpType, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.type
@@ -133,10 +176,18 @@ class Domain(models.Model):
         unique_together = ("name", "extension")
 
     def clean(self):
+        """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
         if self.interface_parent and self.cname:
             raise ValidationError("On ne peut créer à la fois A et CNAME")
         if self.cname==self:
             raise ValidationError("On ne peut créer un cname sur lui même")
+        HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
+        dns = self.name.lower()
+        if len(dns) > 63:
+            raise ValidationError("Le nom de domaine %s est trop long (maximum de 63 caractères)." % dns)
+        if not HOSTNAME_LABEL_PATTERN.match(dns):
+            raise ValidationError("Ce nom de domaine %s contient des carractères interdits." % dns)
+        return
 
     def __str__(self):
         return str(self.name) + str(self.extension)
@@ -145,8 +196,20 @@ class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
-    ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT)
-    need_infra = models.BooleanField(default=False)
+    ip_type = models.ForeignKey('IpType', on_delete=models.CASCADE)
+
+    @cached_property
+    def need_infra(self):
+        return self.ip_type.need_infra
+
+    def clean(self):
+        if not str(self.ipv4) in self.ip_type.ip_set_as_str:
+            raise ValidationError("L'ipv4 et le range de l'iptype ne correspondent pas!")
+        return
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(IpList, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.ipv4
@@ -172,4 +235,9 @@ def interface_post_delete(sender, **kwargs):
     interface = kwargs['instance']
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+
+@receiver(post_save, sender=IpType)
+def iptype_post_save(sender, **kwargs):
+    iptype = kwargs['instance']
+    iptype.gen_ip_range()
 

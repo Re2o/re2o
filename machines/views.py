@@ -44,25 +44,11 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
-
-def full_domain_validator(request, domain):
-    """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
-    HOSTNAME_LABEL_PATTERN = re.compile("(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
-    dns = domain.name.lower()
-    if len(dns) > 63:
-        messages.error(request,
-                "Le nom de domaine %s est trop long (maximum de 63 caractères)." % dns)
-        return False
-    if not HOSTNAME_LABEL_PATTERN.match(dns):
-        messages.error(request,
-                "Ce nom de domaine %s contient des carractères interdits." % dns)
-        return False
-    return True
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
@@ -99,10 +85,7 @@ def assign_ips(user):
 
 def free_ip(type):
     """ Renvoie la liste des ip disponibles """
-    if not type.need_infra:
-        return IpList.objects.filter(interface__isnull=True).filter(ip_type=type).filter(need_infra=False)
-    else:
-        return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
+    return IpList.objects.filter(interface__isnull=True).filter(ip_type=type)
 
 def assign_ipv4(interface):
     """ Assigne une ip à l'interface """
@@ -148,27 +131,26 @@ def new_machine(request, userid):
             new_machine.user = user
             new_interface = interface.save(commit=False)
             new_domain = domain.save(commit=False)
-            if full_domain_validator(request, new_domain):
-                with transaction.atomic(), reversion.create_revision():
-                    new_machine.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                new_interface.machine = new_machine
-                if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                    new_interface = assign_ipv4(new_interface)
-                elif not new_interface.ipv4:
-                    messages.error(request, u"Il n'y a plus d'ip disponibles")
-                with transaction.atomic(), reversion.create_revision():
-                    new_interface.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                new_domain.interface_parent = new_interface
-                with transaction.atomic(), reversion.create_revision():
-                    new_domain.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                messages.success(request, "La machine a été crée")
-                return redirect("/users/profil/" + str(user.id))
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_interface.machine = new_machine
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+                new_interface = assign_ipv4(new_interface)
+            elif not new_interface.ipv4:
+                messages.error(request, u"Il n'y a plus d'ip disponibles")
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "La machine a été crée")
+            return redirect("/users/profil/" + str(user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
@@ -195,23 +177,22 @@ def edit_interface(request, interfaceid):
             new_interface = interface_form.save(commit=False)
             new_machine = machine_form.save(commit=False)
             new_domain = domain_form.save(commit=False)
-            if full_domain_validator(request, new_domain):
-                with transaction.atomic(), reversion.create_revision():
-                    new_machine.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
-                if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                    new_interface = assign_ipv4(new_interface)
-                with transaction.atomic(), reversion.create_revision():
-                    new_interface.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
-                with transaction.atomic(), reversion.create_revision():
-                    new_domain.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
-                messages.success(request, "La machine a été modifiée")
-                return redirect("/users/profil/" + str(interface.machine.user.id))
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+                new_interface = assign_ipv4(new_interface)
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
+            messages.success(request, "La machine a été modifiée")
+            return redirect("/users/profil/" + str(interface.machine.user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
@@ -258,22 +239,21 @@ def new_interface(request, machineid):
             new_interface = interface_form.save(commit=False)
             new_interface.machine = machine
             new_domain = domain_form.save(commit=False)
-            if full_domain_validator(request, new_domain):
-                if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                    new_interface = assign_ipv4(new_interface)
-                elif not new_interface.ipv4:
-                    messages.error(request, u"Il n'y a plus d'ip disponibles")
-                with transaction.atomic(), reversion.create_revision():
-                    new_interface.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                new_domain.interface_parent = new_interface
-                with transaction.atomic(), reversion.create_revision():
-                    new_domain.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                messages.success(request, "L'interface a été ajoutée")
-                return redirect("/users/profil/" + str(machine.user.id))
+            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+                new_interface = assign_ipv4(new_interface)
+            elif not new_interface.ipv4:
+                messages.error(request, u"Il n'y a plus d'ip disponibles")
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "L'interface a été ajoutée")
+            return redirect("/users/profil/" + str(machine.user.id))
     except TypeError:
         messages.error(request, u"Adresse mac invalide")
     return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
@@ -321,7 +301,7 @@ def edit_iptype(request, iptypeid):
     except IpType.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/machines/index_iptype/")
-    iptype = IpTypeForm(request.POST or None, instance=iptype_instance)
+    iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
         with transaction.atomic(), reversion.create_revision():
             iptype.save()
