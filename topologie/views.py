@@ -35,7 +35,7 @@ from users.views import form
 from users.models import User
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
-from machines.views import free_ip, full_domain_validator, assign_ipv4
+from machines.views import free_ip, assign_ipv4
 from preferences.models import GeneralOption
 
 from re2o.settings import ASSO_PSEUDO
@@ -161,32 +161,31 @@ def new_switch(request):
         new_interface = interface.save(commit=False)
         new_switch = switch.save(commit=False)
         new_domain = domain.save(commit=False)
-        if full_domain_validator(request, new_domain):
-            with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
-            new_interface.machine = new_machine
-            if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
-                new_interface = assign_ipv4(new_interface)
-            elif not new_interface.ipv4:
-                messages.error(request, "Il n'y a plus d'ip disponibles")
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
-            new_domain.interface_parent = new_interface
-            with transaction.atomic(), reversion.create_revision():
-                new_domain.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
-            new_switch.switch_interface = new_interface
-            with transaction.atomic(), reversion.create_revision():
-                new_switch.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
-            messages.success(request, "Le switch a été crée")
-            return redirect("/topologie/")
+        with transaction.atomic(), reversion.create_revision():
+            new_machine.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        new_interface.machine = new_machine
+        if free_ip(new_interface.type.ip_type) and not new_interface.ipv4:
+            new_interface = assign_ipv4(new_interface)
+        elif not new_interface.ipv4:
+            messages.error(request, "Il n'y a plus d'ip disponibles")
+        with transaction.atomic(), reversion.create_revision():
+            new_interface.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        new_domain.interface_parent = new_interface
+        with transaction.atomic(), reversion.create_revision():
+            new_domain.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        new_switch.switch_interface = new_interface
+        with transaction.atomic(), reversion.create_revision():
+            new_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Le switch a été crée")
+        return redirect("/topologie/")
     return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'topologie/switch.html', request)
 
 @login_required
@@ -206,25 +205,24 @@ def edit_switch(request, switch_id):
         new_machine = machine_form.save(commit=False)
         new_switch = switch_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        if full_domain_validator(request, new_domain):
-            with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
-            with transaction.atomic(), reversion.create_revision():
-                new_domain.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
-            with transaction.atomic(), reversion.create_revision():
-                new_switch.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch_form.changed_data))
-            messages.success(request, "Le switch a bien été modifié")
-            return redirect("/topologie/")
+        with transaction.atomic(), reversion.create_revision():
+            new_machine.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+        with transaction.atomic(), reversion.create_revision():
+            new_interface.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
+        with transaction.atomic(), reversion.create_revision():
+            new_domain.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
+        with transaction.atomic(), reversion.create_revision():
+            new_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch_form.changed_data))
+        messages.success(request, "Le switch a bien été modifié")
+        return redirect("/topologie/")
     return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'topologie/switch.html', request)
 
 @login_required
