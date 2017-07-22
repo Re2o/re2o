@@ -38,7 +38,7 @@ class BanqueAdmin(VersionAdmin):
     list_display = ('name',)
 
 class PaiementAdmin(VersionAdmin):
-    list_display = ('moyen',)
+    list_display = ('moyen','type_paiement')
 
 class CotisationAdmin(VersionAdmin):
     list_display = ('vente','date_start','date_end')

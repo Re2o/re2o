@@ -111,7 +111,7 @@ class Article(models.Model):
         help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True,
-        min_value=0)
+        validators=[MinValueValidator(0)])
 
     def clean(self):
         if self.name.lower() == "solde":
@@ -136,7 +136,7 @@ class Paiement(models.Model):
     )
 
     moyen = models.CharField(max_length=255)
-    type_ = models.ChoiceField(choices=PAYMENT_TYPES)
+    type_paiement = models.CharField(choices=PAYMENT_TYPES, max_length=255)
 
     def __str__(self):
         return self.moyen
