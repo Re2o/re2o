@@ -44,7 +44,7 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
 from users.models import User
 from users.models import all_has_access
@@ -52,7 +52,7 @@ from preferences.models import GeneralOption, OptionalMachine
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain__extension').select_related('ipv4__ip_type').distinct()
+    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('type__ip_type__extension').select_related('ipv4__ip_type').distinct()
 
 def all_active_assigned_interfaces():
     """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de l'accès internet"""
@@ -90,7 +90,7 @@ def new_machine(request, userid):
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
     nb_machine = Interface.objects.filter(machine__user=userid).count()
-    domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), name_user=user.surname, nb_machine=nb_machine)
+    domain = DomainForm(request.POST or None, name_user=user.surname, nb_machine=nb_machine)
     try:
         if machine.is_valid() and interface.is_valid() and domain.is_valid():
             new_machine = machine.save(commit=False)
@@ -133,7 +133,7 @@ def edit_interface(request, interfaceid):
     else:
         machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
         interface_form = EditInterfaceForm(request.POST or None, instance=interface)
-    domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)), instance=interface.domain)
+    domain_form = DomainForm(request.POST or None, instance=interface.domain)
     try:
         if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
@@ -193,7 +193,7 @@ def new_interface(request, machineid):
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
-    domain_form = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    domain_form = DomainForm(request.POST or None)
     try:
         if interface_form.is_valid() and domain_form.is_valid():
             new_interface = interface_form.save(commit=False)
@@ -553,7 +553,7 @@ def del_alias(request, interfaceid):
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_large_number = options.pagination_large_number
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain__extension').order_by('pk')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension').order_by('pk')
     paginator = Paginator(machines_list, pagination_large_number)
     page = request.GET.get('page')
     try:

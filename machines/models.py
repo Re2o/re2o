@@ -158,8 +158,7 @@ class Interface(models.Model):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
 
     def clean(self, *args, **kwargs):
-        self.mac_address = str(EUI(self.mac_address)) or None
-        if not self.ipv4:
+        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
             self.assign_ipv4()
 
     def assign_ipv4(self):
@@ -173,6 +172,13 @@ class Interface(models.Model):
 
     def unassign_ipv4(self):
         self.ipv4 = None
+
+    def save(self, *args, **kwargs):
+        self.mac_address = str(EUI(self.mac_address)) or None
+        # On verifie la cohérence en forçant l'extension par la méthode
+        if self.type.ip_type != self.ipv4.ip_type:
+             raise ValidationError("L'ipv4 et le type de la machine ne correspondent pas")
+        super(Interface, self).save(*args, **kwargs)
 
     def __str__(self):
         try:
@@ -192,6 +198,13 @@ class Domain(models.Model):
     class Meta:
         unique_together = ("name", "extension")
 
+    @cached_property
+    def get_extension(self):
+        if self.interface_parent:
+            return self.interface_parent.type.ip_type.extension
+        else:
+            return self.extension
+
     def clean(self):
         """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
         if self.interface_parent and self.cname:
@@ -206,8 +219,13 @@ class Domain(models.Model):
             raise ValidationError("Ce nom de domaine %s contient des carractères interdits." % dns)
         return
 
+    def save(self, *args, **kwargs):
+        # On verifie la cohérence en forçant l'extension par la méthode
+        self.extension = self.get_extension
+        super(Domain, self).save(*args, **kwargs)
+
     def __str__(self):
-        return str(self.name) + str(self.extension)
+        return str(self.name) + str(self.get_extension)
 
 class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"
