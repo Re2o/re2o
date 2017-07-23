@@ -34,6 +34,7 @@ from reversion import revisions as reversion
 from re2o.settings import MAIN_EXTENSION
 
 class Machine(models.Model):
+    """ Class définissant une machine, object parent user, objets fils interfaces"""
     PRETTY_NAME = "Machine"
     
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
@@ -44,15 +45,20 @@ class Machine(models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' +  str(self.name)
 
 class MachineType(models.Model):
+    """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
     PRETTY_NAME = "Type de machine"
 
     type = models.CharField(max_length=255)
     ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT, blank=True, null=True)
 
+    def all_interfaces(self):
+        return Interface.objects.filter(type=self)
+
     def __str__(self):
          return self.type
 
 class IpType(models.Model):
+    """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
     PRETTY_NAME = "Type d'ip"
 
     type = models.CharField(max_length=255)
@@ -89,6 +95,7 @@ class IpType(models.Model):
             obj, created = IpList.objects.get_or_create(ip_type=self, ipv4=str(ip))
 
     def del_ip_range(self):
+        """ Methode dépréciée, IpList est en mode cascade et supprimé automatiquement"""
         if Interface.objects.filter(ipv4__in=self.ip_objects()):
             raise ValidationError("Une ou plusieurs ip du range sont affectées, impossible de supprimer le range")
         for ip in self.ip_objects():
@@ -172,6 +179,11 @@ class Interface(models.Model):
 
     def unassign_ipv4(self):
         self.ipv4 = None
+
+    def update_type(self):
+        """ Lorsque le machinetype est changé de type d'ip, on réassigne"""
+        self.clean()
+        self.save()
 
     def save(self, *args, **kwargs):
         self.mac_address = str(EUI(self.mac_address)) or None
@@ -276,4 +288,10 @@ def interface_post_delete(sender, **kwargs):
 def iptype_post_save(sender, **kwargs):
     iptype = kwargs['instance']
     iptype.gen_ip_range()
+
+@receiver(post_save, sender=MachineType)
+def machine_post_save(sender, **kwargs):
+    machinetype = kwargs['instance']
+    for interface in machinetype.all_interfaces():
+        interface.update_type()
 
