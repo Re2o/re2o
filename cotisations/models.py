@@ -28,6 +28,7 @@ from dateutil.relativedelta import relativedelta
 from django.forms import ValidationError
 from django.core.validators import MinValueValidator
 
+from django.utils import timezone
 
 class Facture(models.Model):
     PRETTY_NAME = "Factures émises"
@@ -78,11 +79,35 @@ class Vente(models.Model):
     def prix_total(self):
         return self.prix*self.number
 
-    def clean(self):
+    def update_cotisation(self):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number)
             cotisation.save()
+        return
+
+    def create_cotis(self, date_start=False):
+        """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
+        if not hasattr(self, 'cotisation'):
+            cotisation=Cotisation(vente=self)
+            if date_start:
+                end_adhesion = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self.facture.user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
+            else:
+                end_adhesion = self.facture.user.end_adhesion()
+            date_start = date_start or timezone.now()
+            end_adhesion = end_adhesion or date_start
+            date_max = max(end_adhesion, date_start)
+            cotisation.date_start = date_max
+            cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number) 
+            cotisation.save()
+        return
+
+    def save(self, *args, **kwargs):
+        # On verifie que si iscotisation, duration est présent
+        if self.iscotisation and not self.duration:
+            raise ValidationError("Cotisation et durée doivent être présents ensembles")
+        self.update_cotisation()
+        super(Vente, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
@@ -91,6 +116,7 @@ class Vente(models.Model):
 def vente_post_save(sender, **kwargs):
     vente = kwargs['instance']
     if vente.iscotisation:
+        vente.create_cotis()
         user = vente.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 

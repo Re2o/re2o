@@ -53,21 +53,6 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render(request, template, c)
 
-def create_cotis(vente, user, duration, date_start=False):
-    """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
-    cotisation=Cotisation(vente=vente)
-    if date_start:
-        end_adhesion = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
-    else:
-        end_adhesion = user.end_adhesion()
-    date_start = date_start or timezone.now()
-    end_adhesion = end_adhesion or date_start
-    date_max = max(end_adhesion, date_start)
-    cotisation.date_start = date_max
-    cotisation.date_end = cotisation.date_start + relativedelta(months=duration) 
-    cotisation.save()
-    return
-
 @login_required
 @permission_required('cableur')
 def new_facture(request, userid):
@@ -113,8 +98,6 @@ def new_facture(request, userid):
                         new_vente.save()
                         reversion.set_user(request.user)
                         reversion.set_comment("Création")
-                    if art_item.cleaned_data['article'].iscotisation:
-                        create_cotis(new_vente, user, art_item.cleaned_data['article'].duration*art_item.cleaned_data['quantity'])
             if any(art_item.cleaned_data['article'].iscotisation for art_item in articles if art_item.cleaned_data):
                 messages.success(request, "La cotisation a été prolongée pour l'adhérent %s jusqu'au %s" % (user.pseudo, user.end_adhesion()) )
             else:
