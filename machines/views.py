@@ -91,11 +91,12 @@ def new_machine(request, userid):
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
     nb_machine = Interface.objects.filter(machine__user=userid).count()
     domain = DomainForm(request.POST or None, name_user=user.surname, nb_machine=nb_machine)
-    try:
-        if machine.is_valid() and interface.is_valid() and domain.is_valid():
-            new_machine = machine.save(commit=False)
-            new_machine.user = user
-            new_interface = interface.save(commit=False)
+    if machine.is_valid() and interface.is_valid():
+        new_machine = machine.save(commit=False)
+        new_machine.user = user
+        new_interface = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface
+        if domain.is_valid():
             new_domain = domain.save(commit=False)
             with transaction.atomic(), reversion.create_revision():
                 new_machine.save()
@@ -113,8 +114,6 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été crée")
             return redirect("/users/profil/" + str(user.id))
-    except TypeError:
-        messages.error(request, u"Adresse mac invalide")
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
 @login_required
@@ -134,27 +133,24 @@ def edit_interface(request, interfaceid):
         machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
         interface_form = EditInterfaceForm(request.POST or None, instance=interface)
     domain_form = DomainForm(request.POST or None, instance=interface.domain)
-    try:
-        if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
-            new_interface = interface_form.save(commit=False)
-            new_machine = machine_form.save(commit=False)
-            new_domain = domain_form.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
-            with transaction.atomic(), reversion.create_revision():
-                new_domain.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
-            messages.success(request, "La machine a été modifiée")
-            return redirect("/users/profil/" + str(interface.machine.user.id))
-    except TypeError:
-        messages.error(request, u"Adresse mac invalide")
+    if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
+        new_machine = machine_form.save(commit=False)
+        new_interface = interface_form.save(commit=False)
+        new_domain = domain_form.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            new_machine.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
+        with transaction.atomic(), reversion.create_revision():
+            new_interface.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
+        with transaction.atomic(), reversion.create_revision():
+            new_domain.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
+        messages.success(request, "La machine a été modifiée")
+        return redirect("/users/profil/" + str(interface.machine.user.id))
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
@@ -194,10 +190,11 @@ def new_interface(request, machineid):
             return redirect("/users/profil/" + str(request.user.id))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = DomainForm(request.POST or None)
-    try:
-        if interface_form.is_valid() and domain_form.is_valid():
-            new_interface = interface_form.save(commit=False)
-            new_interface.machine = machine
+    if interface_form.is_valid():
+        new_interface = interface_form.save(commit=False)
+        domain_form.instance.interface_parent = new_interface
+        new_interface.machine = machine
+        if domain_form.is_valid():
             new_domain = domain_form.save(commit=False)
             with transaction.atomic(), reversion.create_revision():
                 new_interface.save()
@@ -210,8 +207,6 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    except TypeError:
-        messages.error(request, u"Adresse mac invalide")
     return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
