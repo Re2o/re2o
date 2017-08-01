@@ -208,16 +208,19 @@ class Domain(models.Model):
     cname = models.ForeignKey('self', null=True, blank=True, related_name='related_domain')
 
     class Meta:
-        unique_together = ("name", "extension")
+        unique_together = (("name", "extension"),)
 
-    @cached_property
     def get_extension(self):
         if self.interface_parent:
             return self.interface_parent.type.ip_type.extension
-        else:
+        elif hasattr(self,'extension'):
             return self.extension
+        else:
+            return None
 
     def clean(self):
+        if self.get_extension():
+            self.extension=self.get_extension()
         """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
         if self.interface_parent and self.cname:
             raise ValidationError("On ne peut créer à la fois A et CNAME")
@@ -229,15 +232,18 @@ class Domain(models.Model):
             raise ValidationError("Le nom de domaine %s est trop long (maximum de 63 caractères)." % dns)
         if not HOSTNAME_LABEL_PATTERN.match(dns):
             raise ValidationError("Ce nom de domaine %s contient des carractères interdits." % dns)
-        return
+        self.validate_unique()
+        super(Domain, self).clean()
+
 
     def save(self, *args, **kwargs):
-        # On verifie la cohérence en forçant l'extension par la méthode
-        self.extension = self.get_extension
+        if not self.get_extension():
+            raise ValidationError("Extension invalide")
+        self.full_clean()
         super(Domain, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.name) + str(self.get_extension)
+        return str(self.name) + str(self.get_extension())
 
 class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"
