@@ -58,7 +58,7 @@ def remove_user_room(room):
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9_-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
