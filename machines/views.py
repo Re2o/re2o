@@ -52,7 +52,7 @@ from preferences.models import GeneralOption, OptionalMachine
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain_extension').select_related('ipv4__ip_type').distinct()
+    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain__extension').select_related('ipv4__ip_type').distinct()
 
 def all_active_assigned_interfaces():
     """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de l'accès internet"""
