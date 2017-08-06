@@ -50,7 +50,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
         return obj.domain.name
 
     def get_interface_extension(self, obj):
-        return obj.domain.get_extension().name
+        return obj.domain.extension.name
 
     def get_macaddress(self, obj):
         return str(obj.mac_address)

@@ -243,7 +243,7 @@ class Domain(models.Model):
         super(Domain, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.name) + str(self.get_extension())
+        return str(self.name) + str(self.extension)
 
 class IpList(models.Model):
     PRETTY_NAME = "Addresses ipv4"
@@ -300,4 +300,3 @@ def machine_post_save(sender, **kwargs):
     machinetype = kwargs['instance']
     for interface in machinetype.all_interfaces():
         interface.update_type()
-
