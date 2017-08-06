@@ -69,20 +69,23 @@ def edit_options(request):
     useroptions = EditUserOptionsForm(request.POST or None, instance=useroptions_instance)
     machineoptions = EditMachineOptionsForm(request.POST or None, instance=machineoptions_instance)
     generaloptions = EditGeneralOptionsForm(request.POST or None, instance=generaloptions_instance)
-    if useroptions.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            useroptions.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in useroptions.changed_data))
-    if machineoptions.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            machineoptions.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machineoptions.changed_data))
-    if generaloptions.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            generaloptions.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in generaloptions.changed_data))
+    if useroptions.is_valid() or machineoptions.is_valid() or generaloptions.is_valid():
+        if useroptions.is_valid():
+            with transaction.atomic(), reversion.create_revision():
+                useroptions.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in useroptions.changed_data))
+        if machineoptions.is_valid():
+            with transaction.atomic(), reversion.create_revision():
+                machineoptions.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machineoptions.changed_data))
+        if generaloptions.is_valid():
+            with transaction.atomic(), reversion.create_revision():
+                generaloptions.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in generaloptions.changed_data))
+        messages.success(request, "Préférences modifiées")
+        return redirect("/preferences/")
     return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions}, 'preferences/edit_preferences.html', request)
 
