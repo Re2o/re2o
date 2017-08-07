@@ -165,8 +165,10 @@ class Interface(models.Model):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
 
     def clean(self, *args, **kwargs):
+        self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
             self.assign_ipv4()
+        super(Interface, self).clean(*args, **kwargs)
 
     def assign_ipv4(self):
         """ Assigne une ip à l'interface """
