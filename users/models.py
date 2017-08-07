@@ -58,7 +58,7 @@ def remove_user_room(room):
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9_-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
@@ -111,7 +111,7 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an username')
 
         if not linux_user_check(pseudo):
-            raise ValueError('Username shall only contain [a-z0-9_-]')
+            raise ValueError('Username shall only contain [a-z0-9-]')
 
         user = self.model(
             pseudo=pseudo,
