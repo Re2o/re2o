@@ -38,7 +38,7 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, MxSerializer, ExtensionSerializer, NsSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
@@ -803,6 +803,23 @@ def mac_ip(request):
 def mac_ip_dns(request):
     seria = mac_ip_list(request)
     return JSONResponse(seria)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def service_servers(request):
+    service_link = Service_link.objects.all().select_related('server__domain').select_related('service')
+    seria = ServiceServersSerializer(service_link, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def regen_achieved(request):
+    obj = Service_link.objects.filter(service__in=Service.objects.filter(service_type=request.POST['service']), server__in=Interface.objects.filter(domain=Domain.objects.filter(name=request.POST['server'])))
+    if obj:
+        obj[0].done_regen()
+    return HttpReponse("Ok")
 
 @csrf_exempt
 def login_user(request):

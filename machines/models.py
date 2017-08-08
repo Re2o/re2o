@@ -31,8 +31,10 @@ from netaddr import mac_bare, EUI, IPSet, IPNetwork
 from django.core.validators import MinValueValidator,MaxValueValidator
 import re
 from reversion import revisions as reversion
+from datetime import timedelta
 
 from re2o.settings import MAIN_EXTENSION
+
 
 class Machine(models.Model):
     """ Class définissant une machine, object parent user, objets fils interfaces"""
@@ -273,15 +275,17 @@ class IpList(models.Model):
 class Service(models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     service_type = models.CharField(max_length=255, blank=True, unique=True)
-    time_regen = models.DurationField()
+    time_regen = models.DurationField(default=timedelta(minutes=1))
     servers = models.ManyToManyField('Interface', through='Service_link')
 
     def ask_regen(self):
-        for serv in Service_link.objects.filter(service=self):
+        """ Marque à True la demande de régénération pour un service x """
+        for serv in Service_link.objects.filter(service=self).exclude(asked_regen=True):
             serv.asked_regen = True
             serv.save()
 
     def process_link(self, servers):
+        """ Django ne peut créer lui meme les relations manytomany avec table intermediaire explicite"""
         for serv in servers.exclude(pk__in=Interface.objects.filter(service=self)):
             link = Service_link(service=self, server=serv)
             link.save()
@@ -295,6 +299,12 @@ class Service(models.Model):
     def __str__(self):
         return str(self.service_type)
 
+def regen(service):
+    """ Fonction externe pour régérération d'un service, prend un objet service en arg"""
+    obj, created = Service.objects.get_or_create(service_type=service)
+    obj.ask_regen()
+    return
+
 class Service_link(models.Model):
     """ Definition du lien entre serveurs et services"""
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
@@ -302,9 +312,15 @@ class Service_link(models.Model):
     last_regen = models.DateTimeField(auto_now_add=True)
     asked_regen = models.BooleanField(default=False)
 
+    def done_regen(self):
+        """ Appellé lorsqu'un serveur a regénéré son service"""
+        self.last_regen = timezone.now()
+        self.asked_regen = False
+        self.save()
 
     def need_regen(self):
-        if self.asked_regen and (self.last_regen + self.service.time_regen) > timezone.now():
+        """ Décide si le temps minimal écoulé est suffisant pour provoquer une régénération de service"""
+        if self.asked_regen and (self.last_regen + self.service.time_regen) < timezone.now():
             return True
         else:
             return False
@@ -316,6 +332,8 @@ class Service_link(models.Model):
 def machine_post_save(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    regen('dhcp')
+    regen('dns')
 
 @receiver(post_delete, sender=Machine)
 def machine_post_delete(sender, **kwargs):
@@ -328,6 +346,8 @@ def interface_post_save(sender, **kwargs):
     interface = kwargs['instance']
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    regen('dhcp')
+    regen('dns')
 
 @receiver(post_delete, sender=Interface)
 def interface_post_delete(sender, **kwargs):

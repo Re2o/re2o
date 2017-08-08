@@ -68,10 +68,12 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/login/$', views.login_user, name='login'),
+    url(r'^rest/regen-achieved/$', views.regen_achieved, name='regen-achieved'),
     url(r'^rest/mac-ip-dns/$', views.mac_ip_dns, name='mac-ip-dns'),
     url(r'^rest/alias/$', views.alias, name='alias'),
     url(r'^rest/corresp/$', views.corresp, name='corresp'),
     url(r'^rest/mx/$', views.mx, name='mx'),
     url(r'^rest/ns/$', views.ns, name='ns'),
     url(r'^rest/zones/$', views.zones, name='zones'),
+    url(r'^rest/service_servers/$', views.service_servers, name='service-servers'),
     ]
