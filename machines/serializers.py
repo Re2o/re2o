@@ -23,7 +23,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Mx, Ns
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Mx, Service_link, Ns
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -118,3 +118,20 @@ class DomainSerializer(serializers.ModelSerializer):
     def get_cname_name(self, obj):
         return str(obj.cname)
 
+class ServiceServersSerializer(serializers.ModelSerializer):
+    server = serializers.SerializerMethodField('get_server_name')
+    service = serializers.SerializerMethodField('get_service_name')
+    need_regen = serializers.SerializerMethodField('get_regen_status')
+
+    class Meta:
+        model = Service_link
+        fields = ('server', 'service', 'need_regen')
+
+    def get_server_name(self, obj):
+        return str(obj.server.domain.name)
+
+    def get_service_name(self, obj):
+        return str(obj.service)
+
+    def get_regen_status(self, obj):
+        return obj.need_regen()
