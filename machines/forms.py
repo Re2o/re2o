@@ -22,7 +22,7 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Service, IpType
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -141,12 +141,8 @@ class MachineTypeForm(ModelForm):
         self.fields['type'].label = 'Type de machine à ajouter'
         self.fields['ip_type'].label = "Type d'ip relié"
 
-class DelMachineTypeForm(ModelForm):
+class DelMachineTypeForm(Form):
     machinetypes = forms.ModelMultipleChoiceField(queryset=MachineType.objects.all(), label="Types de machines actuelles",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['type','ip_type']
-        model = MachineType
 
 class IpTypeForm(ModelForm):
     class Meta:
@@ -161,7 +157,7 @@ class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
         fields = ['extension','type','need_infra']
 
-class DelIpTypeForm(forms.Form):
+class DelIpTypeForm(Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)
 
 class ExtensionForm(ModelForm):
@@ -190,12 +186,8 @@ class MxForm(ModelForm):
         super(MxForm, self).__init__(*args, **kwargs)
         self.fields['name'].queryset = Domain.objects.exclude(interface_parent=None)
   
-class DelMxForm(ModelForm):
+class DelMxForm(Form):
     mx = forms.ModelMultipleChoiceField(queryset=Mx.objects.all(), label="MX actuels",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['zone', 'priority', 'name']
-        model = Mx
 
 class NsForm(ModelForm):
     class Meta:
@@ -206,9 +198,21 @@ class NsForm(ModelForm):
         super(NsForm, self).__init__(*args, **kwargs)
         self.fields['ns'].queryset = Domain.objects.exclude(interface_parent=None)
 
-class DelNsForm(ModelForm):
+class DelNsForm(Form):
     ns = forms.ModelMultipleChoiceField(queryset=Ns.objects.all(), label="Enregistrements NS actuels",  widget=forms.CheckboxSelectMultiple)
 
+class ServiceForm(ModelForm):
     class Meta:
-        exclude = ['zone', 'ns']
-        model = Ns
+        model = Service
+        fields = '__all__'
+
+    def save(self, commit=True):
+        instance = super(ServiceForm, self).save(commit=False)
+        if commit:
+            instance.save()
+        instance.process_link(self.cleaned_data.get('servers'))
+        return instance
+
+class DelServiceForm(Form):
+    service = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), label="Services actuels",  widget=forms.CheckboxSelectMultiple)
+

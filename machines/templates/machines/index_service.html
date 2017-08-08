@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "machines/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,28 +23,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load bootstrap3 %}
 
-{% block sidebar %}
-    {% if is_cableur %}
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Machines
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-machinetype" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Types de machines
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-extension" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Extensions (zones)
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-iptype" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Plages d'IP
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-service" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Services (dhcp, dns...)
-    </a>   
-    {% endif %}
+{% block title %}Machines{% endblock %}
+
+{% block content %}
+  <h2>Liste des services</h2>
+  {% if is_infra %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
+  {% endif %}
+  {%  include "machines/aff_service.html" with  service_list=service_list %}
+  <h2>Etat des serveurs</h2>
+  {%  include "machines/aff_servers.html" with  servers_list=servers_list %}
+  <br />
+  <br />
+  <br />
 {% endblock %}
+

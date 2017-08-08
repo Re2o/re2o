@@ -25,6 +25,7 @@ from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils.functional import cached_property
+from django.utils import timezone
 from macaddress.fields import MACAddressField
 from netaddr import mac_bare, EUI, IPSet, IPNetwork
 from django.core.validators import MinValueValidator,MaxValueValidator
@@ -268,6 +269,48 @@ class IpList(models.Model):
 
     def __str__(self):
         return self.ipv4
+
+class Service(models.Model):
+    """ Definition d'un service (dhcp, dns, etc)"""
+    service_type = models.CharField(max_length=255, blank=True, unique=True)
+    time_regen = models.DurationField()
+    servers = models.ManyToManyField('Interface', through='Service_link')
+
+    def ask_regen(self):
+        for serv in Service_link.objects.filter(service=self):
+            serv.asked_regen = True
+            serv.save()
+
+    def process_link(self, servers):
+        for serv in servers.exclude(pk__in=Interface.objects.filter(service=self)):
+            link = Service_link(service=self, server=serv)
+            link.save()
+        for serv in Service_link.objects.filter(service=self).exclude(server__in=servers):
+            serv.delete()
+        return
+
+    def save(self, *args, **kwargs):
+        super(Service, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.service_type)
+
+class Service_link(models.Model):
+    """ Definition du lien entre serveurs et services"""
+    service = models.ForeignKey('Service', on_delete=models.CASCADE)
+    server = models.ForeignKey('Interface', on_delete=models.CASCADE)
+    last_regen = models.DateTimeField(auto_now_add=True)
+    asked_regen = models.BooleanField(default=False)
+
+
+    def need_regen(self):
+        if self.asked_regen and (self.last_regen + self.service.time_regen) > timezone.now():
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        return str(self.server) + " " + str(self.service)
 
 @receiver(post_save, sender=Machine)
 def machine_post_save(sender, **kwargs):

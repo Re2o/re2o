@@ -23,7 +23,7 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns
+from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Service
 
 class MachineAdmin(VersionAdmin):
     list_display = ('user','name','active')
@@ -53,6 +53,9 @@ class InterfaceAdmin(VersionAdmin):
 class DomainAdmin(VersionAdmin):
     list_display = ('interface_parent', 'name', 'extension', 'cname')
 
+class ServiceAdmin(VersionAdmin):
+    list_display = ('service_type', 'time_regen')
+
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
 admin.site.register(IpType, IpTypeAdmin)
@@ -62,3 +65,4 @@ admin.site.register(Ns, NsAdmin)
 admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
+admin.site.register(Service, ServiceAdmin)

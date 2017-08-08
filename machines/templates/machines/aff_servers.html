@@ -1,4 +1,3 @@
-{% extends "base.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,28 +22,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom du service</th>
+                <th>Serveur</th>
+                <th>Dernière régénération</th>
+		<th>Régénération nécessaire</th>
+		<th>Régénération activée</th>
+            </tr>
+        </thead>
+        {% for server in servers_list %}
+        <tr>
+            <td>{{ server.service }}</td>
+            <td>{{ server.server }}</td>
+            <td>{{ server.last_regen }}</td>
+	    <td>{{ server.asked_regen }}</td>
+            <td>{{ server.need_regen }}</td>
+            <td class="text-right">
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-{% block sidebar %}
-    {% if is_cableur %}
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Machines
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-machinetype" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Types de machines
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-extension" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Extensions (zones)
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-iptype" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Plages d'IP
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-service" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Services (dhcp, dns...)
-    </a>   
-    {% endif %}
-{% endblock %}
