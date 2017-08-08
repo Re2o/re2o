@@ -44,8 +44,8 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm, ServiceForm, DelServiceForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -543,6 +543,55 @@ def del_alias(request, interfaceid):
         return redirect("/machines/index_alias/" + str(interfaceid))
     return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
 
+
+@login_required
+@permission_required('infra')
+def add_service(request):
+    service = ServiceForm(request.POST or None)
+    if service.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            service.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement service a été ajouté")
+        return redirect("/machines/index_service")
+    return form({'machineform': service}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_service(request, serviceid):
+    try:
+        service_instance = Service.objects.get(pk=serviceid)
+    except Ns.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    service = ServiceForm(request.POST or None, instance=service_instance)
+    if service.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            service.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in service.changed_data))
+        messages.success(request, "Service modifié")
+        return redirect("/machines/index_service/")
+    return form({'machineform': service}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_service(request):
+    service = DelServiceForm(request.POST or None)
+    if service.is_valid():
+        service_dels = service.cleaned_data['service']
+        for service_del in service_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    service_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le service a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % service_del)
+        return redirect("/machines/index_service")
+    return form({'machineform': service}, 'machines/machine.html', request)
+
 @login_required
 @permission_required('cableur')
 def index(request):
@@ -593,6 +642,13 @@ def index_alias(request, interfaceid):
         return redirect("/users/profil/" + str(request.user.id))
     alias_list = Domain.objects.filter(cname=Domain.objects.filter(interface_parent=interface)).order_by('name')
     return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
+
+@login_required
+@permission_required('cableur')
+def index_service(request):
+    service_list = Service.objects.all()
+    servers_list = Service_link.objects.all()
+    return render(request, 'machines/index_service.html', {'service_list':service_list, 'servers_list':servers_list})
 
 @login_required
 def history(request, object, id):
@@ -652,6 +708,12 @@ def history(request, object, id):
              object_instance = Ns.objects.get(pk=id)
         except Ns.DoesNotExist:
              messages.error(request, "Ns inexistant")
+             return redirect("/machines/")
+    elif object == 'service' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Service.objects.get(pk=id)
+        except Service.DoesNotExist:
+             messages.error(request, "Service inexistant")
              return redirect("/machines/")
     else:
         messages.error(request, "Objet  inconnu")
