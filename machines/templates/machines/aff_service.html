@@ -26,7 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>Nom du service</th>
-                <th>Temps minimum de régénération</th>
+                <th>Temps minimum avant nouvelle régénération</th>
+                <th>Temps avant nouvelle génération obligatoire (max)</th>
                 <th>Serveurs inclus</th>
 		<th></th>
                 <th></th>
@@ -35,7 +36,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for service in service_list %}
         <tr>
             <td>{{ service.service_type }}</td>
-            <td>{{ service.time_regen }}</td>
+            <td>{{ service.min_time_regen }}</td>
+            <td>{{ service.regular_time_regen }}</td>
 	    <td>{% for serv in service.servers.all %}{{ serv }}, {% endfor %}</td>
             <td class="text-right">
             {% if is_infra %}

@@ -54,7 +54,7 @@ class DomainAdmin(VersionAdmin):
     list_display = ('interface_parent', 'name', 'extension', 'cname')
 
 class ServiceAdmin(VersionAdmin):
-    list_display = ('service_type', 'time_regen')
+    list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
 
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)

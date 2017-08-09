@@ -275,7 +275,8 @@ class IpList(models.Model):
 class Service(models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     service_type = models.CharField(max_length=255, blank=True, unique=True)
-    time_regen = models.DurationField(default=timedelta(minutes=1))
+    min_time_regen = models.DurationField(default=timedelta(minutes=1), help_text="Temps minimal avant nouvelle génération du service")
+    regular_time_regen = models.DurationField(default=timedelta(hours=1), help_text="Temps maximal avant nouvelle génération du service") 
     servers = models.ManyToManyField('Interface', through='Service_link')
 
     def ask_regen(self):
@@ -320,7 +321,7 @@ class Service_link(models.Model):
 
     def need_regen(self):
         """ Décide si le temps minimal écoulé est suffisant pour provoquer une régénération de service"""
-        if self.asked_regen and (self.last_regen + self.service.time_regen) < timezone.now():
+        if (self.asked_regen and (self.last_regen + self.service.min_time_regen) < timezone.now()) or (self.last_regen + self.service.regular_time_regen) < timezone.now():
             return True
         else:
             return False
