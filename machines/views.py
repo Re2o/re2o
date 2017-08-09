@@ -816,9 +816,9 @@ def service_servers(request):
 @login_required
 @permission_required('serveur')
 def regen_achieved(request):
-    obj = Service_link.objects.filter(service__in=Service.objects.filter(service_type=request.POST['service']), server__in=Interface.objects.filter(domain=Domain.objects.filter(name=request.POST['server'])))
+    obj = Service_link.objects.filter(service__in=Service.objects.filter(service_type=request.POST['service']), server__in=Interface.objects.filter(domain__in=Domain.objects.filter(name=request.POST['server'])))
     if obj:
-        obj[0].done_regen()
+        obj.first().done_regen()
     return HttpReponse("Ok")
 
 @csrf_exempt
