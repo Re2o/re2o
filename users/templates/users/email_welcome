@@ -7,6 +7,8 @@ sur le site <a href="https://re2o.rezometz.org">Re2o</a> qui vous permet aussi d
 
 <p>Si vous n'avez pas été enregistré directement par un élève sur place vous devez suivre ce guide expliquant la procédure de connexion (vous devriez commencer avant d'arriver afin d'avoir internet tout de suite) : <a href="https://slides.rezometz.org/welcome"> https://slides.rezometz.org/welcome </a></p>
 
+<p>Votre pseudo est : {{pseudo}}</p>
+
 <p>Le Rézo recrute ! Nous sommes passionnés (et bénévoles), alors si vous êtes intéressé<br>
 de près ou de loin pour nous aider, n'hésitez pas !</p>
 
@@ -23,6 +25,8 @@ L'équipe de {{asso_name}}.</p>
 <p>We are the association that provides an internet acces in the dorm of ALOES</p>
 
 <p>If you have never been in contact with a member of the association you need to follow this guide explaining how to connect (even if you are not in the dorm yet) : <a href="https://slides.rezometz.org/welcome">https://slides.rezometz.org/welcome</a></p>
+
+<p>Your username is : {{pseudo}}<p>
 
 <p>As a member of the association, not only can you access to the Internet but also a<br>
 variety of services that you can discover on the website <a href="https://re2o.rezometz.org">Re2o</a> (log in using your<br>
