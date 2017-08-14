@@ -83,7 +83,7 @@ def reset_passwd_mail(req, request):
        reverse('users:process', kwargs={'token': req.token})),
        'expire_in': REQ_EXPIRE_STR,
     }
-    send_mail('Changement de mot de passe', t.render(c),
+    send_mail('Changement de mot de passe du Rézo Metz / Password renewal for Rézo Metz', t.render(c),
     EMAIL_FROM, [req.user.email], fail_silently=False)
     return
 
@@ -106,8 +106,9 @@ def notif_inscription(user):
       'nom': str(user.name) + ' ' + str(user.surname),
       'asso_name': ASSO_NAME,
       'asso_email':ASSO_EMAIL,
+      'pseudo':user.pseudo,
     })
-    send_mail('Bienvenue au Rézo', '',
+    send_mail('Bienvenue au Rézo / Welcome to Rézo Metz', '',
     EMAIL_FROM, [user.email], html_message=t.render(c))
     return
 
