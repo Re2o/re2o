@@ -29,7 +29,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from preferences.models import OptionalUser
 from django.utils import timezone
-from .models import User, ServiceUser, Right, School, ListRight, Whitelist, Ban, Request
+from .models import User, ServiceUser, Right, School, ListRight, Whitelist, Ban, Request, remove_user_room
 
 from .models import get_admin_right
 
