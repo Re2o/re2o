@@ -819,7 +819,7 @@ def regen_achieved(request):
     obj = Service_link.objects.filter(service__in=Service.objects.filter(service_type=request.POST['service']), server__in=Interface.objects.filter(domain__in=Domain.objects.filter(name=request.POST['server'])))
     if obj:
         obj.first().done_regen()
-    return HttpReponse("Ok")
+    return HttpResponse("Ok")
 
 @csrf_exempt
 def login_user(request):
