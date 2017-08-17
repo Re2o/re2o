@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "topologie/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,18 +23,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load bootstrap3 %}
 
-{% block sidebar %}
-    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-room" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Chambres
-    </a>
-     <a class="list-group-item list-group-item-info" href="{% url "topologie:index" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Switchs
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-stack" %}">
-        <i class="glyphicon glyphicon-list"></i>
-        Stacks
-    </a>
+{% block title %}Stacks{% endblock %}
+
+{% block content %}
+  <h2>Stacks</h2>
+{% if is_infra %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une stack</a>
+{% endif %}
+    {% include "topologie/aff_stacks.html" with stack_list=stack_list %}
+    <br />
+    <br />
+    <br />
 {% endblock %}

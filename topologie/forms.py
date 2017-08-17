@@ -20,7 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .models import Port, Switch, Room
+from .models import Port, Switch, Room, Stack
 from django.forms import ModelForm, Form
 from machines.models import Interface
 
@@ -42,6 +42,11 @@ class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['port', 'room', 'machine_interface', 'related', 'radius', 'details']
 
+class StackForm(ModelForm):
+    class Meta:
+        model = Stack
+        fields = '__all__'
+
 class EditSwitchForm(ModelForm):
     class Meta:
         model = Switch
@@ -54,7 +59,7 @@ class EditSwitchForm(ModelForm):
 
 class NewSwitchForm(ModelForm):
     class Meta(EditSwitchForm.Meta):
-        fields = ['location', 'number', 'details']
+        fields = ['location', 'number', 'details', 'stack', 'stack_member_id']
 
 class EditRoomForm(ModelForm):
     class Meta:
