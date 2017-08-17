@@ -25,12 +25,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
+from django.db.models import ProtectedError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 from reversion.models import Version
 
-from topologie.models import Switch, Port, Room
-from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm, AddPortForm, EditRoomForm
+from topologie.models import Switch, Port, Room, Stack
+from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm, AddPortForm, EditRoomForm, StackForm
 from users.views import form
 from users.models import User
 
@@ -41,7 +42,7 @@ from preferences.models import AssoOption, GeneralOption
 @login_required
 @permission_required('cableur')
 def index(request):
-    switch_list = Switch.objects.order_by('location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain')
+    switch_list = Switch.objects.order_by('stack','stack_member_id','location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
 
 @login_required
@@ -64,6 +65,12 @@ def history(request, object, id):
              object_instance = Room.objects.get(pk=id)
         except Room.DoesNotExist:
              messages.error(request, "Chambre inexistante")
+             return redirect("/topologie/")
+    elif object == 'stack':  
+        try:
+             object_instance = Stack.objects.get(pk=id)
+        except Room.DoesNotExist:
+             messages.error(request, "Stack inexistante")
              return redirect("/topologie/")
     else:
         messages.error(request, "Objet  inconnu")
@@ -99,6 +106,13 @@ def index_port(request, switch_id):
 def index_room(request):
     room_list = Room.objects.order_by('name')
     return render(request, 'topologie/index_room.html', {'room_list': room_list})
+
+@login_required
+@permission_required('infra')
+def index_stack(request):
+    stack_list = Stack.objects.order_by('name')
+    return render(request, 'topologie/index_stack.html', {'stack_list': stack_list})
+
 
 @login_required
 @permission_required('infra')
@@ -140,6 +154,40 @@ def edit_port(request, port_id):
         messages.success(request, "Le port a bien été modifié")
         return redirect("/topologie/switch/" + str(port_object.switch.id))
     return form({'topoform':port}, 'topologie/topo.html', request)
+
+@login_required
+@permission_required('infra')
+def new_stack(request):
+    stack = StackForm(request.POST or None)
+    #if stack.is_valid():
+    if request.POST:
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                stack.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "Stack crée")
+        except:
+            messages.error(request, "Cette stack existe déjà")
+    return form({'topoform':stack}, 'topologie/topo.html', request)
+
+
+@login_required
+@permission_required('infra')
+def edit_stack(request,stack_id):
+    try:
+        stack = Stack.objects.get(pk=stack_id)
+    except Stack.DoesNotExist:
+        messages.error(request, u"Stack inexistante")
+        return redirect("/topologie/index_stack/")
+    stack = StackForm(request.POST or None, instance=stack)
+    if stack.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            stack.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in stack.changed_data))
+        return redirect('/topologie/index_stack')
+    return form({'topoform':stack}, 'topologie/topo.html', request)
 
 @login_required
 @permission_required('infra')
@@ -259,10 +307,13 @@ def del_room(request, room_id):
         messages.error(request, u"Chambre inexistante" )
         return redirect("/topologie/index_room/")
     if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            room.delete()
-            reversion.set_user(request.user)
-            reversion.set_comment("Destruction")
-        messages.success(request, "La chambre/prise a été détruite")
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                room.delete()
+                reversion.set_user(request.user)
+                reversion.set_comment("Destruction")
+                messages.success(request, "La chambre/prise a été détruite")
+        except ProtectedError:
+            messages.error(request, "La chambre %s est affectée à un autre objet, impossible de la supprimer (switch ou user)" % room)
         return redirect("/topologie/index_room/")
     return form({'objet': room, 'objet_name': 'Chambre'}, 'topologie/delete.html', request)
