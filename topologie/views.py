@@ -212,6 +212,23 @@ def del_stack(request,stack_id):
 
 @login_required
 @permission_required('infra')
+def edit_switchs_stack(request,stack_id):
+    try:
+        stack = Stack.objects.get(pk=stack_id)
+    except Stack.DoesNotExist:
+        messages.error(request, u"Stack inexistante")
+        return redirect('/topologie/index_stack')
+    if request.method == "POST":
+        pass
+    else:
+        context = {'stack': stack}
+        context['switchs_stack'] = stack.switchs_set.all()
+        context['switchs_autres'] = Switch.object.filter(stack=None)
+        pass
+
+
+@login_required
+@permission_required('infra')
 def new_switch(request):
     switch = NewSwitchForm(request.POST or None)
     machine = NewMachineForm(request.POST or None)

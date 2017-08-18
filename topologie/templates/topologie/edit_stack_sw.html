@@ -1,0 +1,53 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Stack</th>
+            <th>ID</th>
+            <th>Details</th>
+        </tr>
+   </thead>
+   {% for stack in stack_list %}
+   <tr>
+       <td>{{stack.name}}</td>
+       <td>{{stack.stack_id}}</td>
+       <td>{{stack.details}}</td>
+       <td class="text-right">
+           <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
+                <i class="glyphicon glyphicon-time"></i>
+           </a>
+        {% if is_infra %}
+           <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
+                <i class="glyphicon glyphicon-edit"></i>
+           </a>
+	   <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
+		   <i class="glyphicon glyphicon-trash"></i>
+	   </a>
+        {% endif %}
+        </td>
+   </tr>
+   {% endfor %}
+</table>
