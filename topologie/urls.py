@@ -42,5 +42,6 @@ urlpatterns = [
     url(r'^new_stack/$', views.new_stack, name='new-stack'),
     url(r'^index_stack/$', views.index_stack, name='index-stack'),
     url(r'^edit_stack/(?P<stack_id>[0-9]+)$', views.edit_stack, name='edit-stack'),
+    url(r'^del_stack/(?P<stack_id>[0-9]+)$', views.del_stack, name='del-stack'),
 ]
 
