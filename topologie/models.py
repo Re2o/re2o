@@ -21,6 +21,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.forms import ModelForm, Form
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -69,7 +71,7 @@ class Switch(models.Model):
     location = models.CharField(max_length=255)
     number = models.IntegerField()
     details = models.CharField(max_length=255, blank=True)
-    stack = models.ForeignKey(Stack, blank=True, null=True)
+    stack = models.ForeignKey(Stack, blank=True, null=True, on_delete=models.SET_NULL)
     stack_member_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -135,3 +137,6 @@ class Room(models.Model):
     def __str__(self):
         return str(self.name)
 
+@receiver(post_delete, sender=Stack)
+def stack_post_delete(sender, **kwargs):
+    Switch.objects.filter(stack=None).update(stack_member_id = None)

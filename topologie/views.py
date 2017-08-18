@@ -180,7 +180,7 @@ def edit_stack(request,stack_id):
         stack = Stack.objects.get(pk=stack_id)
     except Stack.DoesNotExist:
         messages.error(request, u"Stack inexistante")
-        return redirect("/topologie/index_stack/")
+        return redirect('/topologie/index_stack/')
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -189,6 +189,26 @@ def edit_stack(request,stack_id):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in stack.changed_data))
         return redirect('/topologie/index_stack')
     return form({'topoform':stack}, 'topologie/topo.html', request)
+
+@login_required
+@permission_required('infra')
+def del_stack(request,stack_id):
+    try:
+        stack = Stack.objects.get(pk=stack_id)
+    except Stack.DoesNotExist:
+        messages.error(request, u"Stack inexistante")
+        return redirect('/topologie/index_stack')
+    if request.method == "POST":
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                stack.delete()
+                reversion.set_user(request.user)
+                reversion.set_comment("Destruction")
+                messages.success(request, "La stack a eté détruite")
+        except ProtectedError:
+            messages.error(request, "La stack %s est affectée à un autre objet, impossible de la supprimer" % stack)
+        return redirect('/topologie/index_stack')
+    return form({'objet':stack}, 'topologie/delete.html', request)
 
 @login_required
 @permission_required('infra')
