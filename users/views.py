@@ -513,7 +513,7 @@ def mass_archive(request):
     to_archive_list = []
     if to_archive_date.is_valid():
         date = to_archive_date.cleaned_data['date']
-        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access or user.end_access < date]
+        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access() or user.end_access() < date]
         if "valider" in request.POST:
             for user in to_archive_list:
                 with transaction.atomic(), reversion.create_revision():
