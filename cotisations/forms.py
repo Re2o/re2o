@@ -102,12 +102,8 @@ class ArticleForm(ModelForm):
         super(ArticleForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = "Désignation de l'article"
 
-class DelArticleForm(ModelForm):
+class DelArticleForm(Form):
     articles = forms.ModelMultipleChoiceField(queryset=Article.objects.all(), label="Articles actuels",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        fields = ['articles']
-        model = Article
 
 class PaiementForm(ModelForm):
     class Meta:
@@ -119,12 +115,8 @@ class PaiementForm(ModelForm):
         self.fields['moyen'].label = 'Moyen de paiement à ajouter'
         self.fields['type_paiement'].label = 'Type de paiement à ajouter'
 
-class DelPaiementForm(ModelForm):
+class DelPaiementForm(Form):
     paiements = forms.ModelMultipleChoiceField(queryset=Paiement.objects.all(), label="Moyens de paiement actuels",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['moyen']
-        model = Paiement
 
 class BanqueForm(ModelForm):
     class Meta:
@@ -135,9 +127,5 @@ class BanqueForm(ModelForm):
         super(BanqueForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Banque à ajouter'
 
-class DelBanqueForm(ModelForm):
+class DelBanqueForm(Form):
     banques = forms.ModelMultipleChoiceField(queryset=Banque.objects.all(), label="Banques actuelles",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['name']
-        model = Banque

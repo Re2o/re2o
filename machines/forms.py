@@ -119,17 +119,13 @@ class DomainForm(AliasForm):
             kwargs['initial'] = initial 
         super(DomainForm, self).__init__(*args, **kwargs)
  
-class DelAliasForm(ModelForm):
+class DelAliasForm(Form):
     alias = forms.ModelMultipleChoiceField(queryset=Domain.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
         interface = kwargs.pop('interface')
         super(DelAliasForm, self).__init__(*args, **kwargs)
         self.fields['alias'].queryset = Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent=interface))
-
-    class Meta:
-        exclude = ['interface_parent', 'name', 'extension', 'cname']
-        model = Domain
 
 class MachineTypeForm(ModelForm):
     class Meta:
@@ -170,12 +166,8 @@ class ExtensionForm(ModelForm):
         self.fields['name'].label = 'Extension à ajouter'
         self.fields['origin'].label = 'Enregistrement A origin'
 
-class DelExtensionForm(ModelForm):
+class DelExtensionForm(Form):
     extensions = forms.ModelMultipleChoiceField(queryset=Extension.objects.all(), label="Extensions actuelles",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['name', 'need_infra', 'origin']
-        model = Extension
 
 class MxForm(ModelForm):
     class Meta:
