@@ -257,20 +257,11 @@ class NewListRightForm(ListRightForm):
         super(NewListRightForm, self).__init__(*args, **kwargs)
         self.fields['gid'].label = 'Gid, attention, cet attribut ne doit pas être modifié après création'
 
-class DelListRightForm(ModelForm):
+class DelListRightForm(Form):
     listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all(), label="Droits actuels", widget=forms.CheckboxSelectMultiple)
 
-    class Meta:
-        exclude = ['listright','gid','details']
-        model = ListRight
-
-class DelSchoolForm(ModelForm):
+class DelSchoolForm(Form):
     schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-        exclude = ['name']
-        model = School
-
 
 class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -283,18 +274,12 @@ class RightForm(ModelForm):
         fields = ['right']
 
 
-class DelRightForm(ModelForm):
+class DelRightForm(Form):
     rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(),  widget=forms.CheckboxSelectMultiple)
 
     def __init__(self, right, *args, **kwargs):
         super(DelRightForm, self).__init__(*args, **kwargs)
         self.fields['rights'].queryset = Right.objects.filter(right=right)
-
-
-    class Meta:
-        model = Right
-        exclude = ['user', 'right']
-
 
 class BanForm(ModelForm):
     def __init__(self, *args, **kwargs):
