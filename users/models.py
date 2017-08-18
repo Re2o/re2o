@@ -46,6 +46,8 @@ from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Interface, Machine
 from preferences.models import OptionalUser
 
+now = timezone.now()
+
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
     try:
@@ -93,17 +95,17 @@ def get_admin_right():
         admin_right.save()
     return admin_right
 
-def all_adherent():
-    return User.objects.filter(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=timezone.now())))).distinct()
+def all_adherent(search_time=now):
+    return User.objects.filter(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=search_time)))).distinct()
 
-def all_baned():
-    return User.objects.filter(ban__in=Ban.objects.filter(date_end__gt=timezone.now())).distinct() 
+def all_baned(search_time=now):
+    return User.objects.filter(ban__in=Ban.objects.filter(date_end__gt=search_time)).distinct() 
 
-def all_whitelisted():
-    return User.objects.filter(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())).distinct()
+def all_whitelisted(search_time=now):
+    return User.objects.filter(whitelist__in=Whitelist.objects.filter(date_end__gt=search_time)).distinct()
 
-def all_has_access():
-    return User.objects.filter(Q(state=User.STATE_ACTIVE) & ~Q(ban__in=Ban.objects.filter(date_end__gt=timezone.now())) & (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())) | Q(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=timezone.now())))))).distinct()
+def all_has_access(search_time=now):
+    return User.objects.filter(Q(state=User.STATE_ACTIVE) & ~Q(ban__in=Ban.objects.filter(date_end__gt=timezone.now())) & (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())) | Q(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=search_time)))))).distinct()
 
 class UserManager(BaseUserManager):
     def _create_user(self, pseudo, name, surname, email, password=None, su=False):

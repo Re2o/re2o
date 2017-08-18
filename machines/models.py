@@ -281,17 +281,15 @@ class Service(models.Model):
 
     def ask_regen(self):
         """ Marque à True la demande de régénération pour un service x """
-        for serv in Service_link.objects.filter(service=self).exclude(asked_regen=True):
-            serv.asked_regen = True
-            serv.save()
+        Service_link.objects.filter(service=self).exclude(asked_regen=True).update(asked_regen=True)
+        return
 
     def process_link(self, servers):
         """ Django ne peut créer lui meme les relations manytomany avec table intermediaire explicite"""
         for serv in servers.exclude(pk__in=Interface.objects.filter(service=self)):
             link = Service_link(service=self, server=serv)
             link.save()
-        for serv in Service_link.objects.filter(service=self).exclude(server__in=servers):
-            serv.delete()
+        Service_link.objects.filter(service=self).exclude(server__in=servers).delete()
         return
 
     def save(self, *args, **kwargs):
