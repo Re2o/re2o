@@ -43,6 +43,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
                 <i class="glyphicon glyphicon-edit"></i>
            </a>
+	   <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
+		   <i class="glyphicon glyphicon-trash"></i>
+	   </a>
         {% endif %}
         </td>
    </tr>
