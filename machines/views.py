@@ -821,8 +821,3 @@ def regen_achieved(request):
         obj.first().done_regen()
     return HttpResponse("Ok")
 
-@csrf_exempt
-def login_user(request):
-    user = authenticate(username=request.POST['username'], password=request.POST['password'])
-    login(request, user)
-    return HttpResponse("Logged In")
