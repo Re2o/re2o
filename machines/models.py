@@ -68,7 +68,7 @@ class IpType(models.Model):
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
     domaine_ip = models.GenericIPAddressField(protocol='IPv4')
-    domaine_range = models.IntegerField(validators=[MinValueValidator(8), MaxValueValidator(32)])
+    domaine_range = models.IntegerField(validators=[MinValueValidator(16), MaxValueValidator(32)])
 
     @cached_property
     def network(self):
@@ -94,8 +94,9 @@ class IpType(models.Model):
 
     def gen_ip_range(self):
         # Creation du range d'ip dans les objets iplist
-        for ip in self.ip_network.iter_hosts():
-            obj, created = IpList.objects.get_or_create(ip_type=self, ipv4=str(ip))
+        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in self.ip_network.iter_hosts()]
+        IpList.objects.bulk_create(ip_obj)
+        return
 
     def del_ip_range(self):
         """ Methode dépréciée, IpList est en mode cascade et supprimé automatiquement"""
