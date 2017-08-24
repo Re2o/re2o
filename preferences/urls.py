@@ -26,6 +26,9 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^edit_options/$', views.edit_options, name='edit-options'),
+    url(r'^edit_options/(?P<section>OptionalUser)$', views.edit_options, name='edit-options'),
+    url(r'^edit_options/(?P<section>OptionalMachine)$', views.edit_options, name='edit-options'),
+    url(r'^edit_options/(?P<section>GeneralOption)$', views.edit_options, name='edit-options'),
+    url(r'^edit_options/(?P<section>AssoOption)$', views.edit_options, name='edit-options'),
     url(r'^$', views.display_options, name='display-options'),
 ]

@@ -25,6 +25,8 @@ from django.db import models
 from cotisations.models import Paiement
 
 class OptionalUser(models.Model):
+    PRETTY_NAME = "Options utilisateur"
+
     is_tel_mandatory = models.BooleanField(default=True)
     user_solde = models.BooleanField(default=False)
     solde_negatif = models.DecimalField(max_digits=5, decimal_places=2, default=0) 
@@ -35,6 +37,8 @@ class OptionalUser(models.Model):
             Paiement.objects.get_or_create(moyen="Solde")
 
 class OptionalMachine(models.Model):
+    PRETTY_NAME = "Options machines"
+
     password_machine = models.BooleanField(default=False)
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
@@ -43,7 +47,26 @@ class OptionalMachine(models.Model):
 
 
 class GeneralOption(models.Model):
+    PRETTY_NAME = "Options générales"
+
     search_display_page = models.IntegerField(default=15)
     pagination_number = models.IntegerField(default=25)
     pagination_large_number = models.IntegerField(default=8)
 
+class Service(models.Model):
+    name = models.CharField(max_length=32)
+    url = models.URLField()
+    description = models.TextField()
+    image = models.ImageField(upload_to='logo', blank=True)    
+
+class AssoOption(models.Model):
+    PRETTY_NAME = "Options de l'association"
+
+    name = models.CharField(default="Association réseau école machin", max_length=256)
+    siret = models.CharField(default="00000000000000", max_length=32)
+    adresse1 = models.CharField(default="1 Rue de exemple", max_length=128)
+    adresse2 = models.CharField(default="94230 Cachan", max_length=128)
+    contact = models.EmailField(default="contact@example.org")
+    telephone = models.CharField(max_length=15, default="0000000000")
+    pseudo = models.CharField(default="Asso", max_length=32)
+    utilisateur_asso = models.OneToOneField('users.User', on_delete=models.PROTECT, blank=True, null=True)
