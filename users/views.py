@@ -44,10 +44,10 @@ from users.forms import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightFo
 from cotisations.models import Facture
 from machines.models import Machine, Interface
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
-from preferences.models import OptionalUser, GeneralOption
+from preferences.models import OptionalUser, AssoOption, GeneralOption
 
 from re2o.login import hashNT
-from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, ASSO_NAME, ASSO_EMAIL, SITE_NAME
+from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, SITE_NAME
 
 
 def form(ctx, template, request):
@@ -74,10 +74,11 @@ def password_change_action(u_form, user, request, req=False):
 def reset_passwd_mail(req, request):
     """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
     t = loader.get_template('users/email_passwd_request')
+    options, created = AssoOption.objects.get_or_create() 
     c = {
       'name': str(req.user.name) + ' ' + str(req.user.surname),
-      'asso': ASSO_NAME,
-      'asso_mail': ASSO_EMAIL,
+      'asso': options.name,
+      'asso_mail': options.contact,
       'site_name': SITE_NAME,
       'url': request.build_absolute_uri(
        reverse('users:process', kwargs={'token': req.token})),
@@ -102,10 +103,11 @@ def notif_ban(ban):
 def notif_inscription(user):
     """ Prend en argument un objet user, envoie un mail de bienvenue """
     t = loader.get_template('users/email_welcome')
+    options, created = AssoOption.objects.get_or_create()
     c = Context({
       'nom': str(user.name) + ' ' + str(user.surname),
-      'asso_name': ASSO_NAME,
-      'asso_email':ASSO_EMAIL,
+      'asso_name': options.name,
+      'asso_email': options.contact,
       'pseudo':user.pseudo,
     })
     send_mail('Bienvenue au Rézo / Welcome to Rézo Metz', '',

@@ -22,38 +22,48 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import OptionalUser, OptionalMachine, GeneralOption
+from .models import OptionalUser, OptionalMachine, GeneralOption, AssoOption, Service
 from django.db.models import Q
 
-class EditUserOptionsForm(ModelForm):
+class EditOptionalUserForm(ModelForm):
     class Meta:
         model = OptionalUser
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditUserOptionsForm, self).__init__(*args, **kwargs)
+        super(EditOptionalUserForm, self).__init__(*args, **kwargs)
         self.fields['is_tel_mandatory'].label = 'Exiger un numéro de téléphone'
         self.fields['user_solde'].label = 'Activation du solde pour les utilisateurs'
 
-class EditMachineOptionsForm(ModelForm):
+class EditOptionalMachineForm(ModelForm):
     class Meta:
         model = OptionalMachine
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditMachineOptionsForm, self).__init__(*args, **kwargs)
+        super(EditOptionalMachineForm, self).__init__(*args, **kwargs)
         self.fields['password_machine'].label = "Possibilité d'attribuer un mot de passe par interface"
         self.fields['max_lambdauser_interfaces'].label = "Maximum d'interfaces autorisées pour un user normal"
         self.fields['max_lambdauser_aliases'].label = "Maximum d'alias dns autorisés pour un user normal"
 
 
-class EditGeneralOptionsForm(ModelForm):
+class EditGeneralOptionForm(ModelForm):
     class Meta:
         model = GeneralOption
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditGeneralOptionsForm, self).__init__(*args, **kwargs)
+        super(EditGeneralOptionForm, self).__init__(*args, **kwargs)
         self.fields['search_display_page'].label = 'Resultats affichés dans une recherche'
         self.fields['pagination_number'].label = 'Items par page, taille normale (ex users)'
         self.fields['pagination_large_number'].label = 'Items par page, taille élevée (machines)'
+
+class EditAssoOptionForm(ModelForm):
+    class Meta:
+        model = AssoOption
+        fields = '__all__'
+
+class Service(ModelForm):
+    class Meta:
+        model = Service
+        fields = '__all__'

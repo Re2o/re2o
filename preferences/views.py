@@ -42,8 +42,9 @@ from django.db import transaction
 from reversion.models import Version
 from reversion import revisions as reversion
 
-from .forms import EditUserOptionsForm, EditMachineOptionsForm, EditGeneralOptionsForm
-from .models import OptionalUser, OptionalMachine, GeneralOption 
+from .models import OptionalUser, OptionalMachine, AssoOption, GeneralOption 
+from . import models
+from . import forms
 
 def form(ctx, template, request):
     c = ctx
@@ -57,35 +58,27 @@ def display_options(request):
     useroptions, created = OptionalUser.objects.get_or_create()
     machineoptions, created = OptionalMachine.objects.get_or_create()
     generaloptions, created = GeneralOption.objects.get_or_create()
-    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions}, 'preferences/display_preferences.html', request)
+    assooptions, crated = AssoOption.objects.get_or_create()
+    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions, 'assooptions' : assooptions}, 'preferences/display_preferences.html', request)
 
 @login_required
 @permission_required('admin')
-def edit_options(request):
-    """ Edition des préférences générales""" 
-    useroptions_instance, created = OptionalUser.objects.get_or_create()
-    machineoptions_instance, created = OptionalMachine.objects.get_or_create()
-    generaloptions_instance, created = GeneralOption.objects.get_or_create()
-    useroptions = EditUserOptionsForm(request.POST or None, instance=useroptions_instance)
-    machineoptions = EditMachineOptionsForm(request.POST or None, instance=machineoptions_instance)
-    generaloptions = EditGeneralOptionsForm(request.POST or None, instance=generaloptions_instance)
-    if useroptions.is_valid() or machineoptions.is_valid() or generaloptions.is_valid():
-        if useroptions.is_valid():
+def edit_options(request, section):
+    """ Edition des préférences générales"""
+    model = getattr(models, section, None)
+    form_instance = getattr(forms, 'Edit' + section + 'Form', None)
+    if model and form:
+        options_instance, created = model.objects.get_or_create()
+        options = form_instance(request.POST or None, instance=options_instance)
+        if options.is_valid():
             with transaction.atomic(), reversion.create_revision():
-                useroptions.save()
+                options.save()
                 reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in useroptions.changed_data))
-        if machineoptions.is_valid():
-            with transaction.atomic(), reversion.create_revision():
-                machineoptions.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machineoptions.changed_data))
-        if generaloptions.is_valid():
-            with transaction.atomic(), reversion.create_revision():
-                generaloptions.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in generaloptions.changed_data))
-        messages.success(request, "Préférences modifiées")
+                reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in options.changed_data))
+            messages.success(request, "Préférences modifiées")
+            return redirect("/preferences/")
+        return form({'options': options}, 'preferences/edit_preferences.html', request)
+    else:
+        messages.error(request, "Objet  inconnu")
         return redirect("/preferences/")
-    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions}, 'preferences/edit_preferences.html', request)
 

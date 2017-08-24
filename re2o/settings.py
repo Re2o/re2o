@@ -147,6 +147,8 @@ STATICFILES_DIRS = (
     ),
 )
 
+MEDIA_ROOT = '/var/www/re2o/static'
+
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')

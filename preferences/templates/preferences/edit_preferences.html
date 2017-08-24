@@ -28,15 +28,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors useroptions %}
-{% bootstrap_form_errors machineoptions %}
-{% bootstrap_form_errors generaloptions %}
+{% bootstrap_form_errors options %}
+
+<h3>Edition des préférences</h3>
 
 <form class="form" method="post">
 {% csrf_token %}
-{% bootstrap_form useroptions %}
-{% bootstrap_form machineoptions %}
-{% bootstrap_form generaloptions %}
+{% bootstrap_form options %}
 {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
   <br />

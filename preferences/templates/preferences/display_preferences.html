@@ -28,13 +28,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
+    <h4>Préférences utilisateur</h4>
     {% if is_bureau %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
 	    <i class="glyphicon glyphicon-edit"></i>
             Editer
 	</a>
     {% endif %}
-    <h4>Préférences utilisateur</h4>
+    <p>
+    </p>
     <table class="table table-striped">
         <tr>
             <th>Téléphone obligatoirement requis</th>
@@ -48,6 +50,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
     <h4>Préférences machines</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>
     <table class="table table-striped">
         <tr>
             <th>Mot de passe par machine</th>
@@ -61,6 +71,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
     <h4>Préférences generales</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>    
     <table class="table table-striped">
         <tr>
             <th>Affichage de résultats dans le champ de recherche</th>
@@ -73,6 +91,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ generaloptions.pagination_large_number }}</td>
         </tr>
     </table>
+    <h4>Données de l'association</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>
+    <table class="table table-striped">
+        <tr>
+            <th>Nom</th>
+            <td>{{ assooptions.name }}</td>
+            <th>SIRET</th>
+            <td>{{ assooptions.siret }}</td>
+        </tr>
+        <tr>
+            <th>Adresse</th>
+            <td>{{ assooptions.adresse1  }} {{ assooptions.adresse2 }}</td>
+            <th>Contact mail</th>
+            <td>{{ assooptions.contact }}</td>
+        </tr>
+        <tr>
+            <th>Telephone</th>
+            <td>{{ assooptions.telephone }}</td>
+            <th>Pseudo d'usage</th>
+            <td>{{ assooptions.pseudo }}</td>
+        </tr>   
+        <tr>
+            <th>Objet utilisateur de l'association</th>
+            <td>{{ assooptions.utilisateur_asso }}</td>
+        </tr>   
+    </table> 
   <br />
   <br />
   <br />

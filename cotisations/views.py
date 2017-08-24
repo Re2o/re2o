@@ -41,9 +41,9 @@ from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm, ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm, BanqueForm, DelBanqueForm, NewFactureFormPdf, CreditSoldeForm, SelectArticleForm
 from users.models import User
 from .tex import render_tex
-from re2o.settings import ASSO_NAME, ASSO_ADDRESS_LINE1, ASSO_ADDRESS_LINE2, ASSO_SIRET, ASSO_EMAIL, ASSO_PHONE, LOGO_PATH
+from re2o.settings import LOGO_PATH
 from re2o import settings
-from preferences.models import OptionalUser, GeneralOption
+from preferences.models import OptionalUser, AssoOption, GeneralOption
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -111,6 +111,7 @@ def new_facture(request, userid):
 def new_facture_pdf(request):
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
+        options, created = AssoOption.objects.get_or_create()
         tbl = []
         article = facture_form.cleaned_data['article']
         quantite = facture_form.cleaned_data['number']
@@ -122,7 +123,7 @@ def new_facture_pdf(request):
             tbl.append([a, quantite, a.prix * quantite])
         prix_total = sum(a[2] for a in tbl)
         user = {'name':destinataire, 'room':chambre}
-        return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':user,'fid':fid, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':ASSO_NAME, 'line1':ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)})
+        return render_tex(request, 'cotisations/factures.tex', {'DATE' : timezone.now(),'dest':user,'fid':fid, 'article':tbl, 'total':prix_total, 'paid':paid, 'asso_name':options.name, 'line1':options.adresse1, 'line2':options.adresse2, 'siret':options.siret, 'email':options.contact, 'phone':options.telephone, 'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)})
     return form({'factureform': facture_form}, 'cotisations/facture.html', request) 
 
 @login_required
@@ -140,9 +141,10 @@ def facture_pdf(request, factureid):
         return redirect("/users/profil/" + str(request.user.id))
     vente = Vente.objects.all().filter(facture=facture)
     ventes = []
+    options, created = AssoOption.objects.get_or_create()
     for v in vente:
         ventes.append([v, v.number, v.prix_total])
-    return render_tex(request, 'cotisations/factures.tex', {'paid':True, 'fid':facture.id, 'DATE':facture.date,'dest':facture.user, 'article':ventes, 'total': facture.prix_total(), 'asso_name':ASSO_NAME, 'line1': ASSO_ADDRESS_LINE1, 'line2':ASSO_ADDRESS_LINE2, 'siret':ASSO_SIRET, 'email':ASSO_EMAIL, 'phone':ASSO_PHONE, 'tpl_path':os.path.join(settings.BASE_DIR, LOGO_PATH)})
+    return render_tex(request, 'cotisations/factures.tex', {'paid':True, 'fid':facture.id, 'DATE':facture.date,'dest':facture.user, 'article':ventes, 'total': facture.prix_total(), 'asso_name':options.name, 'line1': options.adresse1, 'line2':options.adresse2, 'siret':options.siret, 'email':options.contact, 'phone':options.telephone, 'tpl_path':os.path.join(settings.BASE_DIR, LOGO_PATH)})
 
 @login_required
 @permission_required('cableur')
