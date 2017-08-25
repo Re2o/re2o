@@ -42,7 +42,8 @@ from django.db import transaction
 from reversion.models import Version
 from reversion import revisions as reversion
 
-from .models import OptionalUser, OptionalMachine, AssoOption, GeneralOption 
+from .forms import ServiceForm, DelServiceForm
+from .models import Service, OptionalUser, OptionalMachine, AssoOption, GeneralOption 
 from . import models
 from . import forms
 
@@ -59,7 +60,8 @@ def display_options(request):
     machineoptions, created = OptionalMachine.objects.get_or_create()
     generaloptions, created = GeneralOption.objects.get_or_create()
     assooptions, crated = AssoOption.objects.get_or_create()
-    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions, 'assooptions' : assooptions}, 'preferences/display_preferences.html', request)
+    service_list = Service.objects.all()
+    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'generaloptions': generaloptions, 'assooptions' : assooptions, 'service_list':service_list}, 'preferences/display_preferences.html', request)
 
 @login_required
 @permission_required('admin')
@@ -82,3 +84,74 @@ def edit_options(request, section):
         messages.error(request, "Objet  inconnu")
         return redirect("/preferences/")
 
+@login_required
+@permission_required('admin')
+def add_services(request):
+    services = ServiceForm(request.POST or None)
+    if services.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            services.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement ns a été ajouté")
+        return redirect("/preferences/")
+    return form({'preferenceform': services}, 'preferences/preferences.html', request)
+
+@login_required
+@permission_required('admin')
+def edit_services(request, servicesid):
+    try:
+        services_instance = Service.objects.get(pk=servicesid)
+    except Service.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/preferences/")
+    services = ServiceForm(request.POST or None, instance=services_instance)
+    if services.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            services.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in services.changed_data))
+        messages.success(request, "Service modifié")
+        return redirect("/preferences/")
+    return form({'preferenceform': services}, 'preferences/preferences.html', request)
+
+@login_required
+@permission_required('admin')
+def del_services(request):
+    services = DelServiceForm(request.POST or None)
+    if services.is_valid():
+        services_dels = services.cleaned_data['services']
+        for services_del in services_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    services_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le services a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % services_del)
+        return redirect("/preferences/")
+    return form({'preferenceform': services}, 'preferences/preferences.html', request)
+
+@login_required
+@permission_required('cableur')
+def history(request, object, id):
+    if object == 'service':
+        try:
+             object_instance = Service.objects.get(pk=id)
+        except Service.DoesNotExist:
+             messages.error(request, "Service inexistant")
+             return redirect("/preferences/")
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    reversions = Version.objects.get_for_object(object_instance)
+    paginator = Paginator(reversions, pagination_number)
+    page = request.GET.get('page')
+    try:
+        reversions = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reversions = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reversions = paginator.page(paginator.num_pages)
+    return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})

@@ -1,4 +1,3 @@
-{% extends "re2o/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,32 +22,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
-{% load staticfiles %}
-
-{% block title %}Accueil{% endblock %}
-
-{% block content %}
-    <h1>Bienvenue sur {{ site_name }} !</h1>
-
-<div class="row">
-{% for service_list in services_urls %}
-    <div class="col-sm-6 col-md-4">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Url</th>
+                <th>Description</th>
+                <th>Image</th>
+		<th></th>
+                <th></th>
+            </tr>
+        </thead>
         {% for service in service_list %}
-        <div class="col-12">
-            <div class="thumbnail">
-                <img src="{% static service.image  %}" alt="{{ service.name }}">
-                <div class="caption">
-                    <h3>{{ service.name }}</h3>
-                    <p>{{ service.description }}</p>
-                    <p><a href="{{ service.url }}" class="btn btn-primary" role="button">Accéder</a></p>
-                </div>
-            </div>
-        </div>
+        <tr>
+            <td>{{ service.name }}</td>
+            <td>{{ service.url }}</td>
+            <td>{{ service.description }}</td>
+            <td>{{ service.image }}</td>
+            <td class="text-right">
+            {% if is_admin %}
+            {% include 'buttons/edit.html' with href='preferences:edit-services' id=service.id %}
+            {% endif %}
+            {% include 'buttons/history.html' with href='preferences:history' name='service' id=service.id %}
+            </td>
+        </tr>
         {% endfor %}
-    </div>
-{% endfor %}
-</div>
-
-{% endblock %}
+    </table>
 

@@ -124,6 +124,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.utilisateur_asso }}</td>
         </tr>   
     </table> 
+  <h2>Liste des services page d'accueil</h2>
+  {% if is_infra %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-services'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
+  {% endif %}
+  {%  include "preferences/aff_service.html" with  service_list=service_list %}
   <br />
   <br />
   <br />

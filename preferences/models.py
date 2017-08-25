@@ -59,6 +59,9 @@ class Service(models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to='logo', blank=True)    
 
+    def __str__(self):
+        return str(self.name)
+
 class AssoOption(models.Model):
     PRETTY_NAME = "Options de l'association"
 

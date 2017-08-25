@@ -30,5 +30,9 @@ urlpatterns = [
     url(r'^edit_options/(?P<section>OptionalMachine)$', views.edit_options, name='edit-options'),
     url(r'^edit_options/(?P<section>GeneralOption)$', views.edit_options, name='edit-options'),
     url(r'^edit_options/(?P<section>AssoOption)$', views.edit_options, name='edit-options'),
+    url(r'^add_services/$', views.add_services, name='add-services'),
+    url(r'^edit_services/(?P<servicesid>[0-9]+)$', views.edit_services, name='edit-services'),
+    url(r'^del_services/$', views.del_services, name='del-services'),
+    url(r'^history/(?P<object>service)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^$', views.display_options, name='display-options'),
 ]
