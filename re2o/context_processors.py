@@ -32,6 +32,7 @@ def context_user(request):
         is_bofh = user.is_bofh
         is_trez = user.is_trez
         is_infra = user.is_infra
+        is_admin = user.is_admin
     else:
         interfaces = None
         is_cableur = False
@@ -39,6 +40,7 @@ def context_user(request):
         is_bofh = False
         is_trez = False
         is_infra = False
+        is_admin = False
     return {
         'request_user': user,
         'is_cableur': is_cableur,
@@ -46,6 +48,7 @@ def context_user(request):
         'is_bofh': is_bofh,
         'is_trez': is_trez,
         'is_infra': is_infra,
+        'is_admin' : is_admin,
         'interfaces': interfaces,
         'site_name': SITE_NAME,
     }

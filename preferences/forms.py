@@ -63,7 +63,10 @@ class EditAssoOptionForm(ModelForm):
         model = AssoOption
         fields = '__all__'
 
-class Service(ModelForm):
+class ServiceForm(ModelForm):
     class Meta:
         model = Service
         fields = '__all__'
+
+class DelServiceForm(Form):
+    services = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), label="Enregistrements service actuels",  widget=forms.CheckboxSelectMultiple)

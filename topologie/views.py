@@ -35,9 +35,8 @@ from users.views import form
 from users.models import User
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
-from preferences.models import GeneralOption
+from preferences.models import AssoOption, GeneralOption
 
-from re2o.settings import ASSO_PSEUDO
 
 @login_required
 @permission_required('cableur')
@@ -150,10 +149,10 @@ def new_switch(request):
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if switch.is_valid() and machine.is_valid() and interface.is_valid():
-        try:
-            user = User.objects.get(pseudo=ASSO_PSEUDO)
-        except User.DoesNotExist:
-            messages.error(request, "L'user %s n'existe pas encore, veuillez le créer" % ASSO_PSEUDO)
+        options, created = AssoOption.objects.get_or_create()
+        user = options.utilisateur_asso
+        if not user:
+            messages.error(request, "L'user association n'existe pas encore, veuillez le créer ou le linker dans preferences")
             return redirect("/topologie/")
         new_machine = machine.save(commit=False)
         new_machine.user = user
