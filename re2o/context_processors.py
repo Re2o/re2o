@@ -21,9 +21,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from machines.models import Interface, Machine
-from .settings import SITE_NAME
+from preferences.models import GeneralOption
 
 def context_user(request):
+    general_options, created = GeneralOption.objects.get_or_create()
     user = request.user
     if user.is_authenticated():
         interfaces = user.user_interfaces()
@@ -50,5 +51,5 @@ def context_user(request):
         'is_infra': is_infra,
         'is_admin' : is_admin,
         'interfaces': interfaces,
-        'site_name': SITE_NAME,
+        'site_name': general_options.site_name,
     }

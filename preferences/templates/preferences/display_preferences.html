@@ -98,6 +98,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </p>    
     <table class="table table-striped">
         <tr>
+            <th>Nom du site web</th>
+            <td>{{ generaloptions.site_name }}</td>
+            <th>Adresse mail d'expedition automatique</th>
+            <td>{{ generaloptions.email_from }}</td>
+        </tr>
+        <tr>
             <th>Affichage de résultats dans le champ de recherche</th>
             <td>{{ generaloptions.search_display_page }}</td>
             <th>Nombre d'items affichés en liste (taille normale)</th>
@@ -106,6 +112,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Nombre d'items affichés en liste (taille élevée)</th>
             <td>{{ generaloptions.pagination_large_number }}</td>
+            <th>Temps avant expiration du lien de reinitialisation de mot de passe (en heures)</th>
+            <td>{{ generaloptions.req_expire_hrs }}</td>
         </tr>
     </table>
     <h4>Données de l'association</h4>

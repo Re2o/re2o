@@ -33,8 +33,6 @@ import re
 from reversion import revisions as reversion
 from datetime import timedelta
 
-from re2o.settings import MAIN_EXTENSION
-
 
 class Machine(models.Model):
     """ Class définissant une machine, object parent user, objets fils interfaces"""
