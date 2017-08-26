@@ -44,8 +44,8 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm, ServiceForm, DelServiceForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -593,6 +593,54 @@ def del_service(request):
     return form({'machineform': service}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('infra')
+def add_vlan(request):
+    vlan = VlanForm(request.POST or None)
+    if vlan.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            vlan.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement vlan a été ajouté")
+        return redirect("/machines/index_vlan")
+    return form({'machineform': vlan, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_vlan(request, vlanid):
+    try:
+        vlan_instance = Vlan.objects.get(pk=vlanid)
+    except Vlan.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_vlan/")
+    vlan = VlanForm(request.POST or None, instance=vlan_instance)
+    if vlan.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            vlan.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in vlan.changed_data))
+        messages.success(request, "Vlan modifié")
+        return redirect("/machines/index_vlan/")
+    return form({'machineform': vlan}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_vlan(request):
+    vlan = DelVlanForm(request.POST or None)
+    if vlan.is_valid():
+        vlan_dels = vlan.cleaned_data['vlan']
+        for vlan_del in ns_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    vlan_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le vlan a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
+        return redirect("/machines/index_vlan")
+    return form({'machineform': vlan, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 @permission_required('cableur')
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
@@ -615,6 +663,12 @@ def index(request):
 def index_iptype(request):
     iptype_list = IpType.objects.select_related('extension').order_by('type')
     return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
+
+@login_required
+@permission_required('cableur')
+def index_vlan(request):
+    vlan_list = Vlan.objects.order_by('vlan_id')
+    return render(request, 'machines/index_vlan.html', {'vlan_list':vlan_list})
 
 @login_required
 @permission_required('cableur')
@@ -714,6 +768,12 @@ def history(request, object, id):
              object_instance = Service.objects.get(pk=id)
         except Service.DoesNotExist:
              messages.error(request, "Service inexistant")
+             return redirect("/machines/")
+    elif object == 'vlan' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Vlan.objects.get(pk=id)
+        except Vlan.DoesNotExist:
+             messages.error(request, "Vlan inexistant")
              return redirect("/machines/")
     else:
         messages.error(request, "Objet  inconnu")

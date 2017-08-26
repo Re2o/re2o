@@ -23,29 +23,31 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Service
+from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Vlan, Service
 
 class MachineAdmin(VersionAdmin):
-    list_display = ('user','name','active')
+    pass
 
 class IpTypeAdmin(VersionAdmin):
-    list_display = ('type','extension','need_infra','domaine_ip','domaine_range')
+    pass
 
 class MachineTypeAdmin(VersionAdmin):
-    list_display = ('type','ip_type')
+    pass
 
+class VlanAdmin(VersionAdmin):
+    pass
 
 class ExtensionAdmin(VersionAdmin):
-    list_display = ('name','origin')
+    pass
 
 class MxAdmin(VersionAdmin):
-    list_display = ('zone', 'priority', 'name')
+    pass
 
 class NsAdmin(VersionAdmin):
-    list_display = ('zone', 'ns')
+    pass
 
 class IpListAdmin(VersionAdmin):
-    list_display = ('ipv4','ip_type')
+    pass
 
 class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','mac_address','ipv4','details')
@@ -66,3 +68,4 @@ admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Service, ServiceAdmin)
+admin.site.register(Vlan, VlanAdmin)

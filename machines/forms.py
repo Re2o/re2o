@@ -22,7 +22,7 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Service, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Service, Vlan, IpType
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -143,7 +143,7 @@ class DelMachineTypeForm(Form):
 class IpTypeForm(ModelForm):
     class Meta:
         model = IpType
-        fields = ['type','extension','need_infra','domaine_ip','domaine_range']
+        fields = ['type','extension','need_infra','domaine_ip','domaine_range', 'vlan']
 
     def __init__(self, *args, **kwargs):
         super(IpTypeForm, self).__init__(*args, **kwargs)
@@ -151,7 +151,7 @@ class IpTypeForm(ModelForm):
 
 class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
-        fields = ['extension','type','need_infra']
+        fields = ['extension','type','need_infra', 'vlan']
 
 class DelIpTypeForm(Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)
@@ -207,4 +207,14 @@ class ServiceForm(ModelForm):
 
 class DelServiceForm(Form):
     service = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), label="Services actuels",  widget=forms.CheckboxSelectMultiple)
+
+class VlanForm(ModelForm):
+    class Meta:
+        model = Vlan
+        fields = '__all__'
+
+class DelVlanForm(Form):
+    vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
+
+
 

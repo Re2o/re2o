@@ -74,7 +74,7 @@ def linux_user_validator(login):
 def get_fresh_user_uid():
     uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
     try:
-        used_uids = [ user.uid_number for user in User.objects.all()]
+        used_uids = list(User.objects.values_list('uid_number', flat=True))
     except:
         used_uids = []
     free_uids = [ id for id in uids if id not in used_uids]
@@ -82,7 +82,7 @@ def get_fresh_user_uid():
 
 def get_fresh_gid():
     gids = list(range(int(min(GID_RANGES['posix'])),int(max(GID_RANGES['posix']))))
-    used_gids = [ right.gid for right in ListRight.objects.all()]
+    used_gids = list(ListRight.objects.values_list('gid', flat=True))
     free_gids = [ id for id in gids if id not in used_gids]
     return min(free_gids)
 
@@ -462,7 +462,7 @@ class ServiceUser(AbstractBaseUser):
             group = LdapServiceUserGroup.objects.get(name=self.access_group)
         except:
             group = LdapServiceUserGroup(name=self.access_group)
-        group.members = [serviceuser.dn for serviceuser in LdapServiceUser.objects.filter(name__in=[user.pseudo for user in ServiceUser.objects.filter(access_group=self.access_group)])]
+        group.members = list(LdapServiceUser.objects.filter(name__in=[user.pseudo for user in ServiceUser.objects.filter(access_group=self.access_group)]).values_list('dn', flat=True))
         group.save()
 
     def __str__(self):

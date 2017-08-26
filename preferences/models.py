@@ -23,6 +23,7 @@
 
 from django.db import models
 from cotisations.models import Paiement
+from machines.models import Vlan
 
 class OptionalUser(models.Model):
     PRETTY_NAME = "Options utilisateur"
@@ -43,8 +44,11 @@ class OptionalMachine(models.Model):
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
 
-#class OptionalTopologie(models.Model):
+class OptionalTopologie(models.Model):
+    PRETTY_NAME = "Options topologie"
 
+    vlan_decision_ok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_ok', blank=True, null=True)
+    vlan_decision_nok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_nok', blank=True, null=True)
 
 class GeneralOption(models.Model):
     PRETTY_NAME = "Options générales"

@@ -40,11 +40,12 @@ from django.db.models import Q
 from machines.models import Interface, IpList, Domain
 from topologie.models import Room, Port, Switch
 from users.models import User
+from preferences.models import OptionalTopologie
 
-from re2o.settings import RADIUS_VLAN_DECISION
+options, created = OptionalTopologie.objects.get_or_create()
+VLAN_NOK = options.vlan_decision_nok.vlan_id
+VLAN_OK = options.vlan_decision_ok.vlan_id
 
-VLAN_NOK = RADIUS_VLAN_DECISION['VLAN_NOK']
-VLAN_OK = RADIUS_VLAN_DECISION['VLAN_OK']
 
 def decide_vlan(switch_id, port_number, mac_address):
     # Get port from switch and port number

@@ -98,14 +98,5 @@ GID_RANGES = {
     'posix' : [501, 600],
 }
 
-# Liste des vlans id disponible sur un switch
-VLAN_ID_LIST = [7,8,42,69]
-
-# Décision radius à prendre
-RADIUS_VLAN_DECISION = {
-    'VLAN_NOK' : 42,
-    'VLAN_OK' : 69,
-}
-
 OPTIONNAL_APPS = ()
 
