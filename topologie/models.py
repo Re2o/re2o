@@ -58,7 +58,10 @@ class Port(models.Model):
             ('BLOQ', 'BLOQ'),
             ('COMMON', 'COMMON'),
             )
-    STATES = STATES_BASE + tuple([(str(id), str(id)) for id in list(Vlan.objects.values_list('vlan_id', flat=True).order_by('vlan_id'))])
+    try:
+        STATES = STATES_BASE + tuple([(str(id), str(id)) for id in list(Vlan.objects.values_list('vlan_id', flat=True).order_by('vlan_id'))])
+    except:
+        STATES = STATES_BASE 
 
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
