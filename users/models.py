@@ -33,7 +33,7 @@ from django.db import transaction
 import ldapdb.models
 import ldapdb.models.fields
 
-from re2o.settings import RIGHTS_LINK, REQ_EXPIRE_HRS, LDAP, GID_RANGES,UID_RANGES
+from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES,UID_RANGES
 import re, uuid
 import datetime
 
@@ -44,7 +44,7 @@ from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Interface, Machine
-from preferences.models import OptionalUser
+from preferences.models import GeneralOption, OptionalUser
 
 now = timezone.now()
 
@@ -622,8 +622,9 @@ class Request(models.Model):
 
     def save(self):
         if not self.expires_at:
+            options, created = GeneralOption.objects.get_or_create()
             self.expires_at = timezone.now() \
-                + datetime.timedelta(hours=REQ_EXPIRE_HRS)
+                + datetime.timedelta(hours=options.req_expire_hrs)
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()

@@ -56,6 +56,9 @@ class GeneralOption(models.Model):
     search_display_page = models.IntegerField(default=15)
     pagination_number = models.IntegerField(default=25)
     pagination_large_number = models.IntegerField(default=8)
+    req_expire_hrs = models.IntegerField(default=48)
+    site_name = models.CharField(max_length=32, default="Re2o")
+    email_from = models.EmailField(default="www-data@serveur.net")
 
 class Service(models.Model):
     name = models.CharField(max_length=32)

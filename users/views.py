@@ -47,7 +47,6 @@ from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 
 from re2o.login import hashNT
-from re2o.settings import REQ_EXPIRE_STR, EMAIL_FROM, SITE_NAME
 
 
 def form(ctx, template, request):
@@ -74,21 +73,23 @@ def password_change_action(u_form, user, request, req=False):
 def reset_passwd_mail(req, request):
     """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
     t = loader.get_template('users/email_passwd_request')
-    options, created = AssoOption.objects.get_or_create() 
+    options, created = AssoOption.objects.get_or_create()
+    general_options, created = GeneralOption.objects.get_or_create()
     c = {
       'name': str(req.user.name) + ' ' + str(req.user.surname),
       'asso': options.name,
       'asso_mail': options.contact,
-      'site_name': SITE_NAME,
+      'site_name': general_options.site_name,
       'url': request.build_absolute_uri(
        reverse('users:process', kwargs={'token': req.token})),
-       'expire_in': REQ_EXPIRE_STR,
+       'expire_in': str(general_options.req_expire_hrs) + ' heures',
     }
     send_mail('Changement de mot de passe du Rézo Metz / Password renewal for Rézo Metz', t.render(c),
-    EMAIL_FROM, [req.user.email], fail_silently=False)
+    general_options.email_from, [req.user.email], fail_silently=False)
     return
 
 def notif_ban(ban):
+    general_options, created = GeneralOption.objects.get_or_create()
     """ Prend en argument un objet ban, envoie un mail de notification """
     t = loader.get_template('users/email_ban_notif')
     c = Context({
@@ -97,13 +98,14 @@ def notif_ban(ban):
       'date_end': ban.date_end,
     })
     send_mail('Deconnexion disciplinaire', t.render(c),
-    EMAIL_FROM, [ban.user.email], fail_silently=False)
+    general_options.email_from, [ban.user.email], fail_silently=False)
     return
 
 def notif_inscription(user):
     """ Prend en argument un objet user, envoie un mail de bienvenue """
     t = loader.get_template('users/email_welcome')
     options, created = AssoOption.objects.get_or_create()
+    general_options, created = GeneralOption.objects.get_or_create()
     c = Context({
       'nom': str(user.name) + ' ' + str(user.surname),
       'asso_name': options.name,
@@ -111,7 +113,7 @@ def notif_inscription(user):
       'pseudo':user.pseudo,
     })
     send_mail('Bienvenue au Rézo / Welcome to Rézo Metz', '',
-    EMAIL_FROM, [user.email], html_message=t.render(c))
+    general_options.email_from, [user.email], html_message=t.render(c))
     return
 
 
