@@ -49,7 +49,7 @@ class Facture(models.Model):
         return Vente.objects.filter(facture=self).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total']
 
     def name(self):
-        name = ' - '.join(vente.name for vente in Vente.objects.filter(facture=self))
+        name = ' - '.join(Vente.objects.filter(facture=self).values_list('name', flat=True))
         return name
 
     def __str__(self):

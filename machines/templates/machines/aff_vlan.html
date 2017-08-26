@@ -25,29 +25,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Type d'ip</th>
-                <th>Extension</th>
-                <th>Nécessite l'autorisation infra</th>
-                <th>Domaine d'ip</th>
-                <th>Range</th>
-                <th>Sur vlan</th>
-		<th></th>
-                <th></th>
+                <th>Id</th>
+                <th>Nom</th>
+		<th>Commentaire</th>
+                <th>Ranges ip</th>
+    		<th></th>
             </tr>
         </thead>
-        {% for type in iptype_list %}
+        {% for vlan in vlan_list %}
         <tr>
-            <td>{{ type.type }}</td>
-            <td>{{ type.extension }}</td>
-            <td>{{ type.need_infra }}</td>
-            <td>{{ type.domaine_ip }}</td>
-            <td>{{ type.domaine_range }}</td>
-            <td>{{ type.vlan }}</td>
-            <td class="text-right">
+            <td>{{ vlan.vlan_id }}</td>
+            <td>{{ vlan.name  }}</td>
+	    <td>{{ vlan.comment }}</td>
+            <td>{% for range in vlan.iptype_set.all %}{{ range }}, {% endfor%}</td>
+	    <td class="text-right">
             {% if is_infra %}
-                {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-vlan' id=vlan.id %}
             {% endif %}
-                {% include 'buttons/history.html' with href='machines:history' name='iptype' id=type.id %}
+                {% include 'buttons/history.html' with href='machines:history' name='vlan' id=vlan.id %}
             </td>
         </tr>
         {% endfor %}

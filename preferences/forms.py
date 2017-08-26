@@ -22,7 +22,7 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import OptionalUser, OptionalMachine, GeneralOption, AssoOption, Service
+from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, AssoOption, Service
 from django.db.models import Q
 
 class EditOptionalUserForm(ModelForm):
@@ -46,6 +46,15 @@ class EditOptionalMachineForm(ModelForm):
         self.fields['max_lambdauser_interfaces'].label = "Maximum d'interfaces autorisées pour un user normal"
         self.fields['max_lambdauser_aliases'].label = "Maximum d'alias dns autorisés pour un user normal"
 
+class EditOptionalTopologieForm(ModelForm):
+    class Meta:
+        model = OptionalTopologie
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(EditOptionalTopologieForm, self).__init__(*args, **kwargs)
+        self.fields['vlan_decision_ok'].label = "Vlan où placer les machines après acceptation RADIUS"
+        self.fields['vlan_decision_nok'].label = "Vlan où placer les machines après rejet RADIUS"
 
 class EditGeneralOptionForm(ModelForm):
     class Meta:

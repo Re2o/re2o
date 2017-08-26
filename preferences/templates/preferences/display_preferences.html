@@ -70,6 +70,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ machineoptions.max_lambdauser_aliases }}</td>
         </tr>
     </table>
+    <h4>Préférences topologie</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>
+    <table class="table table-striped">
+        <tr>
+            <th>Vlan où placer les machines après acceptation RADIUS</th>
+            <td>{{ topologieoptions.vlan_decision_ok }}</td>
+            <th>Vlan où placer les machines après rejet RADIUS</th>
+            <td>{{ topologieoptions.vlan_decision_nok }}</td>
+        </tr>
+    </table>
     <h4>Préférences generales</h4>
     {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">

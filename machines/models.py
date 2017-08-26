@@ -69,6 +69,7 @@ class IpType(models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip = models.GenericIPAddressField(protocol='IPv4')
     domaine_range = models.IntegerField(validators=[MinValueValidator(16), MaxValueValidator(32)])
+    vlan = models.ForeignKey('Vlan', on_delete=models.PROTECT, blank=True, null=True)
 
     @cached_property
     def network(self):
@@ -107,7 +108,7 @@ class IpType(models.Model):
 
     def clean(self):
         # On check que les / ne se recoupent pas
-        for element in IpType.objects.all():
+        for element in IpType.objects.all().exclude(pk=self.pk):
             if not self.ip_set.isdisjoint(element.ip_set):
                 raise ValidationError("Le range indiqué n'est pas disjoint des ranges existants")
         return
@@ -118,6 +119,16 @@ class IpType(models.Model):
 
     def __str__(self):
         return self.type
+
+class Vlan(models.Model):
+    PRETTY_NAME = "Vlans"
+
+    vlan_id = models.IntegerField()
+    name = models.CharField(max_length=256)
+    comment = models.CharField(max_length=256, blank=True)
+
+    def __str__(self):
+        return self.name
 
 class Extension(models.Model):
     PRETTY_NAME = "Extensions dns"
@@ -360,7 +371,8 @@ def interface_post_delete(sender, **kwargs):
 @receiver(post_save, sender=IpType)
 def iptype_post_save(sender, **kwargs):
     iptype = kwargs['instance']
-    iptype.gen_ip_range()
+    if not iptype.ip_objects():
+        iptype.gen_ip_range()
 
 @receiver(post_save, sender=MachineType)
 def machine_post_save(sender, **kwargs):

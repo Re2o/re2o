@@ -27,7 +27,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 import reversion
 
-from re2o.settings import VLAN_ID_LIST
+from machines.models import Vlan
 
 def make_port_related(port):
     related_port = port.related
@@ -58,7 +58,7 @@ class Port(models.Model):
             ('BLOQ', 'BLOQ'),
             ('COMMON', 'COMMON'),
             )
-    STATES = STATES_BASE + tuple([(str(id), str(id)) for id in VLAN_ID_LIST])
+    STATES = STATES_BASE + tuple([(str(id), str(id)) for id in list(Vlan.objects.values_list('vlan_id', flat=True).order_by('vlan_id'))])
 
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
