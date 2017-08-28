@@ -84,7 +84,7 @@ def reset_passwd_mail(req, request):
        reverse('users:process', kwargs={'token': req.token})),
        'expire_in': str(general_options.req_expire_hrs) + ' heures',
     }
-    send_mail('Changement de mot de passe du Rézo Metz / Password renewal for Rézo Metz', t.render(c),
+    send_mail('Changement de mot de passe du %(name)s / Password renewal for %(name)s' % {'name': options.name }, t.render(c),
     general_options.email_from, [req.user.email], fail_silently=False)
     return
 
@@ -92,10 +92,12 @@ def notif_ban(ban):
     general_options, created = GeneralOption.objects.get_or_create()
     """ Prend en argument un objet ban, envoie un mail de notification """
     t = loader.get_template('users/email_ban_notif')
+    options, created = AssoOption.objects.get_or_create()
     c = Context({
       'name': str(ban.user.name) + ' ' + str(ban.user.surname),
       'raison': ban.raison,
       'date_end': ban.date_end,
+      'name' : options.name,
     })
     send_mail('Deconnexion disciplinaire', t.render(c),
     general_options.email_from, [ban.user.email], fail_silently=False)
@@ -112,7 +114,7 @@ def notif_inscription(user):
       'asso_email': options.contact,
       'pseudo':user.pseudo,
     })
-    send_mail('Bienvenue au Rézo / Welcome to Rézo Metz', '',
+    send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': options.name }, '',
     general_options.email_from, [user.email], html_message=t.render(c))
     return
 
