@@ -28,8 +28,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Type d'ip</th>
                 <th>Extension</th>
                 <th>Nécessite l'autorisation infra</th>
-                <th>Domaine d'ip</th>
-                <th>Range</th>
+                <th>Début</th>
+                <th>Fin</th>
                 <th>Sur vlan</th>
 		<th></th>
                 <th></th>
@@ -40,8 +40,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.type }}</td>
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra }}</td>
-            <td>{{ type.domaine_ip }}</td>
-            <td>{{ type.domaine_range }}</td>
+            <td>{{ type.domaine_ip_start }}</td>
+            <td>{{ type.domaine_ip_stop }}</td>
             <td>{{ type.vlan }}</td>
             <td class="text-right">
             {% if is_infra %}
