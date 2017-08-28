@@ -93,7 +93,13 @@ class IpType(models.Model):
         for net in self.ip_range.cidrs():
             networks += net.iter_hosts()
         ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in networks]
-        IpList.objects.bulk_create(ip_obj)
+        listes_ip = IpList.objects.filter(ipv4__in=[str(ip) for ip in networks])
+        # Si il n'y a pas d'ip, on les crée
+        if not listes_ip:
+            IpList.objects.bulk_create(ip_obj)
+        # Sinon on update l'ip_type
+        else:
+            listes_ip.update(ip_type=self)
         return
 
     def del_ip_range(self):
@@ -373,8 +379,7 @@ def interface_post_delete(sender, **kwargs):
 @receiver(post_save, sender=IpType)
 def iptype_post_save(sender, **kwargs):
     iptype = kwargs['instance']
-    if not iptype.ip_objects():
-        iptype.gen_ip_range()
+    iptype.gen_ip_range()
 
 @receiver(post_save, sender=MachineType)
 def machine_post_save(sender, **kwargs):
