@@ -1,8 +1,8 @@
 Bonjour {{name}},
 
-Vous avez été banni par un administrateur du Rézo en raison de {{raison}}. Vous n'avez plus accès au réseau jusqu'au {{date_end}}.
+Vous avez été banni par un administrateur du {{ name }} en raison de {{raison}}. Vous n'avez plus accès au réseau jusqu'au {{date_end}}.
 
-Pour de plus amples informations, rendez-vous au C0.
+Pour de plus amples informations, rendez-vous à l'accueil du {{ name }}.
 
 Cordialement,
-L'équipe du Rézo. 
+	L'équipe du {{ name }}. 

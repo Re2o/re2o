@@ -1,6 +1,6 @@
 <p>Bonjour {{nom}} !</p>
 
-<p>Vous êtes maintenant adhérent du Rézo ! Nous sommes ravis de vous accueillir<br>
+<p>Vous êtes maintenant adhérent du {{asso_name}} ! Nous sommes ravis de vous accueillir<br>
 dans l'association. Outre l'accès à Internet, vous pourrez participer aux activités<br>
 que nous proposons et profiter des services mis en place. Ceux-ci sont à découvrir<br>
 sur le site <a href="https://re2o.rezometz.org">Re2o</a> qui vous permet aussi de gérer vos informations personnelles.</p>
@@ -9,7 +9,7 @@ sur le site <a href="https://re2o.rezometz.org">Re2o</a> qui vous permet aussi d
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
-<p>Le Rézo recrute ! Nous sommes passionnés (et bénévoles), alors si vous êtes intéressé<br>
+<p>Le {{asso_name}} recrute ! Nous sommes passionnés (et bénévoles), alors si vous êtes intéressé<br>
 de près ou de loin pour nous aider, n'hésitez pas !</p>
 
 <p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous<br>
@@ -20,7 +20,7 @@ L'équipe de {{asso_name}}.</p>
 
 <p>---</p>
 
-<p>Welcome to the Rézo !</p>
+<p>Welcome to the {{asso_name}} !</p>
 
 <p>We are the association that provides an internet acces in the dorm of ALOES</p>
 
