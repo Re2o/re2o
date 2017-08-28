@@ -1,8 +1,8 @@
 Bonjour {{name}},
 
-Vous avez été banni par un administrateur du {{ name }} en raison de {{raison}}. Vous n'avez plus accès au réseau jusqu'au {{date_end}}.
+Vous avez été banni par un administrateur du {{ asso_name }} en raison de {{raison}}. Vous n'avez plus accès au réseau jusqu'au {{date_end}}.
 
-Pour de plus amples informations, rendez-vous à l'accueil du {{ name }}.
+Pour de plus amples informations, rendez-vous à l'accueil du {{ asso_name }}.
 
 Cordialement,
-	L'équipe du {{ name }}. 
+	L'équipe du {{ asso_name }}. 

@@ -70,55 +70,6 @@ def password_change_action(u_form, user, request, req=False):
         return redirect("/")
     return redirect("/users/profil/" + str(user.id))
 
-def reset_passwd_mail(req, request):
-    """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
-    t = loader.get_template('users/email_passwd_request')
-    options, created = AssoOption.objects.get_or_create()
-    general_options, created = GeneralOption.objects.get_or_create()
-    c = {
-      'name': str(req.user.name) + ' ' + str(req.user.surname),
-      'asso': options.name,
-      'asso_mail': options.contact,
-      'site_name': general_options.site_name,
-      'url': request.build_absolute_uri(
-       reverse('users:process', kwargs={'token': req.token})),
-       'expire_in': str(general_options.req_expire_hrs) + ' heures',
-    }
-    send_mail('Changement de mot de passe du %(name)s / Password renewal for %(name)s' % {'name': options.name }, t.render(c),
-    general_options.email_from, [req.user.email], fail_silently=False)
-    return
-
-def notif_ban(ban):
-    general_options, created = GeneralOption.objects.get_or_create()
-    """ Prend en argument un objet ban, envoie un mail de notification """
-    t = loader.get_template('users/email_ban_notif')
-    options, created = AssoOption.objects.get_or_create()
-    c = Context({
-      'name': str(ban.user.name) + ' ' + str(ban.user.surname),
-      'raison': ban.raison,
-      'date_end': ban.date_end,
-      'name' : options.name,
-    })
-    send_mail('Deconnexion disciplinaire', t.render(c),
-    general_options.email_from, [ban.user.email], fail_silently=False)
-    return
-
-def notif_inscription(user):
-    """ Prend en argument un objet user, envoie un mail de bienvenue """
-    t = loader.get_template('users/email_welcome')
-    options, created = AssoOption.objects.get_or_create()
-    general_options, created = GeneralOption.objects.get_or_create()
-    c = Context({
-      'nom': str(user.name) + ' ' + str(user.surname),
-      'asso_name': options.name,
-      'asso_email': options.contact,
-      'pseudo':user.pseudo,
-    })
-    send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': options.name }, '',
-    general_options.email_from, [user.email], html_message=t.render(c))
-    return
-
-
 @login_required
 @permission_required('cableur')
 def new_user(request):
@@ -130,12 +81,7 @@ def new_user(request):
             user.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
-        req = Request()
-        req.type = Request.PASSWD
-        req.user = user
-        req.save()
-        reset_passwd_mail(req, request)
-        notif_inscription(user)
+        user.reset_passwd_mail(request)
         messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect("/users/profil/" + str(user.id))
     return form({'userform': user}, 'users/user.html', request)
@@ -323,7 +269,6 @@ def add_ban(request, userid):
     if ban.is_valid():
         with transaction.atomic(), reversion.create_revision():
             ban_object = ban.save()
-            notif_ban(ban_object)
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Bannissement ajouté")
@@ -718,12 +663,8 @@ def reset_password(request):
             user = User.objects.get(pseudo=userform.cleaned_data['pseudo'],email=userform.cleaned_data['email'])
         except User.DoesNotExist:
             messages.error(request, "Cet utilisateur n'existe pas")
-            return form({'userform': userform}, 'users/user.html', request)   
-        req = Request()
-        req.type = Request.PASSWD
-        req.user = user
-        req.save()
-        reset_passwd_mail(req, request)
+            return form({'userform': userform}, 'users/user.html', request)
+        user.reset_passwd_mail(request)
         messages.success(request, "Un mail pour l'initialisation du mot de passe a été envoyé")
         redirect("/") 
     return form({'userform': userform}, 'users/user.html', request)

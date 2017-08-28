@@ -26,6 +26,9 @@ from django import forms
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.functional import cached_property
+from django.template import Context, RequestContext, loader
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 
 from reversion import revisions as reversion
 from django.db import transaction
@@ -44,7 +47,7 @@ from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Interface, Machine
-from preferences.models import GeneralOption, OptionalUser
+from preferences.models import GeneralOption, AssoOption, OptionalUser
 
 now = timezone.now()
 
@@ -409,12 +412,52 @@ class User(AbstractBaseUser):
         except LdapUser.DoesNotExist:
             pass
 
+    def notif_inscription(self):
+        """ Prend en argument un objet user, envoie un mail de bienvenue """
+        t = loader.get_template('users/email_welcome')
+        options, created = AssoOption.objects.get_or_create()
+        general_options, created = GeneralOption.objects.get_or_create()
+        c = Context({
+            'nom': str(self.name) + ' ' + str(self.surname),
+            'asso_name': options.name,
+            'asso_email': options.contact,
+            'pseudo':self.pseudo,
+        })
+        send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': options.name }, '',
+        general_options.email_from, [self.email], html_message=t.render(c))
+        return
+
+    def reset_passwd_mail(self, request):
+        """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
+        req = Request()
+        req.type = Request.PASSWD
+        req.user = self
+        req.save()
+        t = loader.get_template('users/email_passwd_request')
+        options, created = AssoOption.objects.get_or_create()
+        general_options, created = GeneralOption.objects.get_or_create()
+        c = {
+            'name': str(req.user.name) + ' ' + str(req.user.surname),
+            'asso': options.name,
+            'asso_mail': options.contact,
+            'site_name': general_options.site_name,
+            'url': request.build_absolute_uri(
+            reverse('users:process', kwargs={'token': req.token})),
+            'expire_in': str(general_options.req_expire_hrs) + ' heures',
+            }
+        send_mail('Changement de mot de passe du %(name)s / Password renewal for %(name)s' % {'name': options.name }, t.render(c),
+        general_options.email_from, [req.user.email], fail_silently=False)
+        return
+
     def __str__(self):
         return self.pseudo
 
 @receiver(post_save, sender=User)
 def user_post_save(sender, **kwargs):
+    is_created = kwargs['created']
     user = kwargs['instance']
+    if is_created:
+        user.notif_inscription()
     user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 @receiver(post_delete, sender=User)
@@ -571,14 +614,32 @@ class Ban(models.Model):
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
     state = models.IntegerField(choices=STATES, default=STATE_HARD) 
 
+    def notif_ban(self):
+        """ Prend en argument un objet ban, envoie un mail de notification """
+        general_options, created = GeneralOption.objects.get_or_create()
+        t = loader.get_template('users/email_ban_notif')
+        options, created = AssoOption.objects.get_or_create()
+        c = Context({
+            'name': str(self.user.name) + ' ' + str(self.user.surname),
+            'raison': self.raison,
+            'date_end': self.date_end,
+            'asso_name' : options.name,
+        })
+        send_mail('Deconnexion disciplinaire', t.render(c),
+        general_options.email_from, [self.user.email], fail_silently=False)
+        return
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
 @receiver(post_save, sender=Ban)
 def ban_post_save(sender, **kwargs):
     ban = kwargs['instance']
+    is_created = kwargs['created']
     user = ban.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    if is_created:
+        ban.notif_ban()
 
 @receiver(post_delete, sender=Ban)
 def ban_post_delete(sender, **kwargs):
