@@ -27,7 +27,7 @@ from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
 from macaddress.fields import MACAddressField
-from netaddr import mac_bare, EUI, IPSet, IPNetwork
+from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
 from django.core.validators import MinValueValidator,MaxValueValidator
 import re
 from reversion import revisions as reversion
@@ -65,21 +65,17 @@ class IpType(models.Model):
     type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
-    domaine_ip = models.GenericIPAddressField(protocol='IPv4')
-    domaine_range = models.IntegerField(validators=[MinValueValidator(16), MaxValueValidator(32)])
+    domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
+    domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
     vlan = models.ForeignKey('Vlan', on_delete=models.PROTECT, blank=True, null=True)
 
     @cached_property
-    def network(self):
-        return str(self.domaine_ip) + '/' + str(self.domaine_range)
-
-    @cached_property
-    def ip_network(self):
-        return IPNetwork(self.network)
+    def ip_range(self):
+        return IPRange(self.domaine_ip_start, end=self.domaine_ip_stop)
 
     @cached_property
     def ip_set(self):
-        return IPSet(self.ip_network)
+        return IPSet(self.ip_range)
 
     @cached_property
     def ip_set_as_str(self):
@@ -93,7 +89,10 @@ class IpType(models.Model):
 
     def gen_ip_range(self):
         # Creation du range d'ip dans les objets iplist
-        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in self.ip_network.iter_hosts()]
+        networks = []
+        for net in self.ip_range.cidrs():
+            networks += net.iter_hosts()
+        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in networks]
         IpList.objects.bulk_create(ip_obj)
         return
 
@@ -105,6 +104,11 @@ class IpType(models.Model):
             ip.delete()
 
     def clean(self):
+        if IPAddress(self.domaine_ip_start) > IPAddress(self.domaine_ip_stop):
+            raise ValidationError("Domaine end doit être après start...")
+        # On ne crée pas plus grand qu'un /16
+        if self.ip_range.size > 65536:
+            raise ValidationError("Le range est trop gros, vous ne devez pas créer plus grand qu'un /16")
         # On check que les / ne se recoupent pas
         for element in IpType.objects.all().exclude(pk=self.pk):
             if not self.ip_set.isdisjoint(element.ip_set):

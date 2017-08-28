@@ -143,7 +143,8 @@ class DelMachineTypeForm(Form):
 class IpTypeForm(ModelForm):
     class Meta:
         model = IpType
-        fields = ['type','extension','need_infra','domaine_ip','domaine_range', 'vlan']
+        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'vlan']
+        
 
     def __init__(self, *args, **kwargs):
         super(IpTypeForm, self).__init__(*args, **kwargs)
