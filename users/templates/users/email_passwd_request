@@ -19,7 +19,7 @@ L'équipe de {{ asso }} {{ asso_mail }}.
 Hi {{ name }},
 
 You will find a link allowing you to change the password of your account on {{ site_name }}.
-On this website you will then be able to manage your devices on the Rézo.
+On this website you will then be able to manage your devices on the {{ asso }}.
 
     {{ url }}
 
