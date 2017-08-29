@@ -64,7 +64,7 @@ class TypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IpType
-        fields = ('type', 'extension', 'domaine_ip', 'domaine_range')
+        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop')
 
 class ExtensionSerializer(serializers.ModelSerializer):
     origin = serializers.SerializerMethodField('get_origin_ip')
