@@ -1126,14 +1126,14 @@ olcAccess: {3}to dn.sub="ou=groups,dc=ldap,dc=example,dc=org" by group="cn=
 olcAccess: {4}to dn.sub="cn=Utilisateurs,dc=ldap,dc=example,dc=org" by grou
  p="cn=auth,ou=services,ou=groups,dc=ldap,dc=example,dc=org" read by self r
  ead by group="cn=readonly,ou=services,ou=groups,dc=ldap,dc=example,dc=org"
-  read by group="cn=usermgmt,ou=services,ou=groups,dc=ldap,dc=rezometz,dc=or
+  read by group="cn=usermgmt,ou=services,ou=groups,dc=ldap,dc=example,dc=or
  g" write
 olcAccess: {5}to dn.sub="ou=service-users,dc=ldap,dc=example,dc=org" by gro
  up="cn=auth,ou=services,ou=groups,dc=ldap,dc=example,dc=org" read by group
  ="cn=readonly,ou=services,ou=groups,dc=ldap,dc=example,dc=org" read
 olcAccess: {6}to dn.base="dc=ldap,dc=example,dc=org" by * read
 olcAccess: {7}to * by dn="cn=admin,dc=ldap,dc=example,dc=org" write by self
-  read by group="cn=readonly,ou=services,ou=groups,dc=ldap,dc=rezometz,dc=or
+  read by group="cn=readonly,ou=services,ou=groups,dc=ldap,dc=example,dc=or
  g" read
 olcLastMod: TRUE
 olcRootDN: cn=admin,dc=ldap,dc=example,dc=org
