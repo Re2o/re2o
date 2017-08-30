@@ -20,9 +20,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-SECRET_KEY = 'SUPER_SECRET'
+SECRET_KEY = 'SUPER_SECRET_KEY'
 
-DB_PASSWORD = 'SUPER_SECRET'
+DB_PASSWORD = 'SUPER_SECRET_DB'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -37,16 +37,16 @@ ALLOWED_HOSTS = ['test.example.org']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 're2o',
-        'USER': 're2o',
+        'NAME': 'db_name_value',
+        'USER': 'db_user_value',
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',
+        'HOST': 'db_host_value',
     },
     'ldap': {
         'ENGINE': 'ldapdb.backends.ldap',
-        'NAME': 'ldap://10.0.0.0/',
-        'USER': 'cn=admin,dc=ldap,dc=example,dc=org',
-        'PASSWORD': 'SUPER_SECRET',
+        'NAME': 'ldap://ldap_host_ip/',
+        'USER': 'ldap_dn',
+        'PASSWORD': 'SUPER_SECRET_LDAP',
      }
 }
 
