@@ -75,7 +75,7 @@ En particulier, il est nécessaire de générer un login/mdp admin pour le ldap 
 Sur le serveur mysql ou postgresl, il est nécessaire de créer une base de donnée re2o, ainsi qu'un user re2o et un mot de passe associé. Ne pas oublier de faire écouter le serveur mysql ou postgresql avec les acl nécessaire pour que A puisse l'utiliser.
 
 Voici les étapes à éxecuter pour mysql :
- * CREATE DATABASE re2o;
+ * CREATE DATABASE re2o collate='utf8_general_ci';
  * CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
  * GRANT ALL PRIVILEGES ON re2o.* TO 'newuser'@'localhost';
  * FLUSH PRIVILEGES;

@@ -42,7 +42,7 @@ sql_login="re2o"
 sql_host="localhost"
 fi
 
-sql_command="CREATE DATABASE $sql_name;
+sql_command="CREATE DATABASE $sql_name collate='utf8_general_ci';
 CREATE USER '$sql_login'@'localhost' IDENTIFIED BY '$sql_password';
 GRANT ALL PRIVILEGES ON $sql_name.* TO '$sql_login'@'localhost';
 FLUSH PRIVILEGES;"
