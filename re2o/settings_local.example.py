@@ -32,7 +32,7 @@ ADMINS = [('Example', 'rezo-admin@example.org')]
 SERVER_EMAIL = 'no-reply@example.org'
 
 # Obligatoire, liste des host autorisés
-ALLOWED_HOSTS = ['test.example.org']
+ALLOWED_HOSTS = ['URL_SERVER']
 
 DATABASES = {
     'default': {

@@ -272,6 +272,8 @@ is_tls=$(dialog --clear \
 
 clear
 
+sed -i 's/URL_SERVER/'"$url_server"'/g' re2o/settings_local.py
+
 
 if [ $web_serveur == 1 ]
 then
@@ -283,7 +285,7 @@ cp install_utils/apache2/re2o-tls.conf /etc/apache2/sites-available/re2o.conf
 apt-get -y install certbot
 apt-get -y install python-certbot-apache
 certbot certonly --rsa-key-size 4096 --apache -d $url_server
-sed -i 's/LE_PATH/'"$url_server"'/g' /etc/apache2/sites-available/re2o-tls.conf
+sed -i 's/LE_PATH/'"$url_server"'/g' /etc/apache2/sites-available/re2o.conf
 else
 cp install_utils/apache2/re2o.conf /etc/apache2/sites-available/re2o.conf
 fi
