@@ -65,10 +65,10 @@ EMAIL_HOST = 'smtp.example.org'
 
 # Reglages pour la bdd ldap
 LDAP = {
-    'base_user_dn' : 'cn=Utilisateurs,dc=ldap,dc=example,dc=org',
-    'base_userservice_dn' : 'ou=service-users,dc=ldap,dc=example,dc=org',
-    'base_usergroup_dn' : 'ou=posix,ou=groups,dc=ldap,dc=example,dc=org',
-    'base_userservicegroup_dn' : 'ou=services,ou=groups,dc=ldap,dc=example,dc=org',
+    'base_user_dn' : 'cn=Utilisateurs,dc=example,dc=org',
+    'base_userservice_dn' : 'ou=service-users,dc=example,dc=org',
+    'base_usergroup_dn' : 'ou=posix,ou=groups,dc=example,dc=org',
+    'base_userservicegroup_dn' : 'ou=services,ou=groups,dc=example,dc=org',
     'user_gid' : 500,
     }
 
