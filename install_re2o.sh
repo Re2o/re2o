@@ -1,4 +1,33 @@
 #!/bin/bash
+
+setup_ldap() {
+	apt-get -y install slapd
+
+	echo "Hashage du mot de passe ldap..."
+	hashed_ldap_passwd=$(slappasswd -s $1)
+
+	echo $hashed_ldap_passwd
+	echo "Formatage des fichiers de config ldap"
+	sed 's|dc=example,dc=org|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
+	sed 's|dc=example,dc=org|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
+
+	echo "Destruction config ldap existante"
+	service slapd stop
+	rm -rf /etc/ldap/slapd.d/*
+	rm -rf /var/lib/ldap/*
+
+	echo "Ecriture de la configuration actuelle"
+	slapadd -n 0 -l /tmp/schema -F /etc/ldap/slapd.d/
+	slapadd -n 1 -l /tmp/db
+
+	echo "Reparation des permissions et redémarage de slapd"
+	chown -R openldap:openldap /etc/ldap/slapd.d
+	chown -R openldap:openldap /var/lib/ldap
+	service slapd start
+}
+
+
+install_re2o_server() {
 echo "Installation de Re2o ! 
 Cet utilitaire va procéder à l'installation initiale de re2o. Le serveur présent doit être vierge.
 Preconfiguration..."
@@ -177,33 +206,12 @@ fi
 
 if [ $ldap_is_local == 1 ]
 then
-apt-get -y install slapd
 
-echo "Hashage du mot de passe ldap..."
-hashed_ldap_passwd=$(slappasswd -s $ldap_password)
-
-echo $hashed_ldap_passwd
-echo "Formatage des fichiers de config ldap"
-sed 's|dc=example,dc=org|'"$ldap_dn"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-sed 's|dc=example,dc=org|'"$ldap_dn"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
-
-echo "Destruction config ldap existante"
-service slapd stop
-rm -rf /etc/ldap/slapd.d/*
-rm -rf /var/lib/ldap/*
-
-echo "Ecriture de la configuration actuelle"
-slapadd -n 0 -l /tmp/schema -F /etc/ldap/slapd.d/
-slapadd -n 1 -l /tmp/db
-
-echo "Reparation des permissions et redémarage de slapd"
-chown -R openldap:openldap /etc/ldap/slapd.d
-chown -R openldap:openldap /var/lib/ldap
-service slapd start
+setup_ldap $ldap_password $ldap_dn
 
 else
 echo "Vous devrez manuellement effectuer les opérations de setup de la base ldap sur le serveurs distant.
-Le mot de passe ldap a été placé dans le fichier re2o/settings_local"
+Lancez la commande : ./install_re2o.sh ldap $ldap_password $ldap_dn"
 fi
 
 echo "Ecriture de settings_local"
@@ -250,11 +258,36 @@ url_server=$(dialog --title "$TITLE" \
         2>&1 >/dev/tty)
 clear
 
+TITLE="Utiliser tls et générer automatiquement le certificat LE ?"
+OPTIONS=(1 "Oui"
+         2 "Non")
+
+is_tls=$(dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --title "$TITLE" \
+                --menu "$MENU" \
+                $HEIGHT $WIDTH $CHOICE_HEIGHT \
+                "${OPTIONS[@]}" \
+                2>&1 >/dev/tty)
+
+clear
+
+
 if [ $web_serveur == 1 ]
 then
 apt-get -y install apache2 libapache2-mod-wsgi-py3
+a2enmod ssl
+if [ $is_tls == 1 ]
+then
+cp install_utils/apache2/re2o-tls.conf /etc/apache2/sites-available/re2o.conf
+apt-get -y install certbot
+apt-get -y install python-certbot-apache
+certbot certonly --rsa-key-size 4096 --apache -d $url_server
+sed -i 's/LE_PATH/'"$url_server"'/g' /etc/apache2/sites-available/re2o-tls.conf
+else
 cp install_utils/apache2/re2o.conf /etc/apache2/sites-available/re2o.conf
-sed -i 's/URL_SERVER/'"$url_server"'/g' /etc/apache2/sites-available/re2o.conf
+fi
+sed -i 's|URL_SERVER|'"$url_server"'|g' /etc/apache2/sites-available/re2o.conf
 current_path=$(pwd)
 sed -i 's|PATH|'"$current_path"'|g' /etc/apache2/sites-available/re2o.conf
 a2ensite re2o
@@ -263,3 +296,27 @@ else
 echo "Nginx non supporté, vous devrez installer manuellement"
 fi
 
+python3 manage.py createsuperuser
+
+}
+
+main_function() {
+if [ ! -z "$1" ]
+then
+if [ $1 == ldap ]
+then
+if [ ! -z "$2" ] 
+then
+echo Installation du ldap
+setup_ldap $2 $3
+else
+echo Arguments invalides !
+exit
+fi
+fi
+else
+install_re2o_server
+fi
+}
+
+main_function $1 $2 $3
