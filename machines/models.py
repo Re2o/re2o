@@ -353,7 +353,6 @@ def machine_post_save(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     regen('dhcp')
-    regen('dns')
     regen('mac_ip_list')
 
 @receiver(post_delete, sender=Machine)
@@ -361,7 +360,6 @@ def machine_post_delete(sender, **kwargs):
     machine = kwargs['instance']
     user = machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
-    regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
 
@@ -371,7 +369,6 @@ def interface_post_save(sender, **kwargs):
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     regen('dhcp')
-    regen('dns')
     regen('mac_ip_list')
 
 @receiver(post_delete, sender=Interface)
@@ -390,3 +387,11 @@ def machine_post_save(sender, **kwargs):
     machinetype = kwargs['instance']
     for interface in machinetype.all_interfaces():
         interface.update_type()
+
+@receiver(post_save, sender=Domain)
+def domain_post_save(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_save, sender=Domain)
+def domain_post_save(sender, **kwargs):
+    regen('dns')
