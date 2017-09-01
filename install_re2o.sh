@@ -234,7 +234,7 @@ echo "Application des migrations"
 python3 manage.py migrate
 
 echo "Collecte des statics"
-python3 manage.py collectstatics
+python3 manage.py collectstatic
 
 BACKTITLE="Fin de l'installation"
 TITLE="Serveur web à utiliser"
@@ -289,6 +289,7 @@ sed -i 's/LE_PATH/'"$url_server"'/g' /etc/apache2/sites-available/re2o.conf
 else
 cp install_utils/apache2/re2o.conf /etc/apache2/sites-available/re2o.conf
 fi
+rm /etc/apache2/sites-enabled/000-default.conf
 sed -i 's|URL_SERVER|'"$url_server"'|g' /etc/apache2/sites-available/re2o.conf
 current_path=$(pwd)
 sed -i 's|PATH|'"$current_path"'|g' /etc/apache2/sites-available/re2o.conf
