@@ -51,18 +51,17 @@
 %	HEADING SECTION
 %----------------------------------------------------------------------------------------
 %\includegraphics[width=3.5cm]{% templatetag openbrace %}{{ tpl_path }}} 
-\tab \tab \tab \tab \tab {\Huge\bf {{asso_name}} }\hfil % Company providing the invoice
+\tab \tab \tab \tab \tab {\Huge\bf {{asso_name|safe}}  }\hfil % Company providing the invoice
 \bigskip\break % Whitespace
 \hrule % Horizontal line \\
 \vspace{0.5cm}
-{{line1}} \hfill {{phone}}  \\ % Your address and contact information
-{{line2}} \hfill {{email}} \\
-Siret : {{siret}}
+{\bf Adresse :} \tab \parbox [t] {0.5\textwidth}{ {{line1|safe}} \\  {{line2|safe}} }  \hfill \parbox [t] {0.3\textwidth}{ {\bf Téléphone :}  {{phone}} \\ {\bf Mail :} {{email|safe}} }   \\ % Your address and contact information
+\\
+{\bf Siret :} \tab{{siret}}
+\\ \\ \\
+\\ 
+\parbox [t] {0.5\textwidth}{ {\bf Pour :}  {{dest.name|safe}} {{dest.surname|safe}} \\ {\bf Adresse :} \tab {% if dest.room == None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} }  \hfill \parbox [t] {0.3\textwidth}{ {\bf Date :}  {{DATE}} }
 \\ \\
-{\bf À :} \tab {{dest.name}} {{dest.surname}}  \\ % Invoice recipient
-{\bf Adresse :} \tab {% if dest.room == None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} \\
-
-{\bf Date:} \tab {{DATE}} \\ % Invoice date
 
 {\bf Facture \no :} \tab {{ fid }} \\\\
 %----------------------------------------------------------------------------------------
