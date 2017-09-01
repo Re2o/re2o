@@ -46,7 +46,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Interface, Machine
+from machines.models import Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 
 now = timezone.now()
@@ -640,11 +640,18 @@ def ban_post_save(sender, **kwargs):
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     if is_created:
         ban.notif_ban()
+        regen('dhcp')
+        regen('mac_ip_list')
+    if user.has_access():
+        regen('dhcp')
+        regen('mac_ip_list')
 
 @receiver(post_delete, sender=Ban)
 def ban_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    regen('dhcp')
+    regen('mac_ip_list')
 
 class Whitelist(models.Model):
     PRETTY_NAME = "Liste des accès gracieux"
@@ -662,11 +669,20 @@ def whitelist_post_save(sender, **kwargs):
     whitelist = kwargs['instance']
     user = whitelist.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    is_created = kwargs['created']
+    if is_created:
+        regen('dhcp')
+        regen('mac_ip_list')
+    if user.has_access():
+        regen('dhcp')
+        regen('mac_ip_list')
 
 @receiver(post_delete, sender=Whitelist)
 def whitelist_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    regen('dhcp')
+    regen('mac_ip_list')
 
 class Request(models.Model):
     PASSWD = 'PW'

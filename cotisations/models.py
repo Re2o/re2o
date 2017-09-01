@@ -30,6 +30,8 @@ from django.core.validators import MinValueValidator
 
 from django.utils import timezone
 
+from machines.models import regen
+
 class Facture(models.Model):
     PRETTY_NAME = "Factures émises"
 
@@ -180,3 +182,14 @@ class Cotisation(models.Model):
     def __str__(self):
         return str(self.vente)
 
+@receiver(post_save, sender=Cotisation)
+def cotisation_post_save(sender, **kwargs):
+    regen('dns')
+    regen('dhcp')
+    regen('mac_ip_list')
+
+@receiver(post_delete, sender=Cotisation)
+def vente_post_delete(sender, **kwargs):
+    cotisation = kwargs['instance']
+    if not cotisation.vente.facture.user.has_access():    
+        regen('mac_ip_list')
