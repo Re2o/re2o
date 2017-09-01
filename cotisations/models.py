@@ -191,5 +191,4 @@ def cotisation_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
     cotisation = kwargs['instance']
-    if not cotisation.vente.facture.user.has_access():    
-        regen('mac_ip_list')
+    regen('mac_ip_list')
