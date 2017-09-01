@@ -320,8 +320,9 @@ class Service(models.Model):
 
 def regen(service):
     """ Fonction externe pour régérération d'un service, prend un objet service en arg"""
-    obj, created = Service.objects.get_or_create(service_type=service)
-    obj.ask_regen()
+    obj = Service.objects.filter(service_type=service)
+    if obj:
+        obj[0].ask_regen()
     return
 
 class Service_link(models.Model):
@@ -360,6 +361,9 @@ def machine_post_delete(sender, **kwargs):
     machine = kwargs['instance']
     user = machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    regen('dns')
+    regen('dhcp')
+    regen('mac_ip_list')
 
 @receiver(post_save, sender=Interface)
 def interface_post_save(sender, **kwargs):
