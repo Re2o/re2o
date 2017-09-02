@@ -81,6 +81,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </p>
     <table class="table table-striped">
         <tr>
+            <th>Politique générale de placement de vlan</th>
+            <td>{{ topologieoptions.radius_general_policy }}</td>
+	    <th> Ce réglage défini la politique vlan après acceptation radius : soit sur le vlan de la plage d'ip de la machine, soit sur un vlan prédéfini dans "Vlan où placer les machines après acceptation RADIUS"</th>
+            <td></td>
+        </tr>
+        <tr>
             <th>Vlan où placer les machines après acceptation RADIUS</th>
             <td>{{ topologieoptions.vlan_decision_ok }}</td>
             <th>Vlan où placer les machines après rejet RADIUS</th>
