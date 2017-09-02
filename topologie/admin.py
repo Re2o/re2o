@@ -24,7 +24,10 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import Port, Room, Switch
+from .models import Port, Room, Switch, Stack
+
+class StackAdmin(VersionAdmin):
+    list_display = ('name', 'stack_id', 'details')
 
 class SwitchAdmin(VersionAdmin):
     list_display = ('switch_interface','location','number','details')
@@ -38,3 +41,4 @@ class RoomAdmin(VersionAdmin):
 admin.site.register(Port, PortAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Switch, SwitchAdmin)
+admin.site.register(Stack, StackAdmin)
