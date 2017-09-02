@@ -35,8 +35,13 @@ urlpatterns = [
     url(r'^history/(?P<object>switch)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>port)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>room)/(?P<id>[0-9]+)$', views.history, name='history'),
+    url(r'^history/(?P<object>stack)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^edit_port/(?P<port_id>[0-9]+)$', views.edit_port, name='edit-port'),
     url(r'^new_port/(?P<switch_id>[0-9]+)$', views.new_port, name='new-port'),
     url(r'^edit_switch/(?P<switch_id>[0-9]+)$', views.edit_switch, name='edit-switch'),
+    url(r'^new_stack/$', views.new_stack, name='new-stack'),
+    url(r'^index_stack/$', views.index_stack, name='index-stack'),
+    url(r'^edit_stack/(?P<stack_id>[0-9]+)$', views.edit_stack, name='edit-stack'),
+    url(r'^del_stack/(?P<stack_id>[0-9]+)$', views.del_stack, name='del-stack'),
 ]
 

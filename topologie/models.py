@@ -21,6 +21,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.forms import ModelForm, Form
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -39,6 +41,29 @@ def clean_port_related(port):
     related_port.related = None
     related_port.save()
 
+class Stack(models.Model):
+    PRETTY_NAME = "Stack de switchs"
+
+    name = models.CharField(max_length=32, blank=True, null=True)
+    stack_id = models.CharField(max_length=32, unique=True)
+    details = models.CharField(max_length=255, blank=True, null=True)
+    member_id_min = models.IntegerField()
+    member_id_max = models.IntegerField()
+
+    def __str__(self):
+        return " ".join([self.name, self.stack_id])
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.stack_id
+        super(Stack, self).save(*args, **kwargs)
+
+    def clean(self):
+        if self.member_id_max < self.member_id_min:
+            import traceback
+            traceback.print_exc()
+            raise ValidationError({'member_id_max':"L'id maximale est inférieure à l'id minimale"})
+
 class Switch(models.Model):
     PRETTY_NAME = "Switch / Commutateur"
 
@@ -46,9 +71,22 @@ class Switch(models.Model):
     location = models.CharField(max_length=255)
     number = models.IntegerField()
     details = models.CharField(max_length=255, blank=True)
+    stack = models.ForeignKey(Stack, blank=True, null=True, on_delete=models.SET_NULL)
+    stack_member_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('stack','stack_member_id')
 
     def __str__(self):
         return str(self.location) + ' ' + str(self.switch_interface)
+
+    def clean(self):
+        if self.stack is not None:
+            if self.stack_member_id is not None:
+                if (self.stack_member_id > self.stack.member_id_max) or (self.stack_member_id < self.stack.member_id_min):
+                    raise ValidationError({'stack_member_id': "L'id de ce switch est en dehors des bornes permises pas la stack"})
+            else:
+                raise ValidationError({'stack_member_id': "L'id dans la stack ne peut être nul"})
 
 class Port(models.Model):
     PRETTY_NAME = "Port de switch"
@@ -102,3 +140,6 @@ class Room(models.Model):
     def __str__(self):
         return str(self.name)
 
+@receiver(post_delete, sender=Stack)
+def stack_post_delete(sender, **kwargs):
+    Switch.objects.filter(stack=None).update(stack_member_id = None)
