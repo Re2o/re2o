@@ -46,7 +46,14 @@ class OptionalMachine(models.Model):
 
 class OptionalTopologie(models.Model):
     PRETTY_NAME = "Options topologie"
+    MACHINE = 'MACHINE'
+    DEFINED = 'DEFINED'
+    CHOICE_RADIUS = (
+            (MACHINE, 'Sur le vlan de la plage ip machine'),
+            (DEFINED, 'Prédéfini dans "Vlan où placer les machines après acceptation RADIUS"'),
+    )
 
+    radius_general_policy = models.CharField(max_length=32, choices=CHOICE_RADIUS, default='DEFINED')
     vlan_decision_ok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_ok', blank=True, null=True)
     vlan_decision_nok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_nok', blank=True, null=True)
 
