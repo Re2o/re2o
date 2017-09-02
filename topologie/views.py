@@ -105,6 +105,18 @@ def index_port(request, switch_id):
 @permission_required('cableur')
 def index_room(request):
     room_list = Room.objects.order_by('name')
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    paginator = Paginator(room_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        room_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        room_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        room_list = paginator.page(paginator.num_pages)
     return render(request, 'topologie/index_room.html', {'room_list': room_list})
 
 @login_required
