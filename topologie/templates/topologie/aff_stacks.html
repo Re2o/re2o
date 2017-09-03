@@ -39,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td rowspan="{{ stack.switch_set.all|length }}">{{stack.stack_id}}</td>
        <td rowspan="{{ stack.switch_set.all|length }}" >{{stack.details}}</td>
         {% endif %}
-       <td>{{switch}}</td>
+       <td><a href="{% url 'topologie:index-port' switch.pk %}">{{switch}}</a></td>
        {% if forloop.first %}
        <td rowspan="{{ stack.switch_set.all|length }}">
            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
