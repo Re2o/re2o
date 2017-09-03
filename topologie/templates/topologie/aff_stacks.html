@@ -28,14 +28,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Stack</th>
             <th>ID</th>
             <th>Details</th>
+            <th>Membres</th>
         </tr>
    </thead>
    {% for stack in stack_list %}
-   <tr>
-       <td>{{stack.name}}</td>
-       <td>{{stack.stack_id}}</td>
-       <td>{{stack.details}}</td>
-       <td class="text-right">
+   {% for switch in stack.switch_set.all %}
+   <tr class="active">
+       {% if forloop.first %}
+       <td rowspan="{{ stack.switch_set.all|length }}">{{stack.name}}</td>
+       <td rowspan="{{ stack.switch_set.all|length }}">{{stack.stack_id}}</td>
+       <td rowspan="{{ stack.switch_set.all|length }}" >{{stack.details}}</td>
+        {% endif %}
+       <td>{{switch}}</td>
+       {% if forloop.first %}
+       <td rowspan="{{ stack.switch_set.all|length }}">
            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
                 <i class="glyphicon glyphicon-time"></i>
            </a>
@@ -48,6 +54,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	   </a>
         {% endif %}
         </td>
+        {% endif %}
    </tr>
+   {% endfor %}
    {% endfor %}
 </table>

@@ -60,8 +60,6 @@ class Stack(models.Model):
 
     def clean(self):
         if self.member_id_max < self.member_id_min:
-            import traceback
-            traceback.print_exc()
             raise ValidationError({'member_id_max':"L'id maximale est inférieure à l'id minimale"})
 
 class Switch(models.Model):
