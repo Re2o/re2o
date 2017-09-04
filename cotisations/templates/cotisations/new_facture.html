@@ -109,9 +109,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     }
 
     function set_cheque_info_visibility(){
-        var paiement = document.getElementById("id_paiement");
-        var visible = paiement.value != '' &&
-            paiement.children[paiement.value].dataset['type'] == 'check';
+        var visible = document.getElementById("id_paiement").value == document.getElementById("id_paiement").getAttribute('data-cheque');
+        p = document.getElementById("id_paiement")
+        console.log(p);
         var display = 'none';
         if (visible) {
             display = 'block';
