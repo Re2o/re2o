@@ -169,6 +169,26 @@ def edit_port(request, port_id):
 
 @login_required
 @permission_required('infra')
+def del_port(request,port_id):
+    try:
+        port = Port.objects.get(pk=port_id)
+    except Port.DoesNotExist:
+        messages.error(request, u"Port inexistant")
+        return redirect('/topologie/')
+    if request.method == "POST":
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                port.delete()
+                reversion.set_user(request.user)
+                reversion.set_comment("Destruction")
+                messages.success(request, "Le port a eté détruit")
+        except ProtectedError:
+            messages.error(request, "Le port %s est affecté à un autre objet, impossible de le supprimer" % port)
+        return redirect('/topologie/switch/' + str(port.switch.id))
+    return form({'objet':port}, 'topologie/delete.html', request)
+
+@login_required
+@permission_required('infra')
 def new_stack(request):
     stack = StackForm(request.POST or None)
     #if stack.is_valid():

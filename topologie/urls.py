@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^history/(?P<object>stack)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^edit_port/(?P<port_id>[0-9]+)$', views.edit_port, name='edit-port'),
     url(r'^new_port/(?P<switch_id>[0-9]+)$', views.new_port, name='new-port'),
+    url(r'^del_port/(?P<port_id>[0-9]+)$', views.del_port, name='del-port'),
     url(r'^edit_switch/(?P<switch_id>[0-9]+)$', views.edit_switch, name='edit-switch'),
     url(r'^new_stack/$', views.new_stack, name='new-stack'),
     url(r'^index_stack/$', views.index_stack, name='index-stack'),
