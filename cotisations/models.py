@@ -172,6 +172,11 @@ class Paiement(models.Model):
     def clean(self):
         self.moyen = self.moyen.title()
 
+    def save(self, *args, **kwargs):
+        if Paiement.objects.filter(type_paiement=1).count() > 1:
+            raise ValidationError("On ne peut avoir plusieurs mode de paiement chèque")
+        super(Paiement, self).save(*args, **kwargs)
+
 class Cotisation(models.Model):
     PRETTY_NAME = "Cotisations"
 
