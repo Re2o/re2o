@@ -38,14 +38,14 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
+from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Text
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -472,6 +472,54 @@ def del_ns(request):
     return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('infra')
+def add_text(request):
+    text = TextForm(request.POST or None)
+    if text.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            text.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement text a été ajouté")
+        return redirect("/machines/index_extension")
+    return form({'machineform': text, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_text(request, textid):
+    try:
+        text_instance = Text.objects.get(pk=textid)
+    except Text.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    text = TextForm(request.POST or None, instance=text_instance)
+    if text.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            text.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in text.changed_data))
+        messages.success(request, "Text modifié")
+        return redirect("/machines/index_extension/")
+    return form({'machineform': text}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_text(request):
+    text = DelTextForm(request.POST or None)
+    if text.is_valid():
+        text_dels = text.cleaned_data['text']
+        for text_del in text_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    text_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le text a été supprimé")
+            except ProtectedError:
+                messages.error(request, "Erreur le Text suivant %s ne peut être supprimé" % text_del)
+        return redirect("/machines/index_extension")
+    return form({'machineform': text, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
 def add_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -682,7 +730,8 @@ def index_extension(request):
     extension_list = Extension.objects.select_related('origin').order_by('name')
     mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
     ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list})
+    text_list = Text.objects.all().select_related('zone')
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list, 'text_list' : text_list})
 
 @login_required
 def index_alias(request, interfaceid):
@@ -757,6 +806,12 @@ def history(request, object, id):
         except Mx.DoesNotExist:
              messages.error(request, "Mx inexistant")
              return redirect("/machines/")
+    elif object == 'text' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Text.objects.get(pk=id)
+        except Text.DoesNotExist:
+             messages.error(request, "Text inexistant")
+             return redirect("/machines/")   
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Ns.objects.get(pk=id)
@@ -832,6 +887,14 @@ def corresp(request):
 def mx(request):
     mx = Mx.objects.all().select_related('zone').select_related('name__extension')
     seria = MxSerializer(mx, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def text(request):
+    text = Text.objects.all().select_related('zone')
+    seria = TextSerializer(text, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt
