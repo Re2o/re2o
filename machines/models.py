@@ -167,6 +167,20 @@ class Ns(models.Model):
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
+class Text(models.Model):
+    PRETTY_NAME = "Enregistrement text"
+
+    zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    field1 = models.CharField(max_length=255)
+    field2 = models.CharField(max_length=255)
+  
+    def __str__(self):
+        return str(self.zone) + " : " + str(self.field1) + " " + str(self.field2)
+
+    @cached_property
+    def dns_entry(self):
+        return str(self.field1) + " IN TXT " + str(self.field2)
+
 class Interface(models.Model):
     PRETTY_NAME = "Interface"
 

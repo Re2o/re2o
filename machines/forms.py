@@ -22,7 +22,7 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Service, Vlan, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, IpType
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -193,6 +193,14 @@ class NsForm(ModelForm):
 
 class DelNsForm(Form):
     ns = forms.ModelMultipleChoiceField(queryset=Ns.objects.all(), label="Enregistrements NS actuels",  widget=forms.CheckboxSelectMultiple)
+
+class TextForm(ModelForm):
+    class Meta:
+        model = Text
+        fields = '__all__'
+
+class DelTextForm(Form):
+    text = forms.ModelMultipleChoiceField(queryset=Text.objects.all(), label="Enregistrements Text actuels",  widget=forms.CheckboxSelectMultiple)
 
 class ServiceForm(ModelForm):
     class Meta:

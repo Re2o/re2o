@@ -23,7 +23,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Mx, Service_link, Ns
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Text, Mx, Service_link, Ns
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -89,6 +89,20 @@ class MxSerializer(serializers.ModelSerializer):
 
     def get_zone_name(self, obj):
         return obj.zone.name
+
+class TextSerializer(serializers.ModelSerializer):
+    zone = serializers.SerializerMethodField('get_zone_name')
+    text = serializers.SerializerMethodField('get_text_name')
+
+    class Meta:
+        model = Text
+        fields = ('zone','text')
+
+    def get_zone_name(self, obj):
+        return str(obj.zone.name)
+
+    def get_text_name(self, obj):
+        return str(obj.dns_entry)
 
 class NsSerializer(serializers.ModelSerializer):
     zone = serializers.SerializerMethodField('get_zone_name')
