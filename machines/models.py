@@ -406,6 +406,30 @@ def machine_post_save(sender, **kwargs):
 def domain_post_save(sender, **kwargs):
     regen('dns')
 
-@receiver(post_save, sender=Domain)
-def domain_post_save(sender, **kwargs):
+@receiver(post_delete, sender=Domain)
+def domain_post_delete(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_save, sender=Mx)
+def mx_post_save(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_delete, sender=Mx)
+def mx_post_delete(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_save, sender=Ns)
+def ns_post_save(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_delete, sender=Ns)
+def ns_post_delete(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_save, sender=Text)
+def text_post_save(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_delete, sender=Text)
+def text_post_delete(sender, **kwargs):
     regen('dns')
