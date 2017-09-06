@@ -289,7 +289,7 @@ class Domain(models.Model):
     @cached_property
     def dns_entry(self):
         if self.cname:
-            return  str(self.name) + " IN CNAME " + str(self.cname)
+            return  str(self.name) + " IN CNAME " + str(self.cname) + "."
 
     def save(self, *args, **kwargs):
         if not self.get_extension():
