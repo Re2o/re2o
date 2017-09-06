@@ -80,29 +80,29 @@ def search_result(search, type, request):
         if i == '0':
             query_user_list = Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search) & query1
             if request.user.has_perms(('cableur',)):
-                recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname')
+                recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname').distinct()
             else :
-                recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname')
+                recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname').distinct()
         if i == '1':
             query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
             if request.user.has_perms(('cableur',)):
-                data = Interface.objects.filter(query_machine_list)
+                data = Interface.objects.filter(query_machine_list).distinct()
             else:
-                data = Interface.objects.filter(query_machine_list & Q(machine__user__id = request.user.id))
+                data = Interface.objects.filter(query_machine_list & Q(machine__user__id = request.user.id)).distinct()
             for d in data:
                   recherche['machines_list'].append(d.machine)
         if i == '2':
-            recherche['facture_list'] = Facture.objects.filter(query & date_query)
+            recherche['facture_list'] = Facture.objects.filter(query & date_query).distinct()
         if i == '3':
-            recherche['ban_list'] = Ban.objects.filter(query)
+            recherche['ban_list'] = Ban.objects.filter(query).distinct()
         if i == '4':
-            recherche['white_list'] = Whitelist.objects.filter(query)
+            recherche['white_list'] = Whitelist.objects.filter(query).distinct()
         if i == '5':
-            recherche['port_list'] = Port.objects.filter(details__icontains = search)
+            recherche['port_list'] = Port.objects.filter(details__icontains = search).distinct()
             if not request.user.has_perms(('cableur',)):
                 recherche['port_list'] = None
         if i == '6':
-            recherche['switch_list'] = Switch.objects.filter(details__icontains = search)
+            recherche['switch_list'] = Switch.objects.filter(details__icontains = search).distinct()
             if not request.user.has_perms(('cableur',)):
                 recherche['switch_list'] = None
     options, created = GeneralOption.objects.get_or_create()
