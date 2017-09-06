@@ -145,6 +145,10 @@ class Extension(models.Model):
     need_infra = models.BooleanField(default=False)
     origin = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
 
+    @cached_property
+    def dns_entry(self):
+        return  "@   IN  A " + str(self.origin)
+
     def __str__(self):
         return self.name
 
@@ -155,6 +159,10 @@ class Mx(models.Model):
     priority = models.IntegerField(unique=True)
     name = models.OneToOneField('Domain', on_delete=models.PROTECT)
 
+    @cached_property
+    def dns_entry(self):
+        return  "@   IN  MX " + str(self.priority) + " " + str(self.name)
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
@@ -163,6 +171,10 @@ class Ns(models.Model):
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     ns = models.OneToOneField('Domain', on_delete=models.PROTECT)
+
+    @cached_property
+    def dns_entry(self):
+        return  "@ IN NS " + str(self.ns)
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
@@ -274,6 +286,10 @@ class Domain(models.Model):
         self.validate_unique()
         super(Domain, self).clean()
 
+    @cached_property
+    def dns_entry(self):
+        if self.cname:
+            return  str(self.name) + " IN CNAME " + str(self.cname)
 
     def save(self, *args, **kwargs):
         if not self.get_extension():
