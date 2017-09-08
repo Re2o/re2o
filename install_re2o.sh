@@ -171,6 +171,46 @@ ldap_host="localhost"
 fi
 
 
+TITLE="Hôte pour l'envoi de mail"
+email_host=$(dialog --title "$TITLE" \
+	--backtitle "$BACKTITLE" \
+        --inputbox "$TITLE" $HEIGHT $WIDTH \
+        2>&1 >/dev/tty)
+
+TITLE="Port du serveur mail"
+OPTIONS=(25 "25 (SMTP)"
+         465 "465 (SMTPS)"
+	 587 "587 (Submission)")
+
+email_port=$(dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --title "$TITLE" \
+                --menu "$MENU" \
+                $HEIGHT $WIDTH $CHOICE_HEIGHT \
+                "${OPTIONS[@]}" \
+                2>&1 >/dev/tty)
+clear
+if [ $ldap_is_local == 2 ]
+then 
+TITLE="Cn ldap admin"
+ldap_cn=$(dialog --title "$TITLE" \
+	--backtitle "$BACKTITLE" \
+        --inputbox "$TITLE" $HEIGHT $WIDTH \
+        2>&1 >/dev/tty)
+clear
+TITLE="Hote ldap"
+ldap_host=$(dialog --title "$TITLE" \
+	--backtitle "$BACKTITLE" \
+        --inputbox "$TITLE" $HEIGHT $WIDTH \
+        2>&1 >/dev/tty)
+clear
+else
+ldap_cn="cn=admin,"
+ldap_cn+=$ldap_dn
+ldap_host="localhost"
+fi
+
+
 echo "Installation des paquets de base"
 apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev
 pip3 install django-bootstrap3
@@ -229,6 +269,8 @@ sed -i 's/SUPER_SECRET_LDAP/'"$ldap_password"'/g' re2o/settings_local.py
 sed -i 's/ldap_host_ip/'"$ldap_host"'/g' re2o/settings_local.py
 sed -i 's/dc=example,dc=org/'"$ldap_dn"'/g' re2o/settings_local.py
 sed -i 's/example.org/'"$extension_locale"'/g' re2o/settings_local.py
+sed -i 's/MY_EMAIL_HOST/'"$email_host"'/g' re2o/settings_local.py
+sed -i 's/MY_EMAIL_PORT/'"$email_port"'/g' re2o/settings_local.py
 
 echo "Application des migrations"
 python3 manage.py migrate
