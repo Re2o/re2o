@@ -426,6 +426,14 @@ def domain_post_save(sender, **kwargs):
 def domain_post_delete(sender, **kwargs):
     regen('dns')
 
+@receiver(post_save, sender=Extension)
+def extension_post_save(sender, **kwargs):
+    regen('dns')
+
+@receiver(post_delete, sender=Extension)
+def extension_post_selete(sender, **kwargs):
+    regen('dns')
+
 @receiver(post_save, sender=Mx)
 def mx_post_save(sender, **kwargs):
     regen('dns')
