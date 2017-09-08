@@ -47,6 +47,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Champ gpg fingerprint</th>
             <td>{{ useroptions.gpg_fingerprint }}</td>
+	    {% if useroptions.user_solde %}
+	    <th>Solde négatif</th>
+	    <td>{{ useroptions.solde_negatif }}</td>
+	    {% endif %}
         </tr>
     </table>
     <h4>Préférences machines</h4>
