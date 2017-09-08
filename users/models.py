@@ -47,7 +47,7 @@ from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Interface, Machine, regen
-from preferences.models import GeneralOption, AssoOption, OptionalUser
+from preferences.models import GeneralOption, AssoOption, OptionalUser, MailMessageOption
 
 now = timezone.now()
 
@@ -415,15 +415,18 @@ class User(AbstractBaseUser):
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
         t = loader.get_template('users/email_welcome')
-        options, created = AssoOption.objects.get_or_create()
+        assooptions, created = AssoOption.objects.get_or_create()
+        mailmessageoptions, created = MailMessageOption.objects.get_or_create()
         general_options, created = GeneralOption.objects.get_or_create()
         c = Context({
             'nom': str(self.name) + ' ' + str(self.surname),
-            'asso_name': options.name,
-            'asso_email': options.contact,
+            'asso_name': assooptions.name,
+            'asso_email': assooptions.contact,
+            'welcome_mail_fr' : mailmessageoptions.welcome_mail_fr,
+            'welcome_mail_en' : mailmessageoptions.welcome_mail_en,
             'pseudo':self.pseudo,
         })
-        send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': options.name }, '',
+        send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': assooptions.name }, '',
         general_options.email_from, [self.email], html_message=t.render(c))
         return
 

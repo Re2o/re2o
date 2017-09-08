@@ -22,7 +22,7 @@
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, AssoOption, Service
+from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, AssoOption, MailMessageOption, Service
 from django.db.models import Q
 
 class EditOptionalUserForm(ModelForm):
@@ -71,6 +71,16 @@ class EditAssoOptionForm(ModelForm):
     class Meta:
         model = AssoOption
         fields = '__all__'
+
+class EditMailMessageOptionForm(ModelForm):
+    class Meta:
+        model = MailMessageOption
+        fields = '__all__'
+
+        def __init__(slef, *args, **kwargs):
+            super(EditMailMessageOptionForm, self).__init__(*args, **kwargs)
+            self.fields['welcome_mail_fr'].label = 'Message dans le mail d\'acceuil en français'
+            self.fields['welcome_mail_en'].label = 'Message dans le mail d\'acceuil en anglais'
 
 class ServiceForm(ModelForm):
     class Meta:

@@ -155,6 +155,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.utilisateur_asso }}</td>
         </tr>   
     </table> 
+    <h4>Messages personalisé dans les mails</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>
+    <table class="table table-striped">
+        <tr>
+            <th>Message Français</th>
+            <td>{{ mailmessageoptions.welcome_mail_fr }}</td>
+	</tr>
+        <tr>
+            <th>Message Anglais</th>
+            <td>{{ mailmessageoptions.welcome_mail_en }}</td>
+        </tr>
+    </table>
   <h2>Liste des services page d'accueil</h2>
   {% if is_infra %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-services'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
