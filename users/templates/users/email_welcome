@@ -4,7 +4,7 @@
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
-{{personalized_message_fr}}
+{{welcome_mail_fr|safe}}
 
 <p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.</p>
 
@@ -17,7 +17,7 @@ L'équipe de {{asso_name}}.</p>
 
 <p>Your username is : {{pseudo}}<p>
 
-{{personalized_message_en}}
+{{welcome_mail_en|safe}}
 
 <p>For any information, suggestion or problem, you can contact us via email at<br>
 {{asso_email}}.</p>
