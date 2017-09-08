@@ -1,14 +1,12 @@
 <p>Bonjour {{nom}} !</p>
 
-<p>Vous êtes maintenant adhérent du {{asso_name}} ! Nous sommes ravis de vous accueillir<br>
-dans l'association.</p>
+<p>Vous êtes maintenant adhérent de {{asso_name}} ! Nous sommes ravis de vous accueillir dans l'association.</p>
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
-{{personalized_message}}
+{{personalized_message_fr}}
 
-<p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous<br>
-envoyer un mail à {{asso_email}}.</p>
+<p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.</p>
 
 <p>À bientôt,<br>
 L'équipe de {{asso_name}}.</p>
