@@ -12,7 +12,7 @@ Ce lien expirera dans {{ expire_in }}.
 
 Cordialement,
 
-L'équipe de {{ asso }} {{ asso_mail }}.
+L'équipe de {{ asso }} (contact : {{ asso_mail }}).
 
 ----------------------
 
@@ -30,4 +30,4 @@ any other question.
 
 Thanks
 
-The team of {{ asso }}
+The team of {{ asso }} (contact : {{ asso_mail }}).
