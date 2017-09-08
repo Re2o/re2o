@@ -213,7 +213,15 @@ class Interface(models.Model):
     def mac_bare(self):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
 
+    def filter_macaddress(self):
+        mac_address = str(EUI(self.mac_address))
+        if mac_address:
+            self.mac_address = mac_address
+        else:
+            raise ValidationError("La mac donnée est invalide")
+
     def clean(self, *args, **kwargs):
+        self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
             self.assign_ipv4()
@@ -237,7 +245,7 @@ class Interface(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
-        self.mac_address = str(EUI(self.mac_address)) or None
+        self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
         if self.type.ip_type != self.ipv4.ip_type:
              raise ValidationError("L'ipv4 et le type de la machine ne correspondent pas")
