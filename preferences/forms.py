@@ -66,21 +66,35 @@ class EditGeneralOptionForm(ModelForm):
         self.fields['search_display_page'].label = 'Resultats affichés dans une recherche'
         self.fields['pagination_number'].label = 'Items par page, taille normale (ex users)'
         self.fields['pagination_large_number'].label = 'Items par page, taille élevée (machines)'
+        self.fields['req_expire_hrs'].label = 'Temps avant expiration du lien de reinitialisation de mot de passe (en heures)'
+        self.fields['site_name'].label = 'Nom du site web'
+        self.fields['email_from'].label = 'Adresse mail d\'expedition automatique'
 
 class EditAssoOptionForm(ModelForm):
     class Meta:
         model = AssoOption
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super(EditAssoOptionForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Nom de l\'asso'
+        self.fields['siret'].label = 'SIRET'
+        self.fields['adresse1'].label = 'Adresse (ligne 1)'
+        self.fields['adresse2'].label = 'Adresse (ligne 2)'
+        self.fields['contact'].label = 'Email de contact'
+        self.fields['telephone'].label = 'Numéro de téléphone'
+        self.fields['pseudo'].label = 'Pseudo d\'usage'
+        self.fields['utilisateur_asso'].label = 'Compte utilisé pour faire les modifications depuis /admin'
+
 class EditMailMessageOptionForm(ModelForm):
     class Meta:
         model = MailMessageOption
         fields = '__all__'
 
-        def __init__(slef, *args, **kwargs):
-            super(EditMailMessageOptionForm, self).__init__(*args, **kwargs)
-            self.fields['welcome_mail_fr'].label = 'Message dans le mail d\'acceuil en français'
-            self.fields['welcome_mail_en'].label = 'Message dans le mail d\'acceuil en anglais'
+    def __init__(self, *args, **kwargs):
+        super(EditMailMessageOptionForm, self).__init__(*args, **kwargs)
+        self.fields['welcome_mail_fr'].label = 'Message dans le mail d\'accueil en français'
+        self.fields['welcome_mail_en'].label = 'Message dans le mail d\'accueil en anglais'
 
 class ServiceForm(ModelForm):
     class Meta:
