@@ -172,11 +172,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <tr>
             <th>Message Français</th>
-            <td>{{ mailmessageoptions.welcome_mail_fr }}</td>
+            <td>{{ mailmessageoptions.welcome_mail_fr | safe }}</td>
 	</tr>
         <tr>
             <th>Message Anglais</th>
-            <td>{{ mailmessageoptions.welcome_mail_en }}</td>
+            <td>{{ mailmessageoptions.welcome_mail_en | safe }}</td>
         </tr>
     </table>
   <h2>Liste des services page d'accueil</h2>
