@@ -93,8 +93,8 @@ class EditMailMessageOptionForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EditMailMessageOptionForm, self).__init__(*args, **kwargs)
-        self.fields['welcome_mail_fr'].label = 'Message dans le mail d\'accueil en français'
-        self.fields['welcome_mail_en'].label = 'Message dans le mail d\'accueil en anglais'
+        self.fields['welcome_mail_fr'].label = 'Message dans le mail de bienvenue en français'
+        self.fields['welcome_mail_en'].label = 'Message dans le mail de bienvenue en anglais'
 
 class ServiceForm(ModelForm):
     class Meta:
