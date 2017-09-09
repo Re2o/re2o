@@ -43,7 +43,7 @@ from reversion.models import Version
 from reversion import revisions as reversion
 
 from .forms import ServiceForm, DelServiceForm
-from .models import Service, OptionalUser, OptionalMachine, AssoOption, GeneralOption, OptionalTopologie 
+from .models import Service, OptionalUser, OptionalMachine, AssoOption, MailMessageOption, GeneralOption, OptionalTopologie 
 from . import models
 from . import forms
 
@@ -60,9 +60,10 @@ def display_options(request):
     machineoptions, created = OptionalMachine.objects.get_or_create()
     topologieoptions, created = OptionalTopologie.objects.get_or_create()
     generaloptions, created = GeneralOption.objects.get_or_create()
-    assooptions, crated = AssoOption.objects.get_or_create()
+    assooptions, created = AssoOption.objects.get_or_create()
+    mailmessageoptions, created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
-    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'topologieoptions': topologieoptions, 'generaloptions': generaloptions, 'assooptions' : assooptions, 'service_list':service_list}, 'preferences/display_preferences.html', request)
+    return form({'useroptions': useroptions, 'machineoptions': machineoptions, 'topologieoptions': topologieoptions, 'generaloptions': generaloptions, 'assooptions' : assooptions, 'mailmessageoptions' : mailmessageoptions, 'service_list':service_list}, 'preferences/display_preferences.html', request)
 
 @login_required
 @permission_required('admin')

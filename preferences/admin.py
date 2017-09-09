@@ -23,14 +23,13 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, Service, AssoOption
+from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, Service, AssoOption, MailMessageOption
 
 class OptionalUserAdmin(VersionAdmin):
     pass
 
 class OptionalTopologieAdmin(VersionAdmin):
     pass
-
 
 class OptionalMachineAdmin(VersionAdmin):
     pass
@@ -44,9 +43,13 @@ class ServiceAdmin(VersionAdmin):
 class AssoOptionAdmin(VersionAdmin):
     pass
 
+class MailMessageOptionAdmin(VersionAdmin):
+    pass
+
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
 admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
 admin.site.register(GeneralOption, GeneralOptionAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
+admin.site.register(MailMessageOption, MailMessageOptionAdmin)
