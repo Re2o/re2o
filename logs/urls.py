@@ -26,6 +26,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^stats_logs$', views.stats_logs, name='stats-logs'),
     url(r'^revert_action/(?P<revision_id>[0-9]+)$', views.revert_action, name='revert-action'),
     url(r'^stats_general/$', views.stats_general, name='stats-general'),
     url(r'^stats_models/$', views.stats_models, name='stats-models'),

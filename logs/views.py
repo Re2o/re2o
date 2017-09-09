@@ -83,6 +83,24 @@ def index(request):
     return render(request, 'logs/index.html', {'revisions_list': revisions})
 
 @login_required
+@permission_required('cableur')
+def stats_logs(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
+    paginator = Paginator(revisions, pagination_number)
+    page = request.GET.get('page')
+    try:
+        revisions = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        revisions = paginator.page(1)
+    except EmptyPage:
+     # If page is out of range (e.g. 9999), deliver last page of results.
+        revisions = paginator.page(paginator.num_pages)
+    return render(request, 'logs/stats_logs.html', {'revisions_list': revisions})
+
+@login_required
 @permission_required('bureau')
 def revert_action(request, revision_id):
     """ Annule l'action en question """
