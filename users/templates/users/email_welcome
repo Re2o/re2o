@@ -1,19 +1,12 @@
 <p>Bonjour {{nom}} !</p>
 
-<p>Vous êtes maintenant adhérent du {{asso_name}} ! Nous sommes ravis de vous accueillir<br>
-dans l'association. Outre l'accès à Internet, vous pourrez participer aux activités<br>
-que nous proposons et profiter des services mis en place. Ceux-ci sont à découvrir<br>
-sur le site <a href="https://re2o.rezometz.org">Re2o</a> qui vous permet aussi de gérer vos informations personnelles.</p>
-
-<p>Si vous n'avez pas été enregistré directement par un élève sur place vous devez suivre ce guide expliquant la procédure de connexion (vous devriez commencer avant d'arriver afin d'avoir internet tout de suite) : <a href="https://slides.rezometz.org/welcome"> https://slides.rezometz.org/welcome </a></p>
+<p>Vous êtes maintenant adhérent de {{asso_name}} ! Nous sommes ravis de vous accueillir dans l'association.</p>
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
-<p>Le {{asso_name}} recrute ! Nous sommes passionnés (et bénévoles), alors si vous êtes intéressé<br>
-de près ou de loin pour nous aider, n'hésitez pas !</p>
+{{welcome_mail_fr|safe}}
 
-<p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous<br>
-envoyer un mail à {{asso_email}}.</p>
+<p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.</p>
 
 <p>À bientôt,<br>
 L'équipe de {{asso_name}}.</p>
@@ -22,18 +15,12 @@ L'équipe de {{asso_name}}.</p>
 
 <p>Welcome to the {{asso_name}} !</p>
 
-<p>We are the association that provides an internet acces in the dorm of ALOES</p>
-
-<p>If you have never been in contact with a member of the association you need to follow this guide explaining how to connect (even if you are not in the dorm yet) : <a href="https://slides.rezometz.org/welcome">https://slides.rezometz.org/welcome</a></p>
-
 <p>Your username is : {{pseudo}}<p>
 
-<p>As a member of the association, not only can you access to the Internet but also a<br>
-variety of services that you can discover on the website <a href="https://re2o.rezometz.org">Re2o</a> (log in using your<br>
-credentials).</p>
+{{welcome_mail_en|safe}}
 
 <p>For any information, suggestion or problem, you can contact us via email at<br>
 {{asso_email}}.</p>
 
 <p>Regards,<br>
-The (voluntary) {{asso_name}} team.</p>
+The {{asso_name}} team.</p>

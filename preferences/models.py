@@ -87,3 +87,10 @@ class AssoOption(models.Model):
     telephone = models.CharField(max_length=15, default="0000000000")
     pseudo = models.CharField(default="Asso", max_length=32)
     utilisateur_asso = models.OneToOneField('users.User', on_delete=models.PROTECT, blank=True, null=True)
+
+class MailMessageOption(models.Model):
+    PRETTY_NAME = "Options de corps de mail"
+
+    welcome_mail_fr = models.TextField(default="")
+    welcome_mail_en = models.TextField(default="")
+

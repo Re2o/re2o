@@ -47,6 +47,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Champ gpg fingerprint</th>
             <td>{{ useroptions.gpg_fingerprint }}</td>
+	    {% if useroptions.user_solde %}
+	    <th>Solde négatif</th>
+	    <td>{{ useroptions.solde_negatif }}</td>
+	    {% endif %}
         </tr>
     </table>
     <h4>Préférences machines</h4>
@@ -140,7 +144,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         <tr>
             <th>Adresse</th>
-            <td>{{ assooptions.adresse1  }} {{ assooptions.adresse2 }}</td>
+	    <td>{{ assooptions.adresse1  }}<br>
+		{{ assooptions.adresse2 }}</td>
             <th>Contact mail</th>
             <td>{{ assooptions.contact }}</td>
         </tr>
@@ -155,6 +160,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.utilisateur_asso }}</td>
         </tr>   
     </table> 
+    <h4>Messages personalisé dans les mails</h4>
+    {% if is_bureau %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
+            <i class="glyphicon glyphicon-edit"></i>
+            Editer
+        </a>
+    {% endif %}
+    <p>
+    </p>
+    <table class="table table-striped">
+        <tr>
+            <th>Mail de bienvenue (Français)</th>
+            <td>{{ mailmessageoptions.welcome_mail_fr | safe }}</td>
+	</tr>
+        <tr>
+            <th>Mail de bienvenue (Anglais)</th>
+            <td>{{ mailmessageoptions.welcome_mail_en | safe }}</td>
+        </tr>
+    </table>
   <h2>Liste des services page d'accueil</h2>
   {% if is_infra %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-services'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>

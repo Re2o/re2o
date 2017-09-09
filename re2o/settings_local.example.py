@@ -61,6 +61,9 @@ SESSION_COOKIE_AGE = 60 * 60 * 3
 
 LOGO_PATH = "static_files/logo.png"
 
+EMAIL_HOST = 'MY_EMAIL_HOST'
+EMAIL_PORT = MY_EMAIL_PORT
+
 # Reglages pour la bdd ldap
 LDAP = {
     'base_user_dn' : 'cn=Utilisateurs,dc=example,dc=org',
