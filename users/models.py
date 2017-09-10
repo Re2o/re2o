@@ -21,6 +21,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import unicode_literals
+
 from django.db import models
 from django.db.models import Q
 from django import forms
@@ -47,7 +49,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, MachineType, Machine, regen
+from machines.models import Domain, Interface, MachineType, Machine, Nas, MachineType, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser, OptionalMachine, MailMessageOption
 
 now = timezone.now()
@@ -453,17 +455,21 @@ class User(AbstractBaseUser):
         general_options.email_from, [req.user.email], fail_silently=False)
         return
 
-    def autoregister_machine(self, mac_address):
+    def autoregister_machine(self, mac_address, nas_ip):
         all_machines = self.all_machines()
         options, created = OptionalMachine.objects.get_or_create() 
-        if all_macines.count() > options.max_lambdauser_interfaces:
+        if all_machines.count() > options.max_lambdauser_interfaces:
             return False, "Maximum de machines enregistrees atteinte"
+        nas_object = Nas.objects.filter(nas_type__in=MachineType.objects.filter(ip_type=nas_ip.ip_type))
+        if not nas_object:
+            return False, "Re2o ne sait pas à quel machinetype affecter cette machine"
+        machine_type_cible = nas_object.first().machine_type
         try:
             machine_parent = Machine()
             machine_parent.user = self
             interface_cible = Interface()
             interface_cible.mac_address = mac_address
-            interface_cible.type = MachineType.objects.all().first()
+            interface_cible.type = machine_type_cible
             interface_cible.clean()
             machine_parent.clean()
             domain = Domain()
@@ -481,7 +487,7 @@ class User(AbstractBaseUser):
         return True, "Ok"
 
     def all_machines(self):
-        return Interfaces.objects.filter(machine__in=Machine.objects.filter(user=self))
+        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self))
 
     def __str__(self):
         return self.pseudo

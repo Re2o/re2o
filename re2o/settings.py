@@ -33,6 +33,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
+from __future__ import unicode_literals
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from .settings_local import *

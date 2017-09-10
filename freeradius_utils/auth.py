@@ -32,6 +32,8 @@ Inspirés d'autres exemples trouvés ici :
 https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_python/
 """
 
+from __future__ import unicode_literals
+
 import logging
 import netaddr
 import radiusd # Module magique freeradius (radiusd.py is dummy)
@@ -238,8 +240,9 @@ def detach(_=None):
 
 def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
     # Get port from switch and port number
-    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(Q(ipv4=IpList.objects.filter(ipv4=switch_id)) | Q(domain=Domain.objects.filter(name=switch_id))))
-    if not switch:
+    ipv4 = IpList.objects.filter(ipv4=switch_id)
+    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(Q(ipv4=ipv4) | Q(domain=Domain.objects.filter(name=switch_id))))
+    if not switch or not ipv4:
         return ('?', 'Switch inconnu', VLAN_OK)
 
     sw_name = str(switch.first().switch_interface)
