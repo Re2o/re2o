@@ -47,8 +47,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Interface, Machine, regen
-from preferences.models import GeneralOption, AssoOption, OptionalUser, MailMessageOption
+from machines.models import Domain, Interface, MachineType, Machine, regen
+from preferences.models import GeneralOption, AssoOption, OptionalUser, OptionalMachine, MailMessageOption
 
 now = timezone.now()
 
@@ -452,6 +452,36 @@ class User(AbstractBaseUser):
         send_mail('Changement de mot de passe du %(name)s / Password renewal for %(name)s' % {'name': options.name }, t.render(c),
         general_options.email_from, [req.user.email], fail_silently=False)
         return
+
+    def autoregister_machine(self, mac_address):
+        all_machines = self.all_machines()
+        options, created = OptionalMachine.objects.get_or_create() 
+        if all_macines.count() > options.max_lambdauser_interfaces:
+            return False, "Maximum de machines enregistrees atteinte"
+        try:
+            machine_parent = Machine()
+            machine_parent.user = self
+            interface_cible = Interface()
+            interface_cible.mac_address = mac_address
+            interface_cible.type = MachineType.objects.all().first()
+            interface_cible.clean()
+            machine_parent.clean()
+            domain = Domain()
+            domain.name = self.pseudo.replace('_','-').lower() + str(all_machines.count())
+            with transaction.atomic(), reversion.create_revision():
+                machine_parent.save()
+                interface_cible.machine = machine_parent
+                interface_cible.save()
+                domain.interface_parent = interface_cible
+                domain.clean()
+                domain.save()
+                reversion.set_comment("Autocapture radius")
+        except Exception as e:
+            return False, e
+        return True, "Ok"
+
+    def all_machines(self):
+        return Interfaces.objects.filter(machine__in=Machine.objects.filter(user=self))
 
     def __str__(self):
         return self.pseudo
