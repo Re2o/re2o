@@ -32,8 +32,6 @@ Inspirés d'autres exemples trouvés ici :
 https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_python/
 """
 
-from __future__ import unicode_literals
-
 import logging
 import netaddr
 import radiusd # Module magique freeradius (radiusd.py is dummy)
