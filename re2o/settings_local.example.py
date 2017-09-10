@@ -36,7 +36,7 @@ ALLOWED_HOSTS = ['URL_SERVER']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'db_engine',
         'NAME': 'db_name_value',
         'USER': 'db_user_value',
         'PASSWORD': DB_PASSWORD,

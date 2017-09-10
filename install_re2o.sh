@@ -34,7 +34,7 @@ Preconfiguration..."
 
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get -y install dialog
+apt-get -y install sudo dialog
 
 HEIGHT=15
 WIDTH=40
@@ -124,11 +124,14 @@ sql_login="re2o"
 sql_host="localhost"
 fi
 
-sql_command="CREATE DATABASE $sql_name collate='utf8_general_ci';
+mysql_command="CREATE DATABASE $sql_name collate='utf8_general_ci';
 CREATE USER '$sql_login'@'localhost' IDENTIFIED BY '$sql_password';
 GRANT ALL PRIVILEGES ON $sql_name.* TO '$sql_login'@'localhost';
 FLUSH PRIVILEGES;"
 
+pgsql_command1="CREATE DATABASE $sql_name ENCODING 'UTF8' LC_COLLATE='fr_FR.UTF-8' LC_CTYPE='fr_FR.UTF-8';"
+pgsql_command2="CREATE USER $sql_login with password '$sql_password';"
+pgsql_command3="ALTER DATABASE $sql_name owner to $sql_login;"
 
 TITLE="Emplacement du ldap"
 OPTIONS=(1 "Local"
@@ -219,13 +222,14 @@ pip3 install django-macaddress
 
 if [ $sql_bdd_type == 1 ]
 then
+    apt-get -y install python3-mysqldb mysql-client
     if [ $sql_is_local == 1 ]
     then
     apt-get -y install mysql-server
-    mysql -u root --execute="$sql_command"
+    mysql -u root --execute="$mysql_command"
     else
     echo "Veuillez saisir la commande suivante sur le serveur sql distant, puis validez"
-    echo $sql_command
+    echo $mysql_command
     while true; do
 	read -p "Continue (y/n)?" choice
 	case "$choice" in 
@@ -235,13 +239,29 @@ then
 	esac
     done
     fi
-    apt-get -y install python3-mysqldb mysql-client
-    else
+else
+    apt-get -y install postgresql-client
+    apt-get -y install python3-psycopg2
     if [ $sql_is_local == 1 ]
     then
-    apt-get -y install postgresql-server
+    apt-get -y install postgresql
+    sudo -u postgres psql --command="$pgsql_command1"
+    sudo -u postgres psql --command="$pgsql_command2"
+    sudo -u postgres psql --command="$pgsql_command3"
+    else
+    echo "Veuillez saisir la commande suivante sur le serveur sql distant, puis validez"
+    echo sudo -u postgres psql $pgsql_command1
+    echo sudo -u postgres psql $pgsql_command2
+    echo sudo -u postgres psql $pgsql_command3
+    while true; do
+	read -p "Continue (y/n)?" choice
+	case "$choice" in 
+	y|Y ) break;;
+	n|N ) exit;;
+	* ) echo "invalid";;
+	esac
+    done
     fi
-    apt-get -y install postgresql-client
 fi 
 
 if [ $ldap_is_local == 1 ]
@@ -259,6 +279,12 @@ echo "Ecriture de settings_local"
 django_secret_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")
 
 cp re2o/settings_local.example.py re2o/settings_local.py
+if [ $sql_bdd_type == 1 ]
+then
+    sed -i 's/db_engine/django.db.backends.mysql/g' re2o/settings_local.py
+else
+    sed -i 's/db_engine/django.db.backends.postgresql_psycopg2/g' re2o/settings_local.py
+fi
 sed -i 's/SUPER_SECRET_KEY/'"$django_secret_key"'/g' re2o/settings_local.py
 sed -i 's/SUPER_SECRET_DB/'"$sql_password"'/g' re2o/settings_local.py
 sed -i 's/db_name_value/'"$sql_name"'/g' re2o/settings_local.py
@@ -321,6 +347,7 @@ if [ $web_serveur == 1 ]
 then
 apt-get -y install apache2 libapache2-mod-wsgi-py3
 a2enmod ssl
+a2enmod wsgi
 if [ $is_tls == 1 ]
 then
 cp install_utils/apache2/re2o-tls.conf /etc/apache2/sites-available/re2o.conf
