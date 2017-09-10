@@ -69,7 +69,16 @@ def form(ctx, template, request):
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
+
+    revisions_not_filtered = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
+    revisions = []
+    for revision in revisions_not_filtered :
+        reversions = revision.version_set.all()
+        for reversion in reversions :
+            if reversion.content_type.name in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'machine', 'user'] :
+                revisions.append( {'datetime':revision.date_created.strftime('%d/%m/%y %H:%M:%S'), 'revision':revision } )
+                break
+
     paginator = Paginator(revisions, pagination_number)
     page = request.GET.get('page')
     try:
