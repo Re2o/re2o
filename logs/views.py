@@ -85,6 +85,7 @@ def index(request):
             if content in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'user'] :
                 reversions.append(
                         {'id' : revision.id,
+                            'comment': revision.comment,
                             'datetime': revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
                             'username': revision.user.get_username() if revision.user else '?',
                             'user_id': revision.user_id,
