@@ -43,32 +43,49 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>
                 {{ rev.username }} a banni
                 <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
-                (<i>{{ rev.rev.object.raison }}</i>)
+		(<i>
+                {% if rev.rev.object.raison == '' %}
+                    Aucune raison
+                {% else %}
+                    {{ rev.rev.object.raison }}
+                {% endif %}
+                </i>)
             </td>
         {% elif rev.rev.content_type.name == 'whitelist' %}
             <td>
                 {{ rev.username }} a autorisé gracieusement
                 <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
-                (<i>{{ rev.rev.object.raison }}</i>)
+                (<i>
+                {% if rev.rev.object.raison == '' %}
+                    Aucune raison
+                {% else %}
+                    {{ rev.rev.object.raison }}
+                {% endif %}
+                </i>)
             </td>
         {% elif rev.rev.content_type.name == 'user' %}
             <td>
-                {{ rev.username }} a ajouté
+                {{ rev.username }} a mis à jour
                 <a href="{% url 'users:profil' rev.rev.object.id %}">{{ rev.rev.object.get_username }}</a>
+            {% if rev.comment != '' %}
+                (<i>{{ rev.comment }}</i>)
+            {% endif %}
             </td>
         {% elif rev.rev.content_type.name == 'vente' %}
             <td>
+                {{ rev.username }} a vendu {{ rev.rev.object.number }}x {{ rev.rev.object.name }} à
                 <a href="{% url 'users:profil' rev.rev.object.facture.user_id %}">{{ rev.rev.object.facture.user.get_username }}</a>
-                a acheté {{ rev.rev.object.number }}x {{ rev.rev.object.name }}
             {% if rev.rev.object.iscotisation %}
                 (<i>+{{ rev.rev.object.duration }} mois</i>)
             {% endif %}
             </td>
         {% elif rev.rev.content_type.name == 'interface' %}
             <td>
-                {{ rev.username }} a ajouté une interface à
+                {{ rev.username }} a modifié une interface de
                 <a href="{% url 'users:profil' rev.rev.object.machine.user_id %}">{{ rev.rev.object.machine.user.get_username }}</a>
-                (<i>MAC : {{ rev.rev.object.mac_bare }}</i>)
+            {% if rev.comment != '' %}
+                (<i>{{ rev.comment }}</i>)
+            {% endif %}
             </td>
         {% endif %}
         {% if is_bureau %}
