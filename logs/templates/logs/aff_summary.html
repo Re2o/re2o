@@ -83,7 +83,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% endif %}
                     </td>
                 {% elif reversion.content_type.name == 'interface' %}
-		    <td>{{ revision.revision.user.get_username }} 
+		    <td>
                     {% if revision.revision.user.get_username %}
                         {{ revision.revision.user.get_username }}
                     {% else %}
