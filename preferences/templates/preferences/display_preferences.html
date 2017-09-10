@@ -96,6 +96,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Vlan où placer les machines après rejet RADIUS</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
+        <tr>
+	    <th>Autocapture des macs à la connexion</th>
+	    <td>{{ topologieoptions.mac_autocapture }}
+	</tr>
     </table>
     <h4>Préférences generales</h4>
     {% if is_bureau %}
