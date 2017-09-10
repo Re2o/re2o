@@ -61,6 +61,8 @@ urlpatterns = [
     url(r'^history/(?P<object>listright)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^history/(?P<object>serviceuser)/(?P<id>[0-9]+)$', views.history, name='history'),
     url(r'^$', views.index, name='index'),
+    url(r'^rest/mailing/$', views.mailing, name='mailing'),
+
 ]
 
 

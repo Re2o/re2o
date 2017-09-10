@@ -35,6 +35,11 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.renderers import JSONRenderer
+
 
 from reversion.models import Version
 from reversion import revisions as reversion
@@ -687,3 +692,21 @@ def process_passwd(request, req):
     if u_form.is_valid():
         return password_change_action(u_form, user, request, req=req)
     return form({'userform': u_form}, 'users/user.html', request)
+""" Framework Rest """
+
+class JSONResponse(HttpResponse):
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def mailing(request):
+    mails = set()
+    for u in User.objects.all() :
+        if u.has_access():
+            mails.add( u.email )
+    return JSONResponse(mails)
+
