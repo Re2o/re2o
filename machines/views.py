@@ -112,7 +112,7 @@ def new_machine(request, userid):
                 new_domain.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
-            messages.success(request, "La machine a été crée")
+            messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
