@@ -24,7 +24,7 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Vlan, Text, Service
+from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Vlan, Text, Nas, Service
 
 class MachineAdmin(VersionAdmin):
     pass
@@ -50,6 +50,8 @@ class NsAdmin(VersionAdmin):
 class TextAdmin(VersionAdmin):
     pass
 
+class NasAdmin(VersionAdmin):
+    pass
 
 class IpListAdmin(VersionAdmin):
     pass
@@ -75,3 +77,4 @@ admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(Vlan, VlanAdmin)
+admin.site.register(Nas, NasAdmin)

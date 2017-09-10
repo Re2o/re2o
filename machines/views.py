@@ -44,8 +44,8 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Text
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -677,7 +677,7 @@ def del_vlan(request):
     vlan = DelVlanForm(request.POST or None)
     if vlan.is_valid():
         vlan_dels = vlan.cleaned_data['vlan']
-        for vlan_del in ns_dels:
+        for vlan_del in vlan_dels:
             try:
                 with transaction.atomic(), reversion.create_revision():
                     vlan_del.delete()
@@ -687,6 +687,54 @@ def del_vlan(request):
                 messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
         return redirect("/machines/index_vlan")
     return form({'machineform': vlan, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def add_nas(request):
+    nas = NasForm(request.POST or None)
+    if nas.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            nas.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement nas a été ajouté")
+        return redirect("/machines/index_nas")
+    return form({'machineform': nas, 'interfaceform': None}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_nas(request, nasid):
+    try:
+        nas_instance = Nas.objects.get(pk=nasid)
+    except Nas.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_nas/")
+    nas = NasForm(request.POST or None, instance=nas_instance)
+    if nas.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            nas.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in nas.changed_data))
+        messages.success(request, "Nas modifié")
+        return redirect("/machines/index_nas/")
+    return form({'machineform': nas}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_nas(request):
+    nas = DelNasForm(request.POST or None)
+    if nas.is_valid():
+        nas_dels = nas.cleaned_data['nas']
+        for nas_del in nas_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    nas_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le nas a été supprimé")
+            except ProtectedError:
+                messages.error(request, "Erreur le Nas suivant %s ne peut être supprimé" % nas_del)
+        return redirect("/machines/index_nas")
+    return form({'machineform': nas, 'interfaceform': None}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('cableur')
@@ -723,6 +771,12 @@ def index_vlan(request):
 def index_machinetype(request):
     machinetype_list = MachineType.objects.select_related('ip_type').order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
+
+@login_required
+@permission_required('cableur')
+def index_nas(request):
+    nas_list = Nas.objects.select_related('machine_type').order_by('name')
+    return render(request, 'machines/index_nas.html', {'nas_list':nas_list})
 
 @login_required
 @permission_required('cableur')
@@ -829,6 +883,12 @@ def history(request, object, id):
              object_instance = Vlan.objects.get(pk=id)
         except Vlan.DoesNotExist:
              messages.error(request, "Vlan inexistant")
+             return redirect("/machines/")
+    elif object == 'nas' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Nas.objects.get(pk=id)
+        except Nas.DoesNotExist:
+             messages.error(request, "Nas inexistant")
              return redirect("/machines/")
     else:
         messages.error(request, "Objet  inconnu")
