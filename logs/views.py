@@ -74,7 +74,15 @@ def index(request):
     reversions = []
     for revision in revisions :
         for reversion in revision.version_set.all() :
-            if reversion.content_type.name in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'user'] :
+            
+            content = ''
+            try :
+                content = reversion.content_type.name
+            except :
+            # If reversion has no content_type (when object has been deleted)
+                pass
+
+            if content in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'user'] :
                 reversions.append(
                         {'id' : revision.id,
                             'datetime': revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
