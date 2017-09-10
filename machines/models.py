@@ -139,6 +139,16 @@ class Vlan(models.Model):
     def __str__(self):
         return self.name
 
+class Nas(models.Model):
+    PRETTY_NAME = "Correspondance entre les nas et les machines connectées"
+
+    name = models.CharField(max_length=255, unique=True)
+    nas_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='nas_type')
+    machine_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='machinetype_on_nas')
+
+    def __str__(self):
+        return self.name
+
 class Extension(models.Model):
     PRETTY_NAME = "Extensions dns"
 
