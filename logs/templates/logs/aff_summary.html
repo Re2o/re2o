@@ -31,31 +31,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Objet modifié</th>
-                <th>Type de l'objet</th>
-                <th>Modification par</th>
-                <th>Date de modification</th>
-                <th>Commentaire</th>
-                <th></th>
+                <th>Date</th>
+                <th>Modification</th>
+		<th></th>
             </tr>
         </thead>
         {% for revision in revisions_list %}
         	{% for reversion in revision.version_set.all %}
-		<tr>
-            	    <td>{{ reversion.object|truncatechars:20 }}</td>
-                    <td>{{ reversion.object|classname }}</td>
-                    <td>{{ revision.user }}</td>
+		{% if reversion.content_type.name in 'ban,whitelist,user,vente,interface'|slice:',' %}
+                <tr>
                     <td>{{ revision.date_created }}</td>
-                    <td>{{ revision.comment }}</td>
-                    {% if is_bureau %}
+                {% if reversion.content_type.name == 'ban' %}
+		    <td>{{ revision.user.get_username }} a banni <a href="{% url 'users:profil' reversion.object.user_id %}">{{ reversion.object.user.get_username }}</a> (<i>{{ reversion.object.raison }}</i>)</td>
+                {% elif reversion.content_type.name == 'whitelist' %}
+		    <td>{{ revision.user.get_username }} a autorisé gracieusement <a href="{% url 'users:profil' reversion.object.user_id %}">{{ reversion.object.user.get_username }}</a> (<i>{{ reversion.object.raison }}</i>)</td>
+                {% elif reversion.content_type.name == 'user' %}
+		    <td>{{ revision.user.get_username }} a ajouté <a href="{% url 'users:profil' reversion.object.id %}">{{ reversion.object.get_username }}</a></td>
+                {% elif reversion.content_type.name == 'vente' %}
+		    <td><a href="{% url 'users:profil' reversion.object.facture.user_id %}">{{ reversion.object.facture.user.get_username }}</a> a acheté {{ reversion.object.number }}x {{ reversion.object.name }}{% if reversion.object.iscotisation %} (<i>+{{ reversion.object.duration }} mois</i>){% endif %}</td>
+                {% elif reversion.content_type.name == 'interface' %}
+		    <td>{{ revision.user.get_username }} a ajouté une interface à <a href="{% url 'users:profil' reversion.object.machine.user_id %}">{{ reversion.object.machine.user.get_username }}</a> (<i>MAC : {{ reversion.object.mac_bare }}</i>)</td>
+                {% endif %}
+                {% if is_bureau %}
                     <td>
                 	<a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}">
                     	<i class="glyphicon glyphicon-remove"></i>
                     	Annuler
                 	</a>
             	    </td>
-            	    {% endif %}
+            	{% endif %}
         	</tr>
+		{% endif %}
 		{% endfor %}
         {% endfor %}
     </table>
+
+
