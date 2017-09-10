@@ -36,76 +36,51 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th></th>
             </tr>
         </thead>
-        {% for revision in revisions_list %}
-        	{% for reversion in revision.revision.version_set.all %}
-		{% if reversion.content_type.name in 'ban,whitelist,user,vente,interface'|slice:',' %}
-                <tr>
-                    <td>{{ revision.datetime }}</td>
-                {% if reversion.content_type.name == 'ban' %}
-                    <td>
-                    {% if revision.revision.user.et_username %}
-                        {{ revision.revision.user.get_username }}
-                    {% else %}
-                        ?
-                    {% endif %}
-                        a banni
-                        <a href="{% url 'users:profil' reversion.object.user_id %}">{{ reversion.object.user.get_username }}</a>
-                        (<i>{{ reversion.object.raison }}</i>)
-                    </td>
-                {% elif reversion.content_type.name == 'whitelist' %}
-		    <td>
-                    {% if revision.revision.user.get_username %}
-                        {{ revision.revision.user.get_username }}
-                    {% else %}
-                        ?
-                    {% endif %}
-			a autorisé gracieusement
-                        <a href="{% url 'users:profil' reversion.object.user_id %}">{{ reversion.object.user.get_username }}</a>
-                        (<i>{{ reversion.object.raison }}</i>)
-                    </td>
-                {% elif reversion.content_type.name == 'user' %}
-		    <td>
-                    {% if revision.revision.user.get_username %}
-                        {{ revision.revision.user.get_username }}
-                    {% else %}
-                        ?
-                    {% endif %}
-                        a ajouté
-                        <a href="{% url 'users:profil' reversion.object.id %}">{{ reversion.object.get_username }}</a>
-                    </td>
-                {% elif reversion.content_type.name == 'vente' %}
-		    <td>
-                        <a href="{% url 'users:profil' reversion.object.facture.user_id %}">{{ reversion.object.facture.user.get_username }}</a>
-                        a acheté
-                        {{ reversion.object.number }}x {{ reversion.object.name }}
-                        {% if reversion.object.iscotisation %}
-                            (<i>+{{ reversion.object.duration }} mois</i>)
-                        {% endif %}
-                    </td>
-                {% elif reversion.content_type.name == 'interface' %}
-		    <td>
-                    {% if revision.revision.user.get_username %}
-                        {{ revision.revision.user.get_username }}
-                    {% else %}
-                        ?
-                    {% endif %}
-                        a ajouté une interface à
-                        <a href="{% url 'users:profil' reversion.object.machine.user_id %}">{{ reversion.object.machine.user.get_username }}</a>
-                        (<i>MAC : {{ reversion.object.mac_bare }}</i>)
-                    </td>
-                {% endif %}
-                {% if is_bureau %}
-                    <td>
-                	<a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.revision.id %}">
-                    	<i class="glyphicon glyphicon-remove"></i>
-                    	Annuler
-                	</a>
-            	    </td>
-            	{% endif %}
-        	</tr>
-		{% endif %}
-		{% endfor %}
-        {% endfor %}
+    {% for rev in reversions_list %}
+        <tr>
+            <td>{{ rev.datetime }}</td>
+        {% if rev.rev.content_type.name == 'ban' %}
+            <td>
+                {{ rev.username }} a banni
+                <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
+                (<i>{{ rev.rev.object.raison }}</i>)
+            </td>
+        {% elif rev.rev.content_type.name == 'whitelist' %}
+            <td>
+                {{ rev.username }} a autorisé gracieusement
+                <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
+                (<i>{{ rev.rev.object.raison }}</i>)
+            </td>
+        {% elif rev.rev.content_type.name == 'user' %}
+            <td>
+                {{ rev.username }} a ajouté
+                <a href="{% url 'users:profil' rev.rev.object.id %}">{{ rev.rev.object.get_username }}</a>
+            </td>
+        {% elif rev.rev.content_type.name == 'vente' %}
+            <td>
+                <a href="{% url 'users:profil' rev.rev.object.facture.user_id %}">{{ rev.rev.object.facture.user.get_username }}</a>
+                a acheté {{ rev.rev.object.number }}x {{ rev.rev.object.name }}
+            {% if rev.rev.object.iscotisation %}
+                (<i>+{{ rev.rev.object.duration }} mois</i>)
+            {% endif %}
+            </td>
+        {% elif rev.rev.content_type.name == 'interface' %}
+            <td>
+                {{ rev.username }} a ajouté une interface à
+                <a href="{% url 'users:profil' rev.rev.object.machine.user_id %}">{{ rev.rev.object.machine.user.get_username }}</a>
+                (<i>MAC : {{ rev.rev.object.mac_bare }}</i>)
+            </td>
+        {% endif %}
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% endfor %}
     </table>
 
 

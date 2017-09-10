@@ -70,26 +70,31 @@ def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
 
-    revisions_not_filtered = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
-    revisions = []
-    for revision in revisions_not_filtered :
-        reversions = revision.version_set.all()
-        for reversion in reversions :
-            if reversion.content_type.name in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'machine', 'user'] :
-                revisions.append( {'datetime':revision.date_created.strftime('%d/%m/%y %H:%M:%S'), 'revision':revision } )
+    revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
+    reversions = []
+    for revision in revisions :
+        for reversion in revision.version_set.all() :
+            if reversion.content_type.name in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'user'] :
+                reversions.append(
+                        {'id' : revision.id,
+                            'datetime': revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
+                            'username': revision.user.get_username() if revision.user else '?',
+                            'user_id': revision.user_id,
+                            'rev': reversion }
+                        )
                 break
 
-    paginator = Paginator(revisions, pagination_number)
+    paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
-        revisions = paginator.page(page)
+        reversions = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
-        revisions = paginator.page(1)
+        reversions = paginator.page(1)
     except EmptyPage:
      # If page is out of range (e.g. 9999), deliver last page of results.
-        revisions = paginator.page(paginator.num_pages)
-    return render(request, 'logs/index.html', {'revisions_list': revisions})
+        reversions = paginator.page(paginator.num_pages)
+    return render(request, 'logs/index.html', {'reversions_list': reversions})
 
 @login_required
 @permission_required('cableur')
