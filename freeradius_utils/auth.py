@@ -38,10 +38,37 @@ import radiusd # Module magique freeradius (radiusd.py is dummy)
 import os
 import binascii
 import hashlib
-import subprocess
 
 import os, sys
-from ast import literal_eval as make_tuple
+
+
+import os, sys
+
+proj_path = "/var/www/re2o/"
+# This is so Django knows where to find stuff.
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "re2o.settings")
+sys.path.append(proj_path)
+
+# This is so my local_settings.py gets loaded.
+os.chdir(proj_path)
+
+# This is so models get loaded.
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+
+import argparse
+
+from django.db.models import Q
+from machines.models import Interface, IpList, Domain
+from topologie.models import Room, Port, Switch
+from users.models import User
+from preferences.models import OptionalTopologie
+
+options, created = OptionalTopologie.objects.get_or_create()
+VLAN_NOK = options.vlan_decision_nok.vlan_id
+VLAN_OK = options.vlan_decision_ok.vlan_id
+MAC_AUTOCAPTURE = options.mac_autocapture
+
 
 #: Serveur radius de test (pas la prod)
 TEST_SERVER = bool(os.getenv('DBG_FREERADIUS', False))
@@ -117,36 +144,7 @@ def authorize(data):
     """Fonction qui aiguille entre nas, wifi et filaire pour authorize
     On se contecte de faire une verification basique de ce que contien la requète
     pour déterminer la fonction à utiliser"""
-    if data.get('Service-Type', '')==u'NAS-Prompt-User' or data.get('Service-Type', '')==u'Administrative-User':
-        return authorize_user(data)
-    else:
-        return authorize_fil(data)
-
-@radius_event
-def authorize_user(data):
-    nas = data.get('NAS-IP-Address', None)
-    nas_id = data.get('NAS-Identifier', None)
-    user = data.get('User-Name', None)
-    password = data.get('User-Password', None)
-    out = subprocess.check_output(['/usr/bin/python3', '/var/www/re2o/freeradius_utils/authenticate_user.py', user, password])
-    if out[:-1] == u"TRUE":
-        if data.get('Service-Type', '')==u'NAS-Prompt-User':
-            logger.info(u"Access of user %s on %s (%s)" % (user, nas, nas_id))
-        elif data.get('Service-Type', '')==u'Administrative-User':
-            logger.info(u"Enable manager for %s on %s (%s)" % (user, nas, nas_id))
-        return (radiusd.RLM_MODULE_UPDATED,
-            (),
-            (
-              ("Auth-Type", "Accept"),
-            ),
-            )
-    else:
-        return (radiusd.RLM_MODULE_UPDATED,
-            (),
-            (
-              ("Auth-Type", "Reject"),
-            ),
-            )
+    return authorize_fil(data)
 
 
 @radius_event
@@ -210,8 +208,8 @@ def post_auth_fil(data):
     mac = data.get('Calling-Station-Id', None)
     # Hack, à cause d'une numérotation cisco baroque
     port = port.split(".")[0].split('/')[-1][-2:]
-    out = subprocess.check_output(['/usr/bin/python3', '/var/www/re2o/freeradius_utils/authenticate_filaire.py', nas, port, mac])
-    sw_name, reason, vlan_id = make_tuple(out)
+    out = decide_vlan_and_register_macauth(nas, port, mac)
+    sw_name, reason, vlan_id = out
 
     log_message = '(fil) %s -> %s [%s%s]' % \
       (sw_name + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
@@ -236,4 +234,65 @@ def detach(_=None):
     """Appelé lors du déchargement du module (enfin, normalement)"""
     print "*** goodbye from auth.py ***"
     return radiusd.RLM_MODULE_OK
+
+
+def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
+    # Get port from switch and port number
+    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(Q(ipv4=IpList.objects.filter(ipv4=switch_id)) | Q(domain=Domain.objects.filter(name=switch_id))))
+    if not switch:
+        return ('?', 'Switch inconnu', VLAN_OK)
+
+    sw_name = str(switch.first().switch_interface)
+
+    port = Port.objects.filter(switch=switch.first(), port=port_number)
+    if not port:
+        return (sw_name, 'Port inconnu', VLAN_OK)
+
+    port = port.first()
+
+    if port.radius == 'NO':
+        return (sw_name, "Pas d'authentification sur ce port", VLAN_OK)
+
+    if port.radius == 'BLOQ':
+        return (sw_name, 'Port desactive', VLAN_NOK)
+
+    if port.radius == 'STRICT':
+        if not port.room:
+            return (sw_name, 'Chambre inconnue', VLAN_NOK)
+
+        room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+        if not room_user:
+            return (sw_name, 'Chambre non cotisante', VLAN_NOK)
+        elif not room_user.first().has_access():
+            return (sw_name, 'Chambre resident desactive', VLAN_NOK)
+        # else: user OK, on passe à la verif MAC
+
+    if port.radius == 'COMMON' or port.radius == 'STRICT':
+        # Authentification par mac
+        interface = Interface.objects.filter(mac_address=mac_address)
+        if not interface:
+            # On essaye de register la mac
+            if not MAC_AUTOCAPTURE:
+                return (sw_name, 'Machine inconnue', VLAN_NOK)
+            elif not port.room:
+                return (sw_name, 'Chambre et machine inconnues', VLAN_NOK)
+            else:
+                room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+                if not room_user:
+                    return (sw_name, 'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
+                elif not room_user.first().has_access():
+                    return (sw_name, 'Machine inconnue et adhérent non cotisant', VLAN_NOK)
+                else:
+                    result, reason = user.autoregister_machine(mac_address)
+                    if result:
+                        return (sw_name, 'Access Ok, Capture de la mac...', VLAN_OK)
+                    else:
+                        return (sw_name, u'Erreur dans le register mac %s' % reason, VLAN_NOK) 
+        elif not interface.first().is_active:
+            return (sw_name, 'Machine non active / adherent non cotisant', VLAN_NOK)
+        else:
+            return (sw_name, 'Machine OK', VLAN_OK)
+
+    # On gere bien tous les autres états possibles, il ne reste que le VLAN en dur
+    return (sw_name, 'VLAN impose', int(port.radius))
 
