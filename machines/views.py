@@ -23,6 +23,9 @@
 # App de gestion des machines pour re2o
 # Gabriel Détraz, Augustin Lemesle
 # Gplv2
+
+from __future__ import unicode_literals
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404

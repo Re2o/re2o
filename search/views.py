@@ -23,6 +23,9 @@
 # App de recherche pour re2o
 # Augustin lemesle, Gabriel Détraz, Goulven Kermarec
 # Gplv2
+
+from __future__ import unicode_literals
+
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.template.context_processors import csrf

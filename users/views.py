@@ -23,6 +23,9 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz, Lemesle Augustin
 # Gplv2
+
+from __future__ import unicode_literals
+
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
