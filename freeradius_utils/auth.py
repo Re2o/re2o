@@ -284,11 +284,11 @@ def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
                 elif not room_user.first().has_access():
                     return (sw_name, 'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
-                    result, reason = user.autoregister_machine(mac_address)
+                    result, reason = room_user.first().autoregister_machine(mac_address, ipv4.first())
                     if result:
                         return (sw_name, 'Access Ok, Capture de la mac...', VLAN_OK)
                     else:
-                        return (sw_name, u'Erreur dans le register mac %s' % reason, VLAN_NOK) 
+                        return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
         elif not interface.first().is_active:
             return (sw_name, 'Machine non active / adherent non cotisant', VLAN_NOK)
         else:

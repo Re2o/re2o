@@ -474,14 +474,12 @@ class User(AbstractBaseUser):
             machine_parent.clean()
             domain = Domain()
             domain.name = self.pseudo.replace('_','-').lower() + str(all_machines.count())
-            with transaction.atomic(), reversion.create_revision():
-                machine_parent.save()
-                interface_cible.machine = machine_parent
-                interface_cible.save()
-                domain.interface_parent = interface_cible
-                domain.clean()
-                domain.save()
-                reversion.set_comment("Autocapture radius")
+            machine_parent.save()
+            interface_cible.machine = machine_parent
+            interface_cible.save()
+            domain.interface_parent = interface_cible
+            domain.clean()
+            domain.save()
         except Exception as e:
             return False, e
         return True, "Ok"
