@@ -238,10 +238,14 @@ def detach(_=None):
 
 def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
     # Get port from switch and port number
-    ipv4 = IpList.objects.filter(ipv4=switch_id)
-    switch = Switch.objects.filter(switch_interface=Interface.objects.filter(Q(ipv4=ipv4) | Q(domain=Domain.objects.filter(name=switch_id))))
-    if not switch or not ipv4:
+    if not isinstance(switch_id, int):
+        switch = Switch.objects.filter(switch_interface=Interface.objects.filter(domain=Domain.objects.filter(name=switch_id)))
+    else:
+        switch = Switch.objects.filter(switch_interface=Interface.objects.filter(ipv4=switch_id))
+    if not switch:
         return ('?', 'Switch inconnu', VLAN_OK)
+
+    ipv4 = switch.first().switch_interface.ipv4
 
     sw_name = str(switch.first().switch_interface)
 
