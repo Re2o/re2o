@@ -141,89 +141,65 @@ def instantiate(*_):
 
 @radius_event
 def authorize(data):
-    """Fonction qui aiguille entre nas, wifi et filaire pour authorize
-    On se contecte de faire une verification basique de ce que contien la requète
-    pour déterminer la fonction à utiliser"""
-    return authorize_fil(data)
+    user = data.get('User-Name', None)
+    # Pour les requetes proxifiees, on split
+    nas_type = data.get('NAS-Port-Type', None)
+    if nas_type == "Wireless-802.11":
+        user = user.split('@', 1)[0]
+        mac = data.get('Calling-Station-Id', None)
+        nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
+        result, log, password = check_user_machine_and_register(nas, user, mac) 
+       
+        if not result:
+            return radiusd.RLM_MODULE_REJECT
+        else:
+            return (radiusd.RLM_MODULE_UPDATED,
+            (),
+            (
+            (str("NT-Password"), str(password)),
+            ),
+            )
 
-
-@radius_event
-def authorize_fil(data):
-    """
-    Check le challenge chap, et accepte.
-    """
-
-    return (radiusd.RLM_MODULE_UPDATED,
+    else:
+        return (radiusd.RLM_MODULE_UPDATED,
 	(),
         (
           ("Auth-Type", "Accept"),
         ),
-      )
+        )
 
 @radius_event
 def post_auth(data):
-    # On cherche quel est le type de machine, et quel sites lui appliquer
-    if data.get('NAS-Port-Type', '')==u'Ethernet':
-       return post_auth_fil(data)
-    elif u"Wireless" in data.get('NAS-Port-Type', ''):
-       return post_auth_wifi(data)
+    port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
+    nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
 
-@radius_event
-def post_auth_wifi(data):
-    """Appelé une fois que l'authentification est ok.
-    On peut rajouter quelques éléments dans la réponse radius ici.
-    Comme par exemple le vlan sur lequel placer le client"""
-
-    port, vlan_name, reason = decide_vlan(data, True)
+    nas_instance = find_nas_from_request(nas).first()
     mac = data.get('Calling-Station-Id', None)
+    
+    # Si il s'agit d'un switch
+    if hasattr(nas_instance, 'switch'):
+        # Hack, à cause d'une numérotation cisco baroque
+        port = port.split(".")[0].split('/')[-1][-2:]
+        out = decide_vlan_and_register_switch(nas_instance, port, mac)
+        sw_name, reason, vlan_id = out
 
-    log_message = '(wifi) %s -> %s [%s%s]' % \
-      (port, mac, vlan_name, (reason and u': ' + reason).encode('utf-8'))
-    logger.info(log_message)
+        log_message = '(fil) %s -> %s [%s%s]' % \
+          (sw_name + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
+        logger.info(log_message)
 
-    # Si NAS ayant des mapping particuliers, à signaler ici
-    vlan_id = config.vlans[vlan_name]
-
-    # WiFi : Pour l'instant, on ne met pas d'infos de vlans dans la réponse
-    # les bornes wifi ont du mal avec cela
-    if WIFI_DYN_VLAN:
+        # Filaire
         return (radiusd.RLM_MODULE_UPDATED,
             (
                 ("Tunnel-Type", "VLAN"),
                 ("Tunnel-Medium-Type", "IEEE-802"),
-                ("Tunnel-Private-Group-Id", '%d' % vlan_id),
+                ("Tunnel-Private-Group-Id", '%d' % int(vlan_id)),
             ),
             ()
-        )
+            )
 
-    return radiusd.RLM_MODULE_OK
-
-@radius_event
-def post_auth_fil(data):
-    """Idem, mais en filaire.
-    """
-
-    nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
-    port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
-    mac = data.get('Calling-Station-Id', None)
-    # Hack, à cause d'une numérotation cisco baroque
-    port = port.split(".")[0].split('/')[-1][-2:]
-    out = decide_vlan_and_register_macauth(nas, port, mac)
-    sw_name, reason, vlan_id = out
-
-    log_message = '(fil) %s -> %s [%s%s]' % \
-      (sw_name + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
-    logger.info(log_message)
-
-    # Filaire
-    return (radiusd.RLM_MODULE_UPDATED,
-        (
-            ("Tunnel-Type", "VLAN"),
-            ("Tunnel-Medium-Type", "IEEE-802"),
-            ("Tunnel-Private-Group-Id", '%d' % int(vlan_id)),
-        ),
-        ()
-    )
+    # Il s'agit d'une borne WiFi
+    else:
+        return radiusd.RLM_MODULE_OK
 
 @radius_event
 def dummy_fun(_):
@@ -235,21 +211,58 @@ def detach(_=None):
     print "*** goodbye from auth.py ***"
     return radiusd.RLM_MODULE_OK
 
-
-def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
-    # Get port from switch and port number
-    if not isinstance(switch_id, int):
-        switch = Switch.objects.filter(switch_interface=Interface.objects.filter(domain=Domain.objects.filter(name=switch_id)))
+def find_nas_from_request(nas_id):
+    if not isinstance(nas_id, int):
+        nas = Interface.objects.filter(domain=Domain.objects.filter(name=nas_id))
     else:
-        switch = Switch.objects.filter(switch_interface=Interface.objects.filter(ipv4=switch_id))
-    if not switch:
-        return ('?', 'Switch inconnu', VLAN_OK)
+        nas = Interface.objects.filter(ipv4=nas_id)
+    return nas
 
-    ipv4 = switch.first().switch_interface.ipv4
+def check_user_machine_and_register(nas_id, username, mac_address):
+    """ Verifie le username et la mac renseignee. L'enregistre si elle est inconnue.
+    Renvoie le mot de passe ntlm de l'user si tout est ok
+    Utilise pour les authentifications en 802.1X"""
+    #nas = find_nas_from_request(nas_id).first()
+    #if not nas:
+    #    return (False, 'Nas inconnu %s ' % nas_id, '')
 
-    sw_name = str(switch.first().switch_interface)
+    #ipv4 = nas.ipv4   
+    
+    interface = Interface.objects.filter(mac_address=mac_address).first()
+    user = User.objects.filter(pseudo=username).first()
+    if not user:
+        return (False, "User inconnu", '')
+    if not user.has_access:
+        return (False, "Adherent non cotisant", '')
+    if interface:
+        if interface.machine.user != user:
+            return (False, u"Machine enregistrée sur le compte d'un autre user...", '')
+        elif not interface.is_active:
+            return (False, u"Machine desactivée", '')
+        else:
+            return (True, "Access ok", user.pwd_ntlm)
+    elif MAC_AUTOCAPTURE:
+        result, reason = user.autoregister_machine(mac_address, ipv4.first())
+        if result:
+            return (True, 'Access Ok, Capture de la mac...', user.pwd_ntlm)
+        else:
+            return (False, u'Erreur dans le register mac %s' % reason, '')        
+    else:
+        return (False, "Machine inconnue", '')
 
-    port = Port.objects.filter(switch=switch.first(), port=port_number)
+
+
+
+def decide_vlan_and_register_switch(nas, port_number, mac_address):
+    # Get port from switch and port number
+    if not nas:
+        return ('?', 'Nas inconnu', VLAN_OK)
+
+    ipv4 = nas.ipv4
+
+    sw_name = str(nas)
+
+    port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number)
     if not port:
         return (sw_name, 'Port inconnu', VLAN_OK)
 
@@ -288,7 +301,7 @@ def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
                 elif not room_user.first().has_access():
                     return (sw_name, 'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
-                    result, reason = room_user.first().autoregister_machine(mac_address, ipv4.first())
+                    result, reason = room_user.first().autoregister_machine(mac_address, ipv4)
                     if result:
                         return (sw_name, 'Access Ok, Capture de la mac...', VLAN_OK)
                     else:
@@ -300,4 +313,6 @@ def decide_vlan_and_register_macauth(switch_id, port_number, mac_address):
 
     # On gere bien tous les autres états possibles, il ne reste que le VLAN en dur
     return (sw_name, 'VLAN impose', int(port.radius))
+
+
 
