@@ -149,8 +149,9 @@ def authorize(data):
         mac = data.get('Calling-Station-Id', None)
         nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
         result, log, password = check_user_machine_and_register(nas, user, mac) 
-       
+        
         if not result:
+            logger.info(log)
             return radiusd.RLM_MODULE_REJECT
         else:
             return (radiusd.RLM_MODULE_UPDATED,
@@ -173,7 +174,7 @@ def post_auth(data):
     port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
 
-    nas_instance = find_nas_from_request(nas).first()
+    nas_instance = find_nas_from_request(nas)
     mac = data.get('Calling-Station-Id', None)
     
     # Si il s'agit d'un switch
@@ -197,7 +198,6 @@ def post_auth(data):
             ()
             )
 
-    # Il s'agit d'une borne WiFi
     else:
         return radiusd.RLM_MODULE_OK
 
@@ -212,22 +212,18 @@ def detach(_=None):
     return radiusd.RLM_MODULE_OK
 
 def find_nas_from_request(nas_id):
-    if not isinstance(nas_id, int):
-        nas = Interface.objects.filter(domain=Domain.objects.filter(name=nas_id))
-    else:
-        nas = Interface.objects.filter(ipv4=nas_id)
-    return nas
+    nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id)))
+    return nas.first()
 
 def check_user_machine_and_register(nas_id, username, mac_address):
     """ Verifie le username et la mac renseignee. L'enregistre si elle est inconnue.
     Renvoie le mot de passe ntlm de l'user si tout est ok
     Utilise pour les authentifications en 802.1X"""
-    #nas = find_nas_from_request(nas_id).first()
-    #if not nas:
-    #    return (False, 'Nas inconnu %s ' % nas_id, '')
+    nas = find_nas_from_request(nas_id)
 
-    #ipv4 = nas.ipv4   
-    
+    if not nas and nas_id != '127.0.0.1':
+        return (False, 'Nas inconnu %s ' % nas_id, '')
+
     interface = Interface.objects.filter(mac_address=mac_address).first()
     user = User.objects.filter(pseudo=username).first()
     if not user:
@@ -241,16 +237,15 @@ def check_user_machine_and_register(nas_id, username, mac_address):
             return (False, u"Machine desactivée", '')
         else:
             return (True, "Access ok", user.pwd_ntlm)
-    elif MAC_AUTOCAPTURE:
-        result, reason = user.autoregister_machine(mac_address, ipv4.first())
+    elif MAC_AUTOCAPTURE and nas_id!='127.0.0.1':
+        ipv4 = nas.ipv4   
+        result, reason = user.autoregister_machine(mac_address, ipv4)
         if result:
             return (True, 'Access Ok, Capture de la mac...', user.pwd_ntlm)
         else:
             return (False, u'Erreur dans le register mac %s' % reason, '')        
     else:
         return (False, "Machine inconnue", '')
-
-
 
 
 def decide_vlan_and_register_switch(nas, port_number, mac_address):
