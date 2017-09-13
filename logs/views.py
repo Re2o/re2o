@@ -82,7 +82,7 @@ def index(request):
             # If reversion has no content_type (when object has been deleted)
                 pass
 
-            if content in ['ban', 'whitelist', 'vente', 'cotisation', 'interface', 'user'] :
+            if content in ['ban', 'whitelist', 'vente', 'interface', 'user'] :
                 reversions.append(
                         {'id' : revision.id,
                             'comment': revision.comment,
