@@ -37,9 +37,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
     {% for rev in reversions_list %}
-        <tr>
+    {% if rev.rev.content_type.name == 'ban' %}
+        <tr class="danger">
             <td>{{ rev.datetime }}</td>
-        {% if rev.rev.content_type.name == 'ban' %}
             <td>
                 {{ rev.username }} a banni
                 <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
@@ -51,7 +51,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% endif %}
                 </i>)
             </td>
-        {% elif rev.rev.content_type.name == 'whitelist' %}
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif rev.rev.content_type.name == 'whitelist' %}
+        <tr class="success">
+            <td>{{ rev.datetime }}</td>
             <td>
                 {{ rev.username }} a autorisé gracieusement
                 <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
@@ -63,31 +74,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% endif %}
                 </i>)
             </td>
-        {% elif rev.rev.content_type.name == 'user' %}
-            <td>
-                {{ rev.username }} a mis à jour
-                <a href="{% url 'users:profil' rev.rev.object.id %}">{{ rev.rev.object.get_username }}</a>
-            {% if rev.comment != '' %}
-                (<i>{{ rev.comment }}</i>)
-            {% endif %}
-            </td>
-        {% elif rev.rev.content_type.name == 'vente' %}
-            <td>
-                {{ rev.username }} a vendu {{ rev.rev.object.number }}x {{ rev.rev.object.name }} à
-                <a href="{% url 'users:profil' rev.rev.object.facture.user_id %}">{{ rev.rev.object.facture.user.get_username }}</a>
-            {% if rev.rev.object.iscotisation %}
-                (<i>+{{ rev.rev.object.duration }} mois</i>)
-            {% endif %}
-            </td>
-        {% elif rev.rev.content_type.name == 'interface' %}
-            <td>
-                {{ rev.username }} a modifié une interface de
-                <a href="{% url 'users:profil' rev.rev.object.machine.user_id %}">{{ rev.rev.object.machine.user.get_username }}</a>
-            {% if rev.comment != '' %}
-                (<i>{{ rev.comment }}</i>)
-            {% endif %}
-            </td>
-        {% endif %}
         {% if is_bureau %}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
@@ -97,6 +83,64 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
         {% endif %}
         </tr>
+    {% elif rev.rev.content_type.name == 'user' %}
+        <tr>
+            <td>{{ rev.datetime }}</td>
+            <td>
+                {{ rev.username }} a mis à jour
+                <a href="{% url 'users:profil' rev.rev.object.id %}">{{ rev.rev.object.get_username }}</a>
+            {% if rev.comment != '' %}
+                (<i>{{ rev.comment }}</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif rev.rev.content_type.name == 'vente' %}
+        <tr>
+            <td>{{ rev.datetime }}</td>
+            <td>
+                {{ rev.username }} a vendu {{ rev.rev.object.number }}x {{ rev.rev.object.name }} à
+                <a href="{% url 'users:profil' rev.rev.object.facture.user_id %}">{{ rev.rev.object.facture.user.get_username }}</a>
+            {% if rev.rev.object.iscotisation %}
+                (<i>+{{ rev.rev.object.duration }} mois</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif rev.rev.content_type.name == 'interface' %}
+        <tr>
+            <td>{{ rev.datetime }}</td>
+            <td>
+                {{ rev.username }} a modifié une interface de
+                <a href="{% url 'users:profil' rev.rev.object.machine.user_id %}">{{ rev.rev.object.machine.user.get_username }}</a>
+            {% if rev.comment != '' %}
+                (<i>{{ rev.comment }}</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% endif %}
     {% endfor %}
     </table>
 
