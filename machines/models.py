@@ -144,9 +144,16 @@ class Vlan(models.Model):
 class Nas(models.Model):
     PRETTY_NAME = "Correspondance entre les nas et les machines connectées"
 
+    default_mode = '802.1X'
+    AUTH = (
+        ('802.1X', '802.1X'),
+        ('Mac-address', 'Mac-address'),
+    )
+
     name = models.CharField(max_length=255, unique=True)
     nas_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='nas_type')
     machine_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='machinetype_on_nas')
+    port_access_mode = models.CharField(choices=AUTH, default=default_mode, max_length=32)
 
     def __str__(self):
         return self.name
