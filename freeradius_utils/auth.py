@@ -149,9 +149,9 @@ def authorize(data):
         mac = data.get('Calling-Station-Id', None)
         nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
         result, log, password = check_user_machine_and_register(nas, user, mac) 
+        logger.info(log.encode('utf-8'))
         
         if not result:
-            logger.info(log)
             return radiusd.RLM_MODULE_REJECT
         else:
             return (radiusd.RLM_MODULE_UPDATED,
@@ -222,36 +222,36 @@ def check_user_machine_and_register(nas_id, username, mac_address):
     nas = find_nas_from_request(nas_id)
 
     if not nas and nas_id != '127.0.0.1':
-        return (False, 'Nas inconnu %s ' % nas_id, '')
+        return (False, u'Nas inconnu %s ' % nas_id, '')
 
     interface = Interface.objects.filter(mac_address=mac_address).first()
     user = User.objects.filter(pseudo=username).first()
     if not user:
-        return (False, "User inconnu", '')
-    if not user.has_access:
-        return (False, "Adherent non cotisant", '')
+        return (False, u"User inconnu", '')
+    if not user.has_access():
+        return (False, u"Adhérent non cotisant", '')
     if interface:
         if interface.machine.user != user:
             return (False, u"Machine enregistrée sur le compte d'un autre user...", '')
         elif not interface.is_active:
             return (False, u"Machine desactivée", '')
         else:
-            return (True, "Access ok", user.pwd_ntlm)
+            return (True, u"Access ok", user.pwd_ntlm)
     elif MAC_AUTOCAPTURE and nas_id!='127.0.0.1':
         ipv4 = nas.ipv4   
         result, reason = user.autoregister_machine(mac_address, ipv4)
         if result:
-            return (True, 'Access Ok, Capture de la mac...', user.pwd_ntlm)
+            return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
         else:
             return (False, u'Erreur dans le register mac %s' % reason, '')        
     else:
-        return (False, "Machine inconnue", '')
+        return (False, u"Machine inconnue", '')
 
 
 def decide_vlan_and_register_switch(nas, port_number, mac_address):
     # Get port from switch and port number
     if not nas:
-        return ('?', 'Nas inconnu', VLAN_OK)
+        return ('?', u'Nas inconnu', VLAN_OK)
 
     ipv4 = nas.ipv4
 
@@ -259,25 +259,25 @@ def decide_vlan_and_register_switch(nas, port_number, mac_address):
 
     port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number)
     if not port:
-        return (sw_name, 'Port inconnu', VLAN_OK)
+        return (sw_name, u'Port inconnu', VLAN_OK)
 
     port = port.first()
 
     if port.radius == 'NO':
-        return (sw_name, "Pas d'authentification sur ce port", VLAN_OK)
+        return (sw_name, u"Pas d'authentification sur ce port", VLAN_OK)
 
     if port.radius == 'BLOQ':
-        return (sw_name, 'Port desactive', VLAN_NOK)
+        return (sw_name, u'Port desactive', VLAN_NOK)
 
     if port.radius == 'STRICT':
         if not port.room:
-            return (sw_name, 'Chambre inconnue', VLAN_NOK)
+            return (sw_name, u'Chambre inconnue', VLAN_NOK)
 
         room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
         if not room_user:
-            return (sw_name, 'Chambre non cotisante', VLAN_NOK)
+            return (sw_name, u'Chambre non cotisante', VLAN_NOK)
         elif not room_user.first().has_access():
-            return (sw_name, 'Chambre resident desactive', VLAN_NOK)
+            return (sw_name, u'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
     if port.radius == 'COMMON' or port.radius == 'STRICT':
@@ -286,28 +286,28 @@ def decide_vlan_and_register_switch(nas, port_number, mac_address):
         if not interface:
             # On essaye de register la mac
             if not MAC_AUTOCAPTURE:
-                return (sw_name, 'Machine inconnue', VLAN_NOK)
+                return (sw_name, u'Machine inconnue', VLAN_NOK)
             elif not port.room:
-                return (sw_name, 'Chambre et machine inconnues', VLAN_NOK)
+                return (sw_name, u'Chambre et machine inconnues', VLAN_NOK)
             else:
                 room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
                 if not room_user:
-                    return (sw_name, 'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
+                    return (sw_name, u'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
                 elif not room_user.first().has_access():
-                    return (sw_name, 'Machine inconnue et adhérent non cotisant', VLAN_NOK)
+                    return (sw_name, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
                     result, reason = room_user.first().autoregister_machine(mac_address, ipv4)
                     if result:
-                        return (sw_name, 'Access Ok, Capture de la mac...', VLAN_OK)
+                        return (sw_name, u'Access Ok, Capture de la mac...', VLAN_OK)
                     else:
                         return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
         elif not interface.first().is_active:
-            return (sw_name, 'Machine non active / adherent non cotisant', VLAN_NOK)
+            return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
-            return (sw_name, 'Machine OK', VLAN_OK)
+            return (sw_name, u'Machine OK', VLAN_OK)
 
     # On gere bien tous les autres états possibles, il ne reste que le VLAN en dur
-    return (sw_name, 'VLAN impose', int(port.radius))
+    return (sw_name, u'VLAN impose', int(port.radius))
 
 
 
