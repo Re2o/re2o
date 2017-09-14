@@ -463,11 +463,13 @@ def user_post_save(sender, **kwargs):
     if is_created:
         user.notif_inscription()
     user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+    regen('mailing')
 
 @receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
     user.ldap_del()
+    regen('mailing')
 
 class ServiceUser(AbstractBaseUser):
     readonly = 'readonly'
@@ -642,6 +644,7 @@ def ban_post_save(sender, **kwargs):
     is_created = kwargs['created']
     user = ban.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    regen('mailing')
     if is_created:
         ban.notif_ban()
         regen('dhcp')
@@ -654,6 +657,7 @@ def ban_post_save(sender, **kwargs):
 def ban_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    regen('mailing')
     regen('dhcp')
     regen('mac_ip_list')
 
@@ -674,6 +678,7 @@ def whitelist_post_save(sender, **kwargs):
     user = whitelist.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     is_created = kwargs['created']
+    regen('mailing')
     if is_created:
         regen('dhcp')
         regen('mac_ip_list')
@@ -685,6 +690,7 @@ def whitelist_post_save(sender, **kwargs):
 def whitelist_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    regen('mailing')
     regen('dhcp')
     regen('mac_ip_list')
 
