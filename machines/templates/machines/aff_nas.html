@@ -29,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th>Type du nas</th>
                 <th>Type de machine reliées au nas</th>
 		<th>Mode d'accès</th>
+		<th>Autocapture mac</th>
     		<th></th>
             </tr>
         </thead>
@@ -38,6 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ nas.nas_type  }}</td>
 	    <td>{{ nas.machine_type }}</td>
 	    <td>{{ nas.port_access_mode }}</td>
+	    <td>{{ nas.autocapture_mac }}</td>
 	    <td class="text-right">
             {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
