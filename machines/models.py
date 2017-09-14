@@ -154,6 +154,7 @@ class Nas(models.Model):
     nas_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='nas_type')
     machine_type = models.ForeignKey('MachineType', on_delete=models.PROTECT, related_name='machinetype_on_nas')
     port_access_mode = models.CharField(choices=AUTH, default=default_mode, max_length=32)
+    autocapture_mac = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
