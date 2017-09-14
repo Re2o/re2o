@@ -67,7 +67,6 @@ from preferences.models import OptionalTopologie
 options, created = OptionalTopologie.objects.get_or_create()
 VLAN_NOK = options.vlan_decision_nok.vlan_id
 VLAN_OK = options.vlan_decision_ok.vlan_id
-MAC_AUTOCAPTURE = options.mac_autocapture
 
 
 #: Serveur radius de test (pas la prod)
@@ -137,7 +136,7 @@ def instantiate(*_):
     do nothing)"""
     logger.info('Instantiation')
     if TEST_SERVER:
-        logger.info('DBG_FREERADIUS is enabled')
+        logger.info(u'DBG_FREERADIUS is enabled')
 
 @radius_event
 def authorize(data):
@@ -147,11 +146,11 @@ def authorize(data):
     # Toutes les reuquètes non proxifiées
     if nas != '127.0.0.1':
         if not nas_instance:
-            logger.info("Nas inconnu")
+            logger.info(u"Nas inconnu")
             return radiusd.RLM_MODULE_REJECT
         nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
         if not nas_type:
-            logger.info("Type de nas non enregistré dans la bdd!".encode('utf-8'))
+            logger.info(u"Type de nas non enregistré dans la bdd!".encode('utf-8'))
             return radiusd.RLM_MODULE_REJECT
     else:
         nas_type = None
@@ -182,17 +181,25 @@ def authorize(data):
 
 @radius_event
 def post_auth(data):
-    port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
-
     nas_instance = find_nas_from_request(nas)
+    # Toutes les reuquètes non proxifiées
+    if nas == '127.0.0.1':
+        logger.info(u"Requète proxifiée".encode('utf-8'))
+        return radiusd.RLM_MODULE_OK
+    nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
+    if not nas_type:
+        logger.info(u"Type de nas non enregistré dans la bdd!".encode('utf-8'))
+        return radiusd.RLM_MODULE_OK
+    
     mac = data.get('Calling-Station-Id', None)
     
     # Si il s'agit d'un switch
     if hasattr(nas_instance, 'switch'):
+        port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
         # Hack, à cause d'une numérotation cisco baroque
         port = port.split(".")[0].split('/')[-1][-2:]
-        out = decide_vlan_and_register_switch(nas_instance, port, mac)
+        out = decide_vlan_and_register_switch(nas_instance, nas_type, port, mac)
         sw_name, reason, vlan_id = out
 
         log_message = '(fil) %s -> %s [%s%s]' % \
@@ -244,7 +251,7 @@ def check_user_machine_and_register(nas_type, username, mac_address):
         else:
             return (True, u"Access ok", user.pwd_ntlm)
     elif nas_type:
-        if nas_type.mac_autocapture:
+        if nas_type.autocapture_mac:
             result, reason = user.autoregister_machine(mac_address, nas_type)
             if result:
                 return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
@@ -254,12 +261,10 @@ def check_user_machine_and_register(nas_type, username, mac_address):
         return (False, u"Machine inconnue", '')
 
 
-def decide_vlan_and_register_switch(nas, port_number, mac_address):
+def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
     # Get port from switch and port number
     if not nas:
         return ('?', u'Nas inconnu', VLAN_OK)
-
-    ipv4 = nas.ipv4
 
     sw_name = str(nas)
 
@@ -291,7 +296,7 @@ def decide_vlan_and_register_switch(nas, port_number, mac_address):
         interface = Interface.objects.filter(mac_address=mac_address)
         if not interface:
             # On essaye de register la mac
-            if not MAC_AUTOCAPTURE:
+            if not nas_type.autocapture_mac:
                 return (sw_name, u'Machine inconnue', VLAN_NOK)
             elif not port.room:
                 return (sw_name, u'Chambre et machine inconnues', VLAN_NOK)
@@ -302,7 +307,7 @@ def decide_vlan_and_register_switch(nas, port_number, mac_address):
                 elif not room_user.first().has_access():
                     return (sw_name, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
-                    result, reason = room_user.first().autoregister_machine(mac_address, ipv4)
+                    result, reason = room_user.first().autoregister_machine(mac_address, nas_type)
                     if result:
                         return (sw_name, u'Access Ok, Capture de la mac...', VLAN_OK)
                     else:
