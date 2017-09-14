@@ -195,8 +195,10 @@ def cotisation_post_save(sender, **kwargs):
     regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
+    regen('mailing')
 
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
     cotisation = kwargs['instance']
     regen('mac_ip_list')
+    regen('mailing')
