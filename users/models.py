@@ -455,15 +455,14 @@ class User(AbstractBaseUser):
         general_options.email_from, [req.user.email], fail_silently=False)
         return
 
-    def autoregister_machine(self, mac_address, nas_ip):
+    def autoregister_machine(self, mac_address, nas_type):
         all_machines = self.all_machines()
         options, created = OptionalMachine.objects.get_or_create() 
         if all_machines.count() > options.max_lambdauser_interfaces:
             return False, "Maximum de machines enregistrees atteinte"
-        nas_object = Nas.objects.filter(nas_type__in=MachineType.objects.filter(ip_type=nas_ip.ip_type))
-        if not nas_object:
+        if not nas_type:
             return False, "Re2o ne sait pas à quel machinetype affecter cette machine"
-        machine_type_cible = nas_object.first().machine_type
+        machine_type_cible = nas_type.machine_type
         try:
             machine_parent = Machine()
             machine_parent.user = self
