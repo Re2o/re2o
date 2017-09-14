@@ -59,7 +59,6 @@ class OptionalTopologie(models.Model):
     radius_general_policy = models.CharField(max_length=32, choices=CHOICE_RADIUS, default='DEFINED')
     vlan_decision_ok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_ok', blank=True, null=True)
     vlan_decision_nok = models.OneToOneField('machines.Vlan', on_delete=models.PROTECT, related_name='decision_nok', blank=True, null=True)
-    mac_autocapture = models.BooleanField(default=False)
 
 class GeneralOption(models.Model):
     PRETTY_NAME = "Options générales"
