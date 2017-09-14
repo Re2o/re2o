@@ -59,7 +59,7 @@ application = get_wsgi_application()
 import argparse
 
 from django.db.models import Q
-from machines.models import Interface, IpList, Domain
+from machines.models import Interface, IpList, Nas, Domain
 from topologie.models import Room, Port, Switch
 from users.models import User
 from preferences.models import OptionalTopologie
@@ -141,14 +141,25 @@ def instantiate(*_):
 
 @radius_event
 def authorize(data):
-    user = data.get('User-Name', None)
     # Pour les requetes proxifiees, on split
-    nas_type = data.get('NAS-Port-Type', None)
-    if nas_type == "Wireless-802.11":
+    nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
+    nas_instance = find_nas_from_request(nas)
+    # Toutes les reuquètes non proxifiées
+    if nas != '127.0.0.1':
+        if not nas_instance:
+            logger.info("Nas inconnu")
+            return radiusd.RLM_MODULE_REJECT
+        nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
+        if not nas_type:
+            logger.info("Type de nas non enregistré dans la bdd!".encode('utf-8'))
+            return radiusd.RLM_MODULE_REJECT
+    else:
+        nas_type = None
+    if not nas_type or nas_type.port_access_mode == '802.1X':
+        user = data.get('User-Name', '')
         user = user.split('@', 1)[0]
-        mac = data.get('Calling-Station-Id', None)
-        nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
-        result, log, password = check_user_machine_and_register(nas, user, mac) 
+        mac = data.get('Calling-Station-Id', '')
+        result, log, password = check_user_machine_and_register(nas_type, user, mac) 
         logger.info(log.encode('utf-8'))
         
         if not result:
@@ -215,15 +226,10 @@ def find_nas_from_request(nas_id):
     nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id)))
     return nas.first()
 
-def check_user_machine_and_register(nas_id, username, mac_address):
+def check_user_machine_and_register(nas_type, username, mac_address):
     """ Verifie le username et la mac renseignee. L'enregistre si elle est inconnue.
     Renvoie le mot de passe ntlm de l'user si tout est ok
     Utilise pour les authentifications en 802.1X"""
-    nas = find_nas_from_request(nas_id)
-
-    if not nas and nas_id != '127.0.0.1':
-        return (False, u'Nas inconnu %s ' % nas_id, '')
-
     interface = Interface.objects.filter(mac_address=mac_address).first()
     user = User.objects.filter(pseudo=username).first()
     if not user:
@@ -237,13 +243,13 @@ def check_user_machine_and_register(nas_id, username, mac_address):
             return (False, u"Machine desactivée", '')
         else:
             return (True, u"Access ok", user.pwd_ntlm)
-    elif MAC_AUTOCAPTURE and nas_id!='127.0.0.1':
-        ipv4 = nas.ipv4   
-        result, reason = user.autoregister_machine(mac_address, ipv4)
-        if result:
-            return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
-        else:
-            return (False, u'Erreur dans le register mac %s' % reason, '')        
+    elif nas_type:
+        if nas_type.mac_autocapture:
+            result, reason = user.autoregister_machine(mac_address, nas_type)
+            if result:
+                return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
+            else:
+                return (False, u'Erreur dans le register mac %s' % reason, '')        
     else:
         return (False, u"Machine inconnue", '')
 
