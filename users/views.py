@@ -705,7 +705,7 @@ class JSONResponse(HttpResponse):
 @login_required
 @permission_required('serveur')
 def mailing(request):
-    mails = all_has_access()
+    mails = all_has_access().values('email').distinct()
     seria = MailSerializer(mails, many=True)
     return JSONResponse(seria.data)
 
