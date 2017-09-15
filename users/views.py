@@ -46,7 +46,8 @@ from rest_framework.renderers import JSONRenderer
 
 from reversion.models import Version
 from reversion import revisions as reversion
-from users.models import User, Right, Ban, Whitelist, School, ListRight, Request, ServiceUser
+from users.serializers import MailSerializer
+from users.models import User, Right, Ban, Whitelist, School, ListRight, Request, ServiceUser, all_has_access
 from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
 from users.forms import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, EditServiceUserForm, ServiceUserForm, ListRightForm
 from cotisations.models import Facture
@@ -707,9 +708,7 @@ class JSONResponse(HttpResponse):
 @login_required
 @permission_required('serveur')
 def mailing(request):
-    mails = set()
-    for u in User.objects.all() :
-        if u.has_access():
-            mails.add( u.email )
-    return JSONResponse(mails)
+    mails = all_has_access().values('email').distinct()
+    seria = MailSerializer(mails, many=True)
+    return JSONResponse(seria.data)
 
