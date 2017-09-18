@@ -22,8 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% if revisions_list.paginator %}
-{% include "pagination.html" with list=revisions_list %}
+{% if versions_list.paginator %}
+{% include "pagination.html" with list=versions_list %}
 {% endif %}
 
 {% load logs_extra %}
@@ -36,104 +36,104 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th></th>
             </tr>
         </thead>
-    {% for rev in reversions_list %}
-    {% if rev.rev.content_type.name == 'ban' %}
+    {% for v in versions_list %}
+    {% if v.version.content_type.model == 'ban' %}
         <tr class="danger">
-            <td>{{ rev.datetime }}</td>
+            <td>{{ v.datetime }}</td>
             <td>
-                {{ rev.username }} a banni
-                <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
+                {{ v.username }} a banni
+                <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
 		(<i>
-                {% if rev.rev.object.raison == '' %}
+                {% if v.version.object.raison == '' %}
                     Aucune raison
                 {% else %}
-                    {{ rev.rev.object.raison }}
+                    {{ v.version.object.raison }}
                 {% endif %}
                 </i>)
             </td>
         {% if is_bureau %}
             <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
                     <i class="glyphicon glyphicon-remove"></i>
                     Annuler
                 </a>
             </td>
         {% endif %}
         </tr>
-    {% elif rev.rev.content_type.name == 'whitelist' %}
+    {% elif v.version.content_type.model == 'whitelist' %}
         <tr class="success">
-            <td>{{ rev.datetime }}</td>
+            <td>{{ v.datetime }}</td>
             <td>
-                {{ rev.username }} a autorisé gracieusement
-                <a href="{% url 'users:profil' rev.rev.object.user_id %}">{{ rev.rev.object.user.get_username }}</a>
+                {{ v.username }} a autorisé gracieusement
+                <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
                 (<i>
-                {% if rev.rev.object.raison == '' %}
+                {% if v.version.object.raison == '' %}
                     Aucune raison
                 {% else %}
-                    {{ rev.rev.object.raison }}
+                    {{ v.version.object.raison }}
                 {% endif %}
                 </i>)
             </td>
         {% if is_bureau %}
             <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
                     <i class="glyphicon glyphicon-remove"></i>
                     Annuler
                 </a>
             </td>
         {% endif %}
         </tr>
-    {% elif rev.rev.content_type.name == 'user' %}
+    {% elif v.version.content_type.model == 'user' %}
         <tr>
-            <td>{{ rev.datetime }}</td>
+            <td>{{ v.datetime }}</td>
             <td>
-                {{ rev.username }} a mis à jour
-                <a href="{% url 'users:profil' rev.rev.object.id %}">{{ rev.rev.object.get_username }}</a>
-            {% if rev.comment != '' %}
-                (<i>{{ rev.comment }}</i>)
+                {{ v.username }} a mis à jour
+                <a href="{% url 'users:profil' v.version.object.id %}">{{ v.version.object.get_username }}</a>
+            {% if v.comment != '' %}
+                (<i>{{ v.comment }}</i>)
             {% endif %}
             </td>
         {% if is_bureau %}
             <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
                     <i class="glyphicon glyphicon-remove"></i>
                     Annuler
                 </a>
             </td>
         {% endif %}
         </tr>
-    {% elif rev.rev.content_type.name == 'vente' %}
+    {% elif v.version.content_type.model == 'vente' %}
         <tr>
-            <td>{{ rev.datetime }}</td>
+            <td>{{ v.datetime }}</td>
             <td>
-                {{ rev.username }} a vendu {{ rev.rev.object.number }}x {{ rev.rev.object.name }} à
-                <a href="{% url 'users:profil' rev.rev.object.facture.user_id %}">{{ rev.rev.object.facture.user.get_username }}</a>
-            {% if rev.rev.object.iscotisation %}
-                (<i>+{{ rev.rev.object.duration }} mois</i>)
+                {{ v.username }} a vendu {{ v.version.object.number }}x {{ v.version.object.name }} à
+                <a href="{% url 'users:profil' v.version.object.facture.user_id %}">{{ v.version.object.facture.user.get_username }}</a>
+            {% if v.version.object.iscotisation %}
+                (<i>+{{ v.version.object.duration }} mois</i>)
             {% endif %}
             </td>
         {% if is_bureau %}
             <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
                     <i class="glyphicon glyphicon-remove"></i>
                     Annuler
                 </a>
             </td>
         {% endif %}
         </tr>
-    {% elif rev.rev.content_type.name == 'interface' %}
+    {% elif v.version.content_type.model == 'interface' %}
         <tr>
-            <td>{{ rev.datetime }}</td>
+            <td>{{ v.datetime }}</td>
             <td>
-                {{ rev.username }} a modifié une interface de
-                <a href="{% url 'users:profil' rev.rev.object.machine.user_id %}">{{ rev.rev.object.machine.user.get_username }}</a>
-            {% if rev.comment != '' %}
-                (<i>{{ rev.comment }}</i>)
+                {{ v.username }} a modifié une interface de
+                <a href="{% url 'users:profil' v.version.object.machine.user_id %}">{{ v.version.object.machine.user.get_username }}</a>
+            {% if v.comment != '' %}
+                (<i>{{ v.comment }}</i>)
             {% endif %}
             </td>
         {% if is_bureau %}
             <td>
-                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' rev.id %}">
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
                     <i class="glyphicon glyphicon-remove"></i>
                     Annuler
                 </a>
