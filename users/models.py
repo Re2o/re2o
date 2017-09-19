@@ -668,6 +668,9 @@ class Ban(models.Model):
         general_options.email_from, [self.user.email], fail_silently=False)
         return
 
+    def is_active(self):
+        return self.date_end > now
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
@@ -701,6 +704,9 @@ class Whitelist(models.Model):
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+
+    def is_active(self):
+        return self.date_end > now
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)

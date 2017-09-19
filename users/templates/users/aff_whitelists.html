@@ -22,6 +22,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% if white_list.paginator %}
+{% include "pagination.html" with list=white_list %}
+{% endif %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -33,7 +37,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
         {% for whitelist in white_list %}
-        <tr>
+        {% if whitelist.is_active %}
+        <tr class="bg-success text-white">
+        {% else %}
+        <tr class="bg-warning text-white">
+        {% endif %}
             <td>{{ whitelist.user }}</td>
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
