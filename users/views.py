@@ -527,7 +527,19 @@ def index_ban(request):
 @permission_required('cableur')
 def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     white_list = Whitelist.objects.select_related('user').order_by('date_start')
+    paginator = Paginator(white_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        white_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page isn't an integer, deliver first page
+        white_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results. 
+        white_list = paginator.page(paginator.num_pages) 
     return render(
         request,
         'users/index_whitelist.html',

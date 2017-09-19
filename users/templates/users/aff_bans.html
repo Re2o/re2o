@@ -37,7 +37,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
         {% for ban in ban_list %}
-        <tr>
+        {% if ban.is_active %}
+        <tr class="bg-danger text-white">
+        {% else %}
+        <tr class="bg-warning text-white">
+        {% endif %}
             <td>{{ ban.user }}</td>
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
