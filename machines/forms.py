@@ -60,12 +60,6 @@ class EditInterfaceForm(ModelForm):
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
-    def clean(self):
-        data = super(EditInterfaceForm, self).clean()
-        mac = str(self.data['mac_address'])
-        if len(''.join(mac.replace("-",":").split(":"))) != 12:
-            self.add_error('mac_address', "Format de la mac incorrect")
-
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
         fields = ['ipv4','mac_address','type','details']

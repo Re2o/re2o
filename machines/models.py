@@ -235,10 +235,9 @@ class Interface(models.Model):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
 
     def filter_macaddress(self):
-        mac_address = str(EUI(self.mac_address))
-        if mac_address:
-            self.mac_address = mac_address
-        else:
+        try:
+            self.mac_address = str(EUI(self.mac_address))
+        except :
             raise ValidationError("La mac donnée est invalide")
 
     def clean(self, *args, **kwargs):
