@@ -1,0 +1,147 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% if versions_list.paginator %}
+{% include "pagination.html" with list=versions_list %}
+{% endif %}
+
+{% load logs_extra %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Modification</th>
+		<th></th>
+            </tr>
+        </thead>
+    {% for v in versions_list %}
+    {% if v.version.content_type.model == 'ban' %}
+        <tr class="danger">
+            <td>{{ v.datetime }}</td>
+            <td>
+                {{ v.username }} a banni
+                <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
+		(<i>
+                {% if v.version.object.raison == '' %}
+                    Aucune raison
+                {% else %}
+                    {{ v.version.object.raison }}
+                {% endif %}
+                </i>)
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif v.version.content_type.model == 'whitelist' %}
+        <tr class="success">
+            <td>{{ v.datetime }}</td>
+            <td>
+                {{ v.username }} a autorisé gracieusement
+                <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
+                (<i>
+                {% if v.version.object.raison == '' %}
+                    Aucune raison
+                {% else %}
+                    {{ v.version.object.raison }}
+                {% endif %}
+                </i>)
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif v.version.content_type.model == 'user' %}
+        <tr>
+            <td>{{ v.datetime }}</td>
+            <td>
+                {{ v.username }} a mis à jour
+                <a href="{% url 'users:profil' v.version.object.id %}">{{ v.version.object.get_username }}</a>
+            {% if v.comment != '' %}
+                (<i>{{ v.comment }}</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif v.version.content_type.model == 'vente' %}
+        <tr>
+            <td>{{ v.datetime }}</td>
+            <td>
+                {{ v.username }} a vendu {{ v.version.object.number }}x {{ v.version.object.name }} à
+                <a href="{% url 'users:profil' v.version.object.facture.user_id %}">{{ v.version.object.facture.user.get_username }}</a>
+            {% if v.version.object.iscotisation %}
+                (<i>+{{ v.version.object.duration }} mois</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% elif v.version.content_type.model == 'interface' %}
+        <tr>
+            <td>{{ v.datetime }}</td>
+            <td>
+                {{ v.username }} a modifié une interface de
+                <a href="{% url 'users:profil' v.version.object.machine.user_id %}">{{ v.version.object.machine.user.get_username }}</a>
+            {% if v.comment != '' %}
+                (<i>{{ v.comment }}</i>)
+            {% endif %}
+            </td>
+        {% if is_bureau %}
+            <td>
+                <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    Annuler
+                </a>
+            </td>
+        {% endif %}
+        </tr>
+    {% endif %}
+    {% endfor %}
+    </table>
+
+

@@ -40,7 +40,7 @@ from django.db import transaction
 from django.db.models import Count
 
 from reversion.models import Revision
-from reversion.models import Version
+from reversion.models import Version, ContentType
 
 from users.models import User, ServiceUser, Right, School, ListRight, ListShell, Ban, Whitelist
 from users.models import all_has_access, all_whitelisted, all_baned, all_adherent
@@ -72,6 +72,43 @@ def form(ctx, template, request):
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
+
+    # The types of content kept for display
+    content_type_filter = ['ban', 'whitelist', 'vente', 'interface', 'user'] 
+
+    # Select only wanted versions
+    versions = Version.objects.filter(content_type__in=ContentType.objects.filter(model__in=content_type_filter)).order_by('revision__date_created').reverse().select_related('revision')
+
+    # Setup nice struct for template
+    versions_list = []
+    for v in versions :
+        if v.object :
+            versions_list.append(
+                    {'rev_id' : v.revision.id,
+                     'comment': v.revision.comment,
+                     'datetime': v.revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
+                     'username': v.revision.user.get_username() if v.revision.user else '?',
+                     'user_id': v.revision.user_id,
+                     'version': v }
+                    )
+
+    paginator = Paginator(versions_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        versions_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        versions_list = paginator.page(1)
+    except EmptyPage:
+     # If page is out of range (e.g. 9999), deliver last page of results.
+        versions_list = paginator.page(paginator.num_pages)
+    return render(request, 'logs/index.html', {'versions_list': versions_list})
+
+@login_required
+@permission_required('cableur')
+def stats_logs(request):
+    options, created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
     revisions = Revision.objects.all().order_by('date_created').reverse().select_related('user').prefetch_related('version_set__object')
     paginator = Paginator(revisions, pagination_number)
     page = request.GET.get('page')
@@ -83,7 +120,7 @@ def index(request):
     except EmptyPage:
      # If page is out of range (e.g. 9999), deliver last page of results.
         revisions = paginator.page(paginator.num_pages)
-    return render(request, 'logs/index.html', {'revisions_list': revisions})
+    return render(request, 'logs/stats_logs.html', {'revisions_list': revisions})
 
 @login_required
 @permission_required('bureau')
