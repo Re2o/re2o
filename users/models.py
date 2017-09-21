@@ -42,6 +42,7 @@ import ldapdb.models.fields
 from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES,UID_RANGES
 import re, uuid
 import datetime
+from re2o.login import hashNT
 
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -485,6 +486,11 @@ class User(AbstractBaseUser):
 
     def all_machines(self):
         return Interface.objects.filter(machine__in=Machine.objects.filter(user=self))
+
+    def set_user_password(self, password):
+        self.set_password(password)
+        self.pwd_ntlm = hashNT(password)
+        return
 
     def __str__(self):
         return self.pseudo
