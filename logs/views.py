@@ -23,6 +23,9 @@
 # App de gestion des statistiques pour re2o
 # Gabriel Détraz
 # Gplv2
+
+from __future__ import unicode_literals
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -76,30 +79,39 @@ def index(request):
     # Select only wanted versions
     versions = Version.objects.filter(content_type__in=ContentType.objects.filter(model__in=content_type_filter)).order_by('revision__date_created').reverse().select_related('revision')
 
-    # Setup nice struct for template
-    versions_list = []
-    for v in versions :
-        if v.object :
-            versions_list.append(
-                    {'rev_id' : v.revision.id,
-                     'comment': v.revision.comment,
-                     'datetime': v.revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
-                     'username': v.revision.user.get_username() if v.revision.user else '?',
-                     'user_id': v.revision.user_id,
-                     'version': v }
-                    )
-
-    paginator = Paginator(versions_list, pagination_number)
+    paginator = Paginator(versions, pagination_number)
     page = request.GET.get('page')
     try:
-        versions_list = paginator.page(page)
+        versions = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
-        versions_list = paginator.page(1)
+        versions = paginator.page(1)
     except EmptyPage:
      # If page is out of range (e.g. 9999), deliver last page of results.
-        versions_list = paginator.page(paginator.num_pages)
-    return render(request, 'logs/index.html', {'versions_list': versions_list})
+        versions = paginator.page(paginator.num_pages)
+
+    # Force to have a list instead of QuerySet
+    versions.count(0)
+    # Items to remove later because invalid
+    to_remove = []
+    # Parse every item (max = pagination_number)
+    for i in range( len( versions.object_list ) ):
+        if versions.object_list[i].object :
+            v = versions.object_list[i]
+            versions.object_list[i] = {
+                    'rev_id' : v.revision.id,
+                    'comment': v.revision.comment,
+                    'datetime': v.revision.date_created.strftime('%d/%m/%y %H:%M:%S'),
+                    'username': v.revision.user.get_username() if v.revision.user else '?',
+                    'user_id': v.revision.user_id,
+                    'version': v }
+        else :
+            to_remove.append(i)
+    # Remove all tagged invalid items
+    for i in to_remove :
+        versions.object_list.pop(i)
+
+    return render(request, 'logs/index.html', {'versions_list': versions})
 
 @login_required
 @permission_required('cableur')
