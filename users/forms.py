@@ -39,6 +39,13 @@ class PassForm(forms.Form):
     passwd1 = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
     passwd2 = forms.CharField(label=u'Saisir à nouveau le mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
 
+    def clean_passwd2(self):
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("passwd1")
+        password2 = self.cleaned_data.get("passwd2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required

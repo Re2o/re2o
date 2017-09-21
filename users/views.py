@@ -65,11 +65,7 @@ def form(ctx, template, request):
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
-    if u_form.cleaned_data['passwd1'] != u_form.cleaned_data['passwd2']:
-        messages.error(request, "Les 2 mots de passe différent")
-        return form({'userform': u_form}, 'users/user.html', request)
-    user.set_password(u_form.cleaned_data['passwd1'])
-    user.pwd_ntlm = hashNT(u_form.cleaned_data['passwd1'])
+    user.set_user_password(u_form.cleaned_data['passwd1'])
     with transaction.atomic(), reversion.create_revision():
         user.save()
         reversion.set_comment("Réinitialisation du mot de passe")
