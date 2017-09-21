@@ -38,9 +38,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for whitelist in white_list %}
         {% if whitelist.is_active %}
-        <tr class="bg-success text-white">
+        <tr class="success">
         {% else %}
-        <tr class="bg-warning text-white">
+        <tr>
         {% endif %}
             <td>{{ whitelist.user }}</td>
             <td>{{ whitelist.raison }}</td>
