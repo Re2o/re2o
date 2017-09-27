@@ -89,7 +89,6 @@ class Vente(models.Model):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number)
-            cotisation.save()
         return
 
     def create_cotis(self, date_start=False):
@@ -105,7 +104,6 @@ class Vente(models.Model):
             date_max = max(end_adhesion, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number) 
-            cotisation.save()
         return
 
     def save(self, *args, **kwargs):
@@ -121,8 +119,12 @@ class Vente(models.Model):
 @receiver(post_save, sender=Vente)
 def vente_post_save(sender, **kwargs):
     vente = kwargs['instance']
+    if hasattr(vente, 'cotisation'):
+        vente.cotisation.vente = vente
+        vente.cotisation.save()
     if vente.iscotisation:
         vente.create_cotis()
+        vente.cotisation.save()
         user = vente.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
