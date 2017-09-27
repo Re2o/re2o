@@ -393,7 +393,7 @@ class User(AbstractBaseUser):
             user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
             user_ldap.mail = self.email
-            user_ldap.given_name = str(self.surname).lower() + '_' + str(self.name).lower()[:3]
+            user_ldap.given_name = self.surname.lower() + '_' + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password[:6] + self.password[7:]
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
