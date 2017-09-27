@@ -31,6 +31,7 @@ from dateutil.relativedelta import relativedelta
 from django.forms import ValidationError
 from django.core.validators import MinValueValidator
 
+from django.db.models import Max
 from django.utils import timezone
 
 from machines.models import regen
