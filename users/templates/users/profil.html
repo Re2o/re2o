@@ -136,6 +136,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ user.solde }} €</td>
         </tr>
 	{% endif %}
+	{% if user.shell %}
+	    <th>Shell</th>
+	    <td>{{ user.shell }}</td>
+	{% endif %}
     </table>
     <h2>Machines :</h2>
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
