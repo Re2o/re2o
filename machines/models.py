@@ -406,6 +406,43 @@ class Service_link(models.Model):
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
+
+class PortList(models.Model):
+    """Liste des ports ouverts sur une interface."""
+    interfaces = models.ManyToManyField('Interface')
+    name = models.CharField(help_text="Nom de la configuration des ports.", max_length=255)
+
+    def __str__(self):
+        return ', '.join(map(str, self.port_set.all()))
+
+class Port(models.Model):
+    """
+    Représente un simple port ou une plage de ports.
+    
+    Les ports de la plage sont compris entre begin et en inclus. 
+    Si begin == end alors on ne représente qu'un seul port.
+    """
+    TCP = 'T'
+    UDP = 'U'
+    begin = models.IntegerField()
+    end = models.IntegerField()
+    port_list = models.ForeignKey('PortList', on_delete=models.CASCADE)
+    protocole = models.CharField(
+            max_length=1,
+            choices=(
+                (TCP, 'TCP'),
+                (UDP, 'UDP'),
+                ),
+            default=TCP,
+    )
+
+    def __str__(self):
+        beg = self.protocole + ' : '
+        if self.begin == self.end :
+            return beg + str(self.begin)
+        return beg + '-'.join([str(self.begin), str(self.end)])
+
+
 @receiver(post_save, sender=Machine)
 def machine_post_save(sender, **kwargs):
     user = kwargs['instance'].user
