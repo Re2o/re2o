@@ -474,6 +474,8 @@ class User(AbstractBaseUser):
             machine_parent.clean()
             domain = Domain()
             domain.name = self.pseudo.replace('_','-').lower() + str(all_machines.count())
+            domain.interface_parent = interface_cible
+            domain.clean()
             machine_parent.save()
             interface_cible.machine = machine_parent
             interface_cible.save()
