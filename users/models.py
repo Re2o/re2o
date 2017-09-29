@@ -50,7 +50,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinLengthValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, MachineType, Machine, Nas, MachineType, regen
+from machines.models import Domain, Interface, MachineType, Machine, Nas, MachineType, Extension, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser, OptionalMachine, MailMessageOption
 
 now = timezone.now()
@@ -473,7 +473,7 @@ class User(AbstractBaseUser):
             interface_cible.clean()
             machine_parent.clean()
             domain = Domain()
-            domain.name = self.pseudo.replace('_','-').lower() + str(all_machines.count())
+            domain.name = self.get_next_domain_name()
             domain.interface_parent = interface_cible
             domain.clean()
             machine_parent.save()
@@ -493,6 +493,23 @@ class User(AbstractBaseUser):
         self.set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
+
+    def get_next_domain_name(self):
+        """Look for an available name for a new interface for
+        this user by trying "pseudo0", "pseudo1", "pseudo2", ...
+        """
+
+        def simple_pseudo():
+            return self.pseudo.replace('_', '-').lower()
+
+        def composed_pseudo( n ):
+            return simple_pseudo() + str(n)
+
+        num = 0
+        while Domain.objects.filter(name=composed_pseudo(num)) :
+            num += 1
+        return composed_pseudo(num)
+
 
     def __str__(self):
         return self.pseudo
