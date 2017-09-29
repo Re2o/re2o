@@ -55,4 +55,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         Services (dhcp, dns...)
     </a>   
     {% endif %}
+    {% if is_bureau %}
+    <a class="list-group-item list-group-item-info" href="{% url "machines:index-portlist" %}">
+        <i class="glyphicon glyphicon-list"></i>
+        Configuration de ports
+    </a>   
+    {%endif%}
 {% endblock %}

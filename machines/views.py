@@ -48,7 +48,7 @@ from reversion.models import Version
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -911,6 +911,12 @@ def history(request, object, id):
         reversions = paginator.page(paginator.num_pages)
     return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
+
+@login_required
+@permission_required('bureau')
+def index_portlist(request):
+    port_list = PortList.objects.all().order_by('name') 
+    return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 """ Framework Rest """
 

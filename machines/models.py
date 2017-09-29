@@ -415,6 +415,12 @@ class PortList(models.Model):
     def __str__(self):
         return ', '.join(map(str, self.port_set.all()))
 
+    def tcp_ports(self):
+        return self.port_set.filter(protocole=Port.TCP)
+    
+    def udp_ports(self):
+        return self.port_set.filter(protocole=Port.UDP)
+
 class Port(models.Model):
     """
     Représente un simple port ou une plage de ports.
@@ -437,10 +443,9 @@ class Port(models.Model):
     )
 
     def __str__(self):
-        beg = self.protocole + ' : '
         if self.begin == self.end :
-            return beg + str(self.begin)
-        return beg + '-'.join([str(self.begin), str(self.end)])
+            return str(self.begin)
+        return '-'.join([str(self.begin), str(self.end)])
 
 
 @receiver(post_save, sender=Machine)
