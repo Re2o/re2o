@@ -19,13 +19,13 @@
     {% for pl in port_list %}
     <tr>
       <td>{{pl.name}}</td>
-      <td>{{pl.tcp_ports}}</td>
-      <td>{{pl.udp_ports}}</td>
+      <td>{% for p in pl.tcp_ports%}{{p.show_port}}, {%endfor%}</td>
+      <td>{% for p in pl.udp_ports%}{{p.show_port}}, {%endfor%}</td>
 	<td class="text-right">
 	  {%comment%}
 	  {% include 'buttons/suppr.html' href='machines:del-portlist' id=pl.id %}
-	  {% include 'buttons/edit.html' href='machines:edit-portlist' id=pl.id %}
 	  {%endcomment%}
+	  {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
         </td>
     </tr>
     {%endfor%}
