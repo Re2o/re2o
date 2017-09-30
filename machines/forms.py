@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, PortList
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -229,5 +229,12 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
+class EditPortListForm(ModelForm):
+    tcp_ports = forms.CharField(required=False, label="Ports TCP")
+    udp_ports = forms.CharField(required=False, label="Ports UDP")
+    # interfaces = forms.ModelMultipleChoiceField(queryset=Interface.objects.filter(Q(has_public_ip=True)), label="Interface", widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model = PortList
+        fields = ['name']
 
 

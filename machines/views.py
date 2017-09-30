@@ -48,6 +48,7 @@ from reversion.models import Version
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
+from .forms import EditPortListForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList
 from users.models import User
 from users.models import all_has_access
@@ -913,10 +914,19 @@ def history(request, object, id):
 
 
 @login_required
-@permission_required('bureau')
+@permission_required('cableur')
 def index_portlist(request):
     port_list = PortList.objects.all().order_by('name') 
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
+
+@login_required
+@permission_required('bureau')
+def edit_portlist(request, pk):
+    port_list_instance = get_object_or_404(PortList, pk=pk)
+    port_list = EditPortListForm(request.POST or None, instance=port_list_instance)
+    if port_list.is_valid():
+        return redirect("/machines/index_portlist/")
+    return form({'machineform' : port_list}, 'machines/machine.html', request)
 
 """ Framework Rest """
 

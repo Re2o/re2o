@@ -223,6 +223,7 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
+    has_public_ip = False
 
     @cached_property
     def is_active(self):
@@ -277,6 +278,7 @@ class Interface(models.Model):
         except:
             domain = None
         return str(domain)
+
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
@@ -446,6 +448,9 @@ class Port(models.Model):
         if self.begin == self.end :
             return str(self.begin)
         return '-'.join([str(self.begin), str(self.end)])
+
+    def show_port(self):
+        return str(self)
 
 
 @receiver(post_save, sender=Machine)
