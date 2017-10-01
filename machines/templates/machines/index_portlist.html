@@ -6,7 +6,7 @@
 
 {% block content %}
   <h2>Liste des configurations de ports</h2>
-  <a class="btn btn-primary btn-sm" role="button" href="#"><i class="glyphicon glyphicon-plus"></i>Ajouter une configuration</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}"><i class="glyphicon glyphicon-plus"></i>Ajouter une configuration</a>
   <table class="table table-striped">
     <thead>
       <tr>

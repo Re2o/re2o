@@ -262,6 +262,8 @@ class EditPortListForm(ModelForm):
 
         split = r',\s+'
         ip_range = r'\d+-\d+'
+        if instance.pk == None: # On ne peut pas créer de ForeignKey sur des objets sans pk
+            instance.save()
         def add_port(string, protocole, mode):
             for p in re.split(split, string):
                 if not p:
