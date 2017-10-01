@@ -35,7 +35,7 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
-from django.forms import ValidationError
+from django.forms import ValidationError, formset_factory, modelformset_factory
 from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
@@ -48,8 +48,8 @@ from reversion.models import Version
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
-from .forms import EditPortListForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList
+from .forms import EditPortListForm, EditPortForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList, Port
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -928,11 +928,23 @@ def edit_portlist(request, pk):
         messages.error(request, "Liste de ports inexistante")
         return redirect("/machines/index_portlist/")
     port_list = EditPortListForm(request.POST or None, instance=port_list_instance)
-    if port_list.is_valid():
-        port_list.save()
+    port_formset = modelformset_factory(
+            Port, 
+            fields=('begin','end','protocole','io'),
+            extra=0,
+            can_delete=True
+    )(request.POST or None, queryset=port_list_instance.port_set.all())
+    if port_list.is_valid() and port_formset.is_valid():
+        pl = port_list.save()
+        instances = port_formset.save(commit=False)
+        for to_delete in port_formset.deleted_objects:
+            to_delete.delete()
+        for port in instances:
+            port.port_list = pl
+            port.save()
         messages.success(request, "Liste de ports modifiée")
         return redirect("/machines/index_portlist/")
-    return form({'machineform' : port_list}, 'machines/machine.html', request)
+    return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
 
 @login_required
 @permission_required('bureau')
