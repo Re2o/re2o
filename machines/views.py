@@ -48,7 +48,7 @@ from reversion.models import Version
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
-from .forms import EditPortListForm, EditPortForm
+from .forms import EditPortListForm, EditPortConfigForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList, Port
 from users.models import User
 from users.models import all_has_access
@@ -993,6 +993,20 @@ def add_portlist(request):
         return redirect("/machines/index_portlist/")
     return form({'machineform' : port_list}, 'machines/machine.html', request)
 
+@login_required
+@permission_required('cableur')
+def configure_ports(request, pk):
+    try:
+        interface_instance = Interface.objects.get(pk=pk)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    interface = EditPortConfigForm(request.POST or None, instance=interface_instance)
+    if interface.is_valid():
+        interface.save()
+        messages.success(request, "Configuration des ports mise à jour.")
+        return redirect("/machines/")
+    return form({'interfaceform' : interface}, 'machines/machine.html', request)
 
 """ Framework Rest """
 

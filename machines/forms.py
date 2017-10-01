@@ -52,14 +52,14 @@ class BaseEditMachineForm(EditMachineForm):
 class EditInterfaceForm(ModelForm):
     class Meta:
         model = Interface
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ['port_lists']
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
-        self.fields['port_lists'].label = "Configuration des ports"
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
@@ -232,10 +232,10 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
-class EditPortForm(ModelForm):
+class EditPortConfigForm(ModelForm):
     class Meta:
-        model = Port
-        fields = '__all__'
+        model = Interface
+        fields = ['port_lists']
 
 class EditPortListForm(ModelForm):
     class Meta:

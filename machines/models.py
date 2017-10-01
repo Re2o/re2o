@@ -279,6 +279,9 @@ class Interface(models.Model):
             domain = None
         return str(domain)
 
+    def has_private_ip(self):
+        return IPAddress(str(self.ipv4)).is_private()
+
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
