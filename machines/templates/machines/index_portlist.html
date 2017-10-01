@@ -15,6 +15,7 @@
 	<th>TCP (sortie)</th>
 	<th>UDP (entrée)</th>
 	<th>UDP (sortie)</th>
+        <th>Machines</th>
 	<th></th>
       </tr>
     </thead>
@@ -25,6 +26,23 @@
       <td>{% for p in pl.tcp_ports_out %}{{p.show_port}}, {%endfor%}</td>
       <td>{% for p in pl.udp_ports_in %}{{p.show_port}}, {%endfor%}</td>
       <td>{% for p in pl.udp_ports_out %}{{p.show_port}}, {%endfor%}</td>
+      <td>
+      {% if pl.interface_set.all %}
+	<div class="dropdown">
+	    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                	 <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu" aria-labelledby="editioninterface">
+	    {% for interface in pl.interface_set.all %}
+		<li>
+                   <a href="{% url 'users:profil' userid=interface.machine.user.id %}">
+			{{ interface }}
+		   </a>
+		</li>
+	    {% endfor %}
+	    </ul>
+	</div>
+      {% endif %}
 	<td class="text-right">
 	  {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
 	  {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
