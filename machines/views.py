@@ -932,7 +932,9 @@ def edit_portlist(request, pk):
             Port, 
             fields=('begin','end','protocole','io'),
             extra=0,
-            can_delete=True
+            can_delete=True,
+	    min_num=1,
+	    validate_min=True,
     )(request.POST or None, queryset=port_list_instance.port_set.all())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
@@ -968,8 +970,10 @@ def add_portlist(request):
     port_formset = modelformset_factory(
             Port, 
             fields=('begin','end','protocole','io'),
-            extra=1,
-            can_delete=True
+            extra=0,
+            can_delete=True,
+	    min_num=1,
+	    validate_min=True,
     )(request.POST or None, queryset=Port.objects.none())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
