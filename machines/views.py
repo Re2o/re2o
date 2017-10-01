@@ -922,7 +922,11 @@ def index_portlist(request):
 @login_required
 @permission_required('bureau')
 def edit_portlist(request, pk):
-    port_list_instance = get_object_or_404(PortList, pk=pk)
+    try:
+        port_list_instance = PortList.objects.get(pk=pk)
+    except PortList.DoesNotExist:
+        messages.error(request, "Liste de ports inexistante")
+        return redirect("/machines/index_portlist/")
     port_list = EditPortListForm(request.POST or None, instance=port_list_instance)
     if port_list.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -930,6 +934,23 @@ def edit_portlist(request, pk):
         messages.success(request, "Liste de ports modifiée")
         return redirect("/machines/index_portlist/")
     return form({'machineform' : port_list}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('bureau')
+def del_portlist(request, pk):
+    try:
+        port_list_instance = PortList.objects.get(pk=pk)
+    except PortList.DoesNotExist:
+        messages.error(request, "Liste de ports inexistante")
+        return redirect("/machines/index_portlist/")
+    if port_list_instance.interfaces.all():
+        messages.error(request, "Cette liste de ports est utilisée")
+        return redirect("/machines/index_portlist/")
+    port_list_instance.delete()
+    messages.success(request, "La liste de ports a été supprimée")
+    return redirect("/machines/index_portlist/")
+
+
 
 """ Framework Rest """
 
