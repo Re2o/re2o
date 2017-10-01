@@ -417,11 +417,18 @@ class PortList(models.Model):
     def __str__(self):
         return ', '.join(map(str, self.port_set.all()))
 
-    def tcp_ports(self):
-        return self.port_set.filter(protocole=Port.TCP)
+    def tcp_ports_in(self):
+        return self.port_set.filter(protocole=Port.TCP, io=Port.IN)
     
-    def udp_ports(self):
-        return self.port_set.filter(protocole=Port.UDP)
+    def udp_ports_in(self):
+        return self.port_set.filter(protocole=Port.UDP, io=Port.IN)
+
+    def tcp_ports_out(self):
+        return self.port_set.filter(protocole=Port.TCP, io=Port.OUT)
+    
+    def udp_ports_out(self):
+        return self.port_set.filter(protocole=Port.UDP, io=Port.OUT)
+
 
 class Port(models.Model):
     """
@@ -432,6 +439,8 @@ class Port(models.Model):
     """
     TCP = 'T'
     UDP = 'U'
+    IN = 'I'
+    OUT = 'O'
     begin = models.IntegerField()
     end = models.IntegerField()
     port_list = models.ForeignKey('PortList', on_delete=models.CASCADE)
@@ -442,6 +451,14 @@ class Port(models.Model):
                 (UDP, 'UDP'),
                 ),
             default=TCP,
+    )
+    io = models.CharField(
+            max_length=1,
+            choices=(
+                (IN, 'IN'),
+                (OUT, 'OUT'),
+                ),
+            default=OUT,
     )
 
     def __str__(self):
