@@ -59,6 +59,7 @@ class EditInterfaceForm(ModelForm):
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
+        self.fields['port_lists'].label = "Configuration des ports"
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
@@ -231,68 +232,13 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
+class EditPortForm(ModelForm):
+    class Meta:
+        model = Port
+        fields = '__all__'
+
 class EditPortListForm(ModelForm):
-    tcp_ports_in = forms.CharField(required=False, label="Ports TCP (entrée)")
-    udp_ports_in = forms.CharField(required=False, label="Ports UDP (entrée)")
-    tcp_ports_out = forms.CharField(required=False, label="Ports TCP (sortie)")
-    udp_ports_out = forms.CharField(required=False, label="Ports UDP (sortie)")
     class Meta:
         model = PortList
-        fields = ['name']
-
-    def __init__(self, *args, **kwargs):
-        super(EditPortListForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = "Nom de la liste"
-        if 'instance' in kwargs.keys():
-            p = kwargs['instance']
-            self.fields['tcp_ports_in'].initial = ', '.join(map(str, p.tcp_ports_in())) 
-            self.fields['tcp_ports_out'].initial = ', '.join(map(str, p.tcp_ports_out())) 
-            self.fields['udp_ports_in'].initial = ', '.join(map(str, p.udp_ports_in())) 
-            self.fields['udp_ports_out'].initial = ', '.join(map(str, p.udp_ports_out())) 
-
-    def save(self, commit=False):
-        """
-        Sauvegarde l'instance. Le commit est obligatoire à cause des ForeignKey.
-        """
-        instance =  super(EditPortListForm, self).save(commit=False)
-        
-        # Suppression des anciens ports.
-        for port in instance.port_set.all():
-            port.delete()
-
-        split = r',\s+'
-        ip_range = r'\d+-\d+'
-        if instance.pk == None: # On ne peut pas créer de ForeignKey sur des objets sans pk
-            instance.save()
-        def add_port(string, protocole, mode):
-            for p in re.split(split, string):
-                if not p:
-                    continue
-                if re.match(ip_range, p):
-                    a,b = p.split('-')
-                    a,b = int(a), int(b)
-                    begin,end = min(a,b),max(a,b)
-                else:
-                    begin = end = int(p.strip())
-                port = Port()
-                port.begin = begin
-                port.end = end
-                port.port_list = instance
-                port.protocole = protocole
-                port.io = mode
-                port.save()
-        
-        # Ajout des ports TCP en entrée
-        add_port(self.cleaned_data['tcp_ports_in'], Port.TCP, Port.IN)
-        # Ajout des ports TCP en sortie
-        add_port(self.cleaned_data['tcp_ports_out'], Port.TCP, Port.OUT)
-        # Ajout des ports UDP en entrée
-        add_port(self.cleaned_data['tcp_ports_in'], Port.UDP, Port.IN)
-        # Ajout des ports UDP en sortie
-        add_port(self.cleaned_data['tcp_ports_in'], Port.UDP, Port.OUT)
-
-        if commit:
-            instance.save()
-
-        return instance
+        fields = '__all__'
 

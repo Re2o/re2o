@@ -223,7 +223,7 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    has_public_ip = False
+    port_lists = models.ManyToManyField('PortList', blank=True)
 
     @cached_property
     def is_active(self):
@@ -411,11 +411,10 @@ class Service_link(models.Model):
 
 class PortList(models.Model):
     """Liste des ports ouverts sur une interface."""
-    interfaces = models.ManyToManyField('Interface')
     name = models.CharField(help_text="Nom de la configuration des ports.", max_length=255)
 
     def __str__(self):
-        return ', '.join(map(str, self.port_set.all()))
+        return self.name
 
     def tcp_ports_in(self):
         return self.port_set.filter(protocole=Port.TCP, io=Port.IN)
