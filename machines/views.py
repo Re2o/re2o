@@ -942,7 +942,7 @@ def del_portlist(request, pk):
     except PortList.DoesNotExist:
         messages.error(request, "Liste de ports inexistante")
         return redirect("/machines/index_portlist/")
-    if port_list_instance.interfaces.all():
+    if port_list_instance.interface_set.all():
         messages.error(request, "Cette liste de ports est utilisée")
         return redirect("/machines/index_portlist/")
     port_list_instance.delete()
