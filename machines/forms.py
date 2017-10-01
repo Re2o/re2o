@@ -22,9 +22,11 @@
 
 from __future__ import unicode_literals
 
+import re
+
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, PortList
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, PortList, Port
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -238,4 +240,57 @@ class EditPortListForm(ModelForm):
         model = PortList
         fields = ['name']
 
+    def __init__(self, *args, **kwargs):
+        super(EditPortListForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = "Nom de la liste"
+        if 'instance' in kwargs.keys():
+            p = kwargs['instance']
+            self.fields['tcp_ports_in'].initial = ', '.join(map(str, p.tcp_ports_in())) 
+            self.fields['tcp_ports_out'].initial = ', '.join(map(str, p.tcp_ports_out())) 
+            self.fields['udp_ports_in'].initial = ', '.join(map(str, p.udp_ports_in())) 
+            self.fields['udp_ports_out'].initial = ', '.join(map(str, p.udp_ports_out())) 
+
+    def save(self, commit=False):
+        """
+        Sauvegarde l'instance. Le commit est obligatoire à cause des ForeignKey.
+        """
+        instance =  super(EditPortListForm, self).save(commit=False)
+        
+        # Suppression des anciens ports.
+        for port in instance.port_set.all():
+            port.delete()
+
+        split = r',\s+'
+        ip_range = r'\d+-\d+'
+        def add_port(string, protocole, mode):
+            for p in re.split(split, string):
+                if not p:
+                    continue
+                if re.match(ip_range, p):
+                    a,b = p.split('-')
+                    a,b = int(a), int(b)
+                    begin,end = min(a,b),max(a,b)
+                else:
+                    begin = end = int(p.strip())
+                port = Port()
+                port.begin = begin
+                port.end = end
+                port.port_list = instance
+                port.protocole = protocole
+                port.io = mode
+                port.save()
+        
+        # Ajout des ports TCP en entrée
+        add_port(self.cleaned_data['tcp_ports_in'], Port.TCP, Port.IN)
+        # Ajout des ports TCP en sortie
+        add_port(self.cleaned_data['tcp_ports_out'], Port.TCP, Port.OUT)
+        # Ajout des ports UDP en entrée
+        add_port(self.cleaned_data['tcp_ports_in'], Port.UDP, Port.IN)
+        # Ajout des ports UDP en sortie
+        add_port(self.cleaned_data['tcp_ports_in'], Port.UDP, Port.OUT)
+
+        if commit:
+            instance.save()
+
+        return instance
 
