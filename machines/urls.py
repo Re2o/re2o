@@ -94,4 +94,5 @@ urlpatterns = [
     url(r'^rest/service_servers/$', views.service_servers, name='service-servers'),
     url(r'index_portlist/$', views.index_portlist, name='index-portlist'),
     url(r'^edit_portlist/(?P<pk>[0-9]+)$', views.edit_portlist, name='edit-portlist'),
+    url(r'^del_portlist/(?P<pk>[0-9]+)$', views.del_portlist, name='del-portlist'),
     ]

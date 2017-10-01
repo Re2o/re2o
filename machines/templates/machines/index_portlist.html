@@ -26,9 +26,7 @@
       <td>{% for p in pl.udp_ports_in %}{{p.show_port}}, {%endfor%}</td>
       <td>{% for p in pl.udp_ports_out %}{{p.show_port}}, {%endfor%}</td>
 	<td class="text-right">
-	  {%comment%}
-	  {% include 'buttons/suppr.html' href='machines:del-portlist' id=pl.id %}
-	  {%endcomment%}
+	  {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
 	  {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
         </td>
     </tr>
