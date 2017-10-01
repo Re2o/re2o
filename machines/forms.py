@@ -230,9 +230,10 @@ class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
 class EditPortListForm(ModelForm):
-    tcp_ports = forms.CharField(required=False, label="Ports TCP")
-    udp_ports = forms.CharField(required=False, label="Ports UDP")
-    # interfaces = forms.ModelMultipleChoiceField(queryset=Interface.objects.filter(Q(has_public_ip=True)), label="Interface", widget=forms.CheckboxSelectMultiple)
+    tcp_ports_in = forms.CharField(required=False, label="Ports TCP (entrée)")
+    udp_ports_in = forms.CharField(required=False, label="Ports UDP (entrée)")
+    tcp_ports_out = forms.CharField(required=False, label="Ports TCP (sortie)")
+    udp_ports_out = forms.CharField(required=False, label="Ports UDP (sortie)")
     class Meta:
         model = PortList
         fields = ['name']

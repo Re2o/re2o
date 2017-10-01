@@ -11,16 +11,20 @@
     <thead>
       <tr>
 	<th>Nom</th>
-	<th>TCP</th>
-	<th>UDP</th>
+	<th>TCP (entrée)</th>
+	<th>TCP (sortie)</th>
+	<th>UDP (entrée)</th>
+	<th>UDP (sortie)</th>
 	<th></th>
       </tr>
     </thead>
     {% for pl in port_list %}
     <tr>
       <td>{{pl.name}}</td>
-      <td>{% for p in pl.tcp_ports%}{{p.show_port}}, {%endfor%}</td>
-      <td>{% for p in pl.udp_ports%}{{p.show_port}}, {%endfor%}</td>
+      <td>{% for p in pl.tcp_ports_in %}{{p.show_port}}, {%endfor%}</td>
+      <td>{% for p in pl.tcp_ports_out %}{{p.show_port}}, {%endfor%}</td>
+      <td>{% for p in pl.udp_ports_in %}{{p.show_port}}, {%endfor%}</td>
+      <td>{% for p in pl.udp_ports_out %}{{p.show_port}}, {%endfor%}</td>
 	<td class="text-right">
 	  {%comment%}
 	  {% include 'buttons/suppr.html' href='machines:del-portlist' id=pl.id %}
