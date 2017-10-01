@@ -35,7 +35,7 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
-from django.forms import ValidationError, formset_factory, modelformset_factory
+from django.forms import ValidationError, modelformset_factory
 from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
@@ -964,6 +964,24 @@ def del_portlist(request, pk):
 @login_required
 @permission_required('bureau')
 def add_portlist(request):
+    port_list = EditPortListForm(request.POST or None)
+    port_formset = modelformset_factory(
+            Port, 
+            fields=('begin','end','protocole','io'),
+            extra=1,
+            can_delete=True
+    )(request.POST or None, queryset=Port.objects.none())
+    if port_list.is_valid() and port_formset.is_valid():
+        pl = port_list.save()
+        instances = port_formset.save(commit=False)
+        for to_delete in port_formset.deleted_objects:
+            to_delete.delete()
+        for port in instances:
+            port.port_list = pl
+            port.save()
+        messages.success(request, "Liste de ports créée")
+        return redirect("/machines/index_portlist/")
+    return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
     port_list = EditPortListForm(request.POST or None)
     if port_list.is_valid():
         port_list.save()
