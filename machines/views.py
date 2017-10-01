@@ -929,8 +929,7 @@ def edit_portlist(request, pk):
         return redirect("/machines/index_portlist/")
     port_list = EditPortListForm(request.POST or None, instance=port_list_instance)
     if port_list.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            port_list.save()
+        port_list.save()
         messages.success(request, "Liste de ports modifiée")
         return redirect("/machines/index_portlist/")
     return form({'machineform' : port_list}, 'machines/machine.html', request)
@@ -950,6 +949,15 @@ def del_portlist(request, pk):
     messages.success(request, "La liste de ports a été supprimée")
     return redirect("/machines/index_portlist/")
 
+@login_required
+@permission_required('bureau')
+def add_portlist(request):
+    port_list = EditPortListForm(request.POST or None)
+    if port_list.is_valid():
+        port_list.save()
+        messages.success(request, "Liste de ports créée")
+        return redirect("/machines/index_portlist/")
+    return form({'machineform' : port_list}, 'machines/machine.html', request)
 
 
 """ Framework Rest """
