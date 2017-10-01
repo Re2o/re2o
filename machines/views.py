@@ -927,8 +927,6 @@ def edit_portlist(request, pk):
     if port_list.is_valid():
         with transaction.atomic(), reversion.create_revision():
             port_list.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in port_list.changed_data))
         messages.success(request, "Liste de ports modifiée")
         return redirect("/machines/index_portlist/")
     return form({'machineform' : port_list}, 'machines/machine.html', request)
