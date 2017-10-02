@@ -117,7 +117,10 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
+    type_to_ipv4 = {}
+    for t in interface.fields['type'].queryset :
+        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
