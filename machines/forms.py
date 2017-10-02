@@ -57,6 +57,9 @@ class EditInterfaceForm(ModelForm):
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
+        if "ipv4" in self.fields:
+            self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
