@@ -26,7 +26,7 @@ import re
 
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, PortList, Port
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, OuverturePortList, OuverturePort
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -232,13 +232,13 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
-class EditPortConfigForm(ModelForm):
+class EditOuverturePortConfigForm(ModelForm):
     class Meta:
         model = Interface
         fields = ['port_lists']
 
-class EditPortListForm(ModelForm):
+class EditOuverturePortListForm(ModelForm):
     class Meta:
-        model = PortList
+        model = OuverturePortList
         fields = '__all__'
 

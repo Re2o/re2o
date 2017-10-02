@@ -48,8 +48,8 @@ from reversion.models import Version
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
-from .forms import EditPortListForm, EditPortConfigForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, PortList, Port
+from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -916,20 +916,20 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_portlist(request):
-    port_list = PortList.objects.all().order_by('name') 
+    port_list = OuverturePortList.objects.all().order_by('name') 
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 @login_required
 @permission_required('bureau')
 def edit_portlist(request, pk):
     try:
-        port_list_instance = PortList.objects.get(pk=pk)
-    except PortList.DoesNotExist:
+        port_list_instance = OuverturePortList.objects.get(pk=pk)
+    except OuverturePortList.DoesNotExist:
         messages.error(request, "Liste de ports inexistante")
         return redirect("/machines/index_portlist/")
-    port_list = EditPortListForm(request.POST or None, instance=port_list_instance)
+    port_list = EditOuverturePortListForm(request.POST or None, instance=port_list_instance)
     port_formset = modelformset_factory(
-            Port, 
+            OuverturePort, 
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
@@ -952,8 +952,8 @@ def edit_portlist(request, pk):
 @permission_required('bureau')
 def del_portlist(request, pk):
     try:
-        port_list_instance = PortList.objects.get(pk=pk)
-    except PortList.DoesNotExist:
+        port_list_instance = OuverturePortList.objects.get(pk=pk)
+    except OuverturePortList.DoesNotExist:
         messages.error(request, "Liste de ports inexistante")
         return redirect("/machines/index_portlist/")
     if port_list_instance.interface_set.all():
@@ -966,15 +966,15 @@ def del_portlist(request, pk):
 @login_required
 @permission_required('bureau')
 def add_portlist(request):
-    port_list = EditPortListForm(request.POST or None)
+    port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
-            Port, 
+            OuverturePort, 
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
 	    min_num=1,
 	    validate_min=True,
-    )(request.POST or None, queryset=Port.objects.none())
+    )(request.POST or None, queryset=OuverturePort.objects.none())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
         instances = port_formset.save(commit=False)
@@ -986,7 +986,7 @@ def add_portlist(request):
         messages.success(request, "Liste de ports créée")
         return redirect("/machines/index_portlist/")
     return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
-    port_list = EditPortListForm(request.POST or None)
+    port_list = EditOuverturePortListForm(request.POST or None)
     if port_list.is_valid():
         port_list.save()
         messages.success(request, "Liste de ports créée")
@@ -1001,7 +1001,7 @@ def configure_ports(request, pk):
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
-    interface = EditPortConfigForm(request.POST or None, instance=interface_instance)
+    interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
     if interface.is_valid():
         interface.save()
         messages.success(request, "Configuration des ports mise à jour.")
