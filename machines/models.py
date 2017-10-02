@@ -280,13 +280,13 @@ class Interface(models.Model):
         return str(domain)
 
     def has_private_ip(self):
-        if hasattr(self, 'ipv4'):
+        if self.ipv4:
             return IPAddress(str(self.ipv4)).is_private()
         else:
             return False
 
     def may_have_port_open(self):
-        return hasattr(self, 'ipv4') and self.has_private_ip()
+        return self.ipv4 and not self.has_private_ip()
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
@@ -497,7 +497,7 @@ def interface_post_save(sender, **kwargs):
     interface = kwargs['instance']
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
-    if interface.may_have_port_open() and interface.port_lists.all():
+    if not interface.may_have_port_open() and interface.port_lists.all():
         interface.port_lists.clear()
     # Regen services
     regen('dhcp')
