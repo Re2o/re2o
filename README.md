@@ -92,11 +92,18 @@ donnée re2o, ainsi qu'un user re2o et un mot de passe associé.
 Ne pas oublier de faire écouter le serveur mysql ou postgresql avec les acl 
 nécessaire pour que A puisse l'utiliser.
 
+#### Mysql
 Voici les étapes à éxecuter pour mysql :
  * CREATE DATABASE re2o collate='utf8_general_ci';
  * CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
  * GRANT ALL PRIVILEGES ON re2o.* TO 'newuser'@'localhost';
  * FLUSH PRIVILEGES;
+
+#### Postgresql
+ * CREATE DATABASE re2o ENCODING 'UTF8' LC_COLLATE='fr_FR.UTF-8' 
+LC_CTYPE='fr_FR.UTF-8';
+ * CREATE USER newuser with password 'password';
+ * ALTER DATABASE re2o owner to newuser;
 
 Si les serveurs A et B ne sont pas la même machine, il est nécessaire de 
 remplacer localhost par l'ip avec laquelle A contacte B dans les commandes 
@@ -130,7 +137,7 @@ Normalement le serveur ldap démare et est fonctionnel.
 Par défaut tls n'est pas activé, il faut pour cela modifier le schéma pour 
 indiquer l'emplacement du certificat.
 Pour visualiser et éditer le ldap, l'utilisation de shelldap est fortement
-recommandée, en utilisant en binddn cn=admin,dc=ldap,dc=example,dc=org et 
+recommandée, en utilisant en binddn cn=admin,dc=example,dc=org et 
 binddpw le mot de passe admin.
 
 ## Configuration initiale
