@@ -223,7 +223,7 @@ class Interface(models.Model):
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
-    port_lists = models.ManyToManyField('PortList', blank=True)
+    port_lists = models.ManyToManyField('OuverturePortList', blank=True)
 
     @cached_property
     def is_active(self):
@@ -280,8 +280,13 @@ class Interface(models.Model):
         return str(domain)
 
     def has_private_ip(self):
-        return IPAddress(str(self.ipv4)).is_private()
+        if hasattr(self, 'ipv4'):
+            return IPAddress(str(self.ipv4)).is_private()
+        else:
+            return False
 
+    def may_have_port_open(self):
+        return hasattr(self, 'ipv4') and self.has_private_ip()
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
@@ -412,7 +417,7 @@ class Service_link(models.Model):
         return str(self.server) + " " + str(self.service)
 
 
-class PortList(models.Model):
+class OuverturePortList(models.Model):
     """Liste des ports ouverts sur une interface."""
     name = models.CharField(help_text="Nom de la configuration des ports.", max_length=255)
 
@@ -420,19 +425,19 @@ class PortList(models.Model):
         return self.name
 
     def tcp_ports_in(self):
-        return self.port_set.filter(protocole=Port.TCP, io=Port.IN)
+        return self.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.IN)
     
     def udp_ports_in(self):
-        return self.port_set.filter(protocole=Port.UDP, io=Port.IN)
+        return self.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.IN)
 
     def tcp_ports_out(self):
-        return self.port_set.filter(protocole=Port.TCP, io=Port.OUT)
+        return self.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.OUT)
     
     def udp_ports_out(self):
-        return self.port_set.filter(protocole=Port.UDP, io=Port.OUT)
+        return self.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.OUT)
 
 
-class Port(models.Model):
+class OuverturePort(models.Model):
     """
     Représente un simple port ou une plage de ports.
     
@@ -445,7 +450,7 @@ class Port(models.Model):
     OUT = 'O'
     begin = models.IntegerField()
     end = models.IntegerField()
-    port_list = models.ForeignKey('PortList', on_delete=models.CASCADE)
+    port_list = models.ForeignKey('OuverturePortList', on_delete=models.CASCADE)
     protocole = models.CharField(
             max_length=1,
             choices=(
@@ -492,6 +497,9 @@ def interface_post_save(sender, **kwargs):
     interface = kwargs['instance']
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    if interface.may_have_port_open() and interface.port_lists.all():
+        interface.port_lists.clear()
+    # Regen services
     regen('dhcp')
     regen('mac_ip_list')
 
