@@ -935,7 +935,7 @@ def edit_portlist(request, pk):
             can_delete=True,
 	    min_num=1,
 	    validate_min=True,
-    )(request.POST or None, queryset=port_list_instance.port_set.all())
+    )(request.POST or None, queryset=port_list_instance.ouvertureport_set.all())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
         instances = port_formset.save(commit=False)
