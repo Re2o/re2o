@@ -65,7 +65,7 @@ class EditInterfaceForm(ModelForm):
 
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
