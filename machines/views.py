@@ -157,7 +157,10 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    type_to_ipv4 = {}
+    for t in interface_form.fields['type'].queryset :
+        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -213,7 +216,10 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    type_to_ipv4 = {}
+    for t in interface_form.fields['type'].queryset :
+        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
