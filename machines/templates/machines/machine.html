@@ -38,6 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% bootstrap_form_errors domainform %}
 {% endif %}
 
+{% if type_to_ipv4 %}
 <script>
     var type_to_ipv4 = {
         type: [{% for type, iplist in type_to_ipv4.items %}"{{ type }}",{% endfor %}],
@@ -62,6 +63,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	});
     });
 </script>
+{% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
