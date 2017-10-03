@@ -119,7 +119,8 @@ def new_machine(request, userid):
             return redirect("/users/profil/" + str(user.id))
     type_to_ipv4 = {}
     for t in interface.fields['type'].queryset :
-        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required
@@ -159,7 +160,8 @@ def edit_interface(request, interfaceid):
         return redirect("/users/profil/" + str(interface.machine.user.id))
     type_to_ipv4 = {}
     for t in interface_form.fields['type'].queryset :
-        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required
@@ -218,7 +220,8 @@ def new_interface(request, machineid):
             return redirect("/users/profil/" + str(machine.user.id))
     type_to_ipv4 = {}
     for t in interface_form.fields['type'].queryset :
-        type_to_ipv4[str(t.id)] = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
+        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
     return form({'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
 
 @login_required

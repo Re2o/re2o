@@ -43,8 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     var type_to_ipv4 = {
         type: [{% for type, iplist in type_to_ipv4.items %}"{{ type }}",{% endfor %}],
         iplist: [{% for type, iplist in type_to_ipv4.items %}
-            [{% for ip in iplist %} {id:"{{ ip.id }}", ip:"{{ ip.ipv4 }}"},
-            {% endfor %}], {% endfor %}
+            [ {{ iplist | safe }} ], {% endfor %}
         ]
     }
     $(document).ready(function() {
