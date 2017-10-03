@@ -48,6 +48,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from django.core.validators import MinLengthValidator
+from django.core.validators import RegexValidator
 from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, MachineType, Machine, Nas, MachineType, Extension, regen
@@ -619,7 +620,7 @@ class School(models.Model):
 class ListRight(models.Model):
     PRETTY_NAME = "Liste des droits existants"
 
-    listright = models.CharField(max_length=255, unique=True)
+    listright = models.CharField(max_length=255, unique=True, validators=[RegexValidator('^[a-z]+$', message="Les groupes unix ne peuvent contenir que des lettres minuscules")])
     gid = models.IntegerField(unique=True, null=True)
     details = models.CharField(help_text="Description", max_length=255, blank=True)
 
