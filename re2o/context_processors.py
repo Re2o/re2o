@@ -23,10 +23,11 @@
 from __future__ import unicode_literals
 
 from machines.models import Interface, Machine
-from preferences.models import GeneralOption
+from preferences.models import GeneralOption, OptionalMachine
 
 def context_user(request):
     general_options, created = GeneralOption.objects.get_or_create()
+    machine_options, created = OptionalMachine.objects.get_or_create()
     user = request.user
     if user.is_authenticated():
         interfaces = user.user_interfaces()
@@ -54,4 +55,5 @@ def context_user(request):
         'is_admin' : is_admin,
         'interfaces': interfaces,
         'site_name': general_options.site_name,
+        'ipv6_enabled' : machine_options.ipv6, 
     }
