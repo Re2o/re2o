@@ -75,7 +75,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ interface.type }}</td>
             <td>{{ interface.mac_address }}</td>
             <td>{{ interface.ipv4 }}
+            {% if ipv6_enabled %}
             {{ interface.ipv6 }}
+	    {% endif %}
 	    </td>
             <td>
                 <div class="dropdown">
