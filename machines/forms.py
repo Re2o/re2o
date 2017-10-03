@@ -110,11 +110,11 @@ class DomainForm(AliasForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        if 'name_user' in kwargs:
-            name_user = kwargs.pop('name_user')
+        if 'user' in kwargs:
+            user = kwargs.pop('user')
             nb_machine = kwargs.pop('nb_machine')
             initial = kwargs.get('initial', {})
-            initial['name'] = name_user.lower()+str(nb_machine)
+            initial['name'] = user.get_next_domain_name()
             kwargs['initial'] = initial 
         super(DomainForm, self).__init__(*args, **kwargs)
  
