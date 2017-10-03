@@ -22,9 +22,11 @@
 
 from __future__ import unicode_literals
 
+import re
+
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
-from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType
+from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, OuverturePortList, OuverturePort
 from django.db.models import Q
 from django.core.validators import validate_email
 
@@ -50,7 +52,8 @@ class BaseEditMachineForm(EditMachineForm):
 class EditInterfaceForm(ModelForm):
     class Meta:
         model = Interface
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ['port_lists']
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
@@ -142,7 +145,7 @@ class DelMachineTypeForm(Form):
 class IpTypeForm(ModelForm):
     class Meta:
         model = IpType
-        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'vlan']
+        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'prefix_v6', 'vlan']
         
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +154,7 @@ class IpTypeForm(ModelForm):
 
 class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
-        fields = ['extension','type','need_infra', 'vlan']
+        fields = ['extension','type','need_infra', 'prefix_v6', 'vlan']
 
 class DelIpTypeForm(Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)
@@ -232,5 +235,13 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
+class EditOuverturePortConfigForm(ModelForm):
+    class Meta:
+        model = Interface
+        fields = ['port_lists']
 
+class EditOuverturePortListForm(ModelForm):
+    class Meta:
+        model = OuverturePortList
+        fields = '__all__'
 

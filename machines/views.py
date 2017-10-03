@@ -35,20 +35,21 @@ from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError
-from django.forms import ValidationError
+from django.forms import ValidationError, modelformset_factory
 from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
+from machines.serializers import FullInterfaceSerializer, InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
 from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text
+from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
+from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
@@ -912,6 +913,104 @@ def history(request, object, id):
     return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
 
 
+@login_required
+@permission_required('cableur')
+def index_portlist(request):
+    port_list = OuverturePortList.objects.all().order_by('name') 
+    return render(request, "machines/index_portlist.html", {'port_list':port_list})
+
+@login_required
+@permission_required('bureau')
+def edit_portlist(request, pk):
+    try:
+        port_list_instance = OuverturePortList.objects.get(pk=pk)
+    except OuverturePortList.DoesNotExist:
+        messages.error(request, "Liste de ports inexistante")
+        return redirect("/machines/index_portlist/")
+    port_list = EditOuverturePortListForm(request.POST or None, instance=port_list_instance)
+    port_formset = modelformset_factory(
+            OuverturePort, 
+            fields=('begin','end','protocole','io'),
+            extra=0,
+            can_delete=True,
+	    min_num=1,
+	    validate_min=True,
+    )(request.POST or None, queryset=port_list_instance.ouvertureport_set.all())
+    if port_list.is_valid() and port_formset.is_valid():
+        pl = port_list.save()
+        instances = port_formset.save(commit=False)
+        for to_delete in port_formset.deleted_objects:
+            to_delete.delete()
+        for port in instances:
+            port.port_list = pl
+            port.save()
+        messages.success(request, "Liste de ports modifiée")
+        return redirect("/machines/index_portlist/")
+    return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
+
+@login_required
+@permission_required('bureau')
+def del_portlist(request, pk):
+    try:
+        port_list_instance = OuverturePortList.objects.get(pk=pk)
+    except OuverturePortList.DoesNotExist:
+        messages.error(request, "Liste de ports inexistante")
+        return redirect("/machines/index_portlist/")
+    if port_list_instance.interface_set.all():
+        messages.error(request, "Cette liste de ports est utilisée")
+        return redirect("/machines/index_portlist/")
+    port_list_instance.delete()
+    messages.success(request, "La liste de ports a été supprimée")
+    return redirect("/machines/index_portlist/")
+
+@login_required
+@permission_required('bureau')
+def add_portlist(request):
+    port_list = EditOuverturePortListForm(request.POST or None)
+    port_formset = modelformset_factory(
+            OuverturePort, 
+            fields=('begin','end','protocole','io'),
+            extra=0,
+            can_delete=True,
+	    min_num=1,
+	    validate_min=True,
+    )(request.POST or None, queryset=OuverturePort.objects.none())
+    if port_list.is_valid() and port_formset.is_valid():
+        pl = port_list.save()
+        instances = port_formset.save(commit=False)
+        for to_delete in port_formset.deleted_objects:
+            to_delete.delete()
+        for port in instances:
+            port.port_list = pl
+            port.save()
+        messages.success(request, "Liste de ports créée")
+        return redirect("/machines/index_portlist/")
+    return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
+    port_list = EditOuverturePortListForm(request.POST or None)
+    if port_list.is_valid():
+        port_list.save()
+        messages.success(request, "Liste de ports créée")
+        return redirect("/machines/index_portlist/")
+    return form({'machineform' : port_list}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('cableur')
+def configure_ports(request, pk):
+    try:
+        interface_instance = Interface.objects.get(pk=pk)
+    except Interface.DoesNotExist:
+        messages.error(request, u"Interface inexistante" )
+        return redirect("/machines")
+    if not interface_instance.may_have_port_open():
+        messages.error(request, "L'ip de cette interface n'est pas publique ou non assignée")
+        return redirect("/machines")
+    interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
+    if interface.is_valid():
+        interface.save()
+        messages.success(request, "Configuration des ports mise à jour.")
+        return redirect("/machines/")
+    return form({'interfaceform' : interface}, 'machines/machine.html', request)
+
 """ Framework Rest """
 
 class JSONResponse(HttpResponse):
@@ -926,6 +1025,14 @@ class JSONResponse(HttpResponse):
 def mac_ip_list(request):
     interfaces = all_active_assigned_interfaces()
     seria = InterfaceSerializer(interfaces, many=True)
+    return seria.data
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def full_mac_ip_list(request):
+    interfaces = all_active_assigned_interfaces()
+    seria = FullInterfaceSerializer(interfaces, many=True)
     return seria.data
 
 @csrf_exempt
@@ -987,7 +1094,7 @@ def mac_ip(request):
 @login_required
 @permission_required('serveur')
 def mac_ip_dns(request):
-    seria = mac_ip_list(request)
+    seria = full_mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt

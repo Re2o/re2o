@@ -70,6 +70,7 @@ class IpType(models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
+    prefix_v6 = models.GenericIPAddressField(protocol='IPv6', null=True, blank=True)
     vlan = models.ForeignKey('Vlan', on_delete=models.PROTECT, blank=True, null=True)
 
     @cached_property
@@ -122,6 +123,9 @@ class IpType(models.Model):
         for element in IpType.objects.all().exclude(pk=self.pk):
             if not self.ip_set.isdisjoint(element.ip_set):
                 raise ValidationError("Le range indiqué n'est pas disjoint des ranges existants")
+        # On formate le prefix v6
+        if self.prefix_v6:
+            self.prefix_v6 = str(IPNetwork(self.prefix_v6 + '/64').network)
         return
 
     def save(self, *args, **kwargs):
@@ -218,11 +222,11 @@ class Interface(models.Model):
     PRETTY_NAME = "Interface"
 
     ipv4 = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
-    #ipv6 = models.GenericIPAddressField(protocol='IPv6', null=True)
     mac_address = MACAddressField(integer=False, unique=True)
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
+    port_lists = models.ManyToManyField('OuverturePortList', blank=True)
 
     @cached_property
     def is_active(self):
@@ -230,6 +234,18 @@ class Interface(models.Model):
         machine = self.machine
         user = self.machine.user
         return machine.active and user.has_access()
+
+
+    @cached_property
+    def ipv6_object(self):
+        if self.type.ip_type.prefix_v6:
+            return EUI(self.mac_address).ipv6(IPNetwork(self.type.ip_type.prefix_v6).network)
+        else:
+            return None
+
+    @cached_property
+    def ipv6(self):
+        return str(self.ipv6_object)
 
     def mac_bare(self):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
@@ -277,6 +293,15 @@ class Interface(models.Model):
         except:
             domain = None
         return str(domain)
+
+    def has_private_ip(self):
+        if self.ipv4:
+            return IPAddress(str(self.ipv4)).is_private()
+        else:
+            return False
+
+    def may_have_port_open(self):
+        return self.ipv4 and not self.has_private_ip()
 
 class Domain(models.Model):
     PRETTY_NAME = "Domaine dns"
@@ -406,6 +431,67 @@ class Service_link(models.Model):
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
+
+class OuverturePortList(models.Model):
+    """Liste des ports ouverts sur une interface."""
+    name = models.CharField(help_text="Nom de la configuration des ports.", max_length=255)
+
+    def __str__(self):
+        return self.name
+
+    def tcp_ports_in(self):
+        return self.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.IN)
+    
+    def udp_ports_in(self):
+        return self.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.IN)
+
+    def tcp_ports_out(self):
+        return self.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.OUT)
+    
+    def udp_ports_out(self):
+        return self.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.OUT)
+
+
+class OuverturePort(models.Model):
+    """
+    Représente un simple port ou une plage de ports.
+    
+    Les ports de la plage sont compris entre begin et en inclus. 
+    Si begin == end alors on ne représente qu'un seul port.
+    """
+    TCP = 'T'
+    UDP = 'U'
+    IN = 'I'
+    OUT = 'O'
+    begin = models.IntegerField()
+    end = models.IntegerField()
+    port_list = models.ForeignKey('OuverturePortList', on_delete=models.CASCADE)
+    protocole = models.CharField(
+            max_length=1,
+            choices=(
+                (TCP, 'TCP'),
+                (UDP, 'UDP'),
+                ),
+            default=TCP,
+    )
+    io = models.CharField(
+            max_length=1,
+            choices=(
+                (IN, 'IN'),
+                (OUT, 'OUT'),
+                ),
+            default=OUT,
+    )
+
+    def __str__(self):
+        if self.begin == self.end :
+            return str(self.begin)
+        return '-'.join([str(self.begin), str(self.end)])
+
+    def show_port(self):
+        return str(self)
+
+
 @receiver(post_save, sender=Machine)
 def machine_post_save(sender, **kwargs):
     user = kwargs['instance'].user
@@ -426,6 +512,9 @@ def interface_post_save(sender, **kwargs):
     interface = kwargs['instance']
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    if not interface.may_have_port_open() and interface.port_lists.all():
+        interface.port_lists.clear()
+    # Regen services
     regen('dhcp')
     regen('mac_ip_list')
 
