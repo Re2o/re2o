@@ -133,12 +133,18 @@ suffixe de l'organisation
  * Réparer les permissions (chown -R openldap:openldap /etc/ldap/slapd.d et
 chown -R openldap:openldap /var/lib/ldap) puis relancer slapd
 
-Normalement le serveur ldap démare et est fonctionnel. 
-Par défaut tls n'est pas activé, il faut pour cela modifier le schéma pour 
-indiquer l'emplacement du certificat.
 Pour visualiser et éditer le ldap, l'utilisation de shelldap est fortement
-recommandée, en utilisant en binddn cn=admin,dc=example,dc=org et 
+recommandée, en utilisant en binddn et basedn tous deux égaux à 'cn=config' et
 binddpw le mot de passe admin.
+
+Rajouter (exemple de chemin de fichier avec un certif LE):
+`olcTLSCertificateKeyFile: /etc/letsencrypt/live/HOSTNAME/privkey.pem
+olcTLSCACertificateFile: /etc/letsencrypt/live/HOSTNAME/chain.pem
+olcTLSCertificateFile: /etc/letsencrypt/live/HOSTNAME/cert.pem `
+
+Mettre à jour la partie ldap du `settings_local.py` (mettre 'TLS' à True
+si besoin, user cn=config,dc=example,dc=org et mot de passe
+ldap choisi précédemment).
 
 ## Configuration initiale
 
