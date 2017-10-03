@@ -60,6 +60,9 @@ class EditInterfaceForm(ModelForm):
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
+        if "ipv4" in self.fields:
+            self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
@@ -110,11 +113,11 @@ class DomainForm(AliasForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        if 'name_user' in kwargs:
-            name_user = kwargs.pop('name_user')
+        if 'user' in kwargs:
+            user = kwargs.pop('user')
             nb_machine = kwargs.pop('nb_machine')
             initial = kwargs.get('initial', {})
-            initial['name'] = name_user.lower()+str(nb_machine)
+            initial['name'] = user.get_next_domain_name()
             kwargs['initial'] = initial 
         super(DomainForm, self).__init__(*args, **kwargs)
  
@@ -142,7 +145,7 @@ class DelMachineTypeForm(Form):
 class IpTypeForm(ModelForm):
     class Meta:
         model = IpType
-        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'vlan']
+        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'prefix_v6', 'vlan']
         
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +154,7 @@ class IpTypeForm(ModelForm):
 
 class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
-        fields = ['extension','type','need_infra', 'vlan']
+        fields = ['extension','type','need_infra', 'prefix_v6', 'vlan']
 
 class DelIpTypeForm(Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)

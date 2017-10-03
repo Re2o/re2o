@@ -48,6 +48,7 @@ DATABASES = {
         'ENGINE': 'ldapdb.backends.ldap',
         'NAME': 'ldap://ldap_host_ip/',
         'USER': 'ldap_dn',
+        # 'TLS': True,
         'PASSWORD': 'SUPER_SECRET_LDAP',
      }
 }
