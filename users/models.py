@@ -253,7 +253,7 @@ class User(AbstractBaseUser):
 
     @cached_property
     def is_trez(self):
-        return self.has_right('trésorier')
+        return self.has_right('tresorier')
 
     @cached_property
     def is_infra(self):

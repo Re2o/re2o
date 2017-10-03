@@ -109,7 +109,7 @@ def new_facture(request, userid):
     return form({'factureform': facture_form, 'venteform': article_formset, 'articlelist': article_list}, 'cotisations/new_facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def new_facture_pdf(request):
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
@@ -156,7 +156,7 @@ def edit_facture(request, factureid):
     except Facture.DoesNotExist:
         messages.error(request, u"Facture inexistante" )
         return redirect("/cotisations/")
-    if request.user.has_perms(['trésorier']):
+    if request.user.has_perms(['tresorier']):
         facture_form = TrezEditFactureForm(request.POST or None, instance=facture)
     elif facture.control or not facture.valid:
         messages.error(request, "Vous ne pouvez pas editer une facture controlée ou invalidée par le trésorier")
@@ -223,7 +223,7 @@ def credit_solde(request, userid):
 
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def add_article(request):
     article = ArticleForm(request.POST or None)
     if article.is_valid():
@@ -236,7 +236,7 @@ def add_article(request):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def edit_article(request, articleid):
     try:
         article_instance = Article.objects.get(pk=articleid)
@@ -254,7 +254,7 @@ def edit_article(request, articleid):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def del_article(request):
     article = DelArticleForm(request.POST or None)
     if article.is_valid():
@@ -267,7 +267,7 @@ def del_article(request):
     return form({'factureform': article}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def add_paiement(request):
     paiement = PaiementForm(request.POST or None)
     if paiement.is_valid():
@@ -280,7 +280,7 @@ def add_paiement(request):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def edit_paiement(request, paiementid):
     try:
         paiement_instance = Paiement.objects.get(pk=paiementid)
@@ -298,7 +298,7 @@ def edit_paiement(request, paiementid):
     return form({'factureform': paiement}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def del_paiement(request):
     paiement = DelPaiementForm(request.POST or None)
     if paiement.is_valid():
@@ -329,7 +329,7 @@ def add_banque(request):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def edit_banque(request, banqueid):
     try:
         banque_instance = Banque.objects.get(pk=banqueid)
@@ -347,7 +347,7 @@ def edit_banque(request, banqueid):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def del_banque(request):
     banque = DelBanqueForm(request.POST or None)
     if banque.is_valid():
@@ -365,7 +365,7 @@ def del_banque(request):
     return form({'factureform': banque}, 'cotisations/facture.html', request)
 
 @login_required
-@permission_required('trésorier')
+@permission_required('tresorier')
 def control(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
