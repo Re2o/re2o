@@ -23,7 +23,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Text, Mx, Service_link, Ns
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Text, Mx, Service_link, Ns, OuverturePortList, OuverturePort
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -80,10 +80,31 @@ class ExtensionNameField(serializers.RelatedField):
 
 class TypeSerializer(serializers.ModelSerializer):
     extension = ExtensionNameField(read_only=True)
-    
+    ouverture_ports_tcp_in = serializers.SerializerMethodField('get_port_policy_input_tcp')
+    ouverture_ports_tcp_out = serializers.SerializerMethodField('get_port_policy_output_tcp')
+    ouverture_ports_udp_in = serializers.SerializerMethodField('get_port_policy_input_udp')
+    ouverture_ports_udp_out = serializers.SerializerMethodField('get_port_policy_output_udp')
+
     class Meta:
         model = IpType
-        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop', 'ouverture_ports')
+        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop', 'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out', 'ouverture_ports_udp_in', 'ouverture_ports_udp_out', )
+
+    def get_port_policy(self, obj, protocole, io):
+        if not obj.ouverture_ports:
+            return []
+        return [str(port) for port in obj.ouverture_ports.ouvertureport_set.filter(protocole=protocole).filter(io=io)]
+
+    def get_port_policy_input_tcp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.TCP, OuverturePort.IN)
+
+    def get_port_policy_output_tcp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.TCP, OuverturePort.OUT)
+
+    def get_port_policy_input_udp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.UDP, OuverturePort.IN)
+
+    def get_port_policy_output_udp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.UDP, OuverturePort.OUT)
 
 class ExtensionSerializer(serializers.ModelSerializer):
     origin = serializers.SerializerMethodField('get_origin_ip')
