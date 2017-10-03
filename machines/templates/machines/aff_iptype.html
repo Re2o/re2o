@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Nécessite l'autorisation infra</th>
                 <th>Début</th>
                 <th>Fin</th>
+		<th>Préfixe v6</th>
                 <th>Sur vlan</th>
 		<th></th>
                 <th></th>
@@ -42,6 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.need_infra }}</td>
             <td>{{ type.domaine_ip_start }}</td>
             <td>{{ type.domaine_ip_stop }}</td>
+	    <td>{{ type.prefix_v6 }}</td>
             <td>{{ type.vlan }}</td>
             <td class="text-right">
             {% if is_infra %}

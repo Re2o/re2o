@@ -70,6 +70,7 @@ class IpType(models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
+    prefix_v6 = models.GenericIPAddressField(protocol='IPv6', null=True, blank=True)
     vlan = models.ForeignKey('Vlan', on_delete=models.PROTECT, blank=True, null=True)
 
     @cached_property
@@ -122,6 +123,9 @@ class IpType(models.Model):
         for element in IpType.objects.all().exclude(pk=self.pk):
             if not self.ip_set.isdisjoint(element.ip_set):
                 raise ValidationError("Le range indiqué n'est pas disjoint des ranges existants")
+        # On formate le prefix v6
+        if self.prefix_v6:
+            self.prefix_v6 = str(IPNetwork(self.prefix_v6 + '/64').network)
         return
 
     def save(self, *args, **kwargs):
@@ -218,7 +222,6 @@ class Interface(models.Model):
     PRETTY_NAME = "Interface"
 
     ipv4 = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
-    #ipv6 = models.GenericIPAddressField(protocol='IPv6', null=True)
     mac_address = MACAddressField(integer=False, unique=True)
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
@@ -231,6 +234,18 @@ class Interface(models.Model):
         machine = self.machine
         user = self.machine.user
         return machine.active and user.has_access()
+
+
+    @cached_property
+    def ipv6_object(self):
+        if self.type.ip_type.prefix_v6:
+            return EUI(self.mac_address).ipv6(IPNetwork(self.type.ip_type.prefix_v6).network)
+        else:
+            return None
+
+    @cached_property
+    def ipv6(self):
+        return str(self.ipv6_object)
 
     def mac_bare(self):
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()

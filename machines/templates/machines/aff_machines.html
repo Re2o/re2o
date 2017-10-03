@@ -34,7 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Nom dns</th>
             <th>Type</th>
             <th>Mac</th>
-            <th>Ipv4</th>
+            <th>IP</th>
             <th></th>
         </tr>
     </thead>
@@ -74,7 +74,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
             <td>{{ interface.type }}</td>
             <td>{{ interface.mac_address }}</td>
-            <td>{{ interface.ipv4 }}</td>
+            <td>{{ interface.ipv4 }}
+            {{ interface.ipv6 }}
+	    </td>
             <td>
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
