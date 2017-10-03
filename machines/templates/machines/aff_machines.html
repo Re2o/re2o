@@ -96,13 +96,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <i class="glyphicon glyphicon-edit"></i> Gerer les alias
                             </a>
                         </li>
-			{% if interface.may_have_port_open %}
 			<li>
 			    <a href="{% url 'machines:port-config' interface.id%}">
                                 <i class="glyphicon glyphicon-edit"></i> Gerer la configuration des ports
 			    </a>
 			</li>
-			{% endif %}
 			<li>
                             <a href="{% url 'machines:history' 'interface' interface.id %}">
                                 <i class="glyphicon glyphicon-time"></i> Historique
