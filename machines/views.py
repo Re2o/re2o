@@ -41,7 +41,7 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
+from machines.serializers import FullInterfaceSerializer, InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
@@ -1030,6 +1030,14 @@ def mac_ip_list(request):
 @csrf_exempt
 @login_required
 @permission_required('serveur')
+def full_mac_ip_list(request):
+    interfaces = all_active_assigned_interfaces()
+    seria = FullInterfaceSerializer(interfaces, many=True)
+    return seria.data
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
 def alias(request):
     alias = Domain.objects.filter(interface_parent=None).filter(cname__in=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
     seria = DomainSerializer(alias, many=True)
@@ -1086,7 +1094,7 @@ def mac_ip(request):
 @login_required
 @permission_required('serveur')
 def mac_ip_dns(request):
-    seria = mac_ip_list(request)
+    seria = full_mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
