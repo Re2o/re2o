@@ -145,7 +145,7 @@ class DelMachineTypeForm(Form):
 class IpTypeForm(ModelForm):
     class Meta:
         model = IpType
-        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'prefix_v6', 'vlan']
+        fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports']
         
 
     def __init__(self, *args, **kwargs):
@@ -154,7 +154,7 @@ class IpTypeForm(ModelForm):
 
 class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
-        fields = ['extension','type','need_infra', 'prefix_v6', 'vlan']
+        fields = ['extension','type','need_infra', 'prefix_v6', 'vlan', 'ouverture_ports']
 
 class DelIpTypeForm(Form):
     iptypes = forms.ModelMultipleChoiceField(queryset=IpType.objects.all(), label="Types d'ip actuelles",  widget=forms.CheckboxSelectMultiple)
