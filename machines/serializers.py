@@ -80,10 +80,10 @@ class ExtensionNameField(serializers.RelatedField):
 
 class TypeSerializer(serializers.ModelSerializer):
     extension = ExtensionNameField(read_only=True)
-
+    
     class Meta:
         model = IpType
-        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop')
+        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop', 'ouverture_ports')
 
 class ExtensionSerializer(serializers.ModelSerializer):
     origin = serializers.SerializerMethodField('get_origin_ip')
@@ -184,3 +184,4 @@ class ServiceServersSerializer(serializers.ModelSerializer):
 
     def get_regen_status(self, obj):
         return obj.need_regen()
+

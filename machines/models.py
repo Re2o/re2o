@@ -72,6 +72,7 @@ class IpType(models.Model):
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
     prefix_v6 = models.GenericIPAddressField(protocol='IPv6', null=True, blank=True)
     vlan = models.ForeignKey('Vlan', on_delete=models.PROTECT, blank=True, null=True)
+    ouverture_ports = models.ForeignKey('OuverturePortList', blank=True, null=True)
 
     @cached_property
     def ip_range(self):
