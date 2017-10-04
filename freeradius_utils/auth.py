@@ -273,6 +273,9 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         return (sw_name, u'Port inconnu', VLAN_OK)
 
     port = port.first()
+    # Si un vlan a été précisé, on l'utilise pour VLAN_OK
+    if port.vlan_force:
+        VLAN_OK = int(port.vlan_force.vlan_id)
 
     if port.radius == 'NO':
         return (sw_name, u"Pas d'authentification sur ce port", VLAN_OK)
@@ -316,9 +319,5 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
             return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
             return (sw_name, u'Machine OK', VLAN_OK)
-
-    # On gere bien tous les autres états possibles, il ne reste que le VLAN en dur
-    return (sw_name, u'VLAN impose', int(port.radius))
-
 
 

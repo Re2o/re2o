@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Interface machine</th>
             <th>Related</th>
             <th>Radius</th>
+	    <th>Vlan forcé</th>
             <th>Détails</th>
             <th></th>
         </tr>
@@ -53,6 +54,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
         </td>
         <td>{{ port.radius }}</td>
+	<td>{% if not port.vlan_force %} Aucun{%else %}{{ port.vlan_force }}{% endif %}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
