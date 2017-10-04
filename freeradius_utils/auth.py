@@ -257,6 +257,8 @@ def check_user_machine_and_register(nas_type, username, mac_address):
                 return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
             else:
                 return (False, u'Erreur dans le register mac %s' % reason, '')        
+        else:
+            return (False, u'Machine inconnue', '')
     else:
         return (False, u"Machine inconnue", '')
 
