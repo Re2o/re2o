@@ -33,7 +33,7 @@ class PortForm(ModelForm):
 
 class EditPortForm(ModelForm):
     class Meta(PortForm.Meta):
-        fields = ['room', 'related', 'machine_interface', 'radius', 'details']
+        fields = ['room', 'related', 'machine_interface', 'radius', 'vlan_force', 'details']
 
     def __init__(self, *args, **kwargs):
         super(EditPortForm, self).__init__(*args, **kwargs)
@@ -42,7 +42,7 @@ class EditPortForm(ModelForm):
 
 class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):
-        fields = ['port', 'room', 'machine_interface', 'related', 'radius', 'details']
+        fields = ['port', 'room', 'machine_interface', 'related', 'radius', 'vlan_force', 'details']
 
 class StackForm(ModelForm):
     class Meta:

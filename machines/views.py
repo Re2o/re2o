@@ -1002,8 +1002,7 @@ def configure_ports(request, pk):
         messages.error(request, u"Interface inexistante" )
         return redirect("/machines")
     if not interface_instance.may_have_port_open():
-        messages.error(request, "L'ip de cette interface n'est pas publique ou non assignée")
-        return redirect("/machines")
+        messages.error(request, "Attention, l'ipv4 n'est pas publique, l'ouverture n'aura pas d'effet en v4")
     interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
     if interface.is_valid():
         interface.save()

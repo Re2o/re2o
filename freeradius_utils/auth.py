@@ -257,12 +257,15 @@ def check_user_machine_and_register(nas_type, username, mac_address):
                 return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
             else:
                 return (False, u'Erreur dans le register mac %s' % reason, '')        
+        else:
+            return (False, u'Machine inconnue', '')
     else:
         return (False, u"Machine inconnue", '')
 
 
 def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
     # Get port from switch and port number
+    extra_log = ""
     if not nas:
         return ('?', u'Nas inconnu', VLAN_OK)
 
@@ -273,9 +276,15 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         return (sw_name, u'Port inconnu', VLAN_OK)
 
     port = port.first()
+    # Si un vlan a été précisé, on l'utilise pour VLAN_OK
+    if port.vlan_force:
+        DECISION_VLAN = int(port.vlan_force.vlan_id)
+        extra_log = u"Force sur vlan " + str(DECISION_VLAN)
+    else:
+        DECISION_VLAN = VLAN_OK
 
     if port.radius == 'NO':
-        return (sw_name, u"Pas d'authentification sur ce port", VLAN_OK)
+        return (sw_name, u"Pas d'authentification sur ce port" + extra_log, DECISION_VLAN)
 
     if port.radius == 'BLOQ':
         return (sw_name, u'Port desactive', VLAN_NOK)
@@ -309,16 +318,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
                 else:
                     result, reason = room_user.first().autoregister_machine(mac_address, nas_type)
                     if result:
-                        return (sw_name, u'Access Ok, Capture de la mac...', VLAN_OK)
+                        return (sw_name, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
                     else:
                         return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
         elif not interface.first().is_active:
             return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
-            return (sw_name, u'Machine OK', VLAN_OK)
-
-    # On gere bien tous les autres états possibles, il ne reste que le VLAN en dur
-    return (sw_name, u'VLAN impose', int(port.radius))
-
+            return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
 
 
