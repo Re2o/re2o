@@ -207,6 +207,7 @@ class EditInfoForm(BaseInfoForm):
         ]
 
 class InfoForm(EditInfoForm):
+    """ Utile pour forcer un déménagement quand il y a déjà un user en place"""
     force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
 
     def clean_force(self):
@@ -215,15 +216,18 @@ class InfoForm(EditInfoForm):
         return
 
 class UserForm(InfoForm):
+    """ Model form general"""
     class Meta(InfoForm.Meta):
         fields = '__all__'
 
 class PasswordForm(ModelForm):
+    """ Formulaire de changement brut de mot de passe. Ne pas utiliser sans traitement"""
     class Meta:
         model = User
         fields = ['password', 'pwd_ntlm']
 
 class ServiceUserForm(ModelForm):
+    """ Modification d'un service user"""
     password = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput, required=False)
 
     class Meta:
@@ -235,6 +239,7 @@ class EditServiceUserForm(ServiceUserForm):
         fields = ['access_group','comment']
 
 class StateForm(ModelForm):
+    """ Changement de l'état d'un user"""
     class Meta:
         model = User
         fields = ['state']
