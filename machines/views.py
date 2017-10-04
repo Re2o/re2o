@@ -41,7 +41,7 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import FullInterfaceSerializer, InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
+from machines.serializers import FullInterfaceSerializer, InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer, OuverturePortsSerializer
 from reversion import revisions as reversion
 from reversion.models import Version
 
@@ -1105,6 +1105,30 @@ def service_servers(request):
     seria = ServiceServersSerializer(service_link, many=True)
     return JSONResponse(seria.data)
 
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def ouverture_ports(request):
+    r = {'ipv4':{}, 'ipv6':{}}
+    for i in Interface.objects.all():
+        if not i.may_have_port_open():
+            continue
+        if i.ipv4:
+            r['ipv4'][i.ipv4.ipv4] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
+        if i.ipv6:
+            r['ipv6'][i.ipv6] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
+        for j in i.port_lists.all():
+            if i.ipv4:
+                r['ipv4'][i.ipv4.ipv4]["tcp_in"].extend(j.tcp_ports_in())
+                r['ipv4'][i.ipv4.ipv4]["tcp_out"].extend(j.tcp_ports_out())
+                r['ipv4'][i.ipv4.ipv4]["udp_in"].extend(j.udp_ports_in())
+                r['ipv4'][i.ipv4.ipv4]["udp_out"].extend(j.udp_ports_out())
+            if i.ipv6:
+                r['ipv6'][i.ipv6]["tcp_in"].extend(j.tcp_ports_in())
+                r['ipv6'][i.ipv6]["tcp_out"].extend(j.tcp_ports_out())
+                r['ipv6'][i.ipv6]["udp_in"].extend(j.udp_ports_in())
+                r['ipv6'][i.ipv6]["udp_out"].extend(j.udp_ports_out())
+    return JSONResponse(r)
 @csrf_exempt
 @login_required
 @permission_required('serveur')
