@@ -1114,7 +1114,7 @@ def ouverture_ports(request):
             continue
         if i.ipv4:
             r['ipv4'][i.ipv4.ipv4] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
-        if i.ipv6:
+        if i.ipv6_object:
             r['ipv6'][i.ipv6] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
         for j in i.port_lists.all():
             if i.ipv4:
@@ -1122,7 +1122,7 @@ def ouverture_ports(request):
                 r['ipv4'][i.ipv4.ipv4]["tcp_out"].extend(j.tcp_ports_out())
                 r['ipv4'][i.ipv4.ipv4]["udp_in"].extend(j.udp_ports_in())
                 r['ipv4'][i.ipv4.ipv4]["udp_out"].extend(j.udp_ports_out())
-            if i.ipv6:
+            if i.ipv6_object:
                 r['ipv6'][i.ipv6]["tcp_in"].extend(j.tcp_ports_in())
                 r['ipv6'][i.ipv6]["tcp_out"].extend(j.tcp_ports_out())
                 r['ipv6'][i.ipv6]["udp_in"].extend(j.udp_ports_in())
