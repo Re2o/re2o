@@ -206,3 +206,28 @@ class ServiceServersSerializer(serializers.ModelSerializer):
     def get_regen_status(self, obj):
         return obj.need_regen()
 
+class OuverturePortsSerializer(serializers.Serializer):
+    ipv4 = serializers.SerializerMethodField()
+    ipv6 = serializers.SerializerMethodField()
+
+    def get_ipv4():
+        return {i.ipv4.ipv4:
+                {
+                    "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
+                    "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
+                    "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
+                    "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+                }
+            for i in Interface.objects.all() if i.ipv4
+        }
+                                                            
+    def get_ipv6():
+        return {i.ipv6:
+                {
+                    "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
+                    "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
+                    "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
+                    "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+                }
+            for i in Interface.objects.all() if i.ipv6
+        }
