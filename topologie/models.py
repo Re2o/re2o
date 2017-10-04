@@ -91,23 +91,20 @@ class Switch(models.Model):
 
 class Port(models.Model):
     PRETTY_NAME = "Port de switch"
-    STATES_BASE = (
+    STATES = (
             ('NO', 'NO'),
             ('STRICT', 'STRICT'),
             ('BLOQ', 'BLOQ'),
             ('COMMON', 'COMMON'),
             )
-    try:
-        STATES = STATES_BASE + tuple([(str(id), str(id)) for id in list(Vlan.objects.values_list('vlan_id', flat=True).order_by('vlan_id'))])
-    except:
-        STATES = STATES_BASE 
-
+    
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
     machine_interface = models.ForeignKey('machines.Interface', on_delete=models.SET_NULL, blank=True, null=True)
     related = models.OneToOneField('self', null=True, blank=True, related_name='related_port')
     radius = models.CharField(max_length=32, choices=STATES, default='NO')
+    vlan_force = models.ForeignKey('machines.Vlan', on_delete=models.SET_NULL, blank=True, null=True)
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:

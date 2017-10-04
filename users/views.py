@@ -716,6 +716,8 @@ class JSONResponse(HttpResponse):
 @login_required
 @permission_required('serveur')
 def mailing(request):
+    """ Fonction de serialisation des addresses mail de tous les users
+    Pour generation de ml all users"""
     mails = all_has_access().values('email').distinct()
     seria = MailSerializer(mails, many=True)
     return JSONResponse(seria.data)
