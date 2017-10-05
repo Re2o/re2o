@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load bootstrap_form_typeahead %}
 
 {% block title %}Création et modification de machines{% endblock %}
 
@@ -38,39 +39,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% bootstrap_form_errors domainform %}
 {% endif %}
 
-{% if type_to_ipv4 %}
-<script>
-    var type_to_ipv4 = {
-        type: [{% for type, iplist in type_to_ipv4.items %}"{{ type }}",{% endfor %}],
-        iplist: [{% for type, iplist in type_to_ipv4.items %}
-            [ {{ iplist | safe }} ], {% endfor %}
-        ]
-    }
-    $(document).ready(function() {
-        $("#id_ipv4").html("<option value='' selected='selected'>Choisisez un type de machine d'abord</options>");
-        $("#id_type").change(function() {
-            var val = $(this).val();
-	    var options = "<option value='' selected='selected'>Assignation automatique de l'ipv4</option>";
-	    for (var i = 0; i < type_to_ipv4.type.length; i++) {
-                if (type_to_ipv4.type[i] == val) {
-                    for (var j = 0; j < type_to_ipv4.iplist[i].length; j++) {
-                        options += "<option value='"+type_to_ipv4.iplist[i][j].id+"'>"+type_to_ipv4.iplist[i][j].ip+"</option>";
-                    }
-                }
-            }
-            $("#id_ipv4").html(options)
-	});
-    });
-</script>
-{% endif %}
-
 <form class="form" method="post">
     {% csrf_token %}
     {% if machineform %}
     {% bootstrap_form machineform %}
     {% endif %}
     {% if interfaceform %}
-    {% bootstrap_form interfaceform %}
+    {% bootstrap_form_typeahead interfaceform 'ipv4,type' %}
     {% endif %}
     {% if domainform %}
     {% bootstrap_form domainform %}
