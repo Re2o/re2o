@@ -20,6 +20,7 @@
 
 from django import template
 from django.utils.safestring import mark_safe
+from django.forms import TextInput
 from bootstrap3.templatetags.bootstrap3 import bootstrap_form
 from bootstrap3.utils import render_tag
 from bootstrap3.forms import render_field
@@ -67,18 +68,24 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
     form = ''
     for f_name, f_value in django_form.fields.items() :
         if not f_name in exclude :
-            if f_name in t_fields :
-                if not f_name in hidden :
+            if f_name in t_fields and not f_name in hidden :
+                    f_bound = f_value.get_bound_field( django_form, f_name )
+                    f_value.widget = TextInput(
+                        attrs={
+                            'name': 'typeahead_'+f_name,
+                        }
+                    )
+                    form += render_field(
+                        f_value.get_bound_field( django_form, f_name ),
+                        *args,
+                        **kwargs
+                    )
                     form += render_tag(
                         'div',
                         attrs = {'class': 'form-group'},
-                        content = label_tag( f_name, f_value ) +
-                        input_tag( f_name, f_value ) +
-                        hidden_tag( f_name ) +
+                        content = hidden_tag( f_bound, f_name ) +
                         typeahead_full_script( f_name, f_value )
                     )
-                else:
-                    form += hidden_tag( f_name )
             else:
                 form += render_field(
                     f_value.get_bound_field(django_form, f_name),
@@ -89,43 +96,21 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
 
     return mark_safe( form )
 
-def input_id( f_name ):
-    return 'typeahead_input_'+f_name
+def input_id( f_name ) :
+    return 'id_'+f_name
 
 def hidden_id( f_name ):
-    return 'typeahead_select_'+f_name
+    return 'typeahead_hidden_'+f_name
 
 def hidden_tag( f_name ):
     return render_tag(
         'input',
         attrs={
             'id': hidden_id(f_name),
-            'maxlength': 255,
             'name': f_name,
             'type': 'hidden',
             'value': ''
         }
-    )
-
-def label_tag( f_name, f_value ):
-    return render_tag(
-        'label',
-        attrs={
-            'class': 'control-label',
-            'for': input_id(f_name)
-        },
-        content=f_value.label
-    )
-
-def input_tag( f_name, f_value ):
-    return render_tag(
-        'input',
-        attrs={
-            'class': 'form-control',
-            'id': input_id(f_name),
-            'type': 'text',
-            'placeholder': f_value.empty_label
-        },
     )
 
 def typeahead_full_script( f_name, f_value ) :
