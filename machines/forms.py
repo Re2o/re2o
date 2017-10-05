@@ -60,6 +60,8 @@ class EditInterfaceForm(ModelForm):
         if "ipv4" in self.fields:
             self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(id=self.fields['ipv4'].get_bound_field(self, 'ipv4').value())
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
@@ -92,6 +94,8 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(id=self.fields['ipv4'].get_bound_field(self, 'ipv4').value())
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 

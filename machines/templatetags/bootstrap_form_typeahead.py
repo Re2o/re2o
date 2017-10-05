@@ -102,20 +102,21 @@ def input_id( f_name ) :
 def hidden_id( f_name ):
     return 'typeahead_hidden_'+f_name
 
-def hidden_tag( f_name ):
+def hidden_tag( f_bound, f_name ):
     return render_tag(
         'input',
         attrs={
             'id': hidden_id(f_name),
             'name': f_name,
             'type': 'hidden',
-            'value': ''
+            'value': f_bound.value()
         }
     )
 
 def typeahead_full_script( f_name, f_value ) :
     js_content =                                                              \
         '$("#'+input_id(f_name)+'").ready( function() {\n'                  + \
+            reset_input( f_name, f_value ) + '\n'                           + \
             typeahead_choices( f_value ) + '\n'                             + \
             typeahead_engine () + '\n'                                      + \
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
@@ -127,6 +128,9 @@ def typeahead_full_script( f_name, f_value ) :
         '});\n'
 
     return render_tag( 'script', content=mark_safe( js_content ) )
+
+def reset_input( f_name, f_value ) :
+    return '$("#'+input_id(f_name)+'").val("'+f_value.empty_label+'");'
 
 def typeahead_choices( f_value ) :
     return 'var choices = [' +                                                \
