@@ -117,11 +117,7 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    type_to_ipv4 = {}
-    for t in interface.fields['type'].queryset :
-        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
-        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -158,11 +154,7 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    type_to_ipv4 = {}
-    for t in interface_form.fields['type'].queryset :
-        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
-        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -218,11 +210,7 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    type_to_ipv4 = {}
-    for t in interface_form.fields['type'].queryset :
-        iplist = IpList.objects.filter(interface__isnull=True).filter(ip_type=t.ip_type)
-        type_to_ipv4[str(t.id)] = ','.join(['{id:"%s", ip:"%s"}' % (b.id, b.ipv4) for b in iplist])
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'type_to_ipv4': type_to_ipv4}, 'machines/machine.html', request)
+    return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
