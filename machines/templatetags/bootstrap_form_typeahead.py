@@ -62,20 +62,23 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
     t_fields = typeahead_fields.split(',')
     exclude = kwargs.get('exclude', None)
     exclude = exclude.split(',') if exclude else []
+    hidden = [h.name for h in django_form.hidden_fields()]
     
     form = ''
     for f_name, f_value in django_form.fields.items() :
         if not f_name in exclude :
             if f_name in t_fields :
-                form += render_tag(
-                    'div',
-                    attrs = {'class': 'form-group'},
-                    content = label_tag( f_name, f_value ) +
-                    input_tag( f_name, f_value ) +
-                    hidden_tag( f_name ) +
-                    typeahead_full_script( f_name, f_value )
-                )
-
+                if not f_name in hidden :
+                    form += render_tag(
+                        'div',
+                        attrs = {'class': 'form-group'},
+                        content = label_tag( f_name, f_value ) +
+                        input_tag( f_name, f_value ) +
+                        hidden_tag( f_name ) +
+                        typeahead_full_script( f_name, f_value )
+                    )
+                else:
+                    form += hidden_tag( f_name )
             else:
                 form += render_field(
                     f_value.get_bound_field(django_form, f_name),
@@ -89,14 +92,15 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
 def input_id( f_name ):
     return 'typeahead_input_'+f_name
 
-def select_id( f_name ):
+def hidden_id( f_name ):
     return 'typeahead_select_'+f_name
 
 def hidden_tag( f_name ):
     return render_tag(
         'input',
         attrs={
-            'id': select_id(f_name),
+            'id': hidden_id(f_name),
+            'maxlength': 255,
             'name': f_name,
             'type': 'hidden',
             'value': ''
@@ -173,7 +177,7 @@ def typeahead_datasets( f_name ) :
 
 def typeahead_updater( f_name ):
     return 'function(evt, item) { '                                           \
-        '$("#'+select_id(f_name)+'").val( item.key ); '                       \
+        '$("#'+hidden_id(f_name)+'").val( item.key ); '                       \
         'return item; '                                                       \
         '}'
 
