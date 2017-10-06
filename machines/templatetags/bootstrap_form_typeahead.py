@@ -142,7 +142,7 @@ def typeahead_choices( f_value ) :
         '];'
 
 def typeahead_engine () :
-    return 'var choices = new Bloodhound({ '                                  \
+    return 'var engine = new Bloodhound({ '                                   \
             'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
             'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
             'local: choices, '                                                \
@@ -153,7 +153,7 @@ def typeahead_datasets( f_name ) :
     return '{ '                                                               \
             'hint: true, '                                                    \
             'highlight: true, '                                               \
-            'minLength: 1 '                                                   \
+            'minLength: 0 '                                                   \
         '}, '                                                                 \
         '{ '                                                                  \
             'templates: { '                                                   \
@@ -161,7 +161,18 @@ def typeahead_datasets( f_name ) :
             '}, '                                                             \
             'display: "value", '                                              \
             'name: "'+f_name+'", '                                            \
-            'source: choices '                                                \
+            'source: function(q, sync) {'                                     \
+                'if (q === "") {'                                             \
+                    'var nb = 10;'                                            \
+                    'var first = [] ;'                                        \
+                    'for ( var i = 0 ; i < nb ; i++ ) {'                      \
+                        'first.push(choices[i].value);'                       \
+                    '}'                                                       \
+                    'sync(engine.get(first));'                                \
+                '} else {'                                                    \
+                    'engine.search(q, sync)'                                  \
+                '}'                                                           \
+            '}'                                                               \
         '}'
 
 def typeahead_updater( f_name ):
