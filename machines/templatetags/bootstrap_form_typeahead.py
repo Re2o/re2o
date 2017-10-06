@@ -182,6 +182,7 @@ def typeahead_datasets( f_name ) :
 def typeahead_updater( f_name ):
     return 'function(evt, item) { '                                           \
         '$("#'+hidden_id(f_name)+'").val( item.key ); '                       \
+        '$("#'+hidden_id(f_name)+'").change();'                               \
         'return item; '                                                       \
     '}'
 
@@ -189,5 +190,6 @@ def typeahead_change( f_name ):
     return 'function(evt) { '                                                 \
         'if (evt.currentTarget.value === "") {'                               \
             '$("#'+hidden_id(f_name)+'").val(""); '                           \
+            '$("#'+hidden_id(f_name)+'").change();'                               \
         '}'                                                                   \
     '}'
