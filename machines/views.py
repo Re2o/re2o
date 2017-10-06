@@ -74,6 +74,43 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render(request, template, c)
 
+def generate_ipv4_choices( field ) :
+    return '[{key: "", value: "' + str(field.empty_label) + '", type: -1},' + \
+        ', '.join([                                                           \
+            '{key: ' + str(ip.id) + ','                                       \
+            ' value: "' + str(ip.ipv4) + '",'                                 \
+            ' type: ' + str(ip.type) + '}'                                    \
+            for ip in field.queryset                                          \
+            ]) +                                                              \
+        '];'
+
+def generate_ipv4_match_func() :
+    return 'function(q, sync) {'                                              \
+        'var select = function (array, nb, filter) {'                         \
+            'var i=0; var res=[];'                                            \
+            'while (nb >= 0 && i < array.length) {'                           \
+                'if (filter(array[i])) {'                                     \
+                    'res.push(array[i]);'                                     \
+                    'nb -= 1;'                                                \
+                '}'                                                           \
+                'i += 1;'                                                     \
+            '}'                                                               \
+            'return res;'                                                     \
+        '};'                                                                  \
+        'var filter = function (elt) {'                                       \
+            'return elt.type == -1 || elt.type == $("#id_type").val();'       \
+        '};'                                                                  \
+        'var cb = function (a) { sync(a.filter(filter)); };'                  \
+        'if (q === "") {'                                                     \
+            'sync( engine.get( select(choices, 10, filter).map('              \
+                'function (elt) { return elt.key; }'                          \
+            ') ) );'                                                          \
+        '} else {'                                                            \
+            'engine.search(q, cb);'                                           \
+        '}'                                                                   \
+    '}'
+
+
 @login_required
 def new_machine(request, userid):
     try:
@@ -117,7 +154,9 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
+    i_choices = { 'ipv4': generate_ipv4_choices( interface.fields['ipv4'] ) }
+    i_match_func = { 'ipv4': generate_ipv4_match_func() }
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
