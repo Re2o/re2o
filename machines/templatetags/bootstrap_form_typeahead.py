@@ -41,13 +41,36 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
         bootstrap_form_typeahead
 
     **Parameters**:
-        
+
         form
             The form that is to be rendered
 
         typeahead_fields
             A list of field names (comma separated) that should be rendered
             with typeahead instead of the default bootstrap renderer.
+
+        choices
+            A string representing the choices in JS. The choices must be an
+            array of objects. Each of those objects must at least have the
+            fields 'key' (value to send) and 'value' (value to display).
+            Other fields can be added as desired.
+            If not specified, the key is the id of the object and the value
+            is its string representation as in a normal bootstrap form.
+            Example :
+            choices='[{key:0,value:"choice0",extrafield:"data0"}, {...},...];'
+
+        match_func
+            A string representing a valid JS function used in the dataset to
+            overload the matching engine. This function is used the source of
+            the dataset. This function receives 2 parameters, the query and
+            the synchronize function as specified in typeahead.js documentation.
+            If needed, the local variables 'choices' and 'engine' contains
+            respectively the array of possible values and the engine to match
+            queries with possible values.
+            If not specified, the function used display up to the 10 first
+            elements if the query is empty and else the matching results.
+            Example :
+            match_func='function(q, sync) { engine.search(q, sync); }'
 
         See boostrap_form_ for other arguments
 
@@ -56,15 +79,18 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
         {% bootstrap_form_typeahead form ['field1[,field2[,...]]] %}
 
     **Example**:
-        
-        {% bootstrap_form_typeahead form 'ipv4' %}
+
+        {% bootstrap_form_typeahead form 'ipv4' choices='[...]' %}
     """
+
 
     t_fields = typeahead_fields.split(',')
     exclude = kwargs.get('exclude', None)
     exclude = exclude.split(',') if exclude else []
+    t_choices = kwargs.get('choices', {})
+    t_match_func = kwargs.get('match_func', {})
     hidden = [h.name for h in django_form.hidden_fields()]
-    
+
     form = ''
     for f_name, f_value in django_form.fields.items() :
         if not f_name in exclude :
@@ -85,7 +111,12 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                         'div',
                         attrs = {'class': 'form-group'},
                         content = hidden_tag( f_bound, f_name ) +
-                        typeahead_full_script( f_name, f_value )
+                        typeahead_js(
+                            f_name,
+                            f_value,
+                            t_choices,
+                            t_match_func
+                        )
                     )
             else:
                 form += render_field(
@@ -93,7 +124,6 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                     *args,
                     **kwargs
                 )
-
 
     return mark_safe( form )
 
@@ -114,14 +144,22 @@ def hidden_tag( f_bound, f_name ):
         }
     )
 
-def typeahead_full_script( f_name, f_value ) :
+def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
+
+    choices = mark_safe(t_choices[f_name]) if f_name in t_choices.keys()      \
+         else default_choices( f_value )
+
+    match_func = mark_safe(t_match_func[f_name])                              \
+        if f_name in t_match_func.keys()                                      \
+        else default_match_func()
+
     js_content =                                                              \
         '$("#'+input_id(f_name)+'").ready( function() {\n'                  + \
             reset_input( f_name, f_value ) + '\n'                           + \
-            typeahead_choices( f_value ) + '\n'                             + \
-            typeahead_engine () + '\n'                                      + \
+            'var choices = ' + choices + '\n'                               + \
+            'var engine = ' + default_engine() + '\n'                       + \
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
-                typeahead_datasets( f_name )                                + \
+                default_datasets( f_name, match_func )                      + \
             ').bind(\n'                                                     + \
                 '"typeahead:select", '                                      + \
                 typeahead_updater( f_name ) + '\n'                          + \
@@ -136,8 +174,8 @@ def typeahead_full_script( f_name, f_value ) :
 def reset_input( f_name, f_value ) :
     return '$("#'+input_id(f_name)+'").val("");'
 
-def typeahead_choices( f_value ) :
-    return 'var choices = [' +                                                \
+def default_choices( f_value ) :
+    return '[' +                                                              \
         ', '.join([                                                           \
             '{key: ' + (str(choice[0]) if choice[0] != '' else '""') +        \
             ', value: "' + str(choice[1]) + '"}'                              \
@@ -145,39 +183,40 @@ def typeahead_choices( f_value ) :
             ]) +                                                              \
         '];'
 
-def typeahead_engine () :
-    return 'var engine = new Bloodhound({ '                                   \
+def default_engine () :
+    return 'new Bloodhound({ '                                   \
             'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
             'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
             'local: choices, '                                                \
-            'identify: function(obj) { return obj.value; } '                  \
+            'identify: function(obj) { return obj.key; } '                  \
         '});'
 
-def typeahead_datasets( f_name ) :
+def default_datasets( f_name, match_func ) :
     return '{ '                                                               \
             'hint: true, '                                                    \
             'highlight: true, '                                               \
             'minLength: 0 '                                                   \
         '}, '                                                                 \
         '{ '                                                                  \
-            'templates: { '                                                   \
-                'suggestion: Handlebars.compile("<div>{{value}}</div>") '     \
-            '}, '                                                             \
             'display: "value", '                                              \
             'name: "'+f_name+'", '                                            \
-            'source: function(q, sync) {'                                     \
-                'if (q === "") {'                                             \
-                    'var nb = 10;'                                            \
-                    'var first = [] ;'                                        \
-                    'for ( var i=0 ; i<nb && i<choices.length; i++ ) {'       \
-                        'first.push(choices[i].value);'                       \
-                    '}'                                                       \
-                    'sync(engine.get(first));'                                \
-                '} else {'                                                    \
-                    'engine.search(q, sync)'                                  \
-                '}'                                                           \
-            '}'                                                               \
+            'source: '+match_func +                                           \
         '}'
+
+def default_match_func () :
+    return 'function(q, sync) {'                                              \
+        'if (q === "") {'                                                     \
+            'var nb = 10;'                                                    \
+            'var first = [] ;'                                                \
+            'for ( var i=0 ; i<nb && i<choices.length; i++ ) {'               \
+                'first.push(choices[i].key);'                                 \
+            '}'                                                               \
+            'sync(engine.get(first));'                                        \
+        '} else {'                                                            \
+            'engine.search(q, sync);'                                         \
+        '}'                                                                   \
+    '}'
+# matches.filter(function (elt) {return elt.type == $("#id_type").val();});sync(matches);})
 
 def typeahead_updater( f_name ):
     return 'function(evt, item) { '                                           \
