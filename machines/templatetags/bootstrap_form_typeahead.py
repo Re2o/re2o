@@ -73,6 +73,7 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                     f_value.widget = TextInput(
                         attrs={
                             'name': 'typeahead_'+f_name,
+                            'placeholder': f_value.empty_label
                         }
                     )
                     form += render_field(
@@ -124,13 +125,16 @@ def typeahead_full_script( f_name, f_value ) :
             ').bind(\n'                                                     + \
                 '"typeahead:select", '                                      + \
                 typeahead_updater( f_name ) + '\n'                          + \
+            ').bind(\n'                                                     + \
+                '"typeahead:change", '                                      + \
+                typeahead_change( f_name ) + '\n'                           + \
             ')\n'                                                           + \
         '});\n'
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
 def reset_input( f_name, f_value ) :
-    return '$("#'+input_id(f_name)+'").val("'+f_value.empty_label+'");'
+    return '$("#'+input_id(f_name)+'").val("");'
 
 def typeahead_choices( f_value ) :
     return 'var choices = [' +                                                \
@@ -179,5 +183,11 @@ def typeahead_updater( f_name ):
     return 'function(evt, item) { '                                           \
         '$("#'+hidden_id(f_name)+'").val( item.key ); '                       \
         'return item; '                                                       \
-        '}'
+    '}'
 
+def typeahead_change( f_name ):
+    return 'function(evt) { '                                                 \
+        'if (evt.currentTarget.value === "") {'                               \
+            '$("#'+hidden_id(f_name)+'").val(""); '                           \
+        '}'                                                                   \
+    '}'
