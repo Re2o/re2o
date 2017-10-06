@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
 from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType
-from django.db.models import Q
+from django.db.models import Q, F
 from django.core.validators import validate_email
 
 from users.models import User
@@ -75,9 +75,9 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).annotate(type=F('ip_type__machinetype__id'))
         else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(type=F('ip_type__machinetype__id'))
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
