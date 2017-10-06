@@ -169,7 +169,7 @@ def typeahead_datasets( f_name ) :
                 'if (q === "") {'                                             \
                     'var nb = 10;'                                            \
                     'var first = [] ;'                                        \
-                    'for ( var i = 0 ; i < nb ; i++ ) {'                      \
+                    'for ( var i=0 ; i<nb && i<choices.length; i++ ) {'       \
                         'first.push(choices[i].value);'                       \
                     '}'                                                       \
                     'sync(engine.get(first));'                                \
