@@ -48,19 +48,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if interfaceform %}
     <h3>Interface</h3>
-        {% if i_choices %}
-            {% if i_match_func %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4' choices=i_choices match_func=i_match_func %}
-            {% else %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4' choices=i_choices %}
-	    {% endif %}
-        {% else %}
-            {% if i_match_func %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4' match_func=i_match_func %}
-            {% else %}
+        {% if i_bft_param %}
+    {% bootstrap_form_typeahead interfaceform 'ipv4' bft_param=i_bft_param %}
+	{% else %}
     {% bootstrap_form_typeahead interfaceform 'ipv4' %}
-	    {% endif %}
-        {% endif %}
+	{% endif %}
     {% endif %}
     {% if domainform %}
     <h3>Domaine</h3>
