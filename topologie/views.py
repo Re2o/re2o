@@ -44,12 +44,14 @@ from preferences.models import AssoOption, GeneralOption
 @login_required
 @permission_required('cableur')
 def index(request):
+    """ Vue d'affichage de tous les swicthes"""
     switch_list = Switch.objects.order_by('stack','stack_member_id','location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
 
 @login_required
 @permission_required('cableur')
 def history(request, object, id):
+    """ Vue générique pour afficher l'historique complet d'un objet"""
     if object == 'switch':
         try:
              object_instance = Switch.objects.get(pk=id)
@@ -95,6 +97,7 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_port(request, switch_id):
+    """ Affichage de l'ensemble des ports reliés à un switch particulier"""
     try:
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
@@ -106,6 +109,7 @@ def index_port(request, switch_id):
 @login_required
 @permission_required('cableur')
 def index_room(request):
+    """ Affichage de l'ensemble des chambres"""
     room_list = Room.objects.order_by('name')
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
@@ -131,6 +135,7 @@ def index_stack(request):
 @login_required
 @permission_required('infra')
 def new_port(request, switch_id):
+    """ Nouveau port"""
     try:
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
@@ -154,6 +159,7 @@ def new_port(request, switch_id):
 @login_required
 @permission_required('infra')
 def edit_port(request, port_id):
+    """ Edition d'un port. Permet de changer le switch parent et l'affectation du port"""
     try:
         port_object = Port.objects.select_related('switch__switch_interface__domain__extension').select_related('machine_interface__domain__extension').select_related('machine_interface__switch').select_related('room').select_related('related').get(pk=port_id)
     except Port.DoesNotExist:
@@ -172,6 +178,7 @@ def edit_port(request, port_id):
 @login_required
 @permission_required('infra')
 def del_port(request,port_id):
+    """ Supprime le port"""
     try:
         port = Port.objects.get(pk=port_id)
     except Port.DoesNotExist:
@@ -263,6 +270,9 @@ def edit_switchs_stack(request,stack_id):
 @login_required
 @permission_required('infra')
 def new_switch(request):
+    """ Creation d'un switch. Cree en meme temps l'interface et la machine associée.
+    Vue complexe. Appelle successivement les 4 models forms adaptés : machine,
+    interface, domain et switch"""
     switch = NewSwitchForm(request.POST or None)
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
@@ -304,6 +314,8 @@ def new_switch(request):
 @login_required
 @permission_required('infra')
 def edit_switch(request, switch_id):
+    """ Edition d'un switch. Permet de chambre nombre de ports, place dans le stack,
+    interface et machine associée"""
     try:
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
@@ -341,6 +353,7 @@ def edit_switch(request, switch_id):
 @login_required
 @permission_required('infra')
 def new_room(request):
+    """Nouvelle chambre """
     room = EditRoomForm(request.POST or None)
     if room.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -354,6 +367,7 @@ def new_room(request):
 @login_required
 @permission_required('infra')
 def edit_room(request, room_id):
+    """ Edition numero et details de la chambre"""
     try:
         room = Room.objects.get(pk=room_id)
     except Room.DoesNotExist:
@@ -372,6 +386,7 @@ def edit_room(request, room_id):
 @login_required
 @permission_required('infra')
 def del_room(request, room_id):
+    """ Suppression d'un chambre"""
     try:
         room = Room.objects.get(pk=room_id)
     except Room.DoesNotExist:

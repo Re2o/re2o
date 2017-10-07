@@ -29,16 +29,16 @@ from reversion.admin import VersionAdmin
 from .models import Port, Room, Switch, Stack
 
 class StackAdmin(VersionAdmin):
-    list_display = ('name', 'stack_id', 'details')
+    pass
 
 class SwitchAdmin(VersionAdmin):
-    list_display = ('switch_interface','location','number','details')
+    pass
 
 class PortAdmin(VersionAdmin):
-    list_display = ('switch', 'port','room','machine_interface','radius','details')
+    pass
 
 class RoomAdmin(VersionAdmin):
-    list_display = ('name','details')
+    pass
 
 admin.site.register(Port, PortAdmin)
 admin.site.register(Room, RoomAdmin)
