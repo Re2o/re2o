@@ -43,9 +43,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% if machineform %}
+    <h3>Machine</h3>
     {% bootstrap_form machineform %}
     {% endif %}
     {% if interfaceform %}
+    <h3>Interface</h3>
         {% if i_choices %}
             {% if i_match_func %}
     {% bootstrap_form_typeahead interfaceform 'ipv4' choices=i_choices match_func=i_match_func %}
@@ -61,6 +63,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
     {% endif %}
     {% if domainform %}
+    <h3>Domaine</h3>
     {% bootstrap_form domainform %}
     {% endif %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
