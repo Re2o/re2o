@@ -106,7 +106,7 @@ def index(request):
                     'user_id': v.revision.user_id,
                     'version': v }
         else :
-            to_remove.append(i)
+            to_remove.insert(0,i)
     # Remove all tagged invalid items
     for i in to_remove :
         versions.object_list.pop(i)
