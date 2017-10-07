@@ -52,7 +52,7 @@ class BaseEditMachineForm(EditMachineForm):
 class EditInterfaceForm(ModelForm):
     class Meta:
         model = Interface
-        fields = '__all__'
+        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
@@ -83,11 +83,11 @@ class AddInterfaceForm(EditInterfaceForm):
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['mac_address','type','details']
+        fields = ['type','mac_address','details']
 
 class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
