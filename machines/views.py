@@ -195,7 +195,9 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
+    i_match_func = { 'ipv4': generate_ipv4_match_func() }
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -251,7 +253,9 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
+    i_match_func = { 'ipv4': generate_ipv4_match_func() }
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
