@@ -55,6 +55,7 @@ from .models import IpType, Machine, Interface, IpList, MachineType, Extension, 
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
+from .templatetags.bootstrap_form_typeahead import hidden_id, input_id
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
@@ -77,42 +78,80 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render(request, template, c)
 
-def generate_ipv4_choices( field ) :
-    return '[{key: "", value: "' + str(field.empty_label) + '", type: -1},' + \
-        ', '.join([                                                           \
-            '{key: ' + str(ip.id) + ','                                       \
-            ' value: "' + str(ip.ipv4) + '",'                                 \
-            ' type: ' + str(ip.type) + '}'                                    \
-            for ip in field.queryset                                          \
-            ]) +                                                              \
-        '];'
+def f_type_id( is_type_tt ):
+    """ The id that will be used in HTML to store the value of the field
+    type. Depends on the fact that type is generate using typeahead or not
+    """
+    return hidden_id('type') if is_type_tt else input_id('type')
 
-def generate_ipv4_match_func() :
+def generate_ipv4_choices( form ) :
+    """ Generate the parameter choices for the bootstrap_form_typeahead tag
+    """
+    f_ipv4 = form.fields['ipv4']
+    used_mtype_id = []
+    choices = '{ "": [{key: "", value: "Choisissez d\'abord un type de machine"},'
+    mtype_id = -1
+
+    for ip in f_ipv4.queryset.order_by('mtype_id', 'id') :
+        if mtype_id != ip.mtype_id :
+            mtype_id = ip.mtype_id
+            used_mtype_id.append(mtype_id)
+            choices += '], "'+str(mtype_id)+'": ['
+            choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
+        choices += '{key: ' + str(ip.id) + ', value: "' + str(ip.ipv4) + '"},'
+
+    for t in form.fields['type'].queryset.exclude(id__in=used_mtype_id) :
+        choices += '], "'+str(t.id)+'": ['
+        choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
+    choices += ']}'
+    return choices
+
+def generate_ipv4_engine( is_type_tt ) :
+    """ Generate the parameter engine for the bootstrap_form_typeahead tag
+    """
+    return 'new Bloodhound({ '                                                \
+            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
+            'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
+            'local: choices_ipv4[$("#'+f_type_id(is_type_tt)+'").val()], '    \
+            'identify: function(obj) { return obj.key; } '                    \
+        '})'
+
+def generate_ipv4_match_func( is_type_tt ) :
+    """ Generate the parameter match_func for the bootstrap_form_typeahead tag
+    """
     return 'function(q, sync) {'                                              \
-        'var select = function (array, nb, filter) {'                         \
-            'var i=0; var res=[];'                                            \
-            'while (nb >= 0 && i < array.length) {'                           \
-                'if (filter(array[i])) {'                                     \
-                    'res.push(array[i]);'                                     \
-                    'nb -= 1;'                                                \
-                '}'                                                           \
-                'i += 1;'                                                     \
-            '}'                                                               \
-            'return res;'                                                     \
-        '};'                                                                  \
-        'var filter = function (elt) {'                                       \
-            'return elt.type == -1 || elt.type == $("#id_type").val();'       \
-        '};'                                                                  \
-        'var cb = function (a) { sync(a.filter(filter)); };'                  \
         'if (q === "") {'                                                     \
-            'sync( engine.get( select(choices_ipv4, 10, filter).map('         \
-                'function (elt) { return elt.key; }'                          \
-            ') ) );'                                                          \
+            'var nb = 10;'                                                    \
+            'var first = [] ;'                                                \
+            'for('                                                            \
+                'var i=0 ;'                                                   \
+                'i<nb && i<choices_ipv4['                                     \
+                    '$("#'+f_type_id(is_type_tt)+'").val()'                   \
+                '].length ;'                                                  \
+                'i++'                                                         \
+            ') { first.push('                                                 \
+                'choices_ipv4[$("#'+f_type_id(is_type_tt)+'").val()][i].key'  \
+            '); }'                                                            \
+            'sync(engine_ipv4.get(first));'                                   \
         '} else {'                                                            \
             'engine_ipv4.search(q, sync);'                                    \
         '}'                                                                   \
     '}'
 
+def generate_ipv4_bft_param( form, is_type_tt ):
+    """ Generate all the parameters to use with the bootstrap_form_typeahead
+    tag """
+    i_choices = { 'ipv4': generate_ipv4_choices( form ) }
+    i_engine = { 'ipv4': generate_ipv4_engine( is_type_tt ) }
+    i_match_func = { 'ipv4': generate_ipv4_match_func( is_type_tt ) }
+    i_update_on = { 'ipv4': [f_type_id( is_type_tt )] }
+    i_bft_param = {
+        'choices': i_choices,
+        'engine': i_engine,
+        'match_func': i_match_func,
+        'update_on': i_update_on
+    }
+    return i_bft_param
 
 @login_required
 def new_machine(request, userid):
@@ -157,9 +196,8 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    i_choices = { 'ipv4': generate_ipv4_choices( interface.fields['ipv4'] ) }
-    i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': {'choices': i_choices, 'match_func': i_match_func}}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface, False )
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -196,9 +234,8 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
-    i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': {'choices': i_choices, 'match_func': i_match_func}}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -254,9 +291,8 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
-    i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': { 'choices': i_choices, 'match_func': i_match_func }}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
