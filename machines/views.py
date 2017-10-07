@@ -170,7 +170,7 @@ def new_machine(request, userid):
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
+    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     nb_machine = Interface.objects.filter(machine__user=userid).count()
     domain = DomainForm(request.POST or None, user=user, nb_machine=nb_machine)
     if machine.is_valid() and interface.is_valid():
@@ -950,7 +950,7 @@ def history(request, object, id):
              object_instance = Text.objects.get(pk=id)
         except Text.DoesNotExist:
              messages.error(request, "Text inexistant")
-             return redirect("/machines/")   
+             return redirect("/machines/")
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Ns.objects.get(pk=id)
@@ -997,7 +997,7 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_portlist(request):
-    port_list = OuverturePortList.objects.all().order_by('name') 
+    port_list = OuverturePortList.objects.all().order_by('name')
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 @login_required
@@ -1010,7 +1010,7 @@ def edit_portlist(request, pk):
         return redirect("/machines/index_portlist/")
     port_list = EditOuverturePortListForm(request.POST or None, instance=port_list_instance)
     port_formset = modelformset_factory(
-            OuverturePort, 
+            OuverturePort,
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
@@ -1049,7 +1049,7 @@ def del_portlist(request, pk):
 def add_portlist(request):
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
-            OuverturePort, 
+            OuverturePort,
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
