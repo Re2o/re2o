@@ -155,20 +155,23 @@ def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
         else default_match_func()
 
     js_content =                                                              \
-        '$("#'+input_id(f_name)+'").ready( function() {\n'                  + \
-            reset_input( f_name, f_value ) + '\n'                           + \
-            'var choices = ' + choices + '\n'                               + \
-            'var engine = ' + default_engine() + '\n'                       + \
+        'var choices = ' + choices + ';\n'                                  + \
+        'var setup = function() {\n'                                        + \
+            'var engine = ' + deafult_engine() + ';\n'                      + \
+            '$("#'+input_id(f_name) + '").typeahead("destroy");\n'          + \
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
-                default_datasets( f_name, match_func )                      + \
-            ').bind(\n'                                                     + \
-                '"typeahead:select", '                                      + \
-                typeahead_updater( f_name ) + '\n'                          + \
-            ').bind(\n'                                                     + \
-                '"typeahead:change", '                                      + \
-                typeahead_change( f_name ) + '\n'                           + \
-            ')\n'                                                           + \
-        '});\n'
+                default_datasets( f_name, match_func ) + '\n'               + \
+            ');\n'                                                          + \
+            reset_input( f_name, f_value ) + '\n'                           + \
+        '};\n'                                                              + \
+        '$("#'+input_id(f_name) + '").bind(\n'                              + \
+            '"typeahead:select", '                                          + \
+            typeahead_updater( f_name ) + '\n'                              + \
+        ').bind(\n'                                                         + \
+            '"typeahead:change", '                                          + \
+            typeahead_change( f_name ) + '\n'                               + \
+        ');\n'
+    js_content += '$("#'+input_id(f_name)+'").ready( setup );\n'
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
@@ -182,7 +185,7 @@ def default_choices( f_value ) :
             ', value: "' + str(choice[1]) + '"}'                              \
             for choice in f_value.choices                                     \
             ]) +                                                              \
-        '];'
+        ']'
 
 def default_engine () :
     return 'new Bloodhound({ '                                   \
@@ -217,7 +220,6 @@ def default_match_func () :
             'engine.search(q, sync);'                                         \
         '}'                                                                   \
     '}'
-# matches.filter(function (elt) {return elt.type == $("#id_type").val();});sync(matches);})
 
 def typeahead_updater( f_name ):
     return 'function(evt, item) { '                                           \
@@ -230,6 +232,6 @@ def typeahead_change( f_name ):
     return 'function(evt) { '                                                 \
         'if (evt.currentTarget.value === "") {'                               \
             '$("#'+hidden_id(f_name)+'").val(""); '                           \
-            '$("#'+hidden_id(f_name)+'").change();'                               \
+            '$("#'+hidden_id(f_name)+'").change();'                           \
         '}'                                                                   \
     '}'
