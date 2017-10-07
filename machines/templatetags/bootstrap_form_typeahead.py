@@ -211,7 +211,7 @@ def hidden_tag( f_bound, f_name ):
             'id': hidden_id(f_name),
             'name': f_name,
             'type': 'hidden',
-            'value': f_bound.value()
+            'value': f_bound.value() or ""
         }
     )
 
