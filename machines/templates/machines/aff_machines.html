@@ -27,30 +27,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 
 <table class="table">
+    <colgroup>
+        <col>
+        <col>
+        <col>
+        <col width="{% if ipv6_enabled %}300{% else %}150{% endif %}px">
+        <col width="144px">
+    </colgroup>
     <thead>
-        <tr>
-            <th>Actions</th>
-            <th>Proprietaire</th>
-            <th>Nom dns</th>
-            <th>Type</th>
-            <th>Mac</th>
-            <th>IP</th>
-            <th></th>
-        </tr>
-    </thead>
+        <th>Nom DNS</th>
+        <th>Type</th>
+        <th>MAC</th>
+        <th>IP</th>
+        <th>Actions</th>
+    <tbody>
     {% for machine in machines_list %}
-        {% for interface in machine.interface_set.all %}
-        <tr class="active">
-            {% if forloop.first %}
-            <td rowspan="{{ machine.interface_set.all|length }}">
+        <tr class="info">
+            <td colspan="4">
+                <b>{{ machine.name }}</b> <i class="glyphicon glyphicon-chevron-right"></i>
+                <a href="{% url 'users:profil' userid=machine.user.id %}" title="Voir le profil">
+                    <i class="glyphicon glyphicon-user"></i> {{ machine.user }}
+                </a>
+            </td>
+            <td class="text-right">
                 {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc='Ajouter une interface' %}
-                {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
                 {% include 'buttons/history.html' with href='machines:history' name='machine' id=machine.id %}
+                {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
             </td>
-            <td rowspan="{{ machine.interface_set.all|length }}">
-                <a href="{% url 'users:profil' userid=machine.user.id %}"><b>{{ machine.user }}</b></a>
-            </td>
-            {% endif %}
+        </tr>
+        {% for interface in machine.interface_set.all %}
+        <tr>
             <td>
             {% if interface.domain.related_domain.all %}
                 <div class="dropdown">
@@ -72,19 +78,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {{ interface.domain }}
             {% endif %}
             </td>
-            <td>{{ interface.type }}</td>
-            <td>{{ interface.mac_address }}</td>
-            <td><b>IPv4</b> {{ interface.ipv4 }}
-            {% if ipv6_enabled %}
-            <br>
-            <b>IPv6</b> {{ interface.ipv6 }}
-	    {% endif %}
-	    </td>
             <td>
-                <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        Modifier <span class="caret"></span>
+                {{ interface.type }}
+            </td>
+            <td>
+                {{ interface.mac_address }}
+            </td>
+            <td>
+                <b>IPv4</b> {{ interface.ipv4 }}
+                <br>
+                {% if ipv6_enabled and interface.ipv6 != 'None'%}
+                <b>IPv6</b> {{ interface.ipv6 }}
+                {% endif %}
+            </td>
+            <td class="text-right">
+                <div class="dropdown" style="width: 128px;">
+                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="glyphicon glyphicon-edit"></i> <span class="caret"></span>
                     </button>
+                    {% include 'buttons/history.html' with href='machines:history' name='interface' id=interface.id %}
+                    {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
                     <ul class="dropdown-menu" aria-labelledby="editioninterface">
                         <li>
                             <a href="{% url 'machines:edit-interface' interface.id %}">
@@ -96,19 +109,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <i class="glyphicon glyphicon-edit"></i> Gerer les alias
                             </a>
                         </li>
-			<li>
-			    <a href="{% url 'machines:port-config' interface.id%}">
-                                <i class="glyphicon glyphicon-edit"></i> Gerer la configuration des ports
-			    </a>
-			</li>
-			<li>
-                            <a href="{% url 'machines:history' 'interface' interface.id %}">
-                                <i class="glyphicon glyphicon-time"></i> Historique
-                            </a>
-                        </li>
                         <li>
-                            <a href="{% url 'machines:del-interface' interface.id %}">
-                                <i class="glyphicon glyphicon-trash"></i> Supprimer
+                            <a href="{% url 'machines:port-config' interface.id%}">
+                                <i class="glyphicon glyphicon-edit"></i> Gerer la configuration des ports
                             </a>
                         </li>
                     </ul>
@@ -120,5 +123,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td colspan="8"></td>
         </tr>
     {% endfor %}
+    </tbody>
 </table>
 
