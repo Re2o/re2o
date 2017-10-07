@@ -84,12 +84,14 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
         {% bootstrap_form_typeahead form 'ipv4' choices='[...]' %}
     """
 
-
     t_fields = typeahead_fields.split(',')
-    exclude = kwargs.get('exclude', None)
+    params = kwargs.get('bft_param', {})
+    exclude = params.get('exclude', None)
     exclude = exclude.split(',') if exclude else []
-    t_choices = kwargs.get('choices', {})
-    t_match_func = kwargs.get('match_func', {})
+    t_choices = params.get('choices', {})
+    t_engine = params.get('engine', {})
+    t_match_func = params.get('match_func', {})
+    t_update_on = params.get('update_on', {})
     hidden = [h.name for h in django_form.hidden_fields()]
 
     form = ''
@@ -116,7 +118,9 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                             f_name,
                             f_value,
                             t_choices,
-                            t_match_func
+                            t_engine,
+                            t_match_func,
+                            t_update_on
                         )
                     )
             else:
@@ -145,19 +149,25 @@ def hidden_tag( f_bound, f_name ):
         }
     )
 
-def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
+def typeahead_js( f_name, f_value,
+        t_choices, t_engine, t_match_func, t_update_on ) :
 
     choices = mark_safe(t_choices[f_name]) if f_name in t_choices.keys()      \
          else default_choices( f_value )
+
+    engine = mark_safe(t_engine[f_name]) if f_name in t_engine.keys()         \
+         else default_engine ( f_name )
 
     match_func = mark_safe(t_match_func[f_name])                              \
               if f_name in t_match_func.keys()                                \
             else default_match_func( f_name )
 
+    update_on = t_update_on[f_name] if f_name in t_update_on.keys() else []
+
     js_content =                                                              \
         'var choices_'+f_name+' = ' + choices + ';\n'                       + \
         'var setup_'+f_name+' = function() {\n'                             + \
-            'var engine_'+f_name+' = ' + default_engine() + ';\n'           + \
+            'var engine_'+f_name+' = ' + engine + ';\n'                     + \
             '$("#'+input_id(f_name) + '").typeahead("destroy");\n'          + \
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
                 default_datasets( f_name, match_func ) + '\n'               + \
@@ -171,6 +181,8 @@ def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
             '"typeahead:change", '                                          + \
             typeahead_change( f_name ) + '\n'                               + \
         ');\n'
+    for u_id in update_on :
+        js_content += '$("#'+u_id+'").change( setup_'+f_name+' );\n'
     js_content += '$("#'+input_id(f_name)+'").ready( setup_'+f_name+' );\n'
 
     return render_tag( 'script', content=mark_safe( js_content ) )

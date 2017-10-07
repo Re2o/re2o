@@ -159,7 +159,7 @@ def new_machine(request, userid):
             return redirect("/users/profil/" + str(user.id))
     i_choices = { 'ipv4': generate_ipv4_choices( interface.fields['ipv4'] ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': {'choices': i_choices, 'match_func': i_match_func}}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -198,7 +198,7 @@ def edit_interface(request, interfaceid):
         return redirect("/users/profil/" + str(interface.machine.user.id))
     i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': {'choices': i_choices, 'match_func': i_match_func}}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -256,7 +256,7 @@ def new_interface(request, machineid):
             return redirect("/users/profil/" + str(machine.user.id))
     i_choices = { 'ipv4': generate_ipv4_choices( interface_form.fields['ipv4'] ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func() }
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_choices': i_choices, 'i_match_func': i_match_func}, 'machines/machine.html', request)
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': { 'choices': i_choices, 'match_func': i_match_func }}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
