@@ -231,7 +231,7 @@ def typeahead_updater( f_name ):
 
 def typeahead_change( f_name ):
     return 'function(evt) { '                                                 \
-        'if (evt.currentTarget.value === "") {'                               \
+        'if ($("#'+input_id(f_name)+'").typeahead("val") === "") {'           \
             '$("#'+hidden_id(f_name)+'").val(""); '                           \
             '$("#'+hidden_id(f_name)+'").change();'                           \
         '}'                                                                   \
