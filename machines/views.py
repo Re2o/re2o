@@ -155,6 +155,9 @@ def generate_ipv4_bft_param( form, is_type_tt ):
 
 @login_required
 def new_machine(request, userid):
+    """ Fonction de creation d'une machine. Cree l'objet machine, le sous objet interface et l'objet domain
+    à partir de model forms.
+    Trop complexe, devrait être simplifié"""
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -201,6 +204,8 @@ def new_machine(request, userid):
 
 @login_required
 def edit_interface(request, interfaceid):
+    """ Edition d'une interface. Distingue suivant les droits les valeurs de interfaces et machines que l'user peut modifier
+    infra permet de modifier le propriétaire"""
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
@@ -239,6 +244,7 @@ def edit_interface(request, interfaceid):
 
 @login_required
 def del_machine(request, machineid):
+    """ Supprime une machine, interfaces en mode cascade"""
     try:
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
@@ -258,6 +264,7 @@ def del_machine(request, machineid):
 
 @login_required
 def new_interface(request, machineid):
+    """ Ajoute une interface et son domain associé à une machine existante"""
     try:
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
@@ -296,6 +303,7 @@ def new_interface(request, machineid):
 
 @login_required
 def del_interface(request, interfaceid):
+    """ Supprime une interface. Domain objet en mode cascade"""
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
@@ -319,6 +327,7 @@ def del_interface(request, interfaceid):
 @login_required
 @permission_required('infra')
 def add_iptype(request):
+    """ Ajoute un range d'ip. Intelligence dans le models, fonction views minimaliste"""
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -332,6 +341,7 @@ def add_iptype(request):
 @login_required
 @permission_required('infra')
 def edit_iptype(request, iptypeid):
+    """ Edition d'un range. Ne permet pas de le redimensionner pour éviter l'incohérence"""
     try:
         iptype_instance = IpType.objects.get(pk=iptypeid)
     except IpType.DoesNotExist:
@@ -350,6 +360,7 @@ def edit_iptype(request, iptypeid):
 @login_required
 @permission_required('infra')
 def del_iptype(request):
+    """ Suppression d'un range ip. Supprime les objets ip associés"""
     iptype = DelIpTypeForm(request.POST or None)
     if iptype.is_valid():
         iptype_dels = iptype.cleaned_data['iptypes']
