@@ -151,13 +151,13 @@ def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
          else default_choices( f_value )
 
     match_func = mark_safe(t_match_func[f_name])                              \
-        if f_name in t_match_func.keys()                                      \
-        else default_match_func()
+              if f_name in t_match_func.keys()                                \
+            else default_match_func( f_name )
 
     js_content =                                                              \
-        'var choices = ' + choices + ';\n'                                  + \
-        'var setup = function() {\n'                                        + \
-            'var engine = ' + deafult_engine() + ';\n'                      + \
+        'var choices_'+f_name+' = ' + choices + ';\n'                       + \
+        'var setup_'+f_name+' = function() {\n'                             + \
+            'var engine_'+f_name+' = ' + default_engine() + ';\n'           + \
             '$("#'+input_id(f_name) + '").typeahead("destroy");\n'          + \
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
                 default_datasets( f_name, match_func ) + '\n'               + \
@@ -171,7 +171,7 @@ def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
             '"typeahead:change", '                                          + \
             typeahead_change( f_name ) + '\n'                               + \
         ');\n'
-    js_content += '$("#'+input_id(f_name)+'").ready( setup );\n'
+    js_content += '$("#'+input_id(f_name)+'").ready( setup_'+f_name+' );\n'
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
@@ -187,13 +187,13 @@ def default_choices( f_value ) :
             ]) +                                                              \
         ']'
 
-def default_engine () :
-    return 'new Bloodhound({ '                                   \
+def default_engine ( f_name ) :
+    return 'new Bloodhound({ '                                                \
             'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
             'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
-            'local: choices, '                                                \
-            'identify: function(obj) { return obj.key; } '                  \
-        '});'
+            'local: choices_'+f_name+', '                                     \
+            'identify: function(obj) { return obj.key; } '                    \
+        '})'
 
 def default_datasets( f_name, match_func ) :
     return '{ '                                                               \
@@ -207,17 +207,17 @@ def default_datasets( f_name, match_func ) :
             'source: '+match_func +                                           \
         '}'
 
-def default_match_func () :
+def default_match_func ( f_name ) :
     return 'function(q, sync) {'                                              \
         'if (q === "") {'                                                     \
             'var nb = 10;'                                                    \
             'var first = [] ;'                                                \
-            'for ( var i=0 ; i<nb && i<choices.length; i++ ) {'               \
-                'first.push(choices[i].key);'                                 \
+            'for ( var i=0 ; i<nb && i<choices_'+f_name+'.length; i++ ) {'    \
+                'first.push(choices_'+f_name+'[i].key);'                      \
             '}'                                                               \
-            'sync(engine.get(first));'                                        \
+            'sync(engine_'+f_name+'.get(first));'                             \
         '} else {'                                                            \
-            'engine.search(q, sync);'                                         \
+            'engine_'+f_name+'.search(q, sync);'                              \
         '}'                                                                   \
     '}'
 

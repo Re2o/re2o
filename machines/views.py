@@ -105,11 +105,11 @@ def generate_ipv4_match_func() :
         '};'                                                                  \
         'var cb = function (a) { sync(a.filter(filter)); };'                  \
         'if (q === "") {'                                                     \
-            'sync( engine.get( select(choices, 10, filter).map('              \
+            'sync( engine.get( select(choices_ipv4, 10, filter).map('         \
                 'function (elt) { return elt.key; }'                          \
             ') ) );'                                                          \
         '} else {'                                                            \
-            'engine.search(q, cb);'                                           \
+            'engine_ipv4.search(q, sync);'                                    \
         '}'                                                                   \
     '}'
 
