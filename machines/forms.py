@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -5,6 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2017  Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +29,7 @@ import re
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
 from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, OuverturePortList, OuverturePort
-from django.db.models import Q
+from django.db.models import Q, F
 from django.core.validators import validate_email
 
 from users.models import User
@@ -52,8 +54,7 @@ class BaseEditMachineForm(EditMachineForm):
 class EditInterfaceForm(ModelForm):
     class Meta:
         model = Interface
-        # fields = '__all__'
-        exclude = ['port_lists']
+        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
@@ -62,13 +63,15 @@ class EditInterfaceForm(ModelForm):
         self.fields['type'].empty_label = "Séléctionner un type de machine"
         if "ipv4" in self.fields:
             self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -76,17 +79,17 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).annotate(mtype_id=F('ip_type__machinetype__id'))
         else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['mac_address','type','details']
+        fields = ['type','mac_address','details']
 
 class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -94,9 +97,12 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).annotate(mtype_id=F('ip_type__machinetype__id'))
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
         else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
 
 class AliasForm(ModelForm):
     class Meta:
