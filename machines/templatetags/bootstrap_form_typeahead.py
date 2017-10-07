@@ -180,6 +180,7 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                         typeahead_js(
                             f_name,
                             f_value,
+                            f_bound,
                             t_choices,
                             t_engine,
                             t_match_func,
@@ -215,7 +216,7 @@ def hidden_tag( f_bound, f_name ):
         }
     )
 
-def typeahead_js( f_name, f_value,
+def typeahead_js( f_name, f_value, f_bound,
         t_choices, t_engine, t_match_func, t_update_on ) :
     """ The whole script to use """
 
@@ -239,7 +240,7 @@ def typeahead_js( f_name, f_value,
             '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
                 default_datasets( f_name, match_func ) + '\n'               + \
             ');\n'                                                          + \
-            reset_input( f_name, f_value ) + '\n'                           + \
+            reset_input( f_name, f_bound ) + '\n'                           + \
         '};\n'                                                              + \
         '$("#'+input_id(f_name) + '").bind(\n'                              + \
             '"typeahead:select", '                                          + \
@@ -254,10 +255,13 @@ def typeahead_js( f_name, f_value,
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
-def reset_input( f_name, f_value ) :
+def reset_input( f_name, f_bound ) :
     """ The JS script to reset the fields values """
-    return '$("#'+input_id(f_name)+'").typeahead("val","");\n'                \
-        '$("#'+hidden_id(f_name)+'").val("");'
+    return '$("#'+input_id(f_name)+'").typeahead('                            \
+            '"val", '                                                         \
+            'engine_'+f_name+'.get('+str(f_bound.value())+')[0].value'        \
+        ');\n'                                                                \
+        '$("#'+hidden_id(f_name)+'").val('+str(f_bound.value())+');'
 
 def default_choices( f_value ) :
     """ The JS script creating the variable choices_<fieldname> """
