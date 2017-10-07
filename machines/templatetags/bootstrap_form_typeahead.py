@@ -176,7 +176,8 @@ def typeahead_js( f_name, f_value, t_choices, t_match_func ) :
     return render_tag( 'script', content=mark_safe( js_content ) )
 
 def reset_input( f_name, f_value ) :
-    return '$("#'+input_id(f_name)+'").val("");'
+    return '$("#'+input_id(f_name)+'").typeahead("val","");\n'                \
+        '$("#'+hidden_id(f_name)+'").val("");'
 
 def default_choices( f_value ) :
     return '[' +                                                              \
