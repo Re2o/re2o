@@ -175,7 +175,6 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                     )
                     form += render_tag(
                         'div',
-                        attrs = {'class': 'form-group'},
                         content = hidden_tag( f_bound, f_name ) +
                         typeahead_js(
                             f_name,
