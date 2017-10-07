@@ -26,7 +26,9 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface, Extension, Mx, Ns, Vlan, Text, Nas, Service
+from .models import IpType, Machine, MachineType, Domain, IpList, Interface
+from .models import Extension, Mx, Ns, Vlan, Text, Nas, Service, OuverturePort
+from .models import OuverturePortList
 
 class MachineAdmin(VersionAdmin):
     pass
@@ -58,6 +60,12 @@ class NasAdmin(VersionAdmin):
 class IpListAdmin(VersionAdmin):
     pass
 
+class OuverturePortAdmin(VersionAdmin):
+    pass
+
+class OuverturePortListAdmin(VersionAdmin):
+    pass
+
 class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','mac_address','ipv4','details')
 
@@ -80,3 +88,7 @@ admin.site.register(Domain, DomainAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(Vlan, VlanAdmin)
 admin.site.register(Nas, NasAdmin)
+admin.site.register(OuverturePort, OuverturePortAdmin)
+admin.site.register(OuverturePortList, OuverturePortListAdmin)
+
+

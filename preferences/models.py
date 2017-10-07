@@ -45,6 +45,7 @@ class OptionalMachine(models.Model):
     password_machine = models.BooleanField(default=False)
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
+    ipv6 = models.BooleanField(default=False)
 
 class OptionalTopologie(models.Model):
     PRETTY_NAME = "Options topologie"

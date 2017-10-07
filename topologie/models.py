@@ -34,17 +34,11 @@ import reversion
 
 from machines.models import Vlan
 
-def make_port_related(port):
-    related_port = port.related
-    related_port.related = port
-    related_port.save()
-    
-def clean_port_related(port):
-    related_port = port.related_port
-    related_port.related = None
-    related_port.save()
 
 class Stack(models.Model):
+    """ Un objet stack. Regrouppe des switchs en foreign key
+    , contient une id de stack, un switch id min et max dans 
+    le stack"""
     PRETTY_NAME = "Stack de switchs"
 
     name = models.CharField(max_length=32, blank=True, null=True)
@@ -57,15 +51,25 @@ class Stack(models.Model):
         return " ".join([self.name, self.stack_id])
 
     def save(self, *args, **kwargs):
+        self.clean()
         if not self.name:
             self.name = self.stack_id
         super(Stack, self).save(*args, **kwargs)
 
     def clean(self):
+        """ Verification que l'id_max < id_min"""
         if self.member_id_max < self.member_id_min:
             raise ValidationError({'member_id_max':"L'id maximale est inférieure à l'id minimale"})
 
 class Switch(models.Model):
+    """ Definition d'un switch. Contient un nombre de ports (number), 
+    un emplacement (location), un stack parent (optionnel, stack)
+    et un id de membre dans le stack (stack_member_id)
+    relié en onetoone à une interface
+    Pourquoi ne pas avoir fait hériter switch de interface ? 
+    Principalement par méconnaissance de la puissance de cette façon de faire.
+    Ceci étant entendu, django crée en interne un onetoone, ce qui a un
+    effet identique avec ce que l'on fait ici"""
     PRETTY_NAME = "Switch / Commutateur"
 
     switch_interface = models.OneToOneField('machines.Interface', on_delete=models.CASCADE)
@@ -82,6 +86,7 @@ class Switch(models.Model):
         return str(self.location) + ' ' + str(self.switch_interface)
 
     def clean(self):
+        """ Verifie que l'id stack est dans le bon range"""
         if self.stack is not None:
             if self.stack_member_id is not None:
                 if (self.stack_member_id > self.stack.member_id_max) or (self.stack_member_id < self.stack.member_id_min):
@@ -90,30 +95,60 @@ class Switch(models.Model):
                 raise ValidationError({'stack_member_id': "L'id dans la stack ne peut être nul"})
 
 class Port(models.Model):
+    """ Definition d'un port. Relié à un switch(foreign_key), 
+    un port peut etre relié de manière exclusive à :
+    - une chambre (room)
+    - une machine (serveur etc) (machine_interface)
+    - un autre port (uplink) (related)
+    Champs supplémentaires : 
+    - RADIUS (mode STRICT : connexion sur port uniquement si machine
+    d'un adhérent à jour de cotisation et que la chambre est également à jour de cotisation
+    mode COMMON : vérification uniquement du statut de la machine
+    mode NO : accepte toute demande venant du port et place sur le vlan normal
+    mode BLOQ : rejet de toute authentification
+    - vlan_force : override la politique générale de placement vlan, permet
+    de forcer un port sur un vlan particulier. S'additionne à la politique 
+    RADIUS"""
     PRETTY_NAME = "Port de switch"
-    STATES_BASE = (
+    STATES = (
             ('NO', 'NO'),
             ('STRICT', 'STRICT'),
             ('BLOQ', 'BLOQ'),
             ('COMMON', 'COMMON'),
             )
-    try:
-        STATES = STATES_BASE + tuple([(str(id), str(id)) for id in list(Vlan.objects.values_list('vlan_id', flat=True).order_by('vlan_id'))])
-    except:
-        STATES = STATES_BASE 
-
+    
     switch = models.ForeignKey('Switch', related_name="ports")
     port = models.IntegerField()
     room = models.ForeignKey('Room', on_delete=models.PROTECT, blank=True, null=True)
     machine_interface = models.ForeignKey('machines.Interface', on_delete=models.SET_NULL, blank=True, null=True)
     related = models.OneToOneField('self', null=True, blank=True, related_name='related_port')
     radius = models.CharField(max_length=32, choices=STATES, default='NO')
+    vlan_force = models.ForeignKey('machines.Vlan', on_delete=models.SET_NULL, blank=True, null=True)
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:
         unique_together = ('switch', 'port')
 
+    def make_port_related(self):
+        """ Synchronise le port distant sur self"""
+        related_port = self.related
+        related_port.related = self
+        related_port.save()
+        
+    def clean_port_related(self):
+        """ Supprime la relation related sur self"""
+        related_port = self.related_port
+        related_port.related = None
+        related_port.save()
+
     def clean(self):
+        """ Verifie que un seul de chambre, interface_parent et related_port est rempli.
+        Verifie que le related n'est pas le port lui-même....
+        Verifie que le related n'est pas déjà occupé par une machine ou une chambre. Si
+        ce n'est pas le cas, applique la relation related
+        Si un port related point vers self, on nettoie la relation
+        A priori pas d'autre solution que de faire ça à la main. A priori tout cela est dans
+        un bloc transaction, donc pas de problème de cohérence"""
         if hasattr(self, 'switch'):
             if self.port > self.switch.number:
                 raise ValidationError("Ce port ne peut exister, numero trop élevé")
@@ -125,14 +160,15 @@ class Port(models.Model):
             if self.related.machine_interface or self.related.room:
                 raise ValidationError("Le port relié est déjà occupé, veuillez le libérer avant de créer une relation")
             else:
-                make_port_related(self)
+                self.make_port_related()
         elif hasattr(self, 'related_port'):
-            clean_port_related(self)
+            self.clean_port_related()
 
     def __str__(self):
         return str(self.switch) + " - " + str(self.port)
 
 class Room(models.Model):
+    """ Une chambre/local contenant une prise murale"""
     PRETTY_NAME = "Chambre/ Prise murale"
 
     name = models.CharField(max_length=255, unique=True)

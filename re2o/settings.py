@@ -157,8 +157,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 
 RIGHTS_LINK = {
-    'cableur' : ['bureau','infra','bofh','trésorier'],
-    'bofh' : ['bureau','trésorier'],
+    'cableur' : ['bureau','infra','bofh','tresorier'],
+    'bofh' : ['bureau','tresorier'],
     }
 
 GRAPH_MODELS = {
