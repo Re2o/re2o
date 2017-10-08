@@ -82,7 +82,7 @@ def f_type_id( is_type_tt ):
     """ The id that will be used in HTML to store the value of the field
     type. Depends on the fact that type is generate using typeahead or not
     """
-    return hidden_id('type') if is_type_tt else input_id('type')
+    return 'id_interface-type_hidden' if is_type_tt else 'id_interface-type'
 
 def generate_ipv4_choices( form ) :
     """ Generate the parameter choices for the bootstrap_form_typeahead tag

@@ -30,7 +30,8 @@ from .models import Article, Paiement, Facture, Banque, Vente
 
 class NewFactureForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        super(NewFactureForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'facture')
+        super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
         self.fields['cheque'].label = 'Numero de chèque'
@@ -102,7 +103,8 @@ class ArticleForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(ArticleForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'article')
+        super(ArticleForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = "Désignation de l'article"
 
 class DelArticleForm(Form):
@@ -114,7 +116,8 @@ class PaiementForm(ModelForm):
         fields = ['moyen', 'type_paiement']
 
     def __init__(self, *args, **kwargs):
-        super(PaiementForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'paiement')
+        super(PaiementForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['moyen'].label = 'Moyen de paiement à ajouter'
         self.fields['type_paiement'].label = 'Type de paiement à ajouter'
 
@@ -127,7 +130,8 @@ class BanqueForm(ModelForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super(BanqueForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'banque')
+        super(BanqueForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Banque à ajouter'
 
 class DelBanqueForm(Form):

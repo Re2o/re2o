@@ -31,12 +31,17 @@ class PortForm(ModelForm):
         model = Port
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'port')
+        super(PortForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class EditPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['room', 'related', 'machine_interface', 'radius', 'vlan_force', 'details']
 
     def __init__(self, *args, **kwargs):
-        super(EditPortForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'port')
+        super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all().select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all().select_related('switch__switch_interface__domain__extension').order_by('switch', 'port')
 
@@ -44,10 +49,18 @@ class AddPortForm(ModelForm):
     class Meta(PortForm.Meta):
         fields = ['port', 'room', 'machine_interface', 'related', 'radius', 'vlan_force', 'details']
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'port')
+        super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class StackForm(ModelForm):
     class Meta:
         model = Stack
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'stack')
+        super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class EditSwitchForm(ModelForm):
     class Meta:
@@ -55,7 +68,8 @@ class EditSwitchForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditSwitchForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'switch')
+        super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['location'].label = 'Localisation'
         self.fields['number'].label = 'Nombre de ports'
 
@@ -63,8 +77,16 @@ class NewSwitchForm(ModelForm):
     class Meta(EditSwitchForm.Meta):
         fields = ['location', 'number', 'details', 'stack', 'stack_member_id']
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'switch')
+        super(NewSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class EditRoomForm(ModelForm):
     class Meta:
         model = Room
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'room')
+        super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
 

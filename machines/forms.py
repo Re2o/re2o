@@ -40,7 +40,8 @@ class EditMachineForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditMachineForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'machine')
+        super(EditMachineForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Nom de la machine'
 
 class NewMachineForm(EditMachineForm):
@@ -57,7 +58,8 @@ class EditInterfaceForm(ModelForm):
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
-        super(EditInterfaceForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'interface')
+        super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
@@ -110,9 +112,10 @@ class AliasForm(ModelForm):
         fields = ['name','extension']
 
     def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'domain')
         if 'infra' in kwargs:
             infra = kwargs.pop('infra')
-        super(AliasForm, self).__init__(*args, **kwargs)
+        super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class DomainForm(AliasForm):
     class Meta(AliasForm.Meta):
@@ -125,7 +128,8 @@ class DomainForm(AliasForm):
             initial = kwargs.get('initial', {})
             initial['name'] = user.get_next_domain_name()
             kwargs['initial'] = initial 
-        super(DomainForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'domain')
+        super(DomainForm, self).__init__(*args, prefix=prefix, **kwargs)
  
 class DelAliasForm(Form):
     alias = forms.ModelMultipleChoiceField(queryset=Domain.objects.all(), label="Alias actuels",  widget=forms.CheckboxSelectMultiple)
@@ -141,7 +145,8 @@ class MachineTypeForm(ModelForm):
         fields = ['type','ip_type']
 
     def __init__(self, *args, **kwargs):
-        super(MachineTypeForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'machinetype')
+        super(MachineTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['type'].label = 'Type de machine à ajouter'
         self.fields['ip_type'].label = "Type d'ip relié"
 
@@ -153,9 +158,9 @@ class IpTypeForm(ModelForm):
         model = IpType
         fields = ['type','extension','need_infra','domaine_ip_start','domaine_ip_stop', 'prefix_v6', 'vlan']
         
-
     def __init__(self, *args, **kwargs):
-        super(IpTypeForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'iptype')
+        super(IpTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['type'].label = 'Type ip à ajouter'
 
 class EditIpTypeForm(IpTypeForm):
@@ -171,7 +176,8 @@ class ExtensionForm(ModelForm):
         fields = ['name', 'need_infra', 'origin']
 
     def __init__(self, *args, **kwargs):
-        super(ExtensionForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'extension')
+        super(ExtensionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Extension à ajouter'
         self.fields['origin'].label = 'Enregistrement A origin'
 
@@ -184,7 +190,8 @@ class MxForm(ModelForm):
         fields = ['zone', 'priority', 'name']
       
     def __init__(self, *args, **kwargs):
-        super(MxForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'mx')
+        super(MxForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].queryset = Domain.objects.exclude(interface_parent=None)
   
 class DelMxForm(Form):
@@ -196,7 +203,8 @@ class NsForm(ModelForm):
         fields = ['zone', 'ns']
 
     def __init__(self, *args, **kwargs):
-        super(NsForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', 'ns')
+        super(NsForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['ns'].queryset = Domain.objects.exclude(interface_parent=None)
 
 class DelNsForm(Form):
@@ -207,6 +215,10 @@ class TextForm(ModelForm):
         model = Text
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'text')
+        super(TextForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class DelTextForm(Form):
     text = forms.ModelMultipleChoiceField(queryset=Text.objects.all(), label="Enregistrements Text actuels",  widget=forms.CheckboxSelectMultiple)
 
@@ -215,6 +227,10 @@ class NasForm(ModelForm):
         model = Nas
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'nas')
+        super(NasForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class DelNasForm(Form):
     nas = forms.ModelMultipleChoiceField(queryset=Nas.objects.all(), label="Enregistrements Nas actuels",  widget=forms.CheckboxSelectMultiple)
 
@@ -222,6 +238,10 @@ class ServiceForm(ModelForm):
     class Meta:
         model = Service
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'service')
+        super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
         instance = super(ServiceForm, self).save(commit=False)
@@ -238,6 +258,10 @@ class VlanForm(ModelForm):
         model = Vlan
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'vlan')
+        super(VlanForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class DelVlanForm(Form):
     vlan = forms.ModelMultipleChoiceField(queryset=Vlan.objects.all(), label="Vlan actuels",  widget=forms.CheckboxSelectMultiple)
 
@@ -246,8 +270,16 @@ class EditOuverturePortConfigForm(ModelForm):
         model = Interface
         fields = ['port_lists']
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'interface')
+        super(EditOuverturePortConfigForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class EditOuverturePortListForm(ModelForm):
     class Meta:
         model = OuverturePortList
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', 'ouvertureportlist')
+        super(EditOuverturePortListForm, self).__init__(*args, prefix=prefix, **kwargs)
 

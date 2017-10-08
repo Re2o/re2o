@@ -195,20 +195,20 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
 
     return mark_safe( form )
 
-def input_id( f_name ) :
+def input_id( f_bound ) :
     """ The id of the HTML input element """
-    return 'id_'+f_name
+    return f_bound.auto_id
 
-def hidden_id( f_name ):
+def hidden_id( f_bound ):
     """ The id of the HTML hidden input element """
-    return 'typeahead_hidden_'+f_name
+    return input_id( f_bound ) +'_hidden'
 
 def hidden_tag( f_bound, f_name ):
     """ The HTML hidden input element """
     return render_tag(
         'input',
         attrs={
-            'id': hidden_id(f_name),
+            'id': hidden_id( f_bound ),
             'name': f_name,
             'type': 'hidden',
             'value': f_bound.value() or ""
@@ -249,10 +249,10 @@ def typeahead_js( f_name, f_value, f_bound,
                 f_name = f_name,
                 choices = choices,
                 engine = engine,
-                input_id = input_id( f_name ),
+                input_id = input_id( f_bound ),
                 datasets = default_datasets( f_name, match_func ),
-                updater = typeahead_updater( f_name ),
-                change = typeahead_change( f_name ),
+                updater = typeahead_updater( f_bound ),
+                change = typeahead_change( f_bound ),
                 updates = ''.join( [ (
                     '$( "#{u_id}" ).change( function() {{'
                         'setup_{f_name}();'
@@ -260,7 +260,7 @@ def typeahead_js( f_name, f_value, f_bound,
                     '}} );'
                     ).format(
                         u_id = u_id,
-                        reset_input = reset_input( f_name ),
+                        reset_input = reset_input( f_bound ),
                         f_name = f_name
                     ) for u_id in update_on ]
                 ),
@@ -276,24 +276,24 @@ def init_input( f_name, f_bound ) :
         '$( "#{input_id}" ).typeahead("val", {init_val});'
         '$( "#{hidden_id}" ).val( {init_key} );'
         ).format(
-                input_id = input_id( f_name ),
+                input_id = input_id( f_bound ),
                 init_val = '""' if init_key == '""' else
                     'engine_{f_name}.get( {init_key} )[0].value'.format(
                         f_name = f_name,
                         init_key = init_key
                     ),
                 init_key = init_key,
-                hidden_id = hidden_id( f_name )
+                hidden_id = hidden_id( f_bound )
         )
 
-def reset_input( f_name ) :
+def reset_input( f_bound ) :
     """ The JS script to reset the fields values """
     return (
         '$( "#{input_id}" ).typeahead("val", "");'
         '$( "#{hidden_id}" ).val( "" );'
         ).format(
-                input_id = input_id( f_name ),
-                hidden_id = hidden_id( f_name )
+                input_id = input_id( f_bound ),
+                hidden_id = hidden_id( f_bound )
         )
 
 def default_choices( f_value ) :
@@ -355,7 +355,7 @@ def default_match_func ( f_name ) :
                 f_name = f_name
         )
 
-def typeahead_updater( f_name ):
+def typeahead_updater( f_bound ):
     """ The JS script creating the function triggered when an item is
     selected through typeahead """
     return (
@@ -365,10 +365,10 @@ def typeahead_updater( f_name ):
             'return item;'
         '}}'
         ).format(
-                hidden_id = hidden_id( f_name )
+                hidden_id = hidden_id( f_bound )
         )
 
-def typeahead_change( f_name ):
+def typeahead_change( f_bound ):
     """ The JS script creating the function triggered when an item is changed
     (i.e. looses focus and value has changed since the moment it gained focus
     """
@@ -380,7 +380,7 @@ def typeahead_change( f_name ):
             '}}'
         '}}'
         ).format(
-                input_id = input_id( f_name ),
-                hidden_id = hidden_id( f_name )
+                input_id = input_id( f_bound ),
+                hidden_id = hidden_id( f_bound )
         )
 
