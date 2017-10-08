@@ -219,112 +219,150 @@ def typeahead_js( f_name, f_value, f_bound,
         t_choices, t_engine, t_match_func, t_update_on ) :
     """ The whole script to use """
 
-    choices = mark_safe(t_choices[f_name]) if f_name in t_choices.keys()      \
-         else default_choices( f_value )
+    choices = mark_safe( t_choices[f_name] ) if f_name in t_choices.keys()    \
+        else default_choices( f_value )
 
-    engine = mark_safe(t_engine[f_name]) if f_name in t_engine.keys()         \
-         else default_engine ( f_name )
+    engine = mark_safe( t_engine[f_name] ) if f_name in t_engine.keys()       \
+        else default_engine ( f_name )
 
     match_func = mark_safe(t_match_func[f_name])                              \
-              if f_name in t_match_func.keys()                                \
-            else default_match_func( f_name )
+        if f_name in t_match_func.keys() else default_match_func( f_name )
 
     update_on = t_update_on[f_name] if f_name in t_update_on.keys() else []
 
-    js_content =                                                              \
-        'var choices_'+f_name+' = ' + choices + ';\n'                       + \
-        'var setup_'+f_name+' = function() {\n'                             + \
-            'var engine_'+f_name+' = ' + engine + ';\n'                     + \
-            '$("#'+input_id(f_name) + '").typeahead("destroy");\n'          + \
-            '$("#'+input_id(f_name) + '").typeahead(\n'                     + \
-                default_datasets( f_name, match_func ) + '\n'               + \
-            ');\n'                                                          + \
-            reset_input( f_name, f_bound ) + '\n'                           + \
-        '};\n'                                                              + \
-        '$("#'+input_id(f_name) + '").bind(\n'                              + \
-            '"typeahead:select", '                                          + \
-            typeahead_updater( f_name ) + '\n'                              + \
-        ').bind(\n'                                                         + \
-            '"typeahead:change", '                                          + \
-            typeahead_change( f_name ) + '\n'                               + \
-        ');\n'
-    for u_id in update_on :
-        js_content += '$("#'+u_id+'").change( setup_'+f_name+' );\n'
-    js_content += '$("#'+input_id(f_name)+'").ready( setup_'+f_name+' );\n'
+    js_content = (
+        'var choices_{f_name} = {choices};'
+        'var setup_{f_name} = function() {{'
+            'var engine_{f_name} = {engine};'
+            '$( "#{input_id}" ).typeahead( "destroy" );'
+            '$( "#{input_id}" ).typeahead( {datasets} );'
+            '{reset_input}'
+        '}};'
+        '$( "#{input_id}" ).bind( "typeahead:select", {updater} );'
+        '$( "#{input_id}" ).bind( "typeahead:change", {change} );'
+        '{updates}'
+        '$( "#{input_id}" ).ready( setup_{f_name} );'
+        ).format(
+                f_name = f_name,
+                choices = choices,
+                engine = engine,
+                input_id = input_id( f_name ),
+                datasets = default_datasets( f_name, match_func ),
+                reset_input = reset_input( f_name, f_bound ),
+                updater = typeahead_updater( f_name ),
+                change = typeahead_change( f_name ),
+                updates = ''.join(
+                    ['$( "#{u_id}").change( setup_{f_name} );'.format(
+                        u_id = u_id,
+                        f_name = f_name
+                    ) for u_id in update_on ]
+                )
+        )
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
 def reset_input( f_name, f_bound ) :
     """ The JS script to reset the fields values """
-    return '$("#'+input_id(f_name)+'").typeahead('                            \
-            '"val", '                                                         \
-            'engine_'+f_name+'.get('+str(f_bound.value())+')[0].value'        \
-        ');\n'                                                                \
-        '$("#'+hidden_id(f_name)+'").val('+str(f_bound.value())+');'
+    init_key = f_bound.value() or '""'
+    return (
+        '$( "#{input_id}" ).typeahead("val", {init_val});'
+        '$( "#{hidden_id}").val( {init_key} );'
+        ).format(
+                input_id = input_id( f_name ),
+                init_val = '""' if init_key == '""' else
+                    'engine_{f_name}.get( {init_key} )[0].value'.format(
+                        f_name = f_name,
+                        init_key = init_key
+                    ),
+                init_key = init_key,
+                hidden_id = hidden_id( f_name )
+        )
 
 def default_choices( f_value ) :
     """ The JS script creating the variable choices_<fieldname> """
-    return '[' +                                                              \
-        ', '.join([                                                           \
-            '{key: ' + (str(choice[0]) if choice[0] != '' else '""') +        \
-            ', value: "' + str(choice[1]) + '"}'                              \
-            for choice in f_value.choices                                     \
-            ]) +                                                              \
-        ']'
+    return '[ {objects} ]'.format(
+            objects = ', '.join(
+                [ '{{ key: {k}, value: "{k}" }}'.format(
+                    k = choice[0] if choice[0] != '' else '""',
+                    v = choice[1]
+                ) for choice in f_value.choices ]
+            )
+        )
 
 def default_engine ( f_name ) :
     """ The JS script creating the variable engine_<field_name> """
-    return 'new Bloodhound({ '                                                \
-            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
-            'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
-            'local: choices_'+f_name+', '                                     \
-            'identify: function(obj) { return obj.key; } '                    \
-        '})'
+    return (
+        'new Bloodhound({{'
+            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),'
+            'queryTokenizer: Bloodhound.tokenizers.whitespace,'
+            'local: choices_{f_name},'
+            'identify: function(obj) {{ return obj.key; }}'
+        '}})'
+        ).format(
+                f_name = f_name
+        )
 
 def default_datasets( f_name, match_func ) :
     """ The JS script creating the datasets to use with typeahead """
-    return '{ '                                                               \
-            'hint: true, '                                                    \
-            'highlight: true, '                                               \
-            'minLength: 0 '                                                   \
-        '}, '                                                                 \
-        '{ '                                                                  \
-            'display: "value", '                                              \
-            'name: "'+f_name+'", '                                            \
-            'source: '+match_func +                                           \
-        '}'
+    return (
+        '{{'
+            'hint: true,'
+            'highlight: true,'
+            'minLength: 0'
+        '}},'
+        '{{'
+            'display: "value",'
+            'name: "{f_name}",'
+            'source: {match_func}'
+        '}}'
+        ).format(
+                f_name = f_name,
+                match_func = match_func
+        )
 
 def default_match_func ( f_name ) :
     """ The JS script creating the matching function to use with typeahed """
-    return 'function(q, sync) {'                                              \
-        'if (q === "") {'                                                     \
-            'var nb = 10;'                                                    \
-            'var first = [] ;'                                                \
-            'for ( var i=0 ; i<nb && i<choices_'+f_name+'.length; i++ ) {'    \
-                'first.push(choices_'+f_name+'[i].key);'                      \
-            '}'                                                               \
-            'sync(engine_'+f_name+'.get(first));'                             \
-        '} else {'                                                            \
-            'engine_'+f_name+'.search(q, sync);'                              \
-        '}'                                                                   \
-    '}'
+    return (
+        'function ( q, sync ) {{'
+            'if ( q === "" ) {{'
+                'var first = choices_{f_name}.slice( 0, 5 ).map('
+                    'function ( obj ) {{ return obj.key; }}'
+                ');'
+                'sync( engine_{f_name}.get( first ) );'
+            '}} else {{'
+                'engine_{f_name}.search( q, sync );'
+            '}}'
+        '}}'
+        ).format(
+                f_name = f_name
+        )
 
 def typeahead_updater( f_name ):
     """ The JS script creating the function triggered when an item is
     selected through typeahead """
-    return 'function(evt, item) { '                                           \
-        '$("#'+hidden_id(f_name)+'").val( item.key ); '                       \
-        '$("#'+hidden_id(f_name)+'").change();'                               \
-        'return item; '                                                       \
-    '}'
+    return (
+        'function(evt, item) {{'
+            '$( "#{hidden_id}" ).val( item.key );'
+            '$( "#{hidden_id}" ).change();'
+            'return item;'
+        '}}'
+        ).format(
+                hidden_id = hidden_id( f_name )
+        )
 
 def typeahead_change( f_name ):
     """ The JS script creating the function triggered when an item is changed
     (i.e. looses focus and value has changed since the moment it gained focus
     """
-    return 'function(evt) { '                                                 \
-        'if ($("#'+input_id(f_name)+'").typeahead("val") === "") {'           \
-            '$("#'+hidden_id(f_name)+'").val(""); '                           \
-            '$("#'+hidden_id(f_name)+'").change();'                           \
-        '}'                                                                   \
-    '}'
+    return (
+        'function(evt) {{'
+            'if ( $( "#{input_id}" ).typeahead( "val" ) === "" ) {{'
+                '$( "#{hidden_id}" ).val( "" );'
+                '$( "#{hidden_id}" ).change();'
+            '}}'
+        '}}'
+        ).format(
+                input_id = input_id( f_name ),
+                hidden_id = hidden_id( f_name )
+        )
+
