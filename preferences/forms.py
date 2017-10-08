@@ -33,7 +33,8 @@ class EditOptionalUserForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditOptionalUserForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionalUserForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['is_tel_mandatory'].label = 'Exiger un numéro de téléphone'
         self.fields['user_solde'].label = 'Activation du solde pour les utilisateurs'
 
@@ -43,7 +44,8 @@ class EditOptionalMachineForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditOptionalMachineForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionalMachineForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['password_machine'].label = "Possibilité d'attribuer un mot de passe par interface"
         self.fields['max_lambdauser_interfaces'].label = "Maximum d'interfaces autorisées pour un user normal"
         self.fields['max_lambdauser_aliases'].label = "Maximum d'alias dns autorisés pour un user normal"
@@ -54,7 +56,8 @@ class EditOptionalTopologieForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditOptionalTopologieForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionalTopologieForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['vlan_decision_ok'].label = "Vlan où placer les machines après acceptation RADIUS"
         self.fields['vlan_decision_nok'].label = "Vlan où placer les machines après rejet RADIUS"
 
@@ -64,7 +67,8 @@ class EditGeneralOptionForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditGeneralOptionForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditGeneralOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['search_display_page'].label = 'Resultats affichés dans une recherche'
         self.fields['pagination_number'].label = 'Items par page, taille normale (ex users)'
         self.fields['pagination_large_number'].label = 'Items par page, taille élevée (machines)'
@@ -78,7 +82,8 @@ class EditAssoOptionForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditAssoOptionForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditAssoOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Nom de l\'asso'
         self.fields['siret'].label = 'SIRET'
         self.fields['adresse1'].label = 'Adresse (ligne 1)'
@@ -94,7 +99,8 @@ class EditMailMessageOptionForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(EditMailMessageOptionForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditMailMessageOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['welcome_mail_fr'].label = 'Message dans le mail de bienvenue en français'
         self.fields['welcome_mail_en'].label = 'Message dans le mail de bienvenue en anglais'
 
@@ -103,5 +109,10 @@ class ServiceForm(ModelForm):
         model = Service
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 class DelServiceForm(Form):
     services = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), label="Enregistrements service actuels",  widget=forms.CheckboxSelectMultiple)
+
