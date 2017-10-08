@@ -32,7 +32,7 @@ class PortForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'port')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(PortForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class EditPortForm(ModelForm):
@@ -40,7 +40,7 @@ class EditPortForm(ModelForm):
         fields = ['room', 'related', 'machine_interface', 'radius', 'vlan_force', 'details']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'port')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all().select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all().select_related('switch__switch_interface__domain__extension').order_by('switch', 'port')
@@ -50,7 +50,7 @@ class AddPortForm(ModelForm):
         fields = ['port', 'room', 'machine_interface', 'related', 'radius', 'vlan_force', 'details']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'port')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class StackForm(ModelForm):
@@ -59,7 +59,7 @@ class StackForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'stack')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class EditSwitchForm(ModelForm):
@@ -68,7 +68,7 @@ class EditSwitchForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'switch')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['location'].label = 'Localisation'
         self.fields['number'].label = 'Nombre de ports'
@@ -78,7 +78,7 @@ class NewSwitchForm(ModelForm):
         fields = ['location', 'number', 'details', 'stack', 'stack_member_id']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'switch')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(NewSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class EditRoomForm(ModelForm):
@@ -87,6 +87,6 @@ class EditRoomForm(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'room')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
 
