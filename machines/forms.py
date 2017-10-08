@@ -29,7 +29,7 @@ import re
 from django.forms import ModelForm, Form, ValidationError
 from django import forms
 from .models import Domain, Machine, Interface, IpList, MachineType, Extension, Mx, Text, Ns, Service, Vlan, Nas, IpType, OuverturePortList, OuverturePort
-from django.db.models import Q, F
+from django.db.models import Q
 from django.core.validators import validate_email
 
 from users.models import User
@@ -63,9 +63,9 @@ class EditInterfaceForm(ModelForm):
         self.fields['type'].empty_label = "Séléctionner un type de machine"
         if "ipv4" in self.fields:
             self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
             # Add it's own address
-            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
@@ -79,9 +79,9 @@ class AddInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
         else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
@@ -97,12 +97,12 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False)).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
             # Add it's own address
-            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
         else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).annotate(mtype_id=F('ip_type__machinetype__id'))
-            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance).annotate(mtype_id=F('ip_type__machinetype__id'))
+            self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
 
 class AliasForm(ModelForm):
     class Meta:
