@@ -36,7 +36,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, F
 from django.forms import ValidationError, modelformset_factory
 from django.db import transaction
 from django.contrib.auth import authenticate, login
@@ -92,7 +92,7 @@ def generate_ipv4_choices( form ) :
     choices = '{"":[{key:"",value:"Choisissez d\'abord un type de machine"},'
     mtype_id = -1
 
-    for ip in f_ipv4.queryset.order_by('mtype_id', 'id') :
+    for ip in f_ipv4.queryset.annotate(mtype_id=F('ip_type__machinetype__id')).order_by('mtype_id', 'id') :
         if mtype_id != ip.mtype_id :
             mtype_id = ip.mtype_id
             used_mtype_id.append(mtype_id)
