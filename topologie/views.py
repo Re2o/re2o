@@ -45,7 +45,7 @@ from preferences.models import AssoOption, GeneralOption
 @permission_required('cableur')
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
-    switch_list = Switch.objects.order_by('stack','stack_member_id','location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain')
+    switch_list = Switch.objects.order_by('stack','stack_member_id','location').select_related('switch_interface__domain__extension').select_related('switch_interface__ipv4').select_related('switch_interface__domain').select_related('stack')
     return render(request, 'topologie/index.html', {'switch_list': switch_list})
 
 @login_required
@@ -128,7 +128,7 @@ def index_room(request):
 @login_required
 @permission_required('infra')
 def index_stack(request):
-    stack_list = Stack.objects.order_by('name')
+    stack_list = Stack.objects.order_by('name').prefetch_related('switch_set__switch_interface__domain__extension')
     return render(request, 'topologie/index_stack.html', {'stack_list': stack_list})
 
 

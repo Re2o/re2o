@@ -857,13 +857,13 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_iptype(request):
-    iptype_list = IpType.objects.select_related('extension').order_by('type')
+    iptype_list = IpType.objects.select_related('extension').select_related('vlan').order_by('type')
     return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
 
 @login_required
 @permission_required('cableur')
 def index_vlan(request):
-    vlan_list = Vlan.objects.order_by('vlan_id')
+    vlan_list = Vlan.objects.prefetch_related('iptype_set').order_by('vlan_id')
     return render(request, 'machines/index_vlan.html', {'vlan_list':vlan_list})
 
 @login_required
@@ -875,7 +875,7 @@ def index_machinetype(request):
 @login_required
 @permission_required('cableur')
 def index_nas(request):
-    nas_list = Nas.objects.select_related('machine_type').order_by('name')
+    nas_list = Nas.objects.select_related('machine_type').select_related('nas_type').order_by('name')
     return render(request, 'machines/index_nas.html', {'nas_list':nas_list})
 
 @login_required
@@ -903,8 +903,8 @@ def index_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index_service(request):
-    service_list = Service.objects.all()
-    servers_list = Service_link.objects.all()
+    service_list = Service.objects.prefetch_related('service_link_set__server__domain__extension').all()
+    servers_list = Service_link.objects.select_related('server__domain__extension').select_related('service').all()
     return render(request, 'machines/index_service.html', {'service_list':service_list, 'servers_list':servers_list})
 
 @login_required
@@ -1012,7 +1012,7 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_portlist(request):
-    port_list = OuverturePortList.objects.all().order_by('name')
+    port_list = OuverturePortList.objects.prefetch_related('ouvertureport_set').prefetch_related('interface_set').order_by('name')
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 @login_required
