@@ -232,41 +232,49 @@ def typeahead_js( f_name, f_value, f_bound,
 
     js_content = (
         'var choices_{f_name} = {choices};'
+        'var engine_{f_name};'
         'var setup_{f_name} = function() {{'
-            'var engine_{f_name} = {engine};'
+            'engine_{f_name} = {engine};'
             '$( "#{input_id}" ).typeahead( "destroy" );'
             '$( "#{input_id}" ).typeahead( {datasets} );'
-            '{reset_input}'
         '}};'
         '$( "#{input_id}" ).bind( "typeahead:select", {updater} );'
         '$( "#{input_id}" ).bind( "typeahead:change", {change} );'
         '{updates}'
-        '$( "#{input_id}" ).ready( setup_{f_name} );'
+        '$( "#{input_id}" ).ready( function() {{'
+            'setup_{f_name}();'
+            '{init_input}'
+        '}} );'
         ).format(
                 f_name = f_name,
                 choices = choices,
                 engine = engine,
                 input_id = input_id( f_name ),
                 datasets = default_datasets( f_name, match_func ),
-                reset_input = reset_input( f_name, f_bound ),
                 updater = typeahead_updater( f_name ),
                 change = typeahead_change( f_name ),
-                updates = ''.join(
-                    ['$( "#{u_id}").change( setup_{f_name} );'.format(
+                updates = ''.join( [ (
+                    '$( "#{u_id}" ).change( function() {{'
+                        'setup_{f_name}();'
+                        '{reset_input}'
+                    '}} );'
+                    ).format(
                         u_id = u_id,
+                        reset_input = reset_input( f_name ),
                         f_name = f_name
                     ) for u_id in update_on ]
-                )
+                ),
+                init_input = init_input( f_name, f_bound ),
         )
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
-def reset_input( f_name, f_bound ) :
-    """ The JS script to reset the fields values """
+def init_input( f_name, f_bound ) :
+    """ The JS script to init the fields values """
     init_key = f_bound.value() or '""'
     return (
         '$( "#{input_id}" ).typeahead("val", {init_val});'
-        '$( "#{hidden_id}").val( {init_key} );'
+        '$( "#{hidden_id}" ).val( {init_key} );'
         ).format(
                 input_id = input_id( f_name ),
                 init_val = '""' if init_key == '""' else
@@ -275,6 +283,16 @@ def reset_input( f_name, f_bound ) :
                         init_key = init_key
                     ),
                 init_key = init_key,
+                hidden_id = hidden_id( f_name )
+        )
+
+def reset_input( f_name ) :
+    """ The JS script to reset the fields values """
+    return (
+        '$( "#{input_id}" ).typeahead("val", "");'
+        '$( "#{hidden_id}" ).val( "" );'
+        ).format(
+                input_id = input_id( f_name ),
                 hidden_id = hidden_id( f_name )
         )
 
