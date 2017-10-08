@@ -298,9 +298,9 @@ def reset_input( f_name ) :
 
 def default_choices( f_value ) :
     """ The JS script creating the variable choices_<fieldname> """
-    return '[ {objects} ]'.format(
-            objects = ', '.join(
-                [ '{{ key: {k}, value: "{k}" }}'.format(
+    return '[{objects}]'.format(
+            objects = ','.join(
+                [ '{{key:{k},value:"{v}"}}'.format(
                     k = choice[0] if choice[0] != '' else '""',
                     v = choice[1]
                 ) for choice in f_value.choices ]
