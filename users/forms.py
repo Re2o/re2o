@@ -55,7 +55,7 @@ class UserCreationForm(forms.ModelForm):
     is_admin = forms.BooleanField(label='is admin')
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'user')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
@@ -85,7 +85,7 @@ class ServiceUserCreationForm(forms.ModelForm):
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, min_length=8, max_length=255)
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'serviceuser')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceUserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
@@ -120,7 +120,7 @@ class UserChangeForm(forms.ModelForm):
         fields = ('pseudo', 'password', 'name', 'surname', 'email')
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'user')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(UserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
         print("User is admin : %s" % kwargs['instance'].is_admin)
         self.initial['is_admin'] = kwargs['instance'].is_admin
@@ -147,7 +147,7 @@ class ServiceUserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'serviceuser')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceUserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
@@ -176,7 +176,7 @@ class MassArchiveForm(forms.Form):
 
 class BaseInfoForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'user')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BaseInfoForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Prénom'
         self.fields['surname'].label = 'Nom'
@@ -241,7 +241,7 @@ class PasswordForm(ModelForm):
         fields = ['password', 'pwd_ntlm']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'user')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(PasswordForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class ServiceUserForm(ModelForm):
@@ -253,7 +253,7 @@ class ServiceUserForm(ModelForm):
         fields = ('pseudo','access_group')
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'serviceuser')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 class EditServiceUserForm(ServiceUserForm):
@@ -267,7 +267,7 @@ class StateForm(ModelForm):
         fields = ['state']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'user')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
@@ -277,7 +277,7 @@ class SchoolForm(ModelForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'school')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(SchoolForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Établissement'
 
@@ -287,7 +287,7 @@ class ListRightForm(ModelForm):
         fields = ['listright', 'details']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'listright')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['listright'].label = 'Nom du droit/groupe'
 
@@ -307,7 +307,7 @@ class DelSchoolForm(Form):
 
 class RightForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'right')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(RightForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['right'].label = 'Droit'
         self.fields['right'].empty_label = "Choisir un nouveau droit"
@@ -326,7 +326,7 @@ class DelRightForm(Form):
 
 class BanForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'ban')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
 
@@ -343,7 +343,7 @@ class BanForm(ModelForm):
 
 class WhitelistForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', 'whitelist')
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
 
