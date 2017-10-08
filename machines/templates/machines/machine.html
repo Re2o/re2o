@@ -49,9 +49,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if interfaceform %}
     <h3>Interface</h3>
         {% if i_bft_param %}
+	    {% if 'machine' in interfaceform.fields %}
+    {% bootstrap_form_typeahead interfaceform 'ipv4,machine' bft_param=i_bft_param %}
+	    {% else %}
     {% bootstrap_form_typeahead interfaceform 'ipv4' bft_param=i_bft_param %}
+	    {% endif %}
 	{% else %}
+	    {% if 'machine' in interfaceform.fields %}
+    {% bootstrap_form_typeahead interfaceform 'ipv4,machine' %}
+	    {% else %}
     {% bootstrap_form_typeahead interfaceform 'ipv4' %}
+	    {% endif %}
 	{% endif %}
     {% endif %}
     {% if domainform %}
