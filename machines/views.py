@@ -89,16 +89,21 @@ def generate_ipv4_choices( form ) :
     """
     f_ipv4 = form.fields['ipv4']
     used_mtype_id = []
-    choices = '{ "": [{key: "", value: "Choisissez d\'abord un type de machine"},'
+    choices = '{"":[{key:"",value:"Choisissez d\'abord un type de machine"},'
     mtype_id = -1
 
     for ip in f_ipv4.queryset.order_by('mtype_id', 'id') :
         if mtype_id != ip.mtype_id :
             mtype_id = ip.mtype_id
             used_mtype_id.append(mtype_id)
-            choices += '], "'+str(mtype_id)+'": ['
-            choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
-        choices += '{key: ' + str(ip.id) + ', value: "' + str(ip.ipv4) + '"},'
+            choices += '],"{t}":[{{key:"",value:"{v}"}},'.format(
+                    t = mtype_id,
+                    v = f_ipv4.empty_label or '""'
+            )
+        choices += '{{key:{k},value:"{v}"}},'.format(
+                k = ip.id,
+                v = ip.ipv4
+        )
 
     for t in form.fields['type'].queryset.exclude(id__in=used_mtype_id) :
         choices += '], "'+str(t.id)+'": ['
@@ -109,34 +114,33 @@ def generate_ipv4_choices( form ) :
 def generate_ipv4_engine( is_type_tt ) :
     """ Generate the parameter engine for the bootstrap_form_typeahead tag
     """
-    return 'new Bloodhound({ '                                                \
-            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"), ' \
-            'queryTokenizer: Bloodhound.tokenizers.whitespace, '              \
-            'local: choices_ipv4[$("#'+f_type_id(is_type_tt)+'").val()], '    \
-            'identify: function(obj) { return obj.key; } '                    \
-        '})'
+    return (
+        'new Bloodhound( {{'
+            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
+            'queryTokenizer: Bloodhound.tokenizers.whitespace,'
+            'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
+            'identify: function( obj ) {{ return obj.key; }}'
+        '}} )'
+        ).format(
+                type_id = f_type_id( is_type_tt )
+        )
 
 def generate_ipv4_match_func( is_type_tt ) :
     """ Generate the parameter match_func for the bootstrap_form_typeahead tag
     """
-    return 'function(q, sync) {'                                              \
-        'if (q === "") {'                                                     \
-            'var nb = 10;'                                                    \
-            'var first = [] ;'                                                \
-            'for('                                                            \
-                'var i=0 ;'                                                   \
-                'i<nb && i<choices_ipv4['                                     \
-                    '$("#'+f_type_id(is_type_tt)+'").val()'                   \
-                '].length ;'                                                  \
-                'i++'                                                         \
-            ') { first.push('                                                 \
-                'choices_ipv4[$("#'+f_type_id(is_type_tt)+'").val()][i].key'  \
-            '); }'                                                            \
-            'sync(engine_ipv4.get(first));'                                   \
-        '} else {'                                                            \
-            'engine_ipv4.search(q, sync);'                                    \
-        '}'                                                                   \
-    '}'
+    return (
+        'function(q, sync) {{'
+            'if (q === "") {{'
+                'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
+                'first = first.map( function (obj) {{ return obj.key; }} );'
+                'sync(engine_ipv4.get(first));'
+            '}} else {{'
+                'engine_ipv4.search(q, sync);'
+            '}}'
+        '}}'
+        ).format(
+                type_id = f_type_id( is_type_tt )
+        )
 
 def generate_ipv4_bft_param( form, is_type_tt ):
     """ Generate all the parameters to use with the bootstrap_form_typeahead
