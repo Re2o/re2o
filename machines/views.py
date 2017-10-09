@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -5,6 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2017  Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +36,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, F
 from django.forms import ValidationError, modelformset_factory
 from django.db import transaction
 from django.contrib.auth import authenticate, login
@@ -53,6 +55,7 @@ from .models import IpType, Machine, Interface, IpList, MachineType, Extension, 
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
+from .templatetags.bootstrap_form_typeahead import hidden_id, input_id
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
@@ -75,8 +78,90 @@ def form(ctx, template, request):
     c.update(csrf(request))
     return render(request, template, c)
 
+def f_type_id( is_type_tt ):
+    """ The id that will be used in HTML to store the value of the field
+    type. Depends on the fact that type is generate using typeahead or not
+    """
+    return hidden_id('type') if is_type_tt else input_id('type')
+
+def generate_ipv4_choices( form ) :
+    """ Generate the parameter choices for the bootstrap_form_typeahead tag
+    """
+    f_ipv4 = form.fields['ipv4']
+    used_mtype_id = []
+    choices = '{"":[{key:"",value:"Choisissez d\'abord un type de machine"},'
+    mtype_id = -1
+
+    for ip in f_ipv4.queryset.annotate(mtype_id=F('ip_type__machinetype__id')).order_by('mtype_id', 'id') :
+        if mtype_id != ip.mtype_id :
+            mtype_id = ip.mtype_id
+            used_mtype_id.append(mtype_id)
+            choices += '],"{t}":[{{key:"",value:"{v}"}},'.format(
+                    t = mtype_id,
+                    v = f_ipv4.empty_label or '""'
+            )
+        choices += '{{key:{k},value:"{v}"}},'.format(
+                k = ip.id,
+                v = ip.ipv4
+        )
+
+    for t in form.fields['type'].queryset.exclude(id__in=used_mtype_id) :
+        choices += '], "'+str(t.id)+'": ['
+        choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
+    choices += ']}'
+    return choices
+
+def generate_ipv4_engine( is_type_tt ) :
+    """ Generate the parameter engine for the bootstrap_form_typeahead tag
+    """
+    return (
+        'new Bloodhound( {{'
+            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
+            'queryTokenizer: Bloodhound.tokenizers.whitespace,'
+            'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
+            'identify: function( obj ) {{ return obj.key; }}'
+        '}} )'
+        ).format(
+                type_id = f_type_id( is_type_tt )
+        )
+
+def generate_ipv4_match_func( is_type_tt ) :
+    """ Generate the parameter match_func for the bootstrap_form_typeahead tag
+    """
+    return (
+        'function(q, sync) {{'
+            'if (q === "") {{'
+                'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
+                'first = first.map( function (obj) {{ return obj.key; }} );'
+                'sync(engine_ipv4.get(first));'
+            '}} else {{'
+                'engine_ipv4.search(q, sync);'
+            '}}'
+        '}}'
+        ).format(
+                type_id = f_type_id( is_type_tt )
+        )
+
+def generate_ipv4_bft_param( form, is_type_tt ):
+    """ Generate all the parameters to use with the bootstrap_form_typeahead
+    tag """
+    i_choices = { 'ipv4': generate_ipv4_choices( form ) }
+    i_engine = { 'ipv4': generate_ipv4_engine( is_type_tt ) }
+    i_match_func = { 'ipv4': generate_ipv4_match_func( is_type_tt ) }
+    i_update_on = { 'ipv4': [f_type_id( is_type_tt )] }
+    i_bft_param = {
+        'choices': i_choices,
+        'engine': i_engine,
+        'match_func': i_match_func,
+        'update_on': i_update_on
+    }
+    return i_bft_param
+
 @login_required
 def new_machine(request, userid):
+    """ Fonction de creation d'une machine. Cree l'objet machine, le sous objet interface et l'objet domain
+    à partir de model forms.
+    Trop complexe, devrait être simplifié"""
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -92,7 +177,7 @@ def new_machine(request, userid):
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
     machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',))) 
+    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     nb_machine = Interface.objects.filter(machine__user=userid).count()
     domain = DomainForm(request.POST or None, user=user, nb_machine=nb_machine)
     if machine.is_valid() and interface.is_valid():
@@ -118,10 +203,13 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface, False )
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
+    """ Edition d'une interface. Distingue suivant les droits les valeurs de interfaces et machines que l'user peut modifier
+    infra permet de modifier le propriétaire"""
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
@@ -155,10 +243,12 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
+    """ Supprime une machine, interfaces en mode cascade"""
     try:
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
@@ -178,6 +268,7 @@ def del_machine(request, machineid):
 
 @login_required
 def new_interface(request, machineid):
+    """ Ajoute une interface et son domain associé à une machine existante"""
     try:
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
@@ -211,10 +302,12 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    return form({'interfaceform': interface_form, 'domainform': domain_form}, 'machines/machine.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
+    """ Supprime une interface. Domain objet en mode cascade"""
     try:
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
@@ -238,6 +331,7 @@ def del_interface(request, interfaceid):
 @login_required
 @permission_required('infra')
 def add_iptype(request):
+    """ Ajoute un range d'ip. Intelligence dans le models, fonction views minimaliste"""
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -251,6 +345,7 @@ def add_iptype(request):
 @login_required
 @permission_required('infra')
 def edit_iptype(request, iptypeid):
+    """ Edition d'un range. Ne permet pas de le redimensionner pour éviter l'incohérence"""
     try:
         iptype_instance = IpType.objects.get(pk=iptypeid)
     except IpType.DoesNotExist:
@@ -269,6 +364,7 @@ def edit_iptype(request, iptypeid):
 @login_required
 @permission_required('infra')
 def del_iptype(request):
+    """ Suppression d'un range ip. Supprime les objets ip associés"""
     iptype = DelIpTypeForm(request.POST or None)
     if iptype.is_valid():
         iptype_dels = iptype.cleaned_data['iptypes']
@@ -761,13 +857,13 @@ def index(request):
 @login_required
 @permission_required('cableur')
 def index_iptype(request):
-    iptype_list = IpType.objects.select_related('extension').order_by('type')
+    iptype_list = IpType.objects.select_related('extension').select_related('vlan').order_by('type')
     return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
 
 @login_required
 @permission_required('cableur')
 def index_vlan(request):
-    vlan_list = Vlan.objects.order_by('vlan_id')
+    vlan_list = Vlan.objects.prefetch_related('iptype_set').order_by('vlan_id')
     return render(request, 'machines/index_vlan.html', {'vlan_list':vlan_list})
 
 @login_required
@@ -779,7 +875,7 @@ def index_machinetype(request):
 @login_required
 @permission_required('cableur')
 def index_nas(request):
-    nas_list = Nas.objects.select_related('machine_type').order_by('name')
+    nas_list = Nas.objects.select_related('machine_type').select_related('nas_type').order_by('name')
     return render(request, 'machines/index_nas.html', {'nas_list':nas_list})
 
 @login_required
@@ -807,8 +903,8 @@ def index_alias(request, interfaceid):
 @login_required
 @permission_required('cableur')
 def index_service(request):
-    service_list = Service.objects.all()
-    servers_list = Service_link.objects.all()
+    service_list = Service.objects.prefetch_related('service_link_set__server__domain__extension').all()
+    servers_list = Service_link.objects.select_related('server__domain__extension').select_related('service').all()
     return render(request, 'machines/index_service.html', {'service_list':service_list, 'servers_list':servers_list})
 
 @login_required
@@ -869,7 +965,7 @@ def history(request, object, id):
              object_instance = Text.objects.get(pk=id)
         except Text.DoesNotExist:
              messages.error(request, "Text inexistant")
-             return redirect("/machines/")   
+             return redirect("/machines/")
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Ns.objects.get(pk=id)
@@ -916,7 +1012,7 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_portlist(request):
-    port_list = OuverturePortList.objects.all().order_by('name') 
+    port_list = OuverturePortList.objects.prefetch_related('ouvertureport_set').prefetch_related('interface_set').order_by('name')
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 @login_required
@@ -929,7 +1025,7 @@ def edit_portlist(request, pk):
         return redirect("/machines/index_portlist/")
     port_list = EditOuverturePortListForm(request.POST or None, instance=port_list_instance)
     port_formset = modelformset_factory(
-            OuverturePort, 
+            OuverturePort,
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
@@ -968,7 +1064,7 @@ def del_portlist(request, pk):
 def add_portlist(request):
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
-            OuverturePort, 
+            OuverturePort,
             fields=('begin','end','protocole','io'),
             extra=0,
             can_delete=True,
