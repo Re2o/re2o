@@ -725,25 +725,24 @@ class ListShell(models.Model):
     def __str__(self):
         return self.shell
 
+class BanType(models.Model):
+    """Type de bannissement"""
+    name = models.CharField(max_length=255)
+    description = models.TextField(help_text="Description de l'effet et des "
+        "raisons de la blacklist")
+    # d'autres champs pour décrire les effets viendront si besoin
+
+
 class Ban(models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
     Gagnerait à être granulaire"""
     PRETTY_NAME = "Liste des bannissements"
 
-    STATE_HARD = 0
-    STATE_SOFT = 1
-    STATE_BRIDAGE = 2
-    STATES = (
-            (0, 'HARD (aucun accès)'),
-            (1, 'SOFT (accès local seulement)'),
-            (2, 'BRIDAGE (bridage du débit)'),
-            )
-
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
-    state = models.IntegerField(choices=STATES, default=STATE_HARD) 
+    ban_type = models.ForeignKey(BanType)
 
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
