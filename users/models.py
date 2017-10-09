@@ -378,7 +378,7 @@ class User(AbstractBaseUser):
     def user_interfaces(self, active=True):
         """ Renvoie toutes les interfaces dont les machines appartiennent à self
         Par defaut ne prend que les interfaces actives"""
-        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=active))
+        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=active)).select_related('domain__extension')
 
     def assign_ips(self):
         """ Assign une ipv4 aux machines d'un user """

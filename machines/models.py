@@ -56,6 +56,7 @@ class MachineType(models.Model):
     ip_type = models.ForeignKey('IpType', on_delete=models.PROTECT, blank=True, null=True)
 
     def all_interfaces(self):
+        """ Renvoie toutes les interfaces (cartes réseaux) de type machinetype"""
         return Interface.objects.filter(type=self)
 
     def __str__(self):
@@ -76,23 +77,31 @@ class IpType(models.Model):
 
     @cached_property
     def ip_range(self):
-        return IPRange(self.domaine_ip_start, end=self.domaine_ip_stop)
+       """ Renvoie un objet IPRange à partir de l'objet IpType"""
+       return IPRange(self.domaine_ip_start, end=self.domaine_ip_stop)
 
     @cached_property
     def ip_set(self):
+        """ Renvoie une IPSet à partir de l'iptype"""
         return IPSet(self.ip_range)
 
     @cached_property
     def ip_set_as_str(self):
+        """ Renvoie une liste des ip en string"""
         return [str(x) for x in self.ip_set]
 
     def ip_objects(self):
+        """ Renvoie tous les objets ipv4 relié à ce type"""
         return IpList.objects.filter(ip_type=self)
 
     def free_ip(self):
+        """ Renvoie toutes les ip libres associées au type donné (self)"""
         return IpList.objects.filter(interface__isnull=True).filter(ip_type=self)
 
     def gen_ip_range(self):
+        """ Cree les IpList associées au type self. Parcours pédestrement et crée
+        les ip une par une. Si elles existent déjà, met à jour le type associé
+        à l'ip"""
         # Creation du range d'ip dans les objets iplist
         networks = []
         for net in self.ip_range.cidrs():
@@ -115,6 +124,11 @@ class IpType(models.Model):
             ip.delete()
 
     def clean(self):
+        """ Nettoyage. Vérifie :
+        - Que ip_stop est après ip_start
+        - Qu'on ne crée pas plus gros qu'un /16
+        - Que le range crée ne recoupe pas un range existant
+        - Formate l'ipv6 donnée en /64"""
         if IPAddress(self.domaine_ip_start) > IPAddress(self.domaine_ip_stop):
             raise ValidationError("Domaine end doit être après start...")
         # On ne crée pas plus grand qu'un /16
@@ -137,6 +151,7 @@ class IpType(models.Model):
         return self.type
 
 class Vlan(models.Model):
+    """ Un vlan : vlan_id et nom"""
     PRETTY_NAME = "Vlans"
 
     vlan_id = models.IntegerField()
@@ -147,6 +162,9 @@ class Vlan(models.Model):
         return self.name
 
 class Nas(models.Model):
+    """ Les nas. Associé à un machine_type. 
+    Permet aussi de régler le port_access_mode (802.1X ou mac-address) pour
+    le radius. Champ autocapture de la mac à true ou false"""
     PRETTY_NAME = "Correspondance entre les nas et les machines connectées"
 
     default_mode = '802.1X'
@@ -165,6 +183,8 @@ class Nas(models.Model):
         return self.name
 
 class Extension(models.Model):
+    """ Extension dns type example.org. Précise si tout le monde peut l'utiliser,
+    associé à un origin (ip d'origine)"""
     PRETTY_NAME = "Extensions dns"
 
     name = models.CharField(max_length=255, unique=True)
@@ -173,12 +193,15 @@ class Extension(models.Model):
 
     @cached_property
     def dns_entry(self):
+        """ Une entrée DNS A"""
         return  "@   IN  A " + str(self.origin)
 
     def __str__(self):
         return self.name
 
 class Mx(models.Model):
+    """ Entrées des MX. Enregistre la zone (extension) associée et la priorité
+    Todo : pouvoir associer un MX à une interface """
     PRETTY_NAME = "Enregistrements MX"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
@@ -206,6 +229,7 @@ class Ns(models.Model):
         return str(self.zone) + ' ' + str(self.ns)
 
 class Text(models.Model):
+    """ Un enregistrement TXT associé à une extension"""
     PRETTY_NAME = "Enregistrement text"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
@@ -220,6 +244,12 @@ class Text(models.Model):
         return str(self.field1) + " IN TXT " + str(self.field2)
 
 class Interface(models.Model):
+    """ Une interface. Objet clef de l'application machine : 
+    - une address mac unique. Possibilité de la rendre unique avec le typemachine
+    - une onetoone vers IpList pour attribution ipv4
+    - le type parent associé au range ip et à l'extension
+    - un objet domain associé contenant son nom
+    - la liste des ports oiuvert"""
     PRETTY_NAME = "Interface"
 
     ipv4 = models.OneToOneField('IpList', on_delete=models.PROTECT, blank=True, null=True)
@@ -239,6 +269,7 @@ class Interface(models.Model):
 
     @cached_property
     def ipv6_object(self):
+        """ Renvoie un objet type ipv6 à partir du prefix associé à l'iptype parent"""
         if self.type.ip_type.prefix_v6:
             return EUI(self.mac_address).ipv6(IPNetwork(self.type.ip_type.prefix_v6).network)
         else:
@@ -246,18 +277,23 @@ class Interface(models.Model):
 
     @cached_property
     def ipv6(self):
+        """ Renvoie l'ipv6 en str. Mise en cache et propriété de l'objet"""
         return str(self.ipv6_object)
 
     def mac_bare(self):
+        """ Formatage de la mac type mac_bare"""
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
 
     def filter_macaddress(self):
+        """ Tente un formatage mac_bare, si échoue, lève une erreur de validation"""
         try:
             self.mac_address = str(EUI(self.mac_address))
         except :
             raise ValidationError("La mac donnée est invalide")
 
     def clean(self, *args, **kwargs):
+        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
+        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
         self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
@@ -274,6 +310,7 @@ class Interface(models.Model):
         return
 
     def unassign_ipv4(self):
+        """ Sans commentaire, désassigne une ipv4"""
         self.ipv4 = None
 
     def update_type(self):
@@ -296,15 +333,20 @@ class Interface(models.Model):
         return str(domain)
 
     def has_private_ip(self):
+        """ True si l'ip associée est privée"""
         if self.ipv4:
             return IPAddress(str(self.ipv4)).is_private()
         else:
             return False
 
     def may_have_port_open(self):
+        """ True si l'interface a une ip et une ip publique.
+        Permet de ne pas exporter des ouvertures sur des ip privées (useless)"""
         return self.ipv4 and not self.has_private_ip()
 
 class Domain(models.Model):
+    """ Objet domain. Enregistrement A et CNAME en même temps : permet de stocker les 
+    alias et les nom de machines, suivant si interface_parent ou cname sont remplis"""
     PRETTY_NAME = "Domaine dns"
 
     interface_parent = models.OneToOneField('Interface', on_delete=models.CASCADE, blank=True, null=True)
@@ -316,6 +358,8 @@ class Domain(models.Model):
         unique_together = (("name", "extension"),)
 
     def get_extension(self):
+        """ Retourne l'extension de l'interface parente si c'est un A
+         Retourne l'extension propre si c'est un cname, renvoie None sinon"""
         if self.interface_parent:
             return self.interface_parent.type.ip_type.extension
         elif hasattr(self,'extension'):
@@ -324,6 +368,11 @@ class Domain(models.Model):
             return None
 
     def clean(self):
+        """ Validation : 
+        - l'objet est bien soit A soit CNAME
+        - le cname est pas pointé sur lui-même
+        - le nom contient bien les caractères autorisés par la norme dns et moins de 63 caractères au total
+        - le couple nom/extension est bien unique"""
         if self.get_extension():
             self.extension=self.get_extension()
         """ Validation du nom de domaine, extensions dans type de machine, prefixe pas plus long que 63 caractères """
@@ -342,10 +391,12 @@ class Domain(models.Model):
 
     @cached_property
     def dns_entry(self):
+        """ Une entrée DNS"""
         if self.cname:
             return  str(self.name) + " IN CNAME " + str(self.cname) + "."
 
     def save(self, *args, **kwargs):
+        """ Empèche le save sans extension valide. Force à avoir appellé clean avant"""
         if not self.get_extension():
             raise ValidationError("Extension invalide")
         self.full_clean()
@@ -362,9 +413,11 @@ class IpList(models.Model):
 
     @cached_property
     def need_infra(self):
+        """ Permet de savoir si un user basique peut assigner cette ip ou non"""
         return self.ip_type.need_infra
 
     def clean(self):
+        """ Erreur si l'ip_type est incorrect"""
         if not str(self.ipv4) in self.ip_type.ip_set_as_str:
             raise ValidationError("L'ipv4 et le range de l'iptype ne correspondent pas!")
         return

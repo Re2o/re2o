@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -5,6 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2017  Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,8 +54,7 @@ class BaseEditMachineForm(EditMachineForm):
 class EditInterfaceForm(ModelForm):
     class Meta:
         model = Interface
-        # fields = '__all__'
-        exclude = ['port_lists']
+        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
         super(EditInterfaceForm, self).__init__(*args, **kwargs)
@@ -63,12 +64,14 @@ class EditInterfaceForm(ModelForm):
         if "ipv4" in self.fields:
             self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all().select_related('user')
 
 class AddInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -82,11 +85,11 @@ class AddInterfaceForm(EditInterfaceForm):
 
 class NewInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['mac_address','type','details']
+        fields = ['type','mac_address','details']
 
 class BaseEditInterfaceForm(EditInterfaceForm):
     class Meta(EditInterfaceForm.Meta):
-        fields = ['ipv4','mac_address','type','details']
+        fields = ['type','ipv4','mac_address','details']
 
     def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
@@ -95,8 +98,11 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False))
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            # Add it's own address
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
         else:
             self.fields['ipv4'].queryset = IpList.objects.filter(interface__isnull=True)
+            self.fields['ipv4'].queryset |=  IpList.objects.filter(interface=self.instance)
 
 class AliasForm(ModelForm):
     class Meta:
