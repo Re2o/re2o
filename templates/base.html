@@ -35,8 +35,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
 
         {% bootstrap_javascript %}
-	<script src="/static/js/typeahead.js"></script>
-	<script src="/static/js/handlebars.js"></script>
+	<script src="/static/js/typeahead/typeahead.js"></script>
+	<script src="/static/js/handlebars/handlebars.js"></script>
+	<script src="/static/js/konami/konami.js"></script>
+	<script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
         <link rel="stylesheet" href="{% static "/css/base.css" %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
