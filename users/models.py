@@ -732,6 +732,9 @@ class BanType(models.Model):
         "raisons de la blacklist")
     # d'autres champs pour décrire les effets viendront si besoin
 
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.description)
+
 
 class Ban(models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
