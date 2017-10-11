@@ -49,7 +49,7 @@ from reversion.models import Version
 
 import re
 from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TextForm, DelTextForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
+from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TxtForm, DelTxtForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
 from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
@@ -573,11 +573,11 @@ def del_ns(request):
 
 @login_required
 @permission_required('infra')
-def add_text(request):
-    text = TextForm(request.POST or None)
-    if text.is_valid():
+def add_txt(request):
+    txt = TxtForm(request.POST or None)
+    if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            text.save()
+            txt.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement text a été ajouté")
@@ -586,36 +586,36 @@ def add_text(request):
 
 @login_required
 @permission_required('infra')
-def edit_text(request, textid):
+def edit_txt(request, txtid):
     try:
-        text_instance = Text.objects.get(pk=textid)
+        txt_instance = Text.objects.get(pk=txtid)
     except Text.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/machines/index_extension/")
-    text = TextForm(request.POST or None, instance=text_instance)
-    if text.is_valid():
+    txt = TxtForm(request.POST or None, instance=txt_instance)
+    if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            text.save()
+            txt.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in text.changed_data))
-        messages.success(request, "Text modifié")
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in txt.changed_data))
+        messages.success(request, "Txt modifié")
         return redirect("/machines/index_extension/")
     return form({'machineform': text}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
-def del_text(request):
-    text = DelTextForm(request.POST or None)
-    if text.is_valid():
-        text_dels = text.cleaned_data['text']
-        for text_del in text_dels:
+def del_txt(request):
+    txt = DelTxtForm(request.POST or None)
+    if txt.is_valid():
+        txt_dels = txt.cleaned_data['txt']
+        for txt_del in txt_dels:
             try:
                 with transaction.atomic(), reversion.create_revision():
-                    text_del.delete()
+                    txt_del.delete()
                     reversion.set_user(request.user)
-                messages.success(request, "Le text a été supprimé")
+                messages.success(request, "Le txt a été supprimé")
             except ProtectedError:
-                messages.error(request, "Erreur le Text suivant %s ne peut être supprimé" % text_del)
+                messages.error(request, "Erreur le Txt suivant %s ne peut être supprimé" % txt_del)
         return redirect("/machines/index_extension")
     return form({'machineform': text, 'interfaceform': None}, 'machines/machine.html', request)
 
@@ -960,11 +960,11 @@ def history(request, object, id):
         except Mx.DoesNotExist:
              messages.error(request, "Mx inexistant")
              return redirect("/machines/")
-    elif object == 'text' and request.user.has_perms(('cableur',)):
+    elif object == 'txt' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Text.objects.get(pk=id)
         except Text.DoesNotExist:
-             messages.error(request, "Text inexistant")
+             messages.error(request, "Txt inexistant")
              return redirect("/machines/")
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
