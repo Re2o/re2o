@@ -3,6 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
+# Copyirght © 2017  Daniel Stan 
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
@@ -30,19 +31,17 @@ moment de l'authentification, en WiFi, filaire, ou par les NAS eux-mêmes.
 
 Inspirés d'autres exemples trouvés ici :
 https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_python/
+
+Inspiré du travail de Daniel Stan au Crans
 """
 
 import logging
 import netaddr
 import radiusd # Module magique freeradius (radiusd.py is dummy)
-import os
 import binascii
 import hashlib
-
 import os, sys
 
-
-import os, sys
 
 proj_path = "/var/www/re2o/"
 # This is so Django knows where to find stuff.
