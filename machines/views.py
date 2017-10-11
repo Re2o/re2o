@@ -55,7 +55,7 @@ from .models import IpType, Machine, Interface, IpList, MachineType, Extension, 
 from users.models import User
 from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
-from .templatetags.bootstrap_form_typeahead import hidden_id, input_id
+from re2o.templatetags.bootstrap_form_typeahead import hidden_id, input_id
 
 def all_active_interfaces():
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
