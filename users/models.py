@@ -737,8 +737,7 @@ class BanType(models.Model):
 
 
 class Ban(models.Model):
-    """ Bannissement. Actuellement a un effet tout ou rien.
-    Gagnerait à être granulaire"""
+    """ Bannissement d'un utilisateur donné pour un motif/effet fourni."""
     PRETTY_NAME = "Liste des bannissements"
 
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -748,7 +747,9 @@ class Ban(models.Model):
     ban_type = models.ForeignKey(BanType)
 
     def notif_ban(self):
-        """ Prend en argument un objet ban, envoie un mail de notification """
+        """ Prend en argument un objet ban, envoie un mail de notification.
+        À terme, il serait envisageable de déporter cette méthode sur le modèle
+        BanType afin de fournir un message différent suivant le type de Ban."""
         general_options, created = GeneralOption.objects.get_or_create()
         t = loader.get_template('users/email_ban_notif')
         options, created = AssoOption.objects.get_or_create()

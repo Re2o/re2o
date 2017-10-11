@@ -28,7 +28,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from .models import User, ServiceUser, School, Right, ListRight, ListShell, Ban, Whitelist, Request, LdapUser, LdapServiceUser, LdapServiceUserGroup, LdapUserGroup
+from .models import User, ServiceUser, School, Right, ListRight, ListShell, BanType, Ban, Whitelist, Request, LdapUser, LdapServiceUser, LdapServiceUserGroup, LdapUserGroup
 from .forms import UserChangeForm, UserCreationForm, ServiceUserChangeForm, ServiceUserCreationForm
 
 
@@ -82,6 +82,8 @@ class RequestAdmin(admin.ModelAdmin):
 class BanAdmin(VersionAdmin):
     list_display = ('user', 'raison', 'date_start', 'date_end')
 
+class BanTypeAdmin(VersionAdmin):
+    list_display = ('name', 'description')
 
 class WhitelistAdmin(VersionAdmin):
     list_display = ('user', 'raison', 'date_start', 'date_end')
@@ -151,6 +153,7 @@ admin.site.register(Right, RightAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)
+admin.site.register(BanType, BanTypeAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
 # Now register the new UserAdmin...
