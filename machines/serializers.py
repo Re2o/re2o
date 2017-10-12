@@ -91,9 +91,9 @@ class TypeSerializer(serializers.ModelSerializer):
         fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop', 'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out', 'ouverture_ports_udp_in', 'ouverture_ports_udp_out', )
 
     def get_port_policy(self, obj, protocole, io):
-        if not obj.ouverture_ports:
+        if obj.ouverture_ports is None:
             return []
-        return [str(port) for port in obj.ouverture_ports.ouvertureport_set.filter(protocole=protocole).filter(io=io)]
+        return map(str, obj.ouverture_ports.ouvertureport_set.filter(protocole=protocole).filter(io=io))
 
     def get_port_policy_input_tcp(self, obj):
         return self.get_port_policy(obj, OuverturePort.TCP, OuverturePort.IN)
