@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load bootstrap_form_typeahead %}
 
 {% block title %}Création et modification des préférences{% endblock %}
 
@@ -34,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
 {% csrf_token %}
-{% bootstrap_form options %}
+{% bootstrap_form_typeahead options 'utilisateur_asso' %}
 {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
   <br />

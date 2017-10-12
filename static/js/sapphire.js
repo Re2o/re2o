@@ -207,6 +207,9 @@ var Sapphire = function () {
             }
         },
 
+        columns: undefined,
+        alpha: undefined,
+        drops: undefined,
         canvas: undefined,
 
         init: function() {
@@ -214,44 +217,56 @@ var Sapphire = function () {
             for (var e in sapphire.elts) { sapphire.elts[e].get(main); }
         },
 
+        resize: function() {
+            var ctx = sapphire.canvas.getContext("2d");
+            var img = ctx.getImageData( 0, 0, sapphire.canvas.width, sapphire.canvas.height );
+            sapphire.canvas.width = window.innerWidth;
+            sapphire.canvas.height = window.innerHeight;
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+            ctx.fillRect(0, 0, sapphire.canvas.width, sapphire.canvas.height);
+            ctx.putImageData( img, 0, 0 );
+            sapphire.columns = sapphire.canvas.width/FONT_SIZE;
+            sapphire.alpha = Math.max( 0, Math.min( 1, TRAIL_TIME / ( sapphire.canvas.height/FONT_SIZE ) ) );
+            var newDrops = [];
+            for(var x = 0; x < sapphire.columns; x++) {
+                if ( sapphire.drops && sapphire.drops[x] ) { newDrops[x] = sapphire.drops[x] }
+                else {
+                    newDrops[x] = [];
+                    var nb = Math.floor(Math.random()*MAX_CHAR);
+                    for (var y = 0; y < nb; y++)
+                        newDrops[x][y] = 0;
+                }
+            }
+            sapphire.drops = newDrops;
+        },
+
         run: function() {
             sapphire.canvas = document.createElement("canvas");
             document.body.appendChild(sapphire.canvas);
-            sapphire.canvas.width = window.innerWidth;
-            sapphire.canvas.height = window.innerHeight;
             sapphire.canvas.style.position = "fixed";
             sapphire.canvas.style.zIndex = -1;
             sapphire.canvas.style.left = 0;
             sapphire.canvas.style.top = 0;
 
             var ctx = sapphire.canvas.getContext("2d");
-
-            var columns = sapphire.canvas.width/FONT_SIZE;
-            var alpha = Math.max( 0, Math.min( 1, TRAIL_TIME / ( sapphire.canvas.height/FONT_SIZE ) ) );
-            var drops = [];
-            for(var x = 0; x < columns; x++)
-            {
-                drops[x] = [];
-                var nb = Math.floor(Math.random()*MAX_CHAR);
-                for (var y = 0; y < nb; y++)
-                    drops[x][y] = 1;
-            }
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+            ctx.fillRect(0, 0, sapphire.canvas.width, sapphire.canvas.height);
 
             function attenuateBackground() {
-                ctx.fillStyle = "rgba(0, 0, 0, "+alpha+")";
+                ctx.fillStyle = "rgba(0, 0, 0, "+sapphire.alpha+")";
                 ctx.fillRect(0, 0, sapphire.canvas.width, sapphire.canvas.height);
             }
 
             function drawMatrixRainDrop() {
                 ctx.fillStyle = RAIN_COLOR;
                 ctx.font = FONT_SIZE + "px arial";
-                for(var i = 0; i < drops.length; i++) {
-                    for (var j = 0; j < drops[i].length; j++) {
+                for(var i = 0; i < sapphire.drops.length; i++) {
+                    for (var j = 0; j < sapphire.drops[i].length; j++) {
                         var text = CHARACTERS[Math.floor(Math.random()*CHARACTERS.length)];
-                        ctx.fillText(text, i*FONT_SIZE, drops[i][j]*FONT_SIZE);
-                        if(drops[i][j]*FONT_SIZE > sapphire.canvas.height && Math.random() > 0.975)
-                            drops[i][j] = 0;
-                        drops[i][j]++;
+                        ctx.fillText(text, i*FONT_SIZE, sapphire.drops[i][j]*FONT_SIZE);
+                        if(sapphire.drops[i][j]*FONT_SIZE > sapphire.canvas.height && Math.random() > 0.975)
+                            sapphire.drops[i][j] = 0;
+                        sapphire.drops[i][j]++;
                     }
                 }
             }
@@ -261,11 +276,15 @@ var Sapphire = function () {
                 drawMatrixRainDrop();
             }
 
+            sapphire.resize();
+            window.addEventListener('resize', sapphire.resize);
             sapphire.triggerHandle = setInterval(drawEverything, 1000/FPS);
         },
+
         stop: function() {
-            sapphire.canvas.parentNode.removeChild(sapphire.canvas);
+            window.removeEventListener('resize', sapphire.resize);
             clearInterval(sapphire.triggerHandle);
+            sapphire.canvas.parentNode.removeChild(sapphire.canvas);
         },
 
         alterElts:  function() { for (var e in sapphire.elts) { sapphire.elts[e].alter(main); } },
