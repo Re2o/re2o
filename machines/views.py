@@ -1205,7 +1205,7 @@ def service_servers(request):
 @permission_required('serveur')
 def ouverture_ports(request):
     r = {'ipv4':{}, 'ipv6':{}}
-    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set'):
+    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set').prefetch_related('interface_set'):
         pl = {
             "tcp_in":set(map(str,o.tcp_ports_in())),
             "tcp_out":set(map(str,o.tcp_ports_out())),
