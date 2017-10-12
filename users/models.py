@@ -343,7 +343,7 @@ class User(AbstractBaseUser):
         else:
             return True
 
-    def has_access(self):
+    def has_access(self): #TODO consider service type
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE \
             and not self.is_ban and (self.is_adherent() or self.is_whitelisted)
@@ -730,7 +730,11 @@ class BanType(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(help_text="Description de l'effet et des "
         "raisons de la blacklist")
+    inhibited_services = models.ManyToManyField('machines.Service',
+        help_text="Services désactivés par le ban"
+    )
     # d'autres champs pour décrire les effets viendront si besoin
+    # Radius ?
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.description)
