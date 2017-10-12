@@ -39,6 +39,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if domainform %}
 {% bootstrap_form_errors domainform %}
 {% endif %}
+{% if iptypeform %}
+{% bootstrap_form_errors iptypeform %}
+{% endif %}
+{% if machinetypeform %}
+{% bootstrap_form_errors machinetypeform %}
+{% endif %}
+{% if extensionform %}
+{% bootstrap_form_errors extensionform %}
+{% endif %}
+{% if mxform %}
+{% bootstrap_form_errors mxform %}
+{% endif %}
+{% if nsform %}
+{% bootstrap_form_errors nsform %}
+{% endif %}
+{% if txtform %}
+{% bootstrap_form_errors txtform %}
+{% endif %}
+{% if aliasform %}
+{% bootstrap_form_errors aliasform %}
+{% endif %}
+{% if serviceform %}
+{% bootstrap_form_errors serviceform %}
+{% endif %}
+{% if vlanform %}
+{% bootstrap_form_errors vlanform %}
+{% endif %}
+{% if nasform %}
+{% bootstrap_form_errors nasform %}
+{% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
@@ -49,22 +79,54 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if interfaceform %}
     <h3>Interface</h3>
         {% if i_bft_param %}
-	    {% if 'machine' in interfaceform.fields %}
     {% bootstrap_form_typeahead interfaceform 'ipv4,machine' bft_param=i_bft_param %}
-	    {% else %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4' bft_param=i_bft_param %}
-	    {% endif %}
 	{% else %}
-	    {% if 'machine' in interfaceform.fields %}
     {% bootstrap_form_typeahead interfaceform 'ipv4,machine' %}
-	    {% else %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4' %}
-	    {% endif %}
 	{% endif %}
     {% endif %}
     {% if domainform %}
     <h3>Domaine</h3>
     {% bootstrap_form domainform %}
+    {% endif %}
+    {% if iptypeform %}
+    <h3>Type d'IP</h3>
+    {% bootstrap_form iptypeform %}
+    {% endif %}
+    {% if machinetypeform %}
+    <h3>Type de machine</h3>
+    {% bootstrap_form machinetypeform %}
+    {% endif %}
+    {% if extensionform %}
+    <h3>Extension</h3>
+    {% bootstrap_form_typeahead extensionform 'origin' %}
+    {% endif %}
+    {% if mxform %}
+    <h3>Enregistrement MX</h3>
+    {% bootstrap_form_typeahead mxform 'name' %}
+    {% endif %}
+    {% if nsform %}
+    <h3>Enregistrement NS</h3>
+    {% bootstrap_form_typeahead nsform 'ns' %}
+    {% endif %}
+    {% if txtform %}
+    <h3>Enregistrement TXT</h3>
+    {% bootstrap_form txtform %}
+    {% endif %}
+    {% if aliasform %}
+    <h3>Alias</h3>
+    {% bootstrap_form aliasform %}
+    {% endif %}
+    {% if serviceform %}
+    <h3>Service</h3>
+    {% bootstrap_form serviceform %}
+    {% endif %}
+    {% if vlanform %}
+    <h3>Vlan</h3>
+    {% bootstrap_form vlanform %}
+    {% endif %}
+    {% if nasform %}
+    <h3>NAS</h3>
+    {% bootstrap_form nasform %}
     {% endif %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>

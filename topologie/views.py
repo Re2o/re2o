@@ -38,6 +38,7 @@ from users.views import form
 from users.models import User
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.views import generate_ipv4_bft_param
 from preferences.models import AssoOption, GeneralOption
 
 
@@ -307,9 +308,10 @@ def new_switch(request):
             new_switch.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
-        messages.success(request, "Le switch a été crée")
+        messages.success(request, "Le switch a été créé")
         return redirect("/topologie/")
-    return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface, 'domainform': domain}, 'topologie/switch.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface, False )
+    return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
@@ -348,7 +350,8 @@ def edit_switch(request, switch_id):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in switch_form.changed_data))
         messages.success(request, "Le switch a bien été modifié")
         return redirect("/topologie/")
-    return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form}, 'topologie/switch.html', request)
+    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'topologie/switch.html', request)
 
 @login_required
 @permission_required('infra')
