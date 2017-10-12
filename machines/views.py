@@ -1205,24 +1205,28 @@ def service_servers(request):
 @permission_required('serveur')
 def ouverture_ports(request):
     r = {'ipv4':{}, 'ipv6':{}}
-    for i in Interface.objects.all():
-        if not i.may_have_port_open():
-            continue
-        if i.ipv4:
-            r['ipv4'][i.ipv4.ipv4] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
-        if i.ipv6_object:
-            r['ipv6'][i.ipv6] = {"tcp_in":[],"tcp_out":[],"udp_in":[],"udp_out":[]}
-        for j in i.port_lists.all():
-            if i.ipv4:
-                r['ipv4'][i.ipv4.ipv4]["tcp_in"].extend(j.tcp_ports_in())
-                r['ipv4'][i.ipv4.ipv4]["tcp_out"].extend(j.tcp_ports_out())
-                r['ipv4'][i.ipv4.ipv4]["udp_in"].extend(j.udp_ports_in())
-                r['ipv4'][i.ipv4.ipv4]["udp_out"].extend(j.udp_ports_out())
+    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set'):
+        pl = {
+            "tcp_in":set(map(str,o.tcp_ports_in())),
+            "tcp_out":set(map(str,o.tcp_ports_out())),
+            "udp_in":set(map(str,o.udp_ports_in())),
+            "udp_out":set(map(str,o.udp_ports_out())),
+        }
+        for i in o.interface_set.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain__extension').select_related('ipv4__ip_type').distinct():
+            if i.may_have_port_open():
+                d = r['ipv4'].get(i.ipv4.ipv4, {})
+                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                r['ipv4'][i.ipv4.ipv4] = d
             if i.ipv6_object:
-                r['ipv6'][i.ipv6]["tcp_in"].extend(j.tcp_ports_in())
-                r['ipv6'][i.ipv6]["tcp_out"].extend(j.tcp_ports_out())
-                r['ipv6'][i.ipv6]["udp_in"].extend(j.udp_ports_in())
-                r['ipv6'][i.ipv6]["udp_out"].extend(j.udp_ports_out())
+                d = r['ipv6'].get(i.ipv6, {})
+                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                r['ipv6'][i.ipv6] = d
     return JSONResponse(r)
 @csrf_exempt
 @login_required
