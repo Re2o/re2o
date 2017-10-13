@@ -210,17 +210,17 @@ class NsForm(ModelForm):
 class DelNsForm(Form):
     ns = forms.ModelMultipleChoiceField(queryset=Ns.objects.all(), label="Enregistrements NS actuels",  widget=forms.CheckboxSelectMultiple)
 
-class TextForm(ModelForm):
+class TxtForm(ModelForm):
     class Meta:
         model = Text
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(TextForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(TxtForm, self).__init__(*args, prefix=prefix, **kwargs)
 
-class DelTextForm(Form):
-    text = forms.ModelMultipleChoiceField(queryset=Text.objects.all(), label="Enregistrements Text actuels",  widget=forms.CheckboxSelectMultiple)
+class DelTxtForm(Form):
+    txt = forms.ModelMultipleChoiceField(queryset=Text.objects.all(), label="Enregistrements Txt actuels",  widget=forms.CheckboxSelectMultiple)
 
 class NasForm(ModelForm):
     class Meta:
