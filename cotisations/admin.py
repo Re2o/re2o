@@ -30,26 +30,33 @@ from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
 
 class FactureAdmin(VersionAdmin):
+    """Class admin d'une facture, tous les champs"""
     pass
 
 
 class VenteAdmin(VersionAdmin):
+    """Class admin d'une vente, tous les champs (facture related)"""
     pass
 
 
 class ArticleAdmin(VersionAdmin):
+    """Class admin d'un article en vente"""
     pass
 
 
 class BanqueAdmin(VersionAdmin):
+    """Class admin de la liste des banques (facture related)"""
     pass
 
 
 class PaiementAdmin(VersionAdmin):
+    """Class admin d'un moyen de paiement (facture related"""
     pass
 
 
 class CotisationAdmin(VersionAdmin):
+    """Class admin d'une cotisation (date de debut et de fin),
+    Vente related"""
     pass
 
 
