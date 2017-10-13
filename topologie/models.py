@@ -42,6 +42,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
+
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
     ,contient une id de stack, un switch id min et max dans
@@ -66,8 +67,9 @@ class Stack(models.Model):
     def clean(self):
         """ Verification que l'id_max < id_min"""
         if self.member_id_max < self.member_id_min:
-            raise ValidationError({'member_id_max':"L'id maximale est\
+            raise ValidationError({'member_id_max': "L'id maximale est\
                 inférieure à l'id minimale"})
+
 
 class Switch(models.Model):
     """ Definition d'un switch. Contient un nombre de ports (number),
@@ -109,12 +111,15 @@ class Switch(models.Model):
         if self.stack is not None:
             if self.stack_member_id is not None:
                 if (self.stack_member_id > self.stack.member_id_max) or\
-                    (self.stack_member_id < self.stack.member_id_min):
-                    raise ValidationError({'stack_member_id': "L'id de ce\
-                        switch est en dehors des bornes permises pas la stack"})
+                        (self.stack_member_id < self.stack.member_id_min):
+                    raise ValidationError(
+                        {'stack_member_id': "L'id de ce switch est en\
+                            dehors des bornes permises pas la stack"}
+                        )
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
+
 
 class Port(models.Model):
     """ Definition d'un port. Relié à un switch(foreign_key),
@@ -195,9 +200,10 @@ class Port(models.Model):
         cohérence"""
         if hasattr(self, 'switch'):
             if self.port > self.switch.number:
-                raise ValidationError("Ce port ne peut exister, numero trop élevé")
+                raise ValidationError("Ce port ne peut exister,\
+                    numero trop élevé")
         if self.room and self.machine_interface or self.room and\
-            self.related or self.machine_interface and self.related:
+                self.related or self.machine_interface and self.related:
             raise ValidationError("Chambre, interface et related_port sont\
                 mutuellement exclusifs")
         if self.related == self:
@@ -214,6 +220,7 @@ class Port(models.Model):
     def __str__(self):
         return str(self.switch) + " - " + str(self.port)
 
+
 class Room(models.Model):
     """Une chambre/local contenant une prise murale"""
     PRETTY_NAME = "Chambre/ Prise murale"
@@ -226,6 +233,7 @@ class Room(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(sender, **kwargs):
