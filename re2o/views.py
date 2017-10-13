@@ -29,9 +29,9 @@ from django.template import Context, RequestContext, loader
 from preferences.models import Service
 
 def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
+    context = ctx
+    context.update(csrf(request))
+    return render(request, template, context)
 
 
 def index(request):
