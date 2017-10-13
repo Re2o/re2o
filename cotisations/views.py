@@ -24,40 +24,29 @@
 # Goulven Kermarec, Gabriel Détraz
 # Gplv2
 from __future__ import unicode_literals
-
+import os
 from django.shortcuts import render, redirect
-from django.shortcuts import get_object_or_404
-from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.db.models import Max, ProtectedError
+from django.db.models import ProtectedError
 from django.db import transaction
 from django.forms import modelformset_factory, formset_factory
-import os
+from django.utils import timezone
 from reversion import revisions as reversion
 from reversion.models import Version
-
-from .models import Facture, Article, Vente, Cotisation, Paiement, Banque
+# Import des models, forms et fonctions re2o
+from users.models import User
+from re2o.settings import LOGO_PATH
+from re2o import settings
+from re2o.views import form
+from preferences.models import OptionalUser, AssoOption, GeneralOption
+from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm
 from .forms import ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm
 from .forms import BanqueForm, DelBanqueForm, NewFactureFormPdf
 from .forms import SelectArticleForm, CreditSoldeForm
-from users.models import User
 from .tex import render_tex
-from re2o.settings import LOGO_PATH
-from re2o import settings
-from preferences.models import OptionalUser, AssoOption, GeneralOption
-
-from dateutil.relativedelta import relativedelta
-from django.utils import timezone
-
-
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
 
 
 @login_required
@@ -82,18 +71,18 @@ def new_facture(request, userid):
     facture_form = NewFactureForm(request.POST or None, instance=facture)
     article_formset = formset_factory(SelectArticleForm)(request.POST or None)
     if facture_form.is_valid() and article_formset.is_valid():
-        new_facture = facture_form.save(commit=False)
+        new_facture_instance = facture_form.save(commit=False)
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, created = OptionalUser.objects.get_or_create()
+            options, _created = OptionalUser.objects.get_or_create()
             user_solde = options.user_solde
             solde_negatif = options.solde_negatif
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
-                if new_facture.paiement == Paiement.objects.get_or_create(
-                    moyen='solde'
+                if new_facture_instance.paiement == Paiement.objects.get_or_create(
+                        moyen='solde'
                 )[0]:
                     prix_total = 0
                     for art_item in articles:
@@ -105,7 +94,7 @@ def new_facture(request, userid):
                                 effectuer l'opération")
                         return redirect("/users/profil/" + userid)
             with transaction.atomic(), reversion.create_revision():
-                new_facture.save()
+                new_facture_instance.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             for art_item in articles:
@@ -113,19 +102,19 @@ def new_facture(request, userid):
                     article = art_item.cleaned_data['article']
                     quantity = art_item.cleaned_data['quantity']
                     new_vente = Vente.objects.create(
-                            facture=new_facture,
-                            name=article.name,
-                            prix=article.prix,
-                            iscotisation=article.iscotisation,
-                            duration=article.duration,
-                            number=quantity
-                            )
+                        facture=new_facture_instance,
+                        name=article.name,
+                        prix=article.prix,
+                        iscotisation=article.iscotisation,
+                        duration=article.duration,
+                        number=quantity
+                    )
                     with transaction.atomic(), reversion.create_revision():
                         new_vente.save()
                         reversion.set_user(request.user)
                         reversion.set_comment("Création")
             if any(art_item.cleaned_data['article'].iscotisation
-                    for art_item in articles if art_item.cleaned_data):
+                   for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
                     "La cotisation a été prolongée\
@@ -137,8 +126,8 @@ def new_facture(request, userid):
                 messages.success(request, "La facture a été crée")
             return redirect("/users/profil/" + userid)
         messages.error(
-                request,
-                u"Il faut au moins un article valide pour créer une facture"
+            request,
+            u"Il faut au moins un article valide pour créer une facture"
             )
     return form({
         'factureform': facture_form,
@@ -155,7 +144,7 @@ def new_facture_pdf(request):
     Vente ou Facture correspondant en bdd"""
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
-        options, created = AssoOption.objects.get_or_create()
+        options, _created = AssoOption.objects.get_or_create()
         tbl = []
         article = facture_form.cleaned_data['article']
         quantite = facture_form.cleaned_data['number']
@@ -163,8 +152,8 @@ def new_facture_pdf(request):
         destinataire = facture_form.cleaned_data['dest']
         chambre = facture_form.cleaned_data['chambre']
         fid = facture_form.cleaned_data['fid']
-        for a in article:
-            tbl.append([a, quantite, a.prix * quantite])
+        for art in article:
+            tbl.append([art, quantite, art.prix * quantite])
         prix_total = sum(a[2] for a in tbl)
         user = {'name': destinataire, 'room': chambre}
         return render_tex(request, 'cotisations/factures.tex', {
@@ -207,11 +196,11 @@ def facture_pdf(request, factureid):
         messages.error(request, "Vous ne pouvez pas afficher\
         une facture non valide")
         return redirect("/users/profil/" + str(request.user.id))
-    vente = Vente.objects.all().filter(facture=facture)
+    ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
-    options, created = AssoOption.objects.get_or_create()
-    for v in vente:
-        ventes.append([v, v.number, v.prix_total])
+    options, _created = AssoOption.objects.get_or_create()
+    for vente in ventes_objects:
+        ventes.append([vente, vente.number, vente.prix_total])
     return render_tex(request, 'cotisations/factures.tex', {
         'paid': True,
         'fid': facture.id,
@@ -253,11 +242,11 @@ def edit_facture(request, factureid):
         facture_form = EditFactureForm(request.POST or None, instance=facture)
     ventes_objects = Vente.objects.filter(facture=facture)
     vente_form_set = modelformset_factory(
-            Vente,
-            fields=('name', 'number'),
-            extra=0,
-            max_num=len(ventes_objects)
-            )
+        Vente,
+        fields=('name', 'number'),
+        extra=0,
+        max_num=len(ventes_objects)
+        )
     vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
     if facture_form.is_valid() and vente_form.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -266,8 +255,7 @@ def edit_facture(request, factureid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
                 field for form in vente_form for field
-                in facture_form.changed_data + form.changed_data)
-            )
+                in facture_form.changed_data + form.changed_data))
         messages.success(request, "La facture a bien été modifiée")
         return redirect("/cotisations/")
     return form({
@@ -286,7 +274,7 @@ def del_facture(request, factureid):
     except Facture.DoesNotExist:
         messages.error(request, u"Facture inexistante")
         return redirect("/cotisations/")
-    if (facture.control or not facture.valid):
+    if facture.control or not facture.valid:
         messages.error(request, "Vous ne pouvez pas editer une facture\
                 controlée ou invalidée par le trésorier")
         return redirect("/cotisations/")
@@ -320,13 +308,13 @@ def credit_solde(request, userid):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         new_vente = Vente.objects.create(
-                facture=facture_instance,
-                name="solde",
-                prix=facture.cleaned_data['montant'],
-                iscotisation=False,
-                duration=0,
-                number=1
-                )
+            facture=facture_instance,
+            name="solde",
+            prix=facture.cleaned_data['montant'],
+            iscotisation=False,
+            duration=0,
+            number=1
+            )
         with transaction.atomic(), reversion.create_revision():
             new_vente.save()
             reversion.set_user(request.user)
@@ -429,7 +417,7 @@ def edit_paiement(request, paiementid):
             reversion.set_user(request.user)
             reversion.set_comment(
                 "Champs modifié(s) : %s" % ', '.join(
-                        field for field in paiement.changed_data
+                    field for field in paiement.changed_data
                     )
             )
         messages.success(request, "Type de paiement modifié")
@@ -451,8 +439,8 @@ def del_paiement(request):
                     reversion.set_user(request.user)
                     reversion.set_comment("Destruction")
                 messages.success(
-                        request,
-                        "Le moyen de paiement a été supprimé"
+                    request,
+                    "Le moyen de paiement a été supprimé"
                     )
             except ProtectedError:
                 messages.error(
@@ -529,14 +517,14 @@ def del_banque(request):
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     facture_list = Facture.objects.order_by('date').reverse()
     controlform_set = modelformset_factory(
-            Facture,
-            fields=('control', 'valid'),
-            extra=0
-            )
+        Facture,
+        fields=('control', 'valid'),
+        extra=0
+        )
     paginator = Paginator(facture_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -546,8 +534,8 @@ def control(request):
     except EmptyPage:
         facture_list = paginator.page(paginator.num.pages)
     page_query = Facture.objects.order_by('date').reverse().filter(
-            id__in=[facture.id for facture in facture_list]
-            )
+        id__in=[facture.id for facture in facture_list]
+        )
     controlform = controlform_set(request.POST or None, queryset=page_query)
     if controlform.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -595,7 +583,7 @@ def index_banque(request):
 @permission_required('cableur')
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     facture_list = Facture.objects.order_by('date').select_related('user')\
         .select_related('paiement').prefetch_related('vente_set').reverse()
@@ -615,11 +603,11 @@ def index(request):
 
 
 @login_required
-def history(request, object, id):
+def history(request, object, object_id):
     """Affiche l'historique de chaque objet"""
     if object == 'facture':
         try:
-            object_instance = Facture.objects.get(pk=id)
+            object_instance = Facture.objects.get(pk=object_id)
         except Facture.DoesNotExist:
             messages.error(request, "Facture inexistante")
             return redirect("/cotisations/")
@@ -630,26 +618,26 @@ def history(request, object, id):
             return redirect("/users/profil/" + str(request.user.id))
     elif object == 'paiement' and request.user.has_perms(('cableur',)):
         try:
-            object_instance = Paiement.objects.get(pk=id)
+            object_instance = Paiement.objects.get(pk=object_id)
         except Paiement.DoesNotExist:
             messages.error(request, "Paiement inexistant")
             return redirect("/cotisations/")
     elif object == 'article' and request.user.has_perms(('cableur',)):
         try:
-            object_instance = Article.objects.get(pk=id)
+            object_instance = Article.objects.get(pk=object_id)
         except Article.DoesNotExist:
             messages.error(request, "Article inexistante")
             return redirect("/cotisations/")
     elif object == 'banque' and request.user.has_perms(('cableur',)):
         try:
-            object_instance = Banque.objects.get(pk=id)
+            object_instance = Banque.objects.get(pk=object_id)
         except Banque.DoesNotExist:
             messages.error(request, "Banque inexistante")
             return redirect("/cotisations/")
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/cotisations/")
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, pagination_number)

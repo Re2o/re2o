@@ -28,23 +28,30 @@ from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
+
 class FactureAdmin(VersionAdmin):
-    list_display = ('user','paiement','date','valid','control')
+    pass
+
 
 class VenteAdmin(VersionAdmin):
-    list_display = ('facture','name','prix','number','iscotisation','duration')
+    pass
+
 
 class ArticleAdmin(VersionAdmin):
-    list_display = ('name','prix','iscotisation','duration')
+    pass
+
 
 class BanqueAdmin(VersionAdmin):
-    list_display = ('name',)
+    pass
+
 
 class PaiementAdmin(VersionAdmin):
-    list_display = ('moyen','type_paiement')
+    pass
+
 
 class CotisationAdmin(VersionAdmin):
-    list_display = ('vente','date_start','date_end')
+    pass
+
 
 admin.site.register(Facture, FactureAdmin)
 admin.site.register(Article, ArticleAdmin)
