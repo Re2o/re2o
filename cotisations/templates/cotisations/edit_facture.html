@@ -25,6 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
+{% load bootstrap_form_typeahead %}
 
 {% block title %}Création et modification de factures{% endblock %}
 
@@ -34,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     <h3>Editer la facture</h3>
-    {% bootstrap_form factureform %}
+    {% bootstrap_form_typeahead factureform 'user' %}
     {{ venteform.management_form }}
     <h3>Articles de la facture</h3>
     <table class="table table-striped">

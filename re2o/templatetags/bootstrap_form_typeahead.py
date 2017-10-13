@@ -209,7 +209,7 @@ def hidden_tag( f_bound, f_name ):
         'input',
         attrs={
             'id': hidden_id( f_bound ),
-            'name': f_name,
+            'name': f_bound.html_name,
             'type': 'hidden',
             'value': f_bound.value() or ""
         }
