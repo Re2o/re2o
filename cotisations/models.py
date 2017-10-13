@@ -20,20 +20,39 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Definition des models bdd pour les factures et cotisation.
+Pièce maitresse : l'ensemble du code intelligent se trouve ici,
+dans les clean et save des models ainsi que de leur methodes supplémentaires.
+
+Facture : reliée à un user, elle a un moyen de paiement, une banque (option),
+une ou plusieurs ventes
+
+Article : liste des articles en vente, leur prix, etc
+
+Vente : ensemble des ventes effectuées, reliées à une facture (foreignkey)
+
+Banque : liste des banques existantes
+
+Cotisation : objets de cotisation, contenant un début et une fin. Reliées
+aux ventes, en onetoone entre une vente et une cotisation.
+Crées automatiquement au save des ventes.
+
+Post_save et Post_delete : sychronisation des services et régénération
+des services d'accès réseau (ex dhcp) lors de la vente d'une cotisation
+par exemple
+"""
 
 from __future__ import unicode_literals
+from dateutil.relativedelta import relativedelta
 
 from django.db import models
-
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from dateutil.relativedelta import relativedelta
 from django.forms import ValidationError
 from django.core.validators import MinValueValidator
-
 from django.db.models import Max
 from django.utils import timezone
-
 from machines.models import regen
 
 
@@ -47,32 +66,34 @@ class Facture(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
     banque = models.ForeignKey(
-            'Banque',
-            on_delete=models.PROTECT,
-            blank=True,
-            null=True)
+        'Banque',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True)
     cheque = models.CharField(max_length=255, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
     control = models.BooleanField(default=False)
 
     def prix(self):
+        """Renvoie le prix brut sans les quantités. Méthode
+        dépréciée"""
         prix = Vente.objects.filter(
-                facture=self
-                ).aggregate(models.Sum('prix'))['prix__sum']
+            facture=self
+            ).aggregate(models.Sum('prix'))['prix__sum']
         return prix
 
     def prix_total(self):
         """Prix total : somme des produits prix_unitaire et quantité des
         ventes de l'objet"""
         return Vente.objects.filter(
-                facture=self
-                ).aggregate(
+            facture=self
+            ).aggregate(
                 total=models.Sum(
                     models.F('prix')*models.F('number'),
                     output_field=models.FloatField()
-                    )
-                )['total']
+                )
+            )['total']
 
     def name(self):
         """String, somme des name des ventes de self"""
@@ -95,6 +116,7 @@ def facture_post_save(sender, **kwargs):
 
 @receiver(post_delete, sender=Facture)
 def facture_post_delete(sender, **kwargs):
+    """Après la suppression d'une facture, on synchronise l'user ldap"""
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
@@ -111,19 +133,22 @@ class Vente(models.Model):
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
     duration = models.IntegerField(
-            help_text="Durée exprimée en mois entiers",
-            blank=True,
-            null=True)
+        help_text="Durée exprimée en mois entiers",
+        blank=True,
+        null=True)
 
     def prix_total(self):
         """Renvoie le prix_total de self (nombre*prix)"""
         return self.prix*self.number
 
     def update_cotisation(self):
+        """Mets à jour l'objet related cotisation de la vente, si
+        il existe : update la date de fin à partir de la durée de
+        la vente"""
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
-                    months=self.duration*self.number)
+                months=self.duration*self.number)
         return
 
     def create_cotis(self, date_start=False):
@@ -134,13 +159,13 @@ class Vente(models.Model):
             cotisation = Cotisation(vente=self)
             if date_start:
                 end_adhesion = Cotisation.objects.filter(
-                        vente__in=Vente.objects.filter(
-                            facture__in=Facture.objects.filter(
-                                 user=self.facture.user
-                            ).exclude(valid=False))
-                        ).filter(
+                    vente__in=Vente.objects.filter(
+                        facture__in=Facture.objects.filter(
+                            user=self.facture.user
+                        ).exclude(valid=False))
+                    ).filter(
                         date_start__lt=date_start
-                        ).aggregate(Max('date_end'))['date_end__max']
+                    ).aggregate(Max('date_end'))['date_end__max']
             else:
                 end_adhesion = self.facture.user.end_adhesion()
             date_start = date_start or timezone.now()
@@ -148,8 +173,8 @@ class Vente(models.Model):
             date_max = max(end_adhesion, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
-                    months=self.duration*self.number
-                    )
+                months=self.duration*self.number
+                )
         return
 
     def save(self, *args, **kwargs):
@@ -181,6 +206,8 @@ def vente_post_save(sender, **kwargs):
 
 @receiver(post_delete, sender=Vente)
 def vente_post_delete(sender, **kwargs):
+    """Après suppression d'une vente, on synchronise l'user ldap (ex
+    suppression d'une cotisation"""
     vente = kwargs['instance']
     if vente.iscotisation:
         user = vente.facture.user
@@ -258,6 +285,7 @@ class Cotisation(models.Model):
 
 @receiver(post_save, sender=Cotisation)
 def cotisation_post_save(sender, **kwargs):
+    """Après modification d'une cotisation, regeneration des services"""
     regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
@@ -266,6 +294,7 @@ def cotisation_post_save(sender, **kwargs):
 
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
+    """Après suppression d'une vente, régénération des services"""
     cotisation = kwargs['instance']
     regen('mac_ip_list')
     regen('mailing')

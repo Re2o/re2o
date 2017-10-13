@@ -19,14 +19,28 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Forms de l'application cotisation de re2o. Dépendance avec les models,
+importé par les views.
 
+Permet de créer une nouvelle facture pour un user (NewFactureForm),
+et de l'editer (soit l'user avec EditFactureForm,
+soit le trésorier avec TrezEdit qui a plus de possibilités que self
+notamment sur le controle trésorier)
+
+SelectArticleForm est utilisée lors de la creation d'une facture en
+parrallèle de NewFacture pour le choix des articles désirés.
+(la vue correspondante est unique)
+
+ArticleForm, BanqueForm, PaiementForm permettent aux admin d'ajouter,
+éditer ou supprimer une banque/moyen de paiement ou un article
+"""
 from __future__ import unicode_literals
 
 from django import forms
 from django.forms import ModelForm, Form
-from django import forms
 from django.core.validators import MinValueValidator
-from .models import Article, Paiement, Facture, Banque, Vente
+from .models import Article, Paiement, Facture, Banque
 
 
 class NewFactureForm(ModelForm):
