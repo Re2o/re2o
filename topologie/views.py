@@ -211,6 +211,8 @@ def new_stack(request):
             messages.success(request, "Stack crée")
         except:
             messages.error(request, "Cette stack existe déjà")
+        else:
+            return redirect('/topologie/index_stack')
     return form({'topoform':stack}, 'topologie/topo.html', request)
 
 
