@@ -28,23 +28,37 @@ from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 
+
 class FactureAdmin(VersionAdmin):
-    list_display = ('user','paiement','date','valid','control')
+    """Class admin d'une facture, tous les champs"""
+    pass
+
 
 class VenteAdmin(VersionAdmin):
-    list_display = ('facture','name','prix','number','iscotisation','duration')
+    """Class admin d'une vente, tous les champs (facture related)"""
+    pass
+
 
 class ArticleAdmin(VersionAdmin):
-    list_display = ('name','prix','iscotisation','duration')
+    """Class admin d'un article en vente"""
+    pass
+
 
 class BanqueAdmin(VersionAdmin):
-    list_display = ('name',)
+    """Class admin de la liste des banques (facture related)"""
+    pass
+
 
 class PaiementAdmin(VersionAdmin):
-    list_display = ('moyen','type_paiement')
+    """Class admin d'un moyen de paiement (facture related"""
+    pass
+
 
 class CotisationAdmin(VersionAdmin):
-    list_display = ('vente','date_start','date_end')
+    """Class admin d'une cotisation (date de debut et de fin),
+    Vente related"""
+    pass
+
 
 admin.site.register(Facture, FactureAdmin)
 admin.site.register(Article, ArticleAdmin)
