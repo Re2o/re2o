@@ -36,43 +36,73 @@ from django.utils import timezone
 
 from machines.models import regen
 
+
 class Facture(models.Model):
+    """ Définition du modèle des factures. Une facture regroupe une ou
+    plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
+    et si il y a lieu un numero pour les chèques. Possède les valeurs
+    valides et controle (trésorerie)"""
     PRETTY_NAME = "Factures émises"
 
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
-    banque = models.ForeignKey('Banque', on_delete=models.PROTECT, blank=True, null=True)
+    banque = models.ForeignKey(
+            'Banque',
+            on_delete=models.PROTECT,
+            blank=True,
+            null=True)
     cheque = models.CharField(max_length=255, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
     control = models.BooleanField(default=False)
 
     def prix(self):
-        prix = Vente.objects.filter(facture=self).aggregate(models.Sum('prix'))['prix__sum']
+        prix = Vente.objects.filter(
+                facture=self
+                ).aggregate(models.Sum('prix'))['prix__sum']
         return prix
 
     def prix_total(self):
-        return Vente.objects.filter(facture=self).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total']
+        """Prix total : somme des produits prix_unitaire et quantité des
+        ventes de l'objet"""
+        return Vente.objects.filter(
+                facture=self
+                ).aggregate(
+                total=models.Sum(
+                    models.F('prix')*models.F('number'),
+                    output_field=models.FloatField()
+                    )
+                )['total']
 
     def name(self):
-        name = ' - '.join(Vente.objects.filter(facture=self).values_list('name', flat=True))
+        """String, somme des name des ventes de self"""
+        name = ' - '.join(Vente.objects.filter(
+            facture=self
+            ).values_list('name', flat=True))
         return name
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
 
+
 @receiver(post_save, sender=Facture)
 def facture_post_save(sender, **kwargs):
+    """Post save d'une facture, synchronise l'user ldap"""
     facture = kwargs['instance']
     user = facture.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+
 
 @receiver(post_delete, sender=Facture)
 def facture_post_delete(sender, **kwargs):
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
+
 class Vente(models.Model):
+    """Objet vente, contient une quantité, une facture parente, un nom,
+    un prix. Peut-être relié à un objet cotisation, via le boolean
+    iscotisation"""
     PRETTY_NAME = "Ventes effectuées"
 
     facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
@@ -80,44 +110,64 @@ class Vente(models.Model):
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
-    duration = models.IntegerField(help_text="Durée exprimée en mois entiers", blank=True, null=True)
+    duration = models.IntegerField(
+            help_text="Durée exprimée en mois entiers",
+            blank=True,
+            null=True)
 
     def prix_total(self):
+        """Renvoie le prix_total de self (nombre*prix)"""
         return self.prix*self.number
 
     def update_cotisation(self):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
-            cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number)
+            cotisation.date_end = cotisation.date_start + relativedelta(
+                    months=self.duration*self.number)
         return
 
     def create_cotis(self, date_start=False):
-        """ Update et crée l'objet cotisation associé à une facture, prend en argument l'user, la facture pour la quantitéi, et l'article pour la durée"""
+        """Update et crée l'objet cotisation associé à une facture, prend
+        en argument l'user, la facture pour la quantitéi, et l'article pour
+        la durée"""
         if not hasattr(self, 'cotisation'):
-            cotisation=Cotisation(vente=self)
+            cotisation = Cotisation(vente=self)
             if date_start:
-                end_adhesion = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self.facture.user).exclude(valid=False))).filter(date_start__lt=date_start).aggregate(Max('date_end'))['date_end__max']
+                end_adhesion = Cotisation.objects.filter(
+                        vente__in=Vente.objects.filter(
+                            facture__in=Facture.objects.filter(
+                                 user=self.facture.user
+                            ).exclude(valid=False))
+                        ).filter(
+                        date_start__lt=date_start
+                        ).aggregate(Max('date_end'))['date_end__max']
             else:
                 end_adhesion = self.facture.user.end_adhesion()
             date_start = date_start or timezone.now()
             end_adhesion = end_adhesion or date_start
             date_max = max(end_adhesion, date_start)
             cotisation.date_start = date_max
-            cotisation.date_end = cotisation.date_start + relativedelta(months=self.duration*self.number) 
+            cotisation.date_end = cotisation.date_start + relativedelta(
+                    months=self.duration*self.number
+                    )
         return
 
     def save(self, *args, **kwargs):
         # On verifie que si iscotisation, duration est présent
         if self.iscotisation and not self.duration:
-            raise ValidationError("Cotisation et durée doivent être présents ensembles")
+            raise ValidationError("Cotisation et durée doivent être présents\
+                    ensembles")
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
 
+
 @receiver(post_save, sender=Vente)
 def vente_post_save(sender, **kwargs):
+    """Post save d'une vente, déclencge la création de l'objet cotisation
+    si il y a lieu(si iscotisation) """
     vente = kwargs['instance']
     if hasattr(vente, 'cotisation'):
         vente.cotisation.vente = vente
@@ -128,6 +178,7 @@ def vente_post_save(sender, **kwargs):
         user = vente.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
+
 @receiver(post_delete, sender=Vente)
 def vente_post_delete(sender, **kwargs):
     vente = kwargs['instance']
@@ -135,7 +186,10 @@ def vente_post_delete(sender, **kwargs):
         user = vente.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
+
 class Article(models.Model):
+    """Liste des articles en vente : prix, nom, et attribut iscotisation
+    et duree si c'est une cotisation"""
     PRETTY_NAME = "Articles en vente"
 
     name = models.CharField(max_length=255, unique=True)
@@ -154,7 +208,9 @@ class Article(models.Model):
     def __str__(self):
         return self.name
 
+
 class Banque(models.Model):
+    """Liste des banques"""
     PRETTY_NAME = "Banques enregistrées"
 
     name = models.CharField(max_length=255)
@@ -162,7 +218,9 @@ class Banque(models.Model):
     def __str__(self):
         return self.name
 
+
 class Paiement(models.Model):
+    """Moyens de paiement"""
     PRETTY_NAME = "Moyens de paiement"
     PAYMENT_TYPES = (
         (0, 'Autre'),
@@ -179,11 +237,15 @@ class Paiement(models.Model):
         self.moyen = self.moyen.title()
 
     def save(self, *args, **kwargs):
+        """Un seul type de paiement peut-etre cheque..."""
         if Paiement.objects.filter(type_paiement=1).count() > 1:
-            raise ValidationError("On ne peut avoir plusieurs mode de paiement chèque")
+            raise ValidationError("On ne peut avoir plusieurs mode de paiement\
+                    chèque")
         super(Paiement, self).save(*args, **kwargs)
 
+
 class Cotisation(models.Model):
+    """Objet cotisation, debut et fin, relié en onetoone à une vente"""
     PRETTY_NAME = "Cotisations"
 
     vente = models.OneToOneField('Vente', on_delete=models.CASCADE, null=True)
@@ -193,12 +255,14 @@ class Cotisation(models.Model):
     def __str__(self):
         return str(self.vente)
 
+
 @receiver(post_save, sender=Cotisation)
 def cotisation_post_save(sender, **kwargs):
     regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
     regen('mailing')
+
 
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
