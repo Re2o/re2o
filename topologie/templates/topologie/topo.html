@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load bootstrap_form_typeahead %}
 
 {% block title %}Création et modificationd 'utilisateur{% endblock %}
 
@@ -32,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
-    {% bootstrap_form topoform %}
+    {% bootstrap_form_typeahead topoform 'room,related,machine_interface' %}
     {%bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
 </form>
   <br />
