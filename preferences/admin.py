@@ -20,34 +20,52 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+"""
+Classes admin pour les models de preferences
+"""
 from __future__ import unicode_literals
 
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption, Service, AssoOption, MailMessageOption
+from .models import OptionalUser, OptionalMachine, OptionalTopologie
+from .models import GeneralOption, Service, AssoOption, MailMessageOption
+
 
 class OptionalUserAdmin(VersionAdmin):
+    """Class admin options user"""
     pass
+
 
 class OptionalTopologieAdmin(VersionAdmin):
+    """Class admin options topologie"""
     pass
+
 
 class OptionalMachineAdmin(VersionAdmin):
+    """Class admin options machines"""
     pass
+
 
 class GeneralOptionAdmin(VersionAdmin):
+    """Class admin options générales"""
     pass
+
 
 class ServiceAdmin(VersionAdmin):
+    """Class admin gestion des services de la page d'accueil"""
     pass
+
 
 class AssoOptionAdmin(VersionAdmin):
+    """Class admin options de l'asso"""
     pass
 
+
 class MailMessageOptionAdmin(VersionAdmin):
+    """Class admin options mail"""
     pass
+
 
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
