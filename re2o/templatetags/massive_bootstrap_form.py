@@ -296,8 +296,8 @@ def mbf_js( f_name, f_value, f_bound, multiple,
                     input_id = input_id( f_bound ),
                     datasets = default_datasets( f_name, match_func ),
                     create = tokenfield_create( f_name, f_bound ),
-                    edit = tokenfield_edit( f_bound ),
-                    remove = tokenfield_remove( f_bound ),
+                    edit = tokenfield_edit( f_name, f_bound ),
+                    remove = tokenfield_remove( f_name, f_bound ),
                     updates = ''.join( [ (
                         '$( "#{u_id}" ).change( function() {{'
                             'setup_{f_name}();'
@@ -495,17 +495,21 @@ def tokenfield_create( f_name, f_bound ):
     """ The JS script triggered when a new token is created in tokenfield. """
     return (
         'function(evt) {{'
-            'var data = evt.attrs.value;'
-            'var i = 0;'
-            'while ( i<choices_{f_name}.length &&'
-                    'choices_{f_name}[i].value !== data ) {{'
-                'i++;'
+            'var k = evt.attrs.key;'
+            'if (!k) {{'
+                'var data = evt.attrs.value;'
+                'var i = 0;'
+                'while ( i<choices_{f_name}.length &&'
+                        'choices_{f_name}[i].value !== data ) {{'
+                    'i++;'
+                '}}'
+                'if ( i === choices_{f_name}.length ) {{ return false; }}'
+                'k = choices_{f_name}[i].key;'
             '}}'
-            'if ( i === choices_{f_name}.length ) {{ return false; }}'
             'var new_input = document.createElement("input");'
             'new_input.type = "hidden";'
-            'new_input.id = "{hidden_id}_"+data;'
-            'new_input.value = choices_{f_name}[i].key.toString();'
+            'new_input.id = "{hidden_id}_"+k.toString();'
+            'new_input.value = k.toString();'
             'new_input.name = "{name}";'
             '$( "#{div_id}" ).append(new_input);'
         '}}'
@@ -516,27 +520,53 @@ def tokenfield_create( f_name, f_bound ):
             div_id = custom_div_id( f_bound )
         )
 
-def tokenfield_edit( f_bound ):
+def tokenfield_edit( f_name, f_bound ):
     """ The JS script triggered when a token is edited in tokenfield. """
     return (
         'function(evt) {{'
-            'var data = evt.attrs.value;'
-            'var old_input = document.getElementById( "{hidden_id}_"+data );'
+            'var k = evt.attrs.key;'
+            'if (!k) {{'
+                'var data = evt.attrs.value;'
+                'var i = 0;'
+                'while ( i<choices_{f_name}.length &&'
+                        'choices_{f_name}[i].value !== data ) {{'
+                    'i++;'
+                '}}'
+                'if ( i === choices_{f_name}.length ) {{ return true; }}'
+                'k = choices_{f_name}[i].key;'
+            '}}'
+            'var old_input = document.getElementById('
+                '"{hidden_id}_"+k.toString()'
+            ');'
             'old_input.parentNode.removeChild(old_input);'
         '}}'
         ).format(
+            f_name = f_name,
             hidden_id = hidden_id( f_bound )
         )
 
-def tokenfield_remove( f_bound ):
+def tokenfield_remove( f_name, f_bound ):
     """ The JS script trigggered when a token is removed from tokenfield. """
     return (
         'function(evt) {{'
-            'var data = evt.attrs.value;'
-            'var old_input = document.getElementById( "{hidden_id}_"+data );'
+            'var k = evt.attrs.key;'
+            'if (!k) {{'
+                'var data = evt.attrs.value;'
+                'var i = 0;'
+                'while ( i<choices_{f_name}.length &&'
+                        'choices_{f_name}[i].value !== data ) {{'
+                    'i++;'
+                '}}'
+                'if ( i === choices_{f_name}.length ) {{ return true; }}'
+                'k = choices_{f_name}[i].key;'
+            '}}'
+            'var old_input = document.getElementById('
+                '"{hidden_id}_"+k.toString()'
+            ');'
             'old_input.parentNode.removeChild(old_input);'
         '}}'
         ).format(
+            f_name = f_name,
             hidden_id = hidden_id( f_bound )
         )
 
