@@ -19,15 +19,19 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Fonction de context, variables renvoyées à toutes les vues"""
+
 
 from __future__ import unicode_literals
 
-from machines.models import Interface, Machine
 from preferences.models import GeneralOption, OptionalMachine
 
+
 def context_user(request):
-    general_options, created = GeneralOption.objects.get_or_create()
-    machine_options, created = OptionalMachine.objects.get_or_create()
+    """Fonction de context lorsqu'un user est logué (ou non),
+    renvoie les infos sur l'user, la liste de ses droits, ses machines"""
+    general_options, _created = GeneralOption.objects.get_or_create()
+    machine_options, _created = OptionalMachine.objects.get_or_create()
     user = request.user
     if user.is_authenticated():
         interfaces = user.user_interfaces()
@@ -52,8 +56,8 @@ def context_user(request):
         'is_bofh': is_bofh,
         'is_trez': is_trez,
         'is_infra': is_infra,
-        'is_admin' : is_admin,
+        'is_admin': is_admin,
         'interfaces': interfaces,
         'site_name': general_options.site_name,
-        'ipv6_enabled' : machine_options.ipv6, 
+        'ipv6_enabled': machine_options.ipv6,
     }
