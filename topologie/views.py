@@ -51,7 +51,7 @@ from topologie.forms import AddPortForm, EditRoomForm, StackForm
 from users.views import form
 
 from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
-from machines.views import generate_ipv4_bft_param
+from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
 
 
@@ -381,7 +381,7 @@ def new_switch(request):
             reversion.set_comment("Création")
         messages.success(request, "Le switch a été créé")
         return redirect("/topologie/")
-    i_bft_param = generate_ipv4_bft_param( interface, False )
+    i_bft_param = generate_ipv4_mbf_param( interface, False )
     return form({'topoform':switch, 'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'topologie/switch.html', request)
 
 @login_required
@@ -442,7 +442,7 @@ def edit_switch(request, switch_id):
                                  )
         messages.success(request, "Le switch a bien été modifié")
         return redirect("/topologie/")
-    i_bft_param = generate_ipv4_bft_param( interface_form, False )
+    i_bft_param = generate_ipv4_mbf_param( interface_form, False )
     return form({'topoform':switch_form, 'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'topologie/switch.html', request)
 
 @login_required

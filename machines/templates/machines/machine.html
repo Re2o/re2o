@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load bootstrap_form_typeahead %}
+{% load massive_bootstrap_form %}
 
 {% block title %}Création et modification de machines{% endblock %}
 
@@ -78,10 +78,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if interfaceform %}
     <h3>Interface</h3>
-        {% if i_bft_param %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4,machine' bft_param=i_bft_param %}
+        {% if i_mbf_param %}
+    {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
 	{% else %}
-    {% bootstrap_form_typeahead interfaceform 'ipv4,machine' %}
+    {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
 	{% endif %}
     {% endif %}
     {% if domainform %}
@@ -98,15 +98,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if extensionform %}
     <h3>Extension</h3>
-    {% bootstrap_form_typeahead extensionform 'origin' %}
+    {% massive_bootstrap_form extensionform 'origin' %}
     {% endif %}
     {% if mxform %}
     <h3>Enregistrement MX</h3>
-    {% bootstrap_form_typeahead mxform 'name' %}
+    {% massive_bootstrap_form mxform 'name' %}
     {% endif %}
     {% if nsform %}
     <h3>Enregistrement NS</h3>
-    {% bootstrap_form_typeahead nsform 'ns' %}
+    {% massive_bootstrap_form nsform 'ns' %}
     {% endif %}
     {% if txtform %}
     <h3>Enregistrement TXT</h3>
