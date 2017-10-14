@@ -33,12 +33,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
+	<link href="/static/css/bootstrap-tokenfield.css" rel="stylesheet">
+	{% comment %}<link href="/static/css/jquery-ui.css" rel="stylesheet">{% endcomment %}
 
         {% bootstrap_javascript %}
 	<script src="/static/js/typeahead/typeahead.js"></script>
 	<script src="/static/js/handlebars/handlebars.js"></script>
 	<script src="/static/js/konami/konami.js"></script>
 	<script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
+	<script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
+	{% comment %}<script src="/static/js/jquery-ui.js"></script>{% endcomment %}
         <link rel="stylesheet" href="{% static "/css/base.css" %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
