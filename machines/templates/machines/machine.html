@@ -118,7 +118,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if serviceform %}
     <h3>Service</h3>
-    {% bootstrap_form serviceform %}
+    {% massive_bootstrap_form serviceform 'servers' %}
     {% endif %}
     {% if vlanform %}
     <h3>Vlan</h3>
