@@ -29,32 +29,40 @@ from bootstrap3.forms import render_field
 register = template.Library()
 
 @register.simple_tag
-def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
+def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
     """
-    Render a form where some specific fields are rendered using Typeahead.
-    Using Typeahead really improves the performance, the speed and UX when
-    dealing with very large datasets (select with 50k+ elts for instance).
+    Render a form where some specific fields are rendered using Twitter
+    Typeahead and/or splitree's Bootstrap Tokenfield to improve the performance, the
+    speed and UX when dealing with very large datasets (select with 50k+ elts
+    for instance).
+    When the fields specified should normally be rendered as a select with
+    single selectable option, Twitter Typeahead is used for a better display
+    and the matching query engine. When dealing with multiple selectable
+    options, sliptree's Bootstrap Tokenfield in addition with Typeahead.
     For convenience, it accepts the same parameters as a standard bootstrap
     can accept.
 
     **Tag name**::
 
-        bootstrap_form_typeahead
+        massive_bootstrap_form
 
     **Parameters**:
 
-        form
+        form (required)
             The form that is to be rendered
 
-        typeahead_fields
+        mbf_fields (optional)
             A list of field names (comma separated) that should be rendered
-            with typeahead instead of the default bootstrap renderer.
+            with Typeahead/Tokenfield instead of the default bootstrap
+            renderer.
+            If not specified, all fields will be rendered as a normal bootstrap
+            field.
 
-        bft_param
-            A dict of parameters for the bootstrap_form_typeahead tag. The
+        mbf_param (optional)
+            A dict of parameters for the massive_bootstrap_form tag. The
             possible parameters are the following.
 
-            choices
+            choices (optional)
                 A dict of strings representing the choices in JS. The keys of
                 the dict are the names of the concerned fields. The choices
                 must be an array of objects. Each of those objects must at
@@ -71,7 +79,7 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                  ...
                  }
 
-            engine
+            engine (optional)
                 A dict of strings representating the engine used for matching
                 queries and possible values with typeahead. The keys of the
                 dict are the names of the concerned fields. The string is valid
@@ -81,7 +89,7 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                 Example :
                 'engine' : {'field_A': 'new Bloodhound()', 'field_B': ..., ...}
 
-            match_func
+            match_func (optional)
                 A dict of strings representing a valid JS function used in the
                 dataset to overload the matching engine. The keys of the dict
                 are the names of the concerned fields. This function is used
@@ -100,7 +108,7 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
                  ...
                 }
 
-            update_on
+            update_on (optional)
                 A dict of list of ids that the values depends on. The engine
                 and the typeahead properties are recalculated and reapplied.
                 Example :
@@ -114,10 +122,10 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
 
     **Usage**::
 
-        {% bootstrap_form_typeahead
+        {% massive_bootstrap_form
             form
             [ '<field1>[,<field2>[,...]]' ]
-            [ {
+            [ mbf_param = {
                 [ 'choices': {
                     [  '<field1>': '<choices1>'
                     [, '<field2>': '<choices2>'
@@ -144,56 +152,55 @@ def bootstrap_form_typeahead(django_form, typeahead_fields, *args, **kwargs):
 
     **Example**:
 
-        {% bootstrap_form_typeahead form 'ipv4' choices='[...]' %}
+        {% massive_bootstrap_form form 'ipv4' choices='[...]' %}
     """
 
-    t_fields = typeahead_fields.split(',')
-    params = kwargs.get('bft_param', {})
-    exclude = params.get('exclude', None)
-    exclude = exclude.split(',') if exclude else []
-    t_choices = params.get('choices', {})
-    t_engine = params.get('engine', {})
-    t_match_func = params.get('match_func', {})
-    t_update_on = params.get('update_on', {})
-    hidden = [h.name for h in django_form.hidden_fields()]
+    fields = mbf_fields.split(',')
+    param = kwargs.pop('mbf_param', {})
+    exclude = param.get('exclude', '').split(',')
+    choices = param.get('choices', {})
+    engine = param.get('engine', {})
+    match_func = param.get('match_func', {})
+    update_on = param.get('update_on', {})
+    hidden_fields = [h.name for h in form.hidden_fields()]
 
-    form = ''
-    for f_name, f_value in django_form.fields.items() :
+    html = ''
+    for f_name, f_value in form.fields.items() :
         if not f_name in exclude :
-            if f_name in t_fields and not f_name in hidden :
-                    f_bound = f_value.get_bound_field( django_form, f_name )
+            if f_name in fields and not f_name in hidden_fields :
+                    f_bound = f_value.get_bound_field( form, f_name )
                     f_value.widget = TextInput(
                         attrs={
-                            'name': 'typeahead_'+f_name,
+                            'name': 'mbf_'+f_name,
                             'placeholder': f_value.empty_label
                         }
                     )
-                    form += render_field(
-                        f_value.get_bound_field( django_form, f_name ),
+                    html += render_field(
+                        f_value.get_bound_field( form, f_name ),
                         *args,
                         **kwargs
                     )
-                    form += render_tag(
+                    html += render_tag(
                         'div',
                         content = hidden_tag( f_bound, f_name ) +
-                        typeahead_js(
+                        mbf_js(
                             f_name,
                             f_value,
                             f_bound,
-                            t_choices,
-                            t_engine,
-                            t_match_func,
-                            t_update_on
+                            choices,
+                            engine,
+                            match_func,
+                            update_on
                         )
                     )
             else:
-                form += render_field(
-                    f_value.get_bound_field(django_form, f_name),
+                html += render_field(
+                    f_value.get_bound_field( form, f_name ),
                     *args,
                     **kwargs
                 )
 
-    return mark_safe( form )
+    return mark_safe( html )
 
 def input_id( f_bound ) :
     """ The id of the HTML input element """
@@ -215,20 +222,20 @@ def hidden_tag( f_bound, f_name ):
         }
     )
 
-def typeahead_js( f_name, f_value, f_bound,
-        t_choices, t_engine, t_match_func, t_update_on ) :
+def mbf_js( f_name, f_value, f_bound,
+        choices_, engine_, match_func_, update_on_ ) :
     """ The whole script to use """
 
-    choices = mark_safe( t_choices[f_name] ) if f_name in t_choices.keys()    \
+    choices = mark_safe( choices_[f_name] ) if f_name in choices_.keys()     \
         else default_choices( f_value )
 
-    engine = mark_safe( t_engine[f_name] ) if f_name in t_engine.keys()       \
+    engine = mark_safe( engine_[f_name] ) if f_name in engine_.keys()        \
         else default_engine ( f_name )
 
-    match_func = mark_safe(t_match_func[f_name])                              \
-        if f_name in t_match_func.keys() else default_match_func( f_name )
+    match_func = mark_safe( match_func_[f_name] )                            \
+        if f_name in match_func_.keys() else default_match_func( f_name )
 
-    update_on = t_update_on[f_name] if f_name in t_update_on.keys() else []
+    update_on = update_on_[f_name] if f_name in update_on_.keys() else []
 
     js_content = (
         'var choices_{f_name} = {choices};'
