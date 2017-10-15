@@ -113,9 +113,26 @@ def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
                 A dict of list of ids that the values depends on. The engine
                 and the typeahead properties are recalculated and reapplied.
                 Example :
-                'addition' : {
+                'update_on' : {
                  'field_A' : [ 'id0', 'id1', ... ] ,
                  'field_B' : ... ,
+                 ...
+                }
+
+            gen_select (optional)
+                A dict of boolean telling if the form should either generate
+                the normal select (set to true) and then use it to generate
+                the possible choices and then remove it or either (set to
+                false) generate the choices variable in this tag and do not
+                send any select.
+                Sending the select before can be usefull to permit the use
+                without any JS enabled but it will execute more code locally
+                for the client so the loading might be slower.
+                If not specified, this variable is set to true for each field
+                Example :
+                'gen_select' : {
+                 'field_A': True ,
+                 'field_B': ... ,
                  ...
                 }
 
@@ -146,6 +163,11 @@ def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
                     [  '<field1>': '<update_on1>'
                     [, '<field2>': '<update_on2>'
                     [, ... ] ] ]
+                } ],
+                [, 'gen_select': {
+                    [  '<field1>': '<gen_select1>'
+                    [, '<field2>': '<gen_select2>'
+                    [, ... ] ] ]
                 } ]
             } ]
             [ <standard boostrap_form parameters> ]
@@ -163,6 +185,7 @@ def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
     engine = param.get('engine', {})
     match_func = param.get('match_func', {})
     update_on = param.get('update_on', {})
+    gen_select = param.get('gen_select', {})
     hidden_fields = [h.name for h in form.hidden_fields()]
 
     html = ''
@@ -184,40 +207,43 @@ def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
                 multiple = f_value.widget.allow_multiple_selected
                 f_bound = f_value.get_bound_field( form, f_name )
 
+                if gen_select.get(f_name, True) :
+                    html += render_field(
+                        f_bound,
+                        *args,
+                        **kwargs
+                    )
+
                 f_value.widget = TextInput(
                     attrs = {
                         'name': 'mbf_'+f_name,
                         'placeholder': f_value.empty_label
                     }
                 )
-                html += render_field(
+                replace_input = render_field(
                     f_value.get_bound_field( form, f_name ),
                     *args,
                     **kwargs
                 )
 
-                if multiple :
-                    content = mbf_js(
-                        f_name,
-                        f_value,
-                        f_bound,
-                        multiple,
-                        choices,
-                        engine,
-                        match_func,
-                        update_on
-                    )
-                else :
-                    content = hidden_tag( f_bound, f_name ) + mbf_js(
-                        f_name,
-                        f_value,
-                        f_bound,
-                        multiple,
-                        choices,
-                        engine,
-                        match_func,
-                        update_on
-                    )
+                if not gen_select.get(f_name, True) : 
+                    html += replace_input
+
+                content = mbf_js(
+                    f_name,
+                    f_value,
+                    f_bound,
+                    multiple,
+                    replace_input,
+                    choices,
+                    engine,
+                    match_func,
+                    update_on,
+                    gen_select
+                )
+                if not multiple and not gen_select.get(f_name, True) :
+                    content += hidden_tag( f_bound, f_name )
+
                 html += render_tag(
                     'div',
                     content = content,
@@ -257,12 +283,14 @@ def hidden_tag( f_bound, f_name ):
         }
     )
 
-def mbf_js( f_name, f_value, f_bound, multiple,
-        choices_, engine_, match_func_, update_on_ ) :
+def mbf_js( f_name, f_value, f_bound, multiple, replace_input,
+        choices_, engine_, match_func_, update_on_, gen_select_ ) :
     """ The whole script to use """
 
+    gen_select = gen_select_.get( f_name, True )
+
     choices = ( mark_safe( choices_[f_name] ) if f_name in choices_.keys()
-        else default_choices( f_value ) )
+        else default_choices( f_value, f_bound, gen_select ) )
 
     engine = ( mark_safe( engine_[f_name] ) if f_name in engine_.keys()
         else default_engine ( f_name ) )
@@ -272,82 +300,120 @@ def mbf_js( f_name, f_value, f_bound, multiple,
 
     update_on = update_on_[f_name] if f_name in update_on_.keys() else []
 
-    if multiple :
-        js_content = (
-            'var choices_{f_name} = {choices};'
-            'var engine_{f_name};'
-            'var setup_{f_name} = function() {{'
-                'engine_{f_name} = {engine};'
-                '$( "#{input_id}" ).tokenfield( "destroy" );'
-                '$( "#{input_id}" ).tokenfield({{typeahead: [ {datasets} ] }});'
-            '}};'
-            '$( "#{input_id}" ).bind( "tokenfield:createtoken", {create} );'
-            '$( "#{input_id}" ).bind( "tokenfield:edittoken", {edit} );'
-            '$( "#{input_id}" ).bind( "tokenfield:removetoken", {remove} );'
-            '{updates}'
-            '$( "#{input_id}" ).ready( function() {{'
-                'setup_{f_name}();'
-                '{init_input}'
-            '}} );'
-            ).format(
-                    f_name = f_name,
-                    choices = choices,
-                    engine = engine,
-                    input_id = input_id( f_bound ),
-                    datasets = default_datasets( f_name, match_func ),
-                    create = tokenfield_create( f_name, f_bound ),
-                    edit = tokenfield_edit( f_name, f_bound ),
-                    remove = tokenfield_remove( f_name, f_bound ),
-                    updates = ''.join( [ (
-                        '$( "#{u_id}" ).change( function() {{'
-                            'setup_{f_name}();'
-                            '{reset_input}'
-                        '}} );'
-                        ).format(
-                            u_id = u_id,
-                            reset_input = tokenfield_reset_input( f_bound ),
-                            f_name = f_name
-                        ) for u_id in update_on ]
-                    ),
-                    init_input = tokenfield_init_input( f_name, f_bound ),
+    if gen_select :
+        if multiple :
+            js_content = (
+                '$( "#{input_id}" ).ready( function() {{'
+                    'var choices_{f_name} = {choices};'
+                    '{del_select}'
+                    'var engine_{f_name};'
+                    'var setup_{f_name} = function() {{'
+                        'engine_{f_name} = {engine};'
+                        '$( "#{input_id}" ).tokenfield( "destroy" );'
+                        '$( "#{input_id}" ).tokenfield({{typeahead: [ {datasets} ] }});'
+                    '}};'
+                    '$( "#{input_id}" ).bind( "tokenfield:createtoken", {tok_create} );'
+                    '$( "#{input_id}" ).bind( "tokenfield:edittoken", {tok_edit} );'
+                    '$( "#{input_id}" ).bind( "tokenfield:removetoken", {tok_remove} );'
+                    '{tok_updates}'
+                    'setup_{f_name}();'
+                    '{tok_init_input}'
+                '}} );'
+            )
+        else :
+            js_content = (
+                '$( "#{input_id}" ).ready( function() {{'
+                    'var choices_{f_name} = {choices};'
+                    '{del_select}'
+                    '{gen_hidden}'
+                    'var engine_{f_name};'
+                    'var setup_{f_name} = function() {{'
+                        'engine_{f_name} = {engine};'
+                        '$( "#{input_id}" ).typeahead( "destroy" );'
+                        '$( "#{input_id}" ).typeahead( {datasets} );'
+                    '}};'
+                    '$( "#{input_id}" ).bind( "typeahead:select", {typ_select} );'
+                    '$( "#{input_id}" ).bind( "typeahead:change", {typ_change} );'
+                    '{typ_updates}'
+                    'setup_{f_name}();'
+                    '{typ_init_input}'
+                '}} );'
             )
     else :
-        js_content = (
-            'var choices_{f_name} = {choices};'
-            'var engine_{f_name};'
-            'var setup_{f_name} = function() {{'
-                'engine_{f_name} = {engine};'
-                '$( "#{input_id}" ).typeahead( "destroy" );'
-                '$( "#{input_id}" ).typeahead( {datasets} );'
-            '}};'
-            '$( "#{input_id}" ).bind( "typeahead:select", {select} );'
-            '$( "#{input_id}" ).bind( "typeahead:change", {change} );'
-            '{updates}'
-            '$( "#{input_id}" ).ready( function() {{'
-                'setup_{f_name}();'
-                '{init_input}'
-            '}} );'
-            ).format(
-                    f_name = f_name,
-                    choices = choices,
-                    engine = engine,
-                    input_id = input_id( f_bound ),
-                    datasets = default_datasets( f_name, match_func ),
-                    select = typeahead_select( f_bound ),
-                    change = typeahead_change( f_bound ),
-                    updates = ''.join( [ (
-                        '$( "#{u_id}" ).change( function() {{'
-                            'setup_{f_name}();'
-                            '{reset_input}'
-                        '}} );'
-                        ).format(
-                            u_id = u_id,
-                            reset_input = typeahead_reset_input( f_bound ),
-                            f_name = f_name
-                        ) for u_id in update_on ]
-                    ),
-                    init_input = typeahead_init_input( f_name, f_bound ),
+        if multiple :
+            js_content = (
+                'var choices_{f_name} = {choices};'
+                'var engine_{f_name};'
+                'var setup_{f_name} = function() {{'
+                    'engine_{f_name} = {engine};'
+                    '$( "#{input_id}" ).tokenfield( "destroy" );'
+                    '$( "#{input_id}" ).tokenfield({{typeahead: [ {datasets} ] }});'
+                '}};'
+                '$( "#{input_id}" ).bind( "tokenfield:createtoken", {tok_create} );'
+                '$( "#{input_id}" ).bind( "tokenfield:edittoken", {tok_edit} );'
+                '$( "#{input_id}" ).bind( "tokenfield:removetoken", {tok_remove} );'
+                '{tok_updates}'
+                '$( "#{input_id}" ).ready( function() {{'
+                    'setup_{f_name}();'
+                    '{tok_init_input}'
+                '}} );'
             )
+        else :
+            js_content = (
+                'var choices_{f_name} = {choices};'
+                'var engine_{f_name};'
+                'var setup_{f_name} = function() {{'
+                    'engine_{f_name} = {engine};'
+                    '$( "#{input_id}" ).typeahead( "destroy" );'
+                    '$( "#{input_id}" ).typeahead( {datasets} );'
+                '}};'
+                '$( "#{input_id}" ).bind( "typeahead:select", {typ_select} );'
+                '$( "#{input_id}" ).bind( "typeahead:change", {typ_change} );'
+                '{typ_updates}'
+                '$( "#{input_id}" ).ready( function() {{'
+                    'setup_{f_name}();'
+                    '{typ_init_input}'
+                '}} );'
+            )
+
+    js_content = js_content.format(
+            f_name = f_name,
+            choices = choices,
+            del_select = del_select( f_bound, replace_input ),
+            gen_hidden = gen_hidden( f_bound ),
+            engine = engine,
+            input_id = input_id( f_bound ),
+            datasets = default_datasets( f_name, match_func ),
+            typ_select = typeahead_select( f_bound ),
+            typ_change = typeahead_change( f_bound ),
+            tok_create = tokenfield_create( f_name, f_bound ),
+            tok_edit = tokenfield_edit( f_name, f_bound ),
+            tok_remove = tokenfield_remove( f_name, f_bound ),
+            typ_updates = ''.join( [ (
+                '$( "#{u_id}" ).change( function() {{'
+                    'setup_{f_name}();'
+                    '{reset_input}'
+                '}} );'
+                ).format(
+                    u_id = u_id,
+                    reset_input = typeahead_reset_input( f_bound ),
+                    f_name = f_name
+                ) for u_id in update_on ]
+            ),
+            tok_updates = ''.join( [ (
+                '$( "#{u_id}" ).change( function() {{'
+                    'setup_{f_name}();'
+                    '{reset_input}'
+                '}} );'
+                ).format(
+                    u_id = u_id,
+                    reset_input = tokenfield_reset_input( f_bound ),
+                    f_name = f_name
+                ) for u_id in update_on ]
+            ),
+            tok_init_input = tokenfield_init_input( f_name, f_bound ),
+            typ_init_input = typeahead_init_input( f_name, f_bound ),
+    )
 
     return render_tag( 'script', content=mark_safe( js_content ) )
 
@@ -403,9 +469,21 @@ def tokenfield_reset_input( f_bound ) :
                 input_id = input_id( f_bound ),
         )
 
-def default_choices( f_value ) :
+def default_choices( f_value, f_bound, gen_select ) :
     """ The JS script creating the variable choices_<fieldname> """
-    return '[{objects}]'.format(
+    if gen_select :
+        c = ( 'function plop(o) {{'
+                'var c = [];'
+                'for( let i=0 ; i<o.length ; i++) {{'
+                    'c.push( {{ key: o[i].value, value :o[i].text }} );'
+                '}}'
+                'return c;'
+                '}} ($("#{select_id}")[0].options)'
+        ).format (
+                select_id = input_id( f_bound )
+        )
+    else :
+        c = '[{objects}]'.format(
             objects = ','.join(
                 [ '{{key:{k},value:"{v}"}}'.format(
                     k = choice[0] if choice[0] != '' else '""',
@@ -413,6 +491,34 @@ def default_choices( f_value ) :
                 ) for choice in f_value.choices ]
             )
         )
+
+    return c
+
+def del_select( f_bound, replace_input ) :
+    """ The JS script to delete the select if it has been generated
+    and replace it with an input. """
+    return ( 'var p = $("#{select_id}").parent()[0];'
+        'var new_input = `{replace_input}`;'
+        'p.innerHTML = new_input;'
+    ).format(
+            select_id = input_id( f_bound ),
+            replace_input = replace_input
+    )
+
+def gen_hidden( f_bound ):
+    """ The JS script to add a hidden tag to store the value. """
+    return ( 'var d = $("#{custom_div_id}")[0];'
+        'var i = document.createElement("input");'
+        'i.id = "{hidden_id}";'
+        'i.name = "{name}";'
+        'i.value = "";'
+        'i.type = "hidden";'
+        'd.appendChild(i);'
+    ).format(
+            custom_div_id = custom_div_id( f_bound ),
+            hidden_id = hidden_id( f_bound ),
+            name = f_bound.html_name
+    )
 
 def default_engine ( f_name ) :
     """ The JS script creating the variable engine_<field_name> """
