@@ -52,8 +52,8 @@ class Stack(models.Model):
     name = models.CharField(max_length=32, blank=True, null=True)
     stack_id = models.CharField(max_length=32, unique=True)
     details = models.CharField(max_length=255, blank=True, null=True)
-    member_id_min = models.IntegerField()
-    member_id_max = models.IntegerField()
+    member_id_min = models.PositiveIntegerField()
+    member_id_max = models.PositiveIntegerField()
 
     def __str__(self):
         return " ".join([self.name, self.stack_id])
@@ -90,7 +90,7 @@ class Switch(models.Model):
         on_delete=models.CASCADE
         )
     location = models.CharField(max_length=255)
-    number = models.IntegerField()
+    number = models.PositiveIntegerField()
     details = models.CharField(max_length=255, blank=True)
     stack = models.ForeignKey(
         Stack,
@@ -98,7 +98,7 @@ class Switch(models.Model):
         null=True,
         on_delete=models.SET_NULL
         )
-    stack_member_id = models.IntegerField(blank=True, null=True)
+    stack_member_id = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -146,7 +146,7 @@ class Port(models.Model):
         )
 
     switch = models.ForeignKey('Switch', related_name="ports")
-    port = models.IntegerField()
+    port = models.PositiveIntegerField()
     room = models.ForeignKey(
         'Room',
         on_delete=models.PROTECT,

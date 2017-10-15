@@ -151,10 +151,11 @@ class IpType(models.Model):
         return self.type
 
 class Vlan(models.Model):
-    """ Un vlan : vlan_id et nom"""
+    """ Un vlan : vlan_id et nom
+    On limite le vlan id entre 0 et 4096, comme défini par la norme"""
     PRETTY_NAME = "Vlans"
 
-    vlan_id = models.IntegerField()
+    vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
 
@@ -205,7 +206,7 @@ class Mx(models.Model):
     PRETTY_NAME = "Enregistrements MX"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    priority = models.IntegerField(unique=True)
+    priority = models.PositiveIntegerField(unique=True)
     name = models.OneToOneField('Domain', on_delete=models.PROTECT)
 
     @cached_property
@@ -512,13 +513,15 @@ class OuverturePort(models.Model):
     
     Les ports de la plage sont compris entre begin et en inclus. 
     Si begin == end alors on ne représente qu'un seul port.
+
+    On limite les ports entre 0 et 65535, tels que défini par la RFC
     """
     TCP = 'T'
     UDP = 'U'
     IN = 'I'
     OUT = 'O'
-    begin = models.IntegerField()
-    end = models.IntegerField()
+    begin = models.PositiveIntegerField(validators=[MaxValueValidator(65535)])
+    end = models.PositiveIntegerField(validators=[MaxValueValidator(65535)])
     port_list = models.ForeignKey('OuverturePortList', on_delete=models.CASCADE)
     protocole = models.CharField(
             max_length=1,

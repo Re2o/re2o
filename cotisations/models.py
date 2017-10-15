@@ -132,7 +132,7 @@ class Vente(models.Model):
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
-    duration = models.IntegerField(
+    duration = models.PositiveIntegerField(
         help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True)
@@ -222,7 +222,7 @@ class Article(models.Model):
     name = models.CharField(max_length=255, unique=True)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     iscotisation = models.BooleanField()
-    duration = models.IntegerField(
+    duration = models.PositiveIntegerField(
         help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True,
