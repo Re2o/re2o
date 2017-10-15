@@ -243,8 +243,8 @@ class User(AbstractBaseUser):
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
-    uid_number = models.IntegerField(default=auto_uid, unique=True)
-    rezo_rez_uid = models.IntegerField(unique=True, blank=True, null=True)
+    uid_number = models.PositiveIntegerField(default=auto_uid, unique=True)
+    rezo_rez_uid = models.PositiveIntegerField(unique=True, blank=True, null=True)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['name', 'surname', 'email']
@@ -840,7 +840,7 @@ class ListRight(models.Model):
             que des lettres minuscules"
         )]
     )
-    gid = models.IntegerField(unique=True, null=True)
+    gid = models.PositiveIntegerField(unique=True, null=True)
     details = models.CharField(
         help_text="Description",
         max_length=255,
