@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load massive_bootstrap_form %}
 
 {% block title %}Création et modification d'un switch{% endblock %}
 
@@ -46,13 +47,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% if topoform %}
-    {% bootstrap_form topoform %}
+    {% massive_bootstrap_form topoform 'switch_interface' %}
     {% endif %}
     {% if machineform %}
-    {% bootstrap_form machineform %}
+    {% massive_bootstrap_form machineform 'user' %}
     {% endif %}
     {% if interfaceform %}
-    {% bootstrap_form interfaceform %}
+        {% if i_bft_param %}
+    {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
+        {% else %}
+    {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
+        {% endif %}
     {% endif %}
     {% if domainform %}
     {% bootstrap_form domainform %}
