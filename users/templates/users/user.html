@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load bootstrap_form_typeahead %}
+{% load massive_bootstrap_form %}
 
 {% block title %}Création et modification d'utilisateur{% endblock %}
 
@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
-    {% bootstrap_form_typeahead userform 'room' %}
+    {% massive_bootstrap_form userform 'room' %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
   <br />
