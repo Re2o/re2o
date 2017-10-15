@@ -93,6 +93,7 @@ urlpatterns = [
     url(r'^rest/text/$', views.text, name='text'),
     url(r'^rest/zones/$', views.zones, name='zones'),
     url(r'^rest/service_servers/$', views.service_servers, name='service-servers'),
+    url(r'^rest/ouverture_ports/$', views.ouverture_ports, name='ouverture-ports'),
     url(r'index_portlist/$', views.index_portlist, name='index-portlist'),
     url(r'^edit_portlist/(?P<pk>[0-9]+)$', views.edit_portlist, name='edit-portlist'),
     url(r'^del_portlist/(?P<pk>[0-9]+)$', views.del_portlist, name='del-portlist'),

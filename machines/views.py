@@ -43,19 +43,81 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.renderers import JSONRenderer
-from machines.serializers import FullInterfaceSerializer, InterfaceSerializer, TypeSerializer, DomainSerializer, TextSerializer, MxSerializer, ExtensionSerializer, ServiceServersSerializer, NsSerializer
+from machines.serializers import ( FullInterfaceSerializer,
+    InterfaceSerializer,
+    TypeSerializer,
+    DomainSerializer,
+    TextSerializer,
+    MxSerializer,
+    ExtensionSerializer,
+    ServiceServersSerializer,
+    NsSerializer,
+    OuverturePortsSerializer
+)
 from reversion import revisions as reversion
 from reversion.models import Version
 
 import re
-from .forms import NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm, MachineTypeForm, DelMachineTypeForm, ExtensionForm, DelExtensionForm, BaseEditInterfaceForm, BaseEditMachineForm
-from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasForm, DelAliasForm, NsForm, DelNsForm, TxtForm, DelTxtForm, MxForm, DelMxForm, VlanForm, DelVlanForm, ServiceForm, DelServiceForm, NasForm, DelNasForm
+from .forms import (
+    NewMachineForm,
+    EditMachineForm,
+    EditInterfaceForm,
+    AddInterfaceForm,
+    MachineTypeForm,
+    DelMachineTypeForm,
+    ExtensionForm,
+    DelExtensionForm,
+    BaseEditInterfaceForm,
+    BaseEditMachineForm
+)
+from .forms import (
+    EditIpTypeForm,
+    IpTypeForm,
+    DelIpTypeForm,
+    DomainForm,
+    AliasForm,
+    DelAliasForm,
+    NsForm,
+    DelNsForm,
+    TxtForm,
+    DelTxtForm,
+    MxForm,
+    DelMxForm,
+    VlanForm,
+    DelVlanForm,
+    ServiceForm,
+    DelServiceForm,
+    NasForm,
+    DelNasForm
+)
 from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
-from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
+from .models import (
+    IpType,
+    Machine,
+    Interface,
+    IpList,
+    MachineType,
+    Extension,
+    Mx,
+    Ns,
+    Domain,
+    Service,
+    Service_link,
+    Vlan,
+    Nas,
+    Text,
+    OuverturePortList,
+    OuverturePort
+)
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
+
 from re2o.templatetags.massive_bootstrap_form import hidden_id, input_id
-from re2o.utils import all_active_assigned_interfaces, all_has_access
+from re2o.utils import (
+    all_active_assigned_interfaces,
+    all_has_access,
+    filter_active_interfaces
+)
 from re2o.views import form
 
 def f_type_id( is_type_tt ):
@@ -72,7 +134,8 @@ def generate_ipv4_choices( form ) :
     choices = '{"":[{key:"",value:"Choisissez d\'abord un type de machine"},'
     mtype_id = -1
 
-    for ip in f_ipv4.queryset.annotate(mtype_id=F('ip_type__machinetype__id')).order_by('mtype_id', 'id') :
+    for ip in f_ipv4.queryset.annotate(mtype_id=F('ip_type__machinetype__id'))\
+            .order_by('mtype_id', 'id') :
         if mtype_id != ip.mtype_id :
             mtype_id = ip.mtype_id
             used_mtype_id.append(mtype_id)
@@ -139,8 +202,8 @@ def generate_ipv4_mbf_param( form, is_type_tt ):
 
 @login_required
 def new_machine(request, userid):
-    """ Fonction de creation d'une machine. Cree l'objet machine, le sous objet interface et l'objet domain
-    à partir de model forms.
+    """ Fonction de creation d'une machine. Cree l'objet machine, 
+    le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
     try:
         user = User.objects.get(pk=userid)
@@ -151,7 +214,9 @@ def new_machine(request, userid):
     max_lambdauser_interfaces = options.max_lambdauser_interfaces
     if not request.user.has_perms(('cableur',)):
         if user != request.user:
-            messages.error(request, "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
+            messages.error(
+                request,
+                "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
         if user.user_interfaces().count() >= max_lambdauser_interfaces:
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
@@ -1180,6 +1245,34 @@ def service_servers(request):
     seria = ServiceServersSerializer(service_link, many=True)
     return JSONResponse(seria.data)
 
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def ouverture_ports(request):
+    r = {'ipv4':{}, 'ipv6':{}}
+    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set').prefetch_related('interface_set', 'interface_set__ipv4'):
+        pl = {
+            "tcp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.IN))),
+            "tcp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.OUT))),
+            "udp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.IN))),
+            "udp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.OUT))),
+        }
+        for i in filter_active_interfaces(o.interface_set):
+            if i.may_have_port_open():
+                d = r['ipv4'].get(i.ipv4.ipv4, {})
+                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                r['ipv4'][i.ipv4.ipv4] = d
+            if i.ipv6_object:
+                d = r['ipv6'].get(i.ipv6, {})
+                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                r['ipv6'][i.ipv6] = d
+    return JSONResponse(r)
 @csrf_exempt
 @login_required
 @permission_required('serveur')
