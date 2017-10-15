@@ -47,18 +47,17 @@ from reversion.models import Revision
 from reversion.models import Version, ContentType
 
 from users.models import User, ServiceUser, Right, School, ListRight, ListShell
-from users.models import Ban, Whitelist, all_has_access
-from users.models import all_whitelisted, all_baned, all_adherent
+from users.models import Ban, Whitelist
 from cotisations.models import Facture, Vente, Article, Banque, Paiement
 from cotisations.models import Cotisation
 from machines.models import Machine, MachineType, IpType, Extension, Interface
 from machines.models import Domain, IpList
-from machines.views import all_active_assigned_interfaces_count
-from machines.views import all_active_interfaces_count
 from topologie.models import Switch, Port, Room
 from preferences.models import GeneralOption
 from re2o.views import form
-
+from re2o.utils import all_whitelisted, all_baned, all_has_access, all_adherent
+from re2o.utils import all_active_assigned_interfaces_count
+from re2o.utils import all_active_interfaces_count
 
 STATS_DICT = {
     0: ["Tout", 36],

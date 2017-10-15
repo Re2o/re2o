@@ -144,62 +144,6 @@ def get_admin_right():
     return admin_right
 
 
-def all_adherent(search_time=DT_NOW):
-    """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
-    qu'une seule requete sql
-    Inspecte les factures de l'user et ses cotisation, regarde si elles
-    sont posterieur à now (end_time)"""
-    return User.objects.filter(
-        facture__in=Facture.objects.filter(
-            vente__in=Vente.objects.filter(
-                cotisation__in=Cotisation.objects.filter(
-                    vente__in=Vente.objects.filter(
-                        facture__in=Facture.objects.all().exclude(valid=False)
-                    )
-                ).filter(date_end__gt=search_time)
-            )
-        )
-    ).distinct()
-
-
-def all_baned(search_time=DT_NOW):
-    """ Fonction renvoyant tous les users bannis """
-    return User.objects.filter(
-        ban__in=Ban.objects.filter(
-            date_end__gt=search_time
-        )
-    ).distinct()
-
-
-def all_whitelisted(search_time=DT_NOW):
-    """ Fonction renvoyant tous les users whitelistes """
-    return User.objects.filter(
-        whitelist__in=Whitelist.objects.filter(
-            date_end__gt=search_time
-        )
-    ).distinct()
-
-
-def all_has_access(search_time=DT_NOW):
-    """  Renvoie tous les users beneficiant d'une connexion
-    : user adherent ou whiteliste et non banni """
-    return User.objects.filter(
-        Q(state=User.STATE_ACTIVE) &
-        ~Q(ban__in=Ban.objects.filter(date_end__gt=search_time)) &
-        (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=search_time)) |
-         Q(facture__in=Facture.objects.filter(
-             vente__in=Vente.objects.filter(
-                 cotisation__in=Cotisation.objects.filter(
-                     vente__in=Vente.objects.filter(
-                         facture__in=Facture.objects.all()
-                         .exclude(valid=False)
-                     )
-                 ).filter(date_end__gt=search_time)
-             )
-         )))
-    ).distinct()
-
-
 class UserManager(BaseUserManager):
     """User manager basique de django"""
     def _create_user(

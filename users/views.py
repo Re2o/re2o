@@ -53,7 +53,7 @@ from reversion.models import Version
 from reversion import revisions as reversion
 from users.serializers import MailSerializer
 from users.models import User, Right, Ban, Whitelist, School, ListRight
-from users.models import Request, ServiceUser, all_has_access
+from users.models import Request, ServiceUser
 from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.forms import DelListRightForm, NewListRightForm
 from users.forms import InfoForm, BaseInfoForm, StateForm
@@ -65,7 +65,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-
+from re2o.utils import all_has_access
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""

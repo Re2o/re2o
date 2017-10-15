@@ -53,30 +53,10 @@ from .forms import EditIpTypeForm, IpTypeForm, DelIpTypeForm, DomainForm, AliasF
 from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
-from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
 from re2o.templatetags.bootstrap_form_typeahead import hidden_id, input_id
-
-def all_active_interfaces():
-    """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True)).select_related('domain').select_related('machine').select_related('type').select_related('ipv4').select_related('domain__extension').select_related('ipv4__ip_type').distinct()
-
-def all_active_assigned_interfaces():
-    """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de l'accès internet"""
-    return all_active_interfaces().filter(ipv4__isnull=False)
-
-def all_active_interfaces_count():
-    """ Version light seulement pour compter"""
-    return Interface.objects.filter(machine__in=Machine.objects.filter(user__in=all_has_access()).filter(active=True))
-
-def all_active_assigned_interfaces_count():
-    """ Version light seulement pour compter"""
-    return all_active_interfaces_count().filter(ipv4__isnull=False)
-
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
+from re2o.utils import all_active_assigned_interfaces, all_has_access
+from re2o.views import form
 
 def f_type_id( is_type_tt ):
     """ The id that will be used in HTML to store the value of the field
