@@ -19,25 +19,28 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Fonctions de la page d'accueil et diverses fonctions utiles pour tous
+les views
+"""
 
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
 from django.template.context_processors import csrf
-from django.template import Context, RequestContext, loader
 from preferences.models import Service
 
+
 def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
+    """Form générique, raccourci importé par les fonctions views du site"""
+    context = ctx
+    context.update(csrf(request))
+    return render(request, template, context)
 
 
 def index(request):
-    i = 0
+    """Affiche la liste des services sur la page d'accueil de re2o"""
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)
-
     return form({'services_urls': services}, 're2o/index.html', request)

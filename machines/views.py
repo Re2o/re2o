@@ -79,8 +79,8 @@ from .forms import (
     DelAliasForm,
     NsForm,
     DelNsForm,
-    TextForm,
-    DelTextForm,
+    TxtForm,
+    DelTxtForm,
     MxForm,
     DelMxForm,
     VlanForm,
@@ -110,58 +110,24 @@ from .models import (
     OuverturePort
 )
 from users.models import User
-from users.models import all_has_access
 from preferences.models import GeneralOption, OptionalMachine
-from .templatetags.bootstrap_form_typeahead import hidden_id, input_id
 
-def filter_active_interfaces(q):
-    """Filtre les machines autorisées à sortir sur internet dans une requête"""
-    return q.filter(
-            machine__in=Machine.objects.filter(
-                user__in=all_has_access()
-            ).filter(active=True)) \
-            .select_related('domain') \
-            .select_related('machine') \
-            .select_related('type') \
-            .select_related('ipv4') \
-            .select_related('domain__extension') \
-            .select_related('ipv4__ip_type').distinct()
-
-def all_active_interfaces():
-    """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return filter_active_interfaces(Interface.objects)
-
-def all_active_assigned_interfaces():
-    """
-    Renvoie l'ensemble des machines qui ont une ipv4 assignées et disposant de 
-    l'accès internet
-    """
-    return all_active_interfaces().filter(ipv4__isnull=False)
-
-def all_active_interfaces_count():
-    """ Version light seulement pour compter"""
-    return Interface.objects.filter(
-            machine__in=Machine.objects.filter(user__in=all_has_access())\
-            .filter(active=True)
-        )
-
-def all_active_assigned_interfaces_count():
-    """ Version light seulement pour compter"""
-    return all_active_interfaces_count().filter(ipv4__isnull=False)
-
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
+from re2o.templatetags.massive_bootstrap_form import hidden_id, input_id
+from re2o.utils import (
+    all_active_assigned_interfaces,
+    all_has_access,
+    filter_active_interfaces
+)
+from re2o.views import form
 
 def f_type_id( is_type_tt ):
     """ The id that will be used in HTML to store the value of the field
     type. Depends on the fact that type is generate using typeahead or not
     """
-    return hidden_id('type') if is_type_tt else input_id('type')
+    return 'id_Interface-type_hidden' if is_type_tt else 'id_Interface-type'
 
 def generate_ipv4_choices( form ) :
-    """ Generate the parameter choices for the bootstrap_form_typeahead tag
+    """ Generate the parameter choices for the massive_bootstrap_form tag
     """
     f_ipv4 = form.fields['ipv4']
     used_mtype_id = []
@@ -189,7 +155,7 @@ def generate_ipv4_choices( form ) :
     return choices
 
 def generate_ipv4_engine( is_type_tt ) :
-    """ Generate the parameter engine for the bootstrap_form_typeahead tag
+    """ Generate the parameter engine for the massive_bootstrap_form tag
     """
     return (
         'new Bloodhound( {{'
@@ -203,7 +169,7 @@ def generate_ipv4_engine( is_type_tt ) :
         )
 
 def generate_ipv4_match_func( is_type_tt ) :
-    """ Generate the parameter match_func for the bootstrap_form_typeahead tag
+    """ Generate the parameter match_func for the massive_bootstrap_form tag
     """
     return (
         'function(q, sync) {{'
@@ -219,20 +185,20 @@ def generate_ipv4_match_func( is_type_tt ) :
                 type_id = f_type_id( is_type_tt )
         )
 
-def generate_ipv4_bft_param( form, is_type_tt ):
-    """ Generate all the parameters to use with the bootstrap_form_typeahead
+def generate_ipv4_mbf_param( form, is_type_tt ):
+    """ Generate all the parameters to use with the massive_bootstrap_form
     tag """
     i_choices = { 'ipv4': generate_ipv4_choices( form ) }
     i_engine = { 'ipv4': generate_ipv4_engine( is_type_tt ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func( is_type_tt ) }
     i_update_on = { 'ipv4': [f_type_id( is_type_tt )] }
-    i_bft_param = {
+    i_mbf_param = {
         'choices': i_choices,
         'engine': i_engine,
         'match_func': i_match_func,
         'update_on': i_update_on
     }
-    return i_bft_param
+    return i_mbf_param
 
 @login_required
 def new_machine(request, userid):
@@ -282,8 +248,8 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    i_bft_param = generate_ipv4_bft_param( interface, False )
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface, False )
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -322,8 +288,8 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    i_bft_param = generate_ipv4_bft_param( interface_form, False )
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -381,8 +347,8 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    i_bft_param = generate_ipv4_bft_param( interface_form, False )
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
@@ -419,7 +385,7 @@ def add_iptype(request):
             reversion.set_comment("Création")
         messages.success(request, "Ce type d'ip a été ajouté")
         return redirect("/machines/index_iptype")
-    return form({'machineform': iptype, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -438,7 +404,7 @@ def edit_iptype(request, iptypeid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in iptype.changed_data))
         messages.success(request, "Type d'ip modifié")
         return redirect("/machines/index_iptype/")
-    return form({'machineform': iptype}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -456,7 +422,7 @@ def del_iptype(request):
             except ProtectedError:
                 messages.error(request, "Le type d'ip %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % iptype_del)
         return redirect("/machines/index_iptype")
-    return form({'machineform': iptype, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -469,7 +435,7 @@ def add_machinetype(request):
             reversion.set_comment("Création")
         messages.success(request, "Ce type de machine a été ajouté")
         return redirect("/machines/index_machinetype")
-    return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -487,7 +453,7 @@ def edit_machinetype(request, machinetypeid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machinetype.changed_data))
         messages.success(request, "Type de machine modifié")
         return redirect("/machines/index_machinetype/")
-    return form({'machineform': machinetype}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -504,7 +470,7 @@ def del_machinetype(request):
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
         return redirect("/machines/index_machinetype")
-    return form({'machineform': machinetype, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -517,7 +483,7 @@ def add_extension(request):
             reversion.set_comment("Création")
         messages.success(request, "Cette extension a été ajoutée")
         return redirect("/machines/index_extension")
-    return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -535,7 +501,7 @@ def edit_extension(request, extensionid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
         messages.success(request, "Extension modifiée")
         return redirect("/machines/index_extension/")
-    return form({'machineform': extension}, 'machines/machine.html', request)
+    return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -552,7 +518,7 @@ def del_extension(request):
             except ProtectedError:
                 messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
         return redirect("/machines/index_extension")
-    return form({'machineform': extension, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -565,7 +531,7 @@ def add_mx(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement mx a été ajouté")
         return redirect("/machines/index_extension")
-    return form({'machineform': mx, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -583,7 +549,7 @@ def edit_mx(request, mxid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in mx.changed_data))
         messages.success(request, "Mx modifié")
         return redirect("/machines/index_extension/")
-    return form({'machineform': mx}, 'machines/machine.html', request)
+    return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -600,7 +566,7 @@ def del_mx(request):
             except ProtectedError:
                 messages.error(request, "Erreur le Mx suivant %s ne peut être supprimé" % mx_del)
         return redirect("/machines/index_extension")
-    return form({'machineform': mx, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -613,7 +579,7 @@ def add_ns(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement ns a été ajouté")
         return redirect("/machines/index_extension")
-    return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -631,7 +597,7 @@ def edit_ns(request, nsid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ns.changed_data))
         messages.success(request, "Ns modifié")
         return redirect("/machines/index_extension/")
-    return form({'machineform': ns}, 'machines/machine.html', request)
+    return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -648,55 +614,55 @@ def del_ns(request):
             except ProtectedError:
                 messages.error(request, "Erreur le Ns suivant %s ne peut être supprimé" % ns_del)
         return redirect("/machines/index_extension")
-    return form({'machineform': ns, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
-def add_text(request):
-    text = TextForm(request.POST or None)
-    if text.is_valid():
+def add_txt(request):
+    txt = TxtForm(request.POST or None)
+    if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            text.save()
+            txt.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement text a été ajouté")
         return redirect("/machines/index_extension")
-    return form({'machineform': text, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
-def edit_text(request, textid):
+def edit_txt(request, txtid):
     try:
-        text_instance = Text.objects.get(pk=textid)
+        txt_instance = Text.objects.get(pk=txtid)
     except Text.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect("/machines/index_extension/")
-    text = TextForm(request.POST or None, instance=text_instance)
-    if text.is_valid():
+    txt = TxtForm(request.POST or None, instance=txt_instance)
+    if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            text.save()
+            txt.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in text.changed_data))
-        messages.success(request, "Text modifié")
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in txt.changed_data))
+        messages.success(request, "Txt modifié")
         return redirect("/machines/index_extension/")
-    return form({'machineform': text}, 'machines/machine.html', request)
+    return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
-def del_text(request):
-    text = DelTextForm(request.POST or None)
-    if text.is_valid():
-        text_dels = text.cleaned_data['text']
-        for text_del in text_dels:
+def del_txt(request):
+    txt = DelTxtForm(request.POST or None)
+    if txt.is_valid():
+        txt_dels = txt.cleaned_data['txt']
+        for txt_del in txt_dels:
             try:
                 with transaction.atomic(), reversion.create_revision():
-                    text_del.delete()
+                    txt_del.delete()
                     reversion.set_user(request.user)
-                messages.success(request, "Le text a été supprimé")
+                messages.success(request, "Le txt a été supprimé")
             except ProtectedError:
-                messages.error(request, "Erreur le Text suivant %s ne peut être supprimé" % text_del)
+                messages.error(request, "Erreur le Txt suivant %s ne peut être supprimé" % txt_del)
         return redirect("/machines/index_extension")
-    return form({'machineform': text, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
 def add_alias(request, interfaceid):
@@ -724,7 +690,7 @@ def add_alias(request, interfaceid):
             reversion.set_comment("Création")
         messages.success(request, "Cet alias a été ajouté")
         return redirect("/machines/index_alias/" + str(interfaceid))
-    return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'aliasform': alias}, 'machines/machine.html', request)
 
 @login_required
 def edit_alias(request, aliasid):
@@ -744,7 +710,7 @@ def edit_alias(request, aliasid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
         messages.success(request, "Alias modifié")
         return redirect("/machines/index_alias/" + str(alias_instance.cname.interface_parent.id))
-    return form({'machineform': alias}, 'machines/machine.html', request)
+    return form({'aliasform': alias}, 'machines/machine.html', request)
 
 @login_required
 def del_alias(request, interfaceid):
@@ -768,7 +734,7 @@ def del_alias(request, interfaceid):
             except ProtectedError:
                 messages.error(request, "Erreur l'alias suivant %s ne peut être supprimé" % alias_del)
         return redirect("/machines/index_alias/" + str(interfaceid))
-    return form({'machineform': alias, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'aliasform': alias}, 'machines/machine.html', request)
 
 
 @login_required
@@ -782,7 +748,7 @@ def add_service(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement service a été ajouté")
         return redirect("/machines/index_service")
-    return form({'machineform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -800,7 +766,7 @@ def edit_service(request, serviceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in service.changed_data))
         messages.success(request, "Service modifié")
         return redirect("/machines/index_service/")
-    return form({'machineform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -817,7 +783,7 @@ def del_service(request):
             except ProtectedError:
                 messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % service_del)
         return redirect("/machines/index_service")
-    return form({'machineform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -830,7 +796,7 @@ def add_vlan(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement vlan a été ajouté")
         return redirect("/machines/index_vlan")
-    return form({'machineform': vlan, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -848,7 +814,7 @@ def edit_vlan(request, vlanid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in vlan.changed_data))
         messages.success(request, "Vlan modifié")
         return redirect("/machines/index_vlan/")
-    return form({'machineform': vlan}, 'machines/machine.html', request)
+    return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -865,7 +831,7 @@ def del_vlan(request):
             except ProtectedError:
                 messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
         return redirect("/machines/index_vlan")
-    return form({'machineform': vlan, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -878,7 +844,7 @@ def add_nas(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement nas a été ajouté")
         return redirect("/machines/index_nas")
-    return form({'machineform': nas, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -896,7 +862,7 @@ def edit_nas(request, nasid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in nas.changed_data))
         messages.success(request, "Nas modifié")
         return redirect("/machines/index_nas/")
-    return form({'machineform': nas}, 'machines/machine.html', request)
+    return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('infra')
@@ -913,7 +879,7 @@ def del_nas(request):
             except ProtectedError:
                 messages.error(request, "Erreur le Nas suivant %s ne peut être supprimé" % nas_del)
         return redirect("/machines/index_nas")
-    return form({'machineform': nas, 'interfaceform': None}, 'machines/machine.html', request)
+    return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
 @permission_required('cableur')
@@ -1039,11 +1005,11 @@ def history(request, object, id):
         except Mx.DoesNotExist:
              messages.error(request, "Mx inexistant")
              return redirect("/machines/")
-    elif object == 'text' and request.user.has_perms(('cableur',)):
+    elif object == 'txt' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Text.objects.get(pk=id)
         except Text.DoesNotExist:
-             messages.error(request, "Text inexistant")
+             messages.error(request, "Txt inexistant")
              return redirect("/machines/")
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:

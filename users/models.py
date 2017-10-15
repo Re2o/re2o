@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
-# se veut agnostique au réseau considéré, de manière à être installable en
-# quelques clics.
+# Re2o est un logiciel d'administration développé initiallement au rezometz.
+# Il  se veut agnostique au réseau considéré, de manière à être installable
+# en quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
@@ -20,8 +20,34 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Models de l'application users.
+
+On défini ici des models django classiques:
+- users, qui hérite de l'abstract base user de django. Permet de définit
+un utilisateur du site (login, passwd, chambre, adresse, etc)
+- les whiteslist
+- les bannissements
+- les établissements d'enseignement (school)
+- les droits (right et listright)
+- les utilisateurs de service (pour connexion automatique)
+
+On défini aussi des models qui héritent de django-ldapdb :
+- ldapuser
+- ldapgroup
+- ldapserviceuser
+
+Ces utilisateurs ldap sont synchronisés à partir des objets
+models sql classiques. Seuls certains champs essentiels sont
+dupliqués.
+"""
+
 
 from __future__ import unicode_literals
+
+import re
+import uuid
+import datetime
 
 from django.db import models
 from django.db.models import Q
@@ -29,35 +55,31 @@ from django import forms
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.functional import cached_property
-from django.template import Context, RequestContext, loader
+from django.template import Context, loader
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.validators import RegexValidator
 
 from reversion import revisions as reversion
-from django.db import transaction
 
 import ldapdb.models
 import ldapdb.models.fields
 
-from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES,UID_RANGES
-import re, uuid
-import datetime
+from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 
-from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
-from django.core.validators import MinLengthValidator
-from django.core.validators import RegexValidator
-from topologie.models import Room
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, MachineType, Machine, Nas, MachineType, Extension, regen
-from preferences.models import GeneralOption, AssoOption, OptionalUser, OptionalMachine, MailMessageOption
+from machines.models import Domain, Interface, Machine, regen
+from preferences.models import GeneralOption, AssoOption, OptionalUser
+from preferences.models import OptionalMachine, MailMessageOption
 
-now = timezone.now()
+DT_NOW = timezone.now()
 
 
-#### Utilitaires généraux
+# Utilitaires généraux
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
@@ -76,33 +98,42 @@ def linux_user_check(login):
 
 
 def linux_user_validator(login):
-    """ Retourne une erreur de validation si le login ne respecte 
+    """ Retourne une erreur de validation si le login ne respecte
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
         raise forms.ValidationError(
-                ", ce pseudo ('%(label)s') contient des carractères interdits",
-                params={'label': login},
+            ", ce pseudo ('%(label)s') contient des carractères interdits",
+            params={'label': login},
         )
+
 
 def get_fresh_user_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
-    uids = list(range(int(min(UID_RANGES['users'])),int(max(UID_RANGES['users']))))
+    uids = list(range(
+        int(min(UID_RANGES['users'])),
+        int(max(UID_RANGES['users']))
+    ))
     try:
         used_uids = list(User.objects.values_list('uid_number', flat=True))
     except:
         used_uids = []
-    free_uids = [ id for id in uids if id not in used_uids]
+    free_uids = [id for id in uids if id not in used_uids]
     return min(free_uids)
+
 
 def get_fresh_gid():
     """ Renvoie le plus petit gid libre  """
-    gids = list(range(int(min(GID_RANGES['posix'])),int(max(GID_RANGES['posix']))))
+    gids = list(range(
+        int(min(GID_RANGES['posix'])),
+        int(max(GID_RANGES['posix']))
+    ))
     used_gids = list(ListRight.objects.values_list('gid', flat=True))
-    free_gids = [ id for id in gids if id not in used_gids]
+    free_gids = [id for id in gids if id not in used_gids]
     return min(free_gids)
 
+
 def get_admin_right():
-    """ Renvoie l'instance droit admin. La crée si elle n'existe pas 
+    """ Renvoie l'instance droit admin. La crée si elle n'existe pas
     Lui attribue un gid libre"""
     try:
         admin_right = ListRight.objects.get(listright="admin")
@@ -112,25 +143,18 @@ def get_admin_right():
         admin_right.save()
     return admin_right
 
-def all_adherent(search_time=now):
-    """ Fonction renvoyant tous les users adherents. Optimisee pour n'est qu'une seule requete sql
-    Inspecte les factures de l'user et ses cotisation, regarde si elles sont posterieur à now (end_time)"""
-    return User.objects.filter(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=search_time)))).distinct()
-
-def all_baned(search_time=now):
-    """ Fonction renvoyant tous les users bannis """
-    return User.objects.filter(ban__in=Ban.objects.filter(date_end__gt=search_time)).distinct() 
-
-def all_whitelisted(search_time=now):
-    """ Fonction renvoyant tous les users whitelistes """
-    return User.objects.filter(whitelist__in=Whitelist.objects.filter(date_end__gt=search_time)).distinct()
-
-def all_has_access(search_time=now):
-    """  Renvoie tous les users beneficiant d'une connexion : user adherent ou whiteliste et non banni """
-    return User.objects.filter(Q(state=User.STATE_ACTIVE) & ~Q(ban__in=Ban.objects.filter(date_end__gt=timezone.now())) & (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=timezone.now())) | Q(facture__in=Facture.objects.filter(vente__in=Vente.objects.filter(cotisation__in=Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.all().exclude(valid=False))).filter(date_end__gt=search_time)))))).distinct()
 
 class UserManager(BaseUserManager):
-    def _create_user(self, pseudo, name, surname, email, password=None, su=False):
+    """User manager basique de django"""
+    def _create_user(
+            self,
+            pseudo,
+            name,
+            surname,
+            email,
+            password=None,
+            su=False
+    ):
         if not pseudo:
             raise ValueError('Users must have an username')
 
@@ -174,28 +198,53 @@ class User(AbstractBaseUser):
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
     STATES = (
-            (0, 'STATE_ACTIVE'),
-            (1, 'STATE_DISABLED'),
-            (2, 'STATE_ARCHIVE'),
-            )
+        (0, 'STATE_ACTIVE'),
+        (1, 'STATE_DISABLED'),
+        (2, 'STATE_ARCHIVE'),
+    )
 
     def auto_uid():
+        """Renvoie un uid libre"""
         return get_fresh_user_uid()
 
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
-    pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
+    pseudo = models.CharField(
+        max_length=32,
+        unique=True,
+        help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
+        validators=[linux_user_validator]
+    )
     email = models.EmailField()
-    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
-    shell = models.ForeignKey('ListShell', on_delete=models.PROTECT, null=True, blank=True)
-    comment = models.CharField(help_text="Commentaire, promo", max_length=255, blank=True)
-    room = models.OneToOneField('topologie.Room', on_delete=models.PROTECT, blank=True, null=True)
+    school = models.ForeignKey(
+        'School',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+    shell = models.ForeignKey(
+        'ListShell',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+    comment = models.CharField(
+        help_text="Commentaire, promo",
+        max_length=255,
+        blank=True
+    )
+    room = models.OneToOneField(
+        'topologie.Room',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.IntegerField(default=auto_uid, unique=True)
-    rezo_rez_uid =  models.IntegerField(unique=True, blank=True, null=True)
+    rezo_rez_uid = models.IntegerField(unique=True, blank=True, null=True)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['name', 'surname', 'email']
@@ -223,7 +272,8 @@ class User(AbstractBaseUser):
 
     @is_admin.setter
     def is_admin(self, value):
-        """ Change la valeur de admin à true ou false suivant la valeur de value"""
+        """ Change la valeur de admin à true ou false suivant la valeur de
+        value"""
         if value and not self.is_admin:
             self.make_admin()
         elif not value and self.is_admin:
@@ -247,7 +297,7 @@ class User(AbstractBaseUser):
                 for right in RIGHTS_LINK[perm]:
                     query = query | Q(right__listright=right)
                 if Right.objects.filter(Q(user=self) & query):
-                    return True 
+                    return True
             try:
                 Right.objects.get(user=self, right__listright=perm)
             except Right.DoesNotExist:
@@ -255,17 +305,20 @@ class User(AbstractBaseUser):
         return True
 
     def has_perm(self, perm, obj=None):
+        """Ne sert à rien"""
         return True
 
-
     def has_right(self, right):
-        """ Renvoie si un user a un right donné. Crée le right si il n'existe pas"""
+        """ Renvoie si un user a un right donné. Crée le right si il n'existe
+        pas"""
         try:
             list_right = ListRight.objects.get(listright=right)
         except:
             list_right = ListRight(listright=right, gid=get_fresh_gid())
             list_right.save()
-        return Right.objects.filter(user=self).filter(right=list_right).exists()
+        return Right.objects.filter(user=self).filter(
+            right=list_right
+        ).exists()
 
     @cached_property
     def is_bureau(self):
@@ -279,9 +332,10 @@ class User(AbstractBaseUser):
 
     @cached_property
     def is_cableur(self):
-        """ True si l'user a les droits cableur 
+        """ True si l'user a les droits cableur
         (également true si bureau, infra  ou bofh)"""
-        return self.has_right('cableur') or self.has_right('bureau') or self.has_right('infra') or self.has_right('bofh')
+        return self.has_right('cableur') or self.has_right('bureau') or\
+            self.has_right('infra') or self.has_right('bofh')
 
     @cached_property
     def is_trez(self):
@@ -296,15 +350,22 @@ class User(AbstractBaseUser):
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
         cotisation"""
-        date_max = Cotisation.objects.filter(vente__in=Vente.objects.filter(facture__in=Facture.objects.filter(user=self).exclude(valid=False))).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Cotisation.objects.filter(
+            vente__in=Vente.objects.filter(
+                facture__in=Facture.objects.filter(
+                    user=self
+                ).exclude(valid=False)
+            )
+        ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     def is_adherent(self):
-        """ Renvoie True si l'user est adhérent : si self.end_adhesion()>now"""
+        """ Renvoie True si l'user est adhérent : si
+        self.end_adhesion()>now"""
         end = self.end_adhesion()
         if not end:
             return False
-        elif end < timezone.now():
+        elif end < DT_NOW:
             return False
         else:
             return True
@@ -312,13 +373,17 @@ class User(AbstractBaseUser):
     @cached_property
     def end_ban(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
-        date_max = Ban.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Ban.objects.filter(
+            user=self
+        ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     @cached_property
     def end_whitelist(self):
         """ Renvoie la date de fin de whitelist d'un user, False sinon """
-        date_max = Whitelist.objects.filter(user=self).aggregate(models.Max('date_end'))['date_end__max']
+        date_max = Whitelist.objects.filter(
+            user=self
+        ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
     @cached_property
@@ -327,7 +392,7 @@ class User(AbstractBaseUser):
         end = self.end_ban
         if not end:
             return False
-        elif end < timezone.now():
+        elif end < DT_NOW:
             return False
         else:
             return True
@@ -338,14 +403,14 @@ class User(AbstractBaseUser):
         end = self.end_whitelist
         if not end:
             return False
-        elif end < timezone.now():
+        elif end < DT_NOW:
             return False
         else:
             return True
 
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
-        return self.state == User.STATE_ACTIVE \
+        return self.state == User.STATE_ACTIVE\
             and not self.is_ban and (self.is_adherent() or self.is_whitelisted)
 
     def end_access(self):
@@ -358,27 +423,50 @@ class User(AbstractBaseUser):
         else:
             if not self.end_whitelist:
                 return self.end_adhesion()
-            else:        
+            else:
                 return max(self.end_adhesion(), self.end_whitelist)
 
     @cached_property
     def solde(self):
-        """ Renvoie le solde d'un user. Vérifie que l'option solde est activé, retourne 0 sinon.
+        """ Renvoie le solde d'un user. Vérifie que l'option solde est
+        activé, retourne 0 sinon.
         Somme les crédits de solde et retire les débit payés par solde"""
-        options, created = OptionalUser.objects.get_or_create()
+        options, _created = OptionalUser.objects.get_or_create()
         user_solde = options.user_solde
         if user_solde:
-            solde_object, created=Paiement.objects.get_or_create(moyen='Solde')
-            somme_debit = Vente.objects.filter(facture__in=Facture.objects.filter(user=self, paiement=solde_object)).aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total'] or 0
-            somme_credit =Vente.objects.filter(facture__in=Facture.objects.filter(user=self), name="solde").aggregate(total=models.Sum(models.F('prix')*models.F('number'), output_field=models.FloatField()))['total'] or 0
+            solde_object, _created = Paiement.objects.get_or_create(
+                moyen='Solde'
+            )
+            somme_debit = Vente.objects.filter(
+                facture__in=Facture.objects.filter(
+                    user=self,
+                    paiement=solde_object
+                )
+            ).aggregate(
+                total=models.Sum(
+                    models.F('prix')*models.F('number'),
+                    output_field=models.FloatField()
+                )
+            )['total'] or 0
+            somme_credit = Vente.objects.filter(
+                facture__in=Facture.objects.filter(user=self),
+                name="solde"
+            ).aggregate(
+                total=models.Sum(
+                    models.F('prix')*models.F('number'),
+                    output_field=models.FloatField()
+                )
+            )['total'] or 0
             return somme_credit - somme_debit
         else:
             return 0
 
     def user_interfaces(self, active=True):
-        """ Renvoie toutes les interfaces dont les machines appartiennent à self
-        Par defaut ne prend que les interfaces actives"""
-        return Interface.objects.filter(machine__in=Machine.objects.filter(user=self, active=active)).select_related('domain__extension')
+        """ Renvoie toutes les interfaces dont les machines appartiennent à
+        self. Par defaut ne prend que les interfaces actives"""
+        return Interface.objects.filter(
+            machine__in=Machine.objects.filter(user=self, active=active)
+        ).select_related('domain__extension')
 
     def assign_ips(self):
         """ Assign une ipv4 aux machines d'un user """
@@ -400,17 +488,19 @@ class User(AbstractBaseUser):
                 interface.save()
 
     def archive(self):
-        """ Archive l'user : appelle unassign_ips() puis passe state à ARCHIVE"""
+        """ Archive l'user : appelle unassign_ips() puis passe state à
+        ARCHIVE"""
         self.unassign_ips()
-        self.state = User.STATE_ARCHIVE 
+        self.state = User.STATE_ARCHIVE
 
     def unarchive(self):
-        """ Désarchive l'user : réassigne ses ip et le passe en state ACTIVE"""
+        """ Désarchive l'user : réassigne ses ip et le passe en state
+        ACTIVE"""
         self.assign_ips()
         self.state = User.STATE_ACTIVE
 
     def has_module_perms(self, app_label):
-        # Simplest version again
+        """True, a toutes les permissions de module"""
         return True
 
     def make_admin(self):
@@ -419,16 +509,20 @@ class User(AbstractBaseUser):
         user_admin_right.save()
 
     def un_admin(self):
+        """Supprime les droits admin d'un user"""
         try:
-            user_right = Right.objects.get(user=self,right=get_admin_right())
+            user_right = Right.objects.get(user=self, right=get_admin_right())
         except Right.DoesNotExist:
             return
         user_right.delete()
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
-        """ Synchronisation du ldap. Synchronise dans le ldap les attributs de self
-        Options : base : synchronise tous les attributs de base - nom, prenom, mail, password, shell, home
-        access_refresh : synchronise le dialup_access notant si l'user a accès aux services
+        """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
+        self
+        Options : base : synchronise tous les attributs de base - nom, prenom,
+        mail, password, shell, home
+        access_refresh : synchronise le dialup_access notant si l'user a accès
+        aux services
         mac_refresh : synchronise les machines de l'user"""
         self.refresh_from_db()
         try:
@@ -441,7 +535,8 @@ class User(AbstractBaseUser):
             user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
             user_ldap.mail = self.email
-            user_ldap.given_name = self.surname.lower() + '_' + self.name.lower()[:3]
+            user_ldap.given_name = self.surname.lower() + '_'\
+                + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password[:6] + self.password[7:]
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
@@ -454,7 +549,10 @@ class User(AbstractBaseUser):
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
-            user_ldap.macs = [inter.mac_bare() for inter in Interface.objects.filter(machine__in=Machine.objects.filter(user=self))]
+            user_ldap.macs = [inter.mac_bare() for inter in
+                              Interface.objects.filter(
+                                  machine__in=Machine.objects.filter(user=self)
+                              )]
         user_ldap.save()
 
     def ldap_del(self):
@@ -467,53 +565,69 @@ class User(AbstractBaseUser):
 
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
-        t = loader.get_template('users/email_welcome')
-        assooptions, created = AssoOption.objects.get_or_create()
-        mailmessageoptions, created = MailMessageOption.objects.get_or_create()
-        general_options, created = GeneralOption.objects.get_or_create()
-        c = Context({
+        template = loader.get_template('users/email_welcome')
+        assooptions, _created = AssoOption.objects.get_or_create()
+        mailmessageoptions, _created = MailMessageOption\
+            .objects.get_or_create()
+        general_options, _created = GeneralOption.objects.get_or_create()
+        context = Context({
             'nom': str(self.name) + ' ' + str(self.surname),
             'asso_name': assooptions.name,
             'asso_email': assooptions.contact,
-            'welcome_mail_fr' : mailmessageoptions.welcome_mail_fr,
-            'welcome_mail_en' : mailmessageoptions.welcome_mail_en,
-            'pseudo':self.pseudo,
+            'welcome_mail_fr': mailmessageoptions.welcome_mail_fr,
+            'welcome_mail_en': mailmessageoptions.welcome_mail_en,
+            'pseudo': self.pseudo,
         })
-        send_mail('Bienvenue au %(name)s / Welcome to %(name)s' % {'name': assooptions.name }, '',
-        general_options.email_from, [self.email], html_message=t.render(c))
+        send_mail(
+            'Bienvenue au %(name)s / Welcome to %(name)s' % {
+                'name': assooptions.name
+                },
+            '',
+            general_options.email_from,
+            [self.email],
+            html_message=template.render(context)
+        )
         return
 
     def reset_passwd_mail(self, request):
-        """ Prend en argument un request, envoie un mail de réinitialisation de mot de pass """
+        """ Prend en argument un request, envoie un mail de
+        réinitialisation de mot de pass """
         req = Request()
         req.type = Request.PASSWD
         req.user = self
         req.save()
-        t = loader.get_template('users/email_passwd_request')
-        options, created = AssoOption.objects.get_or_create()
-        general_options, created = GeneralOption.objects.get_or_create()
-        c = {
+        template = loader.get_template('users/email_passwd_request')
+        options, _created = AssoOption.objects.get_or_create()
+        general_options, _created = GeneralOption.objects.get_or_create()
+        context = {
             'name': str(req.user.name) + ' ' + str(req.user.surname),
             'asso': options.name,
             'asso_mail': options.contact,
             'site_name': general_options.site_name,
             'url': request.build_absolute_uri(
-            reverse('users:process', kwargs={'token': req.token})),
+                reverse('users:process', kwargs={'token': req.token})),
             'expire_in': str(general_options.req_expire_hrs) + ' heures',
             }
-        send_mail('Changement de mot de passe du %(name)s / Password renewal for %(name)s' % {'name': options.name }, t.render(c),
-        general_options.email_from, [req.user.email], fail_silently=False)
+        send_mail(
+            'Changement de mot de passe du %(name)s / Password\
+            renewal for %(name)s' % {'name': options.name},
+            template.render(context),
+            general_options.email_from,
+            [req.user.email],
+            fail_silently=False
+        )
         return
 
     def autoregister_machine(self, mac_address, nas_type):
-        """ Fonction appellée par freeradius. Enregistre la mac pour une machine inconnue 
-        sur le compte de l'user"""
+        """ Fonction appellée par freeradius. Enregistre la mac pour
+        une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
-        options, created = OptionalMachine.objects.get_or_create() 
+        options, _created = OptionalMachine.objects.get_or_create()
         if all_interfaces.count() > options.max_lambdauser_interfaces:
             return False, "Maximum de machines enregistrees atteinte"
         if not nas_type:
-            return False, "Re2o ne sait pas à quel machinetype affecter cette machine"
+            return False, "Re2o ne sait pas à quel machinetype affecter cette\
+            machine"
         machine_type_cible = nas_type.machine_type
         try:
             machine_parent = Machine()
@@ -533,12 +647,12 @@ class User(AbstractBaseUser):
             domain.interface_parent = interface_cible
             domain.clean()
             domain.save()
-        except Exception as e:
-            return False, e
+        except Exception as error:
+            return False, error
         return True, "Ok"
 
     def set_user_password(self, password):
-        """ A utiliser de préférence, set le password en hash courrant et 
+        """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
         self.set_password(password)
         self.pwd_ntlm = hashNT(password)
@@ -547,22 +661,27 @@ class User(AbstractBaseUser):
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
         this user by trying "pseudo0", "pseudo1", "pseudo2", ...
+
+        Recherche un nom disponible, pour une machine. Doit-être
+        unique, concatène le nom, le pseudo et le numero de machine
         """
 
         def simple_pseudo():
+            """Renvoie le pseudo sans underscore (compat dns)"""
             return self.pseudo.replace('_', '-').lower()
 
-        def composed_pseudo( n ):
-            return simple_pseudo() + str(n)
+        def composed_pseudo(name):
+            """Renvoie le resultat de simplepseudo et rajoute le nom"""
+            return simple_pseudo() + str(name)
 
         num = 0
-        while Domain.objects.filter(name=composed_pseudo(num)) :
+        while Domain.objects.filter(name=composed_pseudo(num)):
             num += 1
         return composed_pseudo(num)
 
-
     def __str__(self):
         return self.pseudo
+
 
 @receiver(post_save, sender=User)
 def user_post_save(sender, **kwargs):
@@ -575,29 +694,44 @@ def user_post_save(sender, **kwargs):
     user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
     regen('mailing')
 
+
 @receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
+    """Post delete d'un user, on supprime son instance ldap"""
     user = kwargs['instance']
     user.ldap_del()
     regen('mailing')
+
 
 class ServiceUser(AbstractBaseUser):
     """ Classe des users daemons, règle leurs accès au ldap"""
     readonly = 'readonly'
     ACCESS = (
-            ('auth', 'auth'),
-            ('readonly', 'readonly'),
-            ('usermgmt', 'usermgmt'),
-            )
+        ('auth', 'auth'),
+        ('readonly', 'readonly'),
+        ('usermgmt', 'usermgmt'),
+    )
 
     PRETTY_NAME = "Utilisateurs de service"
 
-    pseudo = models.CharField(max_length=32, unique=True, help_text="Doit contenir uniquement des lettres, chiffres, ou tirets", validators=[linux_user_validator])
-    access_group = models.CharField(choices=ACCESS, default=readonly, max_length=32)
-    comment = models.CharField(help_text="Commentaire", max_length=255, blank=True)
+    pseudo = models.CharField(
+        max_length=32,
+        unique=True,
+        help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
+        validators=[linux_user_validator]
+    )
+    access_group = models.CharField(
+        choices=ACCESS,
+        default=readonly,
+        max_length=32
+    )
+    comment = models.CharField(
+        help_text="Commentaire",
+        max_length=255,
+        blank=True
+    )
 
     USERNAME_FIELD = 'pseudo'
- 
     objects = UserManager()
 
     def ldap_sync(self):
@@ -611,6 +745,7 @@ class ServiceUser(AbstractBaseUser):
         self.serviceuser_group_sync()
 
     def ldap_del(self):
+        """Suppression de l'instance ldap d'un service user"""
         try:
             user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
             user_ldap.delete()
@@ -619,15 +754,20 @@ class ServiceUser(AbstractBaseUser):
         self.serviceuser_group_sync()
 
     def serviceuser_group_sync(self):
+        """Synchronise le groupe et les droits de groupe dans le ldap"""
         try:
             group = LdapServiceUserGroup.objects.get(name=self.access_group)
         except:
             group = LdapServiceUserGroup(name=self.access_group)
-        group.members = list(LdapServiceUser.objects.filter(name__in=[user.pseudo for user in ServiceUser.objects.filter(access_group=self.access_group)]).values_list('dn', flat=True))
+        group.members = list(LdapServiceUser.objects.filter(
+            name__in=[user.pseudo for user in ServiceUser.objects.filter(
+                access_group=self.access_group
+            )]).values_list('dn', flat=True))
         group.save()
 
     def __str__(self):
         return self.pseudo
+
 
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
@@ -635,14 +775,17 @@ def service_user_post_save(sender, **kwargs):
     service_user = kwargs['instance']
     service_user.ldap_sync()
 
+
 @receiver(post_delete, sender=ServiceUser)
 def service_user_post_delete(sender, **kwargs):
     """ Supprime un service user ldap après suppression django"""
     service_user = kwargs['instance']
     service_user.ldap_del()
 
+
 class Right(models.Model):
-    """ Couple droit/user. Peut-être aurait-on mieux fait ici d'utiliser un manytomany
+    """ Couple droit/user. Peut-être aurait-on mieux fait ici d'utiliser un
+    manytomany
     Ceci dit le résultat aurait été le même avec une table intermediaire"""
     PRETTY_NAME = "Droits affectés à des users"
 
@@ -655,17 +798,20 @@ class Right(models.Model):
     def __str__(self):
         return str(self.user)
 
+
 @receiver(post_save, sender=Right)
 def right_post_save(sender, **kwargs):
     """ Synchronise les users ldap groups avec les groupes de droits"""
     right = kwargs['instance'].right
     right.ldap_sync()
 
+
 @receiver(post_delete, sender=Right)
 def right_post_delete(sender, **kwargs):
     """ Supprime l'user du groupe"""
     right = kwargs['instance'].right
     right.ldap_sync()
+
 
 class School(models.Model):
     """ Etablissement d'enseignement"""
@@ -678,33 +824,51 @@ class School(models.Model):
 
 
 class ListRight(models.Model):
-    """ Ensemble des droits existants. Chaque droit crée un groupe ldap synchronisé, avec gid.
+    """ Ensemble des droits existants. Chaque droit crée un groupe
+    ldap synchronisé, avec gid.
     Permet de gérer facilement les accès serveurs et autres
-    La clef de recherche est le gid, pour cette raison là il n'est plus modifiable après creation"""
+    La clef de recherche est le gid, pour cette raison là
+    il n'est plus modifiable après creation"""
     PRETTY_NAME = "Liste des droits existants"
 
-    listright = models.CharField(max_length=255, unique=True, validators=[RegexValidator('^[a-z]+$', message="Les groupes unix ne peuvent contenir que des lettres minuscules")])
+    listright = models.CharField(
+        max_length=255,
+        unique=True,
+        validators=[RegexValidator(
+            '^[a-z]+$',
+            message="Les groupes unix ne peuvent contenir\
+            que des lettres minuscules"
+        )]
+    )
     gid = models.IntegerField(unique=True, null=True)
-    details = models.CharField(help_text="Description", max_length=255, blank=True)
+    details = models.CharField(
+        help_text="Description",
+        max_length=255,
+        blank=True
+    )
 
     def __str__(self):
         return self.listright
 
     def ldap_sync(self):
+        """Sychronise les groups ldap avec le model listright coté django"""
         try:
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
         group_ldap.name = self.listright
-        group_ldap.members = [right.user.pseudo for right in Right.objects.filter(right=self)]
+        group_ldap.members = [right.user.pseudo for right
+                              in Right.objects.filter(right=self)]
         group_ldap.save()
 
     def ldap_del(self):
+        """Supprime un groupe ldap"""
         try:
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
             group_ldap.delete()
         except LdapUserGroup.DoesNotExist:
             pass
+
 
 @receiver(post_save, sender=ListRight)
 def listright_post_save(sender, **kwargs):
@@ -712,18 +876,24 @@ def listright_post_save(sender, **kwargs):
     right = kwargs['instance']
     right.ldap_sync()
 
+
 @receiver(post_delete, sender=ListRight)
 def listright_post_delete(sender, **kwargs):
+    """Suppression d'un groupe ldap après suppression coté django"""
     right = kwargs['instance']
     right.ldap_del()
 
+
 class ListShell(models.Model):
+    """Un shell possible. Pas de check si ce shell existe, les
+    admin sont des grands"""
     PRETTY_NAME = "Liste des shells disponibles"
 
     shell = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.shell
+
 
 class Ban(models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
@@ -734,37 +904,44 @@ class Ban(models.Model):
     STATE_SOFT = 1
     STATE_BRIDAGE = 2
     STATES = (
-            (0, 'HARD (aucun accès)'),
-            (1, 'SOFT (accès local seulement)'),
-            (2, 'BRIDAGE (bridage du débit)'),
-            )
+        (0, 'HARD (aucun accès)'),
+        (1, 'SOFT (accès local seulement)'),
+        (2, 'BRIDAGE (bridage du débit)'),
+    )
 
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
-    state = models.IntegerField(choices=STATES, default=STATE_HARD) 
+    state = models.IntegerField(choices=STATES, default=STATE_HARD)
 
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
-        general_options, created = GeneralOption.objects.get_or_create()
-        t = loader.get_template('users/email_ban_notif')
-        options, created = AssoOption.objects.get_or_create()
-        c = Context({
+        general_options, _created = GeneralOption.objects.get_or_create()
+        template = loader.get_template('users/email_ban_notif')
+        options, _created = AssoOption.objects.get_or_create()
+        context = Context({
             'name': str(self.user.name) + ' ' + str(self.user.surname),
             'raison': self.raison,
             'date_end': self.date_end,
-            'asso_name' : options.name,
+            'asso_name': options.name,
         })
-        send_mail('Deconnexion disciplinaire', t.render(c),
-        general_options.email_from, [self.user.email], fail_silently=False)
+        send_mail(
+            'Deconnexion disciplinaire',
+            template.render(context),
+            general_options.email_from,
+            [self.user.email],
+            fail_silently=False
+        )
         return
 
     def is_active(self):
-        return self.date_end > now
+        """Ce ban est-il actif?"""
+        return self.date_end > DT_NOW
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
+
 
 @receiver(post_save, sender=Ban)
 def ban_post_save(sender, **kwargs):
@@ -782,6 +959,7 @@ def ban_post_save(sender, **kwargs):
         regen('dhcp')
         regen('mac_ip_list')
 
+
 @receiver(post_delete, sender=Ban)
 def ban_post_delete(sender, **kwargs):
     """ Regen de tous les services après suppression d'un ban"""
@@ -791,7 +969,11 @@ def ban_post_delete(sender, **kwargs):
     regen('dhcp')
     regen('mac_ip_list')
 
+
 class Whitelist(models.Model):
+    """Accès à titre gracieux. L'utilisateur ne paye pas; se voit
+    accorder un accès internet pour une durée défini. Moins
+    fort qu'un ban quel qu'il soit"""
     PRETTY_NAME = "Liste des accès gracieux"
 
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -800,13 +982,16 @@ class Whitelist(models.Model):
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
 
     def is_active(self):
-        return self.date_end > now
+        return self.date_end > DT_NOW
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
+
 @receiver(post_save, sender=Whitelist)
 def whitelist_post_save(sender, **kwargs):
+    """Après modification d'une whitelist, on synchronise les services
+    et on lui permet d'avoir internet"""
     whitelist = kwargs['instance']
     user = whitelist.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -819,17 +1004,21 @@ def whitelist_post_save(sender, **kwargs):
         regen('dhcp')
         regen('mac_ip_list')
 
+
 @receiver(post_delete, sender=Whitelist)
 def whitelist_post_delete(sender, **kwargs):
+    """Après suppression d'une whitelist, on supprime l'accès internet
+    en forçant la régénration"""
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     regen('mailing')
     regen('dhcp')
     regen('mac_ip_list')
 
+
 class Request(models.Model):
     """ Objet request, générant une url unique de validation.
-    Utilisé par exemple pour la generation du mot de passe et 
+    Utilisé par exemple pour la generation du mot de passe et
     sa réinitialisation"""
     PASSWD = 'PW'
     EMAIL = 'EM'
@@ -845,12 +1034,13 @@ class Request(models.Model):
 
     def save(self):
         if not self.expires_at:
-            options, created = GeneralOption.objects.get_or_create()
-            self.expires_at = timezone.now() \
+            options, _created = GeneralOption.objects.get_or_create()
+            self.expires_at = DT_NOW \
                 + datetime.timedelta(hours=options.req_expire_hrs)
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()
+
 
 class LdapUser(ldapdb.models.Model):
     """
@@ -858,25 +1048,72 @@ class LdapUser(ldapdb.models.Model):
     """
     # LDAP meta-data
     base_dn = LDAP['base_user_dn']
-    object_classes = ['inetOrgPerson','top','posixAccount','sambaSamAccount','radiusprofile', 'shadowAccount']
+    object_classes = ['inetOrgPerson', 'top', 'posixAccount',
+                      'sambaSamAccount', 'radiusprofile',
+                      'shadowAccount']
 
     # attributes
     gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
-    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
     uid = ldapdb.models.fields.CharField(db_column='uid', max_length=200)
-    uidNumber = ldapdb.models.fields.IntegerField(db_column='uidNumber', unique=True)
+    uidNumber = ldapdb.models.fields.IntegerField(
+        db_column='uidNumber',
+        unique=True
+    )
     sn = ldapdb.models.fields.CharField(db_column='sn', max_length=200)
-    login_shell = ldapdb.models.fields.CharField(db_column='loginShell', max_length=200, blank=True, null=True)
-    mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200) 
-    given_name = ldapdb.models.fields.CharField(db_column='givenName', max_length=200)
-    home_directory = ldapdb.models.fields.CharField(db_column='homeDirectory', max_length=200)
-    display_name = ldapdb.models.fields.CharField(db_column='displayName', max_length=200, blank=True, null=True)
+    login_shell = ldapdb.models.fields.CharField(
+        db_column='loginShell',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200)
+    given_name = ldapdb.models.fields.CharField(
+        db_column='givenName',
+        max_length=200
+    )
+    home_directory = ldapdb.models.fields.CharField(
+        db_column='homeDirectory',
+        max_length=200
+    )
+    display_name = ldapdb.models.fields.CharField(
+        db_column='displayName',
+        max_length=200,
+        blank=True,
+        null=True
+    )
     dialupAccess = ldapdb.models.fields.CharField(db_column='dialupAccess')
-    sambaSID = ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True)
-    user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
-    sambat_nt_password = ldapdb.models.fields.CharField(db_column='sambaNTPassword', max_length=200, blank=True, null=True)
-    macs = ldapdb.models.fields.ListField(db_column='radiusCallingStationId', max_length=200, blank=True, null=True)
-    shadowexpire = ldapdb.models.fields.CharField(db_column='shadowExpire', blank=True, null=True)
+    sambaSID = ldapdb.models.fields.IntegerField(
+        db_column='sambaSID',
+        unique=True
+    )
+    user_password = ldapdb.models.fields.CharField(
+        db_column='userPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    sambat_nt_password = ldapdb.models.fields.CharField(
+        db_column='sambaNTPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    macs = ldapdb.models.fields.ListField(
+        db_column='radiusCallingStationId',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    shadowexpire = ldapdb.models.fields.CharField(
+        db_column='shadowExpire',
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
@@ -890,9 +1127,12 @@ class LdapUser(ldapdb.models.Model):
         self.sambaSID = self.uidNumber
         super(LdapUser, self).save(*args, **kwargs)
 
+
 class LdapUserGroup(ldapdb.models.Model):
     """
-    Class for representing an LDAP user entry.
+    Class for representing an LDAP group entry.
+
+    Un groupe ldap
     """
     # LDAP meta-data
     base_dn = LDAP['base_usergroup_dn']
@@ -901,38 +1141,64 @@ class LdapUserGroup(ldapdb.models.Model):
     # attributes
     gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
     members = ldapdb.models.fields.ListField(db_column='memberUid', blank=True)
-    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
 
     def __str__(self):
         return self.name
+
 
 class LdapServiceUser(ldapdb.models.Model):
     """
     Class for representing an LDAP userservice entry.
+
+    Un user de service coté ldap
     """
     # LDAP meta-data
     base_dn = LDAP['base_userservice_dn']
-    object_classes = ['applicationProcess','simpleSecurityObject']
+    object_classes = ['applicationProcess', 'simpleSecurityObject']
 
     # attributes
-    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
-    user_password = ldapdb.models.fields.CharField(db_column='userPassword', max_length=200, blank=True, null=True)
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+    user_password = ldapdb.models.fields.CharField(
+        db_column='userPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
 
+
 class LdapServiceUserGroup(ldapdb.models.Model):
     """
     Class for representing an LDAP userservice entry.
+
+    Un group user de service coté ldap. Dans userservicegroupdn
+    (voir dans settings_local.py)
     """
     # LDAP meta-data
     base_dn = LDAP['base_userservicegroup_dn']
     object_classes = ['groupOfNames']
 
     # attributes
-    name = ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True)
-    members = ldapdb.models.fields.ListField(db_column='member', blank=True)
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+    members = ldapdb.models.fields.ListField(
+        db_column='member',
+        blank=True
+    )
 
     def __str__(self):
         return self.name
-
