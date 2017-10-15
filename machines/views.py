@@ -54,7 +54,7 @@ from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
-from re2o.templatetags.bootstrap_form_typeahead import hidden_id, input_id
+from re2o.templatetags.massive_bootstrap_form import hidden_id, input_id
 from re2o.utils import all_active_assigned_interfaces, all_has_access
 from re2o.views import form
 
@@ -65,7 +65,7 @@ def f_type_id( is_type_tt ):
     return 'id_Interface-type_hidden' if is_type_tt else 'id_Interface-type'
 
 def generate_ipv4_choices( form ) :
-    """ Generate the parameter choices for the bootstrap_form_typeahead tag
+    """ Generate the parameter choices for the massive_bootstrap_form tag
     """
     f_ipv4 = form.fields['ipv4']
     used_mtype_id = []
@@ -92,7 +92,7 @@ def generate_ipv4_choices( form ) :
     return choices
 
 def generate_ipv4_engine( is_type_tt ) :
-    """ Generate the parameter engine for the bootstrap_form_typeahead tag
+    """ Generate the parameter engine for the massive_bootstrap_form tag
     """
     return (
         'new Bloodhound( {{'
@@ -106,7 +106,7 @@ def generate_ipv4_engine( is_type_tt ) :
         )
 
 def generate_ipv4_match_func( is_type_tt ) :
-    """ Generate the parameter match_func for the bootstrap_form_typeahead tag
+    """ Generate the parameter match_func for the massive_bootstrap_form tag
     """
     return (
         'function(q, sync) {{'
@@ -122,20 +122,20 @@ def generate_ipv4_match_func( is_type_tt ) :
                 type_id = f_type_id( is_type_tt )
         )
 
-def generate_ipv4_bft_param( form, is_type_tt ):
-    """ Generate all the parameters to use with the bootstrap_form_typeahead
+def generate_ipv4_mbf_param( form, is_type_tt ):
+    """ Generate all the parameters to use with the massive_bootstrap_form
     tag """
     i_choices = { 'ipv4': generate_ipv4_choices( form ) }
     i_engine = { 'ipv4': generate_ipv4_engine( is_type_tt ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func( is_type_tt ) }
     i_update_on = { 'ipv4': [f_type_id( is_type_tt )] }
-    i_bft_param = {
+    i_mbf_param = {
         'choices': i_choices,
         'engine': i_engine,
         'match_func': i_match_func,
         'update_on': i_update_on
     }
-    return i_bft_param
+    return i_mbf_param
 
 @login_required
 def new_machine(request, userid):
@@ -183,8 +183,8 @@ def new_machine(request, userid):
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
-    i_bft_param = generate_ipv4_bft_param( interface, False )
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface, False )
+    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def edit_interface(request, interfaceid):
@@ -223,8 +223,8 @@ def edit_interface(request, interfaceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
-    i_bft_param = generate_ipv4_bft_param( interface_form, False )
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def del_machine(request, machineid):
@@ -282,8 +282,8 @@ def new_interface(request, machineid):
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
-    i_bft_param = generate_ipv4_bft_param( interface_form, False )
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_bft_param': i_bft_param}, 'machines/machine.html', request)
+    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
 def del_interface(request, interfaceid):
