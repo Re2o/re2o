@@ -24,7 +24,7 @@
 #Augustin Lemesle
 
 from rest_framework import serializers
-from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Text, Mx, Service_link, Ns
+from machines.models import Interface, IpType, Extension, IpList, MachineType, Domain, Text, Mx, Service_link, Ns, OuverturePortList, OuverturePort
 
 class IpTypeField(serializers.RelatedField):
     def to_representation(self, value):
@@ -81,10 +81,31 @@ class ExtensionNameField(serializers.RelatedField):
 
 class TypeSerializer(serializers.ModelSerializer):
     extension = ExtensionNameField(read_only=True)
+    ouverture_ports_tcp_in = serializers.SerializerMethodField('get_port_policy_input_tcp')
+    ouverture_ports_tcp_out = serializers.SerializerMethodField('get_port_policy_output_tcp')
+    ouverture_ports_udp_in = serializers.SerializerMethodField('get_port_policy_input_udp')
+    ouverture_ports_udp_out = serializers.SerializerMethodField('get_port_policy_output_udp')
 
     class Meta:
         model = IpType
-        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop')
+        fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop', 'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out', 'ouverture_ports_udp_in', 'ouverture_ports_udp_out', )
+
+    def get_port_policy(self, obj, protocole, io):
+        if obj.ouverture_ports is None:
+            return []
+        return map(str, obj.ouverture_ports.ouvertureport_set.filter(protocole=protocole).filter(io=io))
+
+    def get_port_policy_input_tcp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.TCP, OuverturePort.IN)
+
+    def get_port_policy_output_tcp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.TCP, OuverturePort.OUT)
+
+    def get_port_policy_input_udp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.UDP, OuverturePort.IN)
+
+    def get_port_policy_output_udp(self, obj):
+        return self.get_port_policy(obj, OuverturePort.UDP, OuverturePort.OUT)
 
 class ExtensionSerializer(serializers.ModelSerializer):
     origin = serializers.SerializerMethodField('get_origin_ip')
@@ -185,3 +206,29 @@ class ServiceServersSerializer(serializers.ModelSerializer):
 
     def get_regen_status(self, obj):
         return obj.need_regen()
+
+class OuverturePortsSerializer(serializers.Serializer):
+    ipv4 = serializers.SerializerMethodField()
+    ipv6 = serializers.SerializerMethodField()
+
+    def get_ipv4():
+        return {i.ipv4.ipv4:
+                {
+                    "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
+                    "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
+                    "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
+                    "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+                }
+            for i in Interface.objects.all() if i.ipv4
+        }
+                                                            
+    def get_ipv6():
+        return {i.ipv6:
+                {
+                    "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
+                    "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
+                    "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
+                    "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+                }
+            for i in Interface.objects.all() if i.ipv6
+        }
