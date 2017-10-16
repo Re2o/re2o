@@ -30,50 +30,66 @@ from .models import IpType, Machine, MachineType, Domain, IpList, Interface
 from .models import Extension, Mx, Ns, Vlan, Text, Nas, Service, OuverturePort
 from .models import OuverturePortList
 
+
 class MachineAdmin(VersionAdmin):
     pass
+
 
 class IpTypeAdmin(VersionAdmin):
     pass
 
+
 class MachineTypeAdmin(VersionAdmin):
     pass
+
 
 class VlanAdmin(VersionAdmin):
     pass
 
+
 class ExtensionAdmin(VersionAdmin):
     pass
+
 
 class MxAdmin(VersionAdmin):
     pass
 
+
 class NsAdmin(VersionAdmin):
     pass
+
 
 class TextAdmin(VersionAdmin):
     pass
 
+
 class NasAdmin(VersionAdmin):
     pass
+
 
 class IpListAdmin(VersionAdmin):
     pass
 
+
 class OuverturePortAdmin(VersionAdmin):
     pass
+
 
 class OuverturePortListAdmin(VersionAdmin):
     pass
 
+
 class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','mac_address','ipv4','details')
+
 
 class DomainAdmin(VersionAdmin):
     list_display = ('interface_parent', 'name', 'extension', 'cname')
 
+
 class ServiceAdmin(VersionAdmin):
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
+
 
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
