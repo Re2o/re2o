@@ -52,6 +52,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'switch' switch.pk %}">
                <i class="glyphicon glyphicon-time"></i>
            </a>
+	   {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
+
        </td>
    </tr>
    {% endfor %}
