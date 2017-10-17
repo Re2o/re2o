@@ -51,8 +51,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td class="text-right">
            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'switch' switch.pk %}">
                <i class="glyphicon glyphicon-time"></i>
-           </a>
-	   {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
+           </a> 
+	   {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %} 
+	   {% include 'buttons/suppr.html' with href='machines:del-interface' id=switch.switch_interface.id %} 
 
        </td>
    </tr>
