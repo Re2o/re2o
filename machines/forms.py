@@ -266,13 +266,14 @@ class ExtensionForm(ModelForm):
     """Formulaire d'ajout et edition d'une extension"""
     class Meta:
         model = Extension
-        fields = ['name', 'need_infra', 'origin']
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ExtensionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Extension à ajouter'
         self.fields['origin'].label = 'Enregistrement A origin'
+        self.fields['origin_v6'].label = 'Enregistrement AAAA origin'
 
 
 class DelExtensionForm(Form):
