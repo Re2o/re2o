@@ -50,7 +50,7 @@ from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import AddPortForm, EditRoomForm, StackForm
 from users.views import form
 
-from machines.forms import AliasForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.forms import DomainForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
 from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
 
@@ -344,9 +344,8 @@ def new_switch(request):
         request.POST or None,
         infra=request.user.has_perms(('infra',))
         )
-    domain = AliasForm(
+    domain = DomainForm(
         request.POST or None,
-        infra=request.user.has_perms(('infra',))
         )
     if switch.is_valid() and machine.is_valid() and interface.is_valid():
         options, _created = AssoOption.objects.get_or_create()
@@ -410,9 +409,8 @@ def edit_switch(request, switch_id):
         request.POST or None,
         instance=switch.switch_interface
         )
-    domain_form = AliasForm(
+    domain_form = DomainForm(
         request.POST or None,
-        infra=request.user.has_perms(('infra',)),
         instance=switch.switch_interface.domain
         )
     if switch_form.is_valid() and machine_form.is_valid()\

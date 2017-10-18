@@ -145,7 +145,11 @@ class Port(models.Model):
         ('COMMON', 'COMMON'),
         )
 
-    switch = models.ForeignKey('Switch', related_name="ports")
+    switch = models.ForeignKey(
+        'Switch',
+        related_name="ports",
+        on_delete=models.CASCADE
+    )
     port = models.PositiveIntegerField()
     room = models.ForeignKey(
         'Room',
