@@ -88,32 +88,32 @@ urlpatterns = [
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
     url(r'^mass_archive/$', views.mass_archive, name='mass-archive'),
     url(
-        r'^history/(?P<object>user)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>user)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
     url(
-        r'^history/(?P<object>ban)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>ban)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
     url(
-        r'^history/(?P<object>whitelist)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>whitelist)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
     url(
-        r'^history/(?P<object>school)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>school)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
     url(
-        r'^history/(?P<object>listright)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>listright)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
     url(
-        r'^history/(?P<object>serviceuser)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>serviceuser)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
     ),
