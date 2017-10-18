@@ -105,6 +105,8 @@ class EditSwitchForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['switch_interface'].queryset = Interface.objects.all()\
+            .select_related('domain__extension')
         self.fields['location'].label = 'Localisation'
         self.fields['number'].label = 'Nombre de ports'
 
