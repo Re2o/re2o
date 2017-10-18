@@ -54,7 +54,6 @@ from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import IpType, Machine, Interface, IpList, MachineType, Extension, Mx, Ns, Domain, Service, Service_link, Vlan, Nas, Text, OuverturePortList, OuverturePort
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
-from re2o.templatetags.massive_bootstrap_form import hidden_id, input_id
 from re2o.utils import all_active_assigned_interfaces, all_has_access
 from re2o.views import form
 
