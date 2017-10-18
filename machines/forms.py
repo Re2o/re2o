@@ -380,6 +380,8 @@ class ServiceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['servers'].queryset = Interface.objects.all()\
+        .select_related('domain__extension')
 
     def save(self, commit=True):
         instance = super(ServiceForm, self).save(commit=False)
