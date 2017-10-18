@@ -533,7 +533,8 @@ def control(request):
         facture_list = paginator.page(1)
     except EmptyPage:
         facture_list = paginator.page(paginator.num.pages)
-    page_query = Facture.objects.order_by('date').reverse().filter(
+    page_query = Facture.objects.order_by('date').select_related('user')\
+    .select_related('paiement').reverse().filter(
         id__in=[facture.id for facture in facture_list]
         )
     controlform = controlform_set(request.POST or None, queryset=page_query)

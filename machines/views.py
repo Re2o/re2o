@@ -1056,7 +1056,9 @@ def history(request, object, id):
 @login_required
 @permission_required('cableur')
 def index_portlist(request):
-    port_list = OuverturePortList.objects.prefetch_related('ouvertureport_set').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__machine__user').order_by('name')
+    port_list = OuverturePortList.objects.prefetch_related('ouvertureport_set')\
+    .prefetch_related('interface_set__domain__extension')\
+    .prefetch_related('interface_set__machine__user').order_by('name')
     return render(request, "machines/index_portlist.html", {'port_list':port_list})
 
 @login_required
