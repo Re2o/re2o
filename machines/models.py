@@ -247,11 +247,23 @@ class Extension(models.Model):
         blank=True,
         null=True
     )
+    origin_v6 = models.GenericIPAddressField(
+        protocol='IPv6',
+        null=True,
+        blank=True
+    )
 
     @cached_property
     def dns_entry(self):
-        """ Une entrée DNS A"""
-        return "@   IN  A " + str(self.origin)
+        """ Une entrée DNS A et AAAA sur origin (zone self)"""
+        entry = ""
+        if self.origin:
+            entry += "@   IN  A " + str(self.origin)
+        if self.origin_v6:
+            if entry:
+                entry += "\n"
+            entry += "@   IN  AAAA " + str(self.origin_v6)
+        return entry
 
     def __str__(self):
         return self.name

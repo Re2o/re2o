@@ -161,7 +161,7 @@ class ExtensionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Extension
-        fields = ('name', 'origin', 'zone_entry')
+        fields = ('name', 'origin', 'origin_v6', 'zone_entry')
 
     def get_origin_ip(self, obj):
         return obj.origin.ipv4
