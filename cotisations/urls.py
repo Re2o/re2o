@@ -99,18 +99,18 @@ urlpatterns = [
         views.index_paiement,
         name='index-paiement'
         ),
-    url(r'^history/(?P<object>facture)/(?P<id>[0-9]+)$',
+    url(r'^history/(?P<object_name>facture)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
         ),
-    url(r'^history/(?P<object>article)/(?P<id>[0-9]+)$',
+    url(r'^history/(?P<object_name>article)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
         ),
-    url(r'^history/(?P<object>paiement)/(?P<id>[0-9]+)$',
+    url(r'^history/(?P<object_name>paiement)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'),
-    url(r'^history/(?P<object>banque)/(?P<id>[0-9]+)$',
+    url(r'^history/(?P<object_name>banque)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
         ),

@@ -135,7 +135,8 @@ def index_port(request, switch_id):
     port_list = Port.objects.filter(switch=switch)\
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
-        .select_related('related')\
+        .select_related('machine_interface__machine__user')\
+        .select_related('related__switch__switch_interface__domain__extension')\
         .select_related('switch')\
         .order_by('port')
     return render(request, 'topologie/index_p.html', {
