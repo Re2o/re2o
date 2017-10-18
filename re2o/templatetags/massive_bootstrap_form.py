@@ -240,7 +240,7 @@ class MBFForm():
                         self.engine.get(name, None),
                         self.match_func.get(name, None),
                         self.update_on.get(name, None),
-                        self.update_on.get(name, True),
+                        self.gen_select.get(name, True),
                         *self.args,
                         **self.kwargs
                     )

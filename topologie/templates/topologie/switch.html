@@ -53,7 +53,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% massive_bootstrap_form machineform 'user' %}
     {% endif %}
     {% if interfaceform %}
-        {% if i_bft_param %}
+        {% if i_mbf_param %}
     {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
         {% else %}
     {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
