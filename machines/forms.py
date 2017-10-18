@@ -296,7 +296,7 @@ class MxForm(ModelForm):
         super(MxForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].queryset = Domain.objects.exclude(
             interface_parent=None
-        )
+        ).select_related('extension')
 
 
 class DelMxForm(Form):
@@ -309,7 +309,9 @@ class DelMxForm(Form):
 
 
 class NsForm(ModelForm):
-    """Ajout d'un NS pour une zone"""
+    """Ajout d'un NS pour une zone
+    On exclue les CNAME dans les objets domain (interdit par la rfc)
+    donc on prend uniquemet """
     class Meta:
         model = Ns
         fields = ['zone', 'ns']
@@ -319,7 +321,7 @@ class NsForm(ModelForm):
         super(NsForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['ns'].queryset = Domain.objects.exclude(
             interface_parent=None
-        )
+        ).select_related('extension')
 
 
 class DelNsForm(Form):
