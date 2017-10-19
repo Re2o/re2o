@@ -111,8 +111,6 @@ from .models import (
 )
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
-
-from re2o.templatetags.massive_bootstrap_form import hidden_id, input_id
 from re2o.utils import (
     all_active_assigned_interfaces,
     all_has_access,
@@ -192,11 +190,13 @@ def generate_ipv4_mbf_param( form, is_type_tt ):
     i_engine = { 'ipv4': generate_ipv4_engine( is_type_tt ) }
     i_match_func = { 'ipv4': generate_ipv4_match_func( is_type_tt ) }
     i_update_on = { 'ipv4': [f_type_id( is_type_tt )] }
+    i_gen_select = { 'ipv4': False }
     i_mbf_param = {
         'choices': i_choices,
         'engine': i_engine,
         'match_func': i_match_func,
-        'update_on': i_update_on
+        'update_on': i_update_on,
+        'gen_select': i_gen_select
     }
     return i_mbf_param
 
