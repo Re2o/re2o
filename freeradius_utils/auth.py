@@ -292,7 +292,7 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         if not port.room:
             return (sw_name, u'Chambre inconnue', VLAN_NOK)
 
-        room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+        room_user = User.objects.filter(room=port.room)
         if not room_user:
             return (sw_name, u'Chambre non cotisante', VLAN_NOK)
         elif not room_user.first().has_access():

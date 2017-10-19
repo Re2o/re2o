@@ -452,13 +452,14 @@ class RightForm(ModelForm):
 class DelRightForm(Form):
     """Suppression d'un droit d'un user"""
     rights = forms.ModelMultipleChoiceField(
-        queryset=Right.objects.all(),
+        queryset=Right.objects.select_related('user'),
         widget=forms.CheckboxSelectMultiple
     )
 
     def __init__(self, right, *args, **kwargs):
         super(DelRightForm, self).__init__(*args, **kwargs)
-        self.fields['rights'].queryset = Right.objects.filter(right=right)
+        self.fields['rights'].queryset = Right.objects.select_related('user')\
+        .select_related('right').filter(right=right)
 
 
 class BanForm(ModelForm):
