@@ -411,9 +411,10 @@ class Interface(models.Model):
     def save(self, *args, **kwargs):
         self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
-        if self.type.ip_type != self.ipv4.ip_type:
-            raise ValidationError("L'ipv4 et le type de la machine ne\
-            correspondent pas")
+        if self.ipv4:
+            if self.type.ip_type != self.ipv4.ip_type:
+                raise ValidationError("L'ipv4 et le type de la machine ne\
+                correspondent pas")
         super(Interface, self).save(*args, **kwargs)
 
     def __str__(self):
