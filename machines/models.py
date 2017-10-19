@@ -234,6 +234,79 @@ class Nas(models.Model):
         return self.name
 
 
+class SOA(models.Model):
+    """
+    Un enregistrement SOA associé à une extension
+    Les valeurs par défault viennent des recommandations RIPE :
+    https://www.ripe.net/publications/docs/ripe-203
+    """
+    PRETTY_NAME = "Enregistrement SOA"
+
+    name = models.CharField(max_length=255, default='SOA')
+    mail = models.EmailField(
+        default='postmaster@example.com',
+        help_text='Email du contact pour la zone'
+    )
+    refresh = models.PositiveIntegerField(
+        default=86400,    # 24 hours
+        help_text='Secondes avant que les DNS secondaires doivent demander le\
+                   serial du DNS primaire pour détecter une modification'
+    )
+    retry = models.PositiveIntegerField(
+        default=7200,    # 2 hours
+        help_text='Secondes avant que les DNS secondaires fassent une nouvelle\
+                   demande de serial en cas de timeout du DNS primaire'
+    )
+    expire = models.PositiveIntegerField(
+        default=3600000, # 1000 hours
+        help_text='Secondes après lesquelles les DNS secondaires arrêtent de\
+                   de répondre aux requêtes en cas de timeout du DNS primaire'
+    )
+    ttl = models.PositiveIntegerField(
+        default=172800,  # 2 days
+        help_text='Time To Live'
+    )
+
+    def __str__(self):
+        return str(self.name)
+
+    @cached_property
+    def dns_soa_param(self):
+        """
+        Renvoie la partie de l'enregistrement SOA correspondant aux champs :
+            <refresh>   ; refresh
+            <retry>     ; retry
+            <expire>    ; expire
+            <ttl>       ; TTL
+        """
+        return (
+            '    {refresh};refresh\n'
+            '    {retry};retry\n'
+            '    {expire};expire\n'
+            '    {ttl};TTL'
+        ).format(
+            refresh=self.refresh,
+            retry=self.retry,
+            expire=self.expire,
+            ttl=self.expire
+        )
+
+    @cached_property
+    def dns_soa_mail(self):
+        """ Renvoie le mail dans l'enregistrement SOA """
+        mail_fields = str(self.mail).split('@')
+        return mail_fields[0].replace('.', '\\.') + '.' +mail_fields[1]
+
+    @classmethod
+    def new_default_soa(cls):
+        """ Fonction pour créer un SOA par défaut, utile pour les nouvelles
+        extensions .
+        /!\ Ne jamais supprimer ou renommer cette fonction car elle est
+        utilisée dans les migrations de la BDD. """
+        return cls.objects.get_or_create(name="SOA to edit", mail="postmaser@example.com")[0].pk
+
+
+
 class Extension(models.Model):
     """ Extension dns type example.org. Précise si tout le monde peut
     l'utiliser, associé à un origin (ip d'origine)"""
@@ -251,6 +324,11 @@ class Extension(models.Model):
         protocol='IPv6',
         null=True,
         blank=True
+    )
+    soa = models.ForeignKey(
+        'SOA',
+        on_delete=models.CASCADE,
+        default=SOA.new_default_soa
     )
 
     @cached_property
@@ -307,7 +385,7 @@ class Ns(models.Model):
 
 class Text(models.Model):
     """ Un enregistrement TXT associé à une extension"""
-    PRETTY_NAME = "Enregistrement text"
+    PRETTY_NAME = "Enregistrement TXT"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
@@ -787,6 +865,18 @@ def extension_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Extension)
 def extension_post_selete(sender, **kwargs):
     """Regeneration dns après suppression d'une extension"""
+    regen('dns')
+
+
+@receiver(post_save, sender=SOA)
+def soa_post_save(sender, **kwargs):
+    """Regeneration dns après modification d'un SOA"""
+    regen('dns')
+
+
+@receiver(post_delete, sender=SOA)
+def soa_post_delete(sender, **kwargs):
+    """Regeneration dns après suppresson d'un SOA"""
     regen('dns')
 
 

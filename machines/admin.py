@@ -27,8 +27,8 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import IpType, Machine, MachineType, Domain, IpList, Interface
-from .models import Extension, Mx, Ns, Vlan, Text, Nas, Service, OuverturePort
-from .models import OuverturePortList
+from .models import Extension, SOA, Mx, Ns, Vlan, Text, Nas, Service
+from .models import OuverturePort, OuverturePortList
 
 
 class MachineAdmin(VersionAdmin):
@@ -48,6 +48,10 @@ class VlanAdmin(VersionAdmin):
 
 
 class ExtensionAdmin(VersionAdmin):
+    pass
+
+
+class SOAAdmin(VersionAdmin):
     pass
 
 
@@ -95,6 +99,7 @@ admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
 admin.site.register(IpType, IpTypeAdmin)
 admin.site.register(Extension, ExtensionAdmin)
+admin.site.register(SOA, SOAAdmin)
 admin.site.register(Mx, MxAdmin)
 admin.site.register(Ns, NsAdmin)
 admin.site.register(Text, TextAdmin)
