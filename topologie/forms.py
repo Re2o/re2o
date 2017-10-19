@@ -82,6 +82,11 @@ class AddPortForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['machine_interface'].queryset = Interface.objects.all()\
+            .select_related('domain__extension')
+        self.fields['related'].queryset = Port.objects.all()\
+            .select_related('switch__switch_interface__domain__extension')\
+            .order_by('switch', 'port')
 
 
 class StackForm(ModelForm):
@@ -105,6 +110,8 @@ class EditSwitchForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['switch_interface'].queryset = Interface.objects.all()\
+            .select_related('domain__extension')
         self.fields['location'].label = 'Localisation'
         self.fields['number'].label = 'Nombre de ports'
 

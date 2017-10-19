@@ -533,7 +533,8 @@ def control(request):
         facture_list = paginator.page(1)
     except EmptyPage:
         facture_list = paginator.page(paginator.num.pages)
-    page_query = Facture.objects.order_by('date').reverse().filter(
+    page_query = Facture.objects.order_by('date').select_related('user')\
+    .select_related('paiement').reverse().filter(
         id__in=[facture.id for facture in facture_list]
         )
     controlform = controlform_set(request.POST or None, queryset=page_query)
@@ -603,9 +604,9 @@ def index(request):
 
 
 @login_required
-def history(request, object, object_id):
+def history(request, object_name, object_id):
     """Affiche l'historique de chaque objet"""
-    if object == 'facture':
+    if object_name == 'facture':
         try:
             object_instance = Facture.objects.get(pk=object_id)
         except Facture.DoesNotExist:
@@ -616,19 +617,19 @@ def history(request, object, object_id):
             messages.error(request, "Vous ne pouvez pas afficher l'historique\
                  d'une facture d'un autre user que vous sans droit cableur")
             return redirect("/users/profil/" + str(request.user.id))
-    elif object == 'paiement' and request.user.has_perms(('cableur',)):
+    elif object_name == 'paiement' and request.user.has_perms(('cableur',)):
         try:
             object_instance = Paiement.objects.get(pk=object_id)
         except Paiement.DoesNotExist:
             messages.error(request, "Paiement inexistant")
             return redirect("/cotisations/")
-    elif object == 'article' and request.user.has_perms(('cableur',)):
+    elif object_name == 'article' and request.user.has_perms(('cableur',)):
         try:
             object_instance = Article.objects.get(pk=object_id)
         except Article.DoesNotExist:
             messages.error(request, "Article inexistante")
             return redirect("/cotisations/")
-    elif object == 'banque' and request.user.has_perms(('cableur',)):
+    elif object_name == 'banque' and request.user.has_perms(('cableur',)):
         try:
             object_instance = Banque.objects.get(pk=object_id)
         except Banque.DoesNotExist:

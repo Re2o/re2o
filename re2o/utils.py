@@ -104,9 +104,9 @@ def all_has_access(search_time=DT_NOW):
     ).distinct()
 
 
-def all_active_interfaces():
-    """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return Interface.objects.filter(
+def filter_active_interfaces(interface_set):
+    """Filtre les machines autorisées à sortir sur internet dans une requête"""
+    return interface_set.filter(
         machine__in=Machine.objects.filter(
             user__in=all_has_access()
         ).filter(active=True)
@@ -114,6 +114,11 @@ def all_active_interfaces():
     .select_related('type').select_related('ipv4')\
     .select_related('domain__extension').select_related('ipv4__ip_type')\
     .distinct()
+
+
+def all_active_interfaces():
+    """Renvoie l'ensemble des machines autorisées à sortir sur internet """
+    return filter_active_interfaces(Interface.objects)
 
 
 def all_active_assigned_interfaces():

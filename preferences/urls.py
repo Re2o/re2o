@@ -69,7 +69,7 @@ urlpatterns = [
         ),
     url(r'^del_services/$', views.del_services, name='del-services'),
     url(
-        r'^history/(?P<object>service)/(?P<id>[0-9]+)$',
+        r'^history/(?P<object_name>service)/(?P<object_id>[0-9]+)$',
         views.history,
         name='history'
         ),
