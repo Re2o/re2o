@@ -45,6 +45,7 @@ from .models import (
     IpList,
     MachineType,
     Extension,
+    SOA,
     Mx,
     Text,
     Ns,
@@ -274,6 +275,7 @@ class ExtensionForm(ModelForm):
         self.fields['name'].label = 'Extension à ajouter'
         self.fields['origin'].label = 'Enregistrement A origin'
         self.fields['origin_v6'].label = 'Enregistrement AAAA origin'
+        self.fields['soa'].label = 'En-tête SOA à utiliser'
 
 
 class DelExtensionForm(Form):
@@ -281,6 +283,26 @@ class DelExtensionForm(Form):
     extensions = forms.ModelMultipleChoiceField(
         queryset=Extension.objects.all(),
         label="Extensions actuelles",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+
+class SOAForm(ModelForm):
+    """Ajout et edition d'un SOA"""
+    class Meta:
+        model = SOA
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SOAForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelSOAForm(Form):
+    """Suppression d'un ou plusieurs SOA"""
+    soa = forms.ModelMultipleChoiceField(
+        queryset=SOA.objects.all(),
+        label="SOA actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
