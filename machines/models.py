@@ -280,10 +280,10 @@ class SOA(models.Model):
             <ttl>       ; TTL
         """
         return (
-            '    {refresh};refresh\n'
-            '    {retry};retry\n'
-            '    {expire};expire\n'
-            '    {ttl};TTL'
+            '    {refresh}; refresh\n'
+            '    {retry}; retry\n'
+            '    {expire}; expire\n'
+            '    {ttl}; TTL'
         ).format(
             refresh=str(self.refresh).ljust(12),
             retry=str(self.retry).ljust(12),
@@ -584,7 +584,7 @@ class Domain(models.Model):
     def dns_entry(self):
         """ Une entrée DNS"""
         if self.cname:
-            return str(self.name) + " IN CNAME " + str(self.cname) + "."
+            return str(self.name).ljust(15) + " IN CNAME   " + str(self.cname) + "."
 
     def save(self, *args, **kwargs):
         """ Empèche le save sans extension valide.
