@@ -285,10 +285,10 @@ class SOA(models.Model):
             '    {expire};expire\n'
             '    {ttl};TTL'
         ).format(
-            refresh=self.refresh,
-            retry=self.retry,
-            expire=self.expire,
-            ttl=self.expire
+            refresh=str(self.refresh).ljust(12),
+            retry=str(self.retry).ljust(12),
+            expire=str(self.expire).ljust(12),
+            ttl=str(self.ttl).ljust(12)
         )
 
     @cached_property
