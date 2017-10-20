@@ -295,7 +295,7 @@ class SOA(models.Model):
     def dns_soa_mail(self):
         """ Renvoie le mail dans l'enregistrement SOA """
         mail_fields = str(self.mail).split('@')
-        return mail_fields[0].replace('.', '\\.') + '.' +mail_fields[1]
+        return mail_fields[0].replace('.', '\\.') + '.' + mail_fields[1] + '.'
 
     @classmethod
     def new_default_soa(cls):
@@ -336,11 +336,11 @@ class Extension(models.Model):
         """ Une entrée DNS A et AAAA sur origin (zone self)"""
         entry = ""
         if self.origin:
-            entry += "@   IN  A " + str(self.origin)
+            entry += "@               IN  A       " + str(self.origin)
         if self.origin_v6:
             if entry:
                 entry += "\n"
-            entry += "@   IN  AAAA " + str(self.origin_v6)
+            entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
     def __str__(self):
@@ -361,7 +361,7 @@ class Mx(models.Model):
     def dns_entry(self):
         """Renvoie l'entrée DNS complète pour un MX à mettre dans les
         fichiers de zones"""
-        return "@   IN  MX " + str(self.priority) + " " + str(self.name)
+        return "@               IN  MX  " + str(self.priority).ljust(3) + " " + str(self.name)
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
@@ -377,7 +377,7 @@ class Ns(models.Model):
     @cached_property
     def dns_entry(self):
         """Renvoie un enregistrement NS complet pour les filezones"""
-        return "@ IN NS " + str(self.ns)
+        return "@           IN  NS      " + str(self.ns)
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
@@ -398,7 +398,7 @@ class Text(models.Model):
     @cached_property
     def dns_entry(self):
         """Renvoie l'enregistrement TXT complet pour le fichier de zone"""
-        return str(self.field1) + " IN TXT " + str(self.field2)
+        return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
 class Interface(models.Model):
