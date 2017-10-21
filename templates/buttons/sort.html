@@ -22,14 +22,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load url_insert_param %}
+
 {% spaceless %}
 <div style="display: flex; padding: 0;">
     {{ text }} &nbsp;
     <div style="display: grid; font-size: 9px; line-height: 1;">
-        <a role="button" href="?col={{ col }}" title="{{ desc|default:"Tri croissant" }}">
+        <a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
             <span class="glyphicon glyphicon-triangle-top"></span>
         </a>
-        <a role="button" href="?col={{ col }}&order=desc" title="{{ desc|default:"Tri décroissant" }}">
+        <a role="button" href="{% url_insert_param request.get_full_path col=col order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
             <span class="glyphicon glyphicon-triangle-bottom"></span>
         </a>
     </div>
