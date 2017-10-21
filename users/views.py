@@ -65,7 +65,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-from re2o.utils import all_has_access
+from re2o.utils import all_has_access, SortTable
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -576,6 +576,12 @@ def index(request):
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     users_list = User.objects.select_related('room').order_by('state', 'name')
+    users_list = SortTable.sort(
+        users_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX
+    )
     paginator = Paginator(users_list, pagination_number)
     page = request.GET.get('page')
     try:

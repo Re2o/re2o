@@ -139,3 +139,36 @@ def all_active_interfaces_count():
 def all_active_assigned_interfaces_count():
     """ Version light seulement pour compter"""
     return all_active_interfaces_count().filter(ipv4__isnull=False)
+
+class SortTable:
+    """ Class gathering uselful stuff to sort the colums of a table, according
+    to the column and order requested. It's used with a dict of possible
+    values and associated model_fields """
+
+    # All the possible criteria possible
+    # The naming convention is based on the URL or the views function
+    # The syntax is the url value as a key and the associated model field name
+    # to use as order field in the request. A 'default' might be provided to
+    # specify what to do if the requested col doesn't match any keys.
+    USERS_INDEX = {
+        'prenom' : 'name',
+        'nom' : 'surname',
+        'pseudo' : 'pseudo',
+        'chamber' : 'room',
+        'default' : 'pseudo'
+    }
+
+    @staticmethod
+    def sort(request, col, order, criterion):
+        """ Check if the given values are possible and add .order_by() and
+        a .reverse() as specified according to those values """
+        model_field = criterion.get(col, None)
+        if not model_field:
+            model_field = criterion.get('default', None)
+        if not model_field:
+            return request
+        else:
+            if order == 'desc':
+                return request.order_by(model_field).reverse()
+            else:
+                return request.order_by(model_field)
