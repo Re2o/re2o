@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             name='SOA',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='SOA', max_length=255)),
-                ('mail', models.EmailField(default='postmaster@example.com', help_text='Email du contact pour la zone', max_length=254)),
+                ('name', models.CharField(max_length=255)),
+                ('mail', models.EmailField(help_text='Email du contact pour la zone', max_length=254)),
                 ('refresh', models.PositiveIntegerField(default=86400, help_text='Secondes avant que les DNS secondaires doivent demander le                   serial du DNS primaire pour détecter une modification')),
                 ('retry', models.PositiveIntegerField(default=7200, help_text='Secondes avant que les DNS secondaires fassent une nouvelle                   demande de serial en cas de timeout du DNS primaire')),
                 ('expire', models.PositiveIntegerField(default=3600000, help_text='Secondes après lesquelles les DNS secondaires arrêtent de                   de répondre aux requêtes en cas de timeout du DNS primaire')),

@@ -242,9 +242,8 @@ class SOA(models.Model):
     """
     PRETTY_NAME = "Enregistrement SOA"
 
-    name = models.CharField(max_length=255, default='SOA')
+    name = models.CharField(max_length=255)
     mail = models.EmailField(
-        default='postmaster@example.com',
         help_text='Email du contact pour la zone'
     )
     refresh = models.PositiveIntegerField(
