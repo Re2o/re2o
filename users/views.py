@@ -601,8 +601,13 @@ def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    ban_list = Ban.objects.order_by('date_start')\
-        .select_related('user').reverse()
+    ban_list = Ban.objects.select_related('user')
+    ban_list = SortTable.sort(
+        ban_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(ban_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -622,8 +627,13 @@ def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    white_list = Whitelist.objects.select_related('user')\
-        .order_by('date_start')
+    white_list = Whitelist.objects.select_related('user')
+    white_list = SortTable.sort(
+        white_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(white_list, pagination_number)
     page = request.GET.get('page')
     try:
