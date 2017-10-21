@@ -151,11 +151,25 @@ class SortTable:
     # to use as order field in the request. A 'default' might be provided to
     # specify what to do if the requested col doesn't match any keys.
     USERS_INDEX = {
-        'prenom' : 'name',
-        'nom' : 'surname',
-        'pseudo' : 'pseudo',
-        'chamber' : 'room',
-        'default' : 'pseudo'
+        'name': 'name',
+        'surname': 'surname',
+        'pseudo': 'pseudo',
+        'room': 'room',
+        'default': 'pseudo'
+    }
+    USERS_INDEX_BAN = {
+        'user': 'user__pseudo',
+        'reason': 'raison',
+        'start': 'date_start',
+        'end': 'date_end',
+        'default': 'date_end'
+    }
+    USERS_INDEX_WHITE = {
+        'user': 'user__pseudo',
+        'reason': 'raison',
+        'start': 'date_start',
+        'end': 'date_end',
+        'default': 'date_end'
     }
 
     @staticmethod
