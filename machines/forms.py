@@ -175,7 +175,12 @@ class AliasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        infra = kwargs.pop('infra')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
+        if not infra:
+            self.fields['extension'].queryset = Extension.objects.filter(
+                 need_infra=False
+            )
 
 
 class DomainForm(AliasForm):
