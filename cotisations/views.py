@@ -40,6 +40,7 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
+from re2o.utils import SortTable
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm
@@ -519,7 +520,13 @@ def control(request):
     factures.Case à cocher, pratique"""
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    facture_list = Facture.objects.order_by('date').reverse()
+    facture_list = Facture.objects.select_related('user').select_related('paiement')
+    facture_list = SortTable.sort(
+        facture_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_CONTROL
+    )
     controlform_set = modelformset_factory(
         Facture,
         fields=('control', 'valid'),
@@ -533,11 +540,7 @@ def control(request):
         facture_list = paginator.page(1)
     except EmptyPage:
         facture_list = paginator.page(paginator.num.pages)
-    page_query = Facture.objects.order_by('date').select_related('user')\
-    .select_related('paiement').reverse().filter(
-        id__in=[facture.id for facture in facture_list]
-        )
-    controlform = controlform_set(request.POST or None, queryset=page_query)
+    controlform = controlform_set(request.POST or None, queryset=facture_list.object_list)
     if controlform.is_valid():
         with transaction.atomic(), reversion.create_revision():
             controlform.save()
@@ -586,8 +589,14 @@ def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    facture_list = Facture.objects.order_by('date').select_related('user')\
-        .select_related('paiement').prefetch_related('vente_set').reverse()
+    facture_list = Facture.objects.select_related('user')\
+        .select_related('paiement').prefetch_related('vente_set')
+    facture_list = SortTable.sort(
+        facture_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_INDEX
+    )
     paginator = Paginator(facture_list, pagination_number)
     page = request.GET.get('page')
     try:

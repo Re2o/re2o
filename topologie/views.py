@@ -49,7 +49,7 @@ from topologie.models import Switch, Port, Room, Stack
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import AddPortForm, EditRoomForm, StackForm
 from users.views import form
-
+from re2o.utils import SortTable
 from machines.forms import DomainForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
 from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
@@ -59,15 +59,17 @@ from preferences.models import AssoOption, GeneralOption
 @permission_required('cableur')
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
-    switch_list = Switch.objects.order_by(
-        'stack',
-        'stack_member_id',
-        'location'
-        )\
+    switch_list = Switch.objects\
         .select_related('switch_interface__domain__extension')\
         .select_related('switch_interface__ipv4')\
         .select_related('switch_interface__domain')\
         .select_related('stack')
+    switch_list = SortTable.sort(
+        switch_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX
+    )
     return render(request, 'topologie/index.html', {
         'switch_list': switch_list
         })
@@ -137,8 +139,13 @@ def index_port(request, switch_id):
         .select_related('machine_interface__domain__extension')\
         .select_related('machine_interface__machine__user')\
         .select_related('related__switch__switch_interface__domain__extension')\
-        .select_related('switch')\
-        .order_by('port')
+        .select_related('switch')
+    port_list = SortTable.sort(
+        port_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_PORT
+    )
     return render(request, 'topologie/index_p.html', {
         'port_list': port_list,
         'id_switch': switch_id,
@@ -150,7 +157,13 @@ def index_port(request, switch_id):
 @permission_required('cableur')
 def index_room(request):
     """ Affichage de l'ensemble des chambres"""
-    room_list = Room.objects.order_by('name')
+    room_list = Room.objects
+    room_list = SortTable.sort(
+        room_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_ROOM
+    )
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     paginator = Paginator(room_list, pagination_number)
@@ -172,8 +185,14 @@ def index_room(request):
 @permission_required('infra')
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
-    stack_list = Stack.objects.order_by('name')\
+    stack_list = Stack.objects\
         .prefetch_related('switch_set__switch_interface__domain__extension')
+    stack_list = SortTable.sort(
+        stack_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_STACK
+    )
     return render(request, 'topologie/index_stack.html', {
         'stack_list': stack_list
         })

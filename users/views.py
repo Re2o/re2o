@@ -65,7 +65,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-from re2o.utils import all_has_access
+from re2o.utils import all_has_access, SortTable
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -575,7 +575,13 @@ def index(request):
     """ Affiche l'ensemble des users, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    users_list = User.objects.select_related('room').order_by('state', 'name')
+    users_list = User.objects.select_related('room')
+    users_list = SortTable.sort(
+        users_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX
+    )
     paginator = Paginator(users_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -595,8 +601,13 @@ def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    ban_list = Ban.objects.order_by('date_start')\
-        .select_related('user').reverse()
+    ban_list = Ban.objects.select_related('user')
+    ban_list = SortTable.sort(
+        ban_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(ban_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -616,8 +627,13 @@ def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    white_list = Whitelist.objects.select_related('user')\
-        .order_by('date_start')
+    white_list = Whitelist.objects.select_related('user')
+    white_list = SortTable.sort(
+        white_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(white_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -776,9 +792,33 @@ def profil(request, userid):
         .prefetch_related('interface_set__ipv4__ip_type__extension')\
         .prefetch_related('interface_set__type')\
         .prefetch_related('interface_set__domain__related_domain__extension')
+    machines = SortTable.sort(
+        machines,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.MACHINES_INDEX
+    )
     factures = Facture.objects.filter(user=users)
+    factures = SortTable.sort(
+        factures,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_INDEX
+    )
     bans = Ban.objects.filter(user=users)
+    bans = SortTable.sort(
+        bans,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     whitelists = Whitelist.objects.filter(user=users)
+    whitelists = SortTable.sort(
+        whitelists,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_WHITE
+    )
     list_droits = Right.objects.filter(user=users)
     options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde

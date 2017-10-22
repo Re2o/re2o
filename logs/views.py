@@ -57,7 +57,7 @@ from preferences.models import GeneralOption
 from re2o.views import form
 from re2o.utils import all_whitelisted, all_baned, all_has_access, all_adherent
 from re2o.utils import all_active_assigned_interfaces_count
-from re2o.utils import all_active_interfaces_count
+from re2o.utils import all_active_interfaces_count, SortTable
 
 STATS_DICT = {
     0: ["Tout", 36],
@@ -83,7 +83,13 @@ def index(request):
         content_type__in=ContentType.objects.filter(
             model__in=content_type_filter
         )
-    ).order_by('revision__date_created').reverse().select_related('revision')
+    ).select_related('revision')
+    versions = SortTable.sort(
+        versions,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.LOGS_INDEX
+    )
     paginator = Paginator(versions, pagination_number)
     page = request.GET.get('page')
     try:
@@ -129,9 +135,14 @@ def stats_logs(request):
     classés par date croissante, en vrac"""
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    revisions = Revision.objects.all().order_by('date_created')\
-        .reverse().select_related('user')\
+    revisions = Revision.objects.all().select_related('user')\
         .prefetch_related('version_set__object')
+    revisions = SortTable.sort(
+        revisions,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.LOGS_STATS_LOGS
+    )
     paginator = Paginator(revisions, pagination_number)
     page = request.GET.get('page')
     try:

@@ -29,10 +29,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Pseudo</th>
-                <th>Chambre</th>
+                <th>{% include "buttons/sort.html" with prefix='user' col="name" text="Prénom" %}</th>
+                <th>{% include "buttons/sort.html" with prefix='user' col="surname" text="Nom" %}</th>
+                <th>{% include "buttons/sort.html" with prefix='user' col="pseudo" text="Pseudo" %}</th>
+                <th>{% include "buttons/sort.html" with prefix='user' col="room" text="Chambre" %}</th>
                 <th>Fin de cotisation le</th>
                 <th>Connexion</th>
                 <th>Profil</th>
