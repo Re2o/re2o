@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <col width="144px">
     </colgroup>
     <thead>
-        <th>Nom DNS</th>
+        <th>{% include "buttons/sort.html" with prefix='machine' col='name' text='Nom DNS' %}</th>
         <th>Type</th>
         <th>MAC</th>
         <th>IP</th>
@@ -44,7 +44,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for machine in machines_list %}
         <tr class="info">
             <td colspan="4">
-                <b>{{ machine.name }}</b> <i class="glyphicon glyphicon-chevron-right"></i>
+                <b>{{ machine.name|default:'<i>Pas de nom</i>' }}</b> <i class="glyphicon glyphicon-chevron-right"></i>
                 <a href="{% url 'users:profil' userid=machine.user.id %}" title="Voir le profil">
                     <i class="glyphicon glyphicon-user"></i> {{ machine.user }}
                 </a>

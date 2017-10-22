@@ -25,9 +25,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Stack</th>
-            <th>ID</th>
-            <th>Details</th>
+            <th>{% include "buttons/sort.html" with prefix='stack' col='name' text='Stack' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='stack' col='id' text='ID' %}</th>
+            <th>Détails</th>
             <th>Membres</th>
         </tr>
     </thead>

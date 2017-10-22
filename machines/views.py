@@ -117,7 +117,8 @@ from preferences.models import GeneralOption, OptionalMachine
 from re2o.utils import (
     all_active_assigned_interfaces,
     all_has_access,
-    filter_active_interfaces
+    filter_active_interfaces,
+    SortTable
 )
 from re2o.views import form
 
@@ -936,7 +937,13 @@ def del_nas(request):
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_large_number = options.pagination_large_number
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension').order_by('pk')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension')
+    machines_list = SortTable.sort(
+        machines_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.MACHINES_INDEX
+    )
     paginator = Paginator(machines_list, pagination_large_number)
     page = request.GET.get('page')
     try:
