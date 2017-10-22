@@ -157,7 +157,7 @@ def index_port(request, switch_id):
 @permission_required('cableur')
 def index_room(request):
     """ Affichage de l'ensemble des chambres"""
-    room_list = Room.objects.order_by('name')
+    room_list = Room.objects
     room_list = SortTable.sort(
         room_list,
         request.GET.get('col'),
