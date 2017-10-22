@@ -28,12 +28,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div style="display: flex; padding: 0;">
     {{ text }}&nbsp;
     <div style="display: grid; font-size: 9px; line-height: 1; margin: auto 0;">
+        {% if prefix %}
+        {% with prefix|add:'_'|add:col as colname %}
+        <a role="button" href="{% url_insert_param request.get_full_path col=colname order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
+            <span class="glyphicon glyphicon-triangle-top"></span>
+        </a>
+        <a role="button" href="{% url_insert_param request.get_full_path col=colname order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
+            <span class="glyphicon glyphicon-triangle-bottom"></span>
+        </a>
+        {% endwith %}
+        {% else %}
         <a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
             <span class="glyphicon glyphicon-triangle-top"></span>
         </a>
         <a role="button" href="{% url_insert_param request.get_full_path col=col order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
             <span class="glyphicon glyphicon-triangle-bottom"></span>
         </a>
+        {% endif %}
     </div>
 </div>
 {% endspaceless %}
