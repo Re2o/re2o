@@ -184,9 +184,10 @@ class AliasForm(ModelForm):
             )
 
 
-class DomainForm(AliasForm):
+class DomainForm(ModelForm):
     """Ajout et edition d'un enregistrement de nom, relié à interface"""
-    class Meta(AliasForm.Meta):
+    class Meta:
+        model = Domain
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
