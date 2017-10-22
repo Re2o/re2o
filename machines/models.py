@@ -376,7 +376,7 @@ class Ns(models.Model):
     @cached_property
     def dns_entry(self):
         """Renvoie un enregistrement NS complet pour les filezones"""
-        return "@           IN  NS      " + str(self.ns)
+        return "@               IN  NS      " + str(self.ns)
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
