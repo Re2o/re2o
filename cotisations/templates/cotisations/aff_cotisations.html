@@ -29,11 +29,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Utilisateur</th>
+                <th>{% include "buttons/sort.html" with col='user' text='Utilisateur' %}</th>
                 <th>Designation</th>
                 <th>Prix total</th>
-                <th>Moyen de paiement</th>
-                <th>Date</th>
+                <th>{% include "buttons/sort.html" with col='paiement' text='Moyen de paiement' %}</th>
+                <th>{% include "buttons/sort.html" with col='date' text='Date' %}</th>
                 <th></th>
                 <th></th>
                 <th></th>
