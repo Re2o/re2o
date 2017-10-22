@@ -45,6 +45,7 @@ from .models import (
     IpList,
     MachineType,
     Extension,
+    SOA,
     Mx,
     Text,
     Ns,
@@ -175,12 +176,18 @@ class AliasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        infra = kwargs.pop('infra')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
+        if not infra:
+            self.fields['extension'].queryset = Extension.objects.filter(
+                 need_infra=False
+            )
 
 
-class DomainForm(AliasForm):
+class DomainForm(ModelForm):
     """Ajout et edition d'un enregistrement de nom, relié à interface"""
-    class Meta(AliasForm.Meta):
+    class Meta:
+        model = Domain
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
@@ -274,6 +281,7 @@ class ExtensionForm(ModelForm):
         self.fields['name'].label = 'Extension à ajouter'
         self.fields['origin'].label = 'Enregistrement A origin'
         self.fields['origin_v6'].label = 'Enregistrement AAAA origin'
+        self.fields['soa'].label = 'En-tête SOA à utiliser'
 
 
 class DelExtensionForm(Form):
@@ -281,6 +289,26 @@ class DelExtensionForm(Form):
     extensions = forms.ModelMultipleChoiceField(
         queryset=Extension.objects.all(),
         label="Extensions actuelles",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+
+class SOAForm(ModelForm):
+    """Ajout et edition d'un SOA"""
+    class Meta:
+        model = SOA
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SOAForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelSOAForm(Form):
+    """Suppression d'un ou plusieurs SOA"""
+    soa = forms.ModelMultipleChoiceField(
+        queryset=SOA.objects.all(),
+        label="SOA actuels",
         widget=forms.CheckboxSelectMultiple
     )
 

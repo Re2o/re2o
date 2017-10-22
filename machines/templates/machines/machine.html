@@ -100,6 +100,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>Extension</h3>
     {% massive_bootstrap_form extensionform 'origin' %}
     {% endif %}
+    {% if soaform %}
+    <h3>Enregistrement SOA</h3>
+    {% bootstrap_form soaform %}
+    {% endif %}
     {% if mxform %}
     <h3>Enregistrement MX</h3>
     {% massive_bootstrap_form mxform 'name' %}
