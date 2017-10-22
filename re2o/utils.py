@@ -153,76 +153,76 @@ class SortTable:
     # A 'default' might be provided to specify what to do if the requested col
     # doesn't match any keys.
     USERS_INDEX = {
-        'name': ['name'],
-        'surname': ['surname'],
-        'pseudo': ['pseudo'],
-        'room': ['room'],
+        'user_name': ['name'],
+        'user_surname': ['surname'],
+        'user_pseudo': ['pseudo'],
+        'user_room': ['room'],
         'default': ['state', 'pseudo']
     }
     USERS_INDEX_BAN = {
-        'user': ['user__pseudo'],
-        'start': ['date_start'],
-        'end': ['date_end'],
+        'ban_user': ['user__pseudo'],
+        'ban_start': ['date_start'],
+        'ban_end': ['date_end'],
         'default': ['-date_end']
     }
     USERS_INDEX_WHITE = {
-        'user': ['user__pseudo'],
-        'start': ['date_start'],
-        'end': ['date_end'],
+        'white_user': ['user__pseudo'],
+        'white_start': ['date_start'],
+        'white_end': ['date_end'],
         'default': ['-date_end']
     }
     MACHINES_INDEX = {
-        'name': ['name'],
+        'machine_name': ['name'],
         'default': ['pk']
     }
     COTISATIONS_INDEX = {
-        'user': ['user__pseudo'],
-        'paiement': ['paiement__moyen'],
-        'date': ['date'],
+        'cotis_user': ['user__pseudo'],
+        'cotis_paiement': ['paiement__moyen'],
+        'cotis_date': ['date'],
         'default': ['-date']
     }
     COTISATIONS_CONTROL = {
-        'name': ['user__name'],
-        'surname': ['user__surname'],
-        'paiement': ['paiement'],
-        'date': ['date'],
-        'valid': ['valid'],
-        'control': ['control'],
+        'control_name': ['user__name'],
+        'control_surname': ['user__surname'],
+        'control_paiement': ['paiement'],
+        'control_date': ['date'],
+        'control_valid': ['valid'],
+        'control_control': ['control'],
         'default': ['-date']
     }
     TOPOLOGIE_INDEX = {
-        'dns': ['switch_interface__domain__name'],
-        'ip': ['switch_interface__ipv4__ipv4'],
-        'loc': ['location'],
-        'ports': ['number'],
-        'stack': ['stack__name'],
+        'switch_dns': ['switch_interface__domain__name'],
+        'switch_ip': ['switch_interface__ipv4__ipv4'],
+        'switch_loc': ['location'],
+        'switch_ports': ['number'],
+        'switch_stack': ['stack__name'],
         'default': ['location', 'stack', 'stack_member_id']
     }
     TOPOLOGIE_INDEX_PORT = {
-        'port': ['port'],
-        'room': ['room__name'],
-        'interface': ['machine_interface__domain__name'],
-        'related': ['related__switch__name'],
-        'radius': ['radius'],
-        'vlan': ['vlan_force__name'],
+        'port_port': ['port'],
+        'port_room': ['room__name'],
+        'port_interface': ['machine_interface__domain__name'],
+        'port_related': ['related__switch__name'],
+        'port_radius': ['radius'],
+        'port_vlan': ['vlan_force__name'],
         'default': ['port']
     }
     TOPOLOGIE_INDEX_ROOM = {
-        'name': ['name'],
+        'room_name': ['name'],
         'default': ['name']
     }
     TOPOLOGIE_INDEX_STACK = {
-        'name': ['name'],
-        'id': ['stack_id'],
+        'stack_name': ['name'],
+        'stack_id': ['stack_id'],
         'default': ['stack_id'],
     }
     LOGS_INDEX = {
-        'date': ['revision__date_created'],
+        'sum_date': ['revision__date_created'],
         'default': ['-revision__date_created'],
     }
     LOGS_STATS_LOGS = {
-        'author': ['user__name'],
-        'date': ['date_created'],
+        'logs_author': ['user__name'],
+        'logs_date': ['date_created'],
         'default': ['-date_created']
     }
 

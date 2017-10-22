@@ -25,12 +25,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with col='port' text='Port' %}</th>
-            <th>{% include "buttons/sort.html" with col='room' text='Room' %}</th>
-            <th>{% include "buttons/sort.html" with col='interface' text='Interface machine' %}</th>
-            <th>{% include "buttons/sort.html" with col='related' text='Related' %}</th>
-            <th>{% include "buttons/sort.html" with col='radius' text='Radius' %}</th>
-	    <th>{% include "buttons/sort.html" with col='vlan' text='Vlan forcé' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='port' col='port' text='Port' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='port' col='radius' text='Radius' %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='port' col='vlan' text='Vlan forcé' %}</th>
             <th>Détails</th>
             <th></th>
         </tr>
