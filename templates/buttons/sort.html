@@ -26,8 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% spaceless %}
 <div style="display: flex; padding: 0;">
-    {{ text }} &nbsp;
-    <div style="display: grid; font-size: 9px; line-height: 1;">
+    {{ text }}&nbsp;
+    <div style="display: grid; font-size: 9px; line-height: 1; margin: auto 0;">
         <a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
             <span class="glyphicon glyphicon-triangle-top"></span>
         </a>
