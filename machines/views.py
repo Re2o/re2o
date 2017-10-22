@@ -77,6 +77,8 @@ from .forms import (
     DomainForm,
     AliasForm,
     DelAliasForm,
+    SOAForm,
+    DelSOAForm,
     NsForm,
     DelNsForm,
     TxtForm,
@@ -98,6 +100,7 @@ from .models import (
     IpList,
     MachineType,
     Extension,
+    SOA,
     Mx,
     Ns,
     Domain,
@@ -522,6 +525,54 @@ def del_extension(request):
 
 @login_required
 @permission_required('infra')
+def add_soa(request):
+    soa = SOAForm(request.POST or None)
+    if soa.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            soa.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement SOA a été ajouté")
+        return redirect("/machines/index_extension")
+    return form({'soaform': soa}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_soa(request, soaid):
+    try:
+        soa_instance = SOA.objects.get(pk=soaid)
+    except SOA.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect("/machines/index_extension/")
+    soa = SOAForm(request.POST or None, instance=soa_instance)
+    if soa.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            soa.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in soa.changed_data))
+        messages.success(request, "SOA modifié")
+        return redirect("/machines/index_extension/")
+    return form({'soaform': soa}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_soa(request):
+    soa = DelSOAForm(request.POST or None)
+    if soa.is_valid():
+        soa_dels = soa.cleaned_data['soa']
+        for soa_del in soa_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    soa_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le SOA a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le SOA suivant %s ne peut être supprimé" % soa_del)
+        return redirect("/machines/index_extension")
+    return form({'soaform': soa}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
 def add_mx(request):
     mx = MxForm(request.POST or None)
     if mx.is_valid():
@@ -932,11 +983,12 @@ def index_nas(request):
 @login_required
 @permission_required('cableur')
 def index_extension(request):
-    extension_list = Extension.objects.select_related('origin').order_by('name')
+    extension_list = Extension.objects.select_related('origin').select_related('soa').order_by('name')
+    soa_list = SOA.objects.order_by('name')
     mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
     ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
     text_list = Text.objects.all().select_related('zone')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'mx_list': mx_list, 'ns_list': ns_list, 'text_list' : text_list})
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'text_list' : text_list})
 
 @login_required
 def index_alias(request, interfaceid):
@@ -1004,6 +1056,12 @@ def history(request, object, id):
              object_instance = Extension.objects.get(pk=id)
         except Extension.DoesNotExist:
              messages.error(request, "Extension inexistante")
+             return redirect("/machines/")
+    elif object == 'soa' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = SOA.objects.get(pk=id)
+        except SOA.DoesNotExist:
+             messages.error(request, "SOA inexistant")
              return redirect("/machines/")
     elif object == 'mx' and request.user.has_perms(('cableur',)):
         try:
