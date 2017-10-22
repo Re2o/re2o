@@ -25,12 +25,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Dns</th>
-            <th>Ipv4</th>
-            <th>Localisation</th>
-            <th>Ports</th>
-            <th>Stack</th>
-            <th>id interne Stack</th>
+            <th>{% include "buttons/sort.html" with col='dns' text='Dns' %}</th>
+            <th>{% include "buttons/sort.html" with col='ip' text='Ipv4' %}</th>
+            <th>{% include "buttons/sort.html" with col='loc' text='Localisation' %}</th>
+            <th>{% include "buttons/sort.html" with col='ports' text='Ports' %}</th>
+            <th>{% include "buttons/sort.html" with col='stack' text='Stack' %}</th>
+            <th>Id interne stack</th>
             <th>Détails</th>
             <th></th>
         </tr>

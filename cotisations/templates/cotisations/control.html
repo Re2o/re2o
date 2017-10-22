@@ -40,14 +40,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>Profil</th>
-                <th>Nom</th>
-                <th>Prénom</th>
+                <th>{% include "buttons/sort.html" with col='name' text='Nom' %}</th>
+                <th>{% include "buttons/sort.html" with col='surname' text='Prénom' %}</th>
                 <th>Designation</th>
                 <th>Prix total</th>
-                <th>Moyen de paiement</th>
-                <th>Date</th>
-                <th>Validité</th>
-                <th>Controle trésorier</th>
+                <th>{% include "buttons/sort.html" with col='paiement' text='Moyen de paiement' %}</th>
+                <th>{% include "buttons/sort.html" with col='date' text='Date' %}</th>
+                <th>{% include "buttons/sort.html" with col='valid' text='Valide' %}</th>
+                <th>{% include "buttons/sort.html" with col='control' text='Contrôlée' %}</th>
             </tr>
         </thead>
         {% for form in controlform.forms %}

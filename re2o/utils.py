@@ -171,6 +171,60 @@ class SortTable:
         'end': 'date_end',
         'default': 'date_end'
     }
+    MACHINES_INDEX = {
+        'name': 'name',
+        'default': 'pk'
+    }
+    COTISATIONS_INDEX = {
+        'user': 'user__pseudo',
+        'paiement': 'paiement__moyen',
+        'date': 'date',
+        'default': 'date'
+    }
+    COTISATIONS_CONTROL = {
+        'name': 'user__name',
+        'surname': 'user__surname',
+        'paiement': 'paiement',
+        'date': 'date',
+        'valid': 'valid',
+        'control': 'control',
+        'default': 'date'
+    }
+    TOPOLOGIE_INDEX = {
+        'dns': 'switch_interface__domain__name',
+        'ip': 'switch_interface__ipv4__ipv4',
+        'loc': 'location',
+        'ports': 'number',
+        'stack': 'stack__name',
+        'default': 'switch_interface__domain__name'
+    }
+    TOPOLOGIE_INDEX_PORT = {
+        'port': 'port',
+        'room': 'room__name',
+        'interface': 'machine_interface__domain__name',
+        'related': 'related__switch__name',
+        'radius': 'radius',
+        'vlan': 'vlan_force__name',
+        'default': 'port'
+    }
+    TOPOLOGIE_INDEX_ROOM = {
+        'name': 'name',
+        'default': 'name'
+    }
+    TOPOLOGIE_INDEX_STACK = {
+        'name': 'name',
+        'id': 'stack_id',
+        'default': 'stack_id'
+    }
+    LOGS_INDEX = {
+        'date': 'revision__date_created',
+        'default': 'revision__date_created'
+    }
+    LOGS_STATS_LOGS = {
+        'author': 'user__name',
+        'date': 'date_created',
+        'default': 'date_created'
+    }
 
     @staticmethod
     def sort(request, col, order, criterion):
