@@ -792,9 +792,33 @@ def profil(request, userid):
         .prefetch_related('interface_set__ipv4__ip_type__extension')\
         .prefetch_related('interface_set__type')\
         .prefetch_related('interface_set__domain__related_domain__extension')
+    machines = SortTable.sort(
+        machines,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.MACHINES_INDEX
+    )
     factures = Facture.objects.filter(user=users)
+    factures = SortTable.sort(
+        factures,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_INDEX
+    )
     bans = Ban.objects.filter(user=users)
+    bans = SortTable.sort(
+        bans,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     whitelists = Whitelist.objects.filter(user=users)
+    whitelists = SortTable.sort(
+        whitelists,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_WHITE
+    )
     list_droits = Right.objects.filter(user=users)
     options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde
