@@ -159,14 +159,12 @@ class SortTable:
     }
     USERS_INDEX_BAN = {
         'user': 'user__pseudo',
-        'reason': 'raison',
         'start': 'date_start',
         'end': 'date_end',
         'default': 'date_end'
     }
     USERS_INDEX_WHITE = {
         'user': 'user__pseudo',
-        'reason': 'raison',
         'start': 'date_start',
         'end': 'date_end',
         'default': 'date_end'
