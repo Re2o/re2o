@@ -575,7 +575,7 @@ def index(request):
     """ Affiche l'ensemble des users, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    users_list = User.objects.select_related('room').order_by('state', 'name')
+    users_list = User.objects.select_related('room')
     users_list = SortTable.sort(
         users_list,
         request.GET.get('col'),
