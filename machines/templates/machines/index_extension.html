@@ -35,6 +35,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   {% endif %}
   {%  include "machines/aff_extension.html" with  extension_list=extension_list %}
 
+  <h2>Liste des enregistrements SOA</h2>
+   {% if is_infra %}
+   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-soa'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement SOA</a>
+   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-soa'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement SOA</a>
+   {% endif %}
+   {%  include "machines/aff_soa.html" with  soa_list=soa_list %}
   <h2>Liste des enregistrements MX</h2>
    {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-mx'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement MX</a>

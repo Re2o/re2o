@@ -158,16 +158,20 @@ class ExtensionSerializer(serializers.ModelSerializer):
     des foreign_key donc evalués en get_..."""
     origin = serializers.SerializerMethodField('get_origin_ip')
     zone_entry = serializers.SerializerMethodField('get_zone_name')
+    soa = serializers.SerializerMethodField('get_soa_data')
 
     class Meta:
         model = Extension
-        fields = ('name', 'origin', 'origin_v6', 'zone_entry')
+        fields = ('name', 'origin', 'origin_v6', 'zone_entry', 'soa')
 
     def get_origin_ip(self, obj):
         return obj.origin.ipv4
 
     def get_zone_name(self, obj):
         return str(obj.dns_entry)
+
+    def get_soa_data(self, obj):
+        return { 'mail': obj.soa.dns_soa_mail, 'param': obj.soa.dns_soa_param }
 
 
 class MxSerializer(serializers.ModelSerializer):
