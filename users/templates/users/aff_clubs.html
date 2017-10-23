@@ -1,0 +1,57 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% if clubs_list.paginator %}
+{% include "pagination.html" with list=clubs_list %} 
+{% endif %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{% include "buttons/sort.html" with prefix='club' col="surname" text="Nom" %}</th>
+                <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text="Pseudo" %}</th>
+                <th>{% include "buttons/sort.html" with prefix='club' col="room" text="Chambre" %}</th>
+                <th>Fin de cotisation le</th>
+                <th>Connexion</th>
+                <th>Profil</th>
+            </tr>
+        </thead>
+        {% for club in clubs_list %}    
+        <tr>
+            <td>{{ club.surname }}</td>
+            <td>{{ club.pseudo }}</td>
+            <td>{{ club.room }}</td>
+            <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
+            <td>{% if club.has_access == True %}
+                <font color="green">Active</font>
+                {% else %}
+                <font color="red">Désactivée</font>
+                {% endif %}
+            </td>
+            <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
