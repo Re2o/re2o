@@ -41,7 +41,7 @@ from django.utils import timezone
 
 from preferences.models import OptionalUser
 from .models import User, ServiceUser, Right, School, ListRight, Whitelist
-from .models import Ban, remove_user_room
+from .models import Ban, remove_user_room, Adherent, Club
 
 NOW = timezone.now()
 
@@ -100,7 +100,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('pseudo', 'name', 'surname', 'email')
+        fields = ('pseudo', 'surname', 'email')
 
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques"""
@@ -180,7 +180,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('pseudo', 'password', 'name', 'surname', 'email')
+        fields = ('pseudo', 'password', 'surname', 'email')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -268,7 +268,7 @@ class BaseInfoForm(ModelForm):
         self.fields['school'].empty_label = "Séléctionner un établissement"
 
     class Meta:
-        model = User
+        model = Adherent
         fields = [
             'name',
             'surname',

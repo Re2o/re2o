@@ -42,7 +42,6 @@ from .forms import ServiceUserChangeForm, ServiceUserCreationForm
 class UserAdmin(admin.ModelAdmin):
     """Administration d'un user"""
     list_display = (
-        'name',
         'surname',
         'pseudo',
         'room',
@@ -51,7 +50,7 @@ class UserAdmin(admin.ModelAdmin):
         'shell',
         'state'
     )
-    search_fields = ('name', 'surname', 'pseudo', 'room')
+    search_fields = ('surname', 'pseudo', 'room')
 
 
 class LdapUserAdmin(admin.ModelAdmin):
@@ -127,7 +126,6 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     # that reference specific fields on auth.User.
     list_display = (
         'pseudo',
-        'name',
         'surname',
         'email',
         'school',
@@ -142,7 +140,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             'Personal info',
             {
                 'fields':
-                ('name', 'surname', 'email', 'school', 'shell', 'uid_number')
+                ('surname', 'email', 'school', 'shell', 'uid_number')
             }
         ),
         ('Permissions', {'fields': ('is_admin', )}),
@@ -156,7 +154,6 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 'classes': ('wide',),
                 'fields': (
                     'pseudo',
-                    'name',
                     'surname',
                     'email',
                     'school',
