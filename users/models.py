@@ -207,7 +207,6 @@ class User(AbstractBaseUser):
         """Renvoie un uid libre"""
         return get_fresh_user_uid()
 
-    name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
     pseudo = models.CharField(
         max_length=32,
@@ -681,6 +680,15 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.pseudo
+
+
+class Adherent(User):
+    name = models.CharField(max_length=255)
+    pass
+
+
+class Club(User):
+    pass
 
 
 @receiver(post_save, sender=User)
