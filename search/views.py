@@ -74,20 +74,20 @@ def search_result(search, type, request):
     recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
 
     if request.user.has_perms(('cableur',)):
-        query = Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)
+        query = Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)
     else:
-        query = (Q(user__pseudo__icontains = search) | Q(user__name__icontains = search) | Q(user__surname__icontains = search)) & Q(user = request.user)
+        query = (Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)) & Q(user = request.user)
 
 
     for i in aff:
         if i == '0':
-            query_user_list = Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(name__icontains = search) | Q(surname__icontains = search) & query1
+            query_user_list = Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(adherent__name__icontains = search) | Q(surname__icontains = search) & query1
             if request.user.has_perms(('cableur',)):
                 recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname').distinct()
             else :
                 recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname').distinct()
         if i == '1':
-            query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
+            query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__adherent__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
             if request.user.has_perms(('cableur',)):
                 data = Interface.objects.filter(query_machine_list).distinct()
             else:

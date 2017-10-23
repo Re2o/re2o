@@ -99,7 +99,7 @@ class UserCreationForm(forms.ModelForm):
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
-        model = User
+        model = Adherent
         fields = ('pseudo', 'surname', 'email')
 
     def clean_password2(self):
@@ -179,7 +179,7 @@ class UserChangeForm(forms.ModelForm):
     is_admin = forms.BooleanField(label='is admin', required=False)
 
     class Meta:
-        model = User
+        model = Adherent
         fields = ('pseudo', 'password', 'surname', 'email')
 
     def __init__(self, *args, **kwargs):
@@ -252,13 +252,13 @@ class MassArchiveForm(forms.Form):
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class BaseInfoForm(ModelForm):
+class NewUserForm(ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(BaseInfoForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(NewUserForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Prénom'
         self.fields['surname'].label = 'Nom'
         self.fields['school'].label = 'Établissement'
@@ -292,13 +292,89 @@ class BaseInfoForm(ModelForm):
         return telephone
 
 
+class NewClubForm(ModelForm):
+    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
+    pour l'edition de self par self ou un cableur. On formate les champs
+    avec des label plus jolis"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(NewClubForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['surname'].label = 'Nom'
+        self.fields['school'].label = 'Établissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Chambre'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
+
+    class Meta:
+        model = Club
+        fields = [
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'telephone',
+        ]
+
+    def clean_telephone(self):
+        """Verifie que le tel est présent si 'option est validée
+        dans preferences"""
+        telephone = self.cleaned_data['telephone']
+        preferences, _created = OptionalUser.objects.get_or_create()
+        if not telephone and preferences.is_tel_mandatory:
+            raise forms.ValidationError(
+                "Un numéro de téléphone valide est requis"
+            )
+        return telephone
+
+
+
+class BaseInfoForm(ModelForm):
+    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
+    pour l'edition de self par self ou un cableur. On formate les champs
+    avec des label plus jolis"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(BaseInfoForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['surname'].label = 'Nom'
+        self.fields['school'].label = 'Établissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Chambre'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
+
+    class Meta:
+        model = User
+        fields = [
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'telephone',
+        ]
+
+    def clean_telephone(self):
+        """Verifie que le tel est présent si 'option est validée
+        dans preferences"""
+        telephone = self.cleaned_data['telephone']
+        preferences, _created = OptionalUser.objects.get_or_create()
+        if not telephone and preferences.is_tel_mandatory:
+            raise forms.ValidationError(
+                "Un numéro de téléphone valide est requis"
+            )
+        return telephone
+
+
 class EditInfoForm(BaseInfoForm):
     """Edition complète d'un user. Utilisé par admin,
     permet d'editer normalement la chambre, ou le shell
     Herite de la base"""
     class Meta(BaseInfoForm.Meta):
         fields = [
-            'name',
             'surname',
             'pseudo',
             'email',

@@ -58,7 +58,7 @@ from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
 from users.forms import DelListRightForm, NewListRightForm
 from users.forms import InfoForm, BaseInfoForm, StateForm
 from users.forms import RightForm, SchoolForm, EditServiceUserForm
-from users.forms import ServiceUserForm, ListRightForm
+from users.forms import ServiceUserForm, ListRightForm, NewUserForm, NewClubForm
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from cotisations.models import Facture
 from machines.models import Machine
@@ -85,7 +85,7 @@ def password_change_action(u_form, user, request, req=False):
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = InfoForm(request.POST or None)
+    user = NewUserForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -97,6 +97,25 @@ def new_user(request):
         pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect("/users/profil/" + str(user.id))
     return form({'userform': user}, 'users/user.html', request)
+
+
+@login_required
+@permission_required('cableur')
+def new_club(request):
+    """ Vue de création d'un nouveau club,
+    envoie un mail pour le mot de passe"""
+    club = NewClubForm(request.POST or None)
+    if club.is_valid():
+        club = club.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            club.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        club.reset_passwd_mail(request)
+        messages.success(request, "L'utilisateur %s a été crée, un mail\
+        pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
+        return redirect("/users/profil/" + str(club.id))
+    return form({'userform': club}, 'users/user.html', request)
 
 
 @login_required
@@ -572,10 +591,10 @@ def mass_archive(request):
 @login_required
 @permission_required('cableur')
 def index(request):
-    """ Affiche l'ensemble des users, need droit cableur """
+    """ Affiche l'ensemble des adherents, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    users_list = User.objects.select_related('room')
+    users_list = Adherent.objects.select_related('room')
     users_list = SortTable.sort(
         users_list,
         request.GET.get('col'),
@@ -593,6 +612,32 @@ def index(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         users_list = paginator.page(paginator.num_pages)
     return render(request, 'users/index.html', {'users_list': users_list})
+
+
+@login_required
+@permission_required('cableur')
+def index_clubs(request):
+    """ Affiche l'ensemble des clubs, need droit cableur """
+    options, _created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    clubs_list = Club.objects.select_related('room')
+    clubs_list = SortTable.sort(
+        clubs_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX
+    )
+    paginator = Paginator(clubs_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        clubs_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        clubs_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        clubs_list = paginator.page(paginator.num_pages)
+    return render(request, 'users/index_clubs.html', {'clubs_list': clubs_list})
 
 
 @login_required

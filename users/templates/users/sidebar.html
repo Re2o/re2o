@@ -30,11 +30,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-plus"></i>
             Créer un adhérent
         </a>
-        <a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
-            <i class="glyphicon glyphicon-list"></i>
-            Adhérents
+        <a class="list-group-item list-group-item-success" href="{% url "users:new-club" %}">
+            <i class="glyphicon glyphicon-plus"></i>
+            Créer un club/association
         </a>
-        <a class="list-group-item list-group-item-info" href="{% url "users:index-ban" %}">
+	<a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Adherents
+        </a>
+	<a class="list-group-item list-group-item-info" href="{% url "users:index-clubs" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Clubs
+        </a>
+	<a class="list-group-item list-group-item-info" href="{% url "users:index-ban" %}">
             <i class="glyphicon glyphicon-list"></i>
             Bannissements
         </a>

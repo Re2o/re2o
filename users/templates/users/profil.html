@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-    <h2>Adhérent</h2>
+<h2>{{ user.class_name }}</h2>
     <div>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}">
             <i class="glyphicon glyphicon-edit"></i>

@@ -149,7 +149,6 @@ class UserManager(BaseUserManager):
     def _create_user(
             self,
             pseudo,
-            name,
             surname,
             email,
             password=None,
@@ -163,7 +162,6 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             pseudo=pseudo,
-            name=name,
             surname=surname,
             email=self.normalize_email(email),
         )
@@ -174,19 +172,19 @@ class UserManager(BaseUserManager):
             user.make_admin()
         return user
 
-    def create_user(self, pseudo, name, surname, email, password=None):
+    def create_user(self, pseudo, surname, email, password=None):
         """
         Creates and saves a User with the given pseudo, name, surname, email,
         and password.
         """
-        return self._create_user(pseudo, name, surname, email, password, False)
+        return self._create_user(pseudo, surname, email, password, False)
 
-    def create_superuser(self, pseudo, name, surname, email, password):
+    def create_superuser(self, pseudo, surname, email, password):
         """
         Creates and saves a superuser with the given pseudo, name, surname,
         email, and password.
         """
-        return self._create_user(pseudo, name, surname, email, password, True)
+        return self._create_user(pseudo, surname, email, password, True)
 
 
 class User(AbstractBaseUser):
@@ -246,9 +244,35 @@ class User(AbstractBaseUser):
     rezo_rez_uid = models.PositiveIntegerField(unique=True, blank=True, null=True)
 
     USERNAME_FIELD = 'pseudo'
-    REQUIRED_FIELDS = ['name', 'surname', 'email']
+    REQUIRED_FIELDS = ['surname', 'email']
 
     objects = UserManager()
+
+    @cached_property
+    def name(self):
+        """Si il s'agit d'un adhérent, on renvoie le prénom"""
+        if self.is_class_adherent:
+            return self.adherent.name
+        else:
+            return ''
+
+    @cached_property
+    def class_name(self):
+        """Renvoie si il s'agit d'un adhérent ou d'un club"""
+        if hasattr(self, 'adherent'):
+            return "Adhérent"
+        elif hasattr(self, 'club'):
+            return "Club"
+        else:
+            raise NotImplementedError("Type inconnu")
+
+    @cached_property
+    def is_class_club(self):
+        return hasattr(self, 'club')
+
+    @cached_property
+    def is_class_adherent(self):
+        return hasattr(self, 'adherent')
 
     @property
     def is_active(self):
@@ -280,11 +304,15 @@ class User(AbstractBaseUser):
 
     def get_full_name(self):
         """ Renvoie le nom complet de l'user formaté nom/prénom"""
-        return '%s %s' % (self.name, self.surname)
+        name = self.name
+        if name:
+            return '%s %s' % (name, self.surname)
+        else:
+            return self.surname
 
     def get_short_name(self):
         """ Renvoie seulement le nom"""
-        return self.name
+        return self.surname
 
     def has_perms(self, perms, obj=None):
         """ Renvoie true si l'user dispose de la permission.
@@ -570,7 +598,7 @@ class User(AbstractBaseUser):
             .objects.get_or_create()
         general_options, _created = GeneralOption.objects.get_or_create()
         context = Context({
-            'nom': str(self.name) + ' ' + str(self.surname),
+            'nom': self.get_full_name(),
             'asso_name': assooptions.name,
             'asso_email': assooptions.contact,
             'welcome_mail_fr': mailmessageoptions.welcome_mail_fr,
@@ -599,7 +627,7 @@ class User(AbstractBaseUser):
         options, _created = AssoOption.objects.get_or_create()
         general_options, _created = GeneralOption.objects.get_or_create()
         context = {
-            'name': str(req.user.name) + ' ' + str(req.user.surname),
+            'name': req.user.get_full_name(),
             'asso': options.name,
             'asso_mail': options.contact,
             'site_name': general_options.site_name,
@@ -929,7 +957,7 @@ class Ban(models.Model):
         template = loader.get_template('users/email_ban_notif')
         options, _created = AssoOption.objects.get_or_create()
         context = Context({
-            'name': str(self.user.name) + ' ' + str(self.user.surname),
+            'name': self.user.get_full_name(),
             'raison': self.raison,
             'date_end': self.date_end,
             'asso_name': options.name,
