@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td>{{switch.stack.name}}</td>
        <td>{{switch.stack_member_id}}</td>
        <td>{{switch.details}}</td>
-       <td>
+       <td class="text-right">
        	   {% include 'buttons/history.html' with href='topologie:history' name='switch' id=switch.pk%}
        	   {% if is_infra %}
            {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %} 
