@@ -81,15 +81,6 @@ DT_NOW = timezone.now()
 
 # Utilitaires généraux
 
-def remove_user_room(room):
-    """ Déménage de force l'ancien locataire de la chambre """
-    try:
-        user = User.objects.get(room=room)
-    except User.DoesNotExist:
-        return
-    user.room = None
-    user.save()
-
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
@@ -230,12 +221,6 @@ class User(AbstractBaseUser):
         max_length=255,
         blank=True
     )
-    room = models.OneToOneField(
-        'topologie.Room',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
@@ -255,6 +240,16 @@ class User(AbstractBaseUser):
             return self.adherent.name
         else:
             return ''
+
+    @cached_property
+    def room(self):
+        """Alias vers room """
+        if self.is_class_adherent:
+            return self.adherent.room
+        elif self.is_class_club:
+            return self.club.room
+        else:
+            raise NotImplementedError("Type inconnu")
 
     @cached_property
     def class_name(self):
@@ -712,10 +707,22 @@ class User(AbstractBaseUser):
 
 class Adherent(User):
     name = models.CharField(max_length=255)
+    room = models.OneToOneField(
+        'topologie.Room',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
     pass
 
 
 class Club(User):
+    room = models.ForeignKey(
+        'topologie.Room',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
     pass
 
 

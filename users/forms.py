@@ -41,7 +41,8 @@ from django.utils import timezone
 
 from preferences.models import OptionalUser
 from .models import User, ServiceUser, Right, School, ListRight, Whitelist
-from .models import Ban, remove_user_room, Adherent, Club
+from .models import Ban, Adherent, Club
+from re2o.utils import remove_user_room
 
 NOW = timezone.now()
 
@@ -252,13 +253,13 @@ class MassArchiveForm(forms.Form):
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class NewUserForm(ModelForm):
+class AdherentForm(ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewUserForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Prénom'
         self.fields['surname'].label = 'Nom'
         self.fields['school'].label = 'Établissement'
@@ -291,18 +292,31 @@ class NewUserForm(ModelForm):
             )
         return telephone
 
+    force = forms.BooleanField(
+        label="Forcer le déménagement ?",
+        initial=False,
+        required=False
+    )
 
-class NewClubForm(ModelForm):
+    def clean_force(self):
+        """On supprime l'ancien user de la chambre si et seulement si la
+        case est cochée"""
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
+
+
+class ClubForm(ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewClubForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(ClubForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['surname'].label = 'Nom'
         self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Chambre'
+        self.fields['room'].label = 'Local'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
 
@@ -330,51 +344,13 @@ class NewClubForm(ModelForm):
         return telephone
 
 
-
-class BaseInfoForm(ModelForm):
-    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
-    pour l'edition de self par self ou un cableur. On formate les champs
-    avec des label plus jolis"""
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(BaseInfoForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['surname'].label = 'Nom'
-        self.fields['school'].label = 'Établissement'
-        self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Chambre'
-        self.fields['room'].empty_label = "Pas de chambre"
-        self.fields['school'].empty_label = "Séléctionner un établissement"
-
-    class Meta:
-        model = User
-        fields = [
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'telephone',
-        ]
-
-    def clean_telephone(self):
-        """Verifie que le tel est présent si 'option est validée
-        dans preferences"""
-        telephone = self.cleaned_data['telephone']
-        preferences, _created = OptionalUser.objects.get_or_create()
-        if not telephone and preferences.is_tel_mandatory:
-            raise forms.ValidationError(
-                "Un numéro de téléphone valide est requis"
-            )
-        return telephone
-
-
-class EditInfoForm(BaseInfoForm):
+class FullAdherentForm(AdherentForm):
     """Edition complète d'un user. Utilisé par admin,
     permet d'editer normalement la chambre, ou le shell
     Herite de la base"""
-    class Meta(BaseInfoForm.Meta):
+    class Meta(AdherentForm.Meta):
         fields = [
+            'name',
             'surname',
             'pseudo',
             'email',
@@ -386,27 +362,21 @@ class EditInfoForm(BaseInfoForm):
         ]
 
 
-class InfoForm(EditInfoForm):
-    """ Utile pour forcer un déménagement quand il y a déjà un user en place
-    Formuaire utilisé pour la creation initiale"""
-    force = forms.BooleanField(
-        label="Forcer le déménagement ?",
-        initial=False,
-        required=False
-    )
-
-    def clean_force(self):
-        """On supprime l'ancien user de la chambre si et seulement si la
-        case est cochée"""
-        if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
-        return
-
-
-class UserForm(InfoForm):
-    """ Model form general"""
-    class Meta(InfoForm.Meta):
-        fields = '__all__'
+class FullClubForm(ClubForm):
+    """Edition complète d'un user. Utilisé par admin,
+    permet d'editer normalement la chambre, ou le shell
+    Herite de la base"""
+    class Meta(ClubForm.Meta):
+        fields = [
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'shell',
+            'telephone',
+        ]
 
 
 class PasswordForm(ModelForm):
