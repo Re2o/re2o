@@ -292,11 +292,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         if not port.room:
             return (sw_name, u'Chambre inconnue', VLAN_NOK)
 
-        room_user = User.objects.filter(room=port.room)
+        room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
         if not room_user:
             return (sw_name, u'Chambre non cotisante', VLAN_NOK)
-        elif not room_user.first().has_access():
-            return (sw_name, u'Chambre resident desactive', VLAN_NOK)
+        for user in room_user:
+            if not user.has_access():
+                return (sw_name, u'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
     if port.radius == 'COMMON' or port.radius == 'STRICT':
@@ -309,9 +310,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
             elif not port.room:
                 return (sw_name, u'Chambre et machine inconnues', VLAN_NOK)
             else:
-                room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+                if not room_user:
+                    room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
                 if not room_user:
                     return (sw_name, u'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
+                elif room_user.count() > 1:
+                    return (sw_name, u'Machine inconnue, il y a au moins 2 users dans la chambre/local -> ajout de mac automatique impossible', VLAN_NOK)
                 elif not room_user.first().has_access():
                     return (sw_name, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
