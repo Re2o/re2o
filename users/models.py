@@ -669,9 +669,33 @@ class User(AbstractBaseUser):
             domain.interface_parent = interface_cible
             domain.clean()
             domain.save()
+            self.notif_auto_newmachine(interface_cible)
         except Exception as error:
             return False, error
         return True, "Ok"
+
+    def notif_auto_newmachine(self, interface):
+        """Notification mail lorsque une machine est automatiquement
+        ajoutée par le radius"""
+        template = loader.get_template('users/email_auto_newmachine')
+        assooptions, _created = AssoOption.objects.get_or_create()
+        general_options, _created = GeneralOption.objects.get_or_create()
+        context = Context({
+            'nom': self.get_full_name(),
+            'mac_address' : interface.mac_address,
+            'asso_name': assooptions.name,
+            'interface_name' : interface.domain,
+            'asso_email': assooptions.contact,
+            'pseudo': self.pseudo,
+        })
+        send_mail(
+            "Ajout automatique d'une machine / New machine autoregistered",
+            '',
+            general_options.email_from,
+            [self.email],
+            html_message=template.render(context)
+        )
+        return
 
     def set_user_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
