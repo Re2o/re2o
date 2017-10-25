@@ -55,10 +55,10 @@ from users.serializers import MailSerializer
 from users.models import User, Right, Ban, Whitelist, School, ListRight
 from users.models import Request, ServiceUser, Adherent, Club
 from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
-from users.forms import DelListRightForm, NewListRightForm
-from users.forms import InfoForm, BaseInfoForm, StateForm
+from users.forms import DelListRightForm, NewListRightForm, FullAdherentForm
+from users.forms import StateForm, FullClubForm
 from users.forms import RightForm, SchoolForm, EditServiceUserForm
-from users.forms import ServiceUserForm, ListRightForm, NewUserForm, NewClubForm
+from users.forms import ServiceUserForm, ListRightForm, AdherentForm, ClubForm
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
 from cotisations.models import Facture
 from machines.models import Machine
@@ -85,7 +85,7 @@ def password_change_action(u_form, user, request, req=False):
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = NewUserForm(request.POST or None)
+    user = AdherentForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -104,7 +104,7 @@ def new_user(request):
 def new_club(request):
     """ Vue de création d'un nouveau club,
     envoie un mail pour le mot de passe"""
-    club = NewClubForm(request.POST or None)
+    club = ClubForm(request.POST or None)
     if club.is_valid():
         club = club.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -116,6 +116,24 @@ def new_club(request):
         pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
         return redirect("/users/profil/" + str(club.id))
     return form({'userform': club}, 'users/user.html', request)
+
+
+def select_user_edit_form(request, user):
+    """Fonction de choix du bon formulaire, en fonction de:
+        - droit
+        - type d'object
+    """
+    if not request.user.has_perms(('cableur',)):
+        if user.is_class_adherent:
+            user = AdherentForm(request.POST or None, instance=user.adherent)
+        elif user.is_class_club:
+            user = ClubForm(request.POST or None, instance=user.club)
+    else:
+        if user.is_class_adherent:
+            user = FullAdherentForm(request.POST or None, instance=user.adherent)
+        elif user.is_class_club:
+            user = FullClubForm(request.POST or None, instance=user.club)
+    return user
 
 
 @login_required
@@ -132,10 +150,7 @@ def edit_info(request, userid):
         messages.error(request, "Vous ne pouvez pas modifier un autre\
         user que vous sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
-    if not request.user.has_perms(('cableur',)):
-        user = BaseInfoForm(request.POST or None, instance=user)
-    else:
-        user = InfoForm(request.POST or None, instance=user)
+    user = select_user_edit_form(request, user)
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()

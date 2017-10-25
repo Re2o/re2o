@@ -42,7 +42,7 @@ from django.db.models import Q
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine
-from users.models import User, Ban, Whitelist
+from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import Service
 
 DT_NOW = timezone.now()
@@ -238,3 +238,13 @@ class SortTable:
             return request.reverse()
         else:
             return request
+
+
+def remove_user_room(room):
+    """ Déménage de force l'ancien locataire de la chambre """
+    try:
+        user = Adherent.objects.get(room=room)
+    except Adherent.DoesNotExist:
+        return
+    user.room = None
+    user.save()

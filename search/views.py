@@ -81,7 +81,7 @@ def search_result(search, type, request):
 
     for i in aff:
         if i == '0':
-            query_user_list = Q(room__name__icontains = search) | Q(pseudo__icontains = search) | Q(adherent__name__icontains = search) | Q(surname__icontains = search) & query1
+            query_user_list = Q(adherent__room__name__icontains = search) | Q(club__room__name__icontains = search) | Q(pseudo__icontains = search) | Q(adherent__name__icontains = search) | Q(surname__icontains = search) & query1
             if request.user.has_perms(('cableur',)):
                 recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname').distinct()
             else :
