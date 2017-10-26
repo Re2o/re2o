@@ -59,6 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        	   {% if is_infra %}
            {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %} 
            {% include 'buttons/suppr.html' with href='machines:del-interface' id=switch.switch_interface.id %} 
+	   {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.pk desc='Création de ports'%}
            {% endif %}
        </td>
    </tr>
