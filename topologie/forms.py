@@ -33,6 +33,7 @@ NewSwitchForm)
 from __future__ import unicode_literals
 
 from machines.models import Interface
+from django import forms
 from django.forms import ModelForm
 from .models import Port, Switch, Room, Stack, ModelSwitch, ConstructorSwitch
 
@@ -137,6 +138,12 @@ class EditRoomForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class CreatePortsForm(Form):
+    """Permet de créer une liste de ports pour un switch."""
+    begin = forms.IntegerField(label="Début :", min_value=0)
+    end = forms.IntegerField(label="Fin :", min_value=0)
 
 
 class EditModelSwitchForm(ModelForm):
