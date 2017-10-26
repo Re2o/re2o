@@ -140,7 +140,7 @@ class EditRoomForm(ModelForm):
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class CreatePortsForm(Form):
+class CreatePortsForm(forms.Form):
     """Permet de créer une liste de ports pour un switch."""
     begin = forms.IntegerField(label="Début :", min_value=0)
     end = forms.IntegerField(label="Fin :", min_value=0)
