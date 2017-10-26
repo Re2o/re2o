@@ -44,13 +44,12 @@ class UserAdmin(admin.ModelAdmin):
     list_display = (
         'surname',
         'pseudo',
-        'room',
         'email',
         'school',
         'shell',
         'state'
     )
-    search_fields = ('surname', 'pseudo', 'room')
+    search_fields = ('surname', 'pseudo')
 
 
 class LdapUserAdmin(admin.ModelAdmin):
