@@ -425,9 +425,9 @@ def create_ports(request, switch_id):
     s_begin = s_end = 0
     nb_ports = switch.ports.count()
     if nb_ports > 0:
-        ports = switch.ports.order_by('port')
-        s_begin = ports[0].port
-        s_end = ports.last().port
+        ports = switch.ports.order_by('port').values('port')
+        s_begin = ports.first().get('port')
+        s_end = ports.last().get('port')
 
     port_form = CreatePortsForm(
         request.POST or None,
