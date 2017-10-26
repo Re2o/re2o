@@ -460,6 +460,15 @@ class Interface(models.Model):
     def clean(self, *args, **kwargs):
         """ Formate l'addresse mac en mac_bare (fonction filter_mac)
         et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
+        # If type was an invalid value, django won't create an attribute type
+        # but try clean() as we may be able to create it from another value
+        # so even if the error as yet been detected at this point, django
+        # continues because the error might not prevent us from creating the
+        # instance.
+        # But in our case, it's impossible to create a type value so we raise
+        # the error.
+        if not hasattr(self, 'type') :
+            raise ValidationError("Le type d'ip choisi n'est pas valide")
         self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
