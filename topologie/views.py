@@ -422,11 +422,12 @@ def create_ports(request, switch_id):
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
 
-    ports = switch.ports.order_by('port')
     s_begin = s_end = 0
-    if len(ports) > 0:
+    nb_ports = switch.ports.count()
+    if nb_ports > 0:
+        ports = switch.ports.order_by('port')
         s_begin = ports[0].port
-        s_end = ports[len(ports)-1].port
+        s_end = ports.last().port
 
     port_form = CreatePortsForm(
         request.POST or None,
