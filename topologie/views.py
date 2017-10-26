@@ -440,10 +440,10 @@ def create_ports(request, switch_id):
         e = []
         if end < begin:
             messages.error(request, "Port de fin inférieur au port de début !")
-            return redirect("/topologie/")
+            return redirect("/topologie/switch/" + str(switch.id))
         if end - begin > switch.number:
             messages.error(request, "Ce switch ne peut avoir autant de ports.")
-            return redirect("/topologie/")
+            return redirect("/topologie/switch/" + str(switch.id))
 
         if begin < s_begin:
             b = range(begin, s_begin)
@@ -461,7 +461,7 @@ def create_ports(request, switch_id):
                 messages.success(request, "Création du port %d" % i)
             except IntegrityError:
                 messages.error(request, "Création d'un port existant.")
-        return redirect("/topologie/")
+        return redirect("/topologie/switch/" + str(switch.id))
 
     return form({'topoform': port_form,}, 'topologie/switch.html', request)
     
