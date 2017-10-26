@@ -445,10 +445,8 @@ def create_ports(request, switch_id):
             messages.error(request, "Ce switch ne peut avoir autant de ports.")
             return redirect("/topologie/switch/" + str(switch.id))
 
-        if begin < s_begin:
-            b = range(begin, s_begin)
-        if end > s_end:
-            e = range(s_end+1, end+1)
+        b = range(begin, s_begin)
+        e = range(s_end+1, end+1)
         for i in itertools.chain(b,e):
             p = Port()
             p.switch = switch
