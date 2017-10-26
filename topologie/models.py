@@ -93,12 +93,18 @@ class Switch(models.Model):
     number = models.PositiveIntegerField()
     details = models.CharField(max_length=255, blank=True)
     stack = models.ForeignKey(
-        Stack,
+        'topologie.Stack',
         blank=True,
         null=True,
         on_delete=models.SET_NULL
         )
     stack_member_id = models.PositiveIntegerField(blank=True, null=True)
+    model = models.ForeignKey(
+        'topologie.ModelSwitch',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -119,6 +125,26 @@ class Switch(models.Model):
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
+
+
+class ModelSwitch(models.Model):
+    """Un modèle (au sens constructeur) de switch"""
+    reference = models.CharField(max_length=255)
+    constructor = models.ForeignKey(
+        'topologie.ConstructorSwitch',
+        on_delete=models.PROTECT
+    )
+
+    def __str__(self):
+        return str(self.constructor) + ' ' + str(self.reference)
+
+
+class ConstructorSwitch(models.Model):
+    """Un constructeur de switch"""
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Port(models.Model):

@@ -45,12 +45,31 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 from reversion.models import Version
 
-from topologie.models import Switch, Port, Room, Stack
+from topologie.models import (
+    Switch,
+    Port,
+    Room,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch
+)
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
-from topologie.forms import AddPortForm, EditRoomForm, StackForm
+from topologie.forms import (
+    AddPortForm,
+    EditRoomForm,
+    StackForm,
+    EditModelSwitchForm, 
+    EditConstructorSwitchForm
+)
 from users.views import form
 from re2o.utils import SortTable
-from machines.forms import DomainForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.forms import (
+    DomainForm,
+    NewMachineForm,
+    EditMachineForm,
+    EditInterfaceForm,
+    AddInterfaceForm
+)
 from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
 
@@ -102,6 +121,18 @@ def history(request, object_name, object_id):
             object_instance = Stack.objects.get(pk=object_id)
         except Room.DoesNotExist:
             messages.error(request, "Stack inexistante")
+            return redirect("/topologie/")
+    elif object_name == 'model_switch':
+        try:
+            object_instance = ModelSwitch.objects.get(pk=object_id)
+        except ModelSwitch.DoesNotExist:
+            messages.error(request, "SwitchModel inexistant")
+            return redirect("/topologie/")
+    elif object_name == 'constructor_switch':
+        try:
+            object_instance = ConstructorSwitch.objects.get(pk=object_id)
+        except ConstructorSwitch.DoesNotExist:
+            messages.error(request, "SwitchConstructor inexistant")
             return redirect("/topologie/")
     else:
         messages.error(request, "Objet  inconnu")
@@ -195,6 +226,30 @@ def index_stack(request):
     )
     return render(request, 'topologie/index_stack.html', {
         'stack_list': stack_list
+        })
+
+
+@login_required
+@permission_required('cableur')
+def index_model_switch(request):
+    """ Affichage de l'ensemble des modèles de switches"""
+    model_switch_list = ModelSwitch.objects
+    constructor_switch_list = ConstructorSwitch.objects
+    model_switch_list = SortTable.sort(
+        model_switch_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_MODEL_SWITCH
+    )
+    constructor_switch_list = SortTable.sort(
+        constructor_switch_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH
+    )
+    return render(request, 'topologie/index_model_switch.html', {
+        'model_switch_list': model_switch_list,
+        'constructor_switch_list': constructor_switch_list,
         })
 
 
@@ -537,4 +592,130 @@ def del_room(request, room_id):
     return form({
         'objet': room,
         'objet_name': 'Chambre'
+        }, 'topologie/delete.html', request)
+
+
+@login_required
+@permission_required('infra')
+def new_model_switch(request):
+    """Nouveau modèle de switch"""
+    model_switch = EditModelSwitchForm(request.POST or None)
+    if model_switch.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            model_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Le modèle a été créé")
+        return redirect("/topologie/index_model_switch/")
+    return form({'topoform': model_switch}, 'topologie/topo.html', request)
+
+
+@login_required
+@permission_required('infra')
+def edit_model_switch(request, model_switch_id):
+    """ Edition d'un modèle de switch"""
+    try:
+        model_switch = ModelSwitch.objects.get(pk=model_switch_id)
+    except ModelSwitch.DoesNotExist:
+        messages.error(request, u"Modèle inconnu")
+        return redirect("/topologie/index_model_switch/")
+    model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
+    if model_switch.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            model_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in model_switch.changed_data)
+            )
+        messages.success(request, "Le modèle a bien été modifié")
+        return redirect("/topologie/index_model_switch/")
+    return form({'topoform': model_switch}, 'topologie/topo.html', request)
+
+
+@login_required
+@permission_required('infra')
+def del_model_switch(request, model_switch_id):
+    """ Suppression d'un modèle de switch"""
+    try:
+        model_switch = ModelSwitch.objects.get(pk=model_switch_id)
+    except ModelSwitch.DoesNotExist:
+        messages.error(request, u"Modèle inexistant")
+        return redirect("/topologie/index_model_switch/")
+    if request.method == "POST":
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                model_switch.delete()
+                reversion.set_user(request.user)
+                reversion.set_comment("Destruction")
+                messages.success(request, "Le modèle a été détruit")
+        except ProtectedError:
+            messages.error(request, "Le modèle %s est affectée à un autre objet,\
+                impossible de la supprimer (switch ou user)" % model_switch)
+        return redirect("/topologie/index_model_switch/")
+    return form({
+        'objet': model_switch,
+        'objet_name': 'Modèle de switch'
+        }, 'topologie/delete.html', request)
+
+
+@login_required
+@permission_required('infra')
+def new_constructor_switch(request):
+    """Nouveau constructeur de switch"""
+    constructor_switch = EditConstructorSwitchForm(request.POST or None)
+    if constructor_switch.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            constructor_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Le constructeur a été créé")
+        return redirect("/topologie/index_model_switch/")
+    return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
+
+
+@login_required
+@permission_required('infra')
+def edit_constructor_switch(request, constructor_switch_id):
+    """ Edition d'un constructeur de switch"""
+    try:
+        constructor_switch = ConstructorSwitch.objects.get(pk=constructor_switch_id)
+    except ConstructorSwitch.DoesNotExist:
+        messages.error(request, u"Constructeur inconnu")
+        return redirect("/topologie/index_model_switch/")
+    constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
+    if constructor_switch.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            constructor_switch.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in constructor_switch.changed_data)
+            )
+        messages.success(request, "Le modèle a bien été modifié")
+        return redirect("/topologie/index_model_switch/")
+    return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
+
+
+@login_required
+@permission_required('infra')
+def del_constructor_switch(request, constructor_switch_id):
+    """ Suppression d'un constructeur de switch"""
+    try:
+        constructor_switch = ConstructorSwitch.objects.get(pk=constructor_switch_id)
+    except ConstructorSwitch.DoesNotExist:
+        messages.error(request, u"Constructeur inexistant")
+        return redirect("/topologie/index_model_switch/")
+    if request.method == "POST":
+        try:
+            with transaction.atomic(), reversion.create_revision():
+                constructor_switch.delete()
+                reversion.set_user(request.user)
+                reversion.set_comment("Destruction")
+                messages.success(request, "Le constructeur a été détruit")
+        except ProtectedError:
+            messages.error(request, "Le constructeur %s est affecté à un autre objet,\
+                impossible de la supprimer (switch ou user)" % constructor_switch)
+        return redirect("/topologie/index_model_switch/")
+    return form({
+        'objet': constructor_switch,
+        'objet_name': 'Constructeur de switch'
         }, 'topologie/delete.html', request)
