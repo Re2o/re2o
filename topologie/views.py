@@ -53,7 +53,13 @@ from topologie.forms import AddPortForm, EditRoomForm, StackForm
 from topologie.forms import CreatePortsForm
 from users.views import form
 from re2o.utils import SortTable
-from machines.forms import DomainForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
+from machines.forms import (
+    DomainForm,
+    NewMachineForm,
+    EditMachineForm,
+    EditInterfaceForm,
+    AddInterfaceForm
+)
 from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
 
@@ -141,7 +147,9 @@ def index_port(request, switch_id):
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
         .select_related('machine_interface__machine__user')\
-        .select_related('related__switch__switch_interface__domain__extension')\
+        .select_related(
+            'related__switch__switch_interface__domain__extension'
+        )\
         .select_related('switch')
     port_list = SortTable.sort(
         port_list,
@@ -403,7 +411,7 @@ def new_switch(request):
             reversion.set_comment("Création")
         messages.success(request, "Le switch a été créé")
         return redirect("/topologie/")
-    i_mbf_param = generate_ipv4_mbf_param( interface, False )
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form({
         'topoform': switch,
         'machineform': machine,
@@ -411,6 +419,7 @@ def new_switch(request):
         'domainform': domain,
         'i_mbf_param': i_mbf_param
         }, 'topologie/switch.html', request)
+
 
 @login_required
 @permission_required('infra')
@@ -431,13 +440,11 @@ def create_ports(request, switch_id):
 
     port_form = CreatePortsForm(
         request.POST or None,
-        initial={'begin':s_begin,'end':s_end}
+        initial={'begin': s_begin, 'end': s_end}
     )
     if port_form.is_valid():
         begin = port_form.cleaned_data['begin']
         end = port_form.cleaned_data['end']
-        b = []
-        e = []
         if end < begin:
             messages.error(request, "Port de fin inférieur au port de début !")
             return redirect("/topologie/switch/" + str(switch.id))
@@ -445,15 +452,15 @@ def create_ports(request, switch_id):
             messages.error(request, "Ce switch ne peut avoir autant de ports.")
             return redirect("/topologie/switch/" + str(switch.id))
 
-        b = range(begin, s_begin)
-        e = range(s_end+1, end+1)
-        for i in itertools.chain(b,e):
-            p = Port()
-            p.switch = switch
-            p.port = i
+        begin_range = range(begin, s_begin)
+        end_range = range(s_end+1, end+1)
+        for i in itertools.chain(begin_range, end_range):
+            port = Port()
+            port.switch = switch
+            port.port = i
             try:
                 with transaction.atomic(), reversion.create_revision():
-                    p.save()
+                    port.save()
                     reversion.set_user(request.user)
                     reversion.set_comment("Création")
                 messages.success(request, "Création du port %d" % i)
@@ -461,8 +468,8 @@ def create_ports(request, switch_id):
                 messages.error(request, "Création d'un port existant.")
         return redirect("/topologie/switch/" + str(switch.id))
 
-    return form({'topoform': port_form,}, 'topologie/switch.html', request)
-    
+    return form({'topoform': port_form}, 'topologie/switch.html', request)
+
 
 @login_required
 @permission_required('infra')
@@ -521,7 +528,7 @@ def edit_switch(request, switch_id):
                                  )
         messages.success(request, "Le switch a bien été modifié")
         return redirect("/topologie/")
-    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form({
         'topoform': switch_form,
         'machineform': machine_form,
