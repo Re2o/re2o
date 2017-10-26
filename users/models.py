@@ -81,15 +81,6 @@ DT_NOW = timezone.now()
 
 # Utilitaires généraux
 
-def remove_user_room(room):
-    """ Déménage de force l'ancien locataire de la chambre """
-    try:
-        user = User.objects.get(room=room)
-    except User.DoesNotExist:
-        return
-    user.room = None
-    user.save()
-
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
@@ -230,12 +221,6 @@ class User(AbstractBaseUser):
         max_length=255,
         blank=True
     )
-    room = models.OneToOneField(
-        'topologie.Room',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
@@ -255,6 +240,16 @@ class User(AbstractBaseUser):
             return self.adherent.name
         else:
             return ''
+
+    @cached_property
+    def room(self):
+        """Alias vers room """
+        if self.is_class_adherent:
+            return self.adherent.room
+        elif self.is_class_club:
+            return self.club.room
+        else:
+            raise NotImplementedError("Type inconnu")
 
     @cached_property
     def class_name(self):
@@ -674,9 +669,33 @@ class User(AbstractBaseUser):
             domain.interface_parent = interface_cible
             domain.clean()
             domain.save()
+            self.notif_auto_newmachine(interface_cible)
         except Exception as error:
             return False, error
         return True, "Ok"
+
+    def notif_auto_newmachine(self, interface):
+        """Notification mail lorsque une machine est automatiquement
+        ajoutée par le radius"""
+        template = loader.get_template('users/email_auto_newmachine')
+        assooptions, _created = AssoOption.objects.get_or_create()
+        general_options, _created = GeneralOption.objects.get_or_create()
+        context = Context({
+            'nom': self.get_full_name(),
+            'mac_address' : interface.mac_address,
+            'asso_name': assooptions.name,
+            'interface_name' : interface.domain,
+            'asso_email': assooptions.contact,
+            'pseudo': self.pseudo,
+        })
+        send_mail(
+            "Ajout automatique d'une machine / New machine autoregistered",
+            '',
+            general_options.email_from,
+            [self.email],
+            html_message=template.render(context)
+        )
+        return
 
     def set_user_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
@@ -712,10 +731,22 @@ class User(AbstractBaseUser):
 
 class Adherent(User):
     name = models.CharField(max_length=255)
+    room = models.OneToOneField(
+        'topologie.Room',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
     pass
 
 
 class Club(User):
+    room = models.ForeignKey(
+        'topologie.Room',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
     pass
 
 
