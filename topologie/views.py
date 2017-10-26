@@ -35,14 +35,13 @@ coté models et forms de topologie
 """
 from __future__ import unicode_literals
 
-import itertools
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 from reversion.models import Version
@@ -491,42 +490,28 @@ def create_ports(request, switch_id):
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
-
+    
     s_begin = s_end = 0
     nb_ports = switch.ports.count()
     if nb_ports > 0:
         ports = switch.ports.order_by('port').values('port')
         s_begin = ports.first().get('port')
         s_end = ports.last().get('port')
-
+    
     port_form = CreatePortsForm(
         request.POST or None,
         initial={'begin': s_begin, 'end': s_end}
     )
+
     if port_form.is_valid():
         begin = port_form.cleaned_data['begin']
         end = port_form.cleaned_data['end']
-        if end < begin:
-            messages.error(request, "Port de fin inférieur au port de début !")
-            return redirect("/topologie/switch/" + str(switch.id))
-        if end - begin > switch.number:
-            messages.error(request, "Ce switch ne peut avoir autant de ports.")
-            return redirect("/topologie/switch/" + str(switch.id))
+        try:
+            switch.create_ports(begin, end)
+            messages.success(request, "Ports créés.")
+        except ValidationError as e:
+            messages.error(request, ''.join(e))
 
-        begin_range = range(begin, s_begin)
-        end_range = range(s_end+1, end+1)
-        for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = switch
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                messages.success(request, "Création du port %d" % i)
-            except IntegrityError:
-                messages.error(request, "Création d'un port existant.")
         return redirect("/topologie/switch/" + str(switch.id))
 
     return form({'topoform': port_form}, 'topologie/switch.html', request)
