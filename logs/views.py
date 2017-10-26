@@ -37,6 +37,7 @@ nombre d'objets par models, nombre d'actions par user, etc
 
 from __future__ import unicode_literals
 
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
@@ -169,7 +170,7 @@ def revert_action(request, revision_id):
     if request.method == "POST":
         revision.revert()
         messages.success(request, "L'action a été supprimée")
-        return redirect("/logs/")
+        return redirect(reverse('logs:index'))
     return form({
         'objet': revision,
         'objet_name': revision.__class__.__name__
