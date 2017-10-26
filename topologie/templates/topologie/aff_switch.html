@@ -22,6 +22,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% if switch_list.paginator %}
+{% include "pagination.html" with list=switch_list %}
+{% endif %}
+
 <table class="table table-striped">
     <thead>
         <tr>

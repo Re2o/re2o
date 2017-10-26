@@ -89,6 +89,18 @@ def index(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX
     )
+    options, _created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    paginator = Paginator(switch_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        switch_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        switch_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        switch_list = paginator.page(paginator.num_pages)
     return render(request, 'topologie/index.html', {
         'switch_list': switch_list
         })
