@@ -752,6 +752,7 @@ class Club(User):
 
 @receiver(post_save, sender=Adherent)
 @receiver(post_save, sender=Club)
+@receiver(post_save, sender=User)
 def user_post_save(sender, **kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
     Synchronise le ldap"""
@@ -765,6 +766,7 @@ def user_post_save(sender, **kwargs):
 
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
+@receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
     """Post delete d'un user, on supprime son instance ldap"""
     user = kwargs['instance']
