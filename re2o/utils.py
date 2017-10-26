@@ -216,6 +216,15 @@ class SortTable:
         'stack_id': ['stack_id'],
         'default': ['stack_id'],
     }
+    TOPOLOGIE_INDEX_MODEL_SWITCH = {
+        'model_switch_name': ['reference'],
+        'model_switch__contructor' : ['constructor__name'],
+        'default': ['reference'],
+    }
+    TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH = {
+        'room_name': ['name'],
+        'default': ['name'],
+    }
     LOGS_INDEX = {
         'sum_date': ['revision__date_created'],
         'default': ['-revision__date_created'],
