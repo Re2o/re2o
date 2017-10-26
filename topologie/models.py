@@ -120,7 +120,6 @@ class Switch(models.Model):
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
 
-
 class Port(models.Model):
     """ Definition d'un port. Relié à un switch(foreign_key),
     un port peut etre relié de manière exclusive à :

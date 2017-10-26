@@ -35,6 +35,8 @@ coté models et forms de topologie
 """
 from __future__ import unicode_literals
 
+import itertools
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -48,6 +50,7 @@ from reversion.models import Version
 from topologie.models import Switch, Port, Room, Stack
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import AddPortForm, EditRoomForm, StackForm
+from topologie.forms import CreatePortsForm
 from users.views import form
 from re2o.utils import SortTable
 from machines.forms import DomainForm, NewMachineForm, EditMachineForm, EditInterfaceForm, AddInterfaceForm
@@ -409,6 +412,58 @@ def new_switch(request):
         'i_mbf_param': i_mbf_param
         }, 'topologie/switch.html', request)
 
+@login_required
+@permission_required('infra')
+def create_ports(request, switch_id):
+    """ Création d'une liste de ports pour un switch."""
+    try:
+        switch = Switch.objects.get(pk=switch_id)
+    except Switch.DoesNotExist:
+        messages.error(request, u"Switch inexistant")
+        return redirect("/topologie/")
+
+    ports = switch.ports.order_by('port')
+    s_begin = s_end = 0
+    if len(ports) > 0:
+        s_begin = ports[0].port
+        s_end = ports[len(ports)-1].port
+
+    port_form = CreatePortsForm(
+        request.POST or None,
+        initial={'begin':s_begin,'end':s_end}
+    )
+    if port_form.is_valid():
+        begin = port_form.cleaned_data['begin']
+        end = port_form.cleaned_data['end']
+        b = []
+        e = []
+        if end < begin:
+            messages.error(request, "Port de fin inférieur au port de début !")
+            return redirect("/topologie/")
+        if end - begin > switch.number:
+            messages.error(request, "Ce switch ne peut avoir autant de ports.")
+            return redirect("/topologie/")
+
+        if begin < s_begin:
+            b = range(begin, s_begin)
+        if end > s_end:
+            e = range(s_end+1, end+1)
+        for i in itertools.chain(b,e):
+            p = Port()
+            p.switch = switch
+            p.port = i
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    p.save()
+                    reversion.set_user(request.user)
+                    reversion.set_comment("Création")
+                messages.success(request, "Création du port %d" % i)
+            except IntegrityError:
+                messages.error(request, "Création d'un port existant.")
+        return redirect("/topologie/")
+
+    return form({'topoform': port_form,}, 'topologie/switch.html', request)
+    
 
 @login_required
 @permission_required('infra')
