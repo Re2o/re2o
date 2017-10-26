@@ -30,7 +30,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='switch' col='loc' text='Localisation' %}</th>
             <th>{% include "buttons/sort.html" with prefix='switch' col='ports' text='Ports' %}</th>
             <th>{% include "buttons/sort.html" with prefix='switch' col='stack' text='Stack' %}</th>
-            <th>Id interne stack</th>
+	    <th>Id stack</th>
+	    <th>Modèle</th>
             <th>Détails</th>
             <th></th>
         </tr>
@@ -47,6 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td>{{switch.number}}</td>
        <td>{{switch.stack.name}}</td>
        <td>{{switch.stack_member_id}}</td>
+       <td>{{switch.model}}</td>
        <td>{{switch.details}}</td>
        <td class="text-right">
        	   {% include 'buttons/history.html' with href='topologie:history' name='switch' id=switch.pk%}

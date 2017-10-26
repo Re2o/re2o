@@ -34,7 +34,7 @@ from __future__ import unicode_literals
 
 from machines.models import Interface
 from django.forms import ModelForm
-from .models import Port, Switch, Room, Stack
+from .models import Port, Switch, Room, Stack, ModelSwitch, ConstructorSwitch
 
 
 class PortForm(ModelForm):
@@ -136,3 +136,25 @@ class EditRoomForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditModelSwitchForm(ModelForm):
+    """Permet d'éediter un modèle de switch : nom et constructeur"""
+    class Meta:
+        model = ModelSwitch
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditConstructorSwitchForm(ModelForm):
+    """Permet d'éediter le nom d'un constructeur"""
+    class Meta:
+        model = ConstructorSwitch
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditConstructorSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
