@@ -270,7 +270,7 @@ def del_port(request, port_id):
                 port.delete()
                 reversion.set_user(request.user)
                 reversion.set_comment("Destruction")
-                messages.success(request, "Le port a eté détruit")
+                messages.success(request, "Le port a été détruit")
         except ProtectedError:
             messages.error(request, "Le port %s est affecté à un autre objet,\
                 impossible de le supprimer" % port)
