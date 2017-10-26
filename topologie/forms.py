@@ -34,7 +34,7 @@ from __future__ import unicode_literals
 
 from machines.models import Interface
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from .models import Port, Switch, Room, Stack, ModelSwitch, ConstructorSwitch
 
 
