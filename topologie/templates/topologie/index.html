@@ -31,6 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <h2>Switchs</h2>
 {% if is_infra %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un switch</a>
+<hr>
 {% endif %}
     {% include "topologie/aff_switch.html" with switch_list=switch_list %}
     <br />
