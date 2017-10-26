@@ -545,12 +545,16 @@ class User(AbstractBaseUser):
         mail, password, shell, home
         access_refresh : synchronise le dialup_access notant si l'user a accès
         aux services
-        mac_refresh : synchronise les machines de l'user"""
+        mac_refresh : synchronise les machines de l'user
+        Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         self.refresh_from_db()
         try:
             user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
         except LdapUser.DoesNotExist:
             user_ldap = LdapUser(uidNumber=self.uid_number)
+            base = True
+            access_refresh = True
+            mac_refresh = True
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
@@ -574,7 +578,6 @@ class User(AbstractBaseUser):
             user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
-
         user_ldap.save()
 
     def ldap_del(self):
