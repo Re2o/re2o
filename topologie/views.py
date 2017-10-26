@@ -351,7 +351,7 @@ def del_port(request, port_id):
                 impossible de le supprimer" % port)
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switch_id':str(port.switch.id)
+            kwargs={'switch_id':str(port.switch.id)}
             ))
     return form({'objet': port}, 'topologie/delete.html', request)
 
