@@ -179,15 +179,18 @@ class SortTable:
         'cotis_user': ['user__pseudo'],
         'cotis_paiement': ['paiement__moyen'],
         'cotis_date': ['date'],
+        'cotis_id': ['id'],
         'default': ['-date']
     }
     COTISATIONS_CONTROL = {
-        'control_name': ['user__name'],
+        'control_name': ['user__adherent__name'],
         'control_surname': ['user__surname'],
         'control_paiement': ['paiement'],
         'control_date': ['date'],
         'control_valid': ['valid'],
         'control_control': ['control'],
+        'control_id': ['id'],
+        'control_user-id': ['user__id'],
         'default': ['-date']
     }
     TOPOLOGIE_INDEX = {
