@@ -182,7 +182,7 @@ class User(AbstractBaseUser):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
-    PRETTY_NAME = "Utilisateurs"
+    PRETTY_NAME = "Utilisateurs (clubs et adhérents)"
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
@@ -255,7 +255,7 @@ class User(AbstractBaseUser):
     def class_name(self):
         """Renvoie si il s'agit d'un adhérent ou d'un club"""
         if hasattr(self, 'adherent'):
-            return "Adhérent"
+            return "Adherent"
         elif hasattr(self, 'club'):
             return "Club"
         else:
@@ -733,6 +733,7 @@ class User(AbstractBaseUser):
 
 
 class Adherent(User):
+    PRETTY_NAME = "Adhérents"
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
         'topologie.Room',
@@ -744,6 +745,7 @@ class Adherent(User):
 
 
 class Club(User):
+    PRETTY_NAME = "Clubs"
     room = models.ForeignKey(
         'topologie.Room',
         on_delete=models.PROTECT,

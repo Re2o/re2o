@@ -635,6 +635,8 @@ class IpList(models.Model):
 
 class Service(models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
+    PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
+
     service_type = models.CharField(max_length=255, blank=True, unique=True)
     min_time_regen = models.DurationField(
         default=timedelta(minutes=1),
@@ -682,6 +684,8 @@ def regen(service):
 
 class Service_link(models.Model):
     """ Definition du lien entre serveurs et services"""
+    PRETTY_NAME = "Relation entre service et serveur"
+
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     server = models.ForeignKey('Interface', on_delete=models.CASCADE)
     last_regen = models.DateTimeField(auto_now_add=True)
@@ -711,6 +715,8 @@ class Service_link(models.Model):
 
 class OuverturePortList(models.Model):
     """Liste des ports ouverts sur une interface."""
+    PRETTY_NAME = "Profil d'ouverture de ports"
+
     name = models.CharField(
         help_text="Nom de la configuration des ports.",
         max_length=255
@@ -757,6 +763,8 @@ class OuverturePort(models.Model):
 
     On limite les ports entre 0 et 65535, tels que défini par la RFC
     """
+    PRETTY_NAME = "Plage de port ouverte"
+
     TCP = 'T'
     UDP = 'U'
     IN = 'I'
