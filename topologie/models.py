@@ -129,6 +129,7 @@ class Switch(models.Model):
 
 class ModelSwitch(models.Model):
     """Un modèle (au sens constructeur) de switch"""
+    PRETTY_NAME = "Modèle de switch"
     reference = models.CharField(max_length=255)
     constructor = models.ForeignKey(
         'topologie.ConstructorSwitch',
@@ -141,6 +142,7 @@ class ModelSwitch(models.Model):
 
 class ConstructorSwitch(models.Model):
     """Un constructeur de switch"""
+    PRETTY_NAME = "Constructeur de switch"
     name = models.CharField(max_length=255)
 
     def __str__(self):
