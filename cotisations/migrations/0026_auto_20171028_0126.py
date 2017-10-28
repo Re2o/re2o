@@ -10,7 +10,7 @@ def create_type(apps, schema_editor):
     Vente = apps.get_model('cotisations', 'Vente')
     Article = apps.get_model('cotisations', 'Article')
     db_alias = schema_editor.connection.alias
-    articles = Articles.objects.using(db_alias).all()
+    articles = Article.objects.using(db_alias).all()
     ventes = Vente.objects.using(db_alias).all()
     cotisations = Cotisation.objects.using(db_alias).all()
     for article in articles:
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='article',
             name='type_cotisation',
-            field=models.CharField(choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], default=None, max_length=255, null=True),
+            field=models.CharField(blank=True, choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], default=None, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='cotisation',
