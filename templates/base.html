@@ -146,7 +146,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Connexion</th>
                                     <td class="text-right">
                                     {% if request_user.has_access %}
-                                        <font color="green">Active</font>
+				        <font color="green">Active (jusqu'au {{ request.user.end_access }})</font>
                                     {% else %}
                                         <font color="red">Désactivée</font>
                                     {% endif %}

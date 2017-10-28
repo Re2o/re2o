@@ -106,7 +106,7 @@ def new_facture(request, userid):
                         facture=new_facture_instance,
                         name=article.name,
                         prix=article.prix,
-                        iscotisation=article.iscotisation,
+                        type_cotisation=article.type_cotisation,
                         duration=article.duration,
                         number=quantity
                     )
@@ -114,7 +114,7 @@ def new_facture(request, userid):
                         new_vente.save()
                         reversion.set_user(request.user)
                         reversion.set_comment("Création")
-            if any(art_item.cleaned_data['article'].iscotisation
+            if any(art_item.cleaned_data['article'].type_cotisation
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
@@ -312,8 +312,6 @@ def credit_solde(request, userid):
             facture=facture_instance,
             name="solde",
             prix=facture.cleaned_data['montant'],
-            iscotisation=False,
-            duration=0,
             number=1
             )
         with transaction.atomic(), reversion.create_revision():
