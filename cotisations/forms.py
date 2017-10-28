@@ -38,6 +38,7 @@ ArticleForm, BanqueForm, PaiementForm permettent aux admin d'ajouter,
 from __future__ import unicode_literals
 
 from django import forms
+from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 from .models import Article, Paiement, Facture, Banque
@@ -90,10 +91,24 @@ class CreditSoldeForm(NewFactureForm):
     montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 
-class SelectArticleForm(Form):
+class SelectUserArticleForm(Form):
     """Selection d'un article lors de la creation d'une facture"""
     article = forms.ModelChoiceField(
-        queryset=Article.objects.all(),
+        queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Adherent')),
+        label="Article",
+        required=True
+    )
+    quantity = forms.IntegerField(
+        label="Quantité",
+        validators=[MinValueValidator(1)],
+        required=True
+    )
+
+
+class SelectClubArticleForm(Form):
+    """Selection d'un article lors de la creation d'une facture"""
+    article = forms.ModelChoiceField(
+        queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Club')),
         label="Article",
         required=True
     )
