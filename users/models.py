@@ -378,6 +378,22 @@ class User(AbstractBaseUser):
                     user=self
                 ).exclude(valid=False)
             )
+        ).filter(
+            Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
+        ).aggregate(models.Max('date_end'))['date_end__max']
+        return date_max
+
+    def end_connexion(self):
+        """ Renvoie la date de fin de connexion d'un user. Examine les objets
+        cotisation"""
+        date_max = Cotisation.objects.filter(
+            vente__in=Vente.objects.filter(
+                facture__in=Facture.objects.filter(
+                    user=self
+                ).exclude(valid=False)
+            )
+        ).filter(
+            Q(type_cotisation='All') | Q(type_cotisation='Connexion')
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
@@ -391,6 +407,17 @@ class User(AbstractBaseUser):
             return False
         else:
             return True
+
+    def is_connected(self):
+        """ Renvoie True si l'user est adhérent : si
+        self.end_adhesion()>now et end_connexion>now"""
+        end = self.end_connexion()
+        if not end:
+            return False
+        elif end < DT_NOW:
+            return False
+        else:
+            return self.is_adherent()
 
     @cached_property
     def end_ban(self):
@@ -433,20 +460,20 @@ class User(AbstractBaseUser):
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE\
-            and not self.is_ban and (self.is_adherent() or self.is_whitelisted)
+            and not self.is_ban and (self.is_connected() or self.is_whitelisted)
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
-        if not self.end_adhesion():
+        if not self.end_connexion():
             if not self.end_whitelist:
                 return None
             else:
                 return self.end_whitelist
         else:
             if not self.end_whitelist:
-                return self.end_adhesion()
+                return self.end_connexion()
             else:
-                return max(self.end_adhesion(), self.end_whitelist)
+                return max(self.end_connexion(), self.end_whitelist)
 
     @cached_property
     def solde(self):
