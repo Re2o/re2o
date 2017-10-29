@@ -246,7 +246,7 @@ class Article(models.Model):
         ('All', 'All'),
     )
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
     duration = models.PositiveIntegerField(
         help_text="Durée exprimée en mois entiers",
@@ -265,6 +265,8 @@ class Article(models.Model):
         null=True,
         max_length=255
     )
+
+    unique_together = ('name', 'type_user')
 
     def clean(self):
         if self.name.lower() == "solde":
