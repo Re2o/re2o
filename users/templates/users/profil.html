@@ -119,7 +119,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Accès internet</th>
             {% if user.has_access == True %}
-            <td><font color="green">Actif</font></td>
+	    <td><font color="green">Actif (jusqu'au {{ user.end_access }})</font></td>
             {% else %}
             <td><font color="red">Désactivé</font></td>
             {% endif %}
