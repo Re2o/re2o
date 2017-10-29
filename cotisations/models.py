@@ -47,6 +47,7 @@ from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
@@ -170,7 +171,7 @@ class Vente(models.Model):
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
             if date_start:
-                end_adhesion = Cotisation.objects.filter(
+                end_cotisation = Cotisation.objects.filter(
                     vente__in=Vente.objects.filter(
                         facture__in=Facture.objects.filter(
                             user=self.facture.user
