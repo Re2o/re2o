@@ -235,20 +235,11 @@ def new_machine(request, userid):
         domain.instance.interface_parent = new_interface
         if domain.is_valid():
             new_domain = domain.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_machine.save()
             new_interface.machine = new_machine
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_interface.save()
             new_domain.interface_parent = new_interface
-            with transaction.atomic(), reversion.create_revision():
-                new_domain.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_domain.save()
             messages.success(request, "La machine a été créée")
             return redirect("/users/profil/" + str(user.id))
     i_mbf_param = generate_ipv4_mbf_param( interface, False )
@@ -277,18 +268,9 @@ def edit_interface(request, interfaceid):
         new_machine = machine_form.save(commit=False)
         new_interface = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            new_machine.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machine_form.changed_data))
-        with transaction.atomic(), reversion.create_revision():
-            new_interface.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in interface_form.changed_data))
-        with transaction.atomic(), reversion.create_revision():
-            new_domain.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
+        new_machine.save()
+        new_interface.save()
+        new_domain.save()
         messages.success(request, "La machine a été modifiée")
         return redirect("/users/profil/" + str(interface.machine.user.id))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
@@ -307,9 +289,7 @@ def del_machine(request, machineid):
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(machine.user.id))
     if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            machine.delete()
-            reversion.set_user(request.user)
+        machine.delete()
         messages.success(request, "La machine a été détruite")
         return redirect("/users/profil/" + str(machine.user.id))
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
@@ -339,15 +319,9 @@ def new_interface(request, machineid):
         new_interface.machine = machine
         if domain_form.is_valid():
             new_domain = domain_form.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_interface.save()
             new_domain.interface_parent = new_interface
-            with transaction.atomic(), reversion.create_revision():
-                new_domain.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_domain.save()
             messages.success(request, "L'interface a été ajoutée")
             return redirect("/users/profil/" + str(machine.user.id))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
@@ -367,11 +341,9 @@ def del_interface(request, interfaceid):
             return redirect("/users/profil/" + str(request.user.id))
     if request.method == "POST":
         machine = interface.machine
-        with transaction.atomic(), reversion.create_revision():
-            interface.delete()
-            if not machine.interface_set.all():
-               machine.delete()
-            reversion.set_user(request.user)
+        interface.delete()
+        if not machine.interface_set.all():
+            machine.delete()
         messages.success(request, "L'interface a été détruite")
         return redirect("/users/profil/" + str(request.user.id))
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
@@ -382,10 +354,7 @@ def add_iptype(request):
     """ Ajoute un range d'ip. Intelligence dans le models, fonction views minimaliste"""
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            iptype.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        iptype.save()
         messages.success(request, "Ce type d'ip a été ajouté")
         return redirect("/machines/index_iptype")
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
@@ -401,10 +370,7 @@ def edit_iptype(request, iptypeid):
         return redirect("/machines/index_iptype/")
     iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            iptype.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in iptype.changed_data))
+        iptype.save()
         messages.success(request, "Type d'ip modifié")
         return redirect("/machines/index_iptype/")
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
@@ -418,9 +384,7 @@ def del_iptype(request):
         iptype_dels = iptype.cleaned_data['iptypes']
         for iptype_del in iptype_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    iptype_del.delete()
-                    reversion.set_user(request.user)
+                iptype_del.delete()
                 messages.success(request, "Le type d'ip a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type d'ip %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % iptype_del)
@@ -432,10 +396,7 @@ def del_iptype(request):
 def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            machinetype.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        machinetype.save()
         messages.success(request, "Ce type de machine a été ajouté")
         return redirect("/machines/index_machinetype")
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
@@ -450,10 +411,7 @@ def edit_machinetype(request, machinetypeid):
         return redirect("/machines/index_machinetype/")
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            machinetype.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machinetype.changed_data))
+        machinetype.save()
         messages.success(request, "Type de machine modifié")
         return redirect("/machines/index_machinetype/")
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
@@ -466,9 +424,7 @@ def del_machinetype(request):
         machinetype_dels = machinetype.cleaned_data['machinetypes']
         for machinetype_del in machinetype_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    machinetype_del.delete()
-                    reversion.set_user(request.user)
+                machinetype_del.delete()
                 messages.success(request, "Le type de machine a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
@@ -480,10 +436,7 @@ def del_machinetype(request):
 def add_extension(request):
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            extension.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        extension.save()
         messages.success(request, "Cette extension a été ajoutée")
         return redirect("/machines/index_extension")
     return form({'extensionform': extension}, 'machines/machine.html', request)
@@ -498,10 +451,7 @@ def edit_extension(request, extensionid):
         return redirect("/machines/index_extension/")
     extension = ExtensionForm(request.POST or None, instance=extension_instance)
     if extension.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            extension.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
+        extension.save()
         messages.success(request, "Extension modifiée")
         return redirect("/machines/index_extension/")
     return form({'extensionform': extension}, 'machines/machine.html', request)
@@ -514,9 +464,7 @@ def del_extension(request):
         extension_dels = extension.cleaned_data['extensions']
         for extension_del in extension_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    extension_del.delete()
-                    reversion.set_user(request.user)
+                extension_del.delete()
                 messages.success(request, "L'extension a été supprimée")
             except ProtectedError:
                 messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
@@ -528,10 +476,7 @@ def del_extension(request):
 def add_soa(request):
     soa = SOAForm(request.POST or None)
     if soa.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            soa.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        soa.save()
         messages.success(request, "Cet enregistrement SOA a été ajouté")
         return redirect("/machines/index_extension")
     return form({'soaform': soa}, 'machines/machine.html', request)
@@ -546,10 +491,7 @@ def edit_soa(request, soaid):
         return redirect("/machines/index_extension/")
     soa = SOAForm(request.POST or None, instance=soa_instance)
     if soa.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            soa.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in soa.changed_data))
+        soa.save()
         messages.success(request, "SOA modifié")
         return redirect("/machines/index_extension/")
     return form({'soaform': soa}, 'machines/machine.html', request)
@@ -562,9 +504,7 @@ def del_soa(request):
         soa_dels = soa.cleaned_data['soa']
         for soa_del in soa_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    soa_del.delete()
-                    reversion.set_user(request.user)
+                soa_del.delete()
                 messages.success(request, "Le SOA a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le SOA suivant %s ne peut être supprimé" % soa_del)
@@ -576,10 +516,7 @@ def del_soa(request):
 def add_mx(request):
     mx = MxForm(request.POST or None)
     if mx.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            mx.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        mx.save()
         messages.success(request, "Cet enregistrement mx a été ajouté")
         return redirect("/machines/index_extension")
     return form({'mxform': mx}, 'machines/machine.html', request)
@@ -594,10 +531,7 @@ def edit_mx(request, mxid):
         return redirect("/machines/index_extension/")
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            mx.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in mx.changed_data))
+        mx.save()
         messages.success(request, "Mx modifié")
         return redirect("/machines/index_extension/")
     return form({'mxform': mx}, 'machines/machine.html', request)
@@ -610,9 +544,7 @@ def del_mx(request):
         mx_dels = mx.cleaned_data['mx']
         for mx_del in mx_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    mx_del.delete()
-                    reversion.set_user(request.user)
+                mx_del.delete()
                 messages.success(request, "L'mx a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Mx suivant %s ne peut être supprimé" % mx_del)
@@ -624,10 +556,7 @@ def del_mx(request):
 def add_ns(request):
     ns = NsForm(request.POST or None)
     if ns.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            ns.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        ns.save()
         messages.success(request, "Cet enregistrement ns a été ajouté")
         return redirect("/machines/index_extension")
     return form({'nsform': ns}, 'machines/machine.html', request)
@@ -642,10 +571,7 @@ def edit_ns(request, nsid):
         return redirect("/machines/index_extension/")
     ns = NsForm(request.POST or None, instance=ns_instance)
     if ns.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            ns.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ns.changed_data))
+        ns.save()
         messages.success(request, "Ns modifié")
         return redirect("/machines/index_extension/")
     return form({'nsform': ns}, 'machines/machine.html', request)
@@ -658,9 +584,7 @@ def del_ns(request):
         ns_dels = ns.cleaned_data['ns']
         for ns_del in ns_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    ns_del.delete()
-                    reversion.set_user(request.user)
+                ns_del.delete()
                 messages.success(request, "Le ns a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Ns suivant %s ne peut être supprimé" % ns_del)
@@ -672,10 +596,7 @@ def del_ns(request):
 def add_txt(request):
     txt = TxtForm(request.POST or None)
     if txt.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            txt.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        txt.save()
         messages.success(request, "Cet enregistrement text a été ajouté")
         return redirect("/machines/index_extension")
     return form({'txtform': txt}, 'machines/machine.html', request)
@@ -690,10 +611,7 @@ def edit_txt(request, txtid):
         return redirect("/machines/index_extension/")
     txt = TxtForm(request.POST or None, instance=txt_instance)
     if txt.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            txt.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in txt.changed_data))
+        txt.save()
         messages.success(request, "Txt modifié")
         return redirect("/machines/index_extension/")
     return form({'txtform': txt}, 'machines/machine.html', request)
@@ -706,9 +624,7 @@ def del_txt(request):
         txt_dels = txt.cleaned_data['txt']
         for txt_del in txt_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    txt_del.delete()
-                    reversion.set_user(request.user)
+                txt_del.delete()
                 messages.success(request, "Le txt a été supprimé")
             except ProtectedError:
                 messages.error(request, "Erreur le Txt suivant %s ne peut être supprimé" % txt_del)
@@ -735,10 +651,7 @@ def add_alias(request, interfaceid):
     if alias.is_valid():
         alias = alias.save(commit=False)
         alias.cname = interface.domain
-        with transaction.atomic(), reversion.create_revision():
-            alias.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        alias.save()
         messages.success(request, "Cet alias a été ajouté")
         return redirect("/machines/index_alias/" + str(interfaceid))
     return form({'aliasform': alias}, 'machines/machine.html', request)
@@ -755,10 +668,7 @@ def edit_alias(request, aliasid):
         return redirect("/users/profil/" + str(request.user.id))
     alias = AliasForm(request.POST or None, instance=alias_instance, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            alias_instance = alias.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
+        alias_instance = alias.save()
         messages.success(request, "Alias modifié")
         return redirect("/machines/index_alias/" + str(alias_instance.cname.interface_parent.id))
     return form({'aliasform': alias}, 'machines/machine.html', request)
@@ -778,9 +688,7 @@ def del_alias(request, interfaceid):
         alias_dels = alias.cleaned_data['alias']
         for alias_del in alias_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    alias_del.delete()
-                    reversion.set_user(request.user)
+                alias_del.delete()
                 messages.success(request, "L'alias %s a été supprimé" % alias_del)
             except ProtectedError:
                 messages.error(request, "Erreur l'alias suivant %s ne peut être supprimé" % alias_del)
@@ -793,10 +701,7 @@ def del_alias(request, interfaceid):
 def add_service(request):
     service = ServiceForm(request.POST or None)
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        service.save()
         messages.success(request, "Cet enregistrement service a été ajouté")
         return redirect("/machines/index_service")
     return form({'serviceform': service}, 'machines/machine.html', request)
@@ -811,10 +716,7 @@ def edit_service(request, serviceid):
         return redirect("/machines/index_extension/")
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in service.changed_data))
+        service.save()
         messages.success(request, "Service modifié")
         return redirect("/machines/index_service/")
     return form({'serviceform': service}, 'machines/machine.html', request)
@@ -827,9 +729,7 @@ def del_service(request):
         service_dels = service.cleaned_data['service']
         for service_del in service_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    service_del.delete()
-                    reversion.set_user(request.user)
+                service_del.delete()
                 messages.success(request, "Le service a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % service_del)
@@ -841,10 +741,7 @@ def del_service(request):
 def add_vlan(request):
     vlan = VlanForm(request.POST or None)
     if vlan.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            vlan.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        vlan.save()
         messages.success(request, "Cet enregistrement vlan a été ajouté")
         return redirect("/machines/index_vlan")
     return form({'vlanform': vlan}, 'machines/machine.html', request)
@@ -859,10 +756,7 @@ def edit_vlan(request, vlanid):
         return redirect("/machines/index_vlan/")
     vlan = VlanForm(request.POST or None, instance=vlan_instance)
     if vlan.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            vlan.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in vlan.changed_data))
+        vlan.save()
         messages.success(request, "Vlan modifié")
         return redirect("/machines/index_vlan/")
     return form({'vlanform': vlan}, 'machines/machine.html', request)
@@ -875,9 +769,7 @@ def del_vlan(request):
         vlan_dels = vlan.cleaned_data['vlan']
         for vlan_del in vlan_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    vlan_del.delete()
-                    reversion.set_user(request.user)
+                vlan_del.delete()
                 messages.success(request, "Le vlan a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
@@ -889,10 +781,7 @@ def del_vlan(request):
 def add_nas(request):
     nas = NasForm(request.POST or None)
     if nas.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            nas.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        nas.save()
         messages.success(request, "Cet enregistrement nas a été ajouté")
         return redirect("/machines/index_nas")
     return form({'nasform': nas}, 'machines/machine.html', request)
@@ -907,10 +796,7 @@ def edit_nas(request, nasid):
         return redirect("/machines/index_nas/")
     nas = NasForm(request.POST or None, instance=nas_instance)
     if nas.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            nas.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in nas.changed_data))
+        nas.save()
         messages.success(request, "Nas modifié")
         return redirect("/machines/index_nas/")
     return form({'nasform': nas}, 'machines/machine.html', request)
@@ -923,9 +809,7 @@ def del_nas(request):
         nas_dels = nas.cleaned_data['nas']
         for nas_del in nas_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    nas_del.delete()
-                    reversion.set_user(request.user)
+                nas_del.delete()
                 messages.success(request, "Le nas a été supprimé")
             except ProtectedError:
                 messages.error(request, "Erreur le Nas suivant %s ne peut être supprimé" % nas_del)

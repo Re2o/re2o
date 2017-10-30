@@ -56,8 +56,9 @@ from .models import (
     OuverturePortList,
 )
 
+from re2o.mixins import FormRevMixin
 
-class EditMachineForm(ModelForm):
+class EditMachineForm(FormRevMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
     class Meta:
         model = Machine
@@ -82,7 +83,7 @@ class BaseEditMachineForm(EditMachineForm):
         fields = ['name', 'active']
 
 
-class EditInterfaceForm(ModelForm):
+class EditInterfaceForm(FormRevMixin, ModelForm):
     """Edition d'une interface. Edition complète"""
     class Meta:
         model = Interface
@@ -168,7 +169,7 @@ class BaseEditInterfaceForm(EditInterfaceForm):
             )
 
 
-class AliasForm(ModelForm):
+class AliasForm(FormRevMixin, ModelForm):
     """Ajout d'un alias (et edition), CNAME, contenant nom et extension"""
     class Meta:
         model = Domain
@@ -184,7 +185,7 @@ class AliasForm(ModelForm):
             )
 
 
-class DomainForm(ModelForm):
+class DomainForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un enregistrement de nom, relié à interface"""
     class Meta:
         model = Domain
@@ -200,7 +201,7 @@ class DomainForm(ModelForm):
         super(DomainForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class DelAliasForm(Form):
+class DelAliasForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs objets alias"""
     alias = forms.ModelMultipleChoiceField(
         queryset=Domain.objects.all(),
@@ -216,7 +217,7 @@ class DelAliasForm(Form):
         )
 
 
-class MachineTypeForm(ModelForm):
+class MachineTypeForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un machinetype, relié à un iptype"""
     class Meta:
         model = MachineType
@@ -229,7 +230,7 @@ class MachineTypeForm(ModelForm):
         self.fields['ip_type'].label = "Type d'ip relié"
 
 
-class DelMachineTypeForm(Form):
+class DelMachineTypeForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs machinetype"""
     machinetypes = forms.ModelMultipleChoiceField(
         queryset=MachineType.objects.all(),
@@ -238,7 +239,7 @@ class DelMachineTypeForm(Form):
     )
 
 
-class IpTypeForm(ModelForm):
+class IpTypeForm(FormRevMixin, ModelForm):
     """Formulaire d'ajout d'un iptype. Pas d'edition de l'ip de start et de
     stop après creation"""
     class Meta:
@@ -260,7 +261,7 @@ class EditIpTypeForm(IpTypeForm):
                   'ouverture_ports']
 
 
-class DelIpTypeForm(Form):
+class DelIpTypeForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs iptype"""
     iptypes = forms.ModelMultipleChoiceField(
         queryset=IpType.objects.all(),
@@ -269,7 +270,7 @@ class DelIpTypeForm(Form):
     )
 
 
-class ExtensionForm(ModelForm):
+class ExtensionForm(FormRevMixin, ModelForm):
     """Formulaire d'ajout et edition d'une extension"""
     class Meta:
         model = Extension
@@ -284,7 +285,7 @@ class ExtensionForm(ModelForm):
         self.fields['soa'].label = 'En-tête SOA à utiliser'
 
 
-class DelExtensionForm(Form):
+class DelExtensionForm(FormRevMixin, Form):
     """Suppression d'une ou plusieurs extensions"""
     extensions = forms.ModelMultipleChoiceField(
         queryset=Extension.objects.all(),
@@ -293,7 +294,7 @@ class DelExtensionForm(Form):
     )
 
 
-class SOAForm(ModelForm):
+class SOAForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un SOA"""
     class Meta:
         model = SOA
@@ -304,7 +305,7 @@ class SOAForm(ModelForm):
         super(SOAForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class DelSOAForm(Form):
+class DelSOAForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs SOA"""
     soa = forms.ModelMultipleChoiceField(
         queryset=SOA.objects.all(),
@@ -313,7 +314,7 @@ class DelSOAForm(Form):
     )
 
 
-class MxForm(ModelForm):
+class MxForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un MX"""
     class Meta:
         model = Mx
@@ -327,7 +328,7 @@ class MxForm(ModelForm):
         ).select_related('extension')
 
 
-class DelMxForm(Form):
+class DelMxForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs MX"""
     mx = forms.ModelMultipleChoiceField(
         queryset=Mx.objects.all(),
@@ -336,7 +337,7 @@ class DelMxForm(Form):
     )
 
 
-class NsForm(ModelForm):
+class NsForm(FormRevMixin, ModelForm):
     """Ajout d'un NS pour une zone
     On exclue les CNAME dans les objets domain (interdit par la rfc)
     donc on prend uniquemet """
@@ -352,7 +353,7 @@ class NsForm(ModelForm):
         ).select_related('extension')
 
 
-class DelNsForm(Form):
+class DelNsForm(FormRevMixin, Form):
     """Suppresion d'un ou plusieurs NS"""
     ns = forms.ModelMultipleChoiceField(
         queryset=Ns.objects.all(),
@@ -361,7 +362,7 @@ class DelNsForm(Form):
     )
 
 
-class TxtForm(ModelForm):
+class TxtForm(FormRevMixin, ModelForm):
     """Ajout d'un txt pour une zone"""
     class Meta:
         model = Text
@@ -372,7 +373,7 @@ class TxtForm(ModelForm):
         super(TxtForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class DelTxtForm(Form):
+class DelTxtForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs TXT"""
     txt = forms.ModelMultipleChoiceField(
         queryset=Text.objects.all(),
@@ -381,7 +382,7 @@ class DelTxtForm(Form):
     )
 
 
-class NasForm(ModelForm):
+class NasForm(FormRevMixin, ModelForm):
     """Ajout d'un type de nas (machine d'authentification,
     swicths, bornes...)"""
     class Meta:
@@ -393,7 +394,7 @@ class NasForm(ModelForm):
         super(NasForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class DelNasForm(Form):
+class DelNasForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs nas"""
     nas = forms.ModelMultipleChoiceField(
         queryset=Nas.objects.all(),
@@ -402,7 +403,7 @@ class DelNasForm(Form):
     )
 
 
-class ServiceForm(ModelForm):
+class ServiceForm(FormRevMixin, ModelForm):
     """Ajout et edition d'une classe de service : dns, dhcp, etc"""
     class Meta:
         model = Service
@@ -422,7 +423,7 @@ class ServiceForm(ModelForm):
         return instance
 
 
-class DelServiceForm(Form):
+class DelServiceForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs service"""
     service = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
@@ -431,7 +432,7 @@ class DelServiceForm(Form):
     )
 
 
-class VlanForm(ModelForm):
+class VlanForm(FormRevMixin, ModelForm):
     """Ajout d'un vlan : id, nom"""
     class Meta:
         model = Vlan
@@ -442,7 +443,7 @@ class VlanForm(ModelForm):
         super(VlanForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class DelVlanForm(Form):
+class DelVlanForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs vlans"""
     vlan = forms.ModelMultipleChoiceField(
         queryset=Vlan.objects.all(),
@@ -451,7 +452,7 @@ class DelVlanForm(Form):
     )
 
 
-class EditOuverturePortConfigForm(ModelForm):
+class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
     """Edition de la liste des profils d'ouverture de ports
     pour l'interface"""
     class Meta:
@@ -467,7 +468,7 @@ class EditOuverturePortConfigForm(ModelForm):
         )
 
 
-class EditOuverturePortListForm(ModelForm):
+class EditOuverturePortListForm(FormRevMixin, ModelForm):
     """Edition de la liste des ports et profils d'ouverture
     des ports"""
     class Meta:

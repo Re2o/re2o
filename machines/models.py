@@ -37,8 +37,9 @@ from django.core.validators import MaxValueValidator
 
 from macaddress.fields import MACAddressField
 
+from re2o.mixins import RevMixin
 
-class Machine(models.Model):
+class Machine(RevMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
     PRETTY_NAME = "Machine"
@@ -56,7 +57,7 @@ class Machine(models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
 
-class MachineType(models.Model):
+class MachineType(RevMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
     PRETTY_NAME = "Type de machine"
 
@@ -77,7 +78,7 @@ class MachineType(models.Model):
         return self.type
 
 
-class IpType(models.Model):
+class IpType(RevMixin, models.Model):
     """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
     PRETTY_NAME = "Type d'ip"
 
@@ -187,7 +188,7 @@ class IpType(models.Model):
         return self.type
 
 
-class Vlan(models.Model):
+class Vlan(RevMixin, models.Model):
     """ Un vlan : vlan_id et nom
     On limite le vlan id entre 0 et 4096, comme défini par la norme"""
     PRETTY_NAME = "Vlans"
@@ -200,7 +201,7 @@ class Vlan(models.Model):
         return self.name
 
 
-class Nas(models.Model):
+class Nas(RevMixin, models.Model):
     """ Les nas. Associé à un machine_type.
     Permet aussi de régler le port_access_mode (802.1X ou mac-address) pour
     le radius. Champ autocapture de la mac à true ou false"""
@@ -234,7 +235,7 @@ class Nas(models.Model):
         return self.name
 
 
-class SOA(models.Model):
+class SOA(RevMixin, models.Model):
     """
     Un enregistrement SOA associé à une extension
     Les valeurs par défault viennent des recommandations RIPE :
@@ -306,7 +307,7 @@ class SOA(models.Model):
 
 
 
-class Extension(models.Model):
+class Extension(RevMixin, models.Model):
     """ Extension dns type example.org. Précise si tout le monde peut
     l'utiliser, associé à un origin (ip d'origine)"""
     PRETTY_NAME = "Extensions dns"
@@ -346,7 +347,7 @@ class Extension(models.Model):
         return self.name
 
 
-class Mx(models.Model):
+class Mx(RevMixin, models.Model):
     """ Entrées des MX. Enregistre la zone (extension) associée et la
     priorité
     Todo : pouvoir associer un MX à une interface """
@@ -366,7 +367,7 @@ class Mx(models.Model):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
 
-class Ns(models.Model):
+class Ns(RevMixin, models.Model):
     """Liste des enregistrements name servers par zone considéérée"""
     PRETTY_NAME = "Enregistrements NS"
 
@@ -382,7 +383,7 @@ class Ns(models.Model):
         return str(self.zone) + ' ' + str(self.ns)
 
 
-class Text(models.Model):
+class Text(RevMixin, models.Model):
     """ Un enregistrement TXT associé à une extension"""
     PRETTY_NAME = "Enregistrement TXT"
 
@@ -400,7 +401,7 @@ class Text(models.Model):
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
-class Interface(models.Model):
+class Interface(RevMixin, models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -524,7 +525,7 @@ class Interface(models.Model):
         return self.ipv4 and not self.has_private_ip()
 
 
-class Domain(models.Model):
+class Domain(RevMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
     ou cname sont remplis"""
@@ -606,7 +607,7 @@ class Domain(models.Model):
         return str(self.name) + str(self.extension)
 
 
-class IpList(models.Model):
+class IpList(RevMixin, models.Model):
     PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
@@ -633,7 +634,7 @@ class IpList(models.Model):
         return self.ipv4
 
 
-class Service(models.Model):
+class Service(RevMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
 
@@ -682,7 +683,7 @@ def regen(service):
     return
 
 
-class Service_link(models.Model):
+class Service_link(RevMixin, models.Model):
     """ Definition du lien entre serveurs et services"""
     PRETTY_NAME = "Relation entre service et serveur"
 
@@ -713,7 +714,7 @@ class Service_link(models.Model):
         return str(self.server) + " " + str(self.service)
 
 
-class OuverturePortList(models.Model):
+class OuverturePortList(RevMixin, models.Model):
     """Liste des ports ouverts sur une interface."""
     PRETTY_NAME = "Profil d'ouverture de ports"
 
@@ -754,7 +755,7 @@ class OuverturePortList(models.Model):
         )
 
 
-class OuverturePort(models.Model):
+class OuverturePort(RevMixin, models.Model):
     """
     Représente un simple port ou une plage de ports.
 
