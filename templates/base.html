@@ -146,7 +146,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Connexion</th>
                                     <td class="text-right">
                                     {% if request_user.has_access %}
-				        <font color="green">Active (jusqu'au {{ request.user.end_access }})</font>
+				        <font color="green">jusqu'au {{ request.user.end_access|date:"d b Y" }}</font>
                                     {% else %}
                                         <font color="red">Désactivée</font>
                                     {% endif %}
@@ -156,7 +156,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Adhésion</th>
                                     <td class="text-right">
                                     {% if request_user.end_adhesion != None %}
-                                        <font color="green">{{ request_user.end_adhesion }}</font>
+                                        <font color="green">jusqu'au {{ request_user.end_adhesion|date:"d b Y" }}</font>
                                     {% else %}
                                         <font color="red">Non adhérent</font>
                                     {% endif %}
