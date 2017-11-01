@@ -37,93 +37,191 @@ from users.models import User, Ban, Whitelist
 from machines.models import Machine, Interface
 from topologie.models import Port, Switch
 from cotisations.models import Facture
-from search.models import SearchForm, SearchFormPlus
 from preferences.models import GeneralOption
+from search.forms import (
+    SearchForm,
+    SearchFormPlus,
+    CHOICES_USER,
+    CHOICES_AFF,
+    initial_choices
+)
 
-def search_result(search_form, type, request):
-    start = None
-    end = None
-    user_state = []
-    co_state = []
-    aff = []
-    if(type):
-        aff = search_form.cleaned_data['aff']
-        co_state = search_form.cleaned_data['co_state']
-        user_state = search_form.cleaned_data['user_state']
-        start = search_form.cleaned_data['start']
-        end = search_form.cleaned_data['end']
-    date_query = Q()
-    if aff==[]:
-        aff = ['0','1','2','3','4','5','6']
-    if start != None:
-        date_query = date_query & Q(date__gte=start)
-    if end != None:
-        date_query = date_query & Q(date__lte=end)
-    search = search_form.cleaned_data['query']
-    query1 = Q()
+def get_results(query, request, filters={}):
+    start = filters.get('s', None)
+    end = filters.get('e', None)
+    user_state = filters.get('u', initial_choices(CHOICES_USER))
+    aff = filters.get('a', initial_choices(CHOICES_AFF))
+
+    options, created = GeneralOption.objects.get_or_create()
+    max_result = options.search_display_page
+
+    user_state_filter = Q()
     for s in user_state:
-        query1 = query1 | Q(state = s)
+        user_state_filter |= Q(state = s)
     
     connexion = []
    
-    recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
+    results = {
+        'users_list': User.objects.none(),
+        'machines_list' : Machine.objects.none(),
+        'facture_list' : Facture.objects.none(),
+        'ban_list' : Ban.objects.none(),
+        'white_list': Whitelist.objects.none(),
+        'port_list': Port.objects.none(),
+        'switch_list': Switch.objects.none()
+    }
 
-    if request.user.has_perms(('cableur',)):
-        query = Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)
-    else:
-        query = (Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)) & Q(user = request.user)
+    users_filter = Q(
+        user__pseudo__icontains = query
+    ) | Q(
+        user__adherent__name__icontains = query
+    ) | Q(
+        user__surname__icontains = query
+    )
+    if not request.user.has_perms(('cableur',)):
+        users_filter &= Q(user = request.user)
 
+    # Users
+    if '0' in aff:
+        filter_user_list = Q(
+            adherent__room__name__icontains = query
+        ) | Q(
+            club__room__name__icontains = query
+        ) | Q(
+            pseudo__icontains = query
+        ) | Q(
+            adherent__name__icontains = query
+        ) | Q(
+            surname__icontains = query
+        ) & user_state_filter
+        if not request.user.has_perms(('cableur',)):
+            filter_user_list &= Q(id=request.user.id)
+        results['users_list'] = User.objects.filter(
+            filter_user_list
+        ).order_by('state', 'surname').distinct()[:max_result]
 
-    for i in aff:
-        if i == '0':
-            query_user_list = Q(adherent__room__name__icontains = search) | Q(club__room__name__icontains = search) | Q(pseudo__icontains = search) | Q(adherent__name__icontains = search) | Q(surname__icontains = search) & query1
-            if request.user.has_perms(('cableur',)):
-                recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname').distinct()
-            else :
-                recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname').distinct()
-        if i == '1':
-            query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__adherent__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
-            if request.user.has_perms(('cableur',)):
-                data = Interface.objects.filter(query_machine_list).distinct()
-            else:
-                data = Interface.objects.filter(query_machine_list & Q(machine__user__id = request.user.id)).distinct()
-            for d in data:
-                  recherche['machines_list'].append(d.machine)
-        if i == '2':
-            recherche['facture_list'] = Facture.objects.filter(query & date_query).distinct()
-        if i == '3':
-            recherche['ban_list'] = Ban.objects.filter(query).distinct()
-        if i == '4':
-            recherche['white_list'] = Whitelist.objects.filter(query).distinct()
-        if i == '5':
-            recherche['port_list'] = Port.objects.filter(details__icontains = search).distinct()
-            if not request.user.has_perms(('cableur',)):
-                recherche['port_list'] = None
-        if i == '6':
-            recherche['switch_list'] = Switch.objects.filter(details__icontains = search).distinct()
-            if not request.user.has_perms(('cableur',)):
-                recherche['switch_list'] = None
-    options, created = GeneralOption.objects.get_or_create()
-    search_display_page = options.search_display_page
+    # Machines
+    if '1' in aff:
+        filter_machine_list = Q(
+            user__pseudo__icontains = query
+        ) | Q(
+            user__adherent__name__icontains = query
+        ) | Q(
+            user__surname__icontains = query
+        ) | Q(
+            interface__mac_address__icontains = query
+        ) | Q(
+            interface__ipv4__ipv4__icontains = query
+        ) | Q(
+            interface__domain__name__icontains = query
+        ) | Q(
+            interface__domain__related_domain__name__icontains = query
+        )
+        if not request.user.has_perms(('cableur',)):
+            filter_machine_list &= Q(machine__user__id=request.user.id)
+        results['machines_list'] = Machine.objects.filter(
+            filter_machine_list
+        ).order_by('name').distinct()[:max_result]
 
-    for r in recherche:
-        if recherche[r] != None:
-            recherche[r] = recherche[r][:search_display_page]
+    # Factures
+    if '2' in aff:
+        date_filter = Q()
+        if start != None:
+            date_filter &= Q(date__gte=start)
+        if end != None:
+            date_filter &= Q(date__lte=end)
+        results['facture_list'] = Facture.objects.filter(
+            users_filter & date_filter
+        ).order_by('date').distinct()[:max_result]
 
-    recherche.update({'max_result': search_display_page})
+    # Bans
+    if '3' in aff:
+        date_filter = Q()
+        if start != None:
+            date_filter &= (
+                Q(date_start__gte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__lte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__gte=start) & Q(date_end__lte=start)
+            )
+        if end != None:
+            date_filter &= (
+                Q(date_start__lte=end) & Q(date_end__lte=end)
+            ) | (
+                Q(date_start__lte=end) & Q(date_end__gte=end)
+            ) | (
+                Q(date_start__gte=end) & Q(date_end__lte=end)
+            )
+        results['ban_list'] = Ban.objects.filter(
+            users_filter & date_filter
+        ).order_by('date_end').distinct()[:max_result]
 
-    return recherche
+    # Whitelists
+    if '4' in aff:
+        date_filter = Q()
+        if start != None:
+            date_filter &= (
+                Q(date_start__gte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__lte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__gte=start) & Q(date_end__lte=start)
+            )
+        if end != None:
+            date_filter &= (
+                Q(date_start__lte=end) & Q(date_end__lte=end)
+            ) | (
+                Q(date_start__lte=end) & Q(date_end__gte=end)
+            ) | (
+                Q(date_start__gte=end) & Q(date_end__lte=end)
+            )
+        results['white_list'] = Whitelist.objects.filter(
+            users_filter & date_filter
+        ).order_by('date_end').distinct()[:max_result]
+
+    # Switch ports
+    if '5' in aff and request.user.has_perms(('cableur',)):
+        results['port_list'] = Port.objects.filter(
+            details__icontains=query
+        ).order_by('switch', 'port').distinct()[:max_result]
+
+    # Switches
+    if '6' in aff and request.user.has_perms(('cableur')):
+        results['switch_list'] = Switch.objects.filter(
+            details__icontains=query
+        ).order_by('stack', 'stack_member_id').distinct()[:max_result]
+
+    results.update({'max_result': max_result})
+
+    return results
 
 @login_required
 def search(request):
     search_form = SearchForm(request.GET or None)
     if search_form.is_valid():
-        return render(request, 'search/index.html', search_result(search_form, False, request))
+        return render(
+            request,
+            'search/index.html',
+            get_results(
+                search_form.cleaned_data.get('q', ''),
+                request,
+                search_form.cleaned_data
+            )
+        )
     return render(request, 'search/search.html', {'search_form' : search_form})
 
 @login_required
 def searchp(request):
     search_form = SearchFormPlus(request.GET or None)
     if search_form.is_valid():
-        return render(request, 'search/index.html', search_result(search_form, True, request))
+        return render(
+            request,
+            'search/index.html',
+            get_results(
+                search_form.cleaned_data.get('q', ''),
+                request,
+                search_form.cleaned_data
+            )
+        )
     return render(request, 'search/search.html', {'search_form' : search_form})
