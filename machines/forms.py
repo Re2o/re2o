@@ -56,8 +56,10 @@ from .models import (
     OuverturePortList,
 )
 
+from field_permissions.forms import FieldPermissionFormMixin
 
-class EditMachineForm(ModelForm):
+
+class EditMachineForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
     class Meta:
         model = Machine
@@ -69,55 +71,16 @@ class EditMachineForm(ModelForm):
         self.fields['name'].label = 'Nom de la machine'
 
 
-class NewMachineForm(EditMachineForm):
-    """Creation d'une machine, ne renseigne que le nom"""
-    class Meta(EditMachineForm.Meta):
-        fields = ['name']
-
-
-class BaseEditMachineForm(EditMachineForm):
-    """Edition basique, ne permet que de changer le nom et le statut.
-    Réservé aux users sans droits spécifiques"""
-    class Meta(EditMachineForm.Meta):
-        fields = ['name', 'active']
-
-
-class EditInterfaceForm(ModelForm):
-    """Edition d'une interface. Edition complète"""
+class EditInterfaceForm(FieldPermissionFormMixin, ModelForm):
+    """Ajout d'une interface à une machine. En fonction des droits,
+    affiche ou non l'ensemble des ip disponibles"""
     class Meta:
         model = Interface
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['mac_address'].label = 'Adresse mac'
-        self.fields['type'].label = 'Type de machine'
-        self.fields['type'].empty_label = "Séléctionner un type de machine"
-        if "ipv4" in self.fields:
-            self.fields['ipv4'].empty_label = "Assignation automatique\
-            de l'ipv4"
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            )
-            # Add it's own address
-            self.fields['ipv4'].queryset |= IpList.objects.filter(
-                interface=self.instance
-            )
-        if "machine" in self.fields:
-            self.fields['machine'].queryset = Machine.objects.all()\
-                .select_related('user')
-
-
-class AddInterfaceForm(EditInterfaceForm):
-    """Ajout d'une interface à une machine. En fonction des droits,
-    affiche ou non l'ensemble des ip disponibles"""
-    class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details']
-
-    def __init__(self, *args, **kwargs):
         infra = kwargs.pop('infra')
-        super(AddInterfaceForm, self).__init__(*args, **kwargs)
+        super(EditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
         if not infra:
             self.fields['type'].queryset = MachineType.objects.filter(
@@ -126,36 +89,6 @@ class AddInterfaceForm(EditInterfaceForm):
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
-        else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            )
-
-
-class NewInterfaceForm(EditInterfaceForm):
-    """Formulaire light, sans choix de l'ipv4; d'ajout d'une interface"""
-    class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'mac_address', 'details']
-
-
-class BaseEditInterfaceForm(EditInterfaceForm):
-    """Edition basique d'une interface. En fonction des droits,
-    ajoute ou non l'ensemble des ipv4 disponibles (infra)"""
-    class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details']
-
-    def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
-        super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)
-        self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-        if not infra:
-            self.fields['type'].queryset = MachineType.objects.filter(
-                ip_type__in=IpType.objects.filter(need_infra=False)
-            )
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            # Add it's own address
             self.fields['ipv4'].queryset |= IpList.objects.filter(
                 interface=self.instance
             )
@@ -166,6 +99,7 @@ class BaseEditInterfaceForm(EditInterfaceForm):
             self.fields['ipv4'].queryset |= IpList.objects.filter(
                 interface=self.instance
             )
+
 
 
 class AliasForm(ModelForm):

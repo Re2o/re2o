@@ -35,10 +35,12 @@ from django.utils.functional import cached_property
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
 
+from field_permissions.models import FieldPermissionModelMixin
+
 from macaddress.fields import MACAddressField
 
 
-class Machine(models.Model):
+class Machine(FieldPermissionModelMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
     PRETTY_NAME = "Machine"
@@ -51,6 +53,16 @@ class Machine(models.Model):
         null=True
     )
     active = models.BooleanField(default=True)
+    
+    def can_change_user(self, user, **kwargs):
+        return user.is_infra
+
+    field_permissions = {
+        'user': can_change_user,
+    }
+
+    class Meta:
+        abstract = False
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
@@ -400,7 +412,7 @@ class Text(models.Model):
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
-class Interface(models.Model):
+class Interface(FieldPermissionModelMixin, models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -421,6 +433,16 @@ class Interface(models.Model):
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
     port_lists = models.ManyToManyField('OuverturePortList', blank=True)
+
+    def can_change_machine(self, user, **kwargs):
+        return user.is_infra
+
+    field_permissions = {
+        'machine': can_change_machine,
+    }
+
+    class Meta:
+        abstract = False
 
     @cached_property
     def is_active(self):

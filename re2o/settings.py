@@ -76,7 +76,8 @@ INSTALLED_APPS = (
     'preferences',
     'logs',
     'rest_framework',
-    'reversion'
+    'reversion',
+    'field_permissions'
 ) + OPTIONNAL_APPS
 
 MIDDLEWARE_CLASSES = (

@@ -68,10 +68,8 @@ from users.views import form
 from re2o.utils import SortTable
 from machines.forms import (
     DomainForm,
-    NewMachineForm,
     EditMachineForm,
     EditInterfaceForm,
-    AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
 from preferences.models import AssoOption, GeneralOption
@@ -431,10 +429,11 @@ def new_switch(request):
     associée. Vue complexe. Appelle successivement les 4 models forms
     adaptés : machine, interface, domain et switch"""
     switch = NewSwitchForm(request.POST or None)
-    machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(
+    machine = EditMachineForm(request.POST or None, user=request.user)
+    interface = EditInterfaceForm(
         request.POST or None,
-        infra=request.user.has_perms(('infra',))
+        infra=request.user.has_perms(('infra',)),
+        user=request.user,
         )
     domain = DomainForm(
         request.POST or None,
@@ -549,7 +548,8 @@ def edit_switch(request, switch_id):
         )
     interface_form = EditInterfaceForm(
         request.POST or None,
-        instance=switch.switch_interface
+        instance=switch.switch_interface,
+        user=request.user,
         )
     domain_form = DomainForm(
         request.POST or None,

@@ -59,16 +59,12 @@ from reversion.models import Version
 
 import re
 from .forms import (
-    NewMachineForm,
     EditMachineForm,
     EditInterfaceForm,
-    AddInterfaceForm,
     MachineTypeForm,
     DelMachineTypeForm,
     ExtensionForm,
     DelExtensionForm,
-    BaseEditInterfaceForm,
-    BaseEditMachineForm
 )
 from .forms import (
     EditIpTypeForm,
@@ -225,8 +221,8 @@ def new_machine(request, userid):
         if user.user_interfaces().count() >= max_lambdauser_interfaces:
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
-    machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    machine = EditMachineForm(request.POST or None, user=request.user)
+    interface = EditInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)), user=request.user)
     domain = DomainForm(request.POST or None, user=user)
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
@@ -267,11 +263,8 @@ def edit_interface(request, interfaceid):
         if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
             return redirect("/users/profil/" + str(request.user.id))
-        machine_form = BaseEditMachineForm(request.POST or None, instance=interface.machine)
-        interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface, infra=False)
-    else:
-        machine_form = EditMachineForm(request.POST or None, instance=interface.machine)
-        interface_form = EditInterfaceForm(request.POST or None, instance=interface)
+    interface_form = EditInterfaceForm(request.POST or None, instance=interface, infra=request.user.has_perms(('infra',)), user=request.user)
+    machine_form = EditMachineForm(request.POST or None, instance=interface.machine, user=request.user)
     domain_form = DomainForm(request.POST or None, instance=interface.domain)
     if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
         new_machine = machine_form.save(commit=False)
@@ -331,7 +324,7 @@ def new_interface(request, machineid):
         if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
             return redirect("/users/profil/" + str(request.user.id))
-    interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    interface_form = EditInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)), user=request.user)
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
