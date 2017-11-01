@@ -72,8 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% endif %}
                         </ul>
                         <div class="col-sm-3 col-md-3 navbar-right">
-                            <form action="{% url "search:search"%}"  method="POST" class="navbar-form" role="search">
-                                {% csrf_token %}
+                            <form action="{% url "search:search"%}" class="navbar-form" role="search">
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Search" name="search_field" id="search-term">
                                     <div class="input-group-btn">

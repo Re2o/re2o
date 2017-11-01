@@ -40,36 +40,31 @@ from cotisations.models import Facture
 from search.models import SearchForm, SearchFormPlus
 from preferences.models import GeneralOption
 
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
-
-def search_result(search, type, request):
-    date_deb = None
-    date_fin = None
-    states=[]
-    co=[]
-    aff=[]
+def search_result(search_form, type, request):
+    start = None
+    end = None
+    user_state = []
+    co_state = []
+    aff = []
     if(type):
-        aff = search.cleaned_data['affichage']
-        co = search.cleaned_data['connexion']
-        states = search.cleaned_data['filtre']
-        date_deb = search.cleaned_data['date_deb']
-        date_fin = search.cleaned_data['date_fin']
+        aff = search_form.cleaned_data['aff']
+        co_state = search_form.cleaned_data['co_state']
+        user_state = search_form.cleaned_data['user_state']
+        start = search_form.cleaned_data['start']
+        end = search_form.cleaned_data['end']
     date_query = Q()
     if aff==[]:
         aff = ['0','1','2','3','4','5','6']
-    if date_deb != None:
-        date_query = date_query & Q(date__gte=date_deb)
-    if date_fin != None:
-        date_query = date_query & Q(date__lte=date_fin)
-    search = search.cleaned_data['search_field']
+    if start != None:
+        date_query = date_query & Q(date__gte=start)
+    if end != None:
+        date_query = date_query & Q(date__lte=end)
+    search = search_form.cleaned_data['query']
     query1 = Q()
-    for s in states:
+    for s in user_state:
         query1 = query1 | Q(state = s)
     
-    connexion = [] 
+    connexion = []
    
     recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
 
@@ -121,14 +116,14 @@ def search_result(search, type, request):
 
 @login_required
 def search(request):
-    search = SearchForm(request.POST or None)
-    if search.is_valid():
-        return form(search_result(search, False, request), 'search/index.html',request)
-    return form({'searchform' : search}, 'search/search.html', request)
+    search_form = SearchForm(request.GET or None)
+    if search_form.is_valid():
+        return render(request, 'search/index.html', search_result(search_form, False, request))
+    return render(request, 'search/search.html', {'search_form' : search_form})
 
 @login_required
 def searchp(request):
-    search = SearchFormPlus(request.POST or None)
-    if search.is_valid():
-        return form(search_result(search, True, request), 'search/index.html',request)
-    return form({'searchform' : search}, 'search/search.html', request)
+    search_form = SearchFormPlus(request.GET or None)
+    if search_form.is_valid():
+        return render(request, 'search/index.html', search_result(search_form, True, request))
+    return render(request, 'search/search.html', {'search_form' : search_form})
