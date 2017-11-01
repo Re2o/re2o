@@ -22,19 +22,76 @@
 
 from __future__ import unicode_literals
 
-from django.db.models import Q
-from simple_search import BaseSearchForm
+from django.db import models
+from django import forms
+from django.forms import Form
+from django.forms import ModelForm
 
-from users.models import User, School
+CHOICES_USER = (
+    ('0', 'Actifs'),
+    ('1', 'Désactivés'),
+    ('2', 'Archivés'),
+)
 
-class UserSearchForm(BaseSearchForm):
-    class Meta:
-        base_qs = User.objects
-        search_fields = ('^name', 'description', 'specifications', '=id') 
+CHOICES_AFF = (
+    ('0', 'Utilisateurs'),
+    ('1', 'Machines'),
+    ('2', 'Factures'),
+    ('3', 'Bannissements'),
+    ('4', 'Accès à titre gracieux'),
+    ('6', 'Switchs'),
+    ('5', 'Ports'),
+)
 
-        # assumes a fulltext index has been defined on the fields
-        # 'name,description,specifications,id'
-        fulltext_indexes = (
-            ('name', 2), # name matches are weighted higher
-            ('name,description,specifications,id', 1),
-        )
+def initial_choices(c):
+    return [i[0] for i in c]
+
+
+class SearchForm(Form):
+    q = forms.CharField(label = 'Search', max_length = 100)
+
+    def clean(self):
+        cleaned_data = super(SearchForm, self).clean()
+        q = cleaned_data.get('q', '')
+
+
+class SearchFormPlus(Form):
+    q = forms.CharField(
+        label = 'Search',
+        max_length = 100,
+        required=False
+    )
+    u = forms.MultipleChoiceField(
+        label="Filtre utilisateurs",
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=CHOICES_USER,
+        initial=initial_choices(CHOICES_USER)
+    )
+    a = forms.MultipleChoiceField(
+        label="Filtre affichage",
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=CHOICES_AFF,
+        initial=initial_choices(CHOICES_AFF)
+    )
+    s = forms.DateField(
+        required=False,
+        label="Date de début",
+        help_text='DD/MM/YYYY',
+        input_formats=['%d/%m/%Y']
+    )
+    e = forms.DateField(
+        required=False,
+        help_text='DD/MM/YYYY',
+        input_formats=['%d/%m/%Y'],
+        label="Date de fin"
+    )
+
+    def clean(self):
+        cleaned_data = super(SearchFormPlus, self).clean()
+        q = cleaned_data.get('q')
+        u = cleaned_data.get('u')
+        a = cleaned_data.get('a')
+        s = cleaned_data.get('s')
+        e = cleaned_data.get('e')
