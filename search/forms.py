@@ -22,10 +22,8 @@
 
 from __future__ import unicode_literals
 
-from django.db import models
 from django import forms
 from django.forms import Form
-from django.forms import ModelForm
 
 CHOICES_USER = (
     ('0', 'Actifs'),
@@ -43,22 +41,19 @@ CHOICES_AFF = (
     ('5', 'Ports'),
 )
 
+
 def initial_choices(c):
     return [i[0] for i in c]
 
 
 class SearchForm(Form):
-    q = forms.CharField(label = 'Search', max_length = 100)
-
-    def clean(self):
-        cleaned_data = super(SearchForm, self).clean()
-        q = cleaned_data.get('q', '')
+    q = forms.CharField(label='Search', max_length=100)
 
 
 class SearchFormPlus(Form):
     q = forms.CharField(
-        label = 'Search',
-        max_length = 100,
+        label='Search',
+        max_length=100,
         required=False
     )
     u = forms.MultipleChoiceField(
@@ -87,11 +82,3 @@ class SearchFormPlus(Form):
         input_formats=['%d/%m/%Y'],
         label="Date de fin"
     )
-
-    def clean(self):
-        cleaned_data = super(SearchFormPlus, self).clean()
-        q = cleaned_data.get('q')
-        u = cleaned_data.get('u')
-        a = cleaned_data.get('a')
-        s = cleaned_data.get('s')
-        e = cleaned_data.get('e')

@@ -45,6 +45,7 @@ from search.forms import (
     CHOICES_AFF,
     initial_choices
 )
+from re2o.utils import SortTable
 
 def get_results(query, request, filters={}):
     start = filters.get('s', None)
@@ -96,9 +97,13 @@ def get_results(query, request, filters={}):
         ) & user_state_filter
         if not request.user.has_perms(('cableur',)):
             filter_user_list &= Q(id=request.user.id)
-        results['users_list'] = User.objects.filter(
-            filter_user_list
-        ).order_by('state', 'surname').distinct()[:max_result]
+        results['users_list'] = User.objects.filter(filter_user_list)
+        results['users_list'] = SortTable.sort(
+            results['users_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.USERS_INDEX
+        )
 
     # Machines
     if '1' in aff:
@@ -119,20 +124,28 @@ def get_results(query, request, filters={}):
         )
         if not request.user.has_perms(('cableur',)):
             filter_machine_list &= Q(machine__user__id=request.user.id)
-        results['machines_list'] = Machine.objects.filter(
-            filter_machine_list
-        ).order_by('name').distinct()[:max_result]
+        results['machines_list'] = Machine.objects.filter(filter_machine_list)
+        results['machines_list'] = SortTable.sort(
+            results['machines_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.MACHINES_INDEX
+        )
 
     # Factures
     if '2' in aff:
-        date_filter = Q()
+        filter_facture_list = users_filter
         if start != None:
-            date_filter &= Q(date__gte=start)
+            filter_facture_list &= Q(date__gte=start)
         if end != None:
-            date_filter &= Q(date__lte=end)
-        results['facture_list'] = Facture.objects.filter(
-            users_filter & date_filter
-        ).order_by('date').distinct()[:max_result]
+            filter_facture_list &= Q(date__lte=end)
+        results['facture_list'] = Facture.objects.filter(filter_facture_list)
+        results['facture_list'] = SortTable.sort(
+            results['facture_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.COTISATIONS_INDEX
+        )
 
     # Bans
     if '3' in aff:
@@ -153,9 +166,13 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['ban_list'] = Ban.objects.filter(
-            users_filter & date_filter
-        ).order_by('date_end').distinct()[:max_result]
+        results['ban_list'] = Ban.objects.filter(users_filter & date_filter)
+        results['ban_list'] = SortTable.sort(
+            results['ban_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.USERS_INDEX_BAN
+        )
 
     # Whitelists
     if '4' in aff:
@@ -176,21 +193,36 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['white_list'] = Whitelist.objects.filter(
-            users_filter & date_filter
-        ).order_by('date_end').distinct()[:max_result]
+        results['white_list'] = Whitelist.objects.filter(users_filter & date_filter)
+        results['white_list'] = SortTable.sort(
+            results['white_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.USERS_INDEX_WHITE
+        )
 
     # Switch ports
     if '5' in aff and request.user.has_perms(('cableur',)):
-        results['port_list'] = Port.objects.filter(
-            details__icontains=query
-        ).order_by('switch', 'port').distinct()[:max_result]
+        results['port_list'] = Port.objects.filter(details__icontains=query)
+        results['port_list'] = SortTable.sort(
+            results['port_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.TOPOLOGIE_INDEX_PORT
+        )
 
     # Switches
     if '6' in aff and request.user.has_perms(('cableur')):
-        results['switch_list'] = Switch.objects.filter(
-            details__icontains=query
-        ).order_by('stack', 'stack_member_id').distinct()[:max_result]
+        results['switch_list'] = Switch.objects.filter(details__icontains=query)
+        results['switch_list'] = SortTable.sort(
+            results['switch_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.TOPOLOGIE_INDEX
+        )
+
+    for r in results.keys():
+        results[r] = results[r].distinct()[:max_result]
 
     results.update({'max_result': max_result})
 
