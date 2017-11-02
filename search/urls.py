@@ -28,5 +28,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.search, name='search'),
-    url(r'^avance/$', views.searchp, name='searchp'),
+    url(r'^advance/$', views.searchp, name='searchp'),
 ]
