@@ -35,7 +35,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from users.models import User, Ban, Whitelist
 from machines.models import Machine, Interface
-from topologie.models import Port, Switch
+from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
 from preferences.models import GeneralOption
 from search.forms import (
@@ -68,6 +68,7 @@ def get_results(query, request, filters={}):
         'factures_list' : Facture.objects.none(),
         'bans_list' : Ban.objects.none(),
         'whitelists_list': Whitelist.objects.none(),
+        'rooms_list': Room.objects.none(),
         'switch_ports_list': Port.objects.none(),
         'switches_list': Switch.objects.none()
     }
@@ -201,8 +202,19 @@ def get_results(query, request, filters={}):
             SortTable.USERS_INDEX_WHITE
         )
 
-    # Switch ports
+    # Rooms
     if '5' in aff and request.user.has_perms(('cableur',)):
+        filter_rooms_list = Q(details__icontains=query) | Q(name__icontains=query)
+        results['rooms_list'] = Room.objects.filter(filter_rooms_list)
+        results['rooms_list'] = SortTable.sort(
+            results['rooms_list'],
+            request.GET.get('col'),
+            request.GET.get('order'),
+            SortTable.TOPOLOGIE_INDEX_ROOM
+        )
+
+    # Switch ports
+    if '6' in aff and request.user.has_perms(('cableur',)):
         results['switch_ports_list'] = Port.objects.filter(details__icontains=query)
         results['switch_ports_list'] = SortTable.sort(
             results['switch_ports_list'],
@@ -212,7 +224,7 @@ def get_results(query, request, filters={}):
         )
 
     # Switches
-    if '6' in aff and request.user.has_perms(('cableur',)):
+    if '7' in aff and request.user.has_perms(('cableur',)):
         results['switches_list'] = Switch.objects.filter(details__icontains=query)
         results['switches_list'] = SortTable.sort(
             results['switches_list'],

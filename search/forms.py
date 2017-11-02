@@ -37,8 +37,9 @@ CHOICES_AFF = (
     ('2', 'Factures'),
     ('3', 'Bannissements'),
     ('4', 'Accès à titre gracieux'),
-    ('6', 'Switchs'),
-    ('5', 'Ports'),
+    ('5', 'Chambres'),
+    ('6', 'Ports'),
+    ('7', 'Switchs'),
 )
 
 
