@@ -36,7 +36,9 @@ def url_insert_param(url="", **kwargs):
     Return the URL with some specific parameters inserted into the query
     part. If a URL has already some parameters, those requested will be
     modified if already exisiting or will be added and the other parameters
-    will stay unmodified.
+    will stay unmodified. If parameters with the same name are already in the
+    URL and a value is specified for this parameter, it will replace all
+    existing parameters.
 
     **Tag name**::
 
@@ -82,19 +84,22 @@ def url_insert_param(url="", **kwargs):
     # Get existing parameters in the url
     params = {}
     if '?' in url:
-        url, params = url.split('?', maxsplit=1)
-        params = {
-            p[:p.find('=')]: p[p.find('=')+1:] for p in params.split('&')
-        }
+        url, parameters = url.split('?', maxsplit=1)
+        for parameter in parameters.split('&'):
+            p_name, p_value = parameter.split('=', maxsplit=1)
+            if p_name not in params:
+                params[p_name] = []
+            params[p_name].append(p_value)
 
     # Add the request parameters to the list of parameters
     for key, value in kwargs.items():
-        params[key] = value
+        params[key] = [value]
 
     # Write the url
     url += '?'
-    for param, value in params.items():
-        url += str(param) + '=' + str(value) + '&'
+    for param, value_list in params.items():
+        for value in value_list:
+            url += str(param) + '=' + str(value) + '&'
 
     # Remove the last '&' (or '?' if no parameters)
     return url[:-1]
