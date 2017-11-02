@@ -48,6 +48,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>Résultats dans les banissements : </h2>
         {% include "users/aff_bans.html" with ban_list=bans_list %}
     {% endif %}
+    {% if rooms_list %}
+    <h2>Résultats dans les chambres : </h2>
+        {% include "topologie/aff_chambres.html" with room_list=rooms_list %}
+    {% endif %}
     {% if switch_ports_list %}
     <h2>Résultats dans les ports : </h2>
         {% include "topologie/aff_port.html" with port_list=switch_ports_list %}
@@ -56,7 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>Résultats dans les switchs : </h2>
         {% include "topologie/aff_switch.html" with switch_list=switches_list %}
     {% endif %}
-    {% if not users_list and not machines_list and not factures_list and not whitelists_list and not bans_list and not switch_ports_list and not switches_list%}
+    {% if not users_list and not machines_list and not factures_list and not whitelists_list and not bans_list and not rooms_list and not switch_ports_list and not switches_list %}
         <h3>Aucun résultat</h3>
     {% else %}
         <h6>(Seulement les {{ max_result }} premiers résultats sont affichés dans chaque catégorie)</h6>
