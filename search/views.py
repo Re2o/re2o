@@ -123,7 +123,7 @@ def get_results(query, request, filters={}):
             interface__domain__related_domain__name__icontains = query
         )
         if not request.user.has_perms(('cableur',)):
-            filter_machine_list &= Q(machine__user__id=request.user.id)
+            filter_machine_list &= Q(user__id=request.user.id)
         results['machines_list'] = Machine.objects.filter(filter_machine_list)
         results['machines_list'] = SortTable.sort(
             results['machines_list'],
