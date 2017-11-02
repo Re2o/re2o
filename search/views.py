@@ -65,11 +65,11 @@ def get_results(query, request, filters={}):
     results = {
         'users_list': User.objects.none(),
         'machines_list' : Machine.objects.none(),
-        'facture_list' : Facture.objects.none(),
-        'ban_list' : Ban.objects.none(),
-        'white_list': Whitelist.objects.none(),
-        'port_list': Port.objects.none(),
-        'switch_list': Switch.objects.none()
+        'factures_list' : Facture.objects.none(),
+        'bans_list' : Ban.objects.none(),
+        'whitelists_list': Whitelist.objects.none(),
+        'switch_ports_list': Port.objects.none(),
+        'switches_list': Switch.objects.none()
     }
 
     users_filter = Q(
@@ -139,9 +139,9 @@ def get_results(query, request, filters={}):
             filter_facture_list &= Q(date__gte=start)
         if end != None:
             filter_facture_list &= Q(date__lte=end)
-        results['facture_list'] = Facture.objects.filter(filter_facture_list)
-        results['facture_list'] = SortTable.sort(
-            results['facture_list'],
+        results['factures_list'] = Facture.objects.filter(filter_facture_list)
+        results['factures_list'] = SortTable.sort(
+            results['factures_list'],
             request.GET.get('col'),
             request.GET.get('order'),
             SortTable.COTISATIONS_INDEX
@@ -166,9 +166,9 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['ban_list'] = Ban.objects.filter(users_filter & date_filter)
-        results['ban_list'] = SortTable.sort(
-            results['ban_list'],
+        results['bans_list'] = Ban.objects.filter(users_filter & date_filter)
+        results['bans_list'] = SortTable.sort(
+            results['bans_list'],
             request.GET.get('col'),
             request.GET.get('order'),
             SortTable.USERS_INDEX_BAN
@@ -193,9 +193,9 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['white_list'] = Whitelist.objects.filter(users_filter & date_filter)
-        results['white_list'] = SortTable.sort(
-            results['white_list'],
+        results['whitelists_list'] = Whitelist.objects.filter(users_filter & date_filter)
+        results['whitelists_list'] = SortTable.sort(
+            results['whitelists_list'],
             request.GET.get('col'),
             request.GET.get('order'),
             SortTable.USERS_INDEX_WHITE
@@ -203,19 +203,19 @@ def get_results(query, request, filters={}):
 
     # Switch ports
     if '5' in aff and request.user.has_perms(('cableur',)):
-        results['port_list'] = Port.objects.filter(details__icontains=query)
-        results['port_list'] = SortTable.sort(
-            results['port_list'],
+        results['switch_ports_list'] = Port.objects.filter(details__icontains=query)
+        results['switch_ports_list'] = SortTable.sort(
+            results['switch_ports_list'],
             request.GET.get('col'),
             request.GET.get('order'),
             SortTable.TOPOLOGIE_INDEX_PORT
         )
 
     # Switches
-    if '6' in aff and request.user.has_perms(('cableur')):
-        results['switch_list'] = Switch.objects.filter(details__icontains=query)
-        results['switch_list'] = SortTable.sort(
-            results['switch_list'],
+    if '6' in aff and request.user.has_perms(('cableur',)):
+        results['switches_list'] = Switch.objects.filter(details__icontains=query)
+        results['switches_list'] = SortTable.sort(
+            results['switches_list'],
             request.GET.get('col'),
             request.GET.get('order'),
             SortTable.TOPOLOGIE_INDEX
