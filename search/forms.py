@@ -20,6 +20,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""The forms used by the search app"""
+
 from __future__ import unicode_literals
 
 from django import forms
@@ -44,14 +46,18 @@ CHOICES_AFF = (
 
 
 def initial_choices(c):
+    """Return the choices that should be activated by default for a
+    given set of choices"""
     return [i[0] for i in c]
 
 
 class SearchForm(Form):
+    """The form for a simple search"""
     q = forms.CharField(label='Search', max_length=100)
 
 
 class SearchFormPlus(Form):
+    """The form for an advanced search (with filters)"""
     q = forms.CharField(
         label='Search',
         max_length=100,

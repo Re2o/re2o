@@ -20,21 +20,19 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# App de recherche pour re2o
-# Augustin lemesle, Gabriel Détraz, Goulven Kermarec
-# Gplv2
+"""The views for the search app, responsible for finding the matches
+Augustin lemesle, Gabriel Détraz, Goulven Kermarec, Maël Kervella
+Gplv2"""
+
 
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django.template.context_processors import csrf
-from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 from users.models import User, Ban, Whitelist
-from machines.models import Machine, Interface
+from machines.models import Machine
 from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
 from preferences.models import GeneralOption
@@ -72,35 +70,23 @@ def get_results(query, request, filters={}):
     user_state = filters.get('u', initial_choices(CHOICES_USER))
     aff = filters.get('a', initial_choices(CHOICES_AFF))
 
-    options, created = GeneralOption.objects.get_or_create()
+    options, _ = GeneralOption.objects.get_or_create()
     max_result = options.search_display_page
 
     user_state_filter = Q()
-    for s in user_state:
-        user_state_filter |= Q(state = s)
-    
-    connexion = []
-   
+    for state in user_state:
+        user_state_filter |= Q(state=state)
+
     results = {
         'users_list': User.objects.none(),
-        'machines_list' : Machine.objects.none(),
-        'factures_list' : Facture.objects.none(),
-        'bans_list' : Ban.objects.none(),
+        'machines_list': Machine.objects.none(),
+        'factures_list': Facture.objects.none(),
+        'bans_list': Ban.objects.none(),
         'whitelists_list': Whitelist.objects.none(),
         'rooms_list': Room.objects.none(),
         'switch_ports_list': Port.objects.none(),
         'switches_list': Switch.objects.none()
     }
-
-    users_filter = Q(
-        user__pseudo__icontains=query
-    ) | Q(
-        user__adherent__name__icontains=query
-    ) | Q(
-        user__surname__icontains=query
-    )
-    if not request.user.has_perms(('cableur',)):
-        users_filter &= Q(user=request.user)
 
     # Users
     if '0' in aff:
@@ -155,9 +141,9 @@ def get_results(query, request, filters={}):
         filter_facture_list = Q(
             user__pseudo__icontains=query
         )
-        if start != None:
+        if start is not None:
             filter_facture_list &= Q(date__gte=start)
-        if end != None:
+        if end is not None:
             filter_facture_list &= Q(date__lte=end)
         results['factures_list'] = Facture.objects.filter(filter_facture_list)
         results['factures_list'] = SortTable.sort(
@@ -174,7 +160,7 @@ def get_results(query, request, filters={}):
         ) | Q(
             raison__icontains=query
         )
-        if start != None:
+        if start is not None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
             ) | (
@@ -182,7 +168,7 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=start) & Q(date_end__lte=start)
             )
-        if end != None:
+        if end is not None:
             date_filter &= (
                 Q(date_start__lte=end) & Q(date_end__lte=end)
             ) | (
@@ -205,7 +191,7 @@ def get_results(query, request, filters={}):
         ) | Q(
             raison__icontains=query
         )
-        if start != None:
+        if start is not None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
             ) | (
@@ -213,7 +199,7 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=start) & Q(date_end__lte=start)
             )
-        if end != None:
+        if end is not None:
             date_filter &= (
                 Q(date_start__lte=end) & Q(date_end__lte=end)
             ) | (
@@ -248,7 +234,7 @@ def get_results(query, request, filters={}):
 
     # Switch ports
     if '6' in aff and request.user.has_perms(('cableur',)):
-        filter_switch_ports_list = Q(
+        filter_ports_list = Q(
             room__name__icontains=query
         ) | Q(
             machine_interface__domain__name__icontains=query
@@ -262,10 +248,10 @@ def get_results(query, request, filters={}):
             details__icontains=query
         )
         if is_int(query):
-            filter_switch_ports_list |= Q(
+            filter_ports_list |= Q(
                 port=query
             )
-        results['switch_ports_list'] = Port.objects.filter(filter_switch_ports_list)
+        results['switch_ports_list'] = Port.objects.filter(filter_ports_list)
         results['switch_ports_list'] = SortTable.sort(
             results['switch_ports_list'],
             request.GET.get('col'),
@@ -275,7 +261,7 @@ def get_results(query, request, filters={}):
 
     # Switches
     if '7' in aff and request.user.has_perms(('cableur',)):
-        filter_switches = Q(
+        filter_switches_list = Q(
             switch_interface__domain__name__icontains=query
         ) | Q(
             switch_interface__ipv4__ipv4__icontains=query
@@ -291,12 +277,12 @@ def get_results(query, request, filters={}):
             details__icontains=query
         )
         if is_int(query):
-            filter_switch_ports_list |= Q(
+            filter_switches_list |= Q(
                 number=query
             ) | Q(
                 stack_member_id=query
             )
-        results['switches_list'] = Switch.objects.filter(filter_switches)
+        results['switches_list'] = Switch.objects.filter(filter_switches_list)
         results['switches_list'] = SortTable.sort(
             results['switches_list'],
             request.GET.get('col'),
@@ -304,16 +290,18 @@ def get_results(query, request, filters={}):
             SortTable.TOPOLOGIE_INDEX
         )
 
-    for r in results.keys():
-        results[r] = results[r].distinct()[:max_result]
+    for name, val in results.items():
+        results[name] = val.distinct()[:max_result]
 
     results.update({'max_result': max_result})
     results.update({'search_term': query})
 
     return results
 
+
 @login_required
 def search(request):
+    """ La page de recherche standard """
     search_form = SearchForm(request.GET or None)
     if search_form.is_valid():
         return render(
@@ -325,10 +313,12 @@ def search(request):
                 search_form.cleaned_data
             )
         )
-    return render(request, 'search/search.html', {'search_form' : search_form})
+    return render(request, 'search/search.html', {'search_form': search_form})
+
 
 @login_required
 def searchp(request):
+    """ La page de recherche avancée """
     search_form = SearchFormPlus(request.GET or None)
     if search_form.is_valid():
         return render(
@@ -340,4 +330,4 @@ def searchp(request):
                 search_form.cleaned_data
             )
         )
-    return render(request, 'search/search.html', {'search_form' : search_form})
+    return render(request, 'search/search.html', {'search_form': search_form})
