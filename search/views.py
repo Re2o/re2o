@@ -73,10 +73,6 @@ def get_results(query, request, filters={}):
     options, _ = GeneralOption.objects.get_or_create()
     max_result = options.search_display_page
 
-    user_state_filter = Q()
-    for state in user_state:
-        user_state_filter |= Q(state=state)
-
     results = {
         'users_list': User.objects.none(),
         'machines_list': Machine.objects.none(),
@@ -90,17 +86,19 @@ def get_results(query, request, filters={}):
 
     # Users
     if '0' in aff:
-        filter_user_list = Q(
-            surname__icontains=query
-        ) | Q(
-            adherent__name__icontains=query
-        ) | Q(
-            pseudo__icontains=query
-        ) | Q(
-            club__room__name__icontains=query
-        ) | Q(
-            adherent__room__name__icontains=query
-        ) & user_state_filter
+        filter_user_list = (
+            Q(
+                surname__icontains=query
+            ) | Q(
+                adherent__name__icontains=query
+            ) | Q(
+                pseudo__icontains=query
+            ) | Q(
+                club__room__name__icontains=query
+            ) | Q(
+                adherent__room__name__icontains=query
+            )
+        ) & Q(state__in=user_state)
         if not request.user.has_perms(('cableur',)):
             filter_user_list &= Q(id=request.user.id)
         results['users_list'] = User.objects.filter(filter_user_list)
@@ -115,8 +113,12 @@ def get_results(query, request, filters={}):
     if '1' in aff:
         filter_machine_list = Q(
             name__icontains=query
-        ) | Q(
-            user__pseudo__icontains=query
+        ) | (
+            Q(
+                user__pseudo__icontains=query
+            ) & Q(
+                user__state__in=user_state
+            )
         ) | Q(
             interface__domain__name__icontains=query
         ) | Q(
@@ -140,6 +142,8 @@ def get_results(query, request, filters={}):
     if '2' in aff:
         filter_facture_list = Q(
             user__pseudo__icontains=query
+        ) & Q(
+            user__state__in=user_state
         )
         if start is not None:
             filter_facture_list &= Q(date__gte=start)
@@ -155,8 +159,12 @@ def get_results(query, request, filters={}):
 
     # Bans
     if '3' in aff:
-        date_filter = Q(
-            user__pseudo__icontains=query
+        date_filter = (
+            Q(
+                user__pseudo__icontains=query
+            ) & Q(
+                user__state__in=user_state
+            )
         ) | Q(
             raison__icontains=query
         )
@@ -186,8 +194,12 @@ def get_results(query, request, filters={}):
 
     # Whitelists
     if '4' in aff:
-        date_filter = Q(
-            user__pseudo__icontains=query
+        date_filter = (
+            Q(
+                user__pseudo__icontains=query
+            ) & Q(
+                user__state__in=user_state
+            )
         ) | Q(
             raison__icontains=query
         )
