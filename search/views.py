@@ -47,7 +47,26 @@ from search.forms import (
 )
 from re2o.utils import SortTable
 
+
+def is_int(variable):
+    """ Check if the variable can be casted to an integer """
+
+    try:
+        int(variable)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
 def get_results(query, request, filters={}):
+    """ Construct the correct filters to match differents fields of some models
+    with the given query according to the given filters.
+    The match field are either CharField or IntegerField that will be displayed
+    on the results page (else, one might not see why a result has matched the
+    query). IntegerField are matched against the query only if it can be casted
+    to an int."""
+
     start = filters.get('s', None)
     end = filters.get('e', None)
     user_state = filters.get('u', initial_choices(CHOICES_USER))
@@ -74,27 +93,27 @@ def get_results(query, request, filters={}):
     }
 
     users_filter = Q(
-        user__pseudo__icontains = query
+        user__pseudo__icontains=query
     ) | Q(
-        user__adherent__name__icontains = query
+        user__adherent__name__icontains=query
     ) | Q(
-        user__surname__icontains = query
+        user__surname__icontains=query
     )
     if not request.user.has_perms(('cableur',)):
-        users_filter &= Q(user = request.user)
+        users_filter &= Q(user=request.user)
 
     # Users
     if '0' in aff:
         filter_user_list = Q(
-            adherent__room__name__icontains = query
+            surname__icontains=query
         ) | Q(
-            club__room__name__icontains = query
+            adherent__name__icontains=query
         ) | Q(
-            pseudo__icontains = query
+            pseudo__icontains=query
         ) | Q(
-            adherent__name__icontains = query
+            club__room__name__icontains=query
         ) | Q(
-            surname__icontains = query
+            adherent__room__name__icontains=query
         ) & user_state_filter
         if not request.user.has_perms(('cableur',)):
             filter_user_list &= Q(id=request.user.id)
@@ -109,19 +128,17 @@ def get_results(query, request, filters={}):
     # Machines
     if '1' in aff:
         filter_machine_list = Q(
-            user__pseudo__icontains = query
+            name__icontains=query
         ) | Q(
-            user__adherent__name__icontains = query
+            user__pseudo__icontains=query
         ) | Q(
-            user__surname__icontains = query
+            interface__domain__name__icontains=query
         ) | Q(
-            interface__mac_address__icontains = query
+            interface__domain__related_domain__name__icontains=query
         ) | Q(
-            interface__ipv4__ipv4__icontains = query
+            interface__mac_address__icontains=query
         ) | Q(
-            interface__domain__name__icontains = query
-        ) | Q(
-            interface__domain__related_domain__name__icontains = query
+            interface__ipv4__ipv4__icontains=query
         )
         if not request.user.has_perms(('cableur',)):
             filter_machine_list &= Q(user__id=request.user.id)
@@ -135,7 +152,9 @@ def get_results(query, request, filters={}):
 
     # Factures
     if '2' in aff:
-        filter_facture_list = users_filter
+        filter_facture_list = Q(
+            user__pseudo__icontains=query
+        )
         if start != None:
             filter_facture_list &= Q(date__gte=start)
         if end != None:
@@ -150,7 +169,11 @@ def get_results(query, request, filters={}):
 
     # Bans
     if '3' in aff:
-        date_filter = users_filter
+        date_filter = Q(
+            user__pseudo__icontains=query
+        ) | Q(
+            raison__icontains=query
+        )
         if start != None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
@@ -177,7 +200,11 @@ def get_results(query, request, filters={}):
 
     # Whitelists
     if '4' in aff:
-        date_filter = users_filter
+        date_filter = Q(
+            user__pseudo__icontains=query
+        ) | Q(
+            raison__icontains=query
+        )
         if start != None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
@@ -222,10 +249,6 @@ def get_results(query, request, filters={}):
     # Switch ports
     if '6' in aff and request.user.has_perms(('cableur',)):
         filter_switch_ports_list = Q(
-            details__icontains=query
-        ) | Q(
-            switch__switch_interface__domain__name__icontains=query
-        ) | Q(
             room__name__icontains=query
         ) | Q(
             machine_interface__domain__name__icontains=query
@@ -235,7 +258,13 @@ def get_results(query, request, filters={}):
             radius__icontains=query
         ) | Q(
             vlan_force__name__icontains=query
+        ) | Q(
+            details__icontains=query
         )
+        if is_int(query):
+            filter_switch_ports_list |= Q(
+                port=query
+            )
         results['switch_ports_list'] = Port.objects.filter(filter_switch_ports_list)
         results['switch_ports_list'] = SortTable.sort(
             results['switch_ports_list'],
@@ -247,8 +276,6 @@ def get_results(query, request, filters={}):
     # Switches
     if '7' in aff and request.user.has_perms(('cableur',)):
         filter_switches = Q(
-            details__icontains=query
-        ) | Q(
             switch_interface__domain__name__icontains=query
         ) | Q(
             switch_interface__ipv4__ipv4__icontains=query
@@ -260,7 +287,15 @@ def get_results(query, request, filters={}):
             model__reference__icontains=query
         ) | Q(
             model__constructor__name__icontains=query
+        ) | Q(
+            details__icontains=query
         )
+        if is_int(query):
+            filter_switch_ports_list |= Q(
+                number=query
+            ) | Q(
+                stack_member_id=query
+            )
         results['switches_list'] = Switch.objects.filter(filter_switches)
         results['switches_list'] = SortTable.sort(
             results['switches_list'],
