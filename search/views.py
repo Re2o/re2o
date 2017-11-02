@@ -150,7 +150,7 @@ def get_results(query, request, filters={}):
 
     # Bans
     if '3' in aff:
-        date_filter = Q()
+        date_filter = users_filter
         if start != None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
@@ -167,7 +167,7 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['bans_list'] = Ban.objects.filter(users_filter & date_filter)
+        results['bans_list'] = Ban.objects.filter(date_filter)
         results['bans_list'] = SortTable.sort(
             results['bans_list'],
             request.GET.get('col'),
@@ -177,7 +177,7 @@ def get_results(query, request, filters={}):
 
     # Whitelists
     if '4' in aff:
-        date_filter = Q()
+        date_filter = users_filter
         if start != None:
             date_filter &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
@@ -194,7 +194,7 @@ def get_results(query, request, filters={}):
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['whitelists_list'] = Whitelist.objects.filter(users_filter & date_filter)
+        results['whitelists_list'] = Whitelist.objects.filter(date_filter)
         results['whitelists_list'] = SortTable.sort(
             results['whitelists_list'],
             request.GET.get('col'),
@@ -204,7 +204,13 @@ def get_results(query, request, filters={}):
 
     # Rooms
     if '5' in aff and request.user.has_perms(('cableur',)):
-        filter_rooms_list = Q(details__icontains=query) | Q(name__icontains=query)
+        filter_rooms_list = Q(
+            details__icontains=query
+        ) | Q(
+            name__icontains=query
+        ) | Q(
+            port__details=query
+        )
         results['rooms_list'] = Room.objects.filter(filter_rooms_list)
         results['rooms_list'] = SortTable.sort(
             results['rooms_list'],
@@ -215,7 +221,22 @@ def get_results(query, request, filters={}):
 
     # Switch ports
     if '6' in aff and request.user.has_perms(('cableur',)):
-        results['switch_ports_list'] = Port.objects.filter(details__icontains=query)
+        filter_switch_ports_list = Q(
+            details__icontains=query
+        ) | Q(
+            switch__switch_interface__domain__name__icontains=query
+        ) | Q(
+            room__name__icontains=query
+        ) | Q(
+            machine_interface__domain__name__icontains=query
+        ) | Q(
+            related__switch__switch_interface__domain__name__icontains=query
+        ) | Q(
+            radius__icontains=query
+        ) | Q(
+            vlan_force__name__icontains=query
+        )
+        results['switch_ports_list'] = Port.objects.filter(filter_switch_ports_list)
         results['switch_ports_list'] = SortTable.sort(
             results['switch_ports_list'],
             request.GET.get('col'),
@@ -225,7 +246,22 @@ def get_results(query, request, filters={}):
 
     # Switches
     if '7' in aff and request.user.has_perms(('cableur',)):
-        results['switches_list'] = Switch.objects.filter(details__icontains=query)
+        filter_switches = Q(
+            details__icontains=query
+        ) | Q(
+            switch_interface__domain__name__icontains=query
+        ) | Q(
+            switch_interface__ipv4__ipv4__icontains=query
+        ) | Q(
+            location__icontains=query
+        ) | Q(
+            stack__name__icontains=query
+        ) | Q(
+            model__reference__icontains=query
+        ) | Q(
+            model__constructor__name__icontains=query
+        )
+        results['switches_list'] = Switch.objects.filter(filter_switches)
         results['switches_list'] = SortTable.sort(
             results['switches_list'],
             request.GET.get('col'),
