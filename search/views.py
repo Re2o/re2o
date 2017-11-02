@@ -225,6 +225,7 @@ def get_results(query, request, filters={}):
         results[r] = results[r].distinct()[:max_result]
 
     results.update({'max_result': max_result})
+    results.update({'search_term': query})
 
     return results
 
