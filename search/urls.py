@@ -30,5 +30,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.search, name='search'),
-    url(r'^advance/$', views.searchp, name='searchp'),
+    url(r'^advanced/$', views.searchp, name='searchp'),
 ]
