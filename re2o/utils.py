@@ -56,6 +56,7 @@ def all_adherent(search_time=DT_NOW):
     return User.objects.filter(
         facture__in=Facture.objects.filter(
             vente__in=Vente.objects.filter(
+                Q(type_cotisation='All') | Q(type_cotisation='Adhesion'),
                 cotisation__in=Cotisation.objects.filter(
                     vente__in=Vente.objects.filter(
                         facture__in=Facture.objects.all().exclude(valid=False)
@@ -94,6 +95,7 @@ def all_has_access(search_time=DT_NOW):
          Q(facture__in=Facture.objects.filter(
              vente__in=Vente.objects.filter(
                  cotisation__in=Cotisation.objects.filter(
+                     Q(type_cotisation='All') | Q(type_cotisation='Connexion'),
                      vente__in=Vente.objects.filter(
                          facture__in=Facture.objects.all()
                          .exclude(valid=False)
@@ -179,15 +181,18 @@ class SortTable:
         'cotis_user': ['user__pseudo'],
         'cotis_paiement': ['paiement__moyen'],
         'cotis_date': ['date'],
+        'cotis_id': ['id'],
         'default': ['-date']
     }
     COTISATIONS_CONTROL = {
-        'control_name': ['user__name'],
+        'control_name': ['user__adherent__name'],
         'control_surname': ['user__surname'],
         'control_paiement': ['paiement'],
         'control_date': ['date'],
         'control_valid': ['valid'],
         'control_control': ['control'],
+        'control_id': ['id'],
+        'control_user-id': ['user__id'],
         'default': ['-date']
     }
     TOPOLOGIE_INDEX = {

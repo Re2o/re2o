@@ -182,7 +182,7 @@ class User(AbstractBaseUser):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
-    PRETTY_NAME = "Utilisateurs"
+    PRETTY_NAME = "Utilisateurs (clubs et adhérents)"
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
@@ -255,7 +255,7 @@ class User(AbstractBaseUser):
     def class_name(self):
         """Renvoie si il s'agit d'un adhérent ou d'un club"""
         if hasattr(self, 'adherent'):
-            return "Adhérent"
+            return "Adherent"
         elif hasattr(self, 'club'):
             return "Club"
         else:
@@ -378,6 +378,22 @@ class User(AbstractBaseUser):
                     user=self
                 ).exclude(valid=False)
             )
+        ).filter(
+            Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
+        ).aggregate(models.Max('date_end'))['date_end__max']
+        return date_max
+
+    def end_connexion(self):
+        """ Renvoie la date de fin de connexion d'un user. Examine les objets
+        cotisation"""
+        date_max = Cotisation.objects.filter(
+            vente__in=Vente.objects.filter(
+                facture__in=Facture.objects.filter(
+                    user=self
+                ).exclude(valid=False)
+            )
+        ).filter(
+            Q(type_cotisation='All') | Q(type_cotisation='Connexion')
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
@@ -391,6 +407,17 @@ class User(AbstractBaseUser):
             return False
         else:
             return True
+
+    def is_connected(self):
+        """ Renvoie True si l'user est adhérent : si
+        self.end_adhesion()>now et end_connexion>now"""
+        end = self.end_connexion()
+        if not end:
+            return False
+        elif end < DT_NOW:
+            return False
+        else:
+            return self.is_adherent()
 
     @cached_property
     def end_ban(self):
@@ -433,20 +460,20 @@ class User(AbstractBaseUser):
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE\
-            and not self.is_ban and (self.is_adherent() or self.is_whitelisted)
+            and not self.is_ban and (self.is_connected() or self.is_whitelisted)
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
-        if not self.end_adhesion():
+        if not self.end_connexion():
             if not self.end_whitelist:
                 return None
             else:
                 return self.end_whitelist
         else:
             if not self.end_whitelist:
-                return self.end_adhesion()
+                return self.end_connexion()
             else:
-                return max(self.end_adhesion(), self.end_whitelist)
+                return max(self.end_connexion(), self.end_whitelist)
 
     @cached_property
     def solde(self):
@@ -545,12 +572,16 @@ class User(AbstractBaseUser):
         mail, password, shell, home
         access_refresh : synchronise le dialup_access notant si l'user a accès
         aux services
-        mac_refresh : synchronise les machines de l'user"""
+        mac_refresh : synchronise les machines de l'user
+        Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         self.refresh_from_db()
         try:
             user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
         except LdapUser.DoesNotExist:
             user_ldap = LdapUser(uidNumber=self.uid_number)
+            base = True
+            access_refresh = True
+            mac_refresh = True
         if base:
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
@@ -574,7 +605,6 @@ class User(AbstractBaseUser):
             user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
-
         user_ldap.save()
 
     def ldap_del(self):
@@ -730,6 +760,7 @@ class User(AbstractBaseUser):
 
 
 class Adherent(User):
+    PRETTY_NAME = "Adhérents"
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
         'topologie.Room',
@@ -741,6 +772,7 @@ class Adherent(User):
 
 
 class Club(User):
+    PRETTY_NAME = "Clubs"
     room = models.ForeignKey(
         'topologie.Room',
         on_delete=models.PROTECT,
@@ -750,6 +782,8 @@ class Club(User):
     pass
 
 
+@receiver(post_save, sender=Adherent)
+@receiver(post_save, sender=Club)
 @receiver(post_save, sender=User)
 def user_post_save(sender, **kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
@@ -762,6 +796,8 @@ def user_post_save(sender, **kwargs):
     regen('mailing')
 
 
+@receiver(post_delete, sender=Adherent)
+@receiver(post_delete, sender=Club)
 @receiver(post_delete, sender=User)
 def user_post_delete(sender, **kwargs):
     """Post delete d'un user, on supprime son instance ldap"""

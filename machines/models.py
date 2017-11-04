@@ -460,6 +460,15 @@ class Interface(models.Model):
     def clean(self, *args, **kwargs):
         """ Formate l'addresse mac en mac_bare (fonction filter_mac)
         et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
+        # If type was an invalid value, django won't create an attribute type
+        # but try clean() as we may be able to create it from another value
+        # so even if the error as yet been detected at this point, django
+        # continues because the error might not prevent us from creating the
+        # instance.
+        # But in our case, it's impossible to create a type value so we raise
+        # the error.
+        if not hasattr(self, 'type') :
+            raise ValidationError("Le type d'ip choisi n'est pas valide")
         self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
@@ -626,6 +635,8 @@ class IpList(models.Model):
 
 class Service(models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
+    PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
+
     service_type = models.CharField(max_length=255, blank=True, unique=True)
     min_time_regen = models.DurationField(
         default=timedelta(minutes=1),
@@ -673,6 +684,8 @@ def regen(service):
 
 class Service_link(models.Model):
     """ Definition du lien entre serveurs et services"""
+    PRETTY_NAME = "Relation entre service et serveur"
+
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     server = models.ForeignKey('Interface', on_delete=models.CASCADE)
     last_regen = models.DateTimeField(auto_now_add=True)
@@ -702,6 +715,8 @@ class Service_link(models.Model):
 
 class OuverturePortList(models.Model):
     """Liste des ports ouverts sur une interface."""
+    PRETTY_NAME = "Profil d'ouverture de ports"
+
     name = models.CharField(
         help_text="Nom de la configuration des ports.",
         max_length=255
@@ -748,6 +763,8 @@ class OuverturePort(models.Model):
 
     On limite les ports entre 0 et 65535, tels que défini par la RFC
     """
+    PRETTY_NAME = "Plage de port ouverte"
+
     TCP = 'T'
     UDP = 'U'
     IN = 'I'

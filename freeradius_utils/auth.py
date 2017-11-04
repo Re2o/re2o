@@ -247,6 +247,9 @@ def check_user_machine_and_register(nas_type, username, mac_address):
             return (False, u"Machine enregistrée sur le compte d'un autre user...", '')
         elif not interface.is_active:
             return (False, u"Machine desactivée", '')
+        elif not interface.ipv4:
+            interface.assign_ipv4()
+            return (True, u"Ok, Reassignation de l'ipv4", user.pwd_ntlm)
         else:
             return (True, u"Access ok", user.pwd_ntlm)
     elif nas_type:
@@ -324,9 +327,14 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
                         return (sw_name, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
                     else:
                         return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
-        elif not interface.first().is_active:
-            return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
-            return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
+            interface = interface.first()
+            if not interface.is_active:
+                return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
+            elif not interface.ipv4:
+                interface.assign_ipv4()
+                return (sw_name, u"Ok, Reassignation de l'ipv4" + extra_log, DECISION_VLAN)
+            else:
+                return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
 
 
