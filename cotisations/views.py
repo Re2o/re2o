@@ -33,6 +33,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.db import transaction
+from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from reversion import revisions as reversion
@@ -45,10 +46,21 @@ from re2o.views import form
 from re2o.utils import SortTable
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
-from .forms import NewFactureForm, TrezEditFactureForm, EditFactureForm
-from .forms import ArticleForm, DelArticleForm, PaiementForm, DelPaiementForm
-from .forms import BanqueForm, DelBanqueForm, NewFactureFormPdf
-from .forms import SelectArticleForm, CreditSoldeForm
+from .forms import (
+    NewFactureForm,
+    TrezEditFactureForm,
+    EditFactureForm,
+    ArticleForm,
+    DelArticleForm,
+    PaiementForm,
+    DelPaiementForm,
+    BanqueForm,
+    DelBanqueForm,
+    NewFactureFormPdf,
+    SelectUserArticleForm,
+    SelectClubArticleForm,
+    CreditSoldeForm
+)
 from .tex import render_tex
 
 
@@ -69,10 +81,15 @@ def new_facture(request, userid):
         return redirect(reverse('cotisations:index'))
     facture = Facture(user=user)
     # Le template a besoin de connaitre les articles pour le js
-    article_list = Article.objects.all()
+    article_list = Article.objects.filter(
+        Q(type_user='All') | Q(type_user=request.user.class_name)
+    )
     # On envoie la form fature et un formset d'articles
     facture_form = NewFactureForm(request.POST or None, instance=facture)
-    article_formset = formset_factory(SelectArticleForm)(request.POST or None)
+    if request.user.is_class_club:
+        article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+    else:
+        article_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
     if facture_form.is_valid() and article_formset.is_valid():
         new_facture_instance = facture_form.save(commit=False)
         articles = article_formset
@@ -111,7 +128,7 @@ def new_facture(request, userid):
                         facture=new_facture_instance,
                         name=article.name,
                         prix=article.prix,
-                        iscotisation=article.iscotisation,
+                        type_cotisation=article.type_cotisation,
                         duration=article.duration,
                         number=quantity
                     )
@@ -119,7 +136,7 @@ def new_facture(request, userid):
                         new_vente.save()
                         reversion.set_user(request.user)
                         reversion.set_comment("Création")
-            if any(art_item.cleaned_data['article'].iscotisation
+            if any(art_item.cleaned_data['article'].type_cotisation
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
@@ -326,8 +343,6 @@ def credit_solde(request, userid):
             facture=facture_instance,
             name="solde",
             prix=facture.cleaned_data['montant'],
-            iscotisation=False,
-            duration=0,
             number=1
             )
         with transaction.atomic(), reversion.create_revision():

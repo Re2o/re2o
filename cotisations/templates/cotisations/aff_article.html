@@ -27,8 +27,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Article</th>
                 <th>Prix</th>
-                <th>Cotisation</th>
+                <th>Type Cotisation</th>
                 <th>Durée (mois)</th>
+		<th>Article pour</th>
                 <th></th>
             </tr>
         </thead>
@@ -36,8 +37,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ article.name }}</td>
             <td>{{ article.prix }}</td>
-            <td>{{ article.iscotisation }}</td>
+            <td>{{ article.type_cotisation }}</td>
             <td>{{ article.duration }}</td>
+	    <td>{{ article.type_user }}</td>
             <td class="text-right">
             {% if is_trez %}
                 <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'cotisations:edit-article' article.id %}">

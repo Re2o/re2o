@@ -47,13 +47,50 @@ from django.db.models import Count
 from reversion.models import Revision
 from reversion.models import Version, ContentType
 
-from users.models import User, ServiceUser, Right, School, ListRight, ListShell
-from users.models import Ban, Whitelist
-from cotisations.models import Facture, Vente, Article, Banque, Paiement
-from cotisations.models import Cotisation
-from machines.models import Machine, MachineType, IpType, Extension, Interface
-from machines.models import Domain, IpList
-from topologie.models import Switch, Port, Room
+from users.models import (
+    User,
+    ServiceUser,
+    Right,
+    School,
+    ListRight,
+    ListShell,
+    Ban,
+    Whitelist,
+    Adherent,
+    Club
+)
+from cotisations.models import (
+    Facture,
+    Vente,
+    Article,
+    Banque,
+    Paiement,
+    Cotisation
+)
+from machines.models import (
+    Machine,
+    MachineType,
+    IpType,
+    Extension,
+    Interface,
+    Domain,
+    IpList,
+    OuverturePortList,
+    Service,
+    Vlan,
+    Nas,
+    SOA,
+    Mx,
+    Ns
+)
+from topologie.models import (
+    Switch,
+    Port,
+    Room,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch
+)
 from preferences.models import GeneralOption
 from re2o.views import form
 from re2o.utils import all_whitelisted, all_baned, all_has_access, all_adherent
@@ -184,45 +221,77 @@ def stats_general(request):
     range, et les statistiques générales sur les users : users actifs,
     cotisants, activés, archivés, etc"""
     ip_dict = dict()
-    for ip_range in IpType.objects.all():
+    for ip_range in IpType.objects.select_related('vlan').all():
         all_ip = IpList.objects.filter(ip_type=ip_range)
         used_ip = Interface.objects.filter(ipv4__in=all_ip).count()
         active_ip = all_active_assigned_interfaces_count().filter(
             ipv4__in=IpList.objects.filter(ip_type=ip_range)
         ).count()
-        ip_dict[ip_range] = [ip_range, all_ip.count(),
+        ip_dict[ip_range] = [ip_range, ip_range.vlan, all_ip.count(),
                              used_ip, active_ip, all_ip.count()-used_ip]
+    _all_adherent = all_adherent()
+    _all_has_access = all_has_access()
+    _all_baned = all_baned()
+    _all_whitelisted = all_whitelisted()
+    _all_active_interfaces_count = all_active_interfaces_count()
+    _all_active_assigned_interfaces_count = all_active_assigned_interfaces_count()
     stats = [
-        [["Categorie", "Nombre d'utilisateurs"], {
+        [["Categorie", "Nombre d'utilisateurs (total club et adhérents)", "Nombre d'adhérents", "Nombre de clubs"], {
             'active_users': [
                 "Users actifs",
-                User.objects.filter(state=User.STATE_ACTIVE).count()],
-            'inactive_users': [
+                User.objects.filter(state=User.STATE_ACTIVE).count(),
+                Adherent.objects.filter(state=Adherent.STATE_ACTIVE).count(),
+                Club.objects.filter(state=Club.STATE_ACTIVE).count()],
+             'inactive_users': [
                 "Users désactivés",
-                User.objects.filter(state=User.STATE_DISABLED).count()],
+                User.objects.filter(state=User.STATE_DISABLED).count(),
+                Adherent.objects.filter(state=Adherent.STATE_DISABLED).count(),
+                Club.objects.filter(state=Club.STATE_DISABLED).count()],
             'archive_users': [
                 "Users archivés",
-                User.objects.filter(state=User.STATE_ARCHIVE).count()],
+                User.objects.filter(state=User.STATE_ARCHIVE).count(),
+                Adherent.objects.filter(state=Adherent.STATE_ARCHIVE).count(),
+                Club.objects.filter(state=Club.STATE_ARCHIVE).count()],
             'adherent_users': [
-                "Adhérents à l'association",
-                all_adherent().count()],
+                "Cotisant à l'association",
+                _all_adherent.count(),
+                _all_adherent.exclude(adherent__isnull=True).count(),
+                _all_adherent.exclude(club__isnull=True).count()],
             'connexion_users': [
                 "Utilisateurs bénéficiant d'une connexion",
-                all_has_access().count()],
+                _all_has_access.count(),
+                _all_has_access.exclude(adherent__isnull=True).count(),
+                _all_has_access.exclude(club__isnull=True).count()],
             'ban_users': [
                 "Utilisateurs bannis",
-                all_baned().count()],
+                _all_baned.count(),
+                _all_baned.exclude(adherent__isnull=True).count(),
+                _all_baned.exclude(club__isnull=True).count()],
             'whitelisted_user': [
                 "Utilisateurs bénéficiant d'une connexion gracieuse",
-                all_whitelisted().count()],
+                _all_whitelisted.count(),
+                _all_whitelisted.exclude(adherent__isnull=True).count(),
+                _all_whitelisted.exclude(club__isnull=True).count()],
             'actives_interfaces': [
                 "Interfaces actives (ayant accès au reseau)",
-                all_active_interfaces_count().count()],
+                _all_active_interfaces_count.count(),
+                _all_active_interfaces_count.exclude(
+                    machine__user__adherent__isnull=True
+                ).count(),
+                _all_active_interfaces_count.exclude(
+                    machine__user__club__isnull=True
+                ).count()],
             'actives_assigned_interfaces': [
                 "Interfaces actives et assignées ipv4",
-                all_active_assigned_interfaces_count().count()]
+                _all_active_assigned_interfaces_count.count(),
+                _all_active_assigned_interfaces_count.exclude(
+                    machine__user__adherent__isnull=True
+                ).count(),
+                _all_active_assigned_interfaces_count.exclude(
+                    machine__user__club__isnull=True
+                ).count()]
         }],
-        [["Range d'ip", "Nombre d'ip totales", "Ip assignées",
+        [["Range d'ip", "Vlan", "Nombre d'ip totales", "Ip assignées",
           "Ip assignées à une machine active", "Ip non assignées"], ip_dict]
         ]
     return render(request, 'logs/stats_general.html', {'stats_list': stats})
@@ -237,6 +306,8 @@ def stats_models(request):
     stats = {
         'Users': {
             'users': [User.PRETTY_NAME, User.objects.count()],
+            'adherents': [Adherent.PRETTY_NAME, Adherent.objects.count()],
+            'clubs': [Club.PRETTY_NAME, Club.objects.count()],
             'serviceuser': [ServiceUser.PRETTY_NAME,
                             ServiceUser.objects.count()],
             'right': [Right.PRETTY_NAME, Right.objects.count()],
@@ -263,11 +334,30 @@ def stats_models(request):
             'alias': [Domain.PRETTY_NAME,
                       Domain.objects.exclude(cname=None).count()],
             'iplist': [IpList.PRETTY_NAME, IpList.objects.count()],
+            'service': [Service.PRETTY_NAME, Service.objects.count()],
+            'ouvertureportlist': [
+                OuverturePortList.PRETTY_NAME,
+                OuverturePortList.objects.count()
+            ],
+            'vlan': [Vlan.PRETTY_NAME, Vlan.objects.count()],
+            'SOA': [Mx.PRETTY_NAME, Mx.objects.count()],
+            'Mx': [Mx.PRETTY_NAME, Mx.objects.count()],
+            'Ns': [Ns.PRETTY_NAME, Ns.objects.count()],
+            'nas': [Nas.PRETTY_NAME, Nas.objects.count()],
         },
         'Topologie': {
             'switch': [Switch.PRETTY_NAME, Switch.objects.count()],
             'port': [Port.PRETTY_NAME, Port.objects.count()],
             'chambre': [Room.PRETTY_NAME, Room.objects.count()],
+            'stack': [Stack.PRETTY_NAME, Stack.objects.count()],
+            'modelswitch': [
+                ModelSwitch.PRETTY_NAME,
+                ModelSwitch.objects.count()
+            ],
+            'constructorswitch': [
+                ConstructorSwitch.PRETTY_NAME,
+                ConstructorSwitch.objects.count()
+            ],
         },
         'Actions effectuées sur la base':
         {

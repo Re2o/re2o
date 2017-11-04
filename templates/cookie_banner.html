@@ -1,0 +1,19 @@
+{% if not 'accept_cookies' in request.COOKIES%}
+<script>
+function accept_cookie() {
+  var d = new Date();
+  var expiration_time = 7 * 24 * 60 * 60 * 1000; // Accepte les cookies pendant 7 jours. 
+  d.setTime(d.getTime() + expiration_time); 
+  var expires = "expires="+ d.toUTCString();
+  document.cookie = "accept_cookies=1;" + expires + ";path=/";
+  var banner = document.getElementById("cookie_banner");
+  banner.parentNode.removeChild(banner);
+}
+</script>
+<div class="navbar text-center" id="cookie_banner">
+  <p>Ce site utilise des cookies. En poursuivant sur ce site j'accepte l'utilisation des cookies sur ce site.</p>
+  <a class="btn btn-primary btn-sm" role="button" onclick="accept_cookie();" title="Accepter">
+    J'ai compris !
+  </a>
+</div>
+{% endif %}

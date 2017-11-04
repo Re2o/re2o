@@ -47,6 +47,7 @@ from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
@@ -127,15 +128,26 @@ class Vente(models.Model):
     iscotisation"""
     PRETTY_NAME = "Ventes effectuées"
 
+    COTISATION_TYPE = (
+        ('Connexion', 'Connexion'),
+        ('Adhesion', 'Adhesion'),
+        ('All', 'All'),
+    )
+
     facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
     number = models.IntegerField(validators=[MinValueValidator(1)])
     name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
-    iscotisation = models.BooleanField()
     duration = models.PositiveIntegerField(
         help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True)
+    type_cotisation = models.CharField(
+        choices=COTISATION_TYPE,
+        blank=True,
+        null=True,
+        max_length=255
+    )
 
     def prix_total(self):
         """Renvoie le prix_total de self (nombre*prix)"""
@@ -155,22 +167,26 @@ class Vente(models.Model):
         """Update et crée l'objet cotisation associé à une facture, prend
         en argument l'user, la facture pour la quantitéi, et l'article pour
         la durée"""
-        if not hasattr(self, 'cotisation'):
+        if not hasattr(self, 'cotisation') and self.type_cotisation:
             cotisation = Cotisation(vente=self)
+            cotisation.type_cotisation = self.type_cotisation
             if date_start:
-                end_adhesion = Cotisation.objects.filter(
+                end_cotisation = Cotisation.objects.filter(
                     vente__in=Vente.objects.filter(
                         facture__in=Facture.objects.filter(
                             user=self.facture.user
                         ).exclude(valid=False))
+                    ).filter(Q(type_cotisation='All') | Q(type_cotisation=self.type_cotisation)
                     ).filter(
                         date_start__lt=date_start
                     ).aggregate(Max('date_end'))['date_end__max']
+            elif self.type_cotisation=="Adhesion":
+                end_cotisation = self.facture.user.end_adhesion()
             else:
-                end_adhesion = self.facture.user.end_adhesion()
+                end_cotisation = self.facture.user.end_connexion()
             date_start = date_start or timezone.now()
-            end_adhesion = end_adhesion or date_start
-            date_max = max(end_adhesion, date_start)
+            end_cotisation = end_cotisation or date_start
+            date_max = max(end_cotisation, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
                 months=self.duration*self.number
@@ -179,7 +195,7 @@ class Vente(models.Model):
 
     def save(self, *args, **kwargs):
         # On verifie que si iscotisation, duration est présent
-        if self.iscotisation and not self.duration:
+        if self.type_cotisation and not self.duration:
             raise ValidationError("Cotisation et durée doivent être présents\
                     ensembles")
         self.update_cotisation()
@@ -197,7 +213,7 @@ def vente_post_save(sender, **kwargs):
     if hasattr(vente, 'cotisation'):
         vente.cotisation.vente = vente
         vente.cotisation.save()
-    if vente.iscotisation:
+    if vente.type_cotisation:
         vente.create_cotis()
         vente.cotisation.save()
         user = vente.facture.user
@@ -209,7 +225,7 @@ def vente_post_delete(sender, **kwargs):
     """Après suppression d'une vente, on synchronise l'user ldap (ex
     suppression d'une cotisation"""
     vente = kwargs['instance']
-    if vente.iscotisation:
+    if vente.type_cotisation:
         user = vente.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
@@ -219,18 +235,47 @@ class Article(models.Model):
     et duree si c'est une cotisation"""
     PRETTY_NAME = "Articles en vente"
 
-    name = models.CharField(max_length=255, unique=True)
+    USER_TYPES = (
+        ('Adherent', 'Adherent'),
+        ('Club', 'Club'),
+        ('All', 'All'),
+    )
+
+    COTISATION_TYPE = (
+        ('Connexion', 'Connexion'),
+        ('Adhesion', 'Adhesion'),
+        ('All', 'All'),
+    )
+
+    name = models.CharField(max_length=255)
     prix = models.DecimalField(max_digits=5, decimal_places=2)
-    iscotisation = models.BooleanField()
     duration = models.PositiveIntegerField(
         help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True,
         validators=[MinValueValidator(0)])
+    type_user = models.CharField(
+        choices=USER_TYPES,
+        default='All',
+        max_length=255
+    )
+    type_cotisation = models.CharField(
+        choices=COTISATION_TYPE,
+        default=None,
+        blank=True,
+        null=True,
+        max_length=255
+    )
+
+    unique_together = ('name', 'type_user')
 
     def clean(self):
         if self.name.lower() == "solde":
             raise ValidationError("Solde est un nom d'article invalide")
+        if self.type_cotisation and not self.duration:
+            raise ValidationError(
+                "La durée est obligatoire si il s'agit d'une cotisation"
+            )
 
     def __str__(self):
         return self.name
@@ -275,7 +320,17 @@ class Cotisation(models.Model):
     """Objet cotisation, debut et fin, relié en onetoone à une vente"""
     PRETTY_NAME = "Cotisations"
 
+    COTISATION_TYPE = (
+        ('Connexion', 'Connexion'),
+        ('Adhesion', 'Adhesion'),
+        ('All', 'All'),
+    )
+
     vente = models.OneToOneField('Vente', on_delete=models.CASCADE, null=True)
+    type_cotisation = models.CharField(
+        choices=COTISATION_TYPE,
+        max_length=255,
+    )
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
 
