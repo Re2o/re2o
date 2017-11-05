@@ -1,4 +1,3 @@
-{% extends "search/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,24 +22,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
-
-{% block title %}Recherche{% endblock %}
-
-{% block content %}
-{% bootstrap_form_errors search_form %}
-
-<form class="form">
-    {% bootstrap_field search_form.q %}
-    {% include "buttons/multiple_checkbox_alt.html" with field=search_form.u %}
-    {% include "buttons/multiple_checkbox_alt.html" with field=search_form.a %}
-    {% bootstrap_field search_form.s %}
-    {% bootstrap_field search_form.e %}
-    {% bootstrap_button "Search" button_type="submit" icon="search" %}
-</form>
-<br />
-<br />
-<br />
-<br />
-<br />
-{% endblock %}
+<div class="form-group {% if field.form.errors %}{% if field.errors %}has-error{% else %}has-success{% endif %}{% endif %}">
+    <label class="control-label" for="{{ field.id_for_label }}">
+        {{ field.label }}
+    </label>
+    <div id="{{ field.auto_id }}" data-toggle="buttons">
+        {% for val in field.field.choices %}
+	<label for="id_u_{{ val.0 }}" class="btn btn-default{% if val.0 in field.initial %} active{% endif %}">
+            <input {% if val.0 in field.initial %}checked="checked" {% endif %}class="" id="id_u_{{ val.0 }}" name="{{ field.name }}" title="" type="checkbox" value="{{ val.0 }}" /> {{ val.1 }}
+        </label>
+        {% endfor %}
+    </div>
+    {% for error in field.errors %}
+    <div class="help-block">{{ error }}</div>
+    {% endfor %}
+    <div class="help-block">{{ field.help_text }}</div>
+</div>
