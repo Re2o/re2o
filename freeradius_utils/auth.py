@@ -3,6 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
+# Copyirght © 2017  Daniel Stan 
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
@@ -30,19 +31,17 @@ moment de l'authentification, en WiFi, filaire, ou par les NAS eux-mêmes.
 
 Inspirés d'autres exemples trouvés ici :
 https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_python/
+
+Inspiré du travail de Daniel Stan au Crans
 """
 
 import logging
 import netaddr
 import radiusd # Module magique freeradius (radiusd.py is dummy)
-import os
 import binascii
 import hashlib
-
 import os, sys
 
-
-import os, sys
 
 proj_path = "/var/www/re2o/"
 # This is so Django knows where to find stuff.
@@ -248,6 +247,9 @@ def check_user_machine_and_register(nas_type, username, mac_address):
             return (False, u"Machine enregistrée sur le compte d'un autre user...", '')
         elif not interface.is_active:
             return (False, u"Machine desactivée", '')
+        elif not interface.ipv4:
+            interface.assign_ipv4()
+            return (True, u"Ok, Reassignation de l'ipv4", user.pwd_ntlm)
         else:
             return (True, u"Access ok", user.pwd_ntlm)
     elif nas_type:
@@ -293,11 +295,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         if not port.room:
             return (sw_name, u'Chambre inconnue', VLAN_NOK)
 
-        room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+        room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
         if not room_user:
             return (sw_name, u'Chambre non cotisante', VLAN_NOK)
-        elif not room_user.first().has_access():
-            return (sw_name, u'Chambre resident desactive', VLAN_NOK)
+        for user in room_user:
+            if not user.has_access():
+                return (sw_name, u'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
     if port.radius == 'COMMON' or port.radius == 'STRICT':
@@ -310,9 +313,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
             elif not port.room:
                 return (sw_name, u'Chambre et machine inconnues', VLAN_NOK)
             else:
-                room_user = User.objects.filter(room=Room.objects.filter(name=port.room))
+                if not room_user:
+                    room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
                 if not room_user:
                     return (sw_name, u'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
+                elif room_user.count() > 1:
+                    return (sw_name, u'Machine inconnue, il y a au moins 2 users dans la chambre/local -> ajout de mac automatique impossible', VLAN_NOK)
                 elif not room_user.first().has_access():
                     return (sw_name, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
@@ -321,9 +327,14 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
                         return (sw_name, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
                     else:
                         return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
-        elif not interface.first().is_active:
-            return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
         else:
-            return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
+            interface = interface.first()
+            if not interface.is_active:
+                return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
+            elif not interface.ipv4:
+                interface.assign_ipv4()
+                return (sw_name, u"Ok, Reassignation de l'ipv4" + extra_log, DECISION_VLAN)
+            else:
+                return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
 
 

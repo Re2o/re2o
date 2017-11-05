@@ -26,17 +26,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>Extension</th>
-                <th>Autorisation infra pour utiliser l'extension</th>
+                <th>Droit infra pour utiliser ?</th>
+		<th>Enregistrement SOA</th>
 		<th>Enregistrement A origin</th>
-    		<th></th>
+		{% if ipv6_enabled %}
+		<th>Enregistrement AAAA origin</th>
+		{% endif %}
+		<th></th>
             </tr>
         </thead>
         {% for extension in extension_list %}
         <tr>
             <td>{{ extension.name }}</td>
-            <td>{{ extension.need_infra  }}</td>
+            <td>{{ extension.need_infra }}</td>
+            <td>{{ extension.soa}}</td>
 	    <td>{{ extension.origin }}</td>
-	    <td class="text-right">
+            {% if ipv6_enabled %}
+            <td>{{ extension.origin_v6 }}</td>
+            {% endif %}
+            <td class="text-right">
             {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
             {% endif %}

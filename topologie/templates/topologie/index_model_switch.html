@@ -1,0 +1,46 @@
+{% extends "topologie/sidebar.html" %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+
+{% block title %}Modèles de switches{% endblock %}
+
+{% block content %}
+<h2>Modèles de switches</h2>
+{% if is_infra %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-model-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un modèle</a>
+<hr>
+{% endif %}
+{% include "topologie/aff_model_switch.html" with model_switch_list=model_switch_list %}
+<h2>Constructeurs de switches</h2>
+{% if is_infra %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-constructor-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un constructeur</a>
+<hr>
+{% endif %}
+{% include "topologie/aff_constructor_switch.html" with constructor_switch_list=constructor_switch_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}

@@ -28,11 +28,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Recherche{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors searchform %}
+{% bootstrap_form_errors search_form %}
 
-<form class="form" method="post">
-    {% csrf_token %}
-    {% bootstrap_form searchform %}
+<form class="form">
+    {% bootstrap_field search_form.q %}
+    {% include "buttons/multiple_checkbox_alt.html" with field=search_form.u %}
+    {% include "buttons/multiple_checkbox_alt.html" with field=search_form.a %}
+    {% bootstrap_field search_form.s %}
+    {% bootstrap_field search_form.e %}
     {% bootstrap_button "Search" button_type="submit" icon="search" %}
 </form>
 <br />

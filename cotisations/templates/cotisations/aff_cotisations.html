@@ -29,12 +29,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Utilisateur</th>
+                <th>{% include "buttons/sort.html" with prefix='cotis' col='user' text='Utilisateur' %}</th>
                 <th>Designation</th>
                 <th>Prix total</th>
-                <th>Moyen de paiement</th>
-                <th>Date</th>
-                <th></th>
+                <th>{% include "buttons/sort.html" with prefix='cotis' col='paiement' text='Moyen de paiement' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='cotis' col='date' text='Date' %}</th>
+		<th>{% include "buttons/sort.html" with prefix='cotis' col='id' text='Id facture' %}</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -46,17 +46,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
+	    <td>{{ facture.id }}</td>
             {% if is_cableur %}
             <td>
             <div class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Modifier
+            Edition
             <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="editionfacture">
             {% if facture.valid and not facture.control or is_trez %}
-                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Editer</a></li>
+                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Modifier</a></li>
                 <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
+                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></li>
             {% else %}
                 <li>Facture controlée</li>
             {% endif %}
@@ -73,11 +75,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% else %}
                 <font color="red">Facture invalide</font>
             {% endif %}
-            </td>
-            <td class="text-right">
-                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'facture' facture.id %}">
-                    <i class="glyphicon glyphicon-time"></i>
-                </a>
             </td>
         </tr>
         {% endfor %}

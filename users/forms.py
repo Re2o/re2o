@@ -20,8 +20,16 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Definition des forms pour l'application users.
 
-# -*- coding: utf-8 -*-
+Modification, creation de :
+    - un user (informations personnelles)
+    - un bannissement
+    - le mot de passe d'un user
+    - une whiteliste
+    - un user de service
+"""
 
 from __future__ import unicode_literals
 
@@ -29,17 +37,35 @@ from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
-from preferences.models import OptionalUser
 from django.utils import timezone
-from .models import User, ServiceUser, Right, School, ListRight, Whitelist, Ban, Request, remove_user_room
 
-from .models import get_admin_right
+from preferences.models import OptionalUser
+from .models import User, ServiceUser, Right, School, ListRight, Whitelist
+from .models import Ban, Adherent, Club
+from re2o.utils import remove_user_room
+
+NOW = timezone.now()
+
 
 class PassForm(forms.Form):
-    passwd1 = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
-    passwd2 = forms.CharField(label=u'Saisir à nouveau le mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput)
+    """Formulaire de changement de mot de passe. Verifie que les 2
+    nouveaux mots de passe renseignés sont identiques et respectent
+    une norme"""
+    passwd1 = forms.CharField(
+        label=u'Nouveau mot de passe',
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput
+    )
+    passwd2 = forms.CharField(
+        label=u'Saisir à nouveau le mot de passe',
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput
+    )
 
     def clean_passwd2(self):
+        """Verifie que passwd1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("passwd1")
         password2 = self.cleaned_data.get("passwd2")
@@ -47,18 +73,38 @@ class PassForm(forms.Form):
             raise forms.ValidationError("Passwords don't match")
         return password2
 
+
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, validators=[MinLengthValidator(8)], max_length=255)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, validators=[MinLengthValidator(8)], max_length=255)
+    fields, plus a repeated password.
+
+    Formulaire pour la création d'un user. N'est utilisé que pour
+    l'admin, lors de la creation d'un user par admin. Inclu tous les
+    champs obligatoires"""
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput,
+        validators=[MinLengthValidator(8)],
+        max_length=255
+    )
+    password2 = forms.CharField(
+        label='Password confirmation',
+        widget=forms.PasswordInput,
+        validators=[MinLengthValidator(8)],
+        max_length=255
+    )
     is_admin = forms.BooleanField(label='is admin')
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
+
     class Meta:
-        model = User
-        fields = ('pseudo', 'name', 'surname', 'email')
+        model = Adherent
+        fields = ('pseudo', 'surname', 'email')
 
     def clean_password2(self):
+        """Verifie que password1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -74,17 +120,40 @@ class UserCreationForm(forms.ModelForm):
         user.is_admin = self.cleaned_data.get("is_admin")
         return user
 
+
 class ServiceUserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, min_length=8, max_length=255)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, min_length=8, max_length=255)
+    fields, plus a repeated password.
+
+    Formulaire pour la creation de nouveaux serviceusers.
+    Requiert seulement un mot de passe; et un pseudo"""
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput,
+        min_length=8,
+        max_length=255
+    )
+    password2 = forms.CharField(
+        label='Password confirmation',
+        widget=forms.PasswordInput,
+        min_length=8,
+        max_length=255
+    )
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ServiceUserCreationForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
 
     class Meta:
         model = ServiceUser
         fields = ('pseudo',)
 
     def clean_password2(self):
+        """Verifie que password1 et 2 sont indentiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -99,24 +168,29 @@ class ServiceUserCreationForm(forms.ModelForm):
         user.save()
         return user
 
+
 class UserChangeForm(forms.ModelForm):
     """A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
+
+    Formulaire pour la modification d'un user coté admin
     """
     password = ReadOnlyPasswordHashField()
     is_admin = forms.BooleanField(label='is admin', required=False)
 
     class Meta:
-        model = User
-        fields = ('pseudo', 'password', 'name', 'surname', 'email')
+        model = Adherent
+        fields = ('pseudo', 'password', 'surname', 'email')
 
     def __init__(self, *args, **kwargs):
-        super(UserChangeForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(UserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
         print("User is admin : %s" % kwargs['instance'].is_admin)
         self.initial['is_admin'] = kwargs['instance'].is_admin
 
     def clean_password(self):
+        """Dummy fun"""
         # Regardless of what the user provides, return the initial value.
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
@@ -130,40 +204,62 @@ class UserChangeForm(forms.ModelForm):
             user.save()
         return user
 
+
 class ServiceUserChangeForm(forms.ModelForm):
     """A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
+
+    Formulaire pour l'edition des service users coté admin
     """
     password = ReadOnlyPasswordHashField()
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ServiceUserChangeForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
 
     class Meta:
         model = ServiceUser
         fields = ('pseudo',)
 
     def clean_password(self):
-        # Regardless of what the user provides, return the initial value.
-        # This is done here, rather than on the field, because the
-        # field does not have access to the initial value
+        """Dummy fun"""
         return self.initial["password"]
 
+
 class ResetPasswordForm(forms.Form):
+    """Formulaire de demande de reinitialisation de mot de passe,
+    mdp oublié"""
     pseudo = forms.CharField(label=u'Pseudo', max_length=255)
     email = forms.EmailField(max_length=255)
 
+
 class MassArchiveForm(forms.Form):
+    """Formulaire d'archivage des users inactif. Prend en argument
+    du formulaire la date de depart avant laquelle archiver les
+    users"""
     date = forms.DateTimeField(help_text='%d/%m/%y')
 
     def clean(self):
-        cleaned_data=super(MassArchiveForm, self).clean()
+        cleaned_data = super(MassArchiveForm, self).clean()
         date = cleaned_data.get("date")
         if date:
-            if date>timezone.now():
-                raise forms.ValidationError("Impossible d'archiver des utilisateurs dont la fin d'accès se situe dans le futur !")
+            if date > NOW:
+                raise forms.ValidationError("Impossible d'archiver des\
+                utilisateurs dont la fin d'accès se situe dans le futur !")
 
-class BaseInfoForm(ModelForm):
+
+class AdherentForm(ModelForm):
+    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
+    pour l'edition de self par self ou un cableur. On formate les champs
+    avec des label plus jolis"""
     def __init__(self, *args, **kwargs):
-        super(BaseInfoForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Prénom'
         self.fields['surname'].label = 'Nom'
         self.fields['school'].label = 'Établissement'
@@ -173,7 +269,7 @@ class BaseInfoForm(ModelForm):
         self.fields['school'].empty_label = "Séléctionner un établissement"
 
     class Meta:
-        model = User
+        model = Adherent
         fields = [
             'name',
             'surname',
@@ -186,14 +282,73 @@ class BaseInfoForm(ModelForm):
         ]
 
     def clean_telephone(self):
+        """Verifie que le tel est présent si 'option est validée
+        dans preferences"""
         telephone = self.cleaned_data['telephone']
-        preferences, created = OptionalUser.objects.get_or_create()
+        preferences, _created = OptionalUser.objects.get_or_create()
         if not telephone and preferences.is_tel_mandatory:
-            raise forms.ValidationError("Un numéro de téléphone valide est requis")
+            raise forms.ValidationError(
+                "Un numéro de téléphone valide est requis"
+            )
         return telephone
 
-class EditInfoForm(BaseInfoForm):
-    class Meta(BaseInfoForm.Meta):
+    force = forms.BooleanField(
+        label="Forcer le déménagement ?",
+        initial=False,
+        required=False
+    )
+
+    def clean_force(self):
+        """On supprime l'ancien user de la chambre si et seulement si la
+        case est cochée"""
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
+
+
+class ClubForm(ModelForm):
+    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
+    pour l'edition de self par self ou un cableur. On formate les champs
+    avec des label plus jolis"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ClubForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['surname'].label = 'Nom'
+        self.fields['school'].label = 'Établissement'
+        self.fields['comment'].label = 'Commentaire'
+        self.fields['room'].label = 'Local'
+        self.fields['room'].empty_label = "Pas de chambre"
+        self.fields['school'].empty_label = "Séléctionner un établissement"
+
+    class Meta:
+        model = Club
+        fields = [
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'telephone',
+        ]
+
+    def clean_telephone(self):
+        """Verifie que le tel est présent si 'option est validée
+        dans preferences"""
+        telephone = self.cleaned_data['telephone']
+        preferences, _created = OptionalUser.objects.get_or_create()
+        if not telephone and preferences.is_tel_mandatory:
+            raise forms.ValidationError(
+                "Un numéro de téléphone valide est requis"
+            )
+        return telephone
+
+
+class FullAdherentForm(AdherentForm):
+    """Edition complète d'un user. Utilisé par admin,
+    permet d'editer normalement la chambre, ou le shell
+    Herite de la base"""
+    class Meta(AdherentForm.Meta):
         fields = [
             'name',
             'surname',
@@ -206,37 +361,61 @@ class EditInfoForm(BaseInfoForm):
             'telephone',
         ]
 
-class InfoForm(EditInfoForm):
-    """ Utile pour forcer un déménagement quand il y a déjà un user en place"""
-    force = forms.BooleanField(label="Forcer le déménagement ?", initial=False, required=False)
 
-    def clean_force(self):
-        if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
-        return
+class FullClubForm(ClubForm):
+    """Edition complète d'un user. Utilisé par admin,
+    permet d'editer normalement la chambre, ou le shell
+    Herite de la base"""
+    class Meta(ClubForm.Meta):
+        fields = [
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'room',
+            'shell',
+            'telephone',
+        ]
 
-class UserForm(InfoForm):
-    """ Model form general"""
-    class Meta(InfoForm.Meta):
-        fields = '__all__'
 
 class PasswordForm(ModelForm):
-    """ Formulaire de changement brut de mot de passe. Ne pas utiliser sans traitement"""
+    """ Formulaire de changement brut de mot de passe.
+    Ne pas utiliser sans traitement"""
     class Meta:
         model = User
         fields = ['password', 'pwd_ntlm']
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(PasswordForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
 class ServiceUserForm(ModelForm):
     """ Modification d'un service user"""
-    password = forms.CharField(label=u'Nouveau mot de passe', max_length=255, validators=[MinLengthValidator(8)], widget=forms.PasswordInput, required=False)
+    password = forms.CharField(
+        label=u'Nouveau mot de passe',
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput,
+        required=False
+    )
 
     class Meta:
         model = ServiceUser
-        fields = ('pseudo','access_group')
+        fields = ('pseudo', 'access_group')
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 
 class EditServiceUserForm(ServiceUserForm):
+    """Formulaire d'edition de base d'un service user. Ne permet
+    d'editer que son group d'acl et son commentaire"""
     class Meta(ServiceUserForm.Meta):
-        fields = ['access_group','comment']
+        fields = ['access_group', 'comment']
+
 
 class StateForm(ModelForm):
     """ Changement de l'état d'un user"""
@@ -244,42 +423,70 @@ class StateForm(ModelForm):
         model = User
         fields = ['state']
 
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 
 class SchoolForm(ModelForm):
+    """Edition, creation d'un école"""
     class Meta:
         model = School
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super(SchoolForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SchoolForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Établissement'
 
+
 class ListRightForm(ModelForm):
+    """Edition, d'un groupe , équivalent à un droit
+    Ne peremet pas d'editer le gid, car il sert de primary key"""
     class Meta:
         model = ListRight
         fields = ['listright', 'details']
 
     def __init__(self, *args, **kwargs):
-        super(ListRightForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['listright'].label = 'Nom du droit/groupe'
 
+
 class NewListRightForm(ListRightForm):
+    """Ajout d'un groupe/list de droit """
     class Meta(ListRightForm.Meta):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(NewListRightForm, self).__init__(*args, **kwargs)
-        self.fields['gid'].label = 'Gid, attention, cet attribut ne doit pas être modifié après création'
+        self.fields['gid'].label = 'Gid, attention, cet attribut ne doit\
+        pas être modifié après création'
+
 
 class DelListRightForm(Form):
-    listrights = forms.ModelMultipleChoiceField(queryset=ListRight.objects.all(), label="Droits actuels", widget=forms.CheckboxSelectMultiple)
+    """Suppression d'un ou plusieurs groupes"""
+    listrights = forms.ModelMultipleChoiceField(
+        queryset=ListRight.objects.all(),
+        label="Droits actuels",
+        widget=forms.CheckboxSelectMultiple
+    )
+
 
 class DelSchoolForm(Form):
-    schools = forms.ModelMultipleChoiceField(queryset=School.objects.all(), label="Etablissements actuels",  widget=forms.CheckboxSelectMultiple)
+    """Suppression d'une ou plusieurs écoles"""
+    schools = forms.ModelMultipleChoiceField(
+        queryset=School.objects.all(),
+        label="Etablissements actuels",
+        widget=forms.CheckboxSelectMultiple
+    )
+
 
 class RightForm(ModelForm):
+    """Assignation d'un droit à un user"""
     def __init__(self, *args, **kwargs):
-        super(RightForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RightForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['right'].label = 'Droit'
         self.fields['right'].empty_label = "Choisir un nouveau droit"
 
@@ -289,15 +496,23 @@ class RightForm(ModelForm):
 
 
 class DelRightForm(Form):
-    rights = forms.ModelMultipleChoiceField(queryset=Right.objects.all(),  widget=forms.CheckboxSelectMultiple)
+    """Suppression d'un droit d'un user"""
+    rights = forms.ModelMultipleChoiceField(
+        queryset=Right.objects.select_related('user'),
+        widget=forms.CheckboxSelectMultiple
+    )
 
     def __init__(self, right, *args, **kwargs):
         super(DelRightForm, self).__init__(*args, **kwargs)
-        self.fields['rights'].queryset = Right.objects.filter(right=right)
+        self.fields['rights'].queryset = Right.objects.select_related('user')\
+        .select_related('right').filter(right=right)
+
 
 class BanForm(ModelForm):
+    """Creation, edition d'un objet bannissement"""
     def __init__(self, *args, **kwargs):
-        super(BanForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
 
     class Meta:
@@ -305,15 +520,19 @@ class BanForm(ModelForm):
         exclude = ['user']
 
     def clean_date_end(self):
+        """Verification que date_end est après now"""
         date_end = self.cleaned_data['date_end']
-        if date_end < timezone.now():
-            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        if date_end < NOW:
+            raise forms.ValidationError("Triple buse, la date de fin ne peut\
+            pas être avant maintenant... Re2o ne voyage pas dans le temps")
         return date_end
 
 
 class WhitelistForm(ModelForm):
+    """Creation, edition d'un objet whitelist"""
     def __init__(self, *args, **kwargs):
-        super(WhitelistForm, self).__init__(*args, **kwargs)
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
 
     class Meta:
@@ -321,7 +540,9 @@ class WhitelistForm(ModelForm):
         exclude = ['user']
 
     def clean_date_end(self):
+        """Verification  que la date_end est posterieur à now"""
         date_end = self.cleaned_data['date_end']
-        if date_end < timezone.now():
-            raise forms.ValidationError("Triple buse, la date de fin ne peut pas être avant maintenant... Re2o ne voyage pas dans le temps")
+        if date_end < NOW:
+            raise forms.ValidationError("Triple buse, la date de fin ne peut pas\
+            être avant maintenant... Re2o ne voyage pas dans le temps")
         return date_end

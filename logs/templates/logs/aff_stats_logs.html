@@ -33,8 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Objet modifié</th>
                 <th>Type de l'objet</th>
-                <th>Modification par</th>
-                <th>Date de modification</th>
+                <th>{% include "buttons/sort.html" with prefix='logs' col='author' text='Modification par' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='logs' col='date' text='Date de modification' %}</th>
                 <th>Commentaire</th>
                 <th></th>
             </tr>

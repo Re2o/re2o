@@ -1,0 +1,27 @@
+<p>Bonjour {{nom}} </p>
+
+<p>Une nouvelle machine a automatiquement été inscrite sur votre compte.</p>
+
+<p>Si vous êtes à l'origine de la connexion de cet appareil en filaire ou wifi, ne tenez pas compte de cette notification</p>
+
+<p>La nouvelle machine possède l'adresse mac {{ mac_address }}, et s'est vu assigner le nom suivant : {{ interface_name }}</p>
+
+<p>Vous pouvez à tout moment modifier ces informations sur votre compte en ligne</p>
+
+<p>Si vous n'êtes pas à l'origine de cette connexion, merci de le signaler rapidement à {{asso_email}}</p>
+
+<p>À bientôt,<br>
+L'équipe de {{asso_name}}.</p>
+
+<p>---</p>
+
+<p>A new device has been automatically added on your account.</p>
+
+<p>If you connected a new device recently, please don't take this mail into account<p>
+
+<p>The new device has this mac address : {{ mac_address }}, and this name : {{ interface_name }}</p>
+
+<p>Please contact us if you didn't connect a new device with this mail address {{asso_email}}.</p>
+
+<p>Regards,<br>
+The {{asso_name}} team.</p>

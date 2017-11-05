@@ -23,20 +23,25 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz, Lemesle Augustin
 # Gplv2
+"""
+Module des views.
+
+On définit les vues pour l'ajout, l'edition des users : infos personnelles,
+mot de passe, etc
+
+Permet aussi l'ajout, edition et suppression des droits, des bannissements,
+des whitelist, des services users et des écoles
+"""
 
 from __future__ import unicode_literals
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import Max, ProtectedError
+from django.db.models import ProtectedError
 from django.db import IntegrityError
-from django.core.mail import send_mail
 from django.utils import timezone
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -47,21 +52,20 @@ from rest_framework.renderers import JSONRenderer
 from reversion.models import Version
 from reversion import revisions as reversion
 from users.serializers import MailSerializer
-from users.models import User, Right, Ban, Whitelist, School, ListRight, Request, ServiceUser, all_has_access
-from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm, DelListRightForm, NewListRightForm
-from users.forms import EditInfoForm, InfoForm, BaseInfoForm, StateForm, RightForm, SchoolForm, EditServiceUserForm, ServiceUserForm, ListRightForm
-from cotisations.models import Facture
-from machines.models import Machine, Interface
+from users.models import User, Right, Ban, Whitelist, School, ListRight
+from users.models import Request, ServiceUser, Adherent, Club
+from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
+from users.forms import DelListRightForm, NewListRightForm, FullAdherentForm
+from users.forms import StateForm, FullClubForm
+from users.forms import RightForm, SchoolForm, EditServiceUserForm
+from users.forms import ServiceUserForm, ListRightForm, AdherentForm, ClubForm
 from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
-from preferences.models import OptionalUser, AssoOption, GeneralOption
+from cotisations.models import Facture
+from machines.models import Machine
+from preferences.models import OptionalUser, GeneralOption
 
-from re2o.login import hashNT
-
-
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
+from re2o.views import form
+from re2o.utils import all_has_access, SortTable
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -75,11 +79,13 @@ def password_change_action(u_form, user, request, req=False):
         return redirect("/")
     return redirect("/users/profil/" + str(user.id))
 
+
 @login_required
 @permission_required('cableur')
 def new_user(request):
-    """ Vue de création d'un nouvel utilisateur, envoie un mail pour le mot de passe"""
-    user = InfoForm(request.POST or None)
+    """ Vue de création d'un nouvel utilisateur,
+    envoie un mail pour le mot de passe"""
+    user = AdherentForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -87,39 +93,81 @@ def new_user(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         user.reset_passwd_mail(request)
-        messages.success(request, "L'utilisateur %s a été crée, un mail pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
+        messages.success(request, "L'utilisateur %s a été crée, un mail\
+        pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect("/users/profil/" + str(user.id))
     return form({'userform': user}, 'users/user.html', request)
 
+
+@login_required
+@permission_required('cableur')
+def new_club(request):
+    """ Vue de création d'un nouveau club,
+    envoie un mail pour le mot de passe"""
+    club = ClubForm(request.POST or None)
+    if club.is_valid():
+        club = club.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            club.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        club.reset_passwd_mail(request)
+        messages.success(request, "L'utilisateur %s a été crée, un mail\
+        pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
+        return redirect("/users/profil/" + str(club.id))
+    return form({'userform': club}, 'users/user.html', request)
+
+
+def select_user_edit_form(request, user):
+    """Fonction de choix du bon formulaire, en fonction de:
+        - droit
+        - type d'object
+    """
+    if not request.user.has_perms(('cableur',)):
+        if user.is_class_adherent:
+            user = AdherentForm(request.POST or None, instance=user.adherent)
+        elif user.is_class_club:
+            user = ClubForm(request.POST or None, instance=user.club)
+    else:
+        if user.is_class_adherent:
+            user = FullAdherentForm(request.POST or None, instance=user.adherent)
+        elif user.is_class_club:
+            user = FullClubForm(request.POST or None, instance=user.club)
+    return user
+
+
 @login_required
 def edit_info(request, userid):
-    """ Edite un utilisateur à partir de son id, 
-    si l'id est différent de request.user, vérifie la possession du droit cableur """
+    """ Edite un utilisateur à partir de son id,
+    si l'id est différent de request.user, vérifie la
+    possession du droit cableur """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
     if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        messages.error(request, "Vous ne pouvez pas modifier un autre\
+        user que vous sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
-    if not request.user.has_perms(('cableur',)):
-        user = BaseInfoForm(request.POST or None, instance=user)
-    else:
-        user = InfoForm(request.POST or None, instance=user)
+    user = select_user_edit_form(request, user)
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in user.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in user.changed_data
+            ))
         messages.success(request, "L'user a bien été modifié")
         return redirect("/users/profil/" + userid)
     return form({'userform': user}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def state(request, userid):
-    """ Changer l'etat actif/desactivé/archivé d'un user, need droit bureau """
+    """ Changer l'etat actif/desactivé/archivé d'un user,
+    need droit bureau """
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
@@ -135,11 +183,14 @@ def state(request, userid):
             elif state.cleaned_data['state'] == User.STATE_DISABLED:
                 user.state = User.STATE_DISABLED
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in state.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in state.changed_data
+            ))
             user.save()
         messages.success(request, "Etat changé avec succès")
         return redirect("/users/profil/" + userid)
     return form({'userform': state}, 'users/user.html', request)
+
 
 @login_required
 def password(request, userid):
@@ -152,15 +203,19 @@ def password(request, userid):
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
     if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un autre user que vous sans droit cableur")
+        messages.error(request, "Vous ne pouvez pas modifier un\
+        autre user que vous sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
-    if not request.user.has_perms(('bureau',)) and user != request.user and Right.objects.filter(user=user):
-        messages.error(request, "Il faut les droits bureau pour modifier le mot de passe d'un membre actif")
+    if not request.user.has_perms(('bureau',)) and user != request.user\
+            and Right.objects.filter(user=user):
+        messages.error(request, "Il faut les droits bureau pour modifier le\
+        mot de passe d'un membre actif")
         return redirect("/users/profil/" + str(request.user.id))
     u_form = PassForm(request.POST or None)
     if u_form.is_valid():
         return password_change_action(u_form, user, request)
     return form({'userform': u_form}, 'users/user.html', request)
+
 
 @login_required
 @permission_required('infra')
@@ -174,15 +229,20 @@ def new_serviceuser(request):
             user_object.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
-        messages.success(request, "L'utilisateur %s a été crée" % user_object.pseudo)
+        messages.success(
+            request,
+            "L'utilisateur %s a été crée" % user_object.pseudo
+        )
         return redirect("/users/index_serviceusers/")
     return form({'userform': user}, 'users/user.html', request)
+
 
 @login_required
 @permission_required('infra')
 def edit_serviceuser(request, userid):
-    """ Edite un utilisateur à partir de son id, 
-    si l'id est différent de request.user, vérifie la possession du droit cableur """
+    """ Edite un utilisateur à partir de son id,
+    si l'id est différent de request.user,
+    vérifie la possession du droit cableur """
     try:
         user = ServiceUser.objects.get(pk=userid)
     except ServiceUser.DoesNotExist:
@@ -196,18 +256,22 @@ def edit_serviceuser(request, userid):
                 user_object.set_password(user.cleaned_data['password'])
             user_object.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in user.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in user.changed_data
+            ))
         messages.success(request, "L'user a bien été modifié")
         return redirect("/users/index_serviceusers")
     return form({'userform': user}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('infra')
 def del_serviceuser(request, userid):
+    """Suppression d'un ou plusieurs serviceusers"""
     try:
         user = ServiceUser.objects.get(pk=userid)
     except ServiceUser.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant" )
+        messages.error(request, u"Utilisateur inexistant")
         return redirect("/users/")
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
@@ -215,7 +279,12 @@ def del_serviceuser(request, userid):
             reversion.set_user(request.user)
         messages.success(request, "L'user a été détruite")
         return redirect("/users/index_serviceusers/")
-    return form({'objet': user, 'objet_name': 'serviceuser'}, 'users/delete.html', request)
+    return form(
+        {'objet': user, 'objet_name': 'serviceuser'},
+        'users/delete.html',
+        request
+    )
+
 
 @login_required
 @permission_required('bureau')
@@ -241,28 +310,33 @@ def add_right(request, userid):
         return redirect("/users/profil/" + userid)
     return form({'userform': right}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def del_right(request):
     """ Supprimer un droit à un user, need droit bureau """
     user_right_list = dict()
     for right in ListRight.objects.all():
-        user_right_list[right]= DelRightForm(right, request.POST or None)
-    for keys, right_item in user_right_list.items():
+        user_right_list[right] = DelRightForm(right, request.POST or None)
+    for _keys, right_item in user_right_list.items():
         if right_item.is_valid():
             right_del = right_item.cleaned_data['rights']
             with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
-                reversion.set_comment("Retrait des droit %s" % ','.join(str(deleted_right) for deleted_right in right_del))
+                reversion.set_comment("Retrait des droit %s" % ','.join(
+                    str(deleted_right) for deleted_right in right_del
+                ))
                 right_del.delete()
             messages.success(request, "Droit retiré avec succès")
             return redirect("/users/")
     return form({'userform': user_right_list}, 'users/del_right.html', request)
 
+
 @login_required
 @permission_required('bofh')
 def add_ban(request, userid):
-    """ Ajouter un banissement, nécessite au moins le droit bofh (a fortiori bureau)
+    """ Ajouter un banissement, nécessite au moins le droit bofh
+    (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     try:
         user = User.objects.get(pk=userid)
@@ -273,7 +347,7 @@ def add_ban(request, userid):
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            ban_object = ban.save()
+            _ban_object = ban.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Bannissement ajouté")
@@ -285,10 +359,12 @@ def add_ban(request, userid):
         )
     return form({'userform': ban}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bofh')
 def edit_ban(request, banid):
-    """ Editer un bannissement, nécessite au moins le droit bofh (a fortiori bureau)
+    """ Editer un bannissement, nécessite au moins le droit bofh
+    (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     try:
         ban_instance = Ban.objects.get(pk=banid)
@@ -300,23 +376,31 @@ def edit_ban(request, banid):
         with transaction.atomic(), reversion.create_revision():
             ban.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ban.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in ban.changed_data
+            ))
         messages.success(request, "Bannissement modifié")
         return redirect("/users/")
     return form({'userform': ban}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('cableur')
 def add_whitelist(request, userid):
-    """ Accorder un accès gracieux, temporaire ou permanent. Need droit cableur
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement, raison obligatoire"""
+    """ Accorder un accès gracieux, temporaire ou permanent.
+    Need droit cableur
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
+    raison obligatoire"""
     try:
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
     whitelist_instance = Whitelist(user=user)
-    whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
+    whitelist = WhitelistForm(
+        request.POST or None,
+        instance=whitelist_instance
+    )
     if whitelist.is_valid():
         with transaction.atomic(), reversion.create_revision():
             whitelist.save()
@@ -331,30 +415,40 @@ def add_whitelist(request, userid):
         )
     return form({'userform': whitelist}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('cableur')
 def edit_whitelist(request, whitelistid):
-    """ Editer un accès gracieux, temporaire ou permanent. Need droit cableur
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement, raison obligatoire"""
+    """ Editer un accès gracieux, temporaire ou permanent.
+    Need droit cableur
+    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
+    raison obligatoire"""
     try:
         whitelist_instance = Whitelist.objects.get(pk=whitelistid)
     except Whitelist.DoesNotExist:
         messages.error(request, "Entrée inexistante")
         return redirect("/users/")
-    whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
+    whitelist = WhitelistForm(
+        request.POST or None,
+        instance=whitelist_instance
+    )
     if whitelist.is_valid():
         with transaction.atomic(), reversion.create_revision():
             whitelist.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in whitelist.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in whitelist.changed_data
+            ))
         messages.success(request, "Whitelist modifiée")
         return redirect("/users/")
     return form({'userform': whitelist}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('cableur')
 def add_school(request):
-    """ Ajouter un établissement d'enseignement à la base de donnée, need cableur"""
+    """ Ajouter un établissement d'enseignement à la base de donnée,
+    need cableur"""
     school = SchoolForm(request.POST or None)
     if school.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -365,30 +459,37 @@ def add_school(request):
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('cableur')
 def edit_school(request, schoolid):
-    """ Editer un établissement d'enseignement à partir du schoolid dans la base de donnée, need cableur"""
+    """ Editer un établissement d'enseignement à partir du schoolid dans
+    la base de donnée, need cableur"""
     try:
         school_instance = School.objects.get(pk=schoolid)
     except School.DoesNotExist:
-        messages.error(request, u"Entrée inexistante" )
+        messages.error(request, u"Entrée inexistante")
         return redirect("/users/")
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
         with transaction.atomic(), reversion.create_revision():
             school.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in school.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in school.changed_data
+            ))
         messages.success(request, "Établissement modifié")
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('cableur')
 def del_school(request):
-    """ Supprimer un établissement d'enseignement à la base de donnée, need cableur
-    Objet protégé, possible seulement si aucun user n'est affecté à l'établissement """
+    """ Supprimer un établissement d'enseignement à la base de donnée,
+    need cableur
+    Objet protégé, possible seulement si aucun user n'est affecté à
+    l'établissement """
     school = DelSchoolForm(request.POST or None)
     if school.is_valid():
         school_dels = school.cleaned_data['schools']
@@ -406,6 +507,7 @@ def del_school(request):
         return redirect("/users/index_school/")
     return form({'userform': school}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def add_listright(request):
@@ -421,29 +523,38 @@ def add_listright(request):
         return redirect("/users/index_listright/")
     return form({'userform': listright}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def edit_listright(request, listrightid):
-    """ Editer un groupe/droit, necessite droit bureau, à partir du listright id """
+    """ Editer un groupe/droit, necessite droit bureau,
+    à partir du listright id """
     try:
         listright_instance = ListRight.objects.get(pk=listrightid)
     except ListRight.DoesNotExist:
-        messages.error(request, u"Entrée inexistante" )
+        messages.error(request, u"Entrée inexistante")
         return redirect("/users/")
-    listright = ListRightForm(request.POST or None, instance=listright_instance)
+    listright = ListRightForm(
+        request.POST or None,
+        instance=listright_instance
+    )
     if listright.is_valid():
         with transaction.atomic(), reversion.create_revision():
             listright.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in listright.changed_data))
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in listright.changed_data
+            ))
         messages.success(request, "Droit modifié")
         return redirect("/users/index_listright/")
     return form({'userform': listright}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def del_listright(request):
-    """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit bureau """
+    """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit
+    bureau """
     listright = DelListRightForm(request.POST or None)
     if listright.is_valid():
         listright_dels = listright.cleaned_data['listrights']
@@ -461,6 +572,7 @@ def del_listright(request):
         return redirect("/users/index_listright/")
     return form({'userform': listright}, 'users/user.html', request)
 
+
 @login_required
 @permission_required('bureau')
 def mass_archive(request):
@@ -469,7 +581,10 @@ def mass_archive(request):
     to_archive_list = []
     if to_archive_date.is_valid():
         date = to_archive_date.cleaned_data['date']
-        to_archive_list = [user for user in User.objects.exclude(state=User.STATE_ARCHIVE) if not user.end_access() or user.end_access() < date]
+        to_archive_list = [user for user in
+                           User.objects.exclude(state=User.STATE_ARCHIVE)
+                           if not user.end_access()
+                           or user.end_access() < date]
         if "valider" in request.POST:
             for user in to_archive_list:
                 with transaction.atomic(), reversion.create_revision():
@@ -477,17 +592,30 @@ def mass_archive(request):
                     user.save()
                     reversion.set_user(request.user)
                     reversion.set_comment("Archivage")
-            messages.success(request, "%s users ont été archivés" % len(to_archive_list))
-            return redirect("/users/")        
-    return form({'userform': to_archive_date, 'to_archive_list': to_archive_list}, 'users/mass_archive.html', request)
+            messages.success(request, "%s users ont été archivés" % len(
+                to_archive_list
+            ))
+            return redirect("/users/")
+    return form(
+        {'userform': to_archive_date, 'to_archive_list': to_archive_list},
+        'users/mass_archive.html',
+        request
+    )
+
 
 @login_required
 @permission_required('cableur')
 def index(request):
-    """ Affiche l'ensemble des users, need droit cableur """
-    options, created = GeneralOption.objects.get_or_create()
+    """ Affiche l'ensemble des adherents, need droit cableur """
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    users_list = User.objects.select_related('room').order_by('state', 'name')
+    users_list = Adherent.objects.select_related('room')
+    users_list = SortTable.sort(
+        users_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX
+    )
     paginator = Paginator(users_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -500,13 +628,46 @@ def index(request):
         users_list = paginator.page(paginator.num_pages)
     return render(request, 'users/index.html', {'users_list': users_list})
 
+
+@login_required
+@permission_required('cableur')
+def index_clubs(request):
+    """ Affiche l'ensemble des clubs, need droit cableur """
+    options, _created = GeneralOption.objects.get_or_create()
+    pagination_number = options.pagination_number
+    clubs_list = Club.objects.select_related('room')
+    clubs_list = SortTable.sort(
+        clubs_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX
+    )
+    paginator = Paginator(clubs_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        clubs_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        clubs_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        clubs_list = paginator.page(paginator.num_pages)
+    return render(request, 'users/index_clubs.html', {'clubs_list': clubs_list})
+
+
 @login_required
 @permission_required('cableur')
 def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    ban_list = Ban.objects.order_by('date_start').select_related('user').reverse()
+    ban_list = Ban.objects.select_related('user')
+    ban_list = SortTable.sort(
+        ban_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(ban_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -515,17 +676,24 @@ def index_ban(request):
         # If page isn't an integer, deliver first page
         ban_list = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results. 
-        ban_list = paginator.page(paginator.num_pages) 
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        ban_list = paginator.page(paginator.num_pages)
     return render(request, 'users/index_ban.html', {'ban_list': ban_list})
+
 
 @login_required
 @permission_required('cableur')
 def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    white_list = Whitelist.objects.select_related('user').order_by('date_start')
+    white_list = Whitelist.objects.select_related('user')
+    white_list = SortTable.sort(
+        white_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
     paginator = Paginator(white_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -534,92 +702,114 @@ def index_white(request):
         # If page isn't an integer, deliver first page
         white_list = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results. 
-        white_list = paginator.page(paginator.num_pages) 
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        white_list = paginator.page(paginator.num_pages)
     return render(
         request,
         'users/index_whitelist.html',
         {'white_list': white_list}
     )
 
+
 @login_required
 @permission_required('cableur')
 def index_school(request):
     """ Affiche l'ensemble des établissement, need droit cableur """
     school_list = School.objects.order_by('name')
-    return render(request, 'users/index_schools.html', {'school_list':school_list})
+    return render(
+        request,
+        'users/index_schools.html',
+        {'school_list': school_list}
+    )
+
 
 @login_required
 @permission_required('cableur')
 def index_listright(request):
     """ Affiche l'ensemble des droits , need droit cableur """
     listright_list = ListRight.objects.order_by('listright')
-    return render(request, 'users/index_listright.html', {'listright_list':listright_list})
+    return render(
+        request,
+        'users/index_listright.html',
+        {'listright_list': listright_list}
+    )
+
 
 @login_required
 @permission_required('cableur')
 def index_serviceusers(request):
     """ Affiche les users de services (pour les accès ldap)"""
     serviceusers_list = ServiceUser.objects.order_by('pseudo')
-    return render(request, 'users/index_serviceusers.html', {'serviceusers_list':serviceusers_list})
+    return render(
+        request,
+        'users/index_serviceusers.html',
+        {'serviceusers_list': serviceusers_list}
+    )
+
 
 @login_required
-def history(request, object, id):
+def history(request, object_name, object_id):
     """ Affichage de l'historique : (acl, argument)
     user : self or cableur, userid,
     ban : self or cableur, banid,
     whitelist : self or cableur, whitelistid,
     school : cableur, schoolid,
     listright : cableur, listrightid """
-    if object == 'user':
+    if object_name == 'user':
         try:
-             object_instance = User.objects.get(pk=id)
+            object_instance = User.objects.get(pk=object_id)
         except User.DoesNotExist:
-             messages.error(request, "Utilisateur inexistant")
-             return redirect("/users/")
-        if not request.user.has_perms(('cableur',)) and object_instance != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher l'historique d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
-    elif object == 'serviceuser' and request.user.has_perms(('cableur',)):
+            messages.error(request, "Utilisateur inexistant")
+            return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and\
+                object_instance != request.user:
+            messages.error(request, "Vous ne pouvez pas afficher\
+            l'historique d'un autre user que vous sans droit cableur")
+            return redirect("/users/profil/" + str(request.user.id))
+    elif object_name == 'serviceuser' and request.user.has_perms(('cableur',)):
         try:
-             object_instance = ServiceUser.objects.get(pk=id)
+            object_instance = ServiceUser.objects.get(pk=object_id)
         except ServiceUser.DoesNotExist:
-             messages.error(request, "User service inexistant")
-             return redirect("/users/")
-    elif object == 'ban':
+            messages.error(request, "User service inexistant")
+            return redirect("/users/")
+    elif object_name == 'ban':
         try:
-             object_instance = Ban.objects.get(pk=id)
+            object_instance = Ban.objects.get(pk=object_id)
         except Ban.DoesNotExist:
-             messages.error(request, "Bannissement inexistant")
-             return redirect("/users/")
-        if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher les bans d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
-    elif object == 'whitelist':
+            messages.error(request, "Bannissement inexistant")
+            return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and\
+                object_instance.user != request.user:
+            messages.error(request, "Vous ne pouvez pas afficher les bans\
+            d'un autre user que vous sans droit cableur")
+            return redirect("/users/profil/" + str(request.user.id))
+    elif object_name == 'whitelist':
         try:
-             object_instance = Whitelist.objects.get(pk=id)
-        except Whiltelist.DoesNotExist:
-             messages.error(request, "Whitelist inexistant")
-             return redirect("/users/")
-        if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher les whitelist d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
-    elif object == 'school' and request.user.has_perms(('cableur',)):
+            object_instance = Whitelist.objects.get(pk=object_id)
+        except Whitelist.DoesNotExist:
+            messages.error(request, "Whitelist inexistant")
+            return redirect("/users/")
+        if not request.user.has_perms(('cableur',)) and\
+                object_instance.user != request.user:
+            messages.error(request, "Vous ne pouvez pas afficher les\
+            whitelist d'un autre user que vous sans droit cableur")
+            return redirect("/users/profil/" + str(request.user.id))
+    elif object_name == 'school' and request.user.has_perms(('cableur',)):
         try:
-             object_instance = School.objects.get(pk=id)
+            object_instance = School.objects.get(pk=object_id)
         except School.DoesNotExist:
-             messages.error(request, "Ecole inexistante")
-             return redirect("/users/")
-    elif object == 'listright' and request.user.has_perms(('cableur',)):
+            messages.error(request, "Ecole inexistante")
+            return redirect("/users/")
+    elif object_name == 'listright' and request.user.has_perms(('cableur',)):
         try:
-             object_instance = ListRight.objects.get(pk=id)
+            object_instance = ListRight.objects.get(pk=object_id)
         except ListRight.DoesNotExist:
-             messages.error(request, "Droit inexistant")
-             return redirect("/users/")
+            messages.error(request, "Droit inexistant")
+            return redirect("/users/")
     else:
         messages.error(request, "Objet  inconnu")
         return redirect("/users/")
-    options, created = GeneralOption.objects.get_or_create()
+    options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
     paginator = Paginator(reversions, pagination_number)
@@ -632,13 +822,18 @@ def history(request, object, id):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         reversions = paginator.page(paginator.num_pages)
-    return render(request, 're2o/history.html', {'reversions': reversions, 'object': object_instance})
+    return render(
+        request,
+        're2o/history.html',
+        {'reversions': reversions, 'object': object_instance}
+    )
 
 
 @login_required
 def mon_profil(request):
     """ Lien vers profil, renvoie request.id à la fonction """
     return redirect("/users/profil/" + str(request.user.id))
+
 
 @login_required
 def profil(request, userid):
@@ -649,14 +844,43 @@ def profil(request, userid):
         messages.error(request, "Utilisateur inexistant")
         return redirect("/users/")
     if not request.user.has_perms(('cableur',)) and users != request.user:
-        messages.error(request, "Vous ne pouvez pas afficher un autre user que vous sans droit cableur")
+        messages.error(request, "Vous ne pouvez pas afficher un autre user\
+        que vous sans droit cableur")
         return redirect("/users/profil/" + str(request.user.id))
-    machines = Machine.objects.filter(user__pseudo=users).select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type__extension').prefetch_related('interface_set__type').prefetch_related('interface_set__domain__related_domain__extension')
-    factures = Facture.objects.filter(user__pseudo=users)
-    bans = Ban.objects.filter(user__pseudo=users)
-    whitelists = Whitelist.objects.filter(user__pseudo=users)
+    machines = Machine.objects.filter(user=users).select_related('user')\
+        .prefetch_related('interface_set__domain__extension')\
+        .prefetch_related('interface_set__ipv4__ip_type__extension')\
+        .prefetch_related('interface_set__type')\
+        .prefetch_related('interface_set__domain__related_domain__extension')
+    machines = SortTable.sort(
+        machines,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.MACHINES_INDEX
+    )
+    factures = Facture.objects.filter(user=users)
+    factures = SortTable.sort(
+        factures,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_INDEX
+    )
+    bans = Ban.objects.filter(user=users)
+    bans = SortTable.sort(
+        bans,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_BAN
+    )
+    whitelists = Whitelist.objects.filter(user=users)
+    whitelists = SortTable.sort(
+        whitelists,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_WHITE
+    )
     list_droits = Right.objects.filter(user=users)
-    options, created = OptionalUser.objects.get_or_create()
+    options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde
     return render(
         request,
@@ -672,45 +896,55 @@ def profil(request, userid):
         }
     )
 
+
 def reset_password(request):
     """ Reintialisation du mot de passe si mdp oublié """
     userform = ResetPasswordForm(request.POST or None)
     if userform.is_valid():
         try:
-            user = User.objects.get(pseudo=userform.cleaned_data['pseudo'],email=userform.cleaned_data['email'])
+            user = User.objects.get(
+                pseudo=userform.cleaned_data['pseudo'],
+                email=userform.cleaned_data['email']
+            )
         except User.DoesNotExist:
             messages.error(request, "Cet utilisateur n'existe pas")
             return form({'userform': userform}, 'users/user.html', request)
         user.reset_passwd_mail(request)
-        messages.success(request, "Un mail pour l'initialisation du mot de passe a été envoyé")
-        redirect("/") 
+        messages.success(request, "Un mail pour l'initialisation du mot\
+        de passe a été envoyé")
+        redirect("/")
     return form({'userform': userform}, 'users/user.html', request)
 
+
 def process(request, token):
+    """Process, lien pour la reinitialisation du mot de passe"""
     valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
     req = get_object_or_404(valid_reqs, token=token)
 
     if req.type == Request.PASSWD:
         return process_passwd(request, req)
-    elif req.type == Request.EMAIL:
-        return process_email(request, req=req)
     else:
         messages.error(request, "Entrée incorrecte, contactez un admin")
         redirect("/")
 
+
 def process_passwd(request, req):
+    """Process le changeemnt de mot de passe, renvoie le formulaire
+    demandant le nouveau password"""
     u_form = PassForm(request.POST or None)
     user = req.user
     if u_form.is_valid():
         return password_change_action(u_form, user, request, req=req)
     return form({'userform': u_form}, 'users/user.html', request)
-""" Framework Rest """
+
 
 class JSONResponse(HttpResponse):
+    """ Framework Rest """
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+
 
 @csrf_exempt
 @login_required
@@ -721,4 +955,3 @@ def mailing(request):
     mails = all_has_access().values('email').distinct()
     seria = MailSerializer(mails, many=True)
     return JSONResponse(seria.data)
-

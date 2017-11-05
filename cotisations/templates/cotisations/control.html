@@ -40,14 +40,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>Profil</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Designation</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='name' text='Nom' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='surname' text='Prénom' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='id' text='Id facture' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='user-id' text='Id user' %}</th>
+		<th>Designation</th>
                 <th>Prix total</th>
-                <th>Moyen de paiement</th>
-                <th>Date</th>
-                <th>Validité</th>
-                <th>Controle trésorier</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='paiement' text='Moyen de paiement' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='date' text='Date' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='valid' text='Valide' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='control' col='control' text='Contrôlée' %}</th>
             </tr>
         </thead>
         {% for form in controlform.forms %}
@@ -58,7 +60,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
             <td>{{ form.instance.user.name }}</td>
             <td>{{ form.instance.user.surname }}</td>
-            <td>{{ form.instance.name }}</td>
+            <td>{{ form.instance.id }}</td>
+            <td>{{ form.instance.user.id }}</td>
+	    <td>{{ form.instance.name }}</td>
             <td>{{ form.instance.prix_total }}</td>
             <td>{{ form.instance.paiement }}</td>
             <td>{{ form.instance.date }}</td>

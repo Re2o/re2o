@@ -27,58 +27,79 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import IpType, Machine, MachineType, Domain, IpList, Interface
-from .models import Extension, Mx, Ns, Vlan, Text, Nas, Service, OuverturePort
-from .models import OuverturePortList
+from .models import Extension, SOA, Mx, Ns, Vlan, Text, Nas, Service
+from .models import OuverturePort, OuverturePortList
+
 
 class MachineAdmin(VersionAdmin):
     pass
 
+
 class IpTypeAdmin(VersionAdmin):
     pass
+
 
 class MachineTypeAdmin(VersionAdmin):
     pass
 
+
 class VlanAdmin(VersionAdmin):
     pass
+
 
 class ExtensionAdmin(VersionAdmin):
     pass
 
+
+class SOAAdmin(VersionAdmin):
+    pass
+
+
 class MxAdmin(VersionAdmin):
     pass
+
 
 class NsAdmin(VersionAdmin):
     pass
 
+
 class TextAdmin(VersionAdmin):
     pass
+
 
 class NasAdmin(VersionAdmin):
     pass
 
+
 class IpListAdmin(VersionAdmin):
     pass
+
 
 class OuverturePortAdmin(VersionAdmin):
     pass
 
+
 class OuverturePortListAdmin(VersionAdmin):
     pass
+
 
 class InterfaceAdmin(VersionAdmin):
     list_display = ('machine','type','mac_address','ipv4','details')
 
+
 class DomainAdmin(VersionAdmin):
     list_display = ('interface_parent', 'name', 'extension', 'cname')
 
+
 class ServiceAdmin(VersionAdmin):
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
+
 
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
 admin.site.register(IpType, IpTypeAdmin)
 admin.site.register(Extension, ExtensionAdmin)
+admin.site.register(SOA, SOAAdmin)
 admin.site.register(Mx, MxAdmin)
 admin.site.register(Ns, NsAdmin)
 admin.site.register(Text, TextAdmin)

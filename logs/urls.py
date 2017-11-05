@@ -19,7 +19,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+"""
+Urls de l'application logs, pointe vers les fonctions de views.
+Inclu dans le re2o.urls
+"""
 from __future__ import unicode_literals
 
 from django.conf.urls import url
@@ -29,7 +32,9 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^stats_logs$', views.stats_logs, name='stats-logs'),
-    url(r'^revert_action/(?P<revision_id>[0-9]+)$', views.revert_action, name='revert-action'),
+    url(r'^revert_action/(?P<revision_id>[0-9]+)$',
+        views.revert_action,
+        name='revert-action'),
     url(r'^stats_general/$', views.stats_general, name='stats-general'),
     url(r'^stats_models/$', views.stats_models, name='stats-models'),
     url(r'^stats_users/$', views.stats_users, name='stats-users'),

@@ -25,37 +25,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Stack</th>
-            <th>ID</th>
-            <th>Details</th>
+            <th>{% include "buttons/sort.html" with prefix='stack' col='name' text='Stack' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='stack' col='id' text='ID' %}</th>
+            <th>Détails</th>
             <th>Membres</th>
         </tr>
-   </thead>
-   {% for stack in stack_list %}
-   {% for switch in stack.switch_set.all %}
-   <tr class="active">
-       {% if forloop.first %}
-       <td rowspan="{{ stack.switch_set.all|length }}">{{stack.name}}</td>
-       <td rowspan="{{ stack.switch_set.all|length }}">{{stack.stack_id}}</td>
-       <td rowspan="{{ stack.switch_set.all|length }}" >{{stack.details}}</td>
-        {% endif %}
-       <td><a href="{% url 'topologie:index-port' switch.pk %}">{{switch}}</a></td>
-       {% if forloop.first %}
-       <td rowspan="{{ stack.switch_set.all|length }}">
-           <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
-                <i class="glyphicon glyphicon-time"></i>
-           </a>
-        {% if is_infra %}
-           <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
-                <i class="glyphicon glyphicon-edit"></i>
-           </a>
-	   <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
-		   <i class="glyphicon glyphicon-trash"></i>
-	   </a>
-        {% endif %}
-        </td>
-        {% endif %}
-   </tr>
-   {% endfor %}
-   {% endfor %}
+    </thead>
+    {% for stack in stack_list %}
+    {% for switch in stack.switch_set.all %}
+    <tbody>
+        <tr class="active">
+            {% if forloop.first %}
+            <td rowspan="{{ stack.switch_set.all|length }}">{{stack.name}}</td>
+            <td rowspan="{{ stack.switch_set.all|length }}">{{stack.stack_id}}</td>
+            <td rowspan="{{ stack.switch_set.all|length }}" >{{stack.details}}</td>
+            {% endif %}
+            <td><a href="{% url 'topologie:index-port' switch.pk %}">{{switch}}</a></td>
+            {% if forloop.first %}
+            <td rowspan="{{ stack.switch_set.all|length }}">
+                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+                {% if is_infra %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </a>
+                {% endif %}
+            </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr class="active">
+            <td>{{stack.name}}</td>
+            <td>{{stack.stack_id}}</td>
+            <td>{{stack.details}}</td>
+            <td>Aucun</td>
+            <td>
+                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                </a>
+                {% if is_infra %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </a>
+                {% endif %}
+            </td>
+        {% endfor %}
+    </tbody>
+    {% endfor %}
 </table>

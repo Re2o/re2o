@@ -34,23 +34,41 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                {% for key, values in userform.items %}
-                <th>{{ key }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-            <tr>
+    <table id="delRights_table" class="table table-striped">
+        <tbody>
             {% for key, values in userform.items %}
-            {% bootstrap_form_errors values %}
-            <th>{{ values.rights }}</th>
-            {% endfor %}
+            <tr class="active">
+                <td>
+                    <a data-toggle="collapse" href="#collapseRight_{{key}}" aria-expanded="true" aria-controls="collapseRights_{{key}}">
+                        <b>{{ key }}</b> ( {{values.rights|length }} users )
+                    </a>
+                </td>
             </tr>
+	    <tr>
+	        <td>
+                    <div class="collapse in" id="collapseRight_{{key}}">
+                        <ul class="list-group" style="margin-bottom: 0px">
+                            {% for user in values.rights %}
+			    <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">{{ user }}</li>
+			    {% endfor %}
+			</ul>
+                    </div>
+                </td>
+	    </tr>
+            {% endfor %}
+        </tbody>
     </table>
-    {% bootstrap_button "Modifier" button_type="submit" icon="star" %}
+    {% bootstrap_button "Supprimer" button_type="submit" icon="star" %}
 </form>
+
+<script>
+    $("#delRights_table").ready( function () {
+        var rights_div = [{% for k in userform.keys %}$("#collapseRight_{{k}}"), {% endfor %}];
+        for (var i=0 ; i<rights_div.length ; i++) {
+            rights_div[i].collapse('hide');
+        }
+    } );
+</script>
 
   <br />
   <br />

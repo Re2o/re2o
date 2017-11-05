@@ -21,8 +21,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import unicode_literals
+"""The field used in the admin view for the search app"""
 
-from django.contrib import admin
+from __future__ import unicode_literals
 
 # Register your models here.
