@@ -85,12 +85,18 @@ def all_whitelisted(search_time=DT_NOW):
     ).distinct()
 
 
-def all_has_access(search_time=DT_NOW):
+def all_has_access(search_time=DT_NOW, service=None):
     """  Renvoie tous les users beneficiant d'une connexion
-    : user adherent ou whiteliste et non banni """
+    : user adherent ou whiteliste et non banni.
+    Si service est fourni, ne considère (exclu) que les gens bannis pour
+    ce service.
+    """
+    ban_set = Ban.objects.filter(date_end__gt=search_time)
+    if service:
+        ban_set = ban_set.filter(ban_type__inhibited_services=service)
     return User.objects.filter(
         Q(state=User.STATE_ACTIVE) &
-        ~Q(ban__in=Ban.objects.filter(date_end__gt=search_time)) &
+        ~Q(ban__in=ban_set) &
         (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=search_time)) |
          Q(facture__in=Facture.objects.filter(
              vente__in=Vente.objects.filter(
@@ -106,11 +112,12 @@ def all_has_access(search_time=DT_NOW):
     ).distinct()
 
 
-def filter_active_interfaces(interface_set):
-    """Filtre les machines autorisées à sortir sur internet dans une requête"""
+def filter_active_interfaces(interface_set, service=None):
+    """Filtre les machines autorisées à sortir sur internet (ou juste pour
+    un service donné, si fourni) dans une requête"""
     return interface_set.filter(
         machine__in=Machine.objects.filter(
-            user__in=all_has_access()
+            user__in=all_has_access(service=service)
         ).filter(active=True)
     ).select_related('domain').select_related('machine')\
     .select_related('type').select_related('ipv4')\
