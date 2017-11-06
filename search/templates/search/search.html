@@ -32,10 +32,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form">
     {% bootstrap_field search_form.q %}
+    {% if search_form.u %}
     {% include "buttons/multiple_checkbox_alt.html" with field=search_form.u %}
+    {% endif %}
+    {% if search_form.a %}
     {% include "buttons/multiple_checkbox_alt.html" with field=search_form.a %}
+    {% endif %}
+    {% if search_form.s %}
     {% bootstrap_field search_form.s %}
+    {% endif %}
+    {% if search_form.e %}
     {% bootstrap_field search_form.e %}
+    {% endif %}
     {% bootstrap_button "Search" button_type="submit" icon="search" %}
 </form>
 <br />
