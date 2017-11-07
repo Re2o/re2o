@@ -56,8 +56,9 @@ def is_int(variable):
     else:
         return True
 
+
 def finish_results(results, col, order):
-    """Sort the results by applying filters and then limit them to the 
+    """Sort the results by applying filters and then limit them to the
     number of max results. Finally add the info of the nmax number of results
     to the dict"""
 
@@ -119,7 +120,8 @@ def finish_results(results, col, order):
     return results
 
 
-def search_single_word(word, filters, is_cableur, start, end, user_state, aff):
+def search_single_word(word, filters, is_cableur, user_id,
+                       start, end, user_state, aff):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match field are either CharField or IntegerField that will be displayed
@@ -143,7 +145,7 @@ def search_single_word(word, filters, is_cableur, start, end, user_state, aff):
             )
         ) & Q(state__in=user_state)
         if not is_cableur:
-            filter_users &= Q(id=request.user.id)
+            filter_users &= Q(id=user_id)
         filters['users'] |= filter_users
 
     # Machines
@@ -166,7 +168,7 @@ def search_single_word(word, filters, is_cableur, start, end, user_state, aff):
             interface__ipv4__ipv4__icontains=word
         )
         if not is_cableur:
-            filter_machines &= Q(user__id=request.user.id)
+            filter_machines &= Q(user__id=user_id)
         filters['machines'] |= filter_machines
 
     # Factures
@@ -321,11 +323,9 @@ def get_words(query):
             # The last char war a \ so we escape this char
             escaping_char = False
             words[i] += char
-            print( 'escaped '+char+' -> '+words[i] )
             continue
         if char == '\\':
             # We need to escape the next char
-            print( 'escaping '+char+' -> '+words[i] )
             escaping_char = True
             continue
         if char == '"':
@@ -336,15 +336,14 @@ def get_words(query):
             # If we are between two ", ignore separators
             words[i] += char
             continue
-        if char == ' ' or char == ',' :
+        if char == ' ' or char == ',':
             # If we encouter a separator outside of ", we create a new word
             if words[i] is not '':
                 i += 1
             continue
         # If we haven't encountered any special case, add the char to the word
-        print(words)
         words[i] += char
-        
+
     return words
 
 
@@ -371,12 +370,12 @@ def get_results(query, request, params):
     }
 
     words = get_words(query)
-    print( words )
     for word in words:
         filters = search_single_word(
             word,
             filters,
             request.user.has_perms(('cableur',)),
+            request.user.id,
             start,
             end,
             user_state,
