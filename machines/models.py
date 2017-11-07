@@ -445,6 +445,13 @@ class Interface(models.Model):
         """ Renvoie l'ipv6 en str. Mise en cache et propriété de l'objet"""
         return str(self.ipv6_object)
 
+    def manufacturer(self):
+        try:
+            manufacturer_self = str(self.mac_address.oui.registration().org)
+        except:
+            manufacturer_self = None
+        return manufacturer_self
+
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
         return str(EUI(self.mac_address, dialect=mac_bare)).lower()
@@ -456,24 +463,6 @@ class Interface(models.Model):
             self.mac_address = str(EUI(self.mac_address))
         except:
             raise ValidationError("La mac donnée est invalide")
-
-    def clean(self, *args, **kwargs):
-        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
-        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
-        # If type was an invalid value, django won't create an attribute type
-        # but try clean() as we may be able to create it from another value
-        # so even if the error as yet been detected at this point, django
-        # continues because the error might not prevent us from creating the
-        # instance.
-        # But in our case, it's impossible to create a type value so we raise
-        # the error.
-        if not hasattr(self, 'type') :
-            raise ValidationError("Le type d'ip choisi n'est pas valide")
-        self.filter_macaddress()
-        self.mac_address = str(EUI(self.mac_address)) or None
-        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
-            self.assign_ipv4()
-        super(Interface, self).clean(*args, **kwargs)
 
     def assign_ipv4(self):
         """ Assigne une ip à l'interface """
@@ -494,6 +483,37 @@ class Interface(models.Model):
         self.clean()
         self.save()
 
+    def has_private_ip(self):
+        """ True si l'ip associée est privée"""
+        if self.ipv4:
+            return IPAddress(str(self.ipv4)).is_private()
+        else:
+            return False
+
+    def may_have_port_open(self):
+        """ True si l'interface a une ip et une ip publique.
+        Permet de ne pas exporter des ouvertures sur des ip privées
+        (useless)"""
+        return self.ipv4 and not self.has_private_ip()
+    
+    def clean(self, *args, **kwargs):
+        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
+        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
+        # If type was an invalid value, django won't create an attribute type
+        # but try clean() as we may be able to create it from another value
+        # so even if the error as yet been detected at this point, django
+        # continues because the error might not prevent us from creating the
+        # instance.
+        # But in our case, it's impossible to create a type value so we raise
+        # the error.
+        if not hasattr(self, 'type') :
+            raise ValidationError("Le type d'ip choisi n'est pas valide")
+        self.filter_macaddress()
+        self.mac_address = str(EUI(self.mac_address)) or None
+        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
+            self.assign_ipv4()
+        super(Interface, self).clean(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
@@ -509,19 +529,6 @@ class Interface(models.Model):
         except:
             domain = None
         return str(domain)
-
-    def has_private_ip(self):
-        """ True si l'ip associée est privée"""
-        if self.ipv4:
-            return IPAddress(str(self.ipv4)).is_private()
-        else:
-            return False
-
-    def may_have_port_open(self):
-        """ True si l'interface a une ip et une ip publique.
-        Permet de ne pas exporter des ouvertures sur des ip privées
-        (useless)"""
-        return self.ipv4 and not self.has_private_ip()
 
 
 class Domain(models.Model):
