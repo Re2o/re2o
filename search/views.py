@@ -56,8 +56,70 @@ def is_int(variable):
     else:
         return True
 
+def finish_results(results, col, order):
+    """Sort the results by applying filters and then limit them to the 
+    number of max results. Finally add the info of the nmax number of results
+    to the dict"""
 
-def get_results(query, request, filters={}):
+    results['users'] = SortTable.sort(
+        results['users'],
+        col,
+        order,
+        SortTable.USERS_INDEX
+    )
+    results['machines'] = SortTable.sort(
+        results['machines'],
+        col,
+        order,
+        SortTable.MACHINES_INDEX
+    )
+    results['factures'] = SortTable.sort(
+        results['factures'],
+        col,
+        order,
+        SortTable.COTISATIONS_INDEX
+    )
+    results['bans'] = SortTable.sort(
+        results['bans'],
+        col,
+        order,
+        SortTable.USERS_INDEX_BAN
+    )
+    results['whitelists'] = SortTable.sort(
+        results['whitelists'],
+        col,
+        order,
+        SortTable.USERS_INDEX_WHITE
+    )
+    results['rooms'] = SortTable.sort(
+        results['rooms'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX_ROOM
+    )
+    results['ports'] = SortTable.sort(
+        results['ports'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX_PORT
+    )
+    results['switches'] = SortTable.sort(
+        results['switches'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX
+    )
+
+    options, _ = GeneralOption.objects.get_or_create()
+    max_result = options.search_display_page
+    for name, val in results.items():
+        results[name] = val.distinct()[:max_result]
+    results.update({'max_result': max_result})
+
+    return results
+
+
+def search_single_word(word, filters, is_cableur, start, end, user_state, aff):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match field are either CharField or IntegerField that will be displayed
@@ -65,111 +127,74 @@ def get_results(query, request, filters={}):
     query). IntegerField are matched against the query only if it can be casted
     to an int."""
 
-    start = filters.get('s', None)
-    end = filters.get('e', None)
-    user_state = filters.get('u', initial_choices(CHOICES_USER))
-    aff = filters.get('a', initial_choices(CHOICES_AFF))
-
-    options, _ = GeneralOption.objects.get_or_create()
-    max_result = options.search_display_page
-
-    results = {
-        'users_list': User.objects.none(),
-        'machines_list': Machine.objects.none(),
-        'factures_list': Facture.objects.none(),
-        'bans_list': Ban.objects.none(),
-        'whitelists_list': Whitelist.objects.none(),
-        'rooms_list': Room.objects.none(),
-        'switch_ports_list': Port.objects.none(),
-        'switches_list': Switch.objects.none()
-    }
-
     # Users
     if '0' in aff:
-        filter_user_list = (
+        filter_users = (
             Q(
-                surname__icontains=query
+                surname__icontains=word
             ) | Q(
-                adherent__name__icontains=query
+                adherent__name__icontains=word
             ) | Q(
-                pseudo__icontains=query
+                pseudo__icontains=word
             ) | Q(
-                club__room__name__icontains=query
+                club__room__name__icontains=word
             ) | Q(
-                adherent__room__name__icontains=query
+                adherent__room__name__icontains=word
             )
         ) & Q(state__in=user_state)
-        if not request.user.has_perms(('cableur',)):
-            filter_user_list &= Q(id=request.user.id)
-        results['users_list'] = User.objects.filter(filter_user_list)
-        results['users_list'] = SortTable.sort(
-            results['users_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.USERS_INDEX
-        )
+        if not is_cableur:
+            filter_users &= Q(id=request.user.id)
+        filters['users'] |= filter_users
 
     # Machines
     if '1' in aff:
-        filter_machine_list = Q(
-            name__icontains=query
+        filter_machines = Q(
+            name__icontains=word
         ) | (
             Q(
-                user__pseudo__icontains=query
+                user__pseudo__icontains=word
             ) & Q(
                 user__state__in=user_state
             )
         ) | Q(
-            interface__domain__name__icontains=query
+            interface__domain__name__icontains=word
         ) | Q(
-            interface__domain__related_domain__name__icontains=query
+            interface__domain__related_domain__name__icontains=word
         ) | Q(
-            interface__mac_address__icontains=query
+            interface__mac_address__icontains=word
         ) | Q(
-            interface__ipv4__ipv4__icontains=query
+            interface__ipv4__ipv4__icontains=word
         )
-        if not request.user.has_perms(('cableur',)):
-            filter_machine_list &= Q(user__id=request.user.id)
-        results['machines_list'] = Machine.objects.filter(filter_machine_list)
-        results['machines_list'] = SortTable.sort(
-            results['machines_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.MACHINES_INDEX
-        )
+        if not is_cableur:
+            filter_machines &= Q(user__id=request.user.id)
+        filters['machines'] |= filter_machines
 
     # Factures
     if '2' in aff:
-        filter_facture_list = Q(
-            user__pseudo__icontains=query
+        filter_factures = Q(
+            user__pseudo__icontains=word
         ) & Q(
             user__state__in=user_state
         )
         if start is not None:
-            filter_facture_list &= Q(date__gte=start)
+            filter_factures &= Q(date__gte=start)
         if end is not None:
-            filter_facture_list &= Q(date__lte=end)
-        results['factures_list'] = Facture.objects.filter(filter_facture_list)
-        results['factures_list'] = SortTable.sort(
-            results['factures_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.COTISATIONS_INDEX
-        )
+            filter_factures &= Q(date__lte=end)
+        filters['factures'] |= filter_factures
 
     # Bans
     if '3' in aff:
-        date_filter = (
+        filter_bans = (
             Q(
-                user__pseudo__icontains=query
+                user__pseudo__icontains=word
             ) & Q(
                 user__state__in=user_state
             )
         ) | Q(
-            raison__icontains=query
+            raison__icontains=word
         )
         if start is not None:
-            date_filter &= (
+            filter_bans &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
             ) | (
                 Q(date_start__lte=start) & Q(date_end__gte=start)
@@ -177,34 +202,28 @@ def get_results(query, request, filters={}):
                 Q(date_start__gte=start) & Q(date_end__lte=start)
             )
         if end is not None:
-            date_filter &= (
+            filter_bans &= (
                 Q(date_start__lte=end) & Q(date_end__lte=end)
             ) | (
                 Q(date_start__lte=end) & Q(date_end__gte=end)
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['bans_list'] = Ban.objects.filter(date_filter)
-        results['bans_list'] = SortTable.sort(
-            results['bans_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.USERS_INDEX_BAN
-        )
+        filters['bans'] |= filter_bans
 
     # Whitelists
     if '4' in aff:
-        date_filter = (
+        filter_whitelists = (
             Q(
-                user__pseudo__icontains=query
+                user__pseudo__icontains=word
             ) & Q(
                 user__state__in=user_state
             )
         ) | Q(
-            raison__icontains=query
+            raison__icontains=word
         )
         if start is not None:
-            date_filter &= (
+            filter_whitelists &= (
                 Q(date_start__gte=start) & Q(date_end__gte=start)
             ) | (
                 Q(date_start__lte=start) & Q(date_end__gte=start)
@@ -212,100 +231,174 @@ def get_results(query, request, filters={}):
                 Q(date_start__gte=start) & Q(date_end__lte=start)
             )
         if end is not None:
-            date_filter &= (
+            filter_whitelists &= (
                 Q(date_start__lte=end) & Q(date_end__lte=end)
             ) | (
                 Q(date_start__lte=end) & Q(date_end__gte=end)
             ) | (
                 Q(date_start__gte=end) & Q(date_end__lte=end)
             )
-        results['whitelists_list'] = Whitelist.objects.filter(date_filter)
-        results['whitelists_list'] = SortTable.sort(
-            results['whitelists_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.USERS_INDEX_WHITE
-        )
+        filters['whitelists'] |= filter_whitelists
 
     # Rooms
-    if '5' in aff and request.user.has_perms(('cableur',)):
-        filter_rooms_list = Q(
-            details__icontains=query
+    if '5' in aff and is_cableur:
+        filter_rooms = Q(
+            details__icontains=word
         ) | Q(
-            name__icontains=query
+            name__icontains=word
         ) | Q(
-            port__details=query
+            port__details=word
         )
-        results['rooms_list'] = Room.objects.filter(filter_rooms_list)
-        results['rooms_list'] = SortTable.sort(
-            results['rooms_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.TOPOLOGIE_INDEX_ROOM
-        )
+        filters['rooms'] |= filter_rooms
 
     # Switch ports
-    if '6' in aff and request.user.has_perms(('cableur',)):
-        filter_ports_list = Q(
-            room__name__icontains=query
+    if '6' in aff and is_cableur:
+        filter_ports = Q(
+            room__name__icontains=word
         ) | Q(
-            machine_interface__domain__name__icontains=query
+            machine_interface__domain__name__icontains=word
         ) | Q(
-            related__switch__switch_interface__domain__name__icontains=query
+            related__switch__switch_interface__domain__name__icontains=word
         ) | Q(
-            radius__icontains=query
+            radius__icontains=word
         ) | Q(
-            vlan_force__name__icontains=query
+            vlan_force__name__icontains=word
         ) | Q(
-            details__icontains=query
+            details__icontains=word
         )
-        if is_int(query):
-            filter_ports_list |= Q(
-                port=query
+        if is_int(word):
+            filter_ports |= Q(
+                port=word
             )
-        results['switch_ports_list'] = Port.objects.filter(filter_ports_list)
-        results['switch_ports_list'] = SortTable.sort(
-            results['switch_ports_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.TOPOLOGIE_INDEX_PORT
-        )
+        filters['ports'] |= filter_ports
 
     # Switches
-    if '7' in aff and request.user.has_perms(('cableur',)):
-        filter_switches_list = Q(
-            switch_interface__domain__name__icontains=query
+    if '7' in aff and is_cableur:
+        filter_switches = Q(
+            switch_interface__domain__name__icontains=word
         ) | Q(
-            switch_interface__ipv4__ipv4__icontains=query
+            switch_interface__ipv4__ipv4__icontains=word
         ) | Q(
-            location__icontains=query
+            location__icontains=word
         ) | Q(
-            stack__name__icontains=query
+            stack__name__icontains=word
         ) | Q(
-            model__reference__icontains=query
+            model__reference__icontains=word
         ) | Q(
-            model__constructor__name__icontains=query
+            model__constructor__name__icontains=word
         ) | Q(
-            details__icontains=query
+            details__icontains=word
         )
-        if is_int(query):
-            filter_switches_list |= Q(
-                number=query
+        if is_int(word):
+            filter_switches |= Q(
+                number=word
             ) | Q(
-                stack_member_id=query
+                stack_member_id=word
             )
-        results['switches_list'] = Switch.objects.filter(filter_switches_list)
-        results['switches_list'] = SortTable.sort(
-            results['switches_list'],
-            request.GET.get('col'),
-            request.GET.get('order'),
-            SortTable.TOPOLOGIE_INDEX
+        filters['switches'] |= filter_switches
+
+    return filters
+
+
+def get_words(query):
+    """Function used to split the uery in different words to look for.
+    The rules are simple :
+        - anti-slash ('\\') is used to escape characters
+        - anything between quotation marks ('"') is kept intact (not
+            interpreted as separators) excepts anti-slashes used to escape
+        - spaces (' ') and commas (',') are used to separated words
+    """
+
+    words = []
+    i = 0
+    keep_intact = False
+    escaping_char = False
+    for char in query:
+        if i >= len(words):
+            # We are starting a new word
+            words.append('')
+        if escaping_char:
+            # The last char war a \ so we escape this char
+            escaping_char = False
+            words[i] += char
+            print( 'escaped '+char+' -> '+words[i] )
+            continue
+        if char == '\\':
+            # We need to escape the next char
+            print( 'escaping '+char+' -> '+words[i] )
+            escaping_char = True
+            continue
+        if char == '"':
+            # Toogle the keep_intact state, if true, we are between two "
+            keep_intact = not keep_intact
+            continue
+        if keep_intact:
+            # If we are between two ", ignore separators
+            words[i] += char
+            continue
+        if char == ' ' or char == ',' :
+            # If we encouter a separator outside of ", we create a new word
+            if words[i] is not '':
+                i += 1
+            continue
+        # If we haven't encountered any special case, add the char to the word
+        print(words)
+        words[i] += char
+        
+    return words
+
+
+def get_results(query, request, params):
+    """The main function of the search procedure. It gather the filters for
+    each of the different words of the query and concatenate them into a
+    single filter. Then it calls 'finish_results' and return the queryset of
+    objects to display as results"""
+
+    start = params.get('s', None)
+    end = params.get('e', None)
+    user_state = params.get('u', initial_choices(CHOICES_USER))
+    aff = params.get('a', initial_choices(CHOICES_AFF))
+
+    filters = {
+        'users': Q(),
+        'machines': Q(),
+        'factures': Q(),
+        'bans': Q(),
+        'whitelists': Q(),
+        'rooms': Q(),
+        'ports': Q(),
+        'switches': Q()
+    }
+
+    words = get_words(query)
+    print( words )
+    for word in words:
+        filters = search_single_word(
+            word,
+            filters,
+            request.user.has_perms(('cableur',)),
+            start,
+            end,
+            user_state,
+            aff
         )
 
-    for name, val in results.items():
-        results[name] = val.distinct()[:max_result]
+    results = {
+        'users': User.objects.filter(filters['users']),
+        'machines': Machine.objects.filter(filters['machines']),
+        'factures': Facture.objects.filter(filters['factures']),
+        'bans': Ban.objects.filter(filters['bans']),
+        'whitelists': Whitelist.objects.filter(filters['whitelists']),
+        'rooms': Room.objects.filter(filters['rooms']),
+        'ports': Port.objects.filter(filters['ports']),
+        'switches': Switch.objects.filter(filters['switches'])
+    }
 
-    results.update({'max_result': max_result})
+    results = finish_results(
+        results,
+        request.GET.get('col'),
+        request.GET.get('order')
+    )
     results.update({'search_term': query})
 
     return results
