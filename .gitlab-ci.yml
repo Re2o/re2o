@@ -1,0 +1,21 @@
+---
+image: debian:stretch
+stages:
+  - lint
+
+lint:
+  stage: lint
+  variables:
+    LANG: 'en_US.UTF-8'
+    LC_ALL: 'en_US.UTF-8'
+    LANGUAGE: 'en_US.UTF-8'
+  script:
+  - apt-get -qq update
+  - DEBIAN_FRONTEND=noninteractive apt-get -qq install -y locales python3-pip python3-django
+  - sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales && update-locale LANG=en_US.UTF-8
+  - pip3 install -q pylint-django
+  - pylint --load-plugins pylint_django cotisations machines re2o logs topologie preferences search users || if [ $? -ne 1 ]; then exit 0; else exit 1; fi
+
+
+
+
