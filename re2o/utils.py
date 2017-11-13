@@ -248,7 +248,7 @@ class SortTable:
         if not fields:
             fields = values.get('default', [])
         request = request.order_by(*fields)
-        if order == 'desc':
+        if values.get(col, None) and order == 'desc':
             return request.reverse()
         else:
             return request

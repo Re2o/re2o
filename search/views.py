@@ -20,115 +20,418 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# App de recherche pour re2o
-# Augustin lemesle, Gabriel Détraz, Goulven Kermarec
-# Gplv2
+"""The views for the search app, responsible for finding the matches
+Augustin lemesle, Gabriel Détraz, Goulven Kermarec, Maël Kervella
+Gplv2"""
+
 
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django.template.context_processors import csrf
-from django.template import Context, RequestContext, loader
 from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 from users.models import User, Ban, Whitelist
-from machines.models import Machine, Interface
-from topologie.models import Port, Switch
+from machines.models import Machine
+from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
-from search.models import SearchForm, SearchFormPlus
 from preferences.models import GeneralOption
+from search.forms import (
+    SearchForm,
+    SearchFormPlus,
+    CHOICES_USER,
+    CHOICES_AFF,
+    initial_choices
+)
+from re2o.utils import SortTable
 
-def form(ctx, template, request):
-    c = ctx
-    c.update(csrf(request))
-    return render(request, template, c)
 
-def search_result(search, type, request):
-    date_deb = None
-    date_fin = None
-    states=[]
-    co=[]
-    aff=[]
-    if(type):
-        aff = search.cleaned_data['affichage']
-        co = search.cleaned_data['connexion']
-        states = search.cleaned_data['filtre']
-        date_deb = search.cleaned_data['date_deb']
-        date_fin = search.cleaned_data['date_fin']
-    date_query = Q()
-    if aff==[]:
-        aff = ['0','1','2','3','4','5','6']
-    if date_deb != None:
-        date_query = date_query & Q(date__gte=date_deb)
-    if date_fin != None:
-        date_query = date_query & Q(date__lte=date_fin)
-    search = search.cleaned_data['search_field']
-    query1 = Q()
-    for s in states:
-        query1 = query1 | Q(state = s)
-    
-    connexion = [] 
-   
-    recherche = {'users_list': None, 'machines_list' : [], 'facture_list' : None, 'ban_list' : None, 'white_list': None, 'port_list': None, 'switch_list': None}
+def is_int(variable):
+    """ Check if the variable can be casted to an integer """
 
-    if request.user.has_perms(('cableur',)):
-        query = Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)
+    try:
+        int(variable)
+    except ValueError:
+        return False
     else:
-        query = (Q(user__pseudo__icontains = search) | Q(user__adherent__name__icontains = search) | Q(user__surname__icontains = search)) & Q(user = request.user)
+        return True
 
 
-    for i in aff:
-        if i == '0':
-            query_user_list = Q(adherent__room__name__icontains = search) | Q(club__room__name__icontains = search) | Q(pseudo__icontains = search) | Q(adherent__name__icontains = search) | Q(surname__icontains = search) & query1
-            if request.user.has_perms(('cableur',)):
-                recherche['users_list'] = User.objects.filter(query_user_list).order_by('state', 'surname').distinct()
-            else :
-                recherche['users_list'] = User.objects.filter(query_user_list & Q(id=request.user.id)).order_by('state', 'surname').distinct()
-        if i == '1':
-            query_machine_list = Q(machine__user__pseudo__icontains = search) | Q(machine__user__adherent__name__icontains = search) | Q(machine__user__surname__icontains = search) | Q(mac_address__icontains = search) | Q(ipv4__ipv4__icontains = search) | Q(domain__name__icontains = search) | Q(domain__related_domain__name__icontains = search)
-            if request.user.has_perms(('cableur',)):
-                data = Interface.objects.filter(query_machine_list).distinct()
-            else:
-                data = Interface.objects.filter(query_machine_list & Q(machine__user__id = request.user.id)).distinct()
-            for d in data:
-                  recherche['machines_list'].append(d.machine)
-        if i == '2':
-            recherche['facture_list'] = Facture.objects.filter(query & date_query).distinct()
-        if i == '3':
-            recherche['ban_list'] = Ban.objects.filter(query).distinct()
-        if i == '4':
-            recherche['white_list'] = Whitelist.objects.filter(query).distinct()
-        if i == '5':
-            recherche['port_list'] = Port.objects.filter(details__icontains = search).distinct()
-            if not request.user.has_perms(('cableur',)):
-                recherche['port_list'] = None
-        if i == '6':
-            recherche['switch_list'] = Switch.objects.filter(details__icontains = search).distinct()
-            if not request.user.has_perms(('cableur',)):
-                recherche['switch_list'] = None
-    options, created = GeneralOption.objects.get_or_create()
-    search_display_page = options.search_display_page
+def finish_results(results, col, order):
+    """Sort the results by applying filters and then limit them to the
+    number of max results. Finally add the info of the nmax number of results
+    to the dict"""
 
-    for r in recherche:
-        if recherche[r] != None:
-            recherche[r] = recherche[r][:search_display_page]
+    results['users'] = SortTable.sort(
+        results['users'],
+        col,
+        order,
+        SortTable.USERS_INDEX
+    )
+    results['machines'] = SortTable.sort(
+        results['machines'],
+        col,
+        order,
+        SortTable.MACHINES_INDEX
+    )
+    results['factures'] = SortTable.sort(
+        results['factures'],
+        col,
+        order,
+        SortTable.COTISATIONS_INDEX
+    )
+    results['bans'] = SortTable.sort(
+        results['bans'],
+        col,
+        order,
+        SortTable.USERS_INDEX_BAN
+    )
+    results['whitelists'] = SortTable.sort(
+        results['whitelists'],
+        col,
+        order,
+        SortTable.USERS_INDEX_WHITE
+    )
+    results['rooms'] = SortTable.sort(
+        results['rooms'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX_ROOM
+    )
+    results['ports'] = SortTable.sort(
+        results['ports'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX_PORT
+    )
+    results['switches'] = SortTable.sort(
+        results['switches'],
+        col,
+        order,
+        SortTable.TOPOLOGIE_INDEX
+    )
 
-    recherche.update({'max_result': search_display_page})
+    options, _ = GeneralOption.objects.get_or_create()
+    max_result = options.search_display_page
+    for name, val in results.items():
+        results[name] = val.distinct()[:max_result]
+    results.update({'max_result': max_result})
 
-    return recherche
+    return results
+
+
+def search_single_word(word, filters, is_cableur, user_id,
+                       start, end, user_state, aff):
+    """ Construct the correct filters to match differents fields of some models
+    with the given query according to the given filters.
+    The match field are either CharField or IntegerField that will be displayed
+    on the results page (else, one might not see why a result has matched the
+    query). IntegerField are matched against the query only if it can be casted
+    to an int."""
+
+    # Users
+    if '0' in aff:
+        filter_users = (
+            Q(
+                surname__icontains=word
+            ) | Q(
+                adherent__name__icontains=word
+            ) | Q(
+                pseudo__icontains=word
+            ) | Q(
+                club__room__name__icontains=word
+            ) | Q(
+                adherent__room__name__icontains=word
+            )
+        ) & Q(state__in=user_state)
+        if not is_cableur:
+            filter_users &= Q(id=user_id)
+        filters['users'] |= filter_users
+
+    # Machines
+    if '1' in aff:
+        filter_machines = Q(
+            name__icontains=word
+        ) | (
+            Q(
+                user__pseudo__icontains=word
+            ) & Q(
+                user__state__in=user_state
+            )
+        ) | Q(
+            interface__domain__name__icontains=word
+        ) | Q(
+            interface__domain__related_domain__name__icontains=word
+        ) | Q(
+            interface__mac_address__icontains=word
+        ) | Q(
+            interface__ipv4__ipv4__icontains=word
+        )
+        if not is_cableur:
+            filter_machines &= Q(user__id=user_id)
+        filters['machines'] |= filter_machines
+
+    # Factures
+    if '2' in aff:
+        filter_factures = Q(
+            user__pseudo__icontains=word
+        ) & Q(
+            user__state__in=user_state
+        )
+        if start is not None:
+            filter_factures &= Q(date__gte=start)
+        if end is not None:
+            filter_factures &= Q(date__lte=end)
+        filters['factures'] |= filter_factures
+
+    # Bans
+    if '3' in aff:
+        filter_bans = (
+            Q(
+                user__pseudo__icontains=word
+            ) & Q(
+                user__state__in=user_state
+            )
+        ) | Q(
+            raison__icontains=word
+        )
+        if start is not None:
+            filter_bans &= (
+                Q(date_start__gte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__lte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__gte=start) & Q(date_end__lte=start)
+            )
+        if end is not None:
+            filter_bans &= (
+                Q(date_start__lte=end) & Q(date_end__lte=end)
+            ) | (
+                Q(date_start__lte=end) & Q(date_end__gte=end)
+            ) | (
+                Q(date_start__gte=end) & Q(date_end__lte=end)
+            )
+        filters['bans'] |= filter_bans
+
+    # Whitelists
+    if '4' in aff:
+        filter_whitelists = (
+            Q(
+                user__pseudo__icontains=word
+            ) & Q(
+                user__state__in=user_state
+            )
+        ) | Q(
+            raison__icontains=word
+        )
+        if start is not None:
+            filter_whitelists &= (
+                Q(date_start__gte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__lte=start) & Q(date_end__gte=start)
+            ) | (
+                Q(date_start__gte=start) & Q(date_end__lte=start)
+            )
+        if end is not None:
+            filter_whitelists &= (
+                Q(date_start__lte=end) & Q(date_end__lte=end)
+            ) | (
+                Q(date_start__lte=end) & Q(date_end__gte=end)
+            ) | (
+                Q(date_start__gte=end) & Q(date_end__lte=end)
+            )
+        filters['whitelists'] |= filter_whitelists
+
+    # Rooms
+    if '5' in aff and is_cableur:
+        filter_rooms = Q(
+            details__icontains=word
+        ) | Q(
+            name__icontains=word
+        ) | Q(
+            port__details=word
+        )
+        filters['rooms'] |= filter_rooms
+
+    # Switch ports
+    if '6' in aff and is_cableur:
+        filter_ports = Q(
+            room__name__icontains=word
+        ) | Q(
+            machine_interface__domain__name__icontains=word
+        ) | Q(
+            related__switch__switch_interface__domain__name__icontains=word
+        ) | Q(
+            radius__icontains=word
+        ) | Q(
+            vlan_force__name__icontains=word
+        ) | Q(
+            details__icontains=word
+        )
+        if is_int(word):
+            filter_ports |= Q(
+                port=word
+            )
+        filters['ports'] |= filter_ports
+
+    # Switches
+    if '7' in aff and is_cableur:
+        filter_switches = Q(
+            switch_interface__domain__name__icontains=word
+        ) | Q(
+            switch_interface__ipv4__ipv4__icontains=word
+        ) | Q(
+            location__icontains=word
+        ) | Q(
+            stack__name__icontains=word
+        ) | Q(
+            model__reference__icontains=word
+        ) | Q(
+            model__constructor__name__icontains=word
+        ) | Q(
+            details__icontains=word
+        )
+        if is_int(word):
+            filter_switches |= Q(
+                number=word
+            ) | Q(
+                stack_member_id=word
+            )
+        filters['switches'] |= filter_switches
+
+    return filters
+
+
+def get_words(query):
+    """Function used to split the uery in different words to look for.
+    The rules are simple :
+        - anti-slash ('\\') is used to escape characters
+        - anything between quotation marks ('"') is kept intact (not
+            interpreted as separators) excepts anti-slashes used to escape
+        - spaces (' ') and commas (',') are used to separated words
+    """
+
+    words = []
+    i = 0
+    keep_intact = False
+    escaping_char = False
+    for char in query:
+        if i >= len(words):
+            # We are starting a new word
+            words.append('')
+        if escaping_char:
+            # The last char war a \ so we escape this char
+            escaping_char = False
+            words[i] += char
+            continue
+        if char == '\\':
+            # We need to escape the next char
+            escaping_char = True
+            continue
+        if char == '"':
+            # Toogle the keep_intact state, if true, we are between two "
+            keep_intact = not keep_intact
+            continue
+        if keep_intact:
+            # If we are between two ", ignore separators
+            words[i] += char
+            continue
+        if char == ' ' or char == ',':
+            # If we encouter a separator outside of ", we create a new word
+            if words[i] is not '':
+                i += 1
+            continue
+        # If we haven't encountered any special case, add the char to the word
+        words[i] += char
+
+    return words
+
+
+def get_results(query, request, params):
+    """The main function of the search procedure. It gather the filters for
+    each of the different words of the query and concatenate them into a
+    single filter. Then it calls 'finish_results' and return the queryset of
+    objects to display as results"""
+
+    start = params.get('s', None)
+    end = params.get('e', None)
+    user_state = params.get('u', initial_choices(CHOICES_USER))
+    aff = params.get('a', initial_choices(CHOICES_AFF))
+
+    filters = {
+        'users': Q(),
+        'machines': Q(),
+        'factures': Q(),
+        'bans': Q(),
+        'whitelists': Q(),
+        'rooms': Q(),
+        'ports': Q(),
+        'switches': Q()
+    }
+
+    words = get_words(query)
+    for word in words:
+        filters = search_single_word(
+            word,
+            filters,
+            request.user.has_perms(('cableur',)),
+            request.user.id,
+            start,
+            end,
+            user_state,
+            aff
+        )
+
+    results = {
+        'users': User.objects.filter(filters['users']),
+        'machines': Machine.objects.filter(filters['machines']),
+        'factures': Facture.objects.filter(filters['factures']),
+        'bans': Ban.objects.filter(filters['bans']),
+        'whitelists': Whitelist.objects.filter(filters['whitelists']),
+        'rooms': Room.objects.filter(filters['rooms']),
+        'ports': Port.objects.filter(filters['ports']),
+        'switches': Switch.objects.filter(filters['switches'])
+    }
+
+    results = finish_results(
+        results,
+        request.GET.get('col'),
+        request.GET.get('order')
+    )
+    results.update({'search_term': query})
+
+    return results
+
 
 @login_required
 def search(request):
-    search = SearchForm(request.POST or None)
-    if search.is_valid():
-        return form(search_result(search, False, request), 'search/index.html',request)
-    return form({'searchform' : search}, 'search/search.html', request)
+    """ La page de recherche standard """
+    search_form = SearchForm(request.GET or None)
+    if search_form.is_valid():
+        return render(
+            request,
+            'search/index.html',
+            get_results(
+                search_form.cleaned_data.get('q', ''),
+                request,
+                search_form.cleaned_data
+            )
+        )
+    return render(request, 'search/search.html', {'search_form': search_form})
+
 
 @login_required
 def searchp(request):
-    search = SearchFormPlus(request.POST or None)
-    if search.is_valid():
-        return form(search_result(search, True, request), 'search/index.html',request)
-    return form({'searchform' : search}, 'search/search.html', request)
+    """ La page de recherche avancée """
+    search_form = SearchFormPlus(request.GET or None)
+    if search_form.is_valid():
+        return render(
+            request,
+            'search/index.html',
+            get_results(
+                search_form.cleaned_data.get('q', ''),
+                request,
+                search_form.cleaned_data
+            )
+        )
+    return render(request, 'search/search.html', {'search_form': search_form})
