@@ -35,7 +35,7 @@ from django.utils.functional import cached_property
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
 
-from field_permissions.models import FieldPermissionModelMixin
+from field_permissions.field_permissions.models import FieldPermissionModelMixin
 
 from macaddress.fields import MACAddressField
 

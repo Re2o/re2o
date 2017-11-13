@@ -1,0 +1,3 @@
+[submodule "field_permissions"]
+	path = field_permissions
+	url = https://github.com/tiliv/django-field-permissions.git
