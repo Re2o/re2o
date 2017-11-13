@@ -56,8 +56,7 @@ from .models import (
     OuverturePortList,
 )
 
-from field_permissions.fied_permissions.forms import FieldPermissionFormMixin
-
+from field_permissions.field_permissions.forms import FieldPermissionFormMixin
 
 class EditMachineForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
