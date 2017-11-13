@@ -45,21 +45,32 @@ CHOICES_AFF = (
 )
 
 
-def initial_choices(c):
+def initial_choices(choice_set):
     """Return the choices that should be activated by default for a
     given set of choices"""
-    return [i[0] for i in c]
+    return [i[0] for i in choice_set]
 
 
 class SearchForm(Form):
     """The form for a simple search"""
-    q = forms.CharField(label='Search', max_length=100)
+    q = forms.CharField(
+        label='Recherche',
+        help_text=(
+            'Utilisez « » et «,» pour spécifier différents mots, «"query"» '
+            'pour une recherche exacte et «\\» pour échapper un caractère.'
+        ),
+        max_length=100
+    )
 
 
 class SearchFormPlus(Form):
     """The form for an advanced search (with filters)"""
     q = forms.CharField(
-        label='Search',
+        label='Recherche',
+        help_text=(
+            'Utilisez « » et «,» pour spécifier différents mots, «"query"» '
+            'pour une recherche exacte et «\\» pour échapper un caractère.'
+        ),
         max_length=100,
         required=False
     )

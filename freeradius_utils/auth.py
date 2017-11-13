@@ -154,12 +154,13 @@ def authorize(data):
     else:
         nas_type = None
     if not nas_type or nas_type.port_access_mode == '802.1X':
-        user = data.get('User-Name', '')
+        user = data.get('User-Name', '').decode('utf-8', errors='replace')
         user = user.split('@', 1)[0]
         mac = data.get('Calling-Station-Id', '')
         result, log, password = check_user_machine_and_register(nas_type, user, mac) 
         logger.info(log.encode('utf-8'))
-        
+        logger.info(user.encode('utf-8'))
+
         if not result:
             return radiusd.RLM_MODULE_REJECT
         else:

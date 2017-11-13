@@ -16,7 +16,7 @@ dessus, qui accèdent à la base de donnée en passant par django (ex : dhcp), e
 chargeant la liste de toutes les mac-ip, ou la liste des mac-ip autorisées sur 
 le réseau (adhérent à jour de cotisation).
 
-#Installation
+# Installation
 
 ## Installation des dépendances
 
