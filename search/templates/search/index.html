@@ -28,38 +28,43 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Résultats de la recherche{% endblock %}
 
 {% block content %}
-    {% if users_list %}
+    {% if users %}
     <h2>Résultats dans les utilisateurs</h2>
-        {% include "users/aff_users.html" with users_list=users_list %}
+        {% include "users/aff_users.html" with users_list=users %}
     {% endif%}
-    {% if machines_list %}
+    {% if machines %}
     <h2>Résultats dans les machines : </h2>
-        {% include "machines/aff_machines.html" with machines_list=machines_list %}
+        {% include "machines/aff_machines.html" with machines_list=machines %}
     {% endif %}
-    {% if facture_list %}
+    {% if factures %}
     <h2>Résultats dans les factures : </h2>
-        {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
+        {% include "cotisations/aff_cotisations.html" with facture_list=factures %}
     {% endif %}
-    {% if white_list %}
+    {% if whitelists %}
     <h2>Résultats dans les accès à titre gracieux : </h2>
-        {% include "users/aff_whitelists.html" with white_list=white_list %}
+        {% include "users/aff_whitelists.html" with white_list=whitelists %}
     {% endif %}
-    {% if ban_list %}
+    {% if bans %}
     <h2>Résultats dans les banissements : </h2>
-        {% include "users/aff_bans.html" with ban_list=ban_list %}
+        {% include "users/aff_bans.html" with ban_list=bans %}
     {% endif %}
-    {% if switch_list %}
-    <h2>Résultats dans les switchs : </h2>
-        {% include "topologie/aff_switch.html" with switch_list=switch_list %}
+    {% if rooms %}
+    <h2>Résultats dans les chambres : </h2>
+        {% include "topologie/aff_chambres.html" with room_list=rooms %}
     {% endif %}
-    {% if port_list %}
+    {% if ports %}
     <h2>Résultats dans les ports : </h2>
-        {% include "topologie/aff_port.html" with port_list=port_list %}
+        {% include "topologie/aff_port.html" with port_list=ports %}
     {% endif %}
-    {% if not ban_list and not interfaces_list and not users_list and not facture_list and not white_list and not port_list and not switch_list%}
+    {% if switches %}
+    <h2>Résultats dans les switchs : </h2>
+        {% include "topologie/aff_switch.html" with switch_list=switches %}
+    {% endif %}
+    {% if not users and not machines and not factures and not whitelists and not bans and not rooms and not ports and not switches %}
         <h3>Aucun résultat</h3>
+    {% else %}
+        <h6>(Seulement les {{ max_result }} premiers résultats sont affichés dans chaque catégorie)</h6>
     {% endif %}
-    <h6>(Seulement les {{ max_result }} premiers résultats sont affichés dans chaque catégorie)</h6>
     <br />
     <br />
     <br />
