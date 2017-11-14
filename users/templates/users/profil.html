@@ -90,38 +90,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Fin d'adhésion</th>
             {% if user.end_adhesion != None %}
-            <td><font color="green">{{ user.end_adhesion }}</font></td>
+            <td><i class="text-success">{{ user.end_adhesion }}</i></td>
             {% else %}
-            <td><font color="red">Non adhérent</font></td>
+            <td><i class="text-danger">Non adhérent</i></td>
             {% endif %}
             <th>Accès gracieux</th>
             {% if user.end_whitelist != None %}
-            <td><font color="green">{{ user.end_whitelist }}</font></td>
+            <td><i class="text-success">{{ user.end_whitelist }}</i></td>
             {% else %}
-            <td><font color="orange">Aucun</font></td>
+            <td><i class="text-warning">Aucun</i></td>
             {% endif %}
         <tr>
             <th>Bannissement</th>
             {% if user.end_ban != None %}
-            <td><font color="red">{{ user.end_ban }}</font></td>
+            <td><i class="text-danger">{{ user.end_ban }}</i></td>
             {% else %}
-            <td><font color="green">Non banni</font></td>
+            <td><i class="text-success">Non banni</i></td>
             {% endif %}
             <th>Statut</th>
             {% if user.state == 0 %}
-            <td><font color="green">Actif</font></td>
+            <td><i class="text-success">Actif</i></td>
             {% elif user.state == 1 %}
-            <td><font color="red">Désactivé</font></td>
+            <td><i class="text-danger">Désactivé</i></td>
             {% else %}
-            <td><font color="orange">Archivé</font></td>
+            <td><i class="text-warning">Archivé</i></td>
             {% endif %}
         </tr>
         <tr>
             <th>Accès internet</th>
             {% if user.has_access == True %}
-	    <td><font color="green">Actif (jusqu'au {{ user.end_access }})</font></td>
+	    <td><i class="text-success">Actif (jusqu'au {{ user.end_access }})</i></td>
             {% else %}
-            <td><font color="red">Désactivé</font></td>
+            <td><i class="text-danger">Désactivé</i></td>
             {% endif %}
             <th>Droits</th>
             {% if list_droits %}
