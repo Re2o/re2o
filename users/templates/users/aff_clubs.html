@@ -44,9 +44,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ club.room }}</td>
             <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
             <td>{% if club.has_access == True %}
-                <font color="green">Active</font>
+                <i class="text-success">Active</i>
                 {% else %}
-                <font color="red">Désactivée</font>
+                <i class="text-danger">Désactivée</i>
                 {% endif %}
             </td>
             <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>

@@ -146,9 +146,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Connexion</th>
                                     <td class="text-right">
                                     {% if request_user.has_access %}
-				        <font color="green">jusqu'au {{ request.user.end_access|date:"d b Y" }}</font>
+				        <i class="text-success">jusqu'au {{ request.user.end_access|date:"d b Y" }}</i>
                                     {% else %}
-                                        <font color="red">Désactivée</font>
+				    	<i class="text-danger">Désactivée</i>
                                     {% endif %}
                                     </td>
                                 </tr>
@@ -156,9 +156,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Adhésion</th>
                                     <td class="text-right">
                                     {% if request_user.is_adherent %}
-                                        <font color="green">jusqu'au {{ request_user.end_adhesion|date:"d b Y" }}</font>
+                                        <i class="text-success">jusqu'au {{ request_user.end_adhesion|date:"d b Y" }}</i>
                                     {% else %}
-                                        <font color="red">Non adhérent</font>
+                                        <i class="text-danger">Non adhérent</i>
                                     {% endif %}
                                     </td>
                                 </tr>
