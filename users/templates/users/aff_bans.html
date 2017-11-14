@@ -56,3 +56,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 
+{% if ban_list.paginator %}
+{% include "pagination.html" with list=ban_list %}
+{% endif %}

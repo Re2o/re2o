@@ -78,3 +78,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </form>
 
 {% endblock %}
+{% if facture_list.paginator %}
+{% include "pagination.html" with list=facture_list %}
+{% endif %}

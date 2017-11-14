@@ -56,3 +56,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 
+{% if white_list.paginator %}
+{% include "pagination.html" with list=white_list %}
+{% endif %}
