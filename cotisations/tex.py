@@ -21,17 +21,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from django.template.loader import get_template
-from django.template import TemplateDoesNotExist, Context
-from django.http import HttpResponse, Http404, HttpResponseNotModified
-from django.core.cache import cache
+from django.template import Context
+from django.http import HttpResponse
 from django.conf import settings
-from django.shortcuts import redirect
+from django.utils.text import slugify
 
 import tempfile
 from subprocess import Popen, PIPE
 import os
-import shutil
-from hashlib import md5
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -39,9 +36,22 @@ CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
 
 
-def render_tex(request,tmp, ctx={}):
+def render_invoice(request, ctx={}):
+    filename = '_'.join([
+        'invoice', 
+        slugify(ctx['asso_name']),
+        slugify(ctx['dest'].pseudo),
+        str(ctx['DATE'].year),
+        str(ctx['DATE'].month),
+        str(ctx['DATE'].day),
+    ])
+    r = render_tex(request, 'cotisations/factures.tex', ctx)
+    r['Content-Disposition'] = ''.join(['attachment; filename="',filename,'.pdf"']) 
+    return r
+
+def render_tex(request, template, ctx={}):
     context = Context(ctx)
-    template = get_template('cotisations/factures.tex')
+    template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
     
     with tempfile.TemporaryDirectory() as tempdir:
@@ -55,6 +65,5 @@ def render_tex(request,tmp, ctx={}):
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
     r = HttpResponse(content_type='application/pdf')
-    #r['Content-Disposition'] = 'attachement; filename=texput.pdf' 
     r.write(pdf)
     return r
