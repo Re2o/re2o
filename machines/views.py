@@ -28,6 +28,7 @@
 
 from __future__ import unicode_literals
 
+from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -213,7 +214,7 @@ def new_machine(request, userid):
         user = User.objects.get(pk=userid)
     except User.DoesNotExist:
         messages.error(request, u"Utilisateur inexistant" )
-        return redirect("/machines/")
+        return redirect(reverse('machines:index'))
     options, created = OptionalMachine.objects.get_or_create()
     max_lambdauser_interfaces = options.max_lambdauser_interfaces
     if not request.user.has_perms(('cableur',)):
@@ -221,10 +222,16 @@ def new_machine(request, userid):
             messages.error(
                 request,
                 "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
         if user.user_interfaces().count() >= max_lambdauser_interfaces:
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain = DomainForm(request.POST or None, user=user)
@@ -250,7 +257,10 @@ def new_machine(request, userid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "La machine a été créée")
-            return redirect("/users/profil/" + str(user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(user.id)}
+                ))
     i_mbf_param = generate_ipv4_mbf_param( interface, False )
     return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
@@ -262,11 +272,14 @@ def edit_interface(request, interfaceid):
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('infra',)):
         if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
         machine_form = BaseEditMachineForm(request.POST or None, instance=interface.machine)
         interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface, infra=False)
     else:
@@ -290,7 +303,10 @@ def edit_interface(request, interfaceid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in domain_form.changed_data))
         messages.success(request, "La machine a été modifiée")
-        return redirect("/users/profil/" + str(interface.machine.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(interface.machine.user.id)}
+            ))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
@@ -301,17 +317,23 @@ def del_machine(request, machineid):
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
         messages.error(request, u"Machine inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)):
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(machine.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(machine.user.id)}
+                ))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             machine.delete()
             reversion.set_user(request.user)
         messages.success(request, "La machine a été détruite")
-        return redirect("/users/profil/" + str(machine.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(machine.user.id)}
+            ))
     return form({'objet': machine, 'objet_name': 'machine'}, 'machines/delete.html', request)
 
 @login_required
@@ -321,16 +343,22 @@ def new_interface(request, machineid):
         machine = Machine.objects.get(pk=machineid)
     except Machine.DoesNotExist:
         messages.error(request, u"Machine inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)):
         options, created = OptionalMachine.objects.get_or_create()
         max_lambdauser_interfaces = options.max_lambdauser_interfaces
         if machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
         if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
             messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
@@ -349,7 +377,10 @@ def new_interface(request, machineid):
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "L'interface a été ajoutée")
-            return redirect("/users/profil/" + str(machine.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(machine.user.id)}
+                ))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
     return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
@@ -360,11 +391,14 @@ def del_interface(request, interfaceid):
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)):
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     if request.method == "POST":
         machine = interface.machine
         with transaction.atomic(), reversion.create_revision():
@@ -373,7 +407,10 @@ def del_interface(request, interfaceid):
                machine.delete()
             reversion.set_user(request.user)
         messages.success(request, "L'interface a été détruite")
-        return redirect("/users/profil/" + str(request.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
 
 @login_required
@@ -387,7 +424,7 @@ def add_iptype(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Ce type d'ip a été ajouté")
-        return redirect("/machines/index_iptype")
+        return redirect(reverse('machines:index-iptype'))
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
@@ -398,7 +435,7 @@ def edit_iptype(request, iptypeid):
         iptype_instance = IpType.objects.get(pk=iptypeid)
     except IpType.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_iptype/")
+        return redirect(reverse('machines:index-iptype'))
     iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -406,7 +443,7 @@ def edit_iptype(request, iptypeid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in iptype.changed_data))
         messages.success(request, "Type d'ip modifié")
-        return redirect("/machines/index_iptype/")
+        return redirect(reverse('machines:index-iptype'))
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
@@ -424,7 +461,7 @@ def del_iptype(request):
                 messages.success(request, "Le type d'ip a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type d'ip %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % iptype_del)
-        return redirect("/machines/index_iptype")
+        return redirect(reverse('machines:index-iptype'))
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
@@ -437,7 +474,7 @@ def add_machinetype(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Ce type de machine a été ajouté")
-        return redirect("/machines/index_machinetype")
+        return redirect(reverse('machines:index-machinetype'))
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
@@ -447,7 +484,7 @@ def edit_machinetype(request, machinetypeid):
         machinetype_instance = MachineType.objects.get(pk=machinetypeid)
     except MachineType.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_machinetype/")
+        return redirect(reverse('machines:index-machinetype'))
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -455,7 +492,7 @@ def edit_machinetype(request, machinetypeid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machinetype.changed_data))
         messages.success(request, "Type de machine modifié")
-        return redirect("/machines/index_machinetype/")
+        return redirect(reverse('machines:index-machinetype'))
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
@@ -472,7 +509,7 @@ def del_machinetype(request):
                 messages.success(request, "Le type de machine a été supprimé")
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
-        return redirect("/machines/index_machinetype")
+        return redirect(reverse('machines:index-machinetype'))
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
@@ -485,7 +522,7 @@ def add_extension(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cette extension a été ajoutée")
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
@@ -495,7 +532,7 @@ def edit_extension(request, extensionid):
         extension_instance = Extension.objects.get(pk=extensionid)
     except Extension.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     extension = ExtensionForm(request.POST or None, instance=extension_instance)
     if extension.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -503,7 +540,7 @@ def edit_extension(request, extensionid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
         messages.success(request, "Extension modifiée")
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
@@ -520,7 +557,7 @@ def del_extension(request):
                 messages.success(request, "L'extension a été supprimée")
             except ProtectedError:
                 messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
@@ -533,7 +570,7 @@ def add_soa(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement SOA a été ajouté")
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'soaform': soa}, 'machines/machine.html', request)
 
 @login_required
@@ -543,7 +580,7 @@ def edit_soa(request, soaid):
         soa_instance = SOA.objects.get(pk=soaid)
     except SOA.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     soa = SOAForm(request.POST or None, instance=soa_instance)
     if soa.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -551,7 +588,7 @@ def edit_soa(request, soaid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in soa.changed_data))
         messages.success(request, "SOA modifié")
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     return form({'soaform': soa}, 'machines/machine.html', request)
 
 @login_required
@@ -568,7 +605,7 @@ def del_soa(request):
                 messages.success(request, "Le SOA a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le SOA suivant %s ne peut être supprimé" % soa_del)
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'soaform': soa}, 'machines/machine.html', request)
 
 @login_required
@@ -581,7 +618,7 @@ def add_mx(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement mx a été ajouté")
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
@@ -591,7 +628,7 @@ def edit_mx(request, mxid):
         mx_instance = Mx.objects.get(pk=mxid)
     except Mx.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -599,7 +636,7 @@ def edit_mx(request, mxid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in mx.changed_data))
         messages.success(request, "Mx modifié")
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
@@ -616,7 +653,7 @@ def del_mx(request):
                 messages.success(request, "L'mx a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Mx suivant %s ne peut être supprimé" % mx_del)
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
@@ -629,7 +666,7 @@ def add_ns(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement ns a été ajouté")
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
@@ -639,7 +676,7 @@ def edit_ns(request, nsid):
         ns_instance = Ns.objects.get(pk=nsid)
     except Ns.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     ns = NsForm(request.POST or None, instance=ns_instance)
     if ns.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -647,7 +684,7 @@ def edit_ns(request, nsid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ns.changed_data))
         messages.success(request, "Ns modifié")
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
@@ -664,7 +701,7 @@ def del_ns(request):
                 messages.success(request, "Le ns a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Ns suivant %s ne peut être supprimé" % ns_del)
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
@@ -677,7 +714,7 @@ def add_txt(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement text a été ajouté")
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
@@ -687,7 +724,7 @@ def edit_txt(request, txtid):
         txt_instance = Text.objects.get(pk=txtid)
     except Text.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     txt = TxtForm(request.POST or None, instance=txt_instance)
     if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -695,7 +732,7 @@ def edit_txt(request, txtid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in txt.changed_data))
         messages.success(request, "Txt modifié")
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
@@ -712,7 +749,7 @@ def del_txt(request):
                 messages.success(request, "Le txt a été supprimé")
             except ProtectedError:
                 messages.error(request, "Erreur le Txt suivant %s ne peut être supprimé" % txt_del)
-        return redirect("/machines/index_extension")
+        return redirect(reverse('machines:index-extension'))
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
@@ -721,16 +758,22 @@ def add_alias(request, interfaceid):
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)):
         options, created = OptionalMachine.objects.get_or_create()
         max_lambdauser_aliases = options.max_lambdauser_aliases
         if interface.machine.user != request.user:
             messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
         if Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent__in=interface.machine.user.user_interfaces())).count() >= max_lambdauser_aliases:
             messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_aliases)
-            return redirect("/users/profil/" + str(request.user.id))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -740,7 +783,10 @@ def add_alias(request, interfaceid):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet alias a été ajouté")
-        return redirect("/machines/index_alias/" + str(interfaceid))
+        return redirect(reverse(
+            'machines:index-alias', 
+            kwargs={'interfaceid':str(interfaceid)}
+            ))
     return form({'aliasform': alias}, 'machines/machine.html', request)
 
 @login_required
@@ -749,10 +795,13 @@ def edit_alias(request, aliasid):
         alias_instance = Domain.objects.get(pk=aliasid)
     except Domain.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     if not request.user.has_perms(('cableur',)) and alias_instance.cname.interface_parent.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     alias = AliasForm(request.POST or None, instance=alias_instance, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -760,7 +809,10 @@ def edit_alias(request, aliasid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
         messages.success(request, "Alias modifié")
-        return redirect("/machines/index_alias/" + str(alias_instance.cname.interface_parent.id))
+        return redirect(reverse(
+            'machines:index-alias', 
+            kwargs={'interfaceid':str(alias_instance.cname.interface_parent.id)}
+            ))
     return form({'aliasform': alias}, 'machines/machine.html', request)
 
 @login_required
@@ -769,10 +821,13 @@ def del_alias(request, interfaceid):
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     alias = DelAliasForm(request.POST or None, interface=interface)
     if alias.is_valid():
         alias_dels = alias.cleaned_data['alias']
@@ -784,7 +839,10 @@ def del_alias(request, interfaceid):
                 messages.success(request, "L'alias %s a été supprimé" % alias_del)
             except ProtectedError:
                 messages.error(request, "Erreur l'alias suivant %s ne peut être supprimé" % alias_del)
-        return redirect("/machines/index_alias/" + str(interfaceid))
+        return redirect(reverse(
+            'machines:index-alias', 
+            kwargs={'interfaceid':str(interfaceid)}
+            ))
     return form({'aliasform': alias}, 'machines/machine.html', request)
 
 
@@ -798,7 +856,7 @@ def add_service(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement service a été ajouté")
-        return redirect("/machines/index_service")
+        return redirect(reverse('machines:index-service'))
     return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
@@ -808,7 +866,7 @@ def edit_service(request, serviceid):
         service_instance = Service.objects.get(pk=serviceid)
     except Ns.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_extension/")
+        return redirect(reverse('machines:index-extension'))
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -816,7 +874,7 @@ def edit_service(request, serviceid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in service.changed_data))
         messages.success(request, "Service modifié")
-        return redirect("/machines/index_service/")
+        return redirect(reverse('machines:index-service'))
     return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
@@ -833,7 +891,7 @@ def del_service(request):
                 messages.success(request, "Le service a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % service_del)
-        return redirect("/machines/index_service")
+        return redirect(reverse('machines:index-service'))
     return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
@@ -846,7 +904,7 @@ def add_vlan(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement vlan a été ajouté")
-        return redirect("/machines/index_vlan")
+        return redirect(reverse('machines:index-vlan'))
     return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
@@ -856,7 +914,7 @@ def edit_vlan(request, vlanid):
         vlan_instance = Vlan.objects.get(pk=vlanid)
     except Vlan.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_vlan/")
+        return redirect(reverse('machines:index-vlan'))
     vlan = VlanForm(request.POST or None, instance=vlan_instance)
     if vlan.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -864,7 +922,7 @@ def edit_vlan(request, vlanid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in vlan.changed_data))
         messages.success(request, "Vlan modifié")
-        return redirect("/machines/index_vlan/")
+        return redirect(reverse('machines:index-vlan'))
     return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
@@ -881,7 +939,7 @@ def del_vlan(request):
                 messages.success(request, "Le vlan a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
-        return redirect("/machines/index_vlan")
+        return redirect(reverse('machines:index-vlan'))
     return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
@@ -894,7 +952,7 @@ def add_nas(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement nas a été ajouté")
-        return redirect("/machines/index_nas")
+        return redirect(reverse('machines:index-nas'))
     return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
@@ -904,7 +962,7 @@ def edit_nas(request, nasid):
         nas_instance = Nas.objects.get(pk=nasid)
     except Nas.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
-        return redirect("/machines/index_nas/")
+        return redirect(reverse('machines:index-nas'))
     nas = NasForm(request.POST or None, instance=nas_instance)
     if nas.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -912,7 +970,7 @@ def edit_nas(request, nasid):
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in nas.changed_data))
         messages.success(request, "Nas modifié")
-        return redirect("/machines/index_nas/")
+        return redirect(reverse('machines:index-nas'))
     return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
@@ -929,7 +987,7 @@ def del_nas(request):
                 messages.success(request, "Le nas a été supprimé")
             except ProtectedError:
                 messages.error(request, "Erreur le Nas suivant %s ne peut être supprimé" % nas_del)
-        return redirect("/machines/index_nas")
+        return redirect(reverse('machines:index-nas'))
     return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
@@ -996,10 +1054,13 @@ def index_alias(request, interfaceid):
         interface = Interface.objects.get(pk=interfaceid)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
         messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-        return redirect("/users/profil/" + str(request.user.id))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     alias_list = Domain.objects.filter(cname=Domain.objects.filter(interface_parent=interface)).order_by('name')
     return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
 
@@ -1014,94 +1075,103 @@ def index_service(request):
 def history(request, object, id):
     if object == 'machine':
         try:
-             object_instance = Machine.objects.get(pk=id)
+            object_instance = Machine.objects.get(pk=id)
         except Machine.DoesNotExist:
-             messages.error(request, "Machine inexistante")
-             return redirect("/machines/")
+            messages.error(request, "Machine inexistante")
+            return redirect(reverse('machines:index'))
         if not request.user.has_perms(('cableur',)) and object_instance.user != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher l'historique d'une machine d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
+            messages.error(request, "Vous ne pouvez pas afficher l'historique d'une machine d'un autre user que vous sans droit cableur")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     elif object == 'interface':
         try:
-             object_instance = Interface.objects.get(pk=id)
+            object_instance = Interface.objects.get(pk=id)
         except Interface.DoesNotExist:
-             messages.error(request, "Interface inexistante")
-             return redirect("/machines/")
+            messages.error(request, "Interface inexistante")
+            return redirect(reverse('machines:index'))
         if not request.user.has_perms(('cableur',)) and object_instance.machine.user != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher l'historique d'une interface d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
+            messages.error(request, "Vous ne pouvez pas afficher l'historique d'une interface d'un autre user que vous sans droit cableur")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     elif object == 'alias':
         try:
-             object_instance = Domain.objects.get(pk=id)
+            object_instance = Domain.objects.get(pk=id)
         except Domain.DoesNotExist:
-             messages.error(request, "Alias inexistant")
-             return redirect("/machines/")
+            messages.error(request, "Alias inexistant")
+            return redirect(reverse('machines:index'))
         if not request.user.has_perms(('cableur',)) and object_instance.cname.interface_parent.machine.user != request.user:
-             messages.error(request, "Vous ne pouvez pas afficher l'historique d'un alias d'un autre user que vous sans droit cableur")
-             return redirect("/users/profil/" + str(request.user.id))
+            messages.error(request, "Vous ne pouvez pas afficher l'historique d'un alias d'un autre user que vous sans droit cableur")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(request.user.id)}
+                ))
     elif object == 'machinetype' and request.user.has_perms(('cableur',)):
         try:
              object_instance = MachineType.objects.get(pk=id)
         except MachineType.DoesNotExist:
              messages.error(request, "Type de machine inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'iptype' and request.user.has_perms(('cableur',)):
         try:
              object_instance = IpType.objects.get(pk=id)
         except IpType.DoesNotExist:
              messages.error(request, "Type d'ip inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'extension' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Extension.objects.get(pk=id)
         except Extension.DoesNotExist:
              messages.error(request, "Extension inexistante")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'soa' and request.user.has_perms(('cableur',)):
         try:
              object_instance = SOA.objects.get(pk=id)
         except SOA.DoesNotExist:
              messages.error(request, "SOA inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'mx' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Mx.objects.get(pk=id)
         except Mx.DoesNotExist:
              messages.error(request, "Mx inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'txt' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Text.objects.get(pk=id)
         except Text.DoesNotExist:
              messages.error(request, "Txt inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Ns.objects.get(pk=id)
         except Ns.DoesNotExist:
              messages.error(request, "Ns inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'service' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Service.objects.get(pk=id)
         except Service.DoesNotExist:
              messages.error(request, "Service inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'vlan' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Vlan.objects.get(pk=id)
         except Vlan.DoesNotExist:
              messages.error(request, "Vlan inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     elif object == 'nas' and request.user.has_perms(('cableur',)):
         try:
              object_instance = Nas.objects.get(pk=id)
         except Nas.DoesNotExist:
              messages.error(request, "Nas inexistant")
-             return redirect("/machines/")
+             return redirect(reverse('machines:index'))
     else:
         messages.error(request, "Objet  inconnu")
-        return redirect("/machines/")
+        return redirect(reverse('machines:index'))
     options, created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
@@ -1133,7 +1203,7 @@ def edit_portlist(request, pk):
         port_list_instance = OuverturePortList.objects.get(pk=pk)
     except OuverturePortList.DoesNotExist:
         messages.error(request, "Liste de ports inexistante")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     port_list = EditOuverturePortListForm(request.POST or None, instance=port_list_instance)
     port_formset = modelformset_factory(
             OuverturePort,
@@ -1152,7 +1222,7 @@ def edit_portlist(request, pk):
             port.port_list = pl
             port.save()
         messages.success(request, "Liste de ports modifiée")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
 
 @login_required
@@ -1162,13 +1232,13 @@ def del_portlist(request, pk):
         port_list_instance = OuverturePortList.objects.get(pk=pk)
     except OuverturePortList.DoesNotExist:
         messages.error(request, "Liste de ports inexistante")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     if port_list_instance.interface_set.all():
         messages.error(request, "Cette liste de ports est utilisée")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     port_list_instance.delete()
     messages.success(request, "La liste de ports a été supprimée")
-    return redirect("/machines/index_portlist/")
+    return redirect(reverse('machines:index-portlist'))
 
 @login_required
 @permission_required('bureau')
@@ -1191,13 +1261,13 @@ def add_portlist(request):
             port.port_list = pl
             port.save()
         messages.success(request, "Liste de ports créée")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
     port_list = EditOuverturePortListForm(request.POST or None)
     if port_list.is_valid():
         port_list.save()
         messages.success(request, "Liste de ports créée")
-        return redirect("/machines/index_portlist/")
+        return redirect(reverse('machines:index-portlist'))
     return form({'machineform' : port_list}, 'machines/machine.html', request)
 
 @login_required
@@ -1207,14 +1277,14 @@ def configure_ports(request, pk):
         interface_instance = Interface.objects.get(pk=pk)
     except Interface.DoesNotExist:
         messages.error(request, u"Interface inexistante" )
-        return redirect("/machines")
+        return redirect(reverse('machines:index'))
     if not interface_instance.may_have_port_open():
         messages.error(request, "Attention, l'ipv4 n'est pas publique, l'ouverture n'aura pas d'effet en v4")
     interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
     if interface.is_valid():
         interface.save()
         messages.success(request, "Configuration des ports mise à jour.")
-        return redirect("/machines/")
+        return redirect(reverse('machines:index'))
     return form({'interfaceform' : interface}, 'machines/machine.html', request)
 
 """ Framework Rest """

@@ -30,6 +30,7 @@ topologie, users, service...)
 
 from __future__ import unicode_literals
 
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
@@ -93,7 +94,7 @@ def edit_options(request, section):
                     )
                 )
             messages.success(request, "Préférences modifiées")
-            return redirect("/preferences/")
+            return redirect(reverse('preferences:display-options'))
         return form(
             {'options': options},
             'preferences/edit_preferences.html',
@@ -101,7 +102,7 @@ def edit_options(request, section):
             )
     else:
         messages.error(request, "Objet  inconnu")
-        return redirect("/preferences/")
+        return redirect(reverse('preferences:display-options'))
 
 
 @login_required
@@ -115,7 +116,7 @@ def add_services(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement ns a été ajouté")
-        return redirect("/preferences/")
+        return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services},
         'preferences/preferences.html',
@@ -131,7 +132,7 @@ def edit_services(request, servicesid):
         services_instance = Service.objects.get(pk=servicesid)
     except Service.DoesNotExist:
         messages.error(request, u"Entrée inexistante")
-        return redirect("/preferences/")
+        return redirect(reverse('preferences:display-options'))
     services = ServiceForm(request.POST or None, instance=services_instance)
     if services.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -143,7 +144,7 @@ def edit_services(request, servicesid):
                     )
             )
         messages.success(request, "Service modifié")
-        return redirect("/preferences/")
+        return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services},
         'preferences/preferences.html',
@@ -167,7 +168,7 @@ def del_services(request):
             except ProtectedError:
                 messages.error(request, "Erreur le service\
                 suivant %s ne peut être supprimé" % services_del)
-        return redirect("/preferences/")
+        return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services},
         'preferences/preferences.html',
@@ -185,7 +186,7 @@ def history(request, object_name, object_id):
             object_instance = Service.objects.get(pk=object_id)
         except Service.DoesNotExist:
             messages.error(request, "Service inexistant")
-            return redirect("/preferences/")
+            return redirect(reverse('preferences:display-options'))
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
