@@ -61,7 +61,7 @@ from .forms import (
     SelectClubArticleForm,
     CreditSoldeForm
 )
-from .tex import render_tex
+from .tex import render_invoice
 
 
 @login_required
@@ -182,7 +182,7 @@ def new_facture_pdf(request):
             tbl.append([art, quantite, art.prix * quantite])
         prix_total = sum(a[2] for a in tbl)
         user = {'name': destinataire, 'room': chambre}
-        return render_tex(request, 'cotisations/factures.tex', {
+        return render_invoice(request, {
             'DATE': timezone.now(),
             'dest': user,
             'fid': fid,
@@ -233,7 +233,7 @@ def facture_pdf(request, factureid):
     options, _created = AssoOption.objects.get_or_create()
     for vente in ventes_objects:
         ventes.append([vente, vente.number, vente.prix_total])
-    return render_tex(request, 'cotisations/factures.tex', {
+    return render_invoice(request, {
         'paid': True,
         'fid': facture.id,
         'DATE': facture.date,
