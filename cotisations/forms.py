@@ -56,8 +56,10 @@ class NewFactureForm(ModelForm):
         self.fields['banque'].empty_label = "Non renseigné"
         self.fields['paiement'].empty_label = "Séléctionner\
         un moyen de paiement"
-        self.fields['paiement'].widget.attrs['data-cheque'] = Paiement.objects\
-            .filter(type_paiement=1).first().id
+        paiement_list = Paiement.objects.filter(type_paiement=1)
+        if paiement_list:
+            self.fields['paiement'].widget\
+                .attrs['data-cheque'] = paiement_list.first().id
 
     class Meta:
         model = Facture
