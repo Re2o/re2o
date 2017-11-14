@@ -144,4 +144,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endfor %}
     </table>
 
-
+{% if versions_list.paginator %}
+{% include "pagination.html" with list=versions_list %}
+{% endif %}
