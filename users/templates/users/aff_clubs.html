@@ -55,3 +55,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 
+{% if clubs_list.paginator %}
+{% include "pagination.html" with list=clubs_list %} 
+{% endif %}

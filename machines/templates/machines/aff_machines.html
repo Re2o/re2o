@@ -126,3 +126,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </tbody>
 </table>
 
+{% if machines_list.paginator %}
+{% include "pagination.html" with list=machines_list %}
+{% endif %}

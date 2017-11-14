@@ -57,3 +57,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 
+{% if users_list.paginator %}
+{% include "pagination.html" with list=users_list %} 
+{% endif %}
