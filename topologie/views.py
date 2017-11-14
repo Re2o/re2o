@@ -35,14 +35,14 @@ coté models et forms de topologie
 """
 from __future__ import unicode_literals
 
-import itertools
-
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
 from reversion.models import Version
@@ -118,40 +118,40 @@ def history(request, object_name, object_id):
             object_instance = Switch.objects.get(pk=object_id)
         except Switch.DoesNotExist:
             messages.error(request, "Switch inexistant")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     elif object_name == 'port':
         try:
             object_instance = Port.objects.get(pk=object_id)
         except Port.DoesNotExist:
             messages.error(request, "Port inexistant")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     elif object_name == 'room':
         try:
             object_instance = Room.objects.get(pk=object_id)
         except Room.DoesNotExist:
             messages.error(request, "Chambre inexistante")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     elif object_name == 'stack':
         try:
             object_instance = Stack.objects.get(pk=object_id)
         except Room.DoesNotExist:
             messages.error(request, "Stack inexistante")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     elif object_name == 'model_switch':
         try:
             object_instance = ModelSwitch.objects.get(pk=object_id)
         except ModelSwitch.DoesNotExist:
             messages.error(request, "SwitchModel inexistant")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     elif object_name == 'constructor_switch':
         try:
             object_instance = ConstructorSwitch.objects.get(pk=object_id)
         except ConstructorSwitch.DoesNotExist:
             messages.error(request, "SwitchConstructor inexistant")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
     else:
         messages.error(request, "Objet  inconnu")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
     reversions = Version.objects.get_for_object(object_instance)
@@ -179,7 +179,7 @@ def index_port(request, switch_id):
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
     port_list = Port.objects.filter(switch=switch)\
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
@@ -278,7 +278,7 @@ def new_port(request, switch_id):
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
     port = AddPortForm(request.POST or None)
     if port.is_valid():
         port = port.save(commit=False)
@@ -291,7 +291,10 @@ def new_port(request, switch_id):
             messages.success(request, "Port ajouté")
         except IntegrityError:
             messages.error(request, "Ce port existe déjà")
-        return redirect("/topologie/switch/" + switch_id)
+        return redirect(reverse(
+            'topologie:index-port', 
+            kwargs={'switch_id':switch_id}
+            ))
     return form({'topoform': port}, 'topologie/topo.html', request)
 
 
@@ -310,7 +313,7 @@ def edit_port(request, port_id):
             .get(pk=port_id)
     except Port.DoesNotExist:
         messages.error(request, u"Port inexistant")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
     port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -320,7 +323,10 @@ def edit_port(request, port_id):
                 field for field in port.changed_data
                 ))
         messages.success(request, "Le port a bien été modifié")
-        return redirect("/topologie/switch/" + str(port_object.switch.id))
+        return redirect(reverse(
+            'topologie:index-port',
+            kwargs={'switch_id': str(port_object.switch.id)}
+            ))
     return form({'topoform': port}, 'topologie/topo.html', request)
 
 
@@ -332,7 +338,7 @@ def del_port(request, port_id):
         port = Port.objects.get(pk=port_id)
     except Port.DoesNotExist:
         messages.error(request, u"Port inexistant")
-        return redirect('/topologie/')
+        return redirect(reverse('topologie:index'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -343,7 +349,10 @@ def del_port(request, port_id):
         except ProtectedError:
             messages.error(request, "Le port %s est affecté à un autre objet,\
                 impossible de le supprimer" % port)
-        return redirect('/topologie/switch/' + str(port.switch.id))
+        return redirect(reverse(
+            'topologie:index-port',
+            kwargs={'switch_id':str(port.switch.id)}
+            ))
     return form({'objet': port}, 'topologie/delete.html', request)
 
 
@@ -369,7 +378,7 @@ def edit_stack(request, stack_id):
         stack = Stack.objects.get(pk=stack_id)
     except Stack.DoesNotExist:
         messages.error(request, u"Stack inexistante")
-        return redirect('/topologie/index_stack/')
+        return redirect(reverse('topologie:index-stack'))
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -380,7 +389,7 @@ def edit_stack(request, stack_id):
                     field for field in stack.changed_data
                     )
                 )
-        return redirect('/topologie/index_stack')
+            return redirect(reverse('topologie:index-stack'))
     return form({'topoform': stack}, 'topologie/topo.html', request)
 
 
@@ -392,7 +401,7 @@ def del_stack(request, stack_id):
         stack = Stack.objects.get(pk=stack_id)
     except Stack.DoesNotExist:
         messages.error(request, u"Stack inexistante")
-        return redirect('/topologie/index_stack')
+        return redirect(reverse('topologie:index-stack'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -403,7 +412,7 @@ def del_stack(request, stack_id):
         except ProtectedError:
             messages.error(request, "La stack %s est affectée à un autre\
                 objet, impossible de la supprimer" % stack)
-        return redirect('/topologie/index_stack')
+            return redirect(reverse('topologie:index-stack'))
     return form({'objet': stack}, 'topologie/delete.html', request)
 
 
@@ -415,7 +424,7 @@ def edit_switchs_stack(request, stack_id):
         stack = Stack.objects.get(pk=stack_id)
     except Stack.DoesNotExist:
         messages.error(request, u"Stack inexistante")
-        return redirect('/topologie/index_stack')
+        return redirect(reverse('topologie:index-stack'))
     if request.method == "POST":
         pass
     else:
@@ -445,7 +454,7 @@ def new_switch(request):
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
-            return redirect("/topologie/")
+            return redirect(reverse('topologie:index'))
         new_machine = machine.save(commit=False)
         new_machine.user = user
         new_interface = interface.save(commit=False)
@@ -471,8 +480,8 @@ def new_switch(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Le switch a été créé")
-        return redirect("/topologie/")
-    i_mbf_param = generate_ipv4_mbf_param(interface, False)
+        return redirect(reverse('topologie:index'))
+    i_mbf_param = generate_ipv4_mbf_param( interface, False)
     return form({
         'topoform': switch,
         'machineform': machine,
@@ -491,42 +500,28 @@ def create_ports(request, switch_id):
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
-
+    
     s_begin = s_end = 0
     nb_ports = switch.ports.count()
     if nb_ports > 0:
         ports = switch.ports.order_by('port').values('port')
         s_begin = ports.first().get('port')
         s_end = ports.last().get('port')
-
+    
     port_form = CreatePortsForm(
         request.POST or None,
         initial={'begin': s_begin, 'end': s_end}
     )
+
     if port_form.is_valid():
         begin = port_form.cleaned_data['begin']
         end = port_form.cleaned_data['end']
-        if end < begin:
-            messages.error(request, "Port de fin inférieur au port de début !")
-            return redirect("/topologie/switch/" + str(switch.id))
-        if end - begin > switch.number:
-            messages.error(request, "Ce switch ne peut avoir autant de ports.")
-            return redirect("/topologie/switch/" + str(switch.id))
+        try:
+            switch.create_ports(begin, end)
+            messages.success(request, "Ports créés.")
+        except ValidationError as e:
+            messages.error(request, ''.join(e))
 
-        begin_range = range(begin, s_begin)
-        end_range = range(s_end+1, end+1)
-        for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = switch
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Création")
-                messages.success(request, "Création du port %d" % i)
-            except IntegrityError:
-                messages.error(request, "Création d'un port existant.")
         return redirect("/topologie/switch/" + str(switch.id))
 
     return form({'topoform': port_form}, 'topologie/switch.html', request)
@@ -541,7 +536,7 @@ def edit_switch(request, switch_id):
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
     switch_form = EditSwitchForm(request.POST or None, instance=switch)
     machine_form = EditMachineForm(
         request.POST or None,
@@ -588,8 +583,8 @@ def edit_switch(request, switch_id):
                 field for field in switch_form.changed_data)
                                  )
         messages.success(request, "Le switch a bien été modifié")
-        return redirect("/topologie/")
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
+        return redirect(reverse('topologie'))
+    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
     return form({
         'topoform': switch_form,
         'machineform': machine_form,
@@ -610,7 +605,7 @@ def new_room(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "La chambre a été créé")
-        return redirect("/topologie/index_room/")
+        return redirect(reverse('topologie:index-room'))
     return form({'topoform': room}, 'topologie/topo.html', request)
 
 
@@ -622,7 +617,7 @@ def edit_room(request, room_id):
         room = Room.objects.get(pk=room_id)
     except Room.DoesNotExist:
         messages.error(request, u"Chambre inexistante")
-        return redirect("/topologie/index_room/")
+        return redirect(reverse('topologie:index-room'))
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -632,7 +627,7 @@ def edit_room(request, room_id):
                 field for field in room.changed_data)
                                  )
         messages.success(request, "La chambre a bien été modifiée")
-        return redirect("/topologie/index_room/")
+        return redirect(reverse('topologie:index-room'))
     return form({'topoform': room}, 'topologie/topo.html', request)
 
 
@@ -644,7 +639,7 @@ def del_room(request, room_id):
         room = Room.objects.get(pk=room_id)
     except Room.DoesNotExist:
         messages.error(request, u"Chambre inexistante")
-        return redirect("/topologie/index_room/")
+        return redirect(reverse('topologie:index-room'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -655,7 +650,7 @@ def del_room(request, room_id):
         except ProtectedError:
             messages.error(request, "La chambre %s est affectée à un autre objet,\
                 impossible de la supprimer (switch ou user)" % room)
-        return redirect("/topologie/index_room/")
+            return redirect(reverse('topologie:index-room'))
     return form({
         'objet': room,
         'objet_name': 'Chambre'

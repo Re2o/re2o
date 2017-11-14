@@ -37,10 +37,15 @@ la prise
 
 from __future__ import unicode_literals
 
+import itertools
+
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.db import transaction
+from reversion import revisions as reversion
 
 
 class Stack(models.Model):
@@ -125,6 +130,32 @@ class Switch(models.Model):
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
+    def create_ports(self, begin, end):
+        """ Crée les ports de begin à end si les valeurs données sont cohérentes. """
+
+        s_begin = s_end = 0
+        nb_ports = self.ports.count()
+        if nb_ports > 0:
+            ports = self.ports.order_by('port').values('port')
+            s_begin = ports.first().get('port')
+            s_end = ports.last().get('port')
+
+        if end < begin:
+            raise ValidationError("Port de fin inférieur au port de début !")
+        if end - begin > self.number:
+            raise ValidationError("Ce switch ne peut avoir autant de ports.")
+        begin_range = range(begin, s_begin)
+        end_range = range(s_end+1, end+1)
+        for i in itertools.chain(begin_range, end_range):
+            port = Port()
+            port.switch = self
+            port.port = i
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    port.save()
+                    reversion.set_comment("Création")
+            except IntegrityError:
+                ValidationError("Création d'un port existant.")
 
 
 class ModelSwitch(models.Model):
