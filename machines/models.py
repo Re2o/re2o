@@ -382,13 +382,13 @@ class Ns(models.Model):
         return str(self.zone) + ' ' + str(self.ns)
 
 
-class Text(models.Model):
+class Txt(models.Model):
     """ Un enregistrement TXT associé à une extension"""
     PRETTY_NAME = "Enregistrement TXT"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
-    field2 = models.CharField(max_length=255)
+    field2 = models.TextField(max_length=2047)
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -920,13 +920,13 @@ def ns_post_delete(sender, **kwargs):
     regen('dns')
 
 
-@receiver(post_save, sender=Text)
+@receiver(post_save, sender=Txt)
 def text_post_save(sender, **kwargs):
     """Regeneration dns après modification d'un TXT"""
     regen('dns')
 
 
-@receiver(post_delete, sender=Text)
+@receiver(post_delete, sender=Txt)
 def text_post_delete(sender, **kwargs):
     """Regeneration dns après modification d'un TX"""
     regen('dns')
