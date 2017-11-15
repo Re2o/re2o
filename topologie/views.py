@@ -583,7 +583,7 @@ def edit_switch(request, switch_id):
                 field for field in switch_form.changed_data)
                                  )
         messages.success(request, "Le switch a bien été modifié")
-        return redirect(reverse('topologie'))
+        return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
     return form({
         'topoform': switch_form,
