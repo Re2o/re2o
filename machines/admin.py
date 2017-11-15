@@ -27,7 +27,7 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import IpType, Machine, MachineType, Domain, IpList, Interface
-from .models import Extension, SOA, Mx, Ns, Vlan, Text, Nas, Service
+from .models import Extension, SOA, Mx, Ns, Vlan, Txt, Nas, Service
 from .models import OuverturePort, OuverturePortList
 
 
@@ -63,7 +63,7 @@ class NsAdmin(VersionAdmin):
     pass
 
 
-class TextAdmin(VersionAdmin):
+class TxtAdmin(VersionAdmin):
     pass
 
 
@@ -102,7 +102,7 @@ admin.site.register(Extension, ExtensionAdmin)
 admin.site.register(SOA, SOAAdmin)
 admin.site.register(Mx, MxAdmin)
 admin.site.register(Ns, NsAdmin)
-admin.site.register(Text, TextAdmin)
+admin.site.register(Txt, TxtAdmin)
 admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)

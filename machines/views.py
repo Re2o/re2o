@@ -48,7 +48,7 @@ from machines.serializers import ( FullInterfaceSerializer,
     InterfaceSerializer,
     TypeSerializer,
     DomainSerializer,
-    TextSerializer,
+    TxtSerializer,
     MxSerializer,
     ExtensionSerializer,
     ServiceServersSerializer,
@@ -109,7 +109,7 @@ from .models import (
     Service_link,
     Vlan,
     Nas,
-    Text,
+    Txt,
     OuverturePortList,
     OuverturePort
 )
@@ -721,8 +721,8 @@ def add_txt(request):
 @permission_required('infra')
 def edit_txt(request, txtid):
     try:
-        txt_instance = Text.objects.get(pk=txtid)
-    except Text.DoesNotExist:
+        txt_instance = Txt.objects.get(pk=txtid)
+    except Txt.DoesNotExist:
         messages.error(request, u"Entrée inexistante" )
         return redirect(reverse('machines:index-extension'))
     txt = TxtForm(request.POST or None, instance=txt_instance)
@@ -1045,8 +1045,8 @@ def index_extension(request):
     soa_list = SOA.objects.order_by('name')
     mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
     ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
-    text_list = Text.objects.all().select_related('zone')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'text_list' : text_list})
+    txt_list = Txt.objects.all().select_related('zone')
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'txt_list' : txt_list})
 
 @login_required
 def index_alias(request, interfaceid):
@@ -1141,8 +1141,8 @@ def history(request, object, id):
              return redirect(reverse('machines:index'))
     elif object == 'txt' and request.user.has_perms(('cableur',)):
         try:
-             object_instance = Text.objects.get(pk=id)
-        except Text.DoesNotExist:
+             object_instance = Txt.objects.get(pk=id)
+        except Txt.DoesNotExist:
              messages.error(request, "Txt inexistant")
              return redirect(reverse('machines:index'))
     elif object == 'ns' and request.user.has_perms(('cableur',)):
@@ -1338,9 +1338,9 @@ def mx(request):
 @csrf_exempt
 @login_required
 @permission_required('serveur')
-def text(request):
-    text = Text.objects.all().select_related('zone')
-    seria = TextSerializer(text, many=True)
+def txt(request):
+    txt = Txt.objects.all().select_related('zone')
+    seria = TxtSerializer(txt, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt

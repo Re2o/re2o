@@ -31,7 +31,7 @@ from machines.models import (
     IpList,
     MachineType,
     Domain,
-    Text,
+    Txt,
     Mx,
     Service_link,
     Ns,
@@ -195,20 +195,20 @@ class MxSerializer(serializers.ModelSerializer):
         return str(obj.dns_entry)
 
 
-class TextSerializer(serializers.ModelSerializer):
+class TxtSerializer(serializers.ModelSerializer):
     """Serialisation d'un txt : zone cible et l'entrée txt
     sont evaluées à part"""
     zone = serializers.SerializerMethodField('get_zone_name')
-    text_entry = serializers.SerializerMethodField('get_text_name')
+    txt_entry = serializers.SerializerMethodField('get_txt_name')
 
     class Meta:
-        model = Text
-        fields = ('zone', 'text_entry', 'field1', 'field2')
+        model = Txt
+        fields = ('zone', 'txt_entry', 'field1', 'field2')
 
     def get_zone_name(self, obj):
         return str(obj.zone.name)
 
-    def get_text_name(self, obj):
+    def get_txt_name(self, obj):
         return str(obj.dns_entry)
 
 
