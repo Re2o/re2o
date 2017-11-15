@@ -47,7 +47,7 @@ from .models import (
     Extension,
     SOA,
     Mx,
-    Text,
+    Txt,
     Ns,
     Service,
     Vlan,
@@ -364,7 +364,7 @@ class DelNsForm(Form):
 class TxtForm(ModelForm):
     """Ajout d'un txt pour une zone"""
     class Meta:
-        model = Text
+        model = Txt
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
@@ -375,7 +375,7 @@ class TxtForm(ModelForm):
 class DelTxtForm(Form):
     """Suppression d'un ou plusieurs TXT"""
     txt = forms.ModelMultipleChoiceField(
-        queryset=Text.objects.all(),
+        queryset=Txt.objects.all(),
         label="Enregistrements Txt actuels",
         widget=forms.CheckboxSelectMultiple
     )
