@@ -388,7 +388,7 @@ class Text(models.Model):
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
-    field2 = models.CharField(max_length=255)
+    field2 = models.TextField(max_length=2047)
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
