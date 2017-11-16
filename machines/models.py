@@ -432,12 +432,14 @@ class Srv(models.Model):
         help_text='Time To Live'
     )
     priority = models.PositiveIntegerField(
+        default=0,
         validators=[MaxValueValidator(65535)],
         help_text="La priorité du serveur cible (valeur entière non négative,\
             plus elle est faible, plus ce serveur sera utilisé s'il est disponible)"
         
     )
     weight = models.PositiveIntegerField(
+        default=0,
         validators=[MaxValueValidator(65535)],
         help_text="Poids relatif pour les enregistrements de même priorité\
             (valeur entière de 0 à 65535)"
