@@ -328,7 +328,7 @@ class Extension(models.Model):
         protocol='IPv6',
         null=True,
         blank=True,
-        help_text="Enregistremen AAAA associé à la zone"
+        help_text="Enregistrement AAAA associé à la zone"
     )
     soa = models.ForeignKey(
         'SOA',
@@ -436,7 +436,7 @@ class Srv(models.Model):
         validators=[MaxValueValidator(65535)],
         help_text="La priorité du serveur cible (valeur entière non négative,\
             plus elle est faible, plus ce serveur sera utilisé s'il est disponible)"
-        
+
     )
     weight = models.PositiveIntegerField(
         default=0,
