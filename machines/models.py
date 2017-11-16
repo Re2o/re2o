@@ -311,18 +311,24 @@ class Extension(models.Model):
     l'utiliser, associé à un origin (ip d'origine)"""
     PRETTY_NAME = "Extensions dns"
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Nom de la zone, doit commencer par un point (.example.org)"
+    )
     need_infra = models.BooleanField(default=False)
     origin = models.OneToOneField(
         'IpList',
         on_delete=models.PROTECT,
         blank=True,
-        null=True
+        null=True,
+        help_text="Enregistrement A associé à la zone"
     )
     origin_v6 = models.GenericIPAddressField(
         protocol='IPv6',
         null=True,
-        blank=True
+        blank=True,
+        help_text="Enregistremen AAAA associé à la zone"
     )
     soa = models.ForeignKey(
         'SOA',
@@ -344,6 +350,11 @@ class Extension(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.name and self.name[0] != '.':
+            raise ValidationError("Une extension doit commencer par un point")
+        super(Extension, self).clean(*args, **kwargs)
 
 
 class Mx(models.Model):
@@ -398,6 +409,61 @@ class Txt(models.Model):
     def dns_entry(self):
         """Renvoie l'enregistrement TXT complet pour le fichier de zone"""
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
+
+
+class Srv(models.Model):
+    PRETTY_NAME = "Enregistrement Srv"
+
+    TCP = 'TCP'
+    UDP = 'UDP'
+
+    service =  models.CharField(max_length=31)
+    protocole = models.CharField(
+        max_length=3,
+        choices=(
+            (TCP, 'TCP'),
+            (UDP, 'UDP'),
+            ),
+        default=TCP,
+    )
+    extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    ttl = models.PositiveIntegerField(
+        default=172800,  # 2 days
+        help_text='Time To Live'
+    )
+    priority = models.PositiveIntegerField(
+        validators=[MaxValueValidator(65535)],
+        help_text="La priorité du serveur cible (valeur entière non négative,\
+            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)"
+        
+    )
+    weight = models.PositiveIntegerField(
+        validators=[MaxValueValidator(65535)],
+        help_text="Poids relatif pour les enregistrements de même priorité\
+            (valeur entière de 0 à 65535)"
+    )
+    port = models.PositiveIntegerField(
+        validators=[MaxValueValidator(65535)],
+        help_text="Port (tcp/udp)"
+    )
+    target = models.ForeignKey(
+        'Domain',
+        on_delete=models.PROTECT,
+        help_text="Serveur cible"
+    )
+
+    def __str__(self):
+        return str(self.service) + ' ' + str(self.protocole) + ' ' +\
+            str(self.extension) + ' ' + str(self.priority) +\
+            ' ' + str(self.weight) + str(self.port) + str(self.target)
+
+    @cached_property
+    def dns_entry(self):
+        """Renvoie l'enregistrement SRV complet pour le fichier de zone"""
+        return str(self.service) + '._' + str(self.protocole).lower() +\
+            str(self.extension) + '. ' + str(self.ttl) + ' IN SRV ' +\
+            str(self.priority) + ' ' + str(self.weight) + ' ' +\
+            str(self.port) + ' ' + str(self.target) + '.'
 
 
 class Interface(models.Model):
