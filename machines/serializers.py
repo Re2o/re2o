@@ -33,6 +33,7 @@ from machines.models import (
     Domain,
     Txt,
     Mx,
+    Srv,
     Service_link,
     Ns,
     OuverturePortList,
@@ -209,6 +210,32 @@ class TxtSerializer(serializers.ModelSerializer):
         return str(obj.zone.name)
 
     def get_txt_name(self, obj):
+        return str(obj.dns_entry)
+
+
+class SrvSerializer(serializers.ModelSerializer):
+    """Serialisation d'un srv : zone cible et l'entrée txt"""
+    extension = serializers.SerializerMethodField('get_extension_name')
+    srv_entry = serializers.SerializerMethodField('get_srv_name')
+
+    class Meta:
+        model = Srv
+        fields = (
+            'service',
+            'protocole',
+            'extension',
+            'ttl',
+            'priority',
+            'weight',
+            'port',
+            'target',
+            'srv_entry'
+        )
+
+    def get_extension_name(self, obj):
+        return str(obj.extension.name)
+
+    def get_srv_name(self, obj):
         return str(obj.dns_entry)
 
 

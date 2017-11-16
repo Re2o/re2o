@@ -59,6 +59,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-txt'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement TXT</a>
    {% endif %}
    {%  include "machines/aff_txt.html" with  txt_list=txt_list %}
+  <h2>Liste des enregistrements SRV</h2>
+   {% if is_infra %}
+   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-srv'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement SRV</a>
+   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-srv'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement SRV</a>
+   {% endif %}
+   {%  include "machines/aff_srv.html" with  srv_list=srv_list %}
    <br />
   <br />
   <br />

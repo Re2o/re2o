@@ -51,6 +51,7 @@ from .models import (
     Ns,
     Service,
     Vlan,
+    Srv,
     Nas,
     IpType,
     OuverturePortList,
@@ -377,6 +378,26 @@ class DelTxtForm(Form):
     txt = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.all(),
         label="Enregistrements Txt actuels",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    
+class SrvForm(ModelForm):
+    """Ajout d'un srv pour une zone"""
+    class Meta:
+        model = Srv
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SrvForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelSrvForm(Form):
+    """Suppression d'un ou plusieurs Srv"""
+    srv = forms.ModelMultipleChoiceField(
+        queryset=Srv.objects.all(),
+        label="Enregistrements Srv actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
