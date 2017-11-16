@@ -57,6 +57,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if txtform %}
 {% bootstrap_form_errors txtform %}
 {% endif %}
+{% if srvform %}
+{% bootstrap_form_errors srvform %}
+{% endif %}
 {% if aliasform %}
 {% bootstrap_form_errors aliasform %}
 {% endif %}
@@ -115,6 +118,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if txtform %}
     <h3>Enregistrement TXT</h3>
     {% bootstrap_form txtform %}
+    {% endif %}
+    {% if srvform %}
+    <h3>Enregistrement SRV</h3>
+    {% massive_bootstrap_form srvform 'target'  %}
     {% endif %}
     {% if aliasform %}
     <h3>Alias</h3>

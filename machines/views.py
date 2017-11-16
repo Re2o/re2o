@@ -49,6 +49,7 @@ from machines.serializers import ( FullInterfaceSerializer,
     TypeSerializer,
     DomainSerializer,
     TxtSerializer,
+    SrvSerializer,
     MxSerializer,
     ExtensionSerializer,
     ServiceServersSerializer,
@@ -91,7 +92,9 @@ from .forms import (
     ServiceForm,
     DelServiceForm,
     NasForm,
-    DelNasForm
+    DelNasForm,
+    SrvForm,
+    DelSrvForm,
 )
 from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import (
@@ -110,8 +113,9 @@ from .models import (
     Vlan,
     Nas,
     Txt,
+    Srv,
     OuverturePortList,
-    OuverturePort
+    OuverturePort,
 )
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
@@ -753,6 +757,54 @@ def del_txt(request):
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
+@permission_required('infra')
+def add_srv(request):
+    srv = SrvForm(request.POST or None)
+    if srv.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            srv.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cet enregistrement srv a été ajouté")
+        return redirect(reverse('machines:index-extension'))
+    return form({'srvform': srv}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def edit_srv(request, srvid):
+    try:
+        srv_instance = Srv.objects.get(pk=srvid)
+    except Srv.DoesNotExist:
+        messages.error(request, u"Entrée inexistante" )
+        return redirect(reverse('machines:index-extension'))
+    srv = SrvForm(request.POST or None, instance=srv_instance)
+    if srv.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            srv.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in srv.changed_data))
+        messages.success(request, "Srv modifié")
+        return redirect(reverse('machines:index-extension'))
+    return form({'srvform': srv}, 'machines/machine.html', request)
+
+@login_required
+@permission_required('infra')
+def del_srv(request):
+    srv = DelSrvForm(request.POST or None)
+    if srv.is_valid():
+        srv_dels = srv.cleaned_data['srv']
+        for srv_del in srv_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    srv_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "L'srv a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le Srv suivant %s ne peut être supprimé" % srv_del)
+        return redirect(reverse('machines:index-extension'))
+    return form({'srvform': srv}, 'machines/machine.html', request)
+
+@login_required
 def add_alias(request, interfaceid):
     try:
         interface = Interface.objects.get(pk=interfaceid)
@@ -1046,7 +1098,8 @@ def index_extension(request):
     mx_list = Mx.objects.order_by('zone').select_related('zone').select_related('name__extension')
     ns_list = Ns.objects.order_by('zone').select_related('zone').select_related('ns__extension')
     txt_list = Txt.objects.all().select_related('zone')
-    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'txt_list' : txt_list})
+    srv_list = Srv.objects.all().select_related('extension').select_related('target__extension')
+    return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'txt_list' : txt_list, 'srv_list': srv_list})
 
 @login_required
 def index_alias(request, interfaceid):
@@ -1144,6 +1197,12 @@ def history(request, object, id):
              object_instance = Txt.objects.get(pk=id)
         except Txt.DoesNotExist:
              messages.error(request, "Txt inexistant")
+             return redirect(reverse('machines:index'))
+    elif object == 'srv' and request.user.has_perms(('cableur',)):
+        try:
+             object_instance = Srv.objects.get(pk=id)
+        except Srv.DoesNotExist:
+             messages.error(request, "Srv inexistant")
              return redirect(reverse('machines:index'))
     elif object == 'ns' and request.user.has_perms(('cableur',)):
         try:
@@ -1341,6 +1400,14 @@ def mx(request):
 def txt(request):
     txt = Txt.objects.all().select_related('zone')
     seria = TxtSerializer(txt, many=True)
+    return JSONResponse(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('serveur')
+def srv(request):
+    srv = Srv.objects.all().select_related('extension').select_related('target__extension')
+    seria = SrvSerializer(srv, many=True)
     return JSONResponse(seria.data)
 
 @csrf_exempt
