@@ -115,7 +115,7 @@ def add_services(request):
             services.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
-        messages.success(request, "Cet enregistrement ns a été ajouté")
+        messages.success(request, "Ce service a été ajouté")
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services},
