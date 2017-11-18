@@ -140,6 +140,7 @@ class UserManager(BaseUserManager):
     def _create_user(
             self,
             pseudo,
+            name,
             surname,
             email,
             password=None,
@@ -152,6 +153,7 @@ class UserManager(BaseUserManager):
             raise ValueError('Username shall only contain [a-z0-9-]')
 
         user = self.model(
+            name=name,
             pseudo=pseudo,
             surname=surname,
             email=self.normalize_email(email),
@@ -163,19 +165,19 @@ class UserManager(BaseUserManager):
             user.make_admin()
         return user
 
-    def create_user(self, pseudo, surname, email, password=None):
+    def create_user(self, pseudo, name, surname, email, password=None):
         """
         Creates and saves a User with the given pseudo, name, surname, email,
         and password.
         """
-        return self._create_user(pseudo, surname, email, password, False)
+        return self._create_user(pseudo, name, surname, email, password, False)
 
-    def create_superuser(self, pseudo, surname, email, password):
+    def create_superuser(self, pseudo, name, surname, email, password):
         """
         Creates and saves a superuser with the given pseudo, name, surname,
         email, and password.
         """
-        return self._create_user(pseudo, surname, email, password, True)
+        return self._create_user(pseudo, name, surname, email, password, True)
 
 
 class User(AbstractBaseUser):
@@ -630,15 +632,18 @@ class User(AbstractBaseUser):
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
-        send_mail(
-            'Bienvenue au %(name)s / Welcome to %(name)s' % {
-                'name': assooptions.name
-                },
-            '',
-            general_options.email_from,
-            [self.email],
-            html_message=template.render(context)
-        )
+        try :
+            send_mail(
+                'Bienvenue au %(name)s / Welcome to %(name)s' % {
+                    'name': assooptions.name
+                    },
+                '',
+                general_options.email_from,
+                [self.email],
+                html_message=template.render(context)
+            )
+        except:
+            pass
         return
 
     def reset_passwd_mail(self, request):
@@ -718,13 +723,16 @@ class User(AbstractBaseUser):
             'asso_email': assooptions.contact,
             'pseudo': self.pseudo,
         })
-        send_mail(
-            "Ajout automatique d'une machine / New machine autoregistered",
-            '',
-            general_options.email_from,
-            [self.email],
-            html_message=template.render(context)
-        )
+        try:
+            send_mail(
+                "Ajout automatique d'une machine / New machine autoregistered",
+                '',
+                general_options.email_from,
+                [self.email],
+                html_message=template.render(context)
+            )
+        except:
+            pass
         return
 
     def set_user_password(self, password):
@@ -761,6 +769,12 @@ class User(AbstractBaseUser):
 
 class Adherent(User):
     PRETTY_NAME = "Adhérents"
+
+    USERNAME_FIELD = 'pseudo'
+    REQUIRED_FIELDS = ['name', 'surname', 'email']
+
+    objects = UserManager()
+
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
         'topologie.Room',

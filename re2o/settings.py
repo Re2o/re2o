@@ -52,7 +52,7 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.Adherent'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
