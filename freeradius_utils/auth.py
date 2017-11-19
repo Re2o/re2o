@@ -148,6 +148,7 @@ def authorize(data):
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
     nas_instance = find_nas_from_request(nas)
     # Toutes les reuquètes non proxifiées
+    nas_type = None
     if nas_instance:
         nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
     if not nas_type or nas_type.port_access_mode == '802.1X':
