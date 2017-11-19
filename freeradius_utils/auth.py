@@ -139,20 +139,18 @@ def instantiate(*_):
 
 @radius_event
 def authorize(data):
+    """On test si on connait le calling nas:
+    - si le nas est inconnue, on suppose que c'est une requète 802.1X, on la traite
+    - si le nas est connu, on applique 802.1X si le mode est activé
+    - si le nas est connu et si il s'agit d'un nas auth par mac, on repond accept en authorize
+    """
     # Pour les requetes proxifiees, on split
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
     nas_instance = find_nas_from_request(nas)
     # Toutes les reuquètes non proxifiées
-    if nas != '127.0.0.1':
-        if not nas_instance:
-            logger.info(u"Nas inconnu")
-            return radiusd.RLM_MODULE_REJECT
+    nas_type = None
+    if nas_instance:
         nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
-        if not nas_type:
-            logger.info(u"Type de nas non enregistré dans la bdd!".encode('utf-8'))
-            return radiusd.RLM_MODULE_REJECT
-    else:
-        nas_type = None
     if not nas_type or nas_type.port_access_mode == '802.1X':
         user = data.get('User-Name', '').decode('utf-8', errors='replace')
         user = user.split('@', 1)[0]
@@ -184,8 +182,8 @@ def post_auth(data):
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
     nas_instance = find_nas_from_request(nas)
     # Toutes les reuquètes non proxifiées
-    if nas == '127.0.0.1':
-        logger.info(u"Requète proxifiée".encode('utf-8'))
+    if not nas_instance:
+        logger.info(u"Requète proxifiée, nas inconnu".encode('utf-8'))
         return radiusd.RLM_MODULE_OK
     nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
     if not nas_type:
@@ -267,14 +265,37 @@ def check_user_machine_and_register(nas_type, username, mac_address):
 
 
 def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
+    """Fonction de placement vlan pour un switch en radius filaire auth par mac.
+    Plusieurs modes :
+    - nas inconnu, port inconnu : on place sur le vlan par defaut VLAN_OK
+    - pas de radius sur le port : VLAN_OK
+    - bloq : VLAN_NOK
+    - force : placement sur le vlan indiqué dans la bdd
+    - mode strict :
+        - pas de chambre associée : VLAN_NOK
+        - pas d'utilisateur dans la chambre : VLAN_NOK
+        - cotisation non à jour : VLAN_NOK
+        - sinon passe à common (ci-dessous)
+    - mode common :
+        - interface connue (macaddress):
+            - utilisateur proprio non cotisant ou banni : VLAN_NOK
+            - user à jour : VLAN_OK
+        - interface inconnue :
+            - register mac désactivé : VLAN_NOK
+            - register mac activé :
+                - dans la chambre associé au port, pas d'user ou non à jour : VLAN_NOK
+                - user à jour, autocapture de la mac et VLAN_OK
+    """
     # Get port from switch and port number
     extra_log = ""
+    # Si le NAS est inconnu, on place sur le vlan defaut
     if not nas:
         return ('?', u'Nas inconnu', VLAN_OK)
 
     sw_name = str(nas)
 
     port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number)
+    #Si le port est inconnu, on place sur le vlan defaut
     if not port:
         return (sw_name, u'Port inconnu', VLAN_OK)
 
