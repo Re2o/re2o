@@ -379,6 +379,18 @@ class FullClubForm(ClubForm):
         ]
 
 
+class ClubAdminandMembersForm(ModelForm):
+    """Permet d'éditer la liste des membres et des administrateurs
+    d'un club"""
+    class Meta:
+        model = Club
+        fields = ['administrators', 'members']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ClubAdminandMembersForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
 class PasswordForm(ModelForm):
     """ Formulaire de changement brut de mot de passe.
     Ne pas utiliser sans traitement"""

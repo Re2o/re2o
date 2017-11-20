@@ -141,21 +141,61 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ user.shell }}</td>
 	{% endif %}
     </table>
-    <h2>Machines :</h2>
+    {% if user.is_class_club %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' user.club.id %}">
+        <i class="glyphicon glyphicon-lock"></i>
+        Gérer admin et membres
+    </a>
+    <h3>Administrateurs du club</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Pseudo</th>
+            </tr>
+        </thead>
+        {% for admin in user.club.administrators.all %}
+        <tr>
+            <td>{{ admin.surname }}</td>
+            <td>{{ admin.name }}</td>
+	    <td>{{ admin.pseudo }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>Membres</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Pseudo</th>
+            </tr>
+        </thead>
+        {% for admin in user.club.members.all %}
+        <tr>
+            <td>{{ admin.surname }}</td>
+            <td>{{ admin.name }}</td>
+	    <td>{{ admin.pseudo }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    <h2>Machines</h2>
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
     {% if machines_list %}
     {% include "machines/aff_machines.html" with machines_list=machines_list %}
     {% else %}
     <p>Aucune machine</p>
     {% endif %}
-    <h2>Cotisations :</h2>
+    <h2>Cotisations</h2>
     {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>{% endif%}
     {% if facture_list %}
     {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% else %}
     <p>Aucune facture</p>
     {% endif %}
-    <h2>Bannissements :</h2>
+    <h2>Bannissements</h2>
     {% if is_bofh %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% endif %}
     {% if ban_list %}
     {% include "users/aff_bans.html" with ban_list=ban_list %}

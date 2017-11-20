@@ -33,6 +33,11 @@ urlpatterns = [
     url(r'^new_user/$', views.new_user, name='new-user'),
     url(r'^new_club/$', views.new_club, name='new-club'),
     url(r'^edit_info/(?P<userid>[0-9]+)$', views.edit_info, name='edit-info'),
+    url(
+        r'^edit_club_admin_members/(?P<clubid>[0-9]+)$',
+        views.edit_club_admin_members,
+        name='edit-club-admin-members'
+    ),
     url(r'^state/(?P<userid>[0-9]+)$', views.state, name='state'),
     url(r'^password/(?P<userid>[0-9]+)$', views.password, name='password'),
     url(r'^new_serviceuser/$', views.new_serviceuser, name='new-serviceuser'),

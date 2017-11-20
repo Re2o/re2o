@@ -60,7 +60,10 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager
+)
 from django.core.validators import RegexValidator
 
 from reversion import revisions as reversion
@@ -771,6 +774,7 @@ class Adherent(User):
     pass
 
 
+
 class Club(User):
     PRETTY_NAME = "Clubs"
     room = models.ForeignKey(
@@ -779,6 +783,17 @@ class Club(User):
         blank=True,
         null=True
     )
+    administrators = models.ManyToManyField(
+        blank=True,
+        to='users.Adherent',
+        related_name='club_administrator'
+    )
+    members = models.ManyToManyField(
+        blank=True,
+        to='users.Adherent',
+        related_name='club_members'
+    )
+
     pass
 
 
