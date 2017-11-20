@@ -53,14 +53,40 @@ from rest_framework.renderers import JSONRenderer
 from reversion.models import Version
 from reversion import revisions as reversion
 from users.serializers import MailSerializer
-from users.models import User, Right, Ban, Whitelist, School, ListRight
-from users.models import Request, ServiceUser, Adherent, Club
-from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
-from users.forms import DelListRightForm, NewListRightForm, FullAdherentForm
-from users.forms import StateForm, FullClubForm
-from users.forms import RightForm, SchoolForm, EditServiceUserForm
-from users.forms import ServiceUserForm, ListRightForm, AdherentForm, ClubForm
-from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
+from users.models import (
+    User,
+    Right,
+    Ban,
+    Whitelist,
+    School,
+    ListRight,
+    Request,
+    ServiceUser,
+    Adherent,
+    Club
+)
+from users.forms import (
+    DelRightForm,
+    BanForm,
+    WhitelistForm,
+    DelSchoolForm,
+    DelListRightForm,
+    NewListRightForm,
+    FullAdherentForm,
+    StateForm,
+    FullClubForm,
+    RightForm,
+    SchoolForm,
+    EditServiceUserForm,
+    ServiceUserForm,
+    ListRightForm,
+    AdherentForm,
+    ClubForm,
+    MassArchiveForm,
+    PassForm,
+    ResetPasswordForm,
+    ClubAdminandMembersForm
+)
 from cotisations.models import Facture
 from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
@@ -124,6 +150,38 @@ def new_club(request):
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(club.id)}
+            ))
+    return form({'userform': club}, 'users/user.html', request)
+
+
+@login_required
+def edit_club_admin_members(request, clubid):
+    """Vue d'edition de la liste des users administrateurs et
+    membres d'un club"""
+    try:
+        club_instance = Club.objects.get(pk=clubid)
+    except Club.DoesNotExist:
+        messages.error(request, "Club inexistant")
+        return redirect(reverse('users:index'))
+    if not request.user.has_perms(('cableur',))\
+        and not request.user in club_instance.administrators.all():
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
+    club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
+    if club.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            club.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in club.changed_data
+            ))
+        messages.success(request, "Le club a bien été modifié")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(club_instance.id)}
             ))
     return form({'userform': club}, 'users/user.html', request)
 
