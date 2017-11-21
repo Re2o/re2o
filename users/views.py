@@ -111,10 +111,15 @@ def password_change_action(u_form, user, request, req=False):
 
 
 @login_required
-@permission_required('cableur')
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
+    if not User.can_create(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     user = AdherentForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
