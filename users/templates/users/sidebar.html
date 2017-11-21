@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 {% block sidebar %}
-    {% if is_cableur %}
+   {% if is_cableur %}
         <a class="list-group-item list-group-item-success" href="{% url "users:new-user" %}">
             <i class="glyphicon glyphicon-plus"></i>
             Créer un adhérent
@@ -34,13 +34,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-plus"></i>
             Créer un club/association
         </a>
+   {% endif %}
+   {% if is_cableur %}
+	<a class="list-group-item list-group-item-info" href="{% url "users:index-clubs" %}">
+            <i class="glyphicon glyphicon-list"></i>
+            Clubs et assos
+        </a>
+ 
 	<a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
             <i class="glyphicon glyphicon-list"></i>
             Adherents
-        </a>
-	<a class="list-group-item list-group-item-info" href="{% url "users:index-clubs" %}">
-            <i class="glyphicon glyphicon-list"></i>
-            Clubs
         </a>
 	<a class="list-group-item list-group-item-info" href="{% url "users:index-ban" %}">
             <i class="glyphicon glyphicon-list"></i>
