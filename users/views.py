@@ -40,7 +40,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.db import IntegrityError
 from django.utils import timezone
 from django.db import transaction
@@ -163,8 +163,7 @@ def edit_club_admin_members(request, clubid):
     except Club.DoesNotExist:
         messages.error(request, "Club inexistant")
         return redirect(reverse('users:index'))
-    if not request.user.has_perms(('cableur',))\
-        and not request.user in club_instance.administrators.all():
+    if not club_instance.can_edit(request.user):
         messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
@@ -214,9 +213,8 @@ def edit_info(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users:index'))
-    if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un autre\
-        user que vous sans droit cableur")
+    if not user.can_edit(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
@@ -279,9 +277,8 @@ def password(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users'))
-    if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un\
-        autre user que vous sans droit cableur")
+    if not user.can_edit(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
@@ -722,12 +719,16 @@ def index(request):
 
 
 @login_required
-@permission_required('cableur')
 def index_clubs(request):
     """ Affiche l'ensemble des clubs, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    clubs_list = Club.objects.select_related('room')
+    if not request.user.has_perms(('cableur',)):
+        clubs_list = Club.objects.filter(
+            Q(administrators=request.user.adherent) | Q(members=request.user.adherent)
+        ).distinct().select_related('room')
+    else:
+        clubs_list = Club.objects.select_related('room')
     clubs_list = SortTable.sort(
         clubs_list,
         request.GET.get('col'),
@@ -853,10 +854,8 @@ def history(request, object_name, object_id):
         except User.DoesNotExist:
             messages.error(request, "Utilisateur inexistant")
             return redirect(reverse('users:index'))
-        if not request.user.has_perms(('cableur',)) and\
-                object_instance != request.user:
-            messages.error(request, "Vous ne pouvez pas afficher\
-            l'historique d'un autre user que vous sans droit cableur")
+        if not object_instance.can_view(request.user):
+            messages.error(request, "Vous ne pouvez pas afficher ce menu")
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid':str(request.user.id)}
@@ -947,9 +946,8 @@ def profil(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users:index'))
-    if not request.user.has_perms(('cableur',)) and users != request.user:
-        messages.error(request, "Vous ne pouvez pas afficher un autre user\
-        que vous sans droit cableur")
+    if not users.can_view(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
