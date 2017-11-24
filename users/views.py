@@ -40,7 +40,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.db import IntegrityError
 from django.utils import timezone
 from django.db import transaction
@@ -53,14 +53,40 @@ from rest_framework.renderers import JSONRenderer
 from reversion.models import Version
 from reversion import revisions as reversion
 from users.serializers import MailSerializer
-from users.models import User, Right, Ban, Whitelist, School, ListRight
-from users.models import Request, ServiceUser, Adherent, Club
-from users.forms import DelRightForm, BanForm, WhitelistForm, DelSchoolForm
-from users.forms import DelListRightForm, NewListRightForm, FullAdherentForm
-from users.forms import StateForm, FullClubForm
-from users.forms import RightForm, SchoolForm, EditServiceUserForm
-from users.forms import ServiceUserForm, ListRightForm, AdherentForm, ClubForm
-from users.forms import MassArchiveForm, PassForm, ResetPasswordForm
+from users.models import (
+    User,
+    Right,
+    Ban,
+    Whitelist,
+    School,
+    ListRight,
+    Request,
+    ServiceUser,
+    Adherent,
+    Club
+)
+from users.forms import (
+    DelRightForm,
+    BanForm,
+    WhitelistForm,
+    DelSchoolForm,
+    DelListRightForm,
+    NewListRightForm,
+    FullAdherentForm,
+    StateForm,
+    FullClubForm,
+    RightForm,
+    SchoolForm,
+    EditServiceUserForm,
+    ServiceUserForm,
+    ListRightForm,
+    AdherentForm,
+    ClubForm,
+    MassArchiveForm,
+    PassForm,
+    ResetPasswordForm,
+    ClubAdminandMembersForm
+)
 from cotisations.models import Facture
 from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
@@ -85,10 +111,15 @@ def password_change_action(u_form, user, request, req=False):
 
 
 @login_required
-@permission_required('cableur')
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
+    if not User.can_create(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
     user = AdherentForm(request.POST or None)
     if user.is_valid():
         user = user.save(commit=False)
@@ -128,6 +159,37 @@ def new_club(request):
     return form({'userform': club}, 'users/user.html', request)
 
 
+@login_required
+def edit_club_admin_members(request, clubid):
+    """Vue d'edition de la liste des users administrateurs et
+    membres d'un club"""
+    try:
+        club_instance = Club.objects.get(pk=clubid)
+    except Club.DoesNotExist:
+        messages.error(request, "Club inexistant")
+        return redirect(reverse('users:index'))
+    if not club_instance.can_edit(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
+    club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
+    if club.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            club.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in club.changed_data
+            ))
+        messages.success(request, "Le club a bien été modifié")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(club_instance.id)}
+            ))
+    return form({'userform': club}, 'users/user.html', request)
+
+
 def select_user_edit_form(request, user):
     """Fonction de choix du bon formulaire, en fonction de:
         - droit
@@ -156,9 +218,8 @@ def edit_info(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users:index'))
-    if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un autre\
-        user que vous sans droit cableur")
+    if not user.can_edit(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
@@ -221,9 +282,8 @@ def password(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users'))
-    if not request.user.has_perms(('cableur',)) and user != request.user:
-        messages.error(request, "Vous ne pouvez pas modifier un\
-        autre user que vous sans droit cableur")
+    if not user.can_edit(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
@@ -664,12 +724,16 @@ def index(request):
 
 
 @login_required
-@permission_required('cableur')
 def index_clubs(request):
     """ Affiche l'ensemble des clubs, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    clubs_list = Club.objects.select_related('room')
+    if not request.user.has_perms(('cableur',)):
+        clubs_list = Club.objects.filter(
+            Q(administrators=request.user.adherent) | Q(members=request.user.adherent)
+        ).distinct().select_related('room')
+    else:
+        clubs_list = Club.objects.select_related('room')
     clubs_list = SortTable.sort(
         clubs_list,
         request.GET.get('col'),
@@ -795,10 +859,8 @@ def history(request, object_name, object_id):
         except User.DoesNotExist:
             messages.error(request, "Utilisateur inexistant")
             return redirect(reverse('users:index'))
-        if not request.user.has_perms(('cableur',)) and\
-                object_instance != request.user:
-            messages.error(request, "Vous ne pouvez pas afficher\
-            l'historique d'un autre user que vous sans droit cableur")
+        if not object_instance.can_view(request.user):
+            messages.error(request, "Vous ne pouvez pas afficher ce menu")
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid':str(request.user.id)}
@@ -889,9 +951,8 @@ def profil(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users:index'))
-    if not request.user.has_perms(('cableur',)) and users != request.user:
-        messages.error(request, "Vous ne pouvez pas afficher un autre user\
-        que vous sans droit cableur")
+    if not users.can_view(request.user):
+        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}

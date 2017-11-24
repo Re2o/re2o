@@ -60,7 +60,10 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager
+)
 from django.core.validators import RegexValidator
 
 from reversion import revisions as reversion
@@ -755,6 +758,28 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
+    def can_create(user):
+        options, _created = OptionalUser.objects.get_or_create()
+        if options.all_can_create:
+            return True
+        else:
+            return user.has_perms(('cableur',))
+
+    def can_edit(self, user):
+        if self.is_class_club and user.is_class_adherent:
+            return self == user or user.has_perms(('cableur',)) or\
+                user.adherent in self.club.administrators.all() 
+        else:
+            return self == user or user.has_perms(('cableur',))
+
+    def can_view(self, user):
+        if self.is_class_club and user.is_class_adherent:
+            return self == user or user.has_perms(('cableur',)) or\
+                user.adherent in self.club.administrators.all() or\
+                user.adherent in self.club.members.all()
+        else:
+            return self == user or user.has_perms(('cableur',))
+
     def __str__(self):
         return self.pseudo
 
@@ -771,6 +796,7 @@ class Adherent(User):
     pass
 
 
+
 class Club(User):
     PRETTY_NAME = "Clubs"
     room = models.ForeignKey(
@@ -779,6 +805,17 @@ class Club(User):
         blank=True,
         null=True
     )
+    administrators = models.ManyToManyField(
+        blank=True,
+        to='users.Adherent',
+        related_name='club_administrator'
+    )
+    members = models.ManyToManyField(
+        blank=True,
+        to='users.Adherent',
+        related_name='club_members'
+    )
+
     pass
 
 
