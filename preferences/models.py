@@ -42,6 +42,10 @@ class OptionalUser(models.Model):
         default=0
     )
     gpg_fingerprint = models.BooleanField(default=True)
+    all_can_create = models.BooleanField(
+        default=False,
+        help_text="Tous les users peuvent en créer d'autres",
+    )
 
     def clean(self):
         """Creation du mode de paiement par solde"""
