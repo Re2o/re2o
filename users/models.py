@@ -762,17 +762,17 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
-    def can_create(user):
+    def can_create(user, perms=('cableur',)):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True
         else:
-            return user.has_perms(('cableur',))
+            return user.has_perms(perms)
 
     def can_edit(self, user):
         if self.is_class_club and user.is_class_adherent:
             return self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all() 
+                user.adherent in self.club.administrators.all()
         else:
             return self == user or user.has_perms(('cableur',))
 
@@ -845,7 +845,6 @@ def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
     user.ldap_del()
     regen('mailing')
-
 
 class ServiceUser(AbstractBaseUser):
     """ Classe des users daemons, règle leurs accès au ldap"""
