@@ -109,11 +109,11 @@ def password_change_action(u_form, user, request, req=False):
         kwargs={'userid':str(user.id)}
         ))
 
-def can_create(perms=('cableur',)):
-    """Décorateur qui vérifie si l'utilisateur peut créer un objet."""
+def can_create(model):
+    """Decorator to check if an user can create a model. """
     def decorator(view):
         def wrapper(request,*args, **kwargs):
-            if not request.user.can_create(perms=perms):
+            if not model.can_create(request.user):
                 messages.error(request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
                     kwargs={'userid':str(request.user.id)}
@@ -123,7 +123,7 @@ def can_create(perms=('cableur',)):
     return decorator
 
 @login_required
-@can_create()
+@can_create(Adherent)
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
@@ -145,7 +145,7 @@ def new_user(request):
 
 
 @login_required
-@can_create()
+@can_create(Club)
 def new_club(request):
     """ Vue de création d'un nouveau club,
     envoie un mail pour le mot de passe"""
@@ -310,7 +310,7 @@ def password(request, userid):
 
 
 @login_required
-@can_create(('infra',))
+@can_create(ServiceUser)
 def new_serviceuser(request):
     """ Vue de création d'un nouvel utilisateur service"""
     user = ServiceUserForm(request.POST or None)
