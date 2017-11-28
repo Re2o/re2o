@@ -214,30 +214,22 @@ def new_machine(request, userid):
     """ Fonction de creation d'une machine. Cree l'objet machine, 
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant" )
-        return redirect(reverse('machines:index'))
-    options, created = OptionalMachine.objects.get_or_create()
-    max_lambdauser_interfaces = options.max_lambdauser_interfaces
-    if not request.user.has_perms(('cableur',)):
-        if user != request.user:
-            messages.error(
-                request,
-                "Vous ne pouvez pas ajouter une machine à un autre user que vous sans droit")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
-        if user.user_interfaces().count() >= max_lambdauser_interfaces:
-            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
+
+    can, reason = Machine.can_create(request.user, userid)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+            ))
+
+    # No need to check if userid exist, already done in can_create
+    user = User.objects.get(pk=userid)
     machine = NewMachineForm(request.POST or None)
-    interface = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    interface = AddInterfaceForm(
+        request.POST or None,
+        infra=request.user.has_perms(('infra',))
+    )
     domain = DomainForm(request.POST or None, user=user)
     if machine.is_valid() and interface.is_valid():
         new_machine = machine.save(commit=False)
@@ -264,9 +256,18 @@ def new_machine(request, userid):
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid':str(user.id)}
-                ))
-    i_mbf_param = generate_ipv4_mbf_param( interface, False )
-    return form({'machineform': machine, 'interfaceform': interface, 'domainform': domain, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
+            ))
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
+    return form(
+        {
+            'machineform': machine,
+            'interfaceform': interface,
+            'domainform': domain,
+            'i_mbf_param': i_mbf_param
+        },
+        'machines/machine.html',
+        request
+    )
 
 @login_required
 def edit_interface(request, interfaceid):

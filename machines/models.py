@@ -37,6 +37,9 @@ from django.core.validators import MaxValueValidator
 
 from macaddress.fields import MACAddressField
 
+import users.models
+import preferences.models
+
 
 class Machine(models.Model):
     """ Class définissant une machine, object parent user, objets fils
@@ -51,6 +54,23 @@ class Machine(models.Model):
         null=True
     )
     active = models.BooleanField(default=True)
+
+    def can_create(user_request, userid_dest):
+        try:
+            user = users.models.User.objects.get(pk=userid_dest)
+        except users.models.User.DoesNotExist:
+            return False, u"Utilisateur inexistant"
+        options, created = preferences.models.OptionalMachine.objects.get_or_create()
+        max_lambdauser_interfaces = options.max_lambdauser_interfaces
+        if not user_request.has_perms(('cableur',)):
+            if user != user_request:
+                return False, u"Vous ne pouvez pas ajouter une machine à un\
+                        autre user que vous sans droit"
+            if user.user_interfaces().count() >= max_lambdauser_interfaces:
+                return False, u"Vous avez atteint le maximum d'interfaces\
+                        autorisées que vous pouvez créer vous même (%s) "\
+                        % max_lambdauser_interfaces
+        return True, None
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)

@@ -26,7 +26,7 @@ Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 from __future__ import unicode_literals
 
 from django.db import models
-from cotisations.models import Paiement
+import cotisations.models
 
 
 class OptionalUser(models.Model):
@@ -50,7 +50,7 @@ class OptionalUser(models.Model):
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
-            Paiement.objects.get_or_create(moyen="Solde")
+            cotisations.models.Paiement.objects.get_or_create(moyen="Solde")
 
 
 class OptionalMachine(models.Model):
