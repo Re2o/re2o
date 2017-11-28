@@ -110,7 +110,11 @@ def password_change_action(u_form, user, request, req=False):
         ))
 
 def can_create(model):
-    """Decorator to check if an user can create a model. """
+    """Decorator to check if an user can create a model.
+    It assumes that a valid user exists in the request and that the model has a
+    method can_create(user) which returns true if the user can create this kind
+    of models.
+    """
     def decorator(view):
         def wrapper(request,*args, **kwargs):
             if not model.can_create(request.user):
