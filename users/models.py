@@ -762,12 +762,12 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
-    def can_create(user, perms=('cableur',)):
+    def can_create(user):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True
         else:
-            return user.has_perms(perms)
+            return user.has_perms(('cableur',))
 
     def can_edit(self, user):
         if self.is_class_club and user.is_class_adherent:
@@ -910,6 +910,13 @@ class ServiceUser(AbstractBaseUser):
 
     def __str__(self):
         return self.pseudo
+
+    def can_create(user):
+        options, _created = OptionalUser.objects.get_or_create()
+        if options.all_can_create:
+            return True
+        else:
+            return user.has_perms(('infra',))
 
 
 @receiver(post_save, sender=ServiceUser)
