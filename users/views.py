@@ -92,7 +92,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-from re2o.utils import all_has_access, SortTable
+from re2o.utils import all_has_access, SortTable, can_create
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -108,23 +108,6 @@ def password_change_action(u_form, user, request, req=False):
         'users:profil',
         kwargs={'userid':str(user.id)}
         ))
-
-def can_create(model):
-    """Decorator to check if an user can create a model.
-    It assumes that a valid user exists in the request and that the model has a
-    method can_create(user) which returns true if the user can create this kind
-    of models.
-    """
-    def decorator(view):
-        def wrapper(request,*args, **kwargs):
-            if not model.can_create(request.user):
-                messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
-            return view(request, *args, **kwargs)
-        return wrapper
-    return decorator
 
 @login_required
 @can_create(Adherent)

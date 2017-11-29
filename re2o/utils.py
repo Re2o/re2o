@@ -39,6 +39,8 @@ from __future__ import unicode_literals
 
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib import messages
+from django.shortcuts import redirect
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine
@@ -46,6 +48,23 @@ from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import Service
 
 DT_NOW = timezone.now()
+
+def can_create(model):
+    """Decorator to check if an user can create a model.
+    It assumes that a valid user exists in the request and that the model has a
+    method can_create(user) which returns true if the user can create this kind
+    of models.
+    """
+    def decorator(view):
+        def wrapper(request,*args, **kwargs):
+            if not model.can_create(request.user):
+                messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, *args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def all_adherent(search_time=DT_NOW):
