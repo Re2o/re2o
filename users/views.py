@@ -92,7 +92,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-from re2o.utils import all_has_access, SortTable, can_create
+from re2o.utils import all_has_access, SortTable, can_create, can_edit
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -203,7 +203,8 @@ def select_user_edit_form(request, user):
 
 
 @login_required
-def edit_info(request, userid):
+@can_edit(User, 'userid')
+def edit_info(request, userid, **kwargs):
     """ Edite un utilisateur à partir de son id,
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """

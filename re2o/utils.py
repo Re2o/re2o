@@ -79,12 +79,12 @@ def can_edit(model, *instance_id):
             instances = {}
             for i in instance_id:
                 try:
-                    instances[i] = model.objects.get(pk=i)
+                    instances[i] = model.objects.get(pk=kwargs[i])
                 except model.DoesNotExist:
                     messages.error(request, u"Entrée inexistante")
                     return redirect(reverse('users:index'))
             kwargs['instances'] = instances
-            can = all(model.can_edit(request, instances[i]) for i in instances)
+            can = all(model.can_edit(instances[i], request.user) for i in instances)
             if not can:
                 messages.error(request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
