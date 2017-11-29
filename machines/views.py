@@ -221,7 +221,7 @@ def new_machine(request, userid):
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(request.user.id)}
-            ))
+        ))
 
     # No need to check if userid exist, already done in can_create
     user = User.objects.get(pk=userid)
@@ -344,26 +344,17 @@ def del_machine(request, machineid):
 @login_required
 def new_interface(request, machineid):
     """ Ajoute une interface et son domain associé à une machine existante"""
-    try:
-        machine = Machine.objects.get(pk=machineid)
-    except Machine.DoesNotExist:
-        messages.error(request, u"Machine inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)):
-        options, created = OptionalMachine.objects.get_or_create()
-        max_lambdauser_interfaces = options.max_lambdauser_interfaces
-        if machine.user != request.user:
-            messages.error(request, "Vous ne pouvez pas ajouter une interface à une machine d'un autre user que vous sans droit")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
-        if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
-            messages.error(request, "Vous avez atteint le maximum d'interfaces autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_interfaces)
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
+
+    can, reason = Interface.can_create(request.user, machineid)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
+    # No need to check if machineid exist, already done in can_create
+    machine = Machine.objects.get(pk=machineid)
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
@@ -419,9 +410,17 @@ def del_interface(request, interfaceid):
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
 
 @login_required
-@permission_required('infra')
 def add_iptype(request):
     """ Ajoute un range d'ip. Intelligence dans le models, fonction views minimaliste"""
+
+    can, reason = IpType.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -470,8 +469,16 @@ def del_iptype(request):
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_machinetype(request):
+
+    can, reason = MachineType.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -518,8 +525,16 @@ def del_machinetype(request):
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_extension(request):
+
+    can, reason = Extension.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -566,8 +581,16 @@ def del_extension(request):
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_soa(request):
+
+    can, reason = SOA.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     soa = SOAForm(request.POST or None)
     if soa.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -614,8 +637,16 @@ def del_soa(request):
     return form({'soaform': soa}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_mx(request):
+
+    can, reason = Mx.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     mx = MxForm(request.POST or None)
     if mx.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -662,8 +693,16 @@ def del_mx(request):
     return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_ns(request):
+
+    can, reason = Ns.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     ns = NsForm(request.POST or None)
     if ns.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -710,8 +749,16 @@ def del_ns(request):
     return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_txt(request):
+
+    can, reason = Txt.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     txt = TxtForm(request.POST or None)
     if txt.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -758,8 +805,16 @@ def del_txt(request):
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_srv(request):
+
+    can, reason = Srv.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     srv = SrvForm(request.POST or None)
     if srv.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -807,26 +862,17 @@ def del_srv(request):
 
 @login_required
 def add_alias(request, interfaceid):
-    try:
-        interface = Interface.objects.get(pk=interfaceid)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)):
-        options, created = OptionalMachine.objects.get_or_create()
-        max_lambdauser_aliases = options.max_lambdauser_aliases
-        if interface.machine.user != request.user:
-            messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
-        if Domain.objects.filter(cname__in=Domain.objects.filter(interface_parent__in=interface.machine.user.user_interfaces())).count() >= max_lambdauser_aliases:
-            messages.error(request, "Vous avez atteint le maximum d'alias autorisées que vous pouvez créer vous même (%s) " % max_lambdauser_aliases)
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
+
+    can, reason = Domain.can_create(request.user, interfaceid)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
+    # No need to check if interfaceid exist, already done in can_create
+    interface = Interface.objects.get(pk=interfaceid)
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -900,8 +946,16 @@ def del_alias(request, interfaceid):
 
 
 @login_required
-@permission_required('infra')
 def add_service(request):
+
+    can, reason = Service.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     service = ServiceForm(request.POST or None)
     if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -948,8 +1002,16 @@ def del_service(request):
     return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_vlan(request):
+
+    can, reason = Vlan.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     vlan = VlanForm(request.POST or None)
     if vlan.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -996,8 +1058,16 @@ def del_vlan(request):
     return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
 def add_nas(request):
+
+    can, reason = Nas.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     nas = NasForm(request.POST or None)
     if nas.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -1301,8 +1371,16 @@ def del_portlist(request, pk):
     return redirect(reverse('machines:index-portlist'))
 
 @login_required
-@permission_required('bureau')
 def add_portlist(request):
+
+    can, reason = OuverturePort.can_create(request.user)
+    if not can:
+        messages.error(request, reason)
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
             OuverturePort,

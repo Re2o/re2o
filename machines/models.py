@@ -93,6 +93,10 @@ class MachineType(models.Model):
         machinetype"""
         return Interface.objects.filter(type=self)
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un type de machine"
+
     def __str__(self):
         return self.type
 
@@ -203,6 +207,10 @@ class IpType(models.Model):
         self.clean()
         super(IpType, self).save(*args, **kwargs)
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un type d'ip"
+
     def __str__(self):
         return self.type
 
@@ -215,6 +223,10 @@ class Vlan(models.Model):
     vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
+
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un vlan"
 
     def __str__(self):
         return self.name
@@ -249,6 +261,10 @@ class Nas(models.Model):
         max_length=32
     )
     autocapture_mac = models.BooleanField(default=False)
+
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un nas"
 
     def __str__(self):
         return self.name
@@ -285,6 +301,10 @@ class SOA(models.Model):
         default=172800,  # 2 days
         help_text='Time To Live'
     )
+
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un enregistrement SOA"
 
     def __str__(self):
         return str(self.name)
@@ -368,6 +388,10 @@ class Extension(models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer une extension"
+
     def __str__(self):
         return self.name
 
@@ -393,6 +417,10 @@ class Mx(models.Model):
         fichiers de zones"""
         return "@               IN  MX  " + str(self.priority).ljust(3) + " " + str(self.name)
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un enregistrement MX"
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
@@ -409,6 +437,10 @@ class Ns(models.Model):
         """Renvoie un enregistrement NS complet pour les filezones"""
         return "@               IN  NS      " + str(self.ns)
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un enregistrement NS"
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
@@ -420,6 +452,10 @@ class Txt(models.Model):
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
     field2 = models.TextField(max_length=2047)
+
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un enregistrement TXT"
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -473,6 +509,10 @@ class Srv(models.Model):
         on_delete=models.PROTECT,
         help_text="Serveur cible"
     )
+
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un enregistrement SRV"
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -591,6 +631,23 @@ class Interface(models.Model):
                 correspondent pas")
         super(Interface, self).save(*args, **kwargs)
 
+    def can_create(user_request, machineid_dest):
+        try:
+            machine = Machine.objects.get(pk=machineid_dest)
+        except Machine.DoesNotExist:
+            return False, u"Machine inexistante"
+        if not user_request.has_perms(('cableur',)):
+            options, created = preferences.models.OptionalMachine.objects.get_or_create()
+            max_lambdauser_interfaces = options.max_lambdauser_interfaces
+            if machine.user != user_request:
+                return False, u"Vous ne pouvez pas ajouter une interface à une\
+                        machine d'un autre user que vous sans droit"
+            if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
+                return False, u"Vous avez atteint le maximum d'interfaces\
+                        autorisées que vous pouvez créer vous même (%s) "\
+                        % max_lambdauser_interfaces
+        return True, None
+
     def __str__(self):
         try:
             domain = self.domain
@@ -690,6 +747,27 @@ class Domain(models.Model):
         self.full_clean()
         super(Domain, self).save(*args, **kwargs)
 
+    def can_create(user_request, interfaceid_dest):
+        try:
+            interface = Interface.objects.get(pk=interfaceid_dest)
+        except Interface.DoesNotExist:
+            return False, u"Interface inexistante"
+        if not user_request.has_perms(('cableur',)):
+            options, created = preferences.models.OptionalMachine.objects.get_or_create()
+            max_lambdauser_aliases = options.max_lambdauser_aliases
+            if interface.machine.user != user_request:
+                return False, u"Vous ne pouvez pas ajouter un alias à une\
+                        machine d'un autre user que vous sans droit"
+            if Domain.objects.filter(
+                    cname__in=Domain.objects.filter(
+                        interface_parent__in=interface.machine.user.user_interfaces()
+                    )
+                ).count() >= max_lambdauser_aliases:
+                return False, u"Vous avez atteint le maximum d'alias\
+                        autorisés que vous pouvez créer vous même (%s) "\
+                        % max_lambdauser_aliases
+        return True, None
+
     def __str__(self):
         return str(self.name) + str(self.extension)
 
@@ -716,6 +794,9 @@ class IpList(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super(IpList, self).save(*args, **kwargs)
+
+    def can_create(user_request):
+        return True, None
 
     def __str__(self):
         return self.ipv4
@@ -757,6 +838,10 @@ class Service(models.Model):
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
 
+    def can_create(user_request):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+                de créer un service"
+
     def __str__(self):
         return str(self.service_type)
 
@@ -797,6 +882,9 @@ class Service_link(models.Model):
             ) < timezone.now()
         )
 
+    def can_create(user_request):
+        return True, None
+
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
@@ -809,6 +897,9 @@ class OuverturePortList(models.Model):
         help_text="Nom de la configuration des ports.",
         max_length=255
     )
+
+    def can_create(user_request):
+        return True, None
 
     def __str__(self):
         return self.name
@@ -879,6 +970,10 @@ class OuverturePort(models.Model):
             ),
         default=OUT,
     )
+
+    def can_create(user_request):
+        return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
+                d'ouvrir un port"
 
     def __str__(self):
         if self.begin == self.end:
