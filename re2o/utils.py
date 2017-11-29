@@ -41,6 +41,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine
@@ -65,6 +66,34 @@ def can_create(model):
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
+
+
+def can_edit(model, *instance_id):
+    """Decorator to check if an user can edit a model.
+    It assumes that a valid user exists in the request and that the model has a
+    method can_create(user) which returns true if the user can create this kind
+    of models.
+    """
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            instances = {}
+            for i in instance_id:
+                try:
+                    instances[i] = model.objects.get(pk=i)
+                except model.DoesNotExist:
+                    messages.error(request, u"Entrée inexistante")
+                    return redirect(reverse('users:index'))
+            kwargs['instances'] = instances
+            can = all(model.can_edit(request, instances[i]) for i in instances)
+            if not can:
+                messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
 
 
 def all_adherent(search_time=DT_NOW):
