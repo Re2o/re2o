@@ -72,6 +72,9 @@ class Machine(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
+    def can_edit(user_request, machineid):
+        return True, None
+
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
@@ -96,6 +99,15 @@ class MachineType(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un type de machine"
+
+    def can_edit(user_request, machinetypeid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des types de machine"
+        try:
+            machinetype_instance = MachineType.objects.get(pk=machinetypeid)
+        except MachineType.DoesNotExist:
+            return False, u"Type de machine inexistant"
+        return True, None
 
     def __str__(self):
         return self.type
@@ -211,6 +223,15 @@ class IpType(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un type d'ip"
 
+    def can_edit(user_request, iptypeid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
+        try:
+            iptype_instance = IpType.objects.get(pk=iptypeid)
+        except IpType.DoesNotExist:
+            return False, u"Type d'ip inexistant"
+        return True, None
+
     def __str__(self):
         return self.type
 
@@ -227,6 +248,15 @@ class Vlan(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un vlan"
+
+    def can_edit(user_request, vlanid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des vlans"
+        try:
+            vlan_instance = Vlan.objects.get(pk=vlanid)
+        except Vlan.DoesNotExist:
+            return False, u"Vlan inexistant"
+        return True, None
 
     def __str__(self):
         return self.name
@@ -265,6 +295,15 @@ class Nas(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un nas"
+
+    def can_edit(user_request, nasid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des nas"
+        try:
+            nas_instance = Nas.objects.get(pk=nasid)
+        except Nas.DoesNotExist:
+            return False, u"Nas inexistant"
+        return True, None
 
     def __str__(self):
         return self.name
@@ -305,6 +344,15 @@ class SOA(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement SOA"
+
+    def can_edit(user_request, soaid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
+        try:
+            soa_instance = SOA.objects.get(pk=soaid)
+        except SOA.DoesNotExist:
+            return False, u"Enregistrement SOA inexistant"
+        return True, None
 
     def __str__(self):
         return str(self.name)
@@ -392,6 +440,15 @@ class Extension(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer une extension"
 
+    def can_edit(user_request, extensionid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des extensions"
+        try:
+            extension_instance = Extension.objects.get(pk=extensionid)
+        except Extension.DoesNotExist:
+            return False, u"Extension inexistante"
+        return True, None
+
     def __str__(self):
         return self.name
 
@@ -421,6 +478,15 @@ class Mx(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement MX"
 
+    def can_edit(user_request, mxid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
+        try:
+            mx_instance = Mx.objects.get(pk=mxid)
+        except Mx.DoesNotExist:
+            return False, u"Enregistremet MX inexistant"
+        return True, None
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
@@ -441,6 +507,15 @@ class Ns(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement NS"
 
+    def can_edit(user_request, nsid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
+        try:
+            ns_instance = Ns.objects.get(pk=nsid)
+        except Ns.DoesNotExist:
+            return False, u"Enregistrement NS inexistant"
+        return True, None
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
@@ -456,6 +531,15 @@ class Txt(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement TXT"
+
+    def can_edit(user_request, txtid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
+        try:
+            txt_instance = Txt.objects.get(pk=txtid)
+        except Txt.DoesNotExist:
+            return False, u"Enregistrement TXT inexistant"
+        return True, None
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -513,6 +597,15 @@ class Srv(models.Model):
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement SRV"
+
+    def can_edit(user_request, srvid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
+        try:
+            srv_instance = Srv.objects.get(pk=srvid)
+        except Srv.DoesNotExist:
+            return False, u"Enregistrement SRV inexistant"
+        return True, None
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -648,6 +741,17 @@ class Interface(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
+    def can_edit(user_request, interfaceid):
+        try:
+            interface = Interface.objects.get(pk=interfaceid)
+        except Interface.DoesNotExist:
+            return False, u"Interface inexistante"
+        if not user_request.has_perms(('infra',)):
+            if not user_request.has_perms(('cableur',)) and interface.machine.user != user_request:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
+        return True, None
+
     def __str__(self):
         try:
             domain = self.domain
@@ -768,6 +872,16 @@ class Domain(models.Model):
                         % max_lambdauser_aliases
         return True, None
 
+    def can_edit(user_request, domainid):
+        try:
+            alias_instance = Domain.objects.get(pk=domainid)
+        except Domain.DoesNotExist:
+            return False, u"Alias inexistant"
+        if not user_request.has_perms(('cableur',)) and (alias_instance.cname is None or alias_instance.cname.interface_parent.machine.user != user_request):
+            return False, u"Vous ne pouvez pas ajouter un alias à une machine\
+                    d'un autre user que vous sans droit"
+        return True, None
+
     def __str__(self):
         return str(self.name) + str(self.extension)
 
@@ -796,6 +910,9 @@ class IpList(models.Model):
         super(IpList, self).save(*args, **kwargs)
 
     def can_create(user_request):
+        return True, None
+
+    def can_edit(user_request, iplistid):
         return True, None
 
     def __str__(self):
@@ -842,6 +959,15 @@ class Service(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un service"
 
+    def can_edit(user_request, serviceid):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des services"
+        try:
+            service_instance = Service.objects.get(pk=serviceid)
+        except Service.DoesNotExist:
+            return False, u"Service inexistant"
+        return True, None
+
     def __str__(self):
         return str(self.service_type)
 
@@ -885,6 +1011,9 @@ class Service_link(models.Model):
     def can_create(user_request):
         return True, None
 
+    def can_edit(user_request, service_linkid):
+        return True, None
+
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
@@ -899,6 +1028,16 @@ class OuverturePortList(models.Model):
     )
 
     def can_create(user_request):
+        return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
+                d'ouvrir un port"
+
+    def can_edit(user_request, ouvertureportlistpk):
+        if not user_request.has_perms(('bureau',)):
+            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
+        try:
+            port_list_instance = OuverturePortList.objects.get(pk=ouvertureportlistpk)
+        except OuverturePortList.DoesNotExist:
+            return False, u"Ouverture de port inexistante"
         return True, None
 
     def __str__(self):
@@ -972,8 +1111,10 @@ class OuverturePort(models.Model):
     )
 
     def can_create(user_request):
-        return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
-                d'ouvrir un port"
+        return True, None
+
+    def can_edit(user_request, ouvertureportid):
+        return True, None
 
     def __str__(self):
         if self.begin == self.end:
