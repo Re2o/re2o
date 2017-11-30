@@ -68,28 +68,26 @@ def can_create(model):
     return decorator
 
 
-def can_edit(model, *instance_id):
+def can_edit(model):
     """Decorator to check if an user can edit a model.
-    It assumes that a valid user exists in the request and that the model has a
-    method can_create(user) which returns true if the user can create this kind
+    It tries to get an instance of the model, using
+    `model.get_instance(*args, **kwargs)` and assumes that the model has a method
+    `can_create(user)` which returns `true` if the user can create this kind
     of models.
     """
     def decorator(view):
         def wrapper(request, *args, **kwargs):
-            instances = {}
-            for i in instance_id:
-                try:
-                    instances[i] = model.objects.get(pk=kwargs[i])
-                except model.DoesNotExist:
-                    messages.error(request, u"Entrée inexistante")
-                    return redirect(reverse('users:index'))
-            kwargs['instances'] = instances
-            can = all(model.can_edit(instances[i], request.user) for i in instances)
-            if not can:
+            try:
+                instance = model.get_instance(*args, **kwargs)
+            except model.DoesNotExist:
+                messages.error(request, u"Entrée inexistante")
+                return redirect(reverse('users:index'))
+            if not model.can_edit(instance, request.user):
                 messages.error(request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
                     kwargs={'userid':str(request.user.id)}
                 ))
+            kwargs['instance'] = instance
             return view(request, *args, **kwargs)
         return wrapper
     return decorator

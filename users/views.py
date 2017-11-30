@@ -203,23 +203,23 @@ def select_user_edit_form(request, user):
 
 
 @login_required
-@can_edit(User, 'userid')
-def edit_info(request, userid, **kwargs):
+@can_edit(User)
+def edit_info(request, userid, instance):
     """ Edite un utilisateur à partir de son id,
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
-    if not user.can_edit(request.user):
-        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
-    user = select_user_edit_form(request, user)
+    # try:
+    #     user = User.objects.get(pk=userid)
+    # except User.DoesNotExist:
+    #     messages.error(request, "Utilisateur inexistant")
+    #     return redirect(reverse('users:index'))
+    # if not user.can_edit(request.user):
+    #     messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+    #     return redirect(reverse(
+    #         'users:profil',
+    #         kwargs={'userid':str(request.user.id)}
+    #         ))
+    user = select_user_edit_form(request, instance)
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()
