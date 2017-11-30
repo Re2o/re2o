@@ -935,7 +935,7 @@ class ServiceUser(AbstractBaseUser):
             return user.has_perms(('infra',)), u"Vous n'avez pas le droit de\
                 créer un service user"
 
-    def can_edit(instance, user):
+    def can_edit(self, user):
         return user.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
             les services users"
 
@@ -1119,7 +1119,7 @@ class Ban(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
-    def can_create(user):
+    def can_create(user, userid):
         return user.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
             créer des bannissement"
 

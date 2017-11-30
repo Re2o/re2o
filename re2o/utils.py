@@ -57,8 +57,8 @@ def can_create(model):
     of models.
     """
     def decorator(view):
-        def wrapper(request,*args, **kwargs):
-            can, msg = model.can_create(request.user)
+        def wrapper(request, *args, **kwargs):
+            can, msg = model.can_create(request.user, *args, **kwargs)
             if not can:
                 messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
@@ -85,7 +85,7 @@ def can_edit(model):
                 return redirect(reverse('users:profil',
                     kwargs={'userid':str(request.user.id)}
                 ))
-            can, msg = model.can_edit(instance, request.user)
+            can, msg = instance.can_edit(request.user)
             if not can:
                 messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
