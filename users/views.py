@@ -226,14 +226,10 @@ def edit_info(request, user, userid):
 
 @login_required
 @permission_required('bureau')
-def state(request, userid):
+@can_edit(User)
+def state(request, user, userid):
     """ Changer l'etat actif/desactivé/archivé d'un user,
     need droit bureau """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
     state = StateForm(request.POST or None, instance=user)
     if state.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -257,21 +253,11 @@ def state(request, userid):
 
 
 @login_required
-def password(request, userid):
+@can_edit(User)
+def password(request, user, userid):
     """ Reinitialisation d'un mot de passe à partir de l'userid,
     pour self par défaut, pour tous sans droit si droit cableur,
     pour tous si droit bureau """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users'))
-    if not user.can_edit(request.user):
-        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-        ))
     if not request.user.has_perms(('bureau',)) and user != request.user\
             and Right.objects.filter(user=user):
         messages.error(request, "Il faut les droits bureau pour modifier le\
@@ -307,16 +293,9 @@ def new_serviceuser(request):
 
 
 @login_required
-@permission_required('infra')
-def edit_serviceuser(request, userid):
-    """ Edite un utilisateur à partir de son id,
-    si l'id est différent de request.user,
-    vérifie la possession du droit cableur """
-    try:
-        user = ServiceUser.objects.get(pk=userid)
-    except ServiceUser.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
+@can_edit(ServiceUser)
+def edit_serviceuser(request, user, userid):
+    """ Edit a ServiceUser """
     user = EditServiceUserForm(request.POST or None, instance=user)
     if user.is_valid():
         user_object = user.save(commit=False)
@@ -356,14 +335,10 @@ def del_serviceuser(request, userid):
 
 
 @login_required
-@permission_required('bureau')
-def add_right(request, userid):
+@can_create(Right)
+@can_edit(User)
+def add_right(request, user, userid):
     """ Ajout d'un droit à un user, need droit bureau """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
     right = RightForm(request.POST or None)
     if right.is_valid():
         right = right.save(commit=False)
@@ -405,16 +380,12 @@ def del_right(request):
 
 
 @login_required
-@permission_required('bofh')
-def add_ban(request, userid):
+@can_create(Ban)
+@can_edit(User)
+def add_ban(request, user, userid):
     """ Ajouter un banissement, nécessite au moins le droit bofh
     (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
@@ -433,7 +404,6 @@ def add_ban(request, userid):
             "Attention, cet utilisateur a deja un bannissement actif"
         )
     return form({'userform': ban}, 'users/user.html', request)
-
 
 @login_required
 @permission_required('bofh')
