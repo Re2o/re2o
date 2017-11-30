@@ -765,24 +765,37 @@ class User(AbstractBaseUser):
     def can_create(user):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
-            return True
+            return True, None
         else:
-            return user.has_perms(('cableur',))
+            return user.has_perms(('cableur',)), u"Vous n'avez pas le\
+                    droit de créer un utilisateur"
 
     def can_edit(self, user):
         if self.is_class_club and user.is_class_adherent:
-            return self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all()
+            if self == user or user.has_perms(('cableur',)) or\
+                user.adherent in self.club.administrators.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            return self == user or user.has_perms(('cableur',))
+            if self == user or user.has_perms(('cableur',)):
+                return True, None
+            else:
+                return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
     def can_view(self, user):
         if self.is_class_club and user.is_class_adherent:
-            return self == user or user.has_perms(('cableur',)) or\
+            if self == user or user.has_perms(('cableur',)) or\
                 user.adherent in self.club.administrators.all() or\
-                user.adherent in self.club.members.all()
+                user.adherent in self.club.members.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit de voir ce club"
         else:
-            return self == user or user.has_perms(('cableur',))
+            if self == user or user.has_perms(('cableur',)):
+                return True, None
+            else:
+                return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
     def get_instance(userid):
         return User.objects.get(pk=userid)
@@ -917,12 +930,14 @@ class ServiceUser(AbstractBaseUser):
     def can_create(user):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
-            return True
+            return True, None
         else:
-            return user.has_perms(('infra',))
+            return user.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+                créer un service user"
 
     def can_edit(instance, user):
-        return user.has_perms(('infra',))
+        return user.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
+            les services users"
 
     def get_instance(userid):
         return ServiceUser.objects.get(pk=userid)
@@ -957,7 +972,8 @@ class Right(models.Model):
         return str(self.user)
 
     def can_create(user):
-        return user.has_perms('bureau')
+        return user.has_perms('bureau'), u"Vous n'avez pas le droit de\
+            créer des droits"
 
 
 @receiver(post_save, sender=Right)
@@ -1104,7 +1120,8 @@ class Ban(models.Model):
         return str(self.user) + ' ' + str(self.raison)
 
     def can_create(user):
-        return user.has_perms(('bofh',))
+        return user.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
+            créer des bannissement"
 
 
 @receiver(post_save, sender=Ban)
