@@ -81,14 +81,15 @@ def can_edit(model):
                 instance = model.get_instance(*args, **kwargs)
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
-                return redirect(reverse('users:index'))
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
             if not model.can_edit(instance, request.user):
                 messages.error(request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
                     kwargs={'userid':str(request.user.id)}
                 ))
-            kwargs['instance'] = instance
-            return view(request, *args, **kwargs)
+            return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
 
