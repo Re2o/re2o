@@ -784,6 +784,9 @@ class User(AbstractBaseUser):
         else:
             return self == user or user.has_perms(('cableur',))
 
+    def get_instance(userid):
+        return User.objects.get(pk=userid)
+
     def __str__(self):
         return self.pseudo
 
