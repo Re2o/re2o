@@ -921,6 +921,11 @@ class ServiceUser(AbstractBaseUser):
         else:
             return user.has_perms(('infra',))
 
+    def can_edit(instance, user):
+        return user.has_perms(('infra',))
+
+    def get_instance(userid):
+        return ServiceUser.objects.get(pk=userid)
 
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
@@ -950,6 +955,9 @@ class Right(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+    def can_create(user):
+        return user.has_perms('bureau')
 
 
 @receiver(post_save, sender=Right)
@@ -1094,6 +1102,9 @@ class Ban(models.Model):
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
+
+    def can_create(user):
+        return user.has_perms(('bofh',))
 
 
 @receiver(post_save, sender=Ban)
