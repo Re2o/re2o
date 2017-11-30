@@ -55,6 +55,9 @@ class Machine(models.Model):
     )
     active = models.BooleanField(default=True)
 
+    def get_instance(machineid):
+        return Machine.objects.get(pk=machineid)
+
     def can_create(user_request, userid_dest):
         try:
             user = users.models.User.objects.get(pk=userid_dest)
@@ -72,7 +75,7 @@ class Machine(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
-    def can_edit(user_request, machineid):
+    def can_edit(user_request, machine):
         return True, None
 
     def __str__(self):
@@ -96,17 +99,16 @@ class MachineType(models.Model):
         machinetype"""
         return Interface.objects.filter(type=self)
 
+    def get_instance(machinetypeid):
+        return MachineType.objects.get(pk=machinetypeid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un type de machine"
 
-    def can_edit(user_request, machinetypeid):
+    def can_edit(user_request, machinetype):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types de machine"
-        try:
-            machinetype_instance = MachineType.objects.get(pk=machinetypeid)
-        except MachineType.DoesNotExist:
-            return False, u"Type de machine inexistant"
         return True, None
 
     def __str__(self):
@@ -219,17 +221,16 @@ class IpType(models.Model):
         self.clean()
         super(IpType, self).save(*args, **kwargs)
 
+    def get_instance(iptyeid):
+        return IpType.objects.get(pk=iptypeid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un type d'ip"
 
-    def can_edit(user_request, iptypeid):
+    def can_edit(user_request, iptype):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
-        try:
-            iptype_instance = IpType.objects.get(pk=iptypeid)
-        except IpType.DoesNotExist:
-            return False, u"Type d'ip inexistant"
         return True, None
 
     def __str__(self):
@@ -245,17 +246,16 @@ class Vlan(models.Model):
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
 
+    def get_instance(vlanid):
+        return Vlan.objects.get(pk=vlanid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un vlan"
 
-    def can_edit(user_request, vlanid):
+    def can_edit(user_request, vlan):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des vlans"
-        try:
-            vlan_instance = Vlan.objects.get(pk=vlanid)
-        except Vlan.DoesNotExist:
-            return False, u"Vlan inexistant"
         return True, None
 
     def __str__(self):
@@ -292,17 +292,16 @@ class Nas(models.Model):
     )
     autocapture_mac = models.BooleanField(default=False)
 
+    def get_instance(nasid):
+        return Nas.objects.get(pk=nasid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un nas"
 
-    def can_edit(user_request, nasid):
+    def can_edit(user_request, nas):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des nas"
-        try:
-            nas_instance = Nas.objects.get(pk=nasid)
-        except Nas.DoesNotExist:
-            return False, u"Nas inexistant"
         return True, None
 
     def __str__(self):
@@ -341,17 +340,16 @@ class SOA(models.Model):
         help_text='Time To Live'
     )
 
+    def get_instance(soaid):
+        return SOA.objects.get(pk=soaid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement SOA"
 
-    def can_edit(user_request, soaid):
+    def can_edit(user_request, soa):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
-        try:
-            soa_instance = SOA.objects.get(pk=soaid)
-        except SOA.DoesNotExist:
-            return False, u"Enregistrement SOA inexistant"
         return True, None
 
     def __str__(self):
@@ -436,17 +434,16 @@ class Extension(models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
+    def get_instance(extensionid):
+        return Extension.objects.get(pk=extensionid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer une extension"
 
-    def can_edit(user_request, extensionid):
+    def can_edit(user_request, extension):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des extensions"
-        try:
-            extension_instance = Extension.objects.get(pk=extensionid)
-        except Extension.DoesNotExist:
-            return False, u"Extension inexistante"
         return True, None
 
     def __str__(self):
@@ -474,17 +471,16 @@ class Mx(models.Model):
         fichiers de zones"""
         return "@               IN  MX  " + str(self.priority).ljust(3) + " " + str(self.name)
 
+    def get_instance(mxid):
+        return Mx.objects.get(pk=mxid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement MX"
 
-    def can_edit(user_request, mxid):
+    def can_edit(user_request, mx):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
-        try:
-            mx_instance = Mx.objects.get(pk=mxid)
-        except Mx.DoesNotExist:
-            return False, u"Enregistremet MX inexistant"
         return True, None
 
     def __str__(self):
@@ -503,17 +499,16 @@ class Ns(models.Model):
         """Renvoie un enregistrement NS complet pour les filezones"""
         return "@               IN  NS      " + str(self.ns)
 
+    def get_instance(nsid):
+        return Ns.objects.get(pk=nsid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement NS"
 
-    def can_edit(user_request, nsid):
+    def can_edit(user_request, ns):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
-        try:
-            ns_instance = Ns.objects.get(pk=nsid)
-        except Ns.DoesNotExist:
-            return False, u"Enregistrement NS inexistant"
         return True, None
 
     def __str__(self):
@@ -528,17 +523,16 @@ class Txt(models.Model):
     field1 = models.CharField(max_length=255)
     field2 = models.TextField(max_length=2047)
 
+    def get_instance(txtid):
+        return Txt.objects.get(pk=txtid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement TXT"
 
-    def can_edit(user_request, txtid):
+    def can_edit(user_request, txt):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
-        try:
-            txt_instance = Txt.objects.get(pk=txtid)
-        except Txt.DoesNotExist:
-            return False, u"Enregistrement TXT inexistant"
         return True, None
 
     def __str__(self):
@@ -594,17 +588,16 @@ class Srv(models.Model):
         help_text="Serveur cible"
     )
 
+    def get_instance(srvid):
+        return Srv.objects.get(pk=srvid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un enregistrement SRV"
 
-    def can_edit(user_request, srvid):
+    def can_edit(user_request, srv):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
-        try:
-            srv_instance = Srv.objects.get(pk=srvid)
-        except Srv.DoesNotExist:
-            return False, u"Enregistrement SRV inexistant"
         return True, None
 
     def __str__(self):
@@ -724,6 +717,9 @@ class Interface(models.Model):
                 correspondent pas")
         super(Interface, self).save(*args, **kwargs)
 
+    def get_instance(interfaceid):
+        return Interface.objects.get(pk=interfaceid)
+
     def can_create(user_request, machineid_dest):
         try:
             machine = Machine.objects.get(pk=machineid_dest)
@@ -741,13 +737,10 @@ class Interface(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
-    def can_edit(user_request, interfaceid):
-        try:
-            interface = Interface.objects.get(pk=interfaceid)
-        except Interface.DoesNotExist:
-            return False, u"Interface inexistante"
-        if not user_request.has_perms(('infra',)):
-            if not user_request.has_perms(('cableur',)) and interface.machine.user != user_request:
+    def can_edit(user_request, interface):
+        if not user_request.has_perms(('infra',)) and \
+            not user_request.has_perms(('cableur',)) and \
+            interface.machine.user != user_request:
                 return False, u"Vous ne pouvez pas éditer une machine\
                         d'un autre user que vous sans droit"
         return True, None
@@ -851,6 +844,9 @@ class Domain(models.Model):
         self.full_clean()
         super(Domain, self).save(*args, **kwargs)
 
+    def get_instance(domainid):
+        return Domain.objects.get(pk=domainid)
+
     def can_create(user_request, interfaceid_dest):
         try:
             interface = Interface.objects.get(pk=interfaceid_dest)
@@ -872,12 +868,11 @@ class Domain(models.Model):
                         % max_lambdauser_aliases
         return True, None
 
-    def can_edit(user_request, domainid):
-        try:
-            alias_instance = Domain.objects.get(pk=domainid)
-        except Domain.DoesNotExist:
-            return False, u"Alias inexistant"
-        if not user_request.has_perms(('cableur',)) and (alias_instance.cname is None or alias_instance.cname.interface_parent.machine.user != user_request):
+    def can_edit(user_request, domain):
+        if not user_request.has_perms(('cableur',)) and (
+            domain.cname is None or \
+            domain.cname.interface_parent.machine.user != user_request
+            ):
             return False, u"Vous ne pouvez pas ajouter un alias à une machine\
                     d'un autre user que vous sans droit"
         return True, None
@@ -909,10 +904,13 @@ class IpList(models.Model):
         self.clean()
         super(IpList, self).save(*args, **kwargs)
 
+    def get_instance(iplistid):
+        return IpList.objects.get(pk=iplistid)
+
     def can_create(user_request):
         return True, None
 
-    def can_edit(user_request, iplistid):
+    def can_edit(user_request, iplist):
         return True, None
 
     def __str__(self):
@@ -955,17 +953,16 @@ class Service(models.Model):
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
 
+    def get_instance(serviceid):
+        return Service.objects.get(pk=serviceid)
+
     def can_create(user_request):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
                 de créer un service"
 
-    def can_edit(user_request, serviceid):
+    def can_edit(user_request, service):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des services"
-        try:
-            service_instance = Service.objects.get(pk=serviceid)
-        except Service.DoesNotExist:
-            return False, u"Service inexistant"
         return True, None
 
     def __str__(self):
@@ -1008,10 +1005,13 @@ class Service_link(models.Model):
             ) < timezone.now()
         )
 
+    def get_instance(servicelinkid):
+        return ServiceLink.objects.get(pk=servicelinkid)
+
     def can_create(user_request):
         return True, None
 
-    def can_edit(user_request, service_linkid):
+    def can_edit(user_request, servicelink):
         return True, None
 
     def __str__(self):
@@ -1027,17 +1027,16 @@ class OuverturePortList(models.Model):
         max_length=255
     )
 
+    def get_instance(ouvertureportlistid):
+        return OuverturePortList.objects.get(pk=ouvertureportlistid)
+
     def can_create(user_request):
         return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
                 d'ouvrir un port"
 
-    def can_edit(user_request, ouvertureportlistpk):
+    def can_edit(user_request, ouvertureportlist):
         if not user_request.has_perms(('bureau',)):
             return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        try:
-            port_list_instance = OuverturePortList.objects.get(pk=ouvertureportlistpk)
-        except OuverturePortList.DoesNotExist:
-            return False, u"Ouverture de port inexistante"
         return True, None
 
     def __str__(self):
@@ -1110,10 +1109,13 @@ class OuverturePort(models.Model):
         default=OUT,
     )
 
+    def get_instance(ouvertureportid):
+        return OuverturePort.objects.get(pk=ouvertureportid)
+
     def can_create(user_request):
         return True, None
 
-    def can_edit(user_request, ouvertureportid):
+    def can_edit(user_request, ouvertureport):
         return True, None
 
     def __str__(self):
