@@ -762,7 +762,7 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
-    def can_create(user):
+    def can_create(user, *args, **kwargs):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
@@ -770,7 +770,7 @@ class User(AbstractBaseUser):
             return user.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
-    def can_edit(self, user):
+    def can_edit(self, user, *args, **kwargs):
         if self.is_class_club and user.is_class_adherent:
             if self == user or user.has_perms(('cableur',)) or\
                 user.adherent in self.club.administrators.all():
@@ -783,7 +783,7 @@ class User(AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
-    def can_view(self, user):
+    def can_view(self, user, *args, **kwargs):
         if self.is_class_club and user.is_class_adherent:
             if self == user or user.has_perms(('cableur',)) or\
                 user.adherent in self.club.administrators.all() or\
@@ -797,7 +797,7 @@ class User(AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
-    def get_instance(userid):
+    def get_instance(userid, *args, **kwargs):
         return User.objects.get(pk=userid)
 
     def __str__(self):
@@ -927,7 +927,7 @@ class ServiceUser(AbstractBaseUser):
     def __str__(self):
         return self.pseudo
 
-    def can_create(user):
+    def can_create(user, *args, **kwargs):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
@@ -935,11 +935,11 @@ class ServiceUser(AbstractBaseUser):
             return user.has_perms(('infra',)), u"Vous n'avez pas le droit de\
                 créer un service user"
 
-    def can_edit(self, user):
+    def can_edit(self, user, *args, **kwargs):
         return user.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
             les services users"
 
-    def get_instance(userid):
+    def get_instance(userid, *args, **kwargs):
         return ServiceUser.objects.get(pk=userid)
 
 @receiver(post_save, sender=ServiceUser)
@@ -971,7 +971,7 @@ class Right(models.Model):
     def __str__(self):
         return str(self.user)
 
-    def can_create(user):
+    def can_create(user, *args, **kwargs):
         return user.has_perms('bureau'), u"Vous n'avez pas le droit de\
             créer des droits"
 
@@ -1119,7 +1119,7 @@ class Ban(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
 
-    def can_create(user, userid):
+    def can_create(user, *args, **kwargs):
         return user.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
             créer des bannissement"
 
