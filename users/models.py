@@ -972,7 +972,7 @@ class Right(models.Model):
         return str(self.user)
 
     def can_create(user, *args, **kwargs):
-        return user.has_perms('bureau'), u"Vous n'avez pas le droit de\
+        return user.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
             créer des droits"
 
 
