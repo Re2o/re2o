@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Set of templatags for using acl in templates:
+Set of templatetags for using acl in templates:
     - can_create
     - cannot_create
 
@@ -41,10 +41,17 @@ Set of templatags for using acl in templates:
 
 **Example**:
     {% can_create Machine targeted_user %}
-    <p>I'm authorized to create new machines for this guy \o/</p>
+    <p>I'm authorized to create new machines for this guy \\o/</p>
     {% can_else %}
     <p>Why can't I create a little machine for this guy ? :(</p>
     {% can_end %}
+
+**How to modify**:
+    To add a new acl function (can_xxx or cannot_xxx), add an entry in
+    'get_callback' and register your tag with the other ones juste before
+    'can_generic' definition
+    To add a new model, add an entry in 'get_model' and be sure the acl
+    function exists in the model definition
 
 """
 
@@ -61,10 +68,12 @@ register = template.Library()
 
 
 def get_model(model_name):
+    """Retrieve the model object from its name"""
+
     # cotisations
-        # TODO
+    # TODO
     # logs
-        # TODO
+    # TODO
     # machines
     if model_name == 'Machine':
         return machines.Machine
@@ -127,20 +136,25 @@ def get_callback(tag_name, model_name):
         )
 
 
-def acl_fct(cb, reverse):
+def acl_fct(callback, reverse):
     """Build a function to use as an acl checker"""
 
     def acl_fct_normal(*args, **kwargs):
-        return cb(*args, **kwargs)
+        """The can_xxx checker callback"""
+        return callback(*args, **kwargs)
+
     def acl_fct_reverse(*args, **kwargs):
-        can, msg = cb(*args, **kwargs)
+        """The cannot_xxx checker callback"""
+        can, msg = callback(*args, **kwargs)
         return not can, msg
+
     return acl_fct_reverse if reverse else acl_fct_normal
 
 
 @register.tag('can_create')
 @register.tag('cannot_create')
 def can_generic(parser, token):
+    """Generic definition of an acl templatetag"""
 
     try:
         tag_content = token.split_contents()
@@ -149,7 +163,8 @@ def can_generic(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument : the model" % token.contents.split()[0]
+            "%r tag require at least 1 argument : the model"
+            % token.contents.split()[0]
         )
 
     callback = get_callback(tag_name, model_name)
@@ -168,10 +183,11 @@ def can_generic(parser, token):
     # {% can_create_end %}
     assert token.contents == 'can_end'
 
-    return CanNode( callback, oknodes, konodes, *args )
+    return CanNode(callback, oknodes, konodes, *args)
 
 
 class CanNode(Node):
+    """A node for the compiled ACL block"""
 
     def __init__(self, callback, oknodes, konodes, *args):
         self.callback = callback
