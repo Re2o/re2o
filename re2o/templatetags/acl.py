@@ -187,18 +187,18 @@ def acl_model_filter(parser, token):
     callback = get_callback(tag_name, model)
 
     # {% can_create %}
-    oknodes = parser.parse(('can_else', 'can_end'))
+    oknodes = parser.parse(('acl_else', 'acl_end'))
     token = parser.next_token()
 
     # {% can_create_else %}
-    if token.contents == 'can_else':
-        konodes = parser.parse(('can_end'))
+    if token.contents == 'acl_else':
+        konodes = parser.parse(('acl_end'))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
     # {% can_create_end %}
-    assert token.contents == 'can_end'
+    assert token.contents == 'acl_end'
 
     return AclModelNode(callback, oknodes, konodes, *args)
 
@@ -220,18 +220,18 @@ def acl_instance_filter(parser, token):
         )
 
     # {% can_create %}
-    oknodes = parser.parse(('can_else', 'can_end'))
+    oknodes = parser.parse(('acl_else', 'acl_end'))
     token = parser.next_token()
 
     # {% can_create_else %}
-    if token.contents == 'can_else':
-        konodes = parser.parse(('can_end'))
+    if token.contents == 'acl_else':
+        konodes = parser.parse(('acl_end'))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
     # {% can_create_end %}
-    assert token.contents == 'can_end'
+    assert token.contents == 'acl_end'
 
     return AclInstanceNode(tag_name, instance_name, oknodes, konodes, *args)
 
