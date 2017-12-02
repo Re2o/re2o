@@ -26,9 +26,11 @@ Set of templatags for using acl in templates:
 
 **Parameters**:
     model_name - The model_name that needs to be checked for the current user
+    args - Any other argument that is interpreted as a python object and passed
+        to the acl function (can_xxx)
 
 **Usage**:
-    {% <acl_name> model %}
+    {% <acl_name> model [arg1 [arg2 [...]]]%}
     <template stuff>
     [{% can_else %}
     <template stuff>]
@@ -38,10 +40,10 @@ Set of templatags for using acl in templates:
     (can_xxx or cannot_xxx)
 
 **Example**:
-    {% can_create Machine %}
-    <p>I'm authorized to create new machines \o/</p>
+    {% can_create Machine targeted_user %}
+    <p>I'm authorized to create new machines for this guy \o/</p>
     {% can_else %}
-    <p>Why can't I create a little machine :(</p>
+    <p>Why can't I create a little machine for this guy ? :(</p>
     {% can_end %}
 
 """
@@ -106,24 +108,34 @@ def get_model(model_name):
         # TODO
     else:
         raise template.TemplateSyntaxError(
-            "%r is not a valid model for %r tag" % model_name, tag_name
+            "%r is not a valid model for an acl tag" % model_name
         )
 
 
 def get_callback(tag_name, model_name):
+    """Return the right function to call back to check for acl"""
+
     model = get_model(model_name)
 
     if tag_name == 'can_create':
-        return model.can_create
+        return acl_fct(model.can_create, False)
     if tag_name == 'cannot_create':
-        def res(*args, **kwargs):
-            can, msg = model.can_create(*args, **kwargs)
-            return not can, msg
-        return res
+        return acl_fct(model.can_create, True)
     else:
         raise template.TemplateSyntaxError(
             "%r tag is not a valid can_xxx tag" % tag_name
         )
+
+
+def acl_fct(cb, reverse):
+    """Build a function to use as an acl checker"""
+
+    def acl_fct_normal(*args, **kwargs):
+        return cb(*args, **kwargs)
+    def acl_fct_reverse(*args, **kwargs):
+        can, msg = cb(*args, **kwargs)
+        return not can, msg
+    return acl_fct_reverse if reverse else acl_fct_normal
 
 
 @register.tag('can_create')
@@ -131,10 +143,13 @@ def get_callback(tag_name, model_name):
 def can_generic(parser, token):
 
     try:
-        tag_name, model_name = token.split_contents()
+        tag_content = token.split_contents()
+        tag_name = tag_content[0]
+        model_name = tag_content[1]
+        args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require a single argument : the model" % token.contents.split()[0]
+            "%r tag require at least 1 argument : the model" % token.contents.split()[0]
         )
 
     callback = get_callback(tag_name, model_name)
@@ -153,18 +168,20 @@ def can_generic(parser, token):
     # {% can_create_end %}
     assert token.contents == 'can_end'
 
-    return CanNode( callback, oknodes, konodes )
+    return CanNode( callback, oknodes, konodes, *args )
 
 
 class CanNode(Node):
 
-    def __init__(self, callback, oknodes, konodes):
+    def __init__(self, callback, oknodes, konodes, *args):
         self.callback = callback
         self.oknodes = oknodes
         self.konodes = konodes
+        self.args = [template.Variable(arg) for arg in args]
 
     def render(self, context):
-        can, _ = self.callback(context['user'])
+        resolved_args = [arg.resolve(context) for arg in self.args]
+        can, _ = self.callback(context['user'], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
