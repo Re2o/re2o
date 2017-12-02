@@ -21,20 +21,27 @@
 
 """
 Set of templatetags for using acl in templates:
-    - can_create
-    - cannot_create
+    - can_create (model)
+    - cannot_create (model)
+    - can_edit (instance)
+    - cannot_edit (instance)
+
+Some templatetags require a model to calculate the acl while others are need
+an instance of a model (either Model.can_xxx or instance.can_xxx)
 
 **Parameters**:
-    model_name - The model_name that needs to be checked for the current user
+    model_name or instance - Either the model_name (if templatetag is based on
+        model) or an instantiated object (if templatetag is base on instance)
+        that needs to be checked for the current user
     args - Any other argument that is interpreted as a python object and passed
         to the acl function (can_xxx)
 
 **Usage**:
-    {% <acl_name> model [arg1 [arg2 [...]]]%}
+    {% <acl_name> <obj> [arg1 [arg2 [...]]]%}
     <template stuff>
-    [{% can_else %}
+    [{% acl_else %}
     <template stuff>]
-    {% can_end %}
+    {% acl_end %}
 
     where <acl_name> is one of the templatetag names available
     (can_xxx or cannot_xxx)
@@ -42,16 +49,25 @@ Set of templatetags for using acl in templates:
 **Example**:
     {% can_create Machine targeted_user %}
     <p>I'm authorized to create new machines for this guy \\o/</p>
-    {% can_else %}
+    {% acl_else %}
     <p>Why can't I create a little machine for this guy ? :(</p>
-    {% can_end %}
+    {% acl_end %}
+
+    {% can_edit user %}
+    <p>Oh I can edit myself oO</p>
+    {% acl_else %}
+    <p>Sniff can't edit my own infos ...</p>
+    {% acl_end %}
 
 **How to modify**:
-    To add a new acl function (can_xxx or cannot_xxx), add an entry in
-    'get_callback' and register your tag with the other ones juste before
-    'can_generic' definition
-    To add a new model, add an entry in 'get_model' and be sure the acl
-    function exists in the model definition
+    To add a new acl function (can_xxx or cannot_xxx),
+    - if it's based on a model (like can_create), add an entry in
+        'get_callback' and register your tag with the other ones juste before
+        'acl_model_generic' definition
+    - if it's bases on an instance (like can_edit), just register yout tag with
+        the other ones juste before 'acl_instance_generic' definition
+    To add support for a new model, add an entry in 'get_model' and be sure
+    the acl function exists in the model definition
 
 """
 
@@ -77,75 +93,75 @@ def get_model(model_name):
     # machines
     if model_name == 'Machine':
         return machines.Machine
-    elif model_name == 'MachineType':
+    if model_name == 'MachineType':
         return machines.MachineType
-    elif model_name == 'IpType':
+    if model_name == 'IpType':
         return machines.IpType
-    elif model_name == 'Vlan':
+    if model_name == 'Vlan':
         return machines.Vlan
-    elif model_name == 'Nas':
+    if model_name == 'Nas':
         return machines.Nas
-    elif model_name == 'SOA':
+    if model_name == 'SOA':
         return machines.SOA
-    elif model_name == 'Extension':
+    if model_name == 'Extension':
         return machines.Extension
-    elif model_name == 'Mx':
+    if model_name == 'Mx':
         return machines.Mx
-    elif model_name == 'Ns':
+    if model_name == 'Ns':
         return machines.Ns
-    elif model_name == 'Txt':
+    if model_name == 'Txt':
         return machines.Txt
-    elif model_name == 'Srv':
+    if model_name == 'Srv':
         return machines.Srv
-    elif model_name == 'Interface':
+    if model_name == 'Interface':
         return machines.Interface
-    elif model_name == 'Domain':
+    if model_name == 'Domain':
         return machines.Domain
-    elif model_name == 'IpList':
+    if model_name == 'IpList':
         return machines.IpList
-    elif model_name == 'Service':
+    if model_name == 'Service':
         return machines.Service
-    elif model_name == 'Service_link':
+    if model_name == 'Service_link':
         return machines.Service_link
-    elif model_name == 'OuverturePortList':
+    if model_name == 'OuverturePortList':
         return machines.OuverturePortList
-    elif model_name == 'OuverturePort':
+    if model_name == 'OuverturePort':
         return machines.OuverturePort
     # topologie
         # TODO
     # users
         # TODO
-    else:
-        raise template.TemplateSyntaxError(
-            "%r is not a valid model for an acl tag" % model_name
-        )
+    raise template.TemplateSyntaxError(
+        "%r is not a valid model for an acl tag" % model_name
+    )
 
 
-def get_callback(tag_name, model_name):
+def get_callback(tag_name, obj):
     """Return the right function to call back to check for acl"""
 
-    model = get_model(model_name)
-
     if tag_name == 'can_create':
-        return acl_fct(model.can_create, False)
+        return acl_fct(obj.can_create, False)
     if tag_name == 'cannot_create':
-        return acl_fct(model.can_create, True)
-    else:
-        raise template.TemplateSyntaxError(
-            "%r tag is not a valid can_xxx tag" % tag_name
-        )
+        return acl_fct(obj.can_create, True)
+    if tag_name == 'can_edit':
+        return acl_fct(obj.can_edit, False)
+    if tag_name == 'cannot_edit':
+        return acl_fct(obj.can_edit, True)
+    raise template.TemplateSyntaxError(
+        "%r tag is not a valid can_xxx tag" % tag_name
+    )
 
 
 def acl_fct(callback, reverse):
     """Build a function to use as an acl checker"""
 
-    def acl_fct_normal(*args, **kwargs):
+    def acl_fct_normal(user, *args, **kwargs):
         """The can_xxx checker callback"""
-        return callback(*args, **kwargs)
+        return callback(user, *args, **kwargs)
 
-    def acl_fct_reverse(*args, **kwargs):
+    def acl_fct_reverse(user, *args, **kwargs):
         """The cannot_xxx checker callback"""
-        can, msg = callback(*args, **kwargs)
+        can, msg = callback(user, *args, **kwargs)
         return not can, msg
 
     return acl_fct_reverse if reverse else acl_fct_normal
@@ -153,8 +169,8 @@ def acl_fct(callback, reverse):
 
 @register.tag('can_create')
 @register.tag('cannot_create')
-def can_generic(parser, token):
-    """Generic definition of an acl templatetag"""
+def acl_model_filter(parser, token):
+    """Generic definition of an acl templatetag for acl based on model"""
 
     try:
         tag_content = token.split_contents()
@@ -167,7 +183,8 @@ def can_generic(parser, token):
             % token.contents.split()[0]
         )
 
-    callback = get_callback(tag_name, model_name)
+    model = get_model(model_name)
+    callback = get_callback(tag_name, model)
 
     # {% can_create %}
     oknodes = parser.parse(('can_else', 'can_end'))
@@ -183,11 +200,44 @@ def can_generic(parser, token):
     # {% can_create_end %}
     assert token.contents == 'can_end'
 
-    return CanNode(callback, oknodes, konodes, *args)
+    return AclModelNode(callback, oknodes, konodes, *args)
 
 
-class CanNode(Node):
-    """A node for the compiled ACL block"""
+@register.tag('can_edit')
+@register.tag('cannot_edit')
+def acl_instance_filter(parser, token):
+    """Generic definition of an acl templatetag for acl based on instance"""
+
+    try:
+        tag_content = token.split_contents()
+        tag_name = tag_content[0]
+        instance_name = tag_content[1]
+        args = tag_content[2:]
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag require at least 1 argument : the instance"
+            % token.contents.split()[0]
+        )
+
+    # {% can_create %}
+    oknodes = parser.parse(('can_else', 'can_end'))
+    token = parser.next_token()
+
+    # {% can_create_else %}
+    if token.contents == 'can_else':
+        konodes = parser.parse(('can_end'))
+        token = parser.next_token()
+    else:
+        konodes = NodeList()
+
+    # {% can_create_end %}
+    assert token.contents == 'can_end'
+
+    return AclInstanceNode(tag_name, instance_name, oknodes, konodes, *args)
+
+
+class AclModelNode(Node):
+    """A node for the compiled ACL block when acl is base on model"""
 
     def __init__(self, callback, oknodes, konodes, *args):
         self.callback = callback
@@ -198,6 +248,25 @@ class CanNode(Node):
     def render(self, context):
         resolved_args = [arg.resolve(context) for arg in self.args]
         can, _ = self.callback(context['user'], *(resolved_args))
+        if can:
+            return self.oknodes.render(context)
+        return self.konodes.render(context)
+
+
+class AclInstanceNode(Node):
+    """A node for the compiled ACL block when acl is based on instance"""
+
+    def __init__(self, tag_name, instance_name, oknodes, konodes, *args):
+        self.tag_name = tag_name
+        self.instance = template.Variable(instance_name)
+        self.oknodes = oknodes
+        self.konodes = konodes
+        self.args = [template.Variable(arg) for arg in args]
+
+    def render(self, context):
+        callback = get_callback(self.tag_name, self.instance.resolve(context))
+        resolved_args = [arg.resolve(context) for arg in self.args]
+        can, _ = callback(context['user'], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
