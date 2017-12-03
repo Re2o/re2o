@@ -78,6 +78,12 @@ class Machine(models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and self.user != user_request:
+            return False, u"Vous ne pouvez pas éditer une machine d'un autre user\
+                que vous sans droit"
+        return True, None
+
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
@@ -103,12 +109,17 @@ class MachineType(models.Model):
         return MachineType.objects.get(pk=machinetypeid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un type de machine"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un type de machine"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types de machine"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer des types de machines"
         return True, None
 
     def __str__(self):
@@ -225,13 +236,17 @@ class IpType(models.Model):
         return IpType.objects.get(pk=iptypeid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un type d'ip"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un type d'ip"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
         return True, None
+
+    def can_delete(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un type d'ip"
 
     def __str__(self):
         return self.type
@@ -250,13 +265,17 @@ class Vlan(models.Model):
         return Vlan.objects.get(pk=vlanid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un vlan"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un vlan"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des vlans"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de suprimer un vlan"
 
     def __str__(self):
         return self.name
@@ -296,13 +315,17 @@ class Nas(models.Model):
         return Nas.objects.get(pk=nasid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un nas"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un nas"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des nas"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un nas"
 
     def __str__(self):
         return self.name
@@ -344,13 +367,17 @@ class SOA(models.Model):
         return SOA.objects.get(pk=soaid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un enregistrement SOA"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un enregistrement SOA"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des enregistrements SOA"
 
     def __str__(self):
         return str(self.name)
@@ -438,13 +465,17 @@ class Extension(models.Model):
         return Extension.objects.get(pk=extensionid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer une extension"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer une extension"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des extensions"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des extension"
 
     def __str__(self):
         return self.name
@@ -475,13 +506,17 @@ class Mx(models.Model):
         return Mx.objects.get(pk=mxid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un enregistrement MX"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un enregistrement MX"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement MX"
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
@@ -503,13 +538,17 @@ class Ns(models.Model):
         return Ns.objects.get(pk=nsid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un enregistrement NS"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un enregistrement NS"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement NS"
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
@@ -527,13 +566,17 @@ class Txt(models.Model):
         return Txt.objects.get(pk=txtid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un enregistrement TXT"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un enregistrement TXT"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des enregistrements TXT"
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -592,13 +635,17 @@ class Srv(models.Model):
         return Srv.objects.get(pk=srvid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un enregistrement SRV"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un enregistrement SRV"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement SRV"
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -745,6 +792,12 @@ class Interface(models.Model):
                         d'un autre user que vous sans droit"
         return True, None
 
+    def can_delete(self, user_resquest, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+            return False, u"Vous ne pouvez pas éditer une machine d'un autre\
+                user que vous sans droit"
+        return True, None
+
     def __str__(self):
         try:
             domain = self.domain
@@ -877,6 +930,12 @@ class Domain(models.Model):
                     d'un autre user que vous sans droit"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+            return False, u"Vous ne pouvez pas supprimer un alias à une machine\
+                d'un autre user que vous sans droit"
+        return True, None
+
     def __str__(self):
         return str(self.name) + str(self.extension)
 
@@ -911,6 +970,9 @@ class IpList(models.Model):
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
         return True, None
 
     def __str__(self):
@@ -957,13 +1019,17 @@ class Service(models.Model):
         return Service.objects.get(pk=serviceid)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
-                de créer un service"
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de créer un service"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des services"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un service"
 
     def __str__(self):
         return str(self.service_type)
@@ -1014,6 +1080,9 @@ class Service_link(models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
@@ -1032,12 +1101,16 @@ class OuverturePortList(models.Model):
 
     def can_create(user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
-                d'ouvrir un port"
+            d'ouvrir un port"
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('bureau',)):
             return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
         return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            de supprimer une ouverture de port"
 
     def __str__(self):
         return self.name
@@ -1116,6 +1189,9 @@ class OuverturePort(models.Model):
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
         return True, None
 
     def __str__(self):
