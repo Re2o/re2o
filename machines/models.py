@@ -84,6 +84,11 @@ class Machine(models.Model):
                 que vous sans droit"
         return True, None
 
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and self.user != user_request:
+            return False, u"Vous n'avez pas droit de voir les machines autre\
+                que les vôtres"
+
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
@@ -121,6 +126,10 @@ class MachineType(models.Model):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit de supprimer des types de machines"
         return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les types de machines"
 
     def __str__(self):
         return self.type
@@ -248,6 +257,10 @@ class IpType(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un type d'ip"
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les types d'ip"
+
     def __str__(self):
         return self.type
 
@@ -276,6 +289,10 @@ class Vlan(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de suprimer un vlan"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les vlans"
 
     def __str__(self):
         return self.name
@@ -326,6 +343,10 @@ class Nas(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un nas"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les nas"
 
     def __str__(self):
         return self.name
@@ -378,6 +399,10 @@ class SOA(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des enregistrements SOA"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enreistrement SOA"
 
     def __str__(self):
         return str(self.name)
@@ -477,6 +502,10 @@ class Extension(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des extension"
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les extensions"
+
     def __str__(self):
         return self.name
 
@@ -518,6 +547,10 @@ class Mx(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement MX"
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements MX"
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
@@ -550,6 +583,10 @@ class Ns(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement NS"
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements NS"
+
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
@@ -577,6 +614,10 @@ class Txt(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des enregistrements TXT"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements TXT"
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -646,6 +687,10 @@ class Srv(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement SRV"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements SRV"
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -798,6 +843,12 @@ class Interface(models.Model):
                 user que vous sans droit"
         return True, None
 
+    def can_view(self, user_request, *args, **kwargs):
+        if user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
     def __str__(self):
         try:
             domain = self.domain
@@ -936,6 +987,12 @@ class Domain(models.Model):
                 d'un autre user que vous sans droit"
         return True, None
 
+    def can_view(self, user_request, *args, **kwargs):
+        if user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
     def __str__(self):
         return str(self.name) + str(self.extension)
 
@@ -973,6 +1030,9 @@ class IpList(models.Model):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
         return True, None
 
     def __str__(self):
@@ -1031,6 +1091,10 @@ class Service(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un service"
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des services"
+
     def __str__(self):
         return str(self.service_type)
 
@@ -1083,6 +1147,10 @@ class Service_link(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des liens de services"
+
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
@@ -1111,6 +1179,10 @@ class OuverturePortList(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             de supprimer une ouverture de port"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des ouverture de ports"
 
     def __str__(self):
         return self.name
@@ -1192,6 +1264,9 @@ class OuverturePort(models.Model):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
         return True, None
 
     def __str__(self):
