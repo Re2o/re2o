@@ -3,7 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyirght © 2017  Daniel Stan 
+# Copyirght © 2017  Daniel Stan
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
@@ -127,7 +127,7 @@ def radius_event(fun):
 
     return new_f
 
-   
+
 
 @radius_event
 def instantiate(*_):
@@ -155,7 +155,7 @@ def authorize(data):
         user = data.get('User-Name', '').decode('utf-8', errors='replace')
         user = user.split('@', 1)[0]
         mac = data.get('Calling-Station-Id', '')
-        result, log, password = check_user_machine_and_register(nas_type, user, mac) 
+        result, log, password = check_user_machine_and_register(nas_type, user, mac)
         logger.info(log.encode('utf-8'))
         logger.info(user.encode('utf-8'))
 
@@ -189,13 +189,20 @@ def post_auth(data):
     if not nas_type:
         logger.info(u"Type de nas non enregistré dans la bdd!".encode('utf-8'))
         return radiusd.RLM_MODULE_OK
-    
+
     mac = data.get('Calling-Station-Id', None)
-    
+
     # Si il s'agit d'un switch
     if hasattr(nas_instance, 'switch'):
         port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
-        # Hack, à cause d'une numérotation cisco baroque
+        #Pour les infrastructures possédant des switchs Juniper :
+        #On vérifie si le switch fait partie d'un stack Juniper
+        instance_stack = nas_instance.switch.stack
+        if instance_stack:
+            # Si c'est le cas, on resélectionne le bon switch dans la stack
+            id_stack_member = port.split("-")[1].split('/')[0]
+            nas_instance = Interface.objects.filter(switch__in=Switch.objects.filter(stack=instance_stack).filter(stack_member_id=id_stack_member)).select_related('domain__extension').first()
+        # On récupère le numéro du port sur l'output de freeradius. La ligne suivante fonctionne pour cisco, HP et Juniper
         port = port.split(".")[0].split('/')[-1][-2:]
         out = decide_vlan_and_register_switch(nas_instance, nas_type, port, mac)
         sw_name, reason, vlan_id = out
@@ -228,7 +235,7 @@ def detach(_=None):
     return radiusd.RLM_MODULE_OK
 
 def find_nas_from_request(nas_id):
-    nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id)))
+    nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id))).select_related('type').select_related('switch__stack')
     return nas.first()
 
 def check_user_machine_and_register(nas_type, username, mac_address):
@@ -257,7 +264,7 @@ def check_user_machine_and_register(nas_type, username, mac_address):
             if result:
                 return (True, u'Access Ok, Capture de la mac...', user.pwd_ntlm)
             else:
-                return (False, u'Erreur dans le register mac %s' % reason, '')        
+                return (False, u'Erreur dans le register mac %s' % reason, '')
         else:
             return (False, u'Machine inconnue', '')
     else:
@@ -294,12 +301,11 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
 
     sw_name = str(nas)
 
-    port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number)
+    port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number).first()
     #Si le port est inconnu, on place sur le vlan defaut
     if not port:
         return (sw_name, u'Port inconnu', VLAN_OK)
 
-    port = port.first()
     # Si un vlan a été précisé, on l'utilise pour VLAN_OK
     if port.vlan_force:
         DECISION_VLAN = int(port.vlan_force.vlan_id)
@@ -327,7 +333,7 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
 
     if port.radius == 'COMMON' or port.radius == 'STRICT':
         # Authentification par mac
-        interface = Interface.objects.filter(mac_address=mac_address)
+        interface = Interface.objects.filter(mac_address=mac_address).select_related('machine__user').select_related('ipv4').first()
         if not interface:
             # On essaye de register la mac
             if not nas_type.autocapture_mac:
@@ -348,9 +354,8 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
                     if result:
                         return (sw_name, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
                     else:
-                        return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK) 
+                        return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK)
         else:
-            interface = interface.first()
             if not interface.is_active:
                 return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
             elif not interface.ipv4:
@@ -358,5 +363,3 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
                 return (sw_name, u"Ok, Reassignation de l'ipv4" + extra_log, DECISION_VLAN)
             else:
                 return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
-
-
