@@ -522,3 +522,20 @@ def history(request, application, object_name, object_id):
         {'reversions': reversions, 'object': instance}
     )
 
+
+@login_required
+@permission_required('cableur')
+def stats_unoccupuied_rooms(request):
+    """Vue qui affiche les chambres inoccupées
+    pour des fins de contrôle des cotisations"""
+    stats = {
+        'Nombre de chambres Innocupées': {
+            'Action': Room.objects.filter(adherent__isnull=True).count()
+        },
+         'Chambres Innocupées': {
+            'Action': Room.objects.filter(
+                adherent__isnull=True
+            ).order_by('-num')[:40],
+        },
+    }
+    return render(request, 'logs/stats_rooms.html', {'stats_list': stats})
