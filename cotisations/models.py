@@ -103,6 +103,40 @@ class Facture(models.Model):
             ).values_list('name', flat=True))
         return name
 
+    def get_instance(factureid, *args, **kwargs):
+        return Facture.objects.get(pk=factureid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de créer des factures"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit d'éditer les factures"
+        elif not user_request.has_perms(('tresorier',)) and\
+            (self.control or not self.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une facture\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de supprimer une facture"
+        if self.control or not self.valid:
+            return False, u"Vous ne pouvez pas supprimer une facture\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and\
+            self.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                facture d'un autre user que vous sans droit cableur"
+        else:
+            return True, None
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
 
@@ -201,6 +235,21 @@ class Vente(models.Model):
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
+    def get_instance(venteid, *args, **kwargs):
+        return Vente.objects.get(pk=venteid)
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return True, None
+
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
 
@@ -277,6 +326,25 @@ class Article(models.Model):
                 "La durée est obligatoire si il s'agit d'une cotisation"
             )
 
+    def get_instance(articleid, *args, **kwargs):
+        return Article.objects.get(pk=articleid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'ajouter des articles"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des articles"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des articles"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des articles"
+
     def __str__(self):
         return self.name
 
@@ -286,6 +354,25 @@ class Banque(models.Model):
     PRETTY_NAME = "Banques enregistrées"
 
     name = models.CharField(max_length=255)
+
+    def get_instance(banqueid, *args, **kwargs):
+        return Banque.objects.get(pk=banqueid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit d'ajouter des banques"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des banques"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des banques"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des banques"
 
     def __str__(self):
         return self.name
@@ -301,6 +388,25 @@ class Paiement(models.Model):
 
     moyen = models.CharField(max_length=255)
     type_paiement = models.IntegerField(choices=PAYMENT_TYPES, default=0)
+
+    def get_instance(paiementid, *args, **kwargs):
+        return Paiement.objects.get(pk=paiementid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'ajouter des paiements"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des paiements"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des paiements"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des paiements"
 
     def __str__(self):
         return self.moyen
@@ -333,6 +439,21 @@ class Cotisation(models.Model):
     )
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
+
+    def get_instance(cotisationid, *args, **kwargs):
+        return Cotisations.objects.get(pk=cotisationid)
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return True, None
 
     def __str__(self):
         return str(self.vente)
