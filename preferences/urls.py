@@ -61,11 +61,11 @@ urlpatterns = [
         views.edit_options,
         name='edit-options'
         ),
-    url(r'^add_services/$', views.add_services, name='add-services'),
+    url(r'^add_service/$', views.add_service, name='add-service'),
     url(
-        r'^edit_services/(?P<servicesid>[0-9]+)$',
-        views.edit_services,
-        name='edit-services'
+        r'^edit_service/(?P<serviceid>[0-9]+)$',
+        views.edit_service,
+        name='edit-service'
         ),
     url(r'^del_services/$', views.del_services, name='del-services'),
     url(
