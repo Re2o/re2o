@@ -41,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.image }}</td>
             <td class="text-right">
             {% if is_admin %}
-            {% include 'buttons/edit.html' with href='preferences:edit-services' id=service.id %}
+            {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
             {% endif %}
             {% include 'buttons/history.html' with href='preferences:history' name='service' id=service.id %}
             </td>

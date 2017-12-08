@@ -47,6 +47,23 @@ class OptionalUser(models.Model):
         help_text="Tous les users peuvent en créer d'autres",
     )
 
+    def get_instance(*args, **kwargs):
+        return OptionalUser.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les users"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les utilisateurs"
+
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
@@ -62,6 +79,23 @@ class OptionalMachine(models.Model):
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
     ipv6 = models.BooleanField(default=False)
+
+    def get_instance(*args, **kwargs):
+        return OptionalMachine.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les machines"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les machines"
 
 
 class OptionalTopologie(models.Model):
@@ -96,6 +130,23 @@ class OptionalTopologie(models.Model):
         null=True
     )
 
+    def get_instance(*args, **kwargs):
+        return OptionalTopologie.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant la topologie"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant la topologie"
+
 
 class GeneralOption(models.Model):
     """Options générales : nombre de resultats par page, nom du site,
@@ -114,6 +165,23 @@ class GeneralOption(models.Model):
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@serveur.net")
 
+    def get_instance(*args, **kwargs):
+        return GeneralOption.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences générales"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences générales"
+
 
 class Service(models.Model):
     """Liste des services affichés sur la page d'accueil : url, description,
@@ -122,6 +190,25 @@ class Service(models.Model):
     url = models.URLField()
     description = models.TextField()
     image = models.ImageField(upload_to='logo', blank=True)
+
+    def get_instance(serviceid, *args, **kwargs):
+        return Service.objects.get(pk=serviceid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            de créer un service pour la page d'accueil"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les services pour la page d'accueil"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            de supprimer les services pour la page d'accueil"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les services pour la page d'accueil"
 
     def __str__(self):
         return str(self.name)
@@ -148,6 +235,23 @@ class AssoOption(models.Model):
         null=True
     )
 
+    def get_instance(*args, **kwargs):
+        return AssoOption.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant l'association"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant l'association"
+
 
 class MailMessageOption(models.Model):
     """Reglages, mail de bienvenue et autre"""
@@ -155,3 +259,20 @@ class MailMessageOption(models.Model):
 
     welcome_mail_fr = models.TextField(default="")
     welcome_mail_en = models.TextField(default="")
+
+    def get_instance(*args, **kwargs):
+        return MailMessageOption.objects.get_or_create()
+
+    def can_create(user_request, *args, **kwargs):
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les mails"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les mails"
