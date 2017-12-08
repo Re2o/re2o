@@ -762,43 +762,46 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
-    def can_create(user, *args, **kwargs):
+    def get_instance(userid, *args, **kwargs):
+        return User.objects.get(pk=userid)
+
+    def can_create(user_request, *args, **kwargs):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
         else:
-            return user.has_perms(('cableur',)), u"Vous n'avez pas le\
+            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
-    def can_edit(self, user, *args, **kwargs):
-        if self.is_class_club and user.is_class_adherent:
-            if self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all():
+    def can_edit(self, user_request, *args, **kwargs):
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or user_request.has_perms(('cableur',)) or\
+                user_request.adherent in self.club.administrators.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            if self == user or user.has_perms(('cableur',)):
+            if self == user_request or user_request.has_perms(('cableur',)):
                 return True, None
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
-    def can_view(self, user, *args, **kwargs):
-        if self.is_class_club and user.is_class_adherent:
-            if self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all() or\
-                user.adherent in self.club.members.all():
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or user_request.has_perms(('cableur',)) or\
+                user_request.adherent in self.club.administrators.all() or\
+                user_request.adherent in self.club.members.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit de voir ce club"
         else:
-            if self == user or user.has_perms(('cableur',)):
+            if self == user_request or user_request.has_perms(('cableur',)):
                 return True, None
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
-
-    def get_instance(userid, *args, **kwargs):
-        return User.objects.get(pk=userid)
 
     def __str__(self):
         return self.pseudo
@@ -815,6 +818,31 @@ class Adherent(User):
     )
     pass
 
+    def get_instance(adherentid, *args, **kwargs):
+        return Adherent.objects.get(pk=adherentid)
+
+    def can_create(user_request, *args, **kwargs):
+        options, _created = OptionalUser.objects.get_or_create()
+        if options.all_can_create:
+            return True, None
+        else:
+            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+                    droit de créer un adherent"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if self == user_request or user_request.has_perms(('cableur',)):
+            return True, None
+        else:
+            return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if self == user_request or user_request.has_perms(('cableur',)):
+            return True, None
+        else:
+            return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
 
 class Club(User):
@@ -837,6 +865,35 @@ class Club(User):
     )
 
     pass
+
+    def get_instance(clubid, *args, **kwargs):
+        return Club.objects.get(pk=clubid)
+
+    def can_create(user_request, *args, **kwargs):
+        options, _created = OptionalUser.objects.get_or_create()
+        if options.all_can_create:
+            return True, None
+        else:
+            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+                    droit de créer un club"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if self == user_request or user_request.has_perms(('cableur',)) or\
+            user_request.adherent in self.administrators.all():
+            return True, None
+        else:
+            return False, u"Vous n'avez pas le droit d'éditer ce club"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if self == user_request or user_request.has_perms(('cableur',)) or\
+            user_request.adherent in self.administrators.all() or\
+            user_request.adherent in self.members.all():
+            return True, None
+        else:
+            return False, u"Vous n'avez pas le droit de voir ce club"
 
 
 @receiver(post_save, sender=Adherent)
@@ -924,23 +981,31 @@ class ServiceUser(AbstractBaseUser):
             )]).values_list('dn', flat=True))
         group.save()
 
-    def __str__(self):
-        return self.pseudo
+    def get_instance(userid, *args, **kwargs):
+        return ServiceUser.objects.get(pk=userid)
 
-    def can_create(user, *args, **kwargs):
+    def can_create(user_request, *args, **kwargs):
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
         else:
-            return user.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+            return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
                 créer un service user"
 
-    def can_edit(self, user, *args, **kwargs):
-        return user.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
             les services users"
 
-    def get_instance(userid, *args, **kwargs):
-        return ServiceUser.objects.get(pk=userid)
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+            supprimer un service user"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
+            voir un service user"
+
+    def __str__(self):
+        return self.pseudo
 
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
@@ -968,12 +1033,25 @@ class Right(models.Model):
     class Meta:
         unique_together = ("user", "right")
 
+    def get_instance(rightid, *args, **kwargs):
+        return Right.objects.get(pk=rightid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
+            créer des droits"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
+            supprimer des droits"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return True, None
+
     def __str__(self):
         return str(self.user)
-
-    def can_create(user, *args, **kwargs):
-        return user.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
-            créer des droits"
 
 
 @receiver(post_save, sender=Right)
@@ -995,6 +1073,25 @@ class School(models.Model):
     PRETTY_NAME = "Etablissements enregistrés"
 
     name = models.CharField(max_length=255)
+
+    def get_instance(schoolid, *args, **kwargs):
+        return School.objects.get(pk=schoolid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de créer des écoles"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit d'éditer des écoles"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de supprimer des écoles"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir les écoles"
 
     def __str__(self):
         return self.name
@@ -1023,6 +1120,25 @@ class ListRight(models.Model):
         max_length=255,
         blank=True
     )
+
+    def get_instance(listrightid, *args, **kwargs):
+        return ListRight.objects.get(pk=listrightid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            de créer des groupes de droits"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            d'éditer des groupes de droits"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            de supprimer des groupes de droits"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les groupes de droits"
 
     def __str__(self):
         return self.listright
@@ -1116,12 +1232,30 @@ class Ban(models.Model):
         """Ce ban est-il actif?"""
         return self.date_end > DT_NOW
 
+    def get_instance(banid, *args, **kwargs):
+        return Ban.objects.get(pk=banid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
+            créer des bannissements"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+            d'éditer des bannissements"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and\
+            self.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir les bannissements\
+                autre que les vôtres"
+        else:
+            return True, None
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
-
-    def can_create(user, *args, **kwargs):
-        return user.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
-            créer des bannissement"
 
 
 @receiver(post_save, sender=Ban)
@@ -1164,6 +1298,28 @@ class Whitelist(models.Model):
 
     def is_active(self):
         return self.date_end > DT_NOW
+
+    def get_instance(whitelistid, *args, **kwargs):
+        return Whitelist.objects.get(pk=whitelistid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de créer des accès gracieux"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit d'éditer des accès gracieux"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)) and\
+            self.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir les accès\
+                gracieux autre que les vôtres"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
