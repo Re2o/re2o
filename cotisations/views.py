@@ -43,7 +43,7 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import SortTable
+from re2o.utils import SortTable, can_create, can_edit
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
@@ -65,8 +65,9 @@ from .tex import render_invoice
 
 
 @login_required
-@permission_required('cableur')
-def new_facture(request, userid):
+@can_create(Facture)
+@can_edit(User)
+def new_facture(request, user, userid):
     """Creation d'une facture pour un user. Renvoie la liste des articles
     et crée des factures dans un formset. Utilise un peu de js coté template
     pour ajouter des articles.
@@ -74,11 +75,6 @@ def new_facture(request, userid):
     enfin sauve la facture parente.
     TODO : simplifier cette fonction, déplacer l'intelligence coté models
     Facture et Vente."""
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant")
-        return redirect(reverse('cotisations:index'))
     facture = Facture(user=user)
     # Le template a besoin de connaitre les articles pour le js
     article_list = Article.objects.filter(
@@ -251,25 +247,16 @@ def facture_pdf(request, factureid):
 
 
 @login_required
-@permission_required('cableur')
-def edit_facture(request, factureid):
+@can_edit(Facture)
+def edit_facture(request, facture, factureid):
     """Permet l'édition d'une facture. On peut y éditer les ventes
     déjà effectuer, ou rendre une facture invalide (non payées, chèque
     en bois etc). Mets à jour les durée de cotisation attenantes"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
     if request.user.has_perms(['tresorier']):
         facture_form = TrezEditFactureForm(
             request.POST or None,
             instance=facture
         )
-    elif facture.control or not facture.valid:
-        messages.error(request, "Vous ne pouvez pas editer une facture\
-                controlée ou invalidée par le trésorier")
-        return redirect(reverse('cotisations:index'))
     else:
         facture_form = EditFactureForm(request.POST or None, instance=facture)
     ventes_objects = Vente.objects.filter(facture=facture)
@@ -355,7 +342,7 @@ def credit_solde(request, userid):
 
 
 @login_required
-@permission_required('tresorier')
+@can_create(Article)
 def add_article(request):
     """Ajoute un article. Champs : désignation,
     prix, est-ce une cotisation et si oui sa durée
@@ -376,15 +363,10 @@ def add_article(request):
 
 
 @login_required
-@permission_required('tresorier')
-def edit_article(request, articleid):
+@can_edit(Article)
+def edit_article(request, article_instance, articleid):
     """Edition d'un article (designation, prix, etc)
     Réservé au trésorier"""
-    try:
-        article_instance = Article.objects.get(pk=articleid)
-    except Article.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-article'))
     article = ArticleForm(request.POST or None, instance=article_instance)
     if article.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -416,7 +398,7 @@ def del_article(request):
 
 
 @login_required
-@permission_required('tresorier')
+@can_create(Paiement)
 def add_paiement(request):
     """Ajoute un moyen de paiement. Relié aux factures
     via foreign key"""
@@ -432,14 +414,9 @@ def add_paiement(request):
 
 
 @login_required
-@permission_required('tresorier')
-def edit_paiement(request, paiementid):
+@can_edit(Paiement)
+def edit_paiement(request, paiement_instance, paiementid):
     """Edition d'un moyen de paiement"""
-    try:
-        paiement_instance = Paiement.objects.get(pk=paiementid)
-    except Paiement.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-paiement'))
     paiement = PaiementForm(request.POST or None, instance=paiement_instance)
     if paiement.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -483,7 +460,7 @@ def del_paiement(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_create(Banque)
 def add_banque(request):
     """Ajoute une banque à la liste des banques"""
     banque = BanqueForm(request.POST or None)
@@ -498,14 +475,9 @@ def add_banque(request):
 
 
 @login_required
-@permission_required('tresorier')
-def edit_banque(request, banqueid):
+@can_edit(Banque)
+def edit_banque(request, banque_instance, banqueid):
     """Edite le nom d'une banque"""
-    try:
-        banque_instance = Banque.objects.get(pk=banqueid)
-    except Banque.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-banque'))
     banque = BanqueForm(request.POST or None, instance=banque_instance)
     if banque.is_valid():
         with transaction.atomic(), reversion.create_revision():
