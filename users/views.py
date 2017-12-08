@@ -154,20 +154,10 @@ def new_club(request):
 
 
 @login_required
-def edit_club_admin_members(request, clubid):
+@can_edit(Club)
+def edit_club_admin_members(request, club_instance, clubid):
     """Vue d'edition de la liste des users administrateurs et
     membres d'un club"""
-    try:
-        club_instance = Club.objects.get(pk=clubid)
-    except Club.DoesNotExist:
-        messages.error(request, "Club inexistant")
-        return redirect(reverse('users:index'))
-    if not club_instance.can_edit(request.user):
-        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
     club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
     if club.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -406,16 +396,11 @@ def add_ban(request, user, userid):
     return form({'userform': ban}, 'users/user.html', request)
 
 @login_required
-@permission_required('bofh')
-def edit_ban(request, banid):
+@can_edit(Ban)
+def edit_ban(request, ban_instance, banid):
     """ Editer un bannissement, nécessite au moins le droit bofh
     (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
-    try:
-        ban_instance = Ban.objects.get(pk=banid)
-    except Ban.DoesNotExist:
-        messages.error(request, "Entrée inexistante")
-        return redirect(reverse('users:index'))
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -430,17 +415,13 @@ def edit_ban(request, banid):
 
 
 @login_required
-@permission_required('cableur')
-def add_whitelist(request, userid):
+@can_create(Whitelist)
+@can_edit(User)
+def add_whitelist(request, user, userid):
     """ Accorder un accès gracieux, temporaire ou permanent.
     Need droit cableur
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
     raison obligatoire"""
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
     whitelist_instance = Whitelist(user=user)
     whitelist = WhitelistForm(
         request.POST or None,
@@ -465,17 +446,12 @@ def add_whitelist(request, userid):
 
 
 @login_required
-@permission_required('cableur')
-def edit_whitelist(request, whitelistid):
+@can_edit(Whitelist)
+def edit_whitelist(request, whitelist_instance, whitelistid):
     """ Editer un accès gracieux, temporaire ou permanent.
     Need droit cableur
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
     raison obligatoire"""
-    try:
-        whitelist_instance = Whitelist.objects.get(pk=whitelistid)
-    except Whitelist.DoesNotExist:
-        messages.error(request, "Entrée inexistante")
-        return redirect(reverse('users:index'))
     whitelist = WhitelistForm(
         request.POST or None,
         instance=whitelist_instance
@@ -493,7 +469,7 @@ def edit_whitelist(request, whitelistid):
 
 
 @login_required
-@permission_required('cableur')
+@can_create(School)
 def add_school(request):
     """ Ajouter un établissement d'enseignement à la base de donnée,
     need cableur"""
@@ -509,15 +485,10 @@ def add_school(request):
 
 
 @login_required
-@permission_required('cableur')
-def edit_school(request, schoolid):
+@can_edit(School)
+def edit_school(request, school_instance, schoolid):
     """ Editer un établissement d'enseignement à partir du schoolid dans
     la base de donnée, need cableur"""
-    try:
-        school_instance = School.objects.get(pk=schoolid)
-    except School.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('users:index'))
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -557,7 +528,7 @@ def del_school(request):
 
 
 @login_required
-@permission_required('bureau')
+@can_create(ListRight)
 def add_listright(request):
     """ Ajouter un droit/groupe, nécessite droit bureau.
     Obligation de fournir un gid pour la synchro ldap, unique """
@@ -573,15 +544,10 @@ def add_listright(request):
 
 
 @login_required
-@permission_required('bureau')
-def edit_listright(request, listrightid):
+@can_edit(ListRight)
+def edit_listright(request, listright_instance, listrightid):
     """ Editer un groupe/droit, necessite droit bureau,
     à partir du listright id """
-    try:
-        listright_instance = ListRight.objects.get(pk=listrightid)
-    except ListRight.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('users:index'))
     listright = ListRightForm(
         request.POST or None,
         instance=listright_instance
@@ -615,7 +581,7 @@ def del_listright(request):
             except ProtectedError:
                 messages.error(
                     request,
-                    "L'établissement %s est affecté à au moins un user, \
+                    "Le groupe %s est affecté à au moins un user, \
                         vous ne pouvez pas le supprimer" % listright_del)
         return redirect(reverse('users:index-listright'))
     return form({'userform': listright}, 'users/user.html', request)
@@ -813,7 +779,7 @@ def history(request, object_name, object_id):
         except User.DoesNotExist:
             messages.error(request, "Utilisateur inexistant")
             return redirect(reverse('users:index'))
-        if not object_instance.can_view(request.user):
+        if not object_instance.can_view(request.user)[0]:
             messages.error(request, "Vous ne pouvez pas afficher ce menu")
             return redirect(reverse(
                 'users:profil',
@@ -905,7 +871,7 @@ def profil(request, userid):
     except User.DoesNotExist:
         messages.error(request, "Utilisateur inexistant")
         return redirect(reverse('users:index'))
-    if not users.can_view(request.user):
+    if not users.can_view(request.user)[0]:
         messages.error(request, "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
