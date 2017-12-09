@@ -60,6 +60,18 @@ class Stack(models.Model):
     member_id_min = models.PositiveIntegerField()
     member_id_max = models.PositiveIntegerField()
 
+    def get_instance(stack_id, *args, **kwargs):
+        return Stack.objects.get(pk=stack_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer un stack"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des stack"
+        return True, None
+
     def __str__(self):
         return " ".join([self.name, self.stack_id])
 
@@ -114,6 +126,18 @@ class Switch(models.Model):
     class Meta:
         unique_together = ('stack', 'stack_member_id')
 
+    def get_instance(switch_id, *args, **kwargs):
+        return Switch.objects.get(pk=switch_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer un switch"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des switch"
+        return True, None
+
     def __str__(self):
         return self.location + ' ' + str(self.switch_interface)
 
@@ -167,6 +191,18 @@ class ModelSwitch(models.Model):
         on_delete=models.PROTECT
     )
 
+    def get_instance(model_switch_id, *args, **kwargs):
+        return ModelSwitch.objects.get(pk=model_switch_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer un modèle de switch"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
+        return True, None
+
     def __str__(self):
         return str(self.constructor) + ' ' + self.reference
 
@@ -175,6 +211,19 @@ class ConstructorSwitch(models.Model):
     """Un constructeur de switch"""
     PRETTY_NAME = "Constructeur de switch"
     name = models.CharField(max_length=255)
+
+    def get_instance(constructor_switch_id, *args, **kwargs):
+        return ConstructorSwitch.objects.get(pk=constructor_switch_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer un constructeur de switch"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des\
+                constructeurs de switchs"
+        return True, None
 
     def __str__(self):
         return self.name
@@ -240,6 +289,18 @@ class Port(models.Model):
     class Meta:
         unique_together = ('switch', 'port')
 
+    def get_instance(port_id, *args, **kwargs):
+        return Port.objects.get(pk=port_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer un port"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des ports"
+        return True, None
+
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
         related_port = self.related
@@ -293,6 +354,18 @@ class Room(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def get_instance(room_id, *args, **kwargs):
+        return Room.objects.get(pk=room_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+            de créer une chambre"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer une chambre"
+        return True, None
 
     def __str__(self):
         return self.name
