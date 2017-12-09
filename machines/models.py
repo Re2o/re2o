@@ -837,7 +837,7 @@ class Interface(models.Model):
                         d'un autre user que vous sans droit"
         return True, None
 
-    def can_delete(self, user_resquest, *args, **kwargs):
+    def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
             return False, u"Vous ne pouvez pas éditer une machine d'un autre\
                 user que vous sans droit"
@@ -1177,8 +1177,12 @@ class OuverturePortList(models.Model):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
-            de supprimer une ouverture de port"
+        if not user_request.has_perms(('bureau',)):
+            return False, u"Vous n'avez pas le droit de supprimer une ouverture\
+                de port"
+        if self.interface_set.all():
+            return False, u"Cette liste de ports est utilisée"
+        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\

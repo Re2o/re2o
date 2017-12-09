@@ -92,7 +92,9 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
-from re2o.utils import all_has_access, SortTable, can_create, can_edit
+from re2o.utils import (
+    all_has_access, SortTable, can_create, can_edit, can_delete, can_view
+)
 
 def password_change_action(u_form, user, request, req=False):
     """ Fonction qui effectue le changeemnt de mdp bdd"""
@@ -303,14 +305,9 @@ def edit_serviceuser(request, user, userid):
 
 
 @login_required
-@permission_required('infra')
-def del_serviceuser(request, userid):
+@can_delete(ServiceUser)
+def del_serviceuser(request, user, userid):
     """Suppression d'un ou plusieurs serviceusers"""
-    try:
-        user = ServiceUser.objects.get(pk=userid)
-    except ServiceUser.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant")
-        return redirect(reverse('users:index'))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             user.delete()
