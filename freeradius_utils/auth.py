@@ -205,10 +205,10 @@ def post_auth(data):
         # On récupère le numéro du port sur l'output de freeradius. La ligne suivante fonctionne pour cisco, HP et Juniper
         port = port.split(".")[0].split('/')[-1][-2:]
         out = decide_vlan_and_register_switch(nas_instance, nas_type, port, mac)
-        sw_name, reason, vlan_id = out
+        sw_name, room, reason, vlan_id = out
 
         log_message = '(fil) %s -> %s [%s%s]' % \
-          (sw_name + u":" + port, mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
+          (sw_name + u":" + port + u"/" + unicode(room), mac, vlan_id, (reason and u': ' + reason).encode('utf-8'))
         logger.info(log_message)
 
         # Filaire
@@ -297,14 +297,14 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
     extra_log = ""
     # Si le NAS est inconnu, on place sur le vlan defaut
     if not nas:
-        return ('?', u'Nas inconnu', VLAN_OK)
+        return ('?', u'Chambre inconnue', u'Nas inconnu', VLAN_OK)
 
     sw_name = str(nas)
 
     port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number).first()
     #Si le port est inconnu, on place sur le vlan defaut
     if not port:
-        return (sw_name, u'Port inconnu', VLAN_OK)
+        return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK)
 
     # Si un vlan a été précisé, on l'utilise pour VLAN_OK
     if port.vlan_force:
@@ -314,52 +314,55 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
         DECISION_VLAN = VLAN_OK
 
     if port.radius == 'NO':
-        return (sw_name, u"Pas d'authentification sur ce port" + extra_log, DECISION_VLAN)
+        return (sw_name, "", u"Pas d'authentification sur ce port" + extra_log, DECISION_VLAN)
 
     if port.radius == 'BLOQ':
-        return (sw_name, u'Port desactive', VLAN_NOK)
+        return (sw_name, port.room, u'Port desactive', VLAN_NOK)
 
     if port.radius == 'STRICT':
-        if not port.room:
-            return (sw_name, u'Chambre inconnue', VLAN_NOK)
+        room = port.room
+        if not room:
+            return (sw_name, "Inconnue", u'Chambre inconnue', VLAN_NOK)
 
         room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
         if not room_user:
-            return (sw_name, u'Chambre non cotisante', VLAN_NOK)
+            return (sw_name, room, u'Chambre non cotisante', VLAN_NOK)
         for user in room_user:
             if not user.has_access():
-                return (sw_name, u'Chambre resident desactive', VLAN_NOK)
+                return (sw_name, room, u'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
     if port.radius == 'COMMON' or port.radius == 'STRICT':
         # Authentification par mac
         interface = Interface.objects.filter(mac_address=mac_address).select_related('machine__user').select_related('ipv4').first()
         if not interface:
+            room = port.room
             # On essaye de register la mac
             if not nas_type.autocapture_mac:
-                return (sw_name, u'Machine inconnue', VLAN_NOK)
-            elif not port.room:
-                return (sw_name, u'Chambre et machine inconnues', VLAN_NOK)
+                return (sw_name, "", u'Machine inconnue', VLAN_NOK)
+            elif not room:
+                return (sw_name, "Inconnue", u'Chambre et machine inconnues', VLAN_NOK)
             else:
                 if not room_user:
                     room_user = User.objects.filter(Q(club__room=port.room) | Q(adherent__room=port.room))
                 if not room_user:
-                    return (sw_name, u'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
+                    return (sw_name, room, u'Machine et propriétaire de la chambre inconnus', VLAN_NOK)
                 elif room_user.count() > 1:
-                    return (sw_name, u'Machine inconnue, il y a au moins 2 users dans la chambre/local -> ajout de mac automatique impossible', VLAN_NOK)
+                    return (sw_name, room, u'Machine inconnue, il y a au moins 2 users dans la chambre/local -> ajout de mac automatique impossible', VLAN_NOK)
                 elif not room_user.first().has_access():
-                    return (sw_name, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
+                    return (sw_name, room, u'Machine inconnue et adhérent non cotisant', VLAN_NOK)
                 else:
                     result, reason = room_user.first().autoregister_machine(mac_address, nas_type)
                     if result:
-                        return (sw_name, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
+                        return (sw_name, room, u'Access Ok, Capture de la mac...' + extra_log, DECISION_VLAN)
                     else:
-                        return (sw_name, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK)
+                        return (sw_name, room, u'Erreur dans le register mac %s' % reason + unicode(mac_address), VLAN_NOK)
         else:
+            room = port.room
             if not interface.is_active:
-                return (sw_name, u'Machine non active / adherent non cotisant', VLAN_NOK)
+                return (sw_name, room, u'Machine non active / adherent non cotisant', VLAN_NOK)
             elif not interface.ipv4:
                 interface.assign_ipv4()
-                return (sw_name, u"Ok, Reassignation de l'ipv4" + extra_log, DECISION_VLAN)
+                return (sw_name, room, u"Ok, Reassignation de l'ipv4" + extra_log, DECISION_VLAN)
             else:
-                return (sw_name, u'Machine OK' + extra_log, DECISION_VLAN)
+                return (sw_name, room, u'Machine OK' + extra_log, DECISION_VLAN)

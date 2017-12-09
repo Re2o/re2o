@@ -115,7 +115,7 @@ class Switch(models.Model):
         unique_together = ('stack', 'stack_member_id')
 
     def __str__(self):
-        return str(self.location) + ' ' + str(self.switch_interface)
+        return self.location + ' ' + str(self.switch_interface)
 
     def clean(self):
         """ Verifie que l'id stack est dans le bon range"""
@@ -168,7 +168,7 @@ class ModelSwitch(models.Model):
     )
 
     def __str__(self):
-        return str(self.constructor) + ' ' + str(self.reference)
+        return str(self.constructor) + ' ' + self.reference
 
 
 class ConstructorSwitch(models.Model):
@@ -177,7 +177,7 @@ class ConstructorSwitch(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return str(self.name)
+        return self.name
 
 
 class Port(models.Model):
@@ -295,7 +295,7 @@ class Room(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return str(self.name)
+        return self.name
 
 
 @receiver(post_delete, sender=Stack)
