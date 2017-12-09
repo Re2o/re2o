@@ -394,7 +394,7 @@ def del_stack(request, stack, stack_id):
         except ProtectedError:
             messages.error(request, "La stack %s est affectée à un autre\
                 objet, impossible de la supprimer" % stack)
-            return redirect(reverse('topologie:index-stack'))
+        return redirect(reverse('topologie:index-stack'))
     return form({'objet': stack}, 'topologie/delete.html', request)
 
 
@@ -616,7 +616,7 @@ def del_room(request, room, room_id):
         except ProtectedError:
             messages.error(request, "La chambre %s est affectée à un autre objet,\
                 impossible de la supprimer (switch ou user)" % room)
-            return redirect(reverse('topologie:index-room'))
+        return redirect(reverse('topologie:index-room'))
     return form({
         'objet': room,
         'objet_name': 'Chambre'
