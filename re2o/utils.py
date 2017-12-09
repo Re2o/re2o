@@ -72,9 +72,9 @@ def can_create(model):
 def can_edit(model):
     """Decorator to check if an user can edit a model.
     It tries to get an instance of the model, using
-    `model.get_instance(*args, **kwargs)` and assumes that the model has a method
-    `can_create(user)` which returns `true` if the user can create this kind
-    of models.
+    `model.get_instance(*args, **kwargs)` and assumes that the model has a
+    method `can_edit(user)` which returns `true` if the user can edit this
+    kind of models.
     """
     def decorator(view):
         def wrapper(request, *args, **kwargs):
@@ -95,6 +95,59 @@ def can_edit(model):
         return wrapper
     return decorator
 
+
+def can_delete(model):
+    """Decorator to check if an user can delete a model.
+    It tries to get an instance of the model, using
+    `model.get_instance(*args, **kwargs)` and assumes that the model has a
+    method `can_delete(user)` which returns `true` if the user can delete this
+    kind of models.
+    """
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            try:
+                instance = model.get_instance(*args, **kwargs)
+            except model.DoesNotExist:
+                messages.error(request, u"Entrée inexistante")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            can, msg = instance.can_delete(request.user)
+            if not can:
+                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, instance, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def can_view(model):
+    """Decorator to check if an user can view a model.
+    It tries to get an instance of the model, using
+    `model.get_instance(*args, **kwargs)` and assumes that the model has a
+    method `can_view(user)` which returns `true` if the user can view this
+    kind of models.
+    """
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            try:
+                instance = model.get_instance(*args, **kwargs)
+            except model.DoesNotExist:
+                messages.error(request, u"Entrée inexistante")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            can, msg = instance.can_view(request.user)
+            if not can:
+                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, instance, *args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def all_adherent(search_time=DT_NOW):

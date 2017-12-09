@@ -43,7 +43,7 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import SortTable, can_create, can_edit
+from re2o.utils import SortTable, can_create, can_edit, can_delete, can_view
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
@@ -284,19 +284,10 @@ def edit_facture(request, facture, factureid):
 
 
 @login_required
-@permission_required('cableur')
-def del_facture(request, factureid):
+@can_delete(Facture)
+def del_facture(request, facture, factureid):
     """Suppression d'une facture. Supprime en cascade les ventes
     et cotisations filles"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
-    if facture.control or not facture.valid:
-        messages.error(request, "Vous ne pouvez pas editer une facture\
-                controlée ou invalidée par le trésorier")
-        return redirect(reverse('cotisations:index'))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             facture.delete()

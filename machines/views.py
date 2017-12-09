@@ -125,7 +125,9 @@ from re2o.utils import (
     filter_active_interfaces,
     SortTable,
     can_create,
-    can_edit
+    can_edit,
+    can_delete,
+    can_view
 )
 from re2o.views import form
 
@@ -213,12 +215,12 @@ def generate_ipv4_mbf_param( form, is_type_tt ):
 
 @login_required
 @can_create(Machine)
-def new_machine(request, userid):
+@can_edit(User)
+def new_machine(request, user, userid):
     """ Fonction de creation d'une machine. Cree l'objet machine, 
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
 
-    user = User.objects.get(pk=userid)
     machine = NewMachineForm(request.POST or None)
     interface = AddInterfaceForm(
         request.POST or None,
@@ -328,10 +330,10 @@ def del_machine(request, machineid):
 
 @login_required
 @can_create(Interface)
-def new_interface(request, machineid):
+@can_edit(Machine)
+def new_interface(request, machine, machineid):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
-    machine = Machine.objects.get(pk=machineid)
     interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
@@ -358,20 +360,9 @@ def new_interface(request, machineid):
     return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
-def del_interface(request, interfaceid):
+@can_delete(Interface)
+def del_interface(request, interface, interfaceid):
     """ Supprime une interface. Domain objet en mode cascade"""
-    try:
-        interface = Interface.objects.get(pk=interfaceid)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)):
-        if interface.machine.user != request.user:
-            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(request.user.id)}
-                ))
     if request.method == "POST":
         machine = interface.machine
         with transaction.atomic(), reversion.create_revision():
@@ -751,9 +742,9 @@ def del_srv(request):
 
 @login_required
 @can_create(Domain)
-def add_alias(request, interfaceid):
+@can_edit(Interface)
+def add_alias(request, interface, interfaceid):
 
-    interface = Interface.objects.get(pk=interfaceid)
     alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -787,18 +778,8 @@ def edit_alias(request, domain_instance, domainid):
     return form({'aliasform': alias}, 'machines/machine.html', request)
 
 @login_required
-def del_alias(request, interfaceid):
-    try:
-        interface = Interface.objects.get(pk=interfaceid)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
-        messages.error(request, "Vous ne pouvez pas ajouter un alias à une machine d'un autre user que vous sans droit")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
+@can_edit(Interface)
+def del_alias(request, interface, interfaceid):
     alias = DelAliasForm(request.POST or None, interface=interface)
     if alias.is_valid():
         alias_dels = alias.cleaned_data['alias']
@@ -1191,16 +1172,8 @@ def edit_portlist(request, ouvertureportlist_instance, ouvertureportlistid):
     return form({'port_list' : port_list, 'ports' : port_formset}, 'machines/edit_portlist.html', request)
 
 @login_required
-@permission_required('bureau')
-def del_portlist(request, ouvertureportlistid):
-    try:
-        port_list_instance = OuverturePortList.objects.get(pk=ouvertureportlistid)
-    except OuverturePortList.DoesNotExist:
-        messages.error(request, "Liste de ports inexistante")
-        return redirect(reverse('machines:index-portlist'))
-    if port_list_instance.interface_set.all():
-        messages.error(request, "Cette liste de ports est utilisée")
-        return redirect(reverse('machines:index-portlist'))
+@can_delete(OuverturePortList)
+def del_portlist(request, port_list_instance, ouvertureportlistid):
     port_list_instance.delete()
     messages.success(request, "La liste de ports a été supprimée")
     return redirect(reverse('machines:index-portlist'))
