@@ -72,6 +72,11 @@ class Stack(models.Model):
             return False, u"Vous n'avez pas le droit d'éditer des stack"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer une stack"
+        return True, None
+ 
     def __str__(self):
         return " ".join([self.name, self.stack_id])
 
@@ -138,6 +143,11 @@ class Switch(models.Model):
             return False, u"Vous n'avez pas le droit d'éditer des switch"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer un switch"
+        return True, None
+ 
     def __str__(self):
         return self.location + ' ' + str(self.switch_interface)
 
@@ -203,6 +213,11 @@ class ModelSwitch(models.Model):
             return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer un modèle switch"
+        return True, None
+   
     def __str__(self):
         return str(self.constructor) + ' ' + self.reference
 
@@ -225,6 +240,11 @@ class ConstructorSwitch(models.Model):
                 constructeurs de switchs"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer un constructeur"
+        return True, None
+    
     def __str__(self):
         return self.name
 
@@ -290,7 +310,13 @@ class Port(models.Model):
         unique_together = ('switch', 'port')
 
     def get_instance(port_id, *args, **kwargs):
-        return Port.objects.get(pk=port_id)
+        return Port.objects\
+            .select_related('switch__switch_interface__domain__extension')\
+            .select_related('machine_interface__domain__extension')\
+            .select_related('machine_interface__switch')\
+            .select_related('room')\
+            .select_related('related')\
+            .get(pk=port_id)
 
     def can_create(user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
@@ -301,6 +327,11 @@ class Port(models.Model):
             return False, u"Vous n'avez pas le droit d'éditer des ports"
         return True, None
 
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer un port"
+        return True, None
+   
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
         related_port = self.related
@@ -365,6 +396,11 @@ class Room(models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer une chambre"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer une chambre"
         return True, None
 
     def __str__(self):

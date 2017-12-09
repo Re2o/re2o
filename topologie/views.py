@@ -65,7 +65,13 @@ from topologie.forms import (
     CreatePortsForm
 )
 from users.views import form
-from re2o.utils import SortTable
+from re2o.utils import (
+    SortTable,
+    can_create,
+    can_edit,
+    can_delete,
+    can_view
+)
 from machines.forms import (
     DomainForm,
     NewMachineForm,
@@ -271,7 +277,7 @@ def index_model_switch(request):
 
 
 @login_required
-@permission_required('infra')
+@can_create(Port)
 def new_port(request, switch_id):
     """ Nouveau port"""
     try:
@@ -299,21 +305,11 @@ def new_port(request, switch_id):
 
 
 @login_required
-@permission_required('infra')
-def edit_port(request, port_id):
+@can_edit(Port)
+def edit_port(request, port_object, port_id):
     """ Edition d'un port. Permet de changer le switch parent et
     l'affectation du port"""
-    try:
-        port_object = Port.objects\
-            .select_related('switch__switch_interface__domain__extension')\
-            .select_related('machine_interface__domain__extension')\
-            .select_related('machine_interface__switch')\
-            .select_related('room')\
-            .select_related('related')\
-            .get(pk=port_id)
-    except Port.DoesNotExist:
-        messages.error(request, u"Port inexistant")
-        return redirect(reverse('topologie:index'))
+    
     port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -331,14 +327,9 @@ def edit_port(request, port_id):
 
 
 @login_required
-@permission_required('infra')
-def del_port(request, port_id):
+@can_delete(Port)
+def del_port(request, port, port_id):
     """ Supprime le port"""
-    try:
-        port = Port.objects.get(pk=port_id)
-    except Port.DoesNotExist:
-        messages.error(request, u"Port inexistant")
-        return redirect(reverse('topologie:index'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -357,7 +348,7 @@ def del_port(request, port_id):
 
 
 @login_required
-@permission_required('infra')
+@can_create(Stack)
 def new_stack(request):
     """Ajoute un nouveau stack : stack_id_min, max, et nombre de switches"""
     stack = StackForm(request.POST or None)
@@ -371,14 +362,10 @@ def new_stack(request):
 
 
 @login_required
-@permission_required('infra')
-def edit_stack(request, stack_id):
+@can_edit(Stack)
+def edit_stack(request, stack, stack_id):
     """Edition d'un stack (nombre de switches, nom...)"""
-    try:
-        stack = Stack.objects.get(pk=stack_id)
-    except Stack.DoesNotExist:
-        messages.error(request, u"Stack inexistante")
-        return redirect(reverse('topologie:index-stack'))
+    
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -394,14 +381,9 @@ def edit_stack(request, stack_id):
 
 
 @login_required
-@permission_required('infra')
-def del_stack(request, stack_id):
+@can_delete(Stack)
+def del_stack(request, stack, stack_id):
     """Supprime un stack"""
-    try:
-        stack = Stack.objects.get(pk=stack_id)
-    except Stack.DoesNotExist:
-        messages.error(request, u"Stack inexistante")
-        return redirect(reverse('topologie:index-stack'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -417,14 +399,10 @@ def del_stack(request, stack_id):
 
 
 @login_required
-@permission_required('infra')
-def edit_switchs_stack(request, stack_id):
+@can_edit(Stack)
+def edit_switchs_stack(request, stack, stack_id):
     """Permet d'éditer la liste des switches dans une stack et l'ajouter"""
-    try:
-        stack = Stack.objects.get(pk=stack_id)
-    except Stack.DoesNotExist:
-        messages.error(request, u"Stack inexistante")
-        return redirect(reverse('topologie:index-stack'))
+    
     if request.method == "POST":
         pass
     else:
@@ -434,7 +412,7 @@ def edit_switchs_stack(request, stack_id):
 
 
 @login_required
-@permission_required('infra')
+@can_create(Switch)
 def new_switch(request):
     """ Creation d'un switch. Cree en meme temps l'interface et la machine
     associée. Vue complexe. Appelle successivement les 4 models forms
@@ -492,7 +470,7 @@ def new_switch(request):
 
 
 @login_required
-@permission_required('infra')
+@can_create(Port)
 def create_ports(request, switch_id):
     """ Création d'une liste de ports pour un switch."""
     try:
@@ -528,15 +506,11 @@ def create_ports(request, switch_id):
 
 
 @login_required
-@permission_required('infra')
-def edit_switch(request, switch_id):
+@can_edit(Switch)
+def edit_switch(request, switch, switch_id):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
-    try:
-        switch = Switch.objects.get(pk=switch_id)
-    except Switch.DoesNotExist:
-        messages.error(request, u"Switch inexistant")
-        return redirect(reverse('topologie:index'))
+
     switch_form = EditSwitchForm(request.POST or None, instance=switch)
     machine_form = EditMachineForm(
         request.POST or None,
@@ -596,7 +570,7 @@ def edit_switch(request, switch_id):
 
 
 @login_required
-@permission_required('infra')
+@can_create(Room)
 def new_room(request):
     """Nouvelle chambre """
     room = EditRoomForm(request.POST or None)
@@ -611,14 +585,10 @@ def new_room(request):
 
 
 @login_required
-@permission_required('infra')
-def edit_room(request, room_id):
+@can_edit(Room)
+def edit_room(request, room, room_id):
     """ Edition numero et details de la chambre"""
-    try:
-        room = Room.objects.get(pk=room_id)
-    except Room.DoesNotExist:
-        messages.error(request, u"Chambre inexistante")
-        return redirect(reverse('topologie:index-room'))
+
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -633,14 +603,9 @@ def edit_room(request, room_id):
 
 
 @login_required
-@permission_required('infra')
-def del_room(request, room_id):
+@can_delete(Room)
+def del_room(request, room, room_id):
     """ Suppression d'un chambre"""
-    try:
-        room = Room.objects.get(pk=room_id)
-    except Room.DoesNotExist:
-        messages.error(request, u"Chambre inexistante")
-        return redirect(reverse('topologie:index-room'))
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -659,7 +624,7 @@ def del_room(request, room_id):
 
 
 @login_required
-@permission_required('infra')
+@can_create(ModelSwitch)
 def new_model_switch(request):
     """Nouveau modèle de switch"""
     model_switch = EditModelSwitchForm(request.POST or None)
@@ -674,14 +639,10 @@ def new_model_switch(request):
 
 
 @login_required
-@permission_required('infra')
-def edit_model_switch(request, model_switch_id):
+@can_edit(ModelSwitch)
+def edit_model_switch(request, model_switch, model_switch_id):
     """ Edition d'un modèle de switch"""
-    try:
-        model_switch = ModelSwitch.objects.get(pk=model_switch_id)
-    except ModelSwitch.DoesNotExist:
-        messages.error(request, u"Modèle inconnu")
-        return redirect("/topologie/index_model_switch/")
+
     model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
     if model_switch.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -696,14 +657,9 @@ def edit_model_switch(request, model_switch_id):
 
 
 @login_required
-@permission_required('infra')
+@can_delete(ModelSwitch)
 def del_model_switch(request, model_switch_id):
     """ Suppression d'un modèle de switch"""
-    try:
-        model_switch = ModelSwitch.objects.get(pk=model_switch_id)
-    except ModelSwitch.DoesNotExist:
-        messages.error(request, u"Modèle inexistant")
-        return redirect("/topologie/index_model_switch/")
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
@@ -722,7 +678,7 @@ def del_model_switch(request, model_switch_id):
 
 
 @login_required
-@permission_required('infra')
+@can_create(ConstructorSwitch)
 def new_constructor_switch(request):
     """Nouveau constructeur de switch"""
     constructor_switch = EditConstructorSwitchForm(request.POST or None)
@@ -737,14 +693,10 @@ def new_constructor_switch(request):
 
 
 @login_required
-@permission_required('infra')
-def edit_constructor_switch(request, constructor_switch_id):
+@can_edit(ConstructorSwitch)
+def edit_constructor_switch(request, constructor_switch, constructor_switch_id):
     """ Edition d'un constructeur de switch"""
-    try:
-        constructor_switch = ConstructorSwitch.objects.get(pk=constructor_switch_id)
-    except ConstructorSwitch.DoesNotExist:
-        messages.error(request, u"Constructeur inconnu")
-        return redirect("/topologie/index_model_switch/")
+
     constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
     if constructor_switch.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -759,14 +711,9 @@ def edit_constructor_switch(request, constructor_switch_id):
 
 
 @login_required
-@permission_required('infra')
+@can_delete(ConstructorSwitch)
 def del_constructor_switch(request, constructor_switch_id):
     """ Suppression d'un constructeur de switch"""
-    try:
-        constructor_switch = ConstructorSwitch.objects.get(pk=constructor_switch_id)
-    except ConstructorSwitch.DoesNotExist:
-        messages.error(request, u"Constructeur inexistant")
-        return redirect("/topologie/index_model_switch/")
     if request.method == "POST":
         try:
             with transaction.atomic(), reversion.create_revision():
