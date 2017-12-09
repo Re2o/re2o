@@ -29,7 +29,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <!DOCTYPE html>
 <html lang="fr">
+    <html prefix="og: http://ogp.me/ns#">
     <head>
+
+    <meta property="og:title" content="Re2o" />
+    <meta property="og:type" content="website" />
+    <meta property="og:secure_url" content="https://"{{request.get_host}} />
+    <meta property="og:image" content="../static_files/logo/federez.png" />
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
