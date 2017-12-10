@@ -75,65 +75,65 @@ from django import template
 from django.template.base import Node, NodeList
 
 import cotisations.models as cotisations
-import logs.models as logs
 import machines.models as machines
 import topologie.models as topologie
 import users.models as users
 
 register = template.Library()
 
+MODEL_NAME = {
+    # topologie
+    'Stack' : topologie.Stack,
+    'Switch' : topologie.Switch,
+    'ModelSwitch' : topologie.ModelSwitch,
+    'ConstructorSwitch' : topologie.ConstructorSwitch,
+    'Port' : topologie.Port,
+    'Room' : topologie.Room,
+    # cotisations
+    'Facture' : cotisations.Facture,
+    'Vente' : cotisations.Vente,
+    'Article' : cotisations.Article,
+    'Banque' : cotisations.Banque,
+    'Paiement' : cotisations.Paiement,
+    'Cotisation' : cotisations.Cotisation,
+    # machines
+    'Machine' : machines.Machine,
+    'MachineType' : machines.MachineType,
+    'IpType' : machines.IpType,
+    'Vlan' : machines.Vlan,
+    'Nas' : machines.Nas,
+    'SOA' : machines.SOA,
+    'Extension' : machines.Extension,
+    'Mx' : machines.Mx,
+    'Ns' : machines.Ns,
+    'Txt' : machines.Txt,
+    'Srv' : machines.Srv,
+    'Interface' : machines.Interface,
+    'Domain' : machines.Domain,
+    'IpList' : machines.IpList,
+    'Service' : machines.Service,
+    'Service_link' : machines.Service_link,
+    'OuverturePortList' : machines.OuverturePortList,
+    'OuverturePort' : machines.OuverturePort,
+    # users
+    'User' : users.User,
+    'Club' : users.Club,
+    'ServiceUser' : users.ServiceUser,
+    'Right' : users.Right,
+    'School' : users.School,
+    'ListRight' : users.ListRight,
+    'Ban' : users.Ban,
+    'Whitelist' : users.Whitelist,
+}
 
 def get_model(model_name):
     """Retrieve the model object from its name"""
-
-    # cotisations
-    # TODO
-    # logs
-    # TODO
-    # machines
-    if model_name == 'Machine':
-        return machines.Machine
-    if model_name == 'MachineType':
-        return machines.MachineType
-    if model_name == 'IpType':
-        return machines.IpType
-    if model_name == 'Vlan':
-        return machines.Vlan
-    if model_name == 'Nas':
-        return machines.Nas
-    if model_name == 'SOA':
-        return machines.SOA
-    if model_name == 'Extension':
-        return machines.Extension
-    if model_name == 'Mx':
-        return machines.Mx
-    if model_name == 'Ns':
-        return machines.Ns
-    if model_name == 'Txt':
-        return machines.Txt
-    if model_name == 'Srv':
-        return machines.Srv
-    if model_name == 'Interface':
-        return machines.Interface
-    if model_name == 'Domain':
-        return machines.Domain
-    if model_name == 'IpList':
-        return machines.IpList
-    if model_name == 'Service':
-        return machines.Service
-    if model_name == 'Service_link':
-        return machines.Service_link
-    if model_name == 'OuverturePortList':
-        return machines.OuverturePortList
-    if model_name == 'OuverturePort':
-        return machines.OuverturePort
-    # topologie
-        # TODO
-    # users
-        # TODO
-    raise template.TemplateSyntaxError(
-        "%r is not a valid model for an acl tag" % model_name
-    )
+    try:
+        return MODEL_NAME[model_name]
+    except KeyError:
+        raise template.TemplateSyntaxError(
+            "%r is not a valid model for an acl tag" % model_name
+        )
 
 
 def get_callback(tag_name, obj):
