@@ -76,19 +76,13 @@ from django.template.base import Node, NodeList
 
 import cotisations.models as cotisations
 import machines.models as machines
+import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
 
 register = template.Library()
 
 MODEL_NAME = {
-    # topologie
-    'Stack' : topologie.Stack,
-    'Switch' : topologie.Switch,
-    'ModelSwitch' : topologie.ModelSwitch,
-    'ConstructorSwitch' : topologie.ConstructorSwitch,
-    'Port' : topologie.Port,
-    'Room' : topologie.Room,
     # cotisations
     'Facture' : cotisations.Facture,
     'Vente' : cotisations.Vente,
@@ -115,6 +109,21 @@ MODEL_NAME = {
     'Service_link' : machines.Service_link,
     'OuverturePortList' : machines.OuverturePortList,
     'OuverturePort' : machines.OuverturePort,
+    # preferences
+    'OptionalUser': preferences.OptionalUser
+    'OptionalMachine': preferences.OptionalMachine
+    'OptionalTopologie': preferences.OptionalTopologie
+    'GeneralOption': preferences.GeneralOption
+    'Service': preferences.Service
+    'AssoOption': preferences.AssoOption
+    'MailMessageOption': preferences.MailMessageOption
+    # topologie
+    'Stack' : topologie.Stack,
+    'Switch' : topologie.Switch,
+    'ModelSwitch' : topologie.ModelSwitch,
+    'ConstructorSwitch' : topologie.ConstructorSwitch,
+    'Port' : topologie.Port,
+    'Room' : topologie.Room,
     # users
     'User' : users.User,
     'Club' : users.Club,
@@ -125,6 +134,7 @@ MODEL_NAME = {
     'Ban' : users.Ban,
     'Whitelist' : users.Whitelist,
 }
+
 
 def get_model(model_name):
     """Retrieve the model object from its name"""
@@ -147,6 +157,26 @@ def get_callback(tag_name, obj):
         return acl_fct(obj.can_edit, False)
     if tag_name == 'cannot_edit':
         return acl_fct(obj.can_edit, True)
+    if tag_name == 'can_edit_all':
+        return acl_fct(obj.can_edit_all, False)
+    if tag_name == 'cannot_edit_all':
+        return acl_fct(obj.can_edit_all, True)
+    if tag_name == 'can_delete':
+        return acl_fct(obj.can_delete, False)
+    if tag_name == 'cannot_delete':
+        return acl_fct(obj.can_delete, True)
+    if tag_name == 'can_delete_all':
+        return acl_fct(obj.can_delete_all, False)
+    if tag_name == 'cannot_delete_all':
+        return acl_fct(obj.can_delete_all, True)
+    if tag_name == 'can_view':
+        return acl_fct(obj.can_view, False)
+    if tag_name == 'cannot_view':
+        return acl_fct(obj.can_view, True)
+    if tag_name == 'can_view_all':
+        return acl_fct(obj.can_view_all, False)
+    if tag_name == 'cannot_view_all':
+        return acl_fct(obj.can_view_all, True)
     raise template.TemplateSyntaxError(
         "%r tag is not a valid can_xxx tag" % tag_name
     )
@@ -169,6 +199,12 @@ def acl_fct(callback, reverse):
 
 @register.tag('can_create')
 @register.tag('cannot_create')
+@register.tag('can_edit_all')
+@register.tag('cannot_edit_all')
+@register.tag('can_delete_all')
+@register.tag('cannot_delete_all')
+@register.tag('can_view_all')
+@register.tag('cannot_view_all')
 def acl_model_filter(parser, token):
     """Generic definition of an acl templatetag for acl based on model"""
 
@@ -205,6 +241,10 @@ def acl_model_filter(parser, token):
 
 @register.tag('can_edit')
 @register.tag('cannot_edit')
+@register.tag('can_delete')
+@register.tag('cannot_delete')
+@register.tag('can_view')
+@register.tag('cannot_view')
 def acl_instance_filter(parser, token):
     """Generic definition of an acl templatetag for acl based on instance"""
 
