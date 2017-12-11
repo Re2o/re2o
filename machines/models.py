@@ -75,13 +75,22 @@ class Machine(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete_all(user_request, *args, **kwargs):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and self.user != user_request:
             return False, u"Vous ne pouvez pas éditer une machine d'un autre user\
                 que vous sans droit"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -117,15 +126,29 @@ class MachineType(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un type de machine"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des types de machine"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types de machine"
+        return True, None
+
+    def can_delete_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit de supprimer des types de machines"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit de supprimer des types de machines"
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les types de machines"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -248,14 +271,27 @@ class IpType(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un type d'ip"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
         return True, None
 
-    def can_delete(user_request, *args, **kwargs):
+    def can_delete_all(user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un type d'ip"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un type d'ip"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les types d'ip"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -281,14 +317,27 @@ class Vlan(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un vlan"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des vlans"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des vlans"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de suprimer un vlan"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de suprimer un vlan"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les vlans"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -335,14 +384,27 @@ class Nas(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un nas"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des nas"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des nas"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un nas"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un nas"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les nas"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -391,14 +453,27 @@ class SOA(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un enregistrement SOA"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des enregistrements SOA"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des enregistrements SOA"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enreistrement SOA"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -493,14 +568,27 @@ class Extension(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer une extension"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des extensions"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des extensions"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des extension"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des extension"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les extensions"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -538,14 +626,27 @@ class Mx(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un enregistrement MX"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement MX"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement MX"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements MX"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -574,14 +675,27 @@ class Ns(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un enregistrement NS"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement NS"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement NS"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements NS"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -606,14 +720,27 @@ class Txt(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un enregistrement TXT"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer des enregistrements TXT"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer des enregistrements TXT"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements TXT"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -679,14 +806,27 @@ class Srv(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un enregistrement SRV"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un enregistrement SRV"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un enregistrement SRV"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les enregistrements SRV"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -829,6 +969,9 @@ class Interface(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)) and \
             not user_request.has_perms(('cableur',)) and \
@@ -837,10 +980,16 @@ class Interface(models.Model):
                         d'un autre user que vous sans droit"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
             return False, u"Vous ne pouvez pas éditer une machine d'un autre\
                 user que vous sans droit"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -972,6 +1121,9 @@ class Domain(models.Model):
                         % max_lambdauser_aliases
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and (
             self.cname is None or \
@@ -981,10 +1133,16 @@ class Domain(models.Model):
                     d'un autre user que vous sans droit"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
             return False, u"Vous ne pouvez pas supprimer un alias à une machine\
                 d'un autre user que vous sans droit"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1026,10 +1184,19 @@ class IpList(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1082,14 +1249,27 @@ class Service(models.Model):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de créer un service"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'éditer des services"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des services"
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
+            de supprimer un service"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit\
             de supprimer un service"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des services"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -1141,11 +1321,21 @@ class Service_link(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_delete_all(user_request, *args, **kwargs):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des liens de services"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -1171,9 +1361,20 @@ class OuverturePortList(models.Model):
         return user_request.has_perms(('bureau',)) , u"Vous n'avez pas le droit\
             d'ouvrir un port"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('bureau',)):
+            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('bureau',)):
             return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
+        return True, None
+
+    def can_delete_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('bureau',)):
+            return False, u"Vous n'avez pas le droit de supprimer une ouverture\
+                de port"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1183,6 +1384,10 @@ class OuverturePortList(models.Model):
         if self.interface_set.all():
             return False, u"Cette liste de ports est utilisée"
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir des ouverture de ports"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -1264,10 +1469,19 @@ class OuverturePort(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):

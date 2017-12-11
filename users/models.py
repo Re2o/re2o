@@ -773,6 +773,9 @@ class User(AbstractBaseUser):
             return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if self.is_class_club and user_request.is_class_adherent:
             if self == user_request or user_request.has_perms(('cableur',)) or\
@@ -786,7 +789,13 @@ class User(AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -829,13 +838,22 @@ class Adherent(User):
             return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un adherent"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if self == user_request or user_request.has_perms(('cableur',)):
             return True, None
         else:
             return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -877,6 +895,9 @@ class Club(User):
             return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un club"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         if self == user_request or user_request.has_perms(('cableur',)) or\
             user_request.adherent in self.administrators.all():
@@ -884,7 +905,13 @@ class Club(User):
         else:
             return False, u"Vous n'avez pas le droit d'éditer ce club"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -992,13 +1019,25 @@ class ServiceUser(AbstractBaseUser):
             return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
                 créer un service user"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
+            les services users"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
             les services users"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+            supprimer un service user"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
             supprimer un service user"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
+            voir un service user"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
@@ -1040,12 +1079,22 @@ class Right(models.Model):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
             créer des droits"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
+            supprimer des droits"
 
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
             supprimer des droits"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         return True, None
@@ -1081,13 +1130,25 @@ class School(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des écoles"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit d'éditer des écoles"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'éditer des écoles"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de supprimer des écoles"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de supprimer des écoles"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir les écoles"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
@@ -1128,13 +1189,25 @@ class ListRight(models.Model):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             de créer des groupes de droits"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            d'éditer des groupes de droits"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             d'éditer des groupes de droits"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+            de supprimer des groupes de droits"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             de supprimer des groupes de droits"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les groupes de droits"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -1239,11 +1312,21 @@ class Ban(models.Model):
         return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
             créer des bannissements"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+            d'éditer des bannissements"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
             d'éditer des bannissements"
 
+    def can_delete_all(self, user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1306,11 +1389,21 @@ class Whitelist(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des accès gracieux"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit d'éditer des accès gracieux"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'éditer des accès gracieux"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
