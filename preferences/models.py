@@ -53,12 +53,23 @@ class OptionalUser(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les users"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les users"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les utilisateurs"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -86,12 +97,23 @@ class OptionalMachine(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les machines"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les machines"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les machines"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -136,12 +158,23 @@ class OptionalTopologie(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant la topologie"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant la topologie"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant la topologie"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -171,12 +204,23 @@ class GeneralOption(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences générales"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences générales"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences générales"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -198,13 +242,25 @@ class Service(models.Model):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             de créer un service pour la page d'accueil"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les services pour la page d'accueil"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les services pour la page d'accueil"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            de supprimer les services pour la page d'accueil"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             de supprimer les services pour la page d'accueil"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les services pour la page d'accueil"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -241,12 +297,23 @@ class AssoOption(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant l'association"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant l'association"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant l'association"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
@@ -266,12 +333,23 @@ class MailMessageOption(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+            d'éditer les préférences concernant les mails"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
         return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+            de voir les préférences concernant les mails"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\

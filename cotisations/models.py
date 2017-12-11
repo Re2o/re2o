@@ -110,6 +110,11 @@ class Facture(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des factures"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit d'éditer les factures"
+        return None
+
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)):
             return False, u"Vous n'avez pas le droit d'éditer les factures"
@@ -120,6 +125,11 @@ class Facture(models.Model):
         else:
             return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de supprimer une facture"
+        return None
+
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)):
             return False, u"Vous n'avez pas le droit de supprimer une facture"
@@ -128,6 +138,9 @@ class Facture(models.Model):
                 contrôlée ou invalidée par un trésorier"
         else:
             return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)) and\
@@ -241,10 +254,19 @@ class Vente(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -333,13 +355,25 @@ class Article(models.Model):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'ajouter des articles"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des articles"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des articles"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des articles"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit de supprimer des articles"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des articles"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
@@ -362,13 +396,25 @@ class Banque(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'ajouter des banques"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des banques"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des banques"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des banques"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit de supprimer des banques"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des banques"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
@@ -396,13 +442,25 @@ class Paiement(models.Model):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'ajouter des paiements"
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit d'éditer des paiements"
+
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des paiements"
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
+            droit de supprimer des paiements"
+
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit de supprimer des paiements"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir des paiements"
 
     def can_view(self, user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
@@ -446,10 +504,19 @@ class Cotisation(models.Model):
     def can_create(user_request, *args, **kwargs):
         return True, None
 
+    def can_edit_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_edit(self, user_request, *args, **kwargs):
         return True, None
 
+    def can_delete_all(user_request, *args, **kwargs):
+        return True, None
+
     def can_delete(self, user_request, *args, **kwargs):
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
