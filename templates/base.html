@@ -29,13 +29,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <!DOCTYPE html>
 <html lang="fr">
-    <html prefix="og: http://ogp.me/ns#">
-    <head>
-
+    <head prefix="og: http://ogp.me/ns#">
     <meta property="og:title" content="Re2o" />
     <meta property="og:type" content="website" />
-    <meta property="og:secure_url" content="https://"{{request.get_host}} />
-    <meta property="og:image" content="../static_files/logo/federez.png" />
+    <meta property="og:url" content="https://{{request.get_host}}" />
+    <meta property="og:image" content="https://pbs.twimg.com/profile_images/3217211434/3079b649023b1ea0e1f387df9b9cc7e7_400x400.png" />
+    <meta property="og:description" content="Site de gestion de rézo féderez" />   
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
