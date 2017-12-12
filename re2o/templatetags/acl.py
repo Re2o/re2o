@@ -110,13 +110,13 @@ MODEL_NAME = {
     'OuverturePortList' : machines.OuverturePortList,
     'OuverturePort' : machines.OuverturePort,
     # preferences
-    'OptionalUser': preferences.OptionalUser
-    'OptionalMachine': preferences.OptionalMachine
-    'OptionalTopologie': preferences.OptionalTopologie
-    'GeneralOption': preferences.GeneralOption
-    'Service': preferences.Service
-    'AssoOption': preferences.AssoOption
-    'MailMessageOption': preferences.MailMessageOption
+    'OptionalUser': preferences.OptionalUser,
+    'OptionalMachine': preferences.OptionalMachine,
+    'OptionalTopologie': preferences.OptionalTopologie,
+    'GeneralOption': preferences.GeneralOption,
+    'Service': preferences.Service,
+    'AssoOption': preferences.AssoOption,
+    'MailMessageOption': preferences.MailMessageOption,
     # topologie
     'Stack' : topologie.Stack,
     'Switch' : topologie.Switch,
