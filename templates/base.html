@@ -3,7 +3,6 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
 Copyright © 2017  Goulven Kermarec
 Copyright © 2017  Augustin Lemesle
 
@@ -34,11 +33,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <meta property="og:type" content="website" />
     {% if request.is_secure %}
     	<meta property="og:url" content="https://{{request.get_host}}" />
+	<meta property="og:image" content="https://{{request.get_host}}/static/logo/re2o.png"/>
     {%else%}
-    	<meta property="og:url" content="http://{{request.get_host}}"/>
+    	<meta property="og:url" content="http://{{request.get_host}"/>
+	<meta property="og:image" content="http://{{request.get_host}}/static/logo/re2o.png"/>
     {%endif%}
-    <meta property="og:image" content="https://pbs.twimg.com/profile_images/3217211434/3079b649023b1ea0e1f387df9b9cc7e7_400x400.png" />
-    <meta property="og:description" content="Site de gestion de rézo féderez" />   
+    <meta property="og:description" content="Site de gestion de rézo supporté par FedeRez" />
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
@@ -111,10 +111,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <a href="{% url 'preferences:display-options' %}">
                                     <span class="glyphicon glyphicon-cog"></span> Preferences
                                 </a>
-                            </li>
-                        </ul>
+			    </li>
+			</ul>
                         {% endif %}
-                    </div>
+		    </div>
                 </div>
             </nav>
 
