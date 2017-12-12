@@ -123,6 +123,28 @@ def can_delete(model):
     return decorator
 
 
+def all_can_delete(model):
+    """Decorator which returns a list of detable models by request user.
+    If none of them, return an error"""
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            all_objects = model.objects.all()
+            instances_id = []
+            for instance in all_objects:
+                can, msg = instance.can_delete(request.user)
+                if can:
+                    instances_id.append(instance.id)
+            instances = model.objects.filter(id__in=instances_id)
+            if not instances:
+                messages.error(request, "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, instances, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def can_view(model):
     """Decorator to check if an user can view a model.
     It tries to get an instance of the model, using

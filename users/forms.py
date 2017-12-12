@@ -493,6 +493,11 @@ class DelSchoolForm(Form):
         widget=forms.CheckboxSelectMultiple
     )
 
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances') 
+        super(DelSchoolForm, self).__init__(*args, **kwargs)
+        self.fields['schools'].queryset = instances
+
 
 class RightForm(ModelForm):
     """Assignation d'un droit à un user"""
@@ -531,14 +536,6 @@ class BanForm(ModelForm):
         model = Ban
         exclude = ['user']
 
-    def clean_date_end(self):
-        """Verification que date_end est après now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut\
-            pas être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end
-
 
 class WhitelistForm(ModelForm):
     """Creation, edition d'un objet whitelist"""
@@ -550,11 +547,3 @@ class WhitelistForm(ModelForm):
     class Meta:
         model = Whitelist
         exclude = ['user']
-
-    def clean_date_end(self):
-        """Verification  que la date_end est posterieur à now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut pas\
-            être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end

@@ -93,7 +93,7 @@ from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
 from re2o.utils import (
-    all_has_access, SortTable, can_create, can_edit, can_delete, can_view
+    all_has_access, SortTable, can_create, can_edit, all_can_delete, can_delete, can_view
 )
 
 def password_change_action(u_form, user, request, req=False):
@@ -500,13 +500,13 @@ def edit_school(request, school_instance, schoolid):
 
 
 @login_required
-@permission_required('cableur')
-def del_school(request):
+@all_can_delete(School)
+def del_school(request, instances):
     """ Supprimer un établissement d'enseignement à la base de donnée,
     need cableur
     Objet protégé, possible seulement si aucun user n'est affecté à
     l'établissement """
-    school = DelSchoolForm(request.POST or None)
+    school = DelSchoolForm(request.POST or None, instances=instances)
     if school.is_valid():
         school_dels = school.cleaned_data['schools']
         for school_del in school_dels:
