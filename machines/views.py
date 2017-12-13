@@ -127,7 +127,8 @@ from re2o.utils import (
     can_create,
     can_edit,
     can_delete,
-    can_view
+    can_view,
+    can_delete_set,
 )
 from re2o.views import form
 
@@ -408,10 +409,10 @@ def edit_iptype(request, iptype_instance, iptypeid):
     return form({'iptypeform': iptype}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_iptype(request):
+@can_delete_set(IpType)
+def del_iptype(request, instances):
     """ Suppression d'un range ip. Supprime les objets ip associés"""
-    iptype = DelIpTypeForm(request.POST or None)
+    iptype = DelIpTypeForm(request.POST or None, instances=instances)
     if iptype.is_valid():
         iptype_dels = iptype.cleaned_data['iptypes']
         for iptype_del in iptype_dels:
@@ -454,9 +455,9 @@ def edit_machinetype(request, machinetype_instance, machinetypeid):
     return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_machinetype(request):
-    machinetype = DelMachineTypeForm(request.POST or None)
+@can_delete_set(MachineType)
+def del_machinetype(request, instances):
+    machinetype = DelMachineTypeForm(request.POST or None, instances=instances)
     if machinetype.is_valid():
         machinetype_dels = machinetype.cleaned_data['machinetypes']
         for machinetype_del in machinetype_dels:
@@ -499,9 +500,9 @@ def edit_extension(request, extension_instance, extensionid):
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_extension(request):
-    extension = DelExtensionForm(request.POST or None)
+@can_delete_set(Extension)
+def del_extension(request, instances):
+    extension = DelExtensionForm(request.POST or None, instances=instances)
     if extension.is_valid():
         extension_dels = extension.cleaned_data['extensions']
         for extension_del in extension_dels:
@@ -544,9 +545,9 @@ def edit_soa(request, soa_instance, soaid):
     return form({'soaform': soa}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_soa(request):
-    soa = DelSOAForm(request.POST or None)
+@can_delete_set(SOA)
+def del_soa(request, instances):
+    soa = DelSOAForm(request.POST or None, instances=instances)
     if soa.is_valid():
         soa_dels = soa.cleaned_data['soa']
         for soa_del in soa_dels:
@@ -589,9 +590,9 @@ def edit_mx(request, mx_instance, mxid):
     return form({'mxform': mx}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_mx(request):
-    mx = DelMxForm(request.POST or None)
+@can_delete_set(Mx)
+def del_mx(request, instances):
+    mx = DelMxForm(request.POST or None, instances=instances)
     if mx.is_valid():
         mx_dels = mx.cleaned_data['mx']
         for mx_del in mx_dels:
@@ -634,9 +635,9 @@ def edit_ns(request, ns_instance, nsid):
     return form({'nsform': ns}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_ns(request):
-    ns = DelNsForm(request.POST or None)
+@can_delete_set(Ns)
+def del_ns(request, instances):
+    ns = DelNsForm(request.POST or None, instances=instances)
     if ns.is_valid():
         ns_dels = ns.cleaned_data['ns']
         for ns_del in ns_dels:
@@ -679,9 +680,9 @@ def edit_txt(request, txt_instance, txtid):
     return form({'txtform': txt}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_txt(request):
-    txt = DelTxtForm(request.POST or None)
+@can_delete_set(Txt)
+def del_txt(request, instances):
+    txt = DelTxtForm(request.POST or None, instances=instances)
     if txt.is_valid():
         txt_dels = txt.cleaned_data['txt']
         for txt_del in txt_dels:
@@ -724,9 +725,9 @@ def edit_srv(request, srv_instance, srvid):
     return form({'srvform': srv}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_srv(request):
-    srv = DelSrvForm(request.POST or None)
+@can_delete_set(Srv)
+def del_srv(request, instances):
+    srv = DelSrvForm(request.POST or None, instances=instances)
     if srv.is_valid():
         srv_dels = srv.cleaned_data['srv']
         for srv_del in srv_dels:
@@ -827,9 +828,9 @@ def edit_service(request, service_instance, serviceid):
     return form({'serviceform': service}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_service(request):
-    service = DelServiceForm(request.POST or None)
+@can_delete_set(Service)
+def del_service(request, instances):
+    service = DelServiceForm(request.POST or None, instances=instances)
     if service.is_valid():
         service_dels = service.cleaned_data['service']
         for service_del in service_dels:
@@ -872,9 +873,9 @@ def edit_vlan(request, vlan_instance, vlanid):
     return form({'vlanform': vlan}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_vlan(request):
-    vlan = DelVlanForm(request.POST or None)
+@can_delete_set(Vlan)
+def del_vlan(request, instances):
+    vlan = DelVlanForm(request.POST or None, instances=instances)
     if vlan.is_valid():
         vlan_dels = vlan.cleaned_data['vlan']
         for vlan_del in vlan_dels:
@@ -917,9 +918,9 @@ def edit_nas(request, nas_instance, nasid):
     return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('infra')
-def del_nas(request):
-    nas = DelNasForm(request.POST or None)
+@can_delete_set(Nas)
+def del_nas(request, instances):
+    nas = DelNasForm(request.POST or None, instances=instances)
     if nas.is_valid():
         nas_dels = nas.cleaned_data['nas']
         for nas_del in nas_dels:
