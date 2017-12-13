@@ -42,7 +42,7 @@ from reversion.models import Version
 from reversion import revisions as reversion
 
 from re2o.views import form
-from re2o.utils import can_create, can_edit
+from re2o.utils import can_create, can_edit, can_delete_set
 from .forms import ServiceForm, DelServiceForm
 from .models import Service, OptionalUser, OptionalMachine, AssoOption
 from .models import MailMessageOption, GeneralOption, OptionalTopologie
@@ -149,10 +149,10 @@ def edit_service(request, service_instance, serviceid):
 
 
 @login_required
-@permission_required('admin')
-def del_services(request):
+@can_delete_set(Service)
+def del_services(request, instances):
     """Suppression d'un service de la page d'accueil"""
-    services = DelServiceForm(request.POST or None)
+    services = DelServiceForm(request.POST or None, instances=instances)
     if services.is_valid():
         services_dels = services.cleaned_data['services']
         for services_del in services_dels:
