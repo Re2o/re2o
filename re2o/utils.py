@@ -123,7 +123,7 @@ def can_delete(model):
     return decorator
 
 
-def all_can_delete(model):
+def can_delete_set(model):
     """Decorator which returns a list of detable models by request user.
     If none of them, return an error"""
     def decorator(view):

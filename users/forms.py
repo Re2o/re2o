@@ -479,24 +479,35 @@ class NewListRightForm(ListRightForm):
 class DelListRightForm(Form):
     """Suppression d'un ou plusieurs groupes"""
     listrights = forms.ModelMultipleChoiceField(
-        queryset=ListRight.objects.all(),
+        queryset=ListRight.objects.none(),
         label="Droits actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelListRightForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['listrights'].queryset = instances
+        else:
+            self.fields['listrights'].queryset = ListRight.objects.all()
 
 
 class DelSchoolForm(Form):
     """Suppression d'une ou plusieurs écoles"""
     schools = forms.ModelMultipleChoiceField(
-        queryset=School.objects.all(),
+        queryset=School.objects.none(),
         label="Etablissements actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
     def __init__(self, *args, **kwargs):
-        instances = kwargs.pop('instances') 
+        instances = kwargs.pop('instances', None)
         super(DelSchoolForm, self).__init__(*args, **kwargs)
-        self.fields['schools'].queryset = instances
+        if instances:
+            self.fields['schools'].queryset = instances
+        else:
+            self.fields['schools'].queryset = School.objects.all()
 
 
 class RightForm(ModelForm):

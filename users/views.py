@@ -93,7 +93,7 @@ from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
 from re2o.utils import (
-    all_has_access, SortTable, can_create, can_edit, all_can_delete, can_delete, can_view
+    all_has_access, SortTable, can_create, can_edit, can_delete_set, can_delete, can_view
 )
 
 def password_change_action(u_form, user, request, req=False):
@@ -500,7 +500,7 @@ def edit_school(request, school_instance, schoolid):
 
 
 @login_required
-@all_can_delete(School)
+@can_delete_set(School)
 def del_school(request, instances):
     """ Supprimer un établissement d'enseignement à la base de donnée,
     need cableur
@@ -562,11 +562,11 @@ def edit_listright(request, listright_instance, listrightid):
 
 
 @login_required
-@permission_required('bureau')
+@can_delete_set(ListRight)
 def del_listright(request):
     """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit
     bureau """
-    listright = DelListRightForm(request.POST or None)
+    listright = DelListRightForm(request.POST or None, instances=instances)
     if listright.is_valid():
         listright_dels = listright.cleaned_data['listrights']
         for listright_del in listright_dels:
