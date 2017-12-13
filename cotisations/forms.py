@@ -180,10 +180,18 @@ class DelArticleForm(Form):
     """Suppression d'un ou plusieurs articles en vente. Choix
     parmis les modèles"""
     articles = forms.ModelMultipleChoiceField(
-        queryset=Article.objects.all(),
+        queryset=Article.objects.none(),
         label="Articles actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelArticleForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['articles'].queryset = instances
+        else:
+            self.fields['articles'].queryset = Article.objects.all()
 
 
 class PaiementForm(ModelForm):
@@ -204,10 +212,18 @@ class DelPaiementForm(Form):
     """Suppression d'un ou plusieurs moyens de paiements, selection
     parmis les models"""
     paiements = forms.ModelMultipleChoiceField(
-        queryset=Paiement.objects.all(),
+        queryset=Paiement.objects.none(),
         label="Moyens de paiement actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelPaiementForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['paiements'].queryset = instances
+        else:
+            self.fields['paiements'].queryset = Paiement.objects.all()
 
 
 class BanqueForm(ModelForm):
@@ -225,7 +241,15 @@ class BanqueForm(ModelForm):
 class DelBanqueForm(Form):
     """Selection d'une ou plusieurs banques, pour suppression"""
     banques = forms.ModelMultipleChoiceField(
-        queryset=Banque.objects.all(),
+        queryset=Banque.objects.none(),
         label="Banques actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelBanqueForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['banques'].queryset = instances
+        else:
+            self.fields['banques'].queryset = Banque.objects.all()

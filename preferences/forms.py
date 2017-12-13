@@ -173,7 +173,15 @@ class ServiceForm(ModelForm):
 class DelServiceForm(Form):
     """Suppression de services sur la page d'accueil"""
     services = forms.ModelMultipleChoiceField(
-        queryset=Service.objects.all(),
+        queryset=Service.objects.none(),
         label="Enregistrements service actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelServiceForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['services'].queryset = instances
+        else:
+            self.fields['services'].queryset = Service.objects.all()

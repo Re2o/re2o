@@ -43,7 +43,14 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import SortTable, can_create, can_edit, can_delete, can_view
+from re2o.utils import (
+    SortTable,
+    can_create,
+    can_edit,
+    can_delete,
+    can_view,
+    can_delete_set
+)
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
@@ -374,10 +381,10 @@ def edit_article(request, article_instance, articleid):
 
 
 @login_required
-@permission_required('tresorier')
-def del_article(request):
+@can_delete_set(Article)
+def del_article(request, instances):
     """Suppression d'un article en vente"""
-    article = DelArticleForm(request.POST or None)
+    article = DelArticleForm(request.POST or None, instances=instances)
     if article.is_valid():
         article_del = article.cleaned_data['articles']
         with transaction.atomic(), reversion.create_revision():
@@ -424,10 +431,10 @@ def edit_paiement(request, paiement_instance, paiementid):
 
 
 @login_required
-@permission_required('tresorier')
-def del_paiement(request):
+@can_delete_set(Paiement)
+def del_paiement(request, instances):
     """Suppression d'un moyen de paiement"""
-    paiement = DelPaiementForm(request.POST or None)
+    paiement = DelPaiementForm(request.POST or None, instances=instances)
     if paiement.is_valid():
         paiement_dels = paiement.cleaned_data['paiements']
         for paiement_del in paiement_dels:
@@ -485,10 +492,10 @@ def edit_banque(request, banque_instance, banqueid):
 
 
 @login_required
-@permission_required('tresorier')
-def del_banque(request):
+@can_delete_set(Banque)
+def del_banque(request, instances):
     """Supprime une banque"""
-    banque = DelBanqueForm(request.POST or None)
+    banque = DelBanqueForm(request.POST or None, instances=instances)
     if banque.is_valid():
         banque_dels = banque.cleaned_data['banques']
         for banque_del in banque_dels:
