@@ -44,6 +44,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 
+{% if id_switch %}
+<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %} Aller à la liste des ports</a>
+{% endif %}
 <form class="form" method="post">
     {% csrf_token %}
     {% if topoform %}

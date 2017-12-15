@@ -26,15 +26,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
 
-{% block title %}Création et modificationd 'utilisateur{% endblock %}
+{% block title %}Modification de la topologie{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors topoform %}
 
+{% if id_switch %}
+<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %} Aller à la liste des ports</a>
+{% endif %}
 <form class="form" method="post">
     {% csrf_token %}
     {% massive_bootstrap_form topoform 'room,related,machine_interface' %}
-    {%bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
 </form>
   <br />
   <br />
