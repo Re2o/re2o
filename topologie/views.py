@@ -295,7 +295,7 @@ def new_port(request, switch_id):
             'topologie:index-port', 
             kwargs={'switch_id':switch_id}
             ))
-    return form({'topoform': port}, 'topologie/topo.html', request)
+    return form({'id_switch': switch_id,'topoform': port}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -327,7 +327,7 @@ def edit_port(request, port_id):
             'topologie:index-port',
             kwargs={'switch_id': str(port_object.switch.id)}
             ))
-    return form({'topoform': port}, 'topologie/topo.html', request)
+    return form({'id_switch': str(port_object.switch.id), 'topoform': port}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -524,7 +524,7 @@ def create_ports(request, switch_id):
 
         return redirect("/topologie/switch/" + str(switch.id))
 
-    return form({'topoform': port_form}, 'topologie/switch.html', request)
+    return form({'id_switch': switch_id, 'topoform': port_form}, 'topologie/switch.html', request)
 
 
 @login_required
@@ -586,6 +586,7 @@ def edit_switch(request, switch_id):
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
     return form({
+        'id_switch': switch_id,
         'topoform': switch_form,
         'machineform': machine_form,
         'interfaceform': interface_form,
