@@ -102,6 +102,11 @@ class GeneralOption(models.Model):
     temps où les liens sont valides"""
     PRETTY_NAME = "Options générales"
 
+    general_message = models.TextField(
+        default="",
+        blank=True,
+        help_text="Message général affiché sur le site (maintenance, etc"
+    )
     search_display_page = models.IntegerField(default=15)
     pagination_number = models.IntegerField(default=25)
     pagination_large_number = models.IntegerField(default=8)

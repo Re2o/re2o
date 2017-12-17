@@ -23,6 +23,7 @@
 
 
 from __future__ import unicode_literals
+from django.contrib import messages
 
 from preferences.models import GeneralOption, OptionalMachine
 
@@ -33,6 +34,9 @@ def context_user(request):
     general_options, _created = GeneralOption.objects.get_or_create()
     machine_options, _created = OptionalMachine.objects.get_or_create()
     user = request.user
+    global_message = general_options.general_message
+    if global_message:
+        messages.warning(request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
         is_cableur = user.is_cableur
