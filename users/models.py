@@ -568,7 +568,7 @@ class User(AbstractBaseUser):
             return
         user_right.delete()
 
-    def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True):
+    def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False):
         """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
         self
         Options : base : synchronise tous les attributs de base - nom, prenom,
@@ -576,6 +576,7 @@ class User(AbstractBaseUser):
         access_refresh : synchronise le dialup_access notant si l'user a accès
         aux services
         mac_refresh : synchronise les machines de l'user
+        group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         self.refresh_from_db()
         try:
@@ -608,6 +609,9 @@ class User(AbstractBaseUser):
             user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
+        if group_refresh:
+            for right in Right.objects.filter(user=self):
+                right.right.ldap_sync()
         user_ldap.save()
 
     def ldap_del(self):
@@ -829,7 +833,7 @@ def user_post_save(sender, **kwargs):
     user = kwargs['instance']
     if is_created:
         user.notif_inscription()
-    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False, group_refresh=True)
     regen('mailing')
 
 
