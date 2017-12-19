@@ -31,113 +31,113 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 {% if machineform %}
-{% bootstrap_form_errors machineform %}
+    {% bootstrap_form_errors machineform %}
 {% endif %}
 {% if interfaceform %}
-{% bootstrap_form_errors interfaceform %}
+    {% bootstrap_form_errors interfaceform %}
 {% endif %}
 {% if domainform %}
-{% bootstrap_form_errors domainform %}
+    {% bootstrap_form_errors domainform %}
 {% endif %}
 {% if iptypeform %}
-{% bootstrap_form_errors iptypeform %}
+    {% bootstrap_form_errors iptypeform %}
 {% endif %}
 {% if machinetypeform %}
-{% bootstrap_form_errors machinetypeform %}
+    {% bootstrap_form_errors machinetypeform %}
 {% endif %}
 {% if extensionform %}
-{% bootstrap_form_errors extensionform %}
+    {% bootstrap_form_errors extensionform %}
 {% endif %}
 {% if mxform %}
-{% bootstrap_form_errors mxform %}
+    {% bootstrap_form_errors mxform %}
 {% endif %}
 {% if nsform %}
-{% bootstrap_form_errors nsform %}
+    {% bootstrap_form_errors nsform %}
 {% endif %}
 {% if txtform %}
-{% bootstrap_form_errors txtform %}
+    {% bootstrap_form_errors txtform %}
 {% endif %}
 {% if srvform %}
-{% bootstrap_form_errors srvform %}
+    {% bootstrap_form_errors srvform %}
 {% endif %}
 {% if aliasform %}
-{% bootstrap_form_errors aliasform %}
+    {% bootstrap_form_errors aliasform %}
 {% endif %}
 {% if serviceform %}
-{% bootstrap_form_errors serviceform %}
+    {% bootstrap_form_errors serviceform %}
 {% endif %}
 {% if vlanform %}
-{% bootstrap_form_errors vlanform %}
+    {% bootstrap_form_errors vlanform %}
 {% endif %}
 {% if nasform %}
-{% bootstrap_form_errors nasform %}
+    {% bootstrap_form_errors nasform %}
 {% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
     {% if machineform %}
-    <h3>Machine</h3>
-    {% bootstrap_form machineform %}
+        <h3>Machine</h3>
+        {% bootstrap_form machineform %}
     {% endif %}
     {% if interfaceform %}
-    <h3>Interface</h3>
+        <h3>Interface</h3>
         {% if i_mbf_param %}
-    {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
-	{% else %}
-    {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
-	{% endif %}
+            {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
+        {% else %}
+            {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
+        {% endif %}
     {% endif %}
     {% if domainform %}
-    <h3>Domaine</h3>
-    {% bootstrap_form domainform %}
+        <h3>Domaine</h3>
+        {% bootstrap_form domainform %}
     {% endif %}
     {% if iptypeform %}
-    <h3>Type d'IP</h3>
-    {% bootstrap_form iptypeform %}
+        <h3>Type d'IP</h3>
+        {% bootstrap_form iptypeform %}
     {% endif %}
     {% if machinetypeform %}
-    <h3>Type de machine</h3>
-    {% bootstrap_form machinetypeform %}
+        <h3>Type de machine</h3>
+        {% bootstrap_form machinetypeform %}
     {% endif %}
     {% if extensionform %}
-    <h3>Extension</h3>
-    {% massive_bootstrap_form extensionform 'origin' %}
+        <h3>Extension</h3>
+        {% massive_bootstrap_form extensionform 'origin' %}
     {% endif %}
     {% if soaform %}
-    <h3>Enregistrement SOA</h3>
-    {% bootstrap_form soaform %}
+        <h3>Enregistrement SOA</h3>
+        {% bootstrap_form soaform %}
     {% endif %}
     {% if mxform %}
-    <h3>Enregistrement MX</h3>
-    {% massive_bootstrap_form mxform 'name' %}
+        <h3>Enregistrement MX</h3>
+        {% massive_bootstrap_form mxform 'name' %}
     {% endif %}
     {% if nsform %}
-    <h3>Enregistrement NS</h3>
-    {% massive_bootstrap_form nsform 'ns' %}
+        <h3>Enregistrement NS</h3>
+        {% massive_bootstrap_form nsform 'ns' %}
     {% endif %}
     {% if txtform %}
-    <h3>Enregistrement TXT</h3>
-    {% bootstrap_form txtform %}
+        <h3>Enregistrement TXT</h3>
+        {% bootstrap_form txtform %}
     {% endif %}
     {% if srvform %}
-    <h3>Enregistrement SRV</h3>
-    {% massive_bootstrap_form srvform 'target'  %}
+        <h3>Enregistrement SRV</h3>
+        {% massive_bootstrap_form srvform 'target'  %}
     {% endif %}
     {% if aliasform %}
-    <h3>Alias</h3>
-    {% bootstrap_form aliasform %}
+        <h3>Alias</h3>
+        {% bootstrap_form aliasform %}
     {% endif %}
     {% if serviceform %}
-    <h3>Service</h3>
-    {% massive_bootstrap_form serviceform 'servers' %}
+        <h3>Service</h3>
+        {% massive_bootstrap_form serviceform 'servers' %}
     {% endif %}
     {% if vlanform %}
-    <h3>Vlan</h3>
-    {% bootstrap_form vlanform %}
+        <h3>Vlan</h3>
+        {% bootstrap_form vlanform %}
     {% endif %}
     {% if nasform %}
-    <h3>NAS</h3>
-    {% bootstrap_form nasform %}
+        <h3>NAS</h3>
+        {% bootstrap_form nasform %}
     {% endif %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
