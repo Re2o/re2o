@@ -24,8 +24,13 @@
 Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 """
 from __future__ import unicode_literals
-
+import django.apps
+from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator
 from django.db import models
+from django.utils.functional import cached_property
+from django.apps import apps
+
 from cotisations.models import Paiement
 
 
@@ -150,3 +155,44 @@ class MailMessageOption(models.Model):
 
     welcome_mail_fr = models.TextField(default="")
     welcome_mail_en = models.TextField(default="")
+
+
+class Jauge(models.Model):
+    """Jauge de contrôle
+    Possibilité de classer en pourcentage ou valeur brute /
+    croissant ou décroissant
+    Exemple : nombre de facture non controlées"""
+
+    DIRECTION_CHOICES = (
+        ('croissant', 'croissant'),
+        ('decroissant', 'decroissant'),
+    )
+
+    objet = models.ForeignKey(ContentType)
+    level_value = models.IntegerField(blank=True, null=True)
+    level_percentage = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(100)]
+    )
+    direction = models.CharField(
+        max_length=32,
+        choices=DIRECTION_CHOICES,
+        default='croissant'
+    )
+    comment = models.CharField(max_length=255)
+
+    @cached_property
+    def jauge_state(self):
+        all_object = apps.get_model(self.objet.app_label, self.objet.name).objects.all().count()
+        if self.direction == "croissant":
+            if self.level_value:
+                if all_object > self.level_value:
+                    return False
+            #if self.level_percentage:
+            #    if all_objet
+        else:
+            if self.level_value:
+                if all_object < self.level_value:
+                    return False
+        return True

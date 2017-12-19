@@ -1,4 +1,3 @@
-{% extends "logs/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,17 +22,33 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Objet</th>
+                <th>Jauge en pourcentage</th>
+                <th>Jauge en valeur</th>
+		<th>Sens</th>
+		<th>Valeur recherchée</th>
+		<th>Etat</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for jauge in jauge_list %}
+        <tr>
+            <td>{{ jauge.objet }}</td>
+            <td>{{ jauge.level_percentage }}%</td>
+            <td>{{ jauge.level_value }}</td>
+	    <td>{{ jauge.direction }}<td>
+	    <td>{{ jauge.comment }}</td>
+	    <td>{{ jauge.jauge_state }}<td>
+            <td class="text-right">
+            {% if is_admin %}
+            {% include 'buttons/edit.html' with href='preferences:edit-jauge' id=jauge.id %}
+            {% endif %}
+            {% include 'buttons/history.html' with href='preferences:history' name='jauge' id=jauge.id %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-{% block title %}Statistiques{% endblock %}
-
-{% block content %}
-  <h2>Centre de contrôle</h2>
-   Aucune jauge objet
-
-  <h2>Actions effectuées</h2>
-  {%  include "logs/aff_summary.html" with  versions_list=versions_list %}
-  <br />
-  <br />
-  <br />
- {% endblock %}

@@ -73,5 +73,17 @@ urlpatterns = [
         views.history,
         name='history'
         ),
+    url(r'^add_jauge/$', views.add_jauge, name='add-jauge'),
+    url(
+        r'^edit_jauge/(?P<jaugeid>[0-9]+)$',
+        views.edit_jauge,
+        name='edit-jauge'
+        ),
+    url(r'^del_jauge/$', views.del_jauge, name='del-jauge'),
+    url(
+        r'^history/(?P<object_name>jauge)/(?P<object_id>[0-9]+)$',
+        views.history,
+        name='history'
+        ),
     url(r'^$', views.display_options, name='display-options'),
 ]

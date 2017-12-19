@@ -28,8 +28,13 @@ from __future__ import unicode_literals
 from django.forms import ModelForm, Form
 from django import forms
 from .models import OptionalUser, OptionalMachine, OptionalTopologie
-from .models import GeneralOption, AssoOption, MailMessageOption, Service
-
+from .models import (
+    GeneralOption,
+    AssoOption,
+    MailMessageOption,
+    Service,
+    Jauge
+)
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -175,5 +180,25 @@ class DelServiceForm(Form):
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         label="Enregistrements service actuels",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+
+class JaugeForm(ModelForm):
+    """Edition, ajout de jauges"""
+    class Meta:
+        model = Jauge
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(JaugeForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelJaugeForm(Form):
+    """Suppression de services sur la page d'accueil"""
+    services = forms.ModelMultipleChoiceField(
+        queryset=Jauge.objects.all(),
+        label="Enregistrements jauges actuels",
         widget=forms.CheckboxSelectMultiple
     )

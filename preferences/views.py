@@ -42,9 +42,22 @@ from reversion.models import Version
 from reversion import revisions as reversion
 
 from re2o.views import form
-from .forms import ServiceForm, DelServiceForm
-from .models import Service, OptionalUser, OptionalMachine, AssoOption
-from .models import MailMessageOption, GeneralOption, OptionalTopologie
+from .forms import (
+    ServiceForm,
+    DelServiceForm,
+    JaugeForm,
+    DelJaugeForm
+)
+from .models import (
+    Service,
+    OptionalUser,
+    OptionalMachine,
+    AssoOption,
+    MailMessageOption,
+    GeneralOption,
+    OptionalTopologie,
+    Jauge
+)
 from . import models
 from . import forms
 
@@ -61,6 +74,7 @@ def display_options(request):
     assooptions, _created = AssoOption.objects.get_or_create()
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
+    jauge_list = Jauge.objects.all()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -68,7 +82,8 @@ def display_options(request):
         'generaloptions': generaloptions,
         'assooptions': assooptions,
         'mailmessageoptions': mailmessageoptions,
-        'service_list': service_list
+        'service_list': service_list,
+        'jauge_list': jauge_list,
         }, 'preferences/display_preferences.html', request)
 
 
@@ -171,6 +186,76 @@ def del_services(request):
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services},
+        'preferences/preferences.html',
+        request
+    )
+
+@login_required
+@permission_required('admin')
+def add_jauge(request):
+    """Ajout d'un service de la page d'accueil"""
+    jauge = JaugeForm(request.POST or None)
+    if jauge.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            jauge.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cette jauge a été ajoutée")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': jauge},
+        'preferences/preferences.html',
+        request
+        )
+
+
+@login_required
+@permission_required('admin')
+def edit_jauge(request, jaugeid):
+    """Edition des jauge affichés sur la page d'accueil"""
+    try:
+        jauge_instance = Jauge.objects.get(pk=jaugeid)
+    except Jauge.DoesNotExist:
+        messages.error(request, u"Entrée inexistante")
+        return redirect(reverse('preferences:display-options'))
+    jauge = JaugeForm(request.POST or None, instance=jauge_instance)
+    if jauge.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            jauge.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in jauge.changed_data
+                    )
+            )
+        messages.success(request, "Jauge modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': jauge},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@permission_required('admin')
+def del_jauge(request):
+    """Suppression d'un service de la page d'accueil"""
+    jauge = DelJaugeForm(request.POST or None)
+    if jauge.is_valid():
+        jauge_dels = jauge.cleaned_data['jauge']
+        for jauge_del in jauge_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    jauge_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "Le jauge a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur la jauge\
+                suivant %s ne peut être supprimé" % jauge_del)
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': jauge},
         'preferences/preferences.html',
         request
     )
