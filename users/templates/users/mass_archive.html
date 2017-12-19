@@ -35,12 +35,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <input type="submit" name="valider" value="Valider définitivement" class="btn btn-primary" id="submit-id-submit">
 </form>
 
-
-
-  <h3>Les utilisateurs suivant seront archivés ({{ to_archive_list|length }}):</h3>
-  {%  include "users/aff_users.html" with  users_list=to_archive_list %}
-  <br />
-  <br />
-  <br />
+<h3>Les utilisateurs suivant seront archivés ({{ to_archive_list|length }}):</h3>
+{%  include "users/aff_users.html" with  users_list=to_archive_list %}
+<br />
+<br />
+<br />
 {% endblock %}
 

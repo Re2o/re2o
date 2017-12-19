@@ -27,7 +27,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block title %}Création et modification d'utilisateur{% endblock %}
 
-
 {% block content %}
 
 <h1>Gestion des droits</h1>
@@ -44,17 +43,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </a>
                 </td>
             </tr>
-	    <tr>
-	        <td>
+            <tr>
+                <td>
                     <div class="collapse in" id="collapseRight_{{key}}">
                         <ul class="list-group" style="margin-bottom: 0px">
                             {% for user in values.rights %}
-			    <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">{{ user }}</li>
-			    {% endfor %}
-			</ul>
+                            <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">{{ user }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </td>
-	    </tr>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -70,7 +69,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     } );
 </script>
 
-  <br />
-  <br />
-  <br />
+<br />
+<br />
+<br />
 {% endblock %}

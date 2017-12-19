@@ -21,20 +21,18 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-
 <div class="form-group {% if field.form.errors %}{% if field.errors %}has-error{% else %}has-success{% endif %}{% endif %}">
     <label class="control-label" for="{{ field.id_for_label }}">
         {{ field.label }}
     </label>
     <div id="{{ field.auto_id }}" data-toggle="buttons">
         {% for val in field.field.choices %}
-	<label for="id_u_{{ val.0 }}" class="btn btn-default{% if val.0 in field.initial %} active{% endif %}">
-            <input {% if val.0 in field.initial %}checked="checked" {% endif %}class="" id="id_u_{{ val.0 }}" name="{{ field.name }}" title="" type="checkbox" value="{{ val.0 }}" /> {{ val.1 }}
-        </label>
+            <label for="id_u_{{ val.0 }}" class="btn btn-default{% if val.0 in field.initial %} active{% endif %}">
+            <input {% if val.0 in field.initial %}checked="checked" {% endif %}class="" id="id_u_{{ val.0 }}" name="{{ field.name }}" title="" type="checkbox" value="{{ val.0 }}" /> {{ val.1 }}</label>
         {% endfor %}
     </div>
     {% for error in field.errors %}
-    <div class="help-block">{{ error }}</div>
+        <div class="help-block">{{ error }}</div>
     {% endfor %}
     <div class="help-block">{{ field.help_text }}</div>
 </div>

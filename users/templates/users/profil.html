@@ -73,7 +73,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Chambre</th>
             <td>{{ user.room }}</td>
             <th>Téléphone</th>
-	    <td>{{ user.telephone }}</td>
+        <td>{{ user.telephone }}</td>
         </tr>
         <tr>
             <th>École</th>
@@ -81,7 +81,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Commentaire</th>
             <td>{{ user.comment }}</td>
         </tr>
-	<tr>
+        <tr>
             <th>Date d'inscription</th>
             <td>{{ user.registered }}</td>
             <th>Dernière connexion</th>
@@ -119,7 +119,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Accès internet</th>
             {% if user.has_access == True %}
-	    <td><i class="text-success">Actif (jusqu'au {{ user.end_access }})</i></td>
+        <td><i class="text-success">Actif (jusqu'au {{ user.end_access }})</i></td>
             {% else %}
             <td><i class="text-danger">Désactivé</i></td>
             {% endif %}
@@ -130,16 +130,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>Aucun</td>
             {% endif %}
         </tr>
-	{% if user_solde %}
+    {% if user_solde %}
         <tr>
             <th>Solde</th>
             <td>{{ user.solde }} €</td>
         </tr>
-	{% endif %}
-	{% if user.shell %}
-	    <th>Shell</th>
-	    <td>{{ user.shell }}</td>
-	{% endif %}
+    {% endif %}
+    {% if user.shell %}
+        <th>Shell</th>
+        <td>{{ user.shell }}</td>
+    {% endif %}
     </table>
     {% if user.is_class_club %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' user.club.id %}">
@@ -213,4 +213,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <br />
     <br />
 {% endblock %}
-
