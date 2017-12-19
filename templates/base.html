@@ -94,18 +94,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <span class="glyphicon glyphicon-log-in"></span> Login
                                 </a>
                                 {% endif %}
-			    </li>
-			</ul>
+                            </li>
+                        </ul>
                         {% if is_cableur %}
                         <ul class="nav navbar-nav navbar-right">
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
                                     <span class="glyphicon glyphicon-cog"></span> Preferences
                                 </a>
-			    </li>
-			</ul>
-                        {% endif %}	    
-		    </div>
+                            </li>
+                        </ul>
+                        {% endif %}
+                    </div>
                 </div>
             </nav>
 
@@ -122,9 +122,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <div class="col-sm-8 text-left">
                         {# Display django.contrib.messages as Bootstrap alerts #}
                         {% bootstrap_messages %}
-
                         <hr>
-
                         {% block content %}{% endblock %}
                     </div>
                     <div class="col-sm-2 sidenav">
@@ -146,9 +144,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <th scope="row">Connexion</th>
                                     <td class="text-right">
                                     {% if request_user.has_access %}
-				        <i class="text-success">jusqu'au {{ request.user.end_access|date:"d b Y" }}</i>
+                                        <i class="text-success">jusqu'au {{ request.user.end_access|date:"d b Y" }}</i>
                                     {% else %}
-				    	<i class="text-danger">Désactivée</i>
+                                        <i class="text-danger">Désactivée</i>
                                     {% endif %}
                                     </td>
                                 </tr>
@@ -201,8 +199,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <p>Re2o 2016 - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella</p>
             </div>
         </footer>
-
-
         {# Read the documentation for more information #}
     </body>
 </html>

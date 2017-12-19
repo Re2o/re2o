@@ -31,13 +31,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% for page in list.paginator.page_range %}
         {% if list.number <= page|add:"3" and list.number >= page|add:"-3" %}
-	<li class="{% if list.number == page  %}active{% endif %}"><a href="{% url_insert_param request.get_full_path page=page %}">{{ page }}</a></li>
+            <li class="{% if list.number == page  %}active{% endif %}"><a href="{% url_insert_param request.get_full_path page=page %}">{{ page }}</a></li>
         {% endif %}
     {% endfor %}
 
     {% if list.has_next %}
         <li><a href="{% url_insert_param request.get_full_path page=list.next_page_number %}"> > </a></li>
-	<li><a href="{% url_insert_param request.get_full_path page=list.paginator.page_range|length %}"> >> </a></li>
+        <li><a href="{% url_insert_param request.get_full_path page=list.paginator.page_range|length %}"> >> </a></li>
     {% endif %}
  </ul>
 
