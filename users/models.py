@@ -763,9 +763,20 @@ class User(AbstractBaseUser):
         return composed_pseudo(num)
 
     def get_instance(userid, *args, **kwargs):
+        """Get the User instance with userid.
+
+        :param userid: The id
+        :return: The user
+        """
         return User.objects.get(pk=userid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create an user object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        an user or if the `options.all_can_create` is set.
+        """
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
@@ -773,10 +784,15 @@ class User(AbstractBaseUser):
             return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit an user object.
+
+        :param self: The user which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if self is a club and
+        user_request one of its member, or if user_request is self, or if
+        user_request has the 'cableur' right.
+        """
         if self.is_class_club and user_request.is_class_adherent:
             if self == user_request or user_request.has_perms(('cableur',)) or\
                 user_request.adherent in self.club.administrators.all():
@@ -789,16 +805,37 @@ class User(AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
-
     def can_delete(self, user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can delete an user object.
+
+        :param self: The user who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'bureau', and a message.
+        """
+        if user_request.has_perms(('bureau',)):
+            return True, None
+        else:
+            return False, u"Vous ne pouvez pas supprimer cet utilisateur."
 
     def can_view_all(user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        if user_request.has_perms(('cableur',)):
+            return True, None
+        else:
+            return False, u"Vous n'avez pas accès à la liste des utilisateurs."
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view an user object.
+
+        :param self: The targeted user.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         if self.is_class_club and user_request.is_class_adherent:
             if self == user_request or user_request.has_perms(('cableur',)) or\
                 user_request.adherent in self.club.administrators.all() or\
@@ -825,42 +862,14 @@ class Adherent(User):
         blank=True,
         null=True
     )
-    pass
 
     def get_instance(adherentid, *args, **kwargs):
+        """Try to find an instance of `Adherent` with the given id.
+
+        :param adherentid: The id of the adherent we are looking for.
+        :return: An adherent.
+        """
         return Adherent.objects.get(pk=adherentid)
-
-    def can_create(user_request, *args, **kwargs):
-        options, _created = OptionalUser.objects.get_or_create()
-        if options.all_can_create:
-            return True, None
-        else:
-            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
-                    droit de créer un adherent"
-
-    def can_edit_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if self == user_request or user_request.has_perms(('cableur',)):
-            return True, None
-        else:
-            return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if self == user_request or user_request.has_perms(('cableur',)):
-            return True, None
-        else:
-            return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
 
 class Club(User):
@@ -882,45 +891,13 @@ class Club(User):
         related_name='club_members'
     )
 
-    pass
-
     def get_instance(clubid, *args, **kwargs):
+        """Try to find an instance of `Club` with the given id.
+
+        :param clubid: The id of the adherent we are looking for.
+        :return: A club.
+        """
         return Club.objects.get(pk=clubid)
-
-    def can_create(user_request, *args, **kwargs):
-        options, _created = OptionalUser.objects.get_or_create()
-        if options.all_can_create:
-            return True, None
-        else:
-            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
-                    droit de créer un club"
-
-    def can_edit_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if self == user_request or user_request.has_perms(('cableur',)) or\
-            user_request.adherent in self.administrators.all():
-            return True, None
-        else:
-            return False, u"Vous n'avez pas le droit d'éditer ce club"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if self == user_request or user_request.has_perms(('cableur',)) or\
-            user_request.adherent in self.administrators.all() or\
-            user_request.adherent in self.members.all():
-            return True, None
-        else:
-            return False, u"Vous n'avez pas le droit de voir ce club"
 
 
 @receiver(post_save, sender=Adherent)
@@ -1012,6 +989,12 @@ class ServiceUser(AbstractBaseUser):
         return ServiceUser.objects.get(pk=userid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a ServiceUser object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        or if the `options.all_can_create` is set.
+        """
         options, _created = OptionalUser.objects.get_or_create()
         if options.all_can_create:
             return True, None
@@ -1019,27 +1002,43 @@ class ServiceUser(AbstractBaseUser):
             return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
                 créer un service user"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
-            les services users"
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a ServiceUser object.
+
+        :param self: The ServiceUser which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
             les services users"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
-            supprimer un service user"
 
     def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a ServiceUser object.
+
+        :param self: The ServiceUser who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'infra', and a message.
+        """
         return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
             supprimer un service user"
 
     def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every ServiceUser objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
             voir un service user"
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a ServiceUser object.
+
+        :param self: The targeted ServiceUser.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
             voir un service user"
 
@@ -1076,28 +1075,53 @@ class Right(models.Model):
         return Right.objects.get(pk=rightid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a Right object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create.
+        """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
             créer des droits"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can edit a Right object.
 
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
-            supprimer des droits"
+        :param self: The Right which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+                d'éditer des droits."
 
     def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a Right object.
+
+        :param self: The Right which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
             supprimer des droits"
 
     def can_view_all(user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can access to the list of every Right objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perms(('cableur',)), u"Vous ne pouvez pas voir\
+                la liste des droits."
 
     def can_view(self, user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can view a Right object.
+
+        :param self: The targeted Right.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        return user_request.has_perms(('cableur',)), u"Vous ne pouvez pas voir\
+                ce droit."
 
     def __str__(self):
         return str(self.user)
@@ -1127,30 +1151,51 @@ class School(models.Model):
         return School.objects.get(pk=schoolid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a School object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des écoles"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
-            droit d'éditer des écoles"
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a School object.
+
+        :param self: The School which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'éditer des écoles"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
-            droit de supprimer des écoles"
 
     def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a School object.
+
+        :param self: The School which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de supprimer des écoles"
 
     def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every School objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de voir les écoles"
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a School object.
+
+        :param self: The targeted School.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de voir les écoles"
 
@@ -1186,30 +1231,51 @@ class ListRight(models.Model):
         return ListRight.objects.get(pk=listrightid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a ListRight object.
+
+        :param user_request: The user who wants to create a ListRight object.
+        :return: a message and a boolean which is True if the user can create.
+        """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             de créer des groupes de droits"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
-            d'éditer des groupes de droits"
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a ListRight object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             d'éditer des groupes de droits"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
-            de supprimer des groupes de droits"
 
     def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a ListRight object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
             de supprimer des groupes de droits"
 
     def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every ListRight objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
             de voir les groupes de droits"
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a ListRight object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
             de voir les groupes de droits"
 
@@ -1309,27 +1375,50 @@ class Ban(models.Model):
         return Ban.objects.get(pk=banid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a Ban object.
+
+        :param user_request: The user who wants to create a Ban object.
+        :return: a message and a boolean which is True if the user can create.
+        """
         return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
             créer des bannissements"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
-            d'éditer des bannissements"
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a Ban object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
         return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
             d'éditer des bannissements"
-
-    def can_delete_all(self, user_request, *args, **kwargs):
-        return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can delete a Ban object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+            de supprimer des bannissements"
 
     def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every Ban objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a Ban object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         if not user_request.has_perms(('cableur',)) and\
             self.user != user_request:
             return False, u"Vous n'avez pas le droit de voir les bannissements\
@@ -1386,27 +1475,50 @@ class Whitelist(models.Model):
         return Whitelist.objects.get(pk=whitelistid)
 
     def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a Whitelist object.
+
+        :param user_request: The user who wants to create a Whitelist object.
+        :return: a message and a boolean which is True if the user can create.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des accès gracieux"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
-            droit d'éditer des accès gracieux"
-
     def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a Whitelist object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'éditer des accès gracieux"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        return True, None
+        """Check if an user can delete a Whitelist object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de supprimer des accès gracieux"
 
     def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every Whitelist objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a Whitelist object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
         if not user_request.has_perms(('cableur',)) and\
             self.user != user_request:
             return False, u"Vous n'avez pas le droit de voir les accès\
