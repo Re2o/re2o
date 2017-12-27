@@ -1077,7 +1077,7 @@ class Right(models.Model):
     def can_create(user_request, *args, **kwargs):
         """Check if an user can create a Right object.
 
-        :param user_request: The user who wants to create a user object.
+        :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
         return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\

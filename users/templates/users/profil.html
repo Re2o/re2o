@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-
+{% load acl %}
 {% block title %}Profil{% endblock %}
 
 {% block content %}
@@ -38,7 +38,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-lock"></i>
             Changer le mot de passe
         </a>
-        {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}">
             <i class="glyphicon glyphicon-flash"></i>
             Changer le statut
@@ -47,7 +46,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-ok"></i>
             Ajouter un droit
         </a>
-        {% endif %}
         <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' user.id %}">
             <i class="glyphicon glyphicon-time"></i>
             Historique
@@ -189,21 +187,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>Aucune machine</p>
     {% endif %}
     <h2>Cotisations</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>{% endif%}
+    <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>{% acl_end %}  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>
     {% if facture_list %}
     {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% else %}
     <p>Aucune facture</p>
     {% endif %}
     <h2>Bannissements</h2>
-    {% if is_bofh %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% endif %}
+    {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% acl_end %}
     {% if ban_list %}
     {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% else %}
     <p>Aucun bannissement</p>
     {% endif %}
     <h2>Accès à titre gracieux :</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% endif %}
+    {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
     {% if white_list %}
     {% include "users/aff_whitelists.html" with white_list=white_list %}
     {% else %}

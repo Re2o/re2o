@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if white_list.paginator %}
 {% include "pagination.html" with list=white_list %}
 {% endif %}
-
+{% load acl %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -47,9 +47,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
             <td class="text-right">
-            {% if is_cableur %}
+            {% can_edit whitelist %}
                 {% include 'buttons/edit.html' with href='users:edit-whitelist' id=whitelist.id %}
-            {% endif %}
+            {% acl_end %}
                 {% include 'buttons/history.html' with href='users:history' name='whitelist' id=whitelist.id %}
             </td>
         </tr>
