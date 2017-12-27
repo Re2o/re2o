@@ -107,6 +107,6 @@ urlpatterns = [
     url(r'^edit_portlist/(?P<ouvertureportlistid>[0-9]+)$', views.edit_portlist, name='edit-portlist'),
     url(r'^del_portlist/(?P<ouvertureportlistid>[0-9]+)$', views.del_portlist, name='del-portlist'),
     url(r'^add_portlist/$', views.add_portlist, name='add-portlist'),
-    url(r'^port_config/(?P<pk>[0-9]+)$', views.configure_ports, name='port-config'),
+    url(r'^port_config/(?P<interfaceid>[0-9]+)$', views.configure_ports, name='port-config'),
 
     ]

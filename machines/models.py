@@ -1179,10 +1179,8 @@ class Interface(models.Model):
         :param self: Instance interface à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perms(('infra',)) and \
-            not user_request.has_perms(('cableur',)) and \
-            self.machine.user != user_request:
-                return False, u"Vous ne pouvez pas éditer une machine\
+        if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+            return False, u"Vous ne pouvez pas éditer une machine\
                         d'un autre user que vous sans droit"
         return True, None
 
@@ -1202,6 +1200,9 @@ class Interface(models.Model):
         droit particulier cableur correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1210,7 +1211,7 @@ class Interface(models.Model):
         :param self: instance interface à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+        if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
             return False, u"Vous n'avez pas le droit de voir des machines autre\
                 que les vôtres"
         return True, None
@@ -1314,6 +1315,18 @@ class Domain(models.Model):
         self.full_clean()
         super(Domain, self).save(*args, **kwargs)
 
+    @cached_property
+    def get_source_interface(self):
+        """Renvoie l'interface source :
+        - l'interface reliée si c'est un A
+        - si c'est un cname, suit le cname jusqu'à atteindre le A
+        et renvoie l'interface parente
+        Fonction récursive"""
+        if self.interface_parent:
+            return self.interface_parent
+        else:
+            return self.cname.get_parent_interface()
+
     def get_instance(domainid, *args, **kwargs):
         """Récupère une instance
         :param domainid: Instance id à trouver
@@ -1352,10 +1365,8 @@ class Domain(models.Model):
         :param self: Instance domain à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perms(('cableur',)) and (
-            self.cname is None or \
-            self.cname.interface_parent.machine.user != user_request
-            ):
+        if not user_request.has_perms(('cableur',)) and\
+            self.get_source_interface.machine.user != user_request:
             return False, u"Vous ne pouvez pas ajouter un alias à une machine\
                     d'un autre user que vous sans droit"
         return True, None
@@ -1366,7 +1377,8 @@ class Domain(models.Model):
         :param self: Instance domain à del
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+        if not user_request.has_perms(('cableur',)) and\
+            self.get_source_interface.machine.user != user_request:
             return False, u"Vous ne pouvez pas supprimer un alias à une machine\
                 d'un autre user que vous sans droit"
         return True, None
@@ -1387,7 +1399,8 @@ class Domain(models.Model):
         :param self: instance domain à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if user_request.has_perms(('cableur',)) and self.machine.user != user_request:
+        if not user_request.has_perms(('cableur',)) and\
+            self.get_source_interface.machine.user != user_request:
             return False, u"Vous n'avez pas le droit de voir des machines autre\
                 que les vôtres"
         return True, None
