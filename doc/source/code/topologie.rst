@@ -1,13 +1,6 @@
 topologie package
 =================
 
-Subpackages
------------
-
-.. toctree::
-
-    topologie.migrations
-
 Submodules
 ----------
 

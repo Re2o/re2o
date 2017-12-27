@@ -1,13 +1,6 @@
 users package
 =============
 
-Subpackages
------------
-
-.. toctree::
-
-    users.migrations
-
 Submodules
 ----------
 

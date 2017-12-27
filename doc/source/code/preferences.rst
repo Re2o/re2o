@@ -1,12 +1,6 @@
 preferences package
 ===================
 
-Subpackages
------------
-
-.. toctree::
-
-    preferences.migrations
 
 Submodules
 ----------

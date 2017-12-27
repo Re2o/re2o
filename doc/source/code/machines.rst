@@ -1,13 +1,6 @@
 machines package
 ================
 
-Subpackages
------------
-
-.. toctree::
-
-    machines.migrations
-
 Submodules
 ----------
 

@@ -1,13 +1,6 @@
 cotisations package
 ===================
 
-Subpackages
------------
-
-.. toctree::
-
-    cotisations.migrations
-
 Submodules
 ----------
 
