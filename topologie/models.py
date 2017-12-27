@@ -67,19 +67,9 @@ class Stack(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
             de créer un stack"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer des stack"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des stack"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer une stack"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -88,12 +78,12 @@ class Stack(models.Model):
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perms(('cableur',)):
             return False, u"Vous n'avez pas le droit de voir une stack"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perms(('cableur',)):
             return False, u"Vous n'avez pas le droit de voir une stack"
         return True, None
 
@@ -158,19 +148,9 @@ class Switch(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
             de créer un switch"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer des switch"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des switch"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer un switch"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -253,17 +233,7 @@ class ModelSwitch(models.Model):
             return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
         return True, None
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
-        return True, None
-
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer un modèle switch"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit de supprimer un modèle switch"
         return True, None
@@ -294,21 +264,10 @@ class ConstructorSwitch(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
             de créer un constructeur de switch"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer des\
-                constructeurs de switchs"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des\
                 constructeurs de switchs"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer un constructeur"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -403,19 +362,9 @@ class Port(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
             de créer un port"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer des ports"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer des ports"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer un port"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -494,19 +443,9 @@ class Room(models.Model):
         return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
             de créer une chambre"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit d'éditer une chambre"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit d'éditer une chambre"
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
-            return False, u"Vous n'avez pas le droit de supprimer une chambre"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):

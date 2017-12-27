@@ -70,7 +70,8 @@ from re2o.utils import (
     can_create,
     can_edit,
     can_delete,
-    can_view
+    can_view,
+    can_view_all,
 )
 from machines.forms import (
     DomainForm,
@@ -84,7 +85,7 @@ from preferences.models import AssoOption, GeneralOption
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Switch)
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
     switch_list = Switch.objects\
@@ -178,14 +179,10 @@ def history(request, object_name, object_id):
 
 
 @login_required
-@permission_required('cableur')
-def index_port(request, switch_id):
+@can_view_all(Port)
+@can_view(Switch)
+def index_port(request, switch, switch_id):
     """ Affichage de l'ensemble des ports reliés à un switch particulier"""
-    try:
-        switch = Switch.objects.get(pk=switch_id)
-    except Switch.DoesNotExist:
-        messages.error(request, u"Switch inexistant")
-        return redirect(reverse('topologie:index'))
     port_list = Port.objects.filter(switch=switch)\
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
@@ -208,7 +205,7 @@ def index_port(request, switch_id):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Room)
 def index_room(request):
     """ Affichage de l'ensemble des chambres"""
     room_list = Room.objects
@@ -236,7 +233,7 @@ def index_room(request):
 
 
 @login_required
-@permission_required('infra')
+@can_view_all(Stack)
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
@@ -253,7 +250,8 @@ def index_stack(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(ModelSwitch)
+@can_view_all(ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
     model_switch_list = ModelSwitch.objects

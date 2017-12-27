@@ -24,21 +24,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Modèles de switches{% endblock %}
 
 {% block content %}
 <h2>Modèles de switches</h2>
-{% if is_infra %}
+{% can_create ModelSwitch %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-model-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un modèle</a>
 <hr>
-{% endif %}
+{% acl_end %}
 {% include "topologie/aff_model_switch.html" with model_switch_list=model_switch_list %}
 <h2>Constructeurs de switches</h2>
-{% if is_infra %}
+{% can_create ConstructorSwitch %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-constructor-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un constructeur</a>
 <hr>
-{% endif %}
+{% acl_end %}
 {% include "topologie/aff_constructor_switch.html" with constructor_switch_list=constructor_switch_list %}
     <br />
     <br />
