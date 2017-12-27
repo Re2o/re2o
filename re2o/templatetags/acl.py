@@ -126,6 +126,7 @@ MODEL_NAME = {
     'Room' : topologie.Room,
     # users
     'User' : users.User,
+    'Adherent' : users.Adherent,
     'Club' : users.Club,
     'ServiceUser' : users.ServiceUser,
     'Right' : users.Right,
