@@ -29,41 +29,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
   <h2>Liste des extensions</h2>
-  {% if is_infra %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-extension'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une extension</a>
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-extension'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs extensions</a>
-  {% endif %}
   {%  include "machines/aff_extension.html" with  extension_list=extension_list %}
 
   <h2>Liste des enregistrements SOA</h2>
-   {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-soa'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement SOA</a>
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-soa'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement SOA</a>
-   {% endif %}
    {%  include "machines/aff_soa.html" with  soa_list=soa_list %}
   <h2>Liste des enregistrements MX</h2>
-   {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-mx'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement MX</a>
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-mx'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement MX</a>
-   {% endif %}
    {%  include "machines/aff_mx.html" with  mx_list=mx_list %}
   <h2>Liste des enregistrements NS</h2>
-   {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-ns'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement NS</a>
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-ns'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement NS</a>
-   {% endif %}
    {%  include "machines/aff_ns.html" with  ns_list=ns_list %}
   <h2>Liste des enregistrements TXT</h2>
-   {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-txt'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement TXT</a>
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-txt'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement TXT</a>
-   {% endif %}
    {%  include "machines/aff_txt.html" with  txt_list=txt_list %}
   <h2>Liste des enregistrements SRV</h2>
-   {% if is_infra %}
    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-srv'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un enregistrement SRV</a>
    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-srv'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un enregistrement SRV</a>
-   {% endif %}
    {%  include "machines/aff_srv.html" with  srv_list=srv_list %}
    <br />
   <br />
