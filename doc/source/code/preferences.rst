@@ -1,0 +1,77 @@
+preferences package
+===================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    preferences.migrations
+
+Submodules
+----------
+
+preferences.admin module
+------------------------
+
+.. automodule:: preferences.admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.apps module
+-----------------------
+
+.. automodule:: preferences.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.forms module
+------------------------
+
+.. automodule:: preferences.forms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.models module
+-------------------------
+
+.. automodule:: preferences.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.tests module
+------------------------
+
+.. automodule:: preferences.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.urls module
+-----------------------
+
+.. automodule:: preferences.urls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+preferences.views module
+------------------------
+
+.. automodule:: preferences.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: preferences
+    :members:
+    :undoc-members:
+    :show-inheritance:
