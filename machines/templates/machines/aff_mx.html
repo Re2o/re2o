@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -38,7 +40,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ mx.priority }}</td>
 	    <td>{{ mx.name }}</td>
             <td class="text-right">
+            {% can_edit mx %}
             {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
+	    {% acl_end %}
             {% include 'buttons/history.html' with href='machines:history' name='mx' id=mx.id %}
             </td>
         </tr>

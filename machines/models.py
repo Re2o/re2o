@@ -1367,7 +1367,7 @@ class Domain(models.Model):
         :return: soit True, soit False avec la raison de l'échec"""
         if not user_request.has_perms(('cableur',)) and\
             self.get_source_interface.machine.user != user_request:
-            return False, u"Vous ne pouvez pas ajouter un alias à une machine\
+            return False, u"Vous ne pouvez pas editer un alias à une machine\
                     d'un autre user que vous sans droit"
         return True, None
 

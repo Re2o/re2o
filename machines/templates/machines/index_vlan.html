@@ -25,11 +25,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 
+{% load acl %}
+
 {% block title %}Machines{% endblock %}
 
 {% block content %}
   <h2>Liste des vlans</h2>
+  {% can_create Vlan %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-vlan' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un vlan</a>
+  {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-vlan'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs vlan</a>
   {%  include "machines/aff_vlan.html" with  vlan_list=vlan_list %}
   <br />

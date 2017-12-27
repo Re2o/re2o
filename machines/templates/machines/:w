@@ -52,10 +52,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </a>
             </td>
             <td class="text-right">
-             {% can_create Interface machine.id %}
+             {% can_create Machine %}
                 {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc='Ajouter une interface' %}
              {% acl_end %}
+	     {% can_edit machine %}
                 {% include 'buttons/history.html' with href='machines:history' name='machine' id=machine.id %}
+	     {% acl_end %}
 	     {% can_delete machine %}
                 {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
 	     {% acl_end %}
@@ -103,31 +105,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <i class="glyphicon glyphicon-edit"></i> <span class="caret"></span>
                     </button>
                     {% include 'buttons/history.html' with href='machines:history' name='interface' id=interface.id %}
-		    {% can_delete interface %}
                     {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
-		    {% acl_end %}
-		    <ul class="dropdown-menu" aria-labelledby="editioninterface">
-			{% can_edit interface %}
-			<li>
+                    <ul class="dropdown-menu" aria-labelledby="editioninterface">
+                        <li>
                             <a href="{% url 'machines:edit-interface' interface.id %}">
                                 <i class="glyphicon glyphicon-edit"></i> Editer
                             </a>
                         </li>
-		        {% acl_end %}
-			{% can_create Domain interface.id %}
                         <li>
                             <a href="{% url 'machines:index-alias' interface.id %}">
                                 <i class="glyphicon glyphicon-edit"></i> Gerer les alias
                             </a>
                         </li>
-			{% acl_end %}
-			{% can_create OuverturePortList %}
                         <li>
                             <a href="{% url 'machines:port-config' interface.id%}">
                                 <i class="glyphicon glyphicon-edit"></i> Gerer la configuration des ports
                             </a>
                         </li>
-			{% acl_end %}
                     </ul>
                 </div>
             </td>

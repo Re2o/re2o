@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -36,7 +38,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ ns.zone }}</td>
 	    <td>{{ ns.ns }}</td>
             <td class="text-right">
+            {% can_edit ns %}
             {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
+	    {% acl_end %}
             {% include 'buttons/history.html' with href='machines:history' name='ns' id=ns.id %}
             </td>
         </tr>
