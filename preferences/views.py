@@ -42,7 +42,7 @@ from reversion.models import Version
 from reversion import revisions as reversion
 
 from re2o.views import form
-from re2o.utils import can_create, can_edit, can_delete_set
+from re2o.utils import can_create, can_edit, can_delete_set, can_view_all
 from .forms import ServiceForm, DelServiceForm
 from .models import Service, OptionalUser, OptionalMachine, AssoOption
 from .models import MailMessageOption, GeneralOption, OptionalTopologie
@@ -51,7 +51,12 @@ from . import forms
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(OptionalUser)
+@can_view_all(OptionalMachine)
+@can_view_all(OptionalTopologie)
+@can_view_all(GeneralOption)
+@can_view_all(AssoOption)
+@can_view_all(MailMessageOption)
 def display_options(request):
     """Vue pour affichage des options (en vrac) classé selon les models
     correspondants dans un tableau"""
@@ -81,6 +86,11 @@ def edit_options(request, section):
     form_instance = getattr(forms, 'Edit' + section + 'Form', None)
     if model and form:
         options_instance, _created = model.objects.get_or_create()
+        can, msg = options_instance.can_edit(request.user)
+        if not can:
+            messages.error(request, msg or "Vous ne pouvez pas éditer cette\
+                           option.")
+            return redirect('/')
         options = form_instance(
             request.POST or None,
             instance=options_instance
@@ -170,33 +180,3 @@ def del_services(request, instances):
         'preferences/preferences.html',
         request
     )
-
-
-@login_required
-@permission_required('cableur')
-def history(request, object_name, object_id):
-    """Historique de creation et de modification d'un service affiché sur
-    la page d'accueil"""
-    if object_name == 'service':
-        try:
-            object_instance = Service.objects.get(pk=object_id)
-        except Service.DoesNotExist:
-            messages.error(request, "Service inexistant")
-            return redirect(reverse('preferences:display-options'))
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
-    reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        reversions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        reversions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        reversions = paginator.page(paginator.num_pages)
-    return render(request, 're2o/history.html', {
-        'reversions': reversions,
-        'object': object_instance
-        })

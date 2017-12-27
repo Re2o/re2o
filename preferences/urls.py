@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+import re2o
 
 
 urlpatterns = [
@@ -69,8 +70,8 @@ urlpatterns = [
         ),
     url(r'^del_services/$', views.del_services, name='del-services'),
     url(
-        r'^history/(?P<object_name>service)/(?P<object_id>[0-9]+)$',
-        views.history,
+        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
         name='history'
         ),
     url(r'^$', views.display_options, name='display-options'),
