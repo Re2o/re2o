@@ -93,7 +93,7 @@ from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
 from re2o.utils import (
-    all_has_access, SortTable, can_create, can_edit, can_delete_set, can_delete, can_view
+    all_has_access, SortTable, can_create, can_edit, can_delete_set, can_delete, can_view, can_view_all
 )
 
 def password_change_action(u_form, user, request, req=False):
@@ -563,7 +563,7 @@ def edit_listright(request, listright_instance, listrightid):
 
 @login_required
 @can_delete_set(ListRight)
-def del_listright(request):
+def del_listright(request, instances):
     """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit
     bureau """
     listright = DelListRightForm(request.POST or None, instances=instances)
@@ -615,7 +615,7 @@ def mass_archive(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Adherent)
 def index(request):
     """ Affiche l'ensemble des adherents, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
@@ -671,7 +671,7 @@ def index_clubs(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Ban)
 def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
@@ -697,7 +697,7 @@ def index_ban(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Whitelist)
 def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
@@ -727,7 +727,7 @@ def index_white(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(School)
 def index_school(request):
     """ Affiche l'ensemble des établissement, need droit cableur """
     school_list = School.objects.order_by('name')
@@ -739,7 +739,7 @@ def index_school(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(ListRight)
 def index_listright(request):
     """ Affiche l'ensemble des droits , need droit cableur """
     listright_list = ListRight.objects.order_by('listright')
@@ -751,7 +751,7 @@ def index_listright(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(ServiceUser)
 def index_serviceusers(request):
     """ Affiche les users de services (pour les accès ldap)"""
     serviceusers_list = ServiceUser.objects.order_by('pseudo')
@@ -861,19 +861,9 @@ def mon_profil(request):
 
 
 @login_required
-def profil(request, userid):
+@can_view(User)
+def profil(request, users, userid):
     """ Affiche un profil, self or cableur, prend un userid en argument """
-    try:
-        users = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, "Utilisateur inexistant")
-        return redirect(reverse('users:index'))
-    if not users.can_view(request.user)[0]:
-        messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
     machines = Machine.objects.filter(user=users).select_related('user')\
         .prefetch_related('interface_set__domain__extension')\
         .prefetch_related('interface_set__ipv4__ip_type__extension')\
