@@ -172,6 +172,22 @@ def can_view(model):
     return decorator
 
 
+def can_view_all(model):
+    """Decorator to check if an user can view a class of model.
+    """
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            can, msg = model.can_view_all(request.user)
+            if not can:
+                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse('users:profil',
+                    kwargs={'userid':str(request.user.id)}
+                ))
+            return view(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def all_adherent(search_time=DT_NOW):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
     qu'une seule requete sql

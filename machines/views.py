@@ -128,6 +128,7 @@ from re2o.utils import (
     can_edit,
     can_delete,
     can_view,
+    can_view_all,
     can_delete_set,
 )
 from re2o.views import form
@@ -304,20 +305,9 @@ def edit_interface(request, interface_instance, interfaceid):
     return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
 
 @login_required
-def del_machine(request, machineid):
+@can_delete(Machine)
+def del_machine(request, machine, machineid):
     """ Supprime une machine, interfaces en mode cascade"""
-    try:
-        machine = Machine.objects.get(pk=machineid)
-    except Machine.DoesNotExist:
-        messages.error(request, u"Machine inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)):
-        if machine.user != request.user:
-            messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(machine.user.id)}
-                ))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             machine.delete()
@@ -935,7 +925,7 @@ def del_nas(request, instances):
     return form({'nasform': nas}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Machine)
 def index(request):
     options, created = GeneralOption.objects.get_or_create()
     pagination_large_number = options.pagination_large_number
@@ -959,31 +949,36 @@ def index(request):
     return render(request, 'machines/index.html', {'machines_list': machines_list})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(IpType)
 def index_iptype(request):
     iptype_list = IpType.objects.select_related('extension').select_related('vlan').order_by('type')
     return render(request, 'machines/index_iptype.html', {'iptype_list':iptype_list})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Vlan)
 def index_vlan(request):
     vlan_list = Vlan.objects.prefetch_related('iptype_set').order_by('vlan_id')
     return render(request, 'machines/index_vlan.html', {'vlan_list':vlan_list})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(MachineType)
 def index_machinetype(request):
     machinetype_list = MachineType.objects.select_related('ip_type').order_by('type')
     return render(request, 'machines/index_machinetype.html', {'machinetype_list':machinetype_list})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Nas)
 def index_nas(request):
     nas_list = Nas.objects.select_related('machine_type').select_related('nas_type').order_by('name')
     return render(request, 'machines/index_nas.html', {'nas_list':nas_list})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(SOA)
+@can_view_all(Mx)
+@can_view_all(Ns)
+@can_view_all(Txt)
+@can_view_all(Srv)
+@can_view_all(Extension)
 def index_extension(request):
     extension_list = Extension.objects.select_related('origin').select_related('soa').order_by('name')
     soa_list = SOA.objects.order_by('name')
@@ -994,23 +989,13 @@ def index_extension(request):
     return render(request, 'machines/index_extension.html', {'extension_list':extension_list, 'soa_list': soa_list, 'mx_list': mx_list, 'ns_list': ns_list, 'txt_list' : txt_list, 'srv_list': srv_list})
 
 @login_required
-def index_alias(request, interfaceid):
-    try:
-        interface = Interface.objects.get(pk=interfaceid)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect(reverse('machines:index'))
-    if not request.user.has_perms(('cableur',)) and interface.machine.user != request.user:
-        messages.error(request, "Vous ne pouvez pas éditer une machine d'un autre user que vous sans droit")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
+@can_edit(Interface)
+def index_alias(request, interface, interfaceid):
     alias_list = Domain.objects.filter(cname=Domain.objects.filter(interface_parent=interface)).order_by('name')
     return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Service)
 def index_service(request):
     service_list = Service.objects.prefetch_related('service_link_set__server__domain__extension').all()
     servers_list = Service_link.objects.select_related('server__domain__extension').select_related('service').all()
@@ -1140,7 +1125,7 @@ def history(request, object, id):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(OuverturePortList)
 def index_portlist(request):
     port_list = OuverturePortList.objects.prefetch_related('ouvertureport_set')\
     .prefetch_related('interface_set__domain__extension')\
@@ -1211,13 +1196,9 @@ def add_portlist(request):
     return form({'machineform' : port_list}, 'machines/machine.html', request)
 
 @login_required
-@permission_required('cableur')
-def configure_ports(request, pk):
-    try:
-        interface_instance = Interface.objects.get(pk=pk)
-    except Interface.DoesNotExist:
-        messages.error(request, u"Interface inexistante" )
-        return redirect(reverse('machines:index'))
+@can_create(OuverturePort)
+@can_edit(Interface)
+def configure_ports(request, interface_instance, interfaceid):
     if not interface_instance.may_have_port_open():
         messages.error(request, "Attention, l'ipv4 n'est pas publique, l'ouverture n'aura pas d'effet en v4")
     interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
