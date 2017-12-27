@@ -96,6 +96,27 @@ def can_edit(model):
     return decorator
 
 
+def can_change(model, field_list):
+    """Decorator to check if an user can edit a field of a model.
+    It assumes that a valid user exists in the request and that the model has a
+    method can_create(user) which returns true if the user can create this kind
+    of models.
+    """
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            for field in field_list:
+                can_create = getattr(model, 'can_change_' + field)
+                can, msg = can_create(request.user, *args, **kwargs)
+                if not can:
+                    messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                    return redirect(reverse('users:profil',
+                        kwargs={'userid':str(request.user.id)}
+                    ))
+            return view(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def can_delete(model):
     """Decorator to check if an user can delete a model.
     It tries to get an instance of the model, using
