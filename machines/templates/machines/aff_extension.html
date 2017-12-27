@@ -45,9 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ extension.origin_v6 }}</td>
             {% endif %}
             <td class="text-right">
-            {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
-            {% endif %}
                 {% include 'buttons/history.html' with href='machines:history' name='extension' id=extension.id %}
             </td>
         </tr>

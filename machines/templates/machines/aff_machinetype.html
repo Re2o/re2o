@@ -35,9 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.type }}</td>
             <td>{{ type.ip_type }}</td>
             <td class="text-right">
-            {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-machinetype' id=type.id %}
-            {% endif %}
                 {% include 'buttons/history.html' with href='machines:history' name='machinetype' id=type.id %}
             </td>
         </tr>

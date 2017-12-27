@@ -40,9 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.regular_time_regen }}</td>
 	    <td>{% for serv in service.servers.all %}{{ serv }}, {% endfor %}</td>
             <td class="text-right">
-            {% if is_infra %}
                 {% include 'buttons/edit.html' with href='machines:edit-service' id=service.id %}
-            {% endif %}
                 {% include 'buttons/history.html' with href='machines:history' name='service' id=service.id %}
             </td>
         </tr>
