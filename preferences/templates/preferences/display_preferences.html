@@ -24,17 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
     <h4>Préférences utilisateur</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
 	    <i class="glyphicon glyphicon-edit"></i>
             Editer
 	</a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -58,12 +57,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
     <h4>Préférences machines</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -81,12 +78,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
      	</tr>
     </table>
     <h4>Préférences topologie</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -104,14 +99,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
     <h4>Préférences generales</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
-    </p>    
+    </p>
     <table class="table table-striped">
         <tr>
             <th>Nom du site web</th>
@@ -137,12 +130,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<tr>
     </table>
     <h4>Données de l'association</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -164,19 +155,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.telephone }}</td>
             <th>Pseudo d'usage</th>
             <td>{{ assooptions.pseudo }}</td>
-        </tr>   
+        </tr>
         <tr>
             <th>Objet utilisateur de l'association</th>
             <td>{{ assooptions.utilisateur_asso }}</td>
-        </tr>   
-    </table> 
+        </tr>
+    </table>
     <h4>Messages personalisé dans les mails</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -190,10 +179,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
   <h2>Liste des services page d'accueil</h2>
-  {% if is_infra %}
+  {% can_create Service%}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
+  {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
-  {% endif %}
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
   <br />
   <br />
