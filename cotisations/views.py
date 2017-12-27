@@ -49,7 +49,9 @@ from re2o.utils import (
     can_edit,
     can_delete,
     can_view,
-    can_delete_set
+    can_view_all,
+    can_delete_set,
+    can_change,
 )
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
@@ -166,7 +168,7 @@ def new_facture(request, user, userid):
 
 
 @login_required
-@permission_required('tresorier')
+@can_change(Facture, ['pdf'])
 def new_facture_pdf(request):
     """Permet de générer un pdf d'une facture. Réservée
     au trésorier, permet d'emettre des factures sans objet
@@ -206,31 +208,13 @@ def new_facture_pdf(request):
 
 
 @login_required
-def facture_pdf(request, factureid):
+@can_view(Facture)
+def facture_pdf(request, facture, factureid):
     """Affiche en pdf une facture. Cree une ligne par Vente de la facture,
     et génére une facture avec le total, le moyen de paiement, l'adresse
     de l'adhérent, etc. Réservée à self pour un user sans droits,
     les droits cableurs permettent d'afficher toute facture"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
-    if not request.user.has_perms(('cableur',))\
-            and facture.user != request.user:
-        messages.error(request, "Vous ne pouvez pas afficher une facture ne vous\
-                appartenant pas sans droit cableur")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    if not facture.valid:
-        messages.error(request, "Vous ne pouvez pas afficher\
-        une facture non valide")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
+
     ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
     options, _created = AssoOption.objects.get_or_create()
@@ -308,14 +292,10 @@ def del_facture(request, facture, factureid):
 
 
 @login_required
-@permission_required('cableur')
-def credit_solde(request, userid):
+@can_create(Facture)
+@can_edit(User)
+def credit_solde(request, user, userid):
     """ Credit ou débit de solde """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant")
-        return redirect(reverse('cotisations:index'))
     facture = CreditSoldeForm(request.POST or None)
     if facture.is_valid():
         facture_instance = facture.save(commit=False)
@@ -513,7 +493,8 @@ def del_banque(request, instances):
 
 
 @login_required
-@permission_required('tresorier')
+@can_view_all(Facture)
+@can_change(Facture, ['control'])
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
@@ -553,7 +534,7 @@ def control(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Article)
 def index_article(request):
     """Affiche l'ensemble des articles en vente"""
     article_list = Article.objects.order_by('name')
@@ -563,7 +544,7 @@ def index_article(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Paiement)
 def index_paiement(request):
     """Affiche l'ensemble des moyens de paiement en vente"""
     paiement_list = Paiement.objects.order_by('moyen')
@@ -573,7 +554,7 @@ def index_paiement(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Banque)
 def index_banque(request):
     """Affiche l'ensemble des banques"""
     banque_list = Banque.objects.order_by('name')
@@ -583,7 +564,7 @@ def index_banque(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Facture)
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
     options, _created = GeneralOption.objects.get_or_create()
