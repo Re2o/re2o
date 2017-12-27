@@ -24,15 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Paiements{% endblock %}
 
 {% block content %}
   <h2>Liste des types de paiements</h2>
-  {% if is_trez %}
+  {% can_create Paiement %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-paiement'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type de paiement</a>
+  {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-paiement'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types de paiements</a>
-  {% endif %}
   {%  include "cotisations/aff_paiement.html" with  paiement_list=paiement_list %}
   <br />
   <br />

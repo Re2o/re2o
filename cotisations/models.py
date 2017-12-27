@@ -110,11 +110,6 @@ class Facture(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit de créer des factures"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
-            return False, u"Vous n'avez pas le droit d'éditer les factures"
-        return None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)):
             return False, u"Vous n'avez pas le droit d'éditer les factures"
@@ -124,11 +119,6 @@ class Facture(models.Model):
                 controlée ou invalidée par un trésorier"
         else:
             return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
-            return False, u"Vous n'avez pas le droit de supprimer une facture"
-        return None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perms(('cableur',)):
@@ -140,6 +130,8 @@ class Facture(models.Model):
             return True, None
 
     def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de voir les factures"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -147,8 +139,16 @@ class Facture(models.Model):
             self.user != user_request:
             return False, u"Vous ne pouvez pas afficher l'historique d'une\
                 facture d'un autre user que vous sans droit cableur"
+        elif not self.valid:
+            return False, u"La facture est invalidée et ne peut être affichée"
         else:
             return True, None
+
+    def can_change_control(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), "Vous ne pouvez pas éditer le controle sans droit trésorier"
+
+    def can_change_pdf(user_request, *args, **kwargs):
+        return user_request.has_perms(('tresorier',)), "Vous ne pouvez pas éditer une facture sans droit trésorier"
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
@@ -252,25 +252,41 @@ class Vente(models.Model):
         return Vente.objects.get(pk=venteid)
 
     def can_create(user_request, *args, **kwargs):
-        return True, None
-
-    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de créer des ventes"
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit d'éditer les ventes"
+        elif not user_request.has_perms(('tresorier',)) and\
+            (self.facture.control or not self.facture.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une vente\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de supprimer une vente"
+        if self.facture.control or not self.facture.valid:
+            return False, u"Vous ne pouvez pas supprimer une vente\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
 
     def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de voir les ventes"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)) and\
+            self.facture.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                facture d'un autre user que vous sans droit cableur"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
@@ -355,17 +371,9 @@ class Article(models.Model):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'ajouter des articles"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit d'éditer des articles"
-
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des articles"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit de supprimer des articles"
 
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
@@ -396,17 +404,9 @@ class Banque(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
             droit d'ajouter des banques"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit d'éditer des banques"
-
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des banques"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit de supprimer des banques"
 
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
@@ -442,17 +442,9 @@ class Paiement(models.Model):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'ajouter des paiements"
 
-    def can_edit_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit d'éditer des paiements"
-
     def can_edit(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
             droit d'éditer des paiements"
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
-            droit de supprimer des paiements"
 
     def can_delete(self, user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), u"Vous n'avez pas le\
@@ -502,25 +494,41 @@ class Cotisation(models.Model):
         return Cotisations.objects.get(pk=cotisationid)
 
     def can_create(user_request, *args, **kwargs):
-        return True, None
-
-    def can_edit_all(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de créer des cotisations"
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
-        return True, None
-
-    def can_delete_all(user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit d'éditer les cotisations"
+        elif not user_request.has_perms(('tresorier',)) and\
+            (self.vente.facture.control or not self.vente.facture.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une cotisation\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de supprimer une cotisations"
+        if self.vente.facture.control or not self.vente.facture.valid:
+            return False, u"Vous ne pouvez pas supprimer une cotisations\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
 
     def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perms(('cableur',)):
+            return False, u"Vous n'avez pas le droit de voir les cotisations"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        return True, None
+        if not user_request.has_perms(('cableur',)) and\
+            self.vente.facture.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                cotisation d'un autre user que vous sans droit cableur"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.vente)
