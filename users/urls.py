@@ -27,6 +27,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+import re2o
 from . import views
 
 urlpatterns = [
@@ -94,33 +95,8 @@ urlpatterns = [
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
     url(r'^mass_archive/$', views.mass_archive, name='mass-archive'),
     url(
-        r'^history/(?P<object_name>user)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>ban)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>whitelist)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>school)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>listright)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>serviceuser)/(?P<object_id>[0-9]+)$',
-        views.history,
+        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
         name='history'
     ),
     url(r'^$', views.index, name='index'),
