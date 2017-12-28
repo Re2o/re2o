@@ -72,9 +72,7 @@ from users.forms import (
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
-    FullAdherentForm,
     StateForm,
-    FullClubForm,
     RightForm,
     SchoolForm,
     EditServiceUserForm,
@@ -184,25 +182,24 @@ def edit_club_admin_members(request, club_instance, clubid):
     return form({'userform': club}, 'users/user.html', request)
 
 
-def select_user_edit_form(request, user):
-    """Fonction de choix du bon formulaire, en fonction de:
-        - droit
-        - type d'object
-    """
-    if user.is_class_adherent:
-        user = AdherentForm(request.POST or None, instance=user.adherent)
-    elif user.is_class_club:
-        user = ClubForm(request.POST or None, instance=user.club)
-    return user
-
-
 @login_required
 @can_edit(User)
 def edit_info(request, user, userid):
     """ Edite un utilisateur à partir de son id,
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """
-    user = select_user_edit_form(request, user)
+    if user.is_class_adherent:
+        user = AdherentForm(
+            request.POST or None,
+            instance=user.adherent,
+            user=request.user
+        )
+    elif user.is_class_club:
+        user = ClubForm(
+            request.POST or None,
+            instance=user.club,
+            user=request.user
+        )
     if user.is_valid():
         with transaction.atomic(), reversion.create_revision():
             user.save()

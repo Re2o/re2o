@@ -73,6 +73,7 @@ import ldapdb.models.fields
 
 from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
+from re2o.field_permissions import FieldPermissionModelMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -180,8 +181,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-
-class User(AbstractBaseUser):
+class User(FieldPermissionModelMixin, AbstractBaseUser):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -823,6 +823,12 @@ class User(AbstractBaseUser):
     def can_change_state(self, user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), "Droit bureau requis pour changer l'état"
 
+    def can_change_shell(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), "Droit requis pour forcer le déménagement"
+
+    def can_change_force(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), "Droit requis pour forcer le déménagement"
+
     def can_delete(self, user_request, *args, **kwargs):
         """Check if an user can delete an user object.
 
@@ -866,6 +872,11 @@ class User(AbstractBaseUser):
                 return True, None
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
+
+        field_permissions = {
+            'shell' : can_change_shell,
+            'force' : can_change_force,
+        }
 
     def __str__(self):
         return self.pseudo
