@@ -35,7 +35,7 @@ from reversion.models import Version
 from django.contrib import messages
 from preferences.models import Service
 from preferences.models import OptionalUser, GeneralOption
-import users, preferences, cotisations, topologie
+import users, preferences, cotisations, topologie, machines
 
 def form(ctx, template, request):
     """Form générique, raccourci importé par les fonctions views du site"""
@@ -70,6 +70,20 @@ HISTORY_BIND = {
     'stack' : topologie.models.Stack,
     'model_switch' : topologie.models.ModelSwitch,
     'constructor_switch' : topologie.models.ConstructorSwitch,
+    'machine' : machines.models.Machine,
+    'interface' : machines.models.Interface,
+    'alias' : machines.models.Domain,
+    'machinetype' : machines.models.MachineType,
+    'iptype' : machines.models.IpType,
+    'extension' : machines.models.Extension,
+    'soa' : machines.models.SOA,
+    'mx' : machines.models.Mx,
+    'txt' : machines.models.Txt,
+    'srv' : machines.models.Srv,
+    'ns' : machines.models.Ns,
+    'service' : machines.models.Service,
+    'vlan' : machines.models.Vlan,
+    'nas' : machines.models.Vlan,
 }
 
 @login_required

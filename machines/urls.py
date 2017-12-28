@@ -24,7 +24,7 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-
+import re2o
 from . import views
 
 urlpatterns = [
@@ -76,20 +76,11 @@ urlpatterns = [
     url(r'^edit_nas/(?P<nasid>[0-9]+)$', views.edit_nas, name='edit-nas'),
     url(r'^del_nas/$', views.del_nas, name='del-nas'),
     url(r'^index_nas/$', views.index_nas, name='index-nas'),
-    url(r'^history/(?P<object>machine)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>interface)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>machinetype)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>extension)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>soa)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>mx)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>ns)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>txt)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>srv)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>iptype)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>alias)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>vlan)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>nas)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>service)/(?P<id>[0-9]+)$', views.history, name='history'),
+    url(
+        r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
+        name='history',
+    ),
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/regen-achieved/$', views.regen_achieved, name='regen-achieved'),
