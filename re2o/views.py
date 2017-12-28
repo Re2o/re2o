@@ -51,7 +51,7 @@ def index(request):
         services[indice % 3].append(serv)
     return form({'services_urls': services}, 're2o/index.html', request)
 
-
+#: Binding the corresponding char sequence of history url to re2o models.
 HISTORY_BIND = {
     'user' : users.models.User,
     'ban' : users.models.Ban,
@@ -88,7 +88,24 @@ HISTORY_BIND = {
 
 @login_required
 def history(request, object_name, object_id):
-    """ Affichage de l'historique"""
+    """Render history for a model.
+
+    The model is determined using the `HISTORY_BIND` dictionnary if none is
+    found, raises a Http404. The view checks if the user is allowed to see the
+    history using the `can_view` method of the model.
+
+    Args:
+        request: The request sent by the user.
+        object_name: Name of the model.
+        object_id: Id of the object you want to acces history.
+
+    Returns:
+        The rendered page of history if access is granted, else the user is
+        redirected to their profile page, with an error message.
+
+    Raises:
+        Http404: This kind of models doesn't have history.
+    """
     try:
         model = HISTORY_BIND[object_name]
     except KeyError as e:
