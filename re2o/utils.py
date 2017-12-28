@@ -105,10 +105,8 @@ def can_edit(model, *field_list):
 
 
 def can_change(model, *field_list):
-    """Decorator to check if an user can edit a field of a model.
-    It assumes that a valid user exists in the request and that the model has a
-    method can_create(user) which returns true if the user can create this kind
-    of models.
+    """Decorator to check if an user can edit a field of a model class.
+    Difference with can_edit : take a class and not an instance
     """
     def decorator(view):
         def wrapper(request, *args, **kwargs):
@@ -244,6 +242,21 @@ def can_view_app(app_name):
             ))
         return wrapper
     return decorator
+
+
+def can_edit_history(view):
+    """Decorator to check if an user can edit history."""
+    def wrapper(request, *args, **kwargs):
+        if request.user.has_perms(('admin',)):
+            return view(request, *args, **kwargs)
+        messages.error(
+           request,
+           "Vous ne pouvez pas éditer l'historique."
+        )
+        return redirect(reverse('users:profil',
+            kwargs={'userid':str(request.user.id)}
+        ))
+    return wrapper
 
 
 def all_adherent(search_time=DT_NOW):
