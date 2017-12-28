@@ -272,6 +272,41 @@ def acl_app_filter(parser, token):
 
     return AclNode(callback, oknodes, konodes)
 
+@register.tag('can_change')
+@register.tag('cannot_change')
+def acl_change_filter(parser, token):
+    """Templatetag for acl checking a can_change_xxx function"""
+
+    try:
+        tag_content = token.split_contents()
+        tag_name = tag_content[0]
+        model_name = tag_content[1]
+        field_name = tag_content[2]
+        args = tag_content[3:]
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag require at least 2 argument : the model and the field"
+            % token.contents.split()[0]
+        )
+
+    model = get_model(model_name)
+    callback = getattr(model, 'can_change_'+field_name)
+
+    # {% can_create %}
+    oknodes = parser.parse(('acl_else', 'acl_end'))
+    token = parser.next_token()
+
+    # {% can_create_else %}
+    if token.contents == 'acl_else':
+        konodes = parser.parse(('acl_end'))
+        token = parser.next_token()
+    else:
+        konodes = NodeList()
+
+    # {% can_create_end %}
+    assert token.contents == 'acl_end'
+
+    return AclNode(callback, oknodes, konodes, *args)
 
 @register.tag('can_create')
 @register.tag('cannot_create')
