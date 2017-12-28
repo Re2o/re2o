@@ -56,8 +56,10 @@ from django.db.models import Max
 from django.utils import timezone
 from machines.models import regen
 
+from re2o.field_permissions import FieldPermissionModelMixin
 
-class Facture(models.Model):
+
+class Facture(FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
     plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
     et si il y a lieu un numero pour les chèques. Possède les valeurs
@@ -75,6 +77,9 @@ class Facture(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
     control = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = False
 
     def prix(self):
         """Renvoie le prix brut sans les quantités. Méthode
@@ -144,11 +149,15 @@ class Facture(models.Model):
         else:
             return True, None
 
-    def can_change_control(user_request, *args, **kwargs):
-        return user_request.has_perms(('tresorier',)), "Vous ne pouvez pas éditer le controle sans droit trésorier"
+    def can_change_control(user, *args, **kwargs):
+        return user.has_perms(('tresorier',)), "Vous ne pouvez pas éditer le controle sans droit trésorier"
 
     def can_change_pdf(user_request, *args, **kwargs):
         return user_request.has_perms(('tresorier',)), "Vous ne pouvez pas éditer une facture sans droit trésorier"
+
+    field_permissions = {
+        'control': can_change_control,
+    }
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)

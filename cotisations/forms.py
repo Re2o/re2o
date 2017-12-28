@@ -43,6 +43,8 @@ from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 from .models import Article, Paiement, Facture, Banque
 
+from re2o.field_permissions import FieldPermissionFormMixin
+
 
 class NewFactureForm(ModelForm):
     """Creation d'une facture, moyen de paiement, banque et numero
@@ -141,27 +143,18 @@ class NewFactureFormPdf(Form):
     )
 
 
-class EditFactureForm(NewFactureForm):
+class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
     """Edition d'une facture : moyen de paiement, banque, user parent"""
     class Meta(NewFactureForm.Meta):
-        fields = ['paiement', 'banque', 'cheque', 'user']
+        model = Facture
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
         self.fields['user'].empty_label = "Séléctionner\
             l'adhérent propriétaire"
-
-
-class TrezEditFactureForm(EditFactureForm):
-    """Vue pour édition controle trésorier"""
-    class Meta(EditFactureForm.Meta):
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super(TrezEditFactureForm, self).__init__(*args, **kwargs)
         self.fields['valid'].label = 'Validité de la facture'
-        self.fields['control'].label = 'Contrôle de la facture'
 
 
 class ArticleForm(ModelForm):
