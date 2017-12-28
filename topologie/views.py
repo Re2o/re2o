@@ -60,7 +60,7 @@ from topologie.forms import (
     AddPortForm,
     EditRoomForm,
     StackForm,
-    EditModelSwitchForm, 
+    EditModelSwitchForm,
     EditConstructorSwitchForm,
     CreatePortsForm
 )
@@ -113,68 +113,6 @@ def index(request):
         switch_list = paginator.page(paginator.num_pages)
     return render(request, 'topologie/index.html', {
         'switch_list': switch_list
-        })
-
-
-@login_required
-@permission_required('cableur')
-def history(request, object_name, object_id):
-    """ Vue générique pour afficher l'historique complet d'un objet"""
-    if object_name == 'switch':
-        try:
-            object_instance = Switch.objects.get(pk=object_id)
-        except Switch.DoesNotExist:
-            messages.error(request, "Switch inexistant")
-            return redirect(reverse('topologie:index'))
-    elif object_name == 'port':
-        try:
-            object_instance = Port.objects.get(pk=object_id)
-        except Port.DoesNotExist:
-            messages.error(request, "Port inexistant")
-            return redirect(reverse('topologie:index'))
-    elif object_name == 'room':
-        try:
-            object_instance = Room.objects.get(pk=object_id)
-        except Room.DoesNotExist:
-            messages.error(request, "Chambre inexistante")
-            return redirect(reverse('topologie:index'))
-    elif object_name == 'stack':
-        try:
-            object_instance = Stack.objects.get(pk=object_id)
-        except Room.DoesNotExist:
-            messages.error(request, "Stack inexistante")
-            return redirect(reverse('topologie:index'))
-    elif object_name == 'model_switch':
-        try:
-            object_instance = ModelSwitch.objects.get(pk=object_id)
-        except ModelSwitch.DoesNotExist:
-            messages.error(request, "SwitchModel inexistant")
-            return redirect(reverse('topologie:index'))
-    elif object_name == 'constructor_switch':
-        try:
-            object_instance = ConstructorSwitch.objects.get(pk=object_id)
-        except ConstructorSwitch.DoesNotExist:
-            messages.error(request, "SwitchConstructor inexistant")
-            return redirect(reverse('topologie:index'))
-    else:
-        messages.error(request, "Objet  inconnu")
-        return redirect(reverse('topologie:index'))
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
-    reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        reversions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        reversions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        reversions = paginator.page(paginator.num_pages)
-    return render(request, 're2o/history.html', {
-        'reversions': reversions,
-        'object': object_instance
         })
 
 
@@ -296,7 +234,7 @@ def new_port(request, switch_id):
         except IntegrityError:
             messages.error(request, "Ce port existe déjà")
         return redirect(reverse(
-            'topologie:index-port', 
+            'topologie:index-port',
             kwargs={'switch_id':switch_id}
             ))
     return form({'id_switch': switch_id,'topoform': port}, 'topologie/topo.html', request)
@@ -307,7 +245,7 @@ def new_port(request, switch_id):
 def edit_port(request, port_object, port_id):
     """ Edition d'un port. Permet de changer le switch parent et
     l'affectation du port"""
-    
+
     port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -363,7 +301,7 @@ def new_stack(request):
 @can_edit(Stack)
 def edit_stack(request, stack, stack_id):
     """Edition d'un stack (nombre de switches, nom...)"""
-    
+
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -400,7 +338,7 @@ def del_stack(request, stack, stack_id):
 @can_edit(Stack)
 def edit_switchs_stack(request, stack, stack_id):
     """Permet d'éditer la liste des switches dans une stack et l'ajouter"""
-    
+
     if request.method == "POST":
         pass
     else:
@@ -476,14 +414,14 @@ def create_ports(request, switch_id):
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect("/topologie/")
-    
+
     s_begin = s_end = 0
     nb_ports = switch.ports.count()
     if nb_ports > 0:
         ports = switch.ports.order_by('port').values('port')
         s_begin = ports.first().get('port')
         s_end = ports.last().get('port')
-    
+
     port_form = CreatePortsForm(
         request.POST or None,
         initial={'begin': s_begin, 'end': s_end}
