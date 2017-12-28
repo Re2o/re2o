@@ -57,7 +57,6 @@ from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
     NewFactureForm,
-    TrezEditFactureForm,
     EditFactureForm,
     ArticleForm,
     DelArticleForm,
@@ -71,6 +70,7 @@ from .forms import (
     CreditSoldeForm
 )
 from .tex import render_invoice
+
 
 
 @login_required
@@ -243,13 +243,7 @@ def edit_facture(request, facture, factureid):
     """Permet l'édition d'une facture. On peut y éditer les ventes
     déjà effectuer, ou rendre une facture invalide (non payées, chèque
     en bois etc). Mets à jour les durée de cotisation attenantes"""
-    if request.user.has_perms(['tresorier']):
-        facture_form = TrezEditFactureForm(
-            request.POST or None,
-            instance=facture
-        )
-    else:
-        facture_form = EditFactureForm(request.POST or None, instance=facture)
+    facture_form = EditFactureForm(request.POST or None, instance=facture, user=request.user)
     ventes_objects = Vente.objects.filter(facture=facture)
     vente_form_set = modelformset_factory(
         Vente,
