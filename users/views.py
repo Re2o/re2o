@@ -93,7 +93,15 @@ from preferences.models import OptionalUser, GeneralOption
 
 from re2o.views import form
 from re2o.utils import (
-    all_has_access, SortTable, can_create, can_edit, can_delete_set, can_delete, can_view, can_view_all
+    all_has_access,
+    SortTable,
+    can_create,
+    can_edit,
+    can_delete_set,
+    can_delete,
+    can_view,
+    can_view_all,
+    can_change
 )
 
 def password_change_action(u_form, user, request, req=False):
@@ -217,8 +225,7 @@ def edit_info(request, user, userid):
 
 
 @login_required
-@permission_required('bureau')
-@can_edit(User)
+@can_edit(User, 'state')
 def state(request, user, userid):
     """ Changer l'etat actif/desactivé/archivé d'un user,
     need droit bureau """
@@ -245,19 +252,11 @@ def state(request, user, userid):
 
 
 @login_required
-@can_edit(User)
+@can_edit(User, 'password')
 def password(request, user, userid):
     """ Reinitialisation d'un mot de passe à partir de l'userid,
     pour self par défaut, pour tous sans droit si droit cableur,
     pour tous si droit bureau """
-    if not request.user.has_perms(('bureau',)) and user != request.user\
-            and Right.objects.filter(user=user):
-        messages.error(request, "Il faut les droits bureau pour modifier le\
-        mot de passe d'un membre actif")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(request.user.id)}
-            ))
     u_form = PassForm(request.POST or None)
     if u_form.is_valid():
         return password_change_action(u_form, user, request)
@@ -585,7 +584,8 @@ def del_listright(request, instances):
 
 
 @login_required
-@permission_required('bureau')
+@can_view_all(User)
+@can_change(User, 'state')
 def mass_archive(request):
     """ Permet l'archivage massif"""
     to_archive_date = MassArchiveForm(request.POST or None)
