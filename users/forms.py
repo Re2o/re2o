@@ -44,6 +44,8 @@ from .models import User, ServiceUser, Right, School, ListRight, Whitelist
 from .models import Ban, Adherent, Club
 from re2o.utils import remove_user_room
 
+from re2o.field_permissions import FieldPermissionFormMixin
+
 NOW = timezone.now()
 
 
@@ -253,7 +255,7 @@ class MassArchiveForm(forms.Form):
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class AdherentForm(ModelForm):
+class AdherentForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -278,6 +280,7 @@ class AdherentForm(ModelForm):
             'school',
             'comment',
             'room',
+            'shell',
             'telephone',
         ]
 
@@ -306,7 +309,7 @@ class AdherentForm(ModelForm):
         return
 
 
-class ClubForm(ModelForm):
+class ClubForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -330,6 +333,7 @@ class ClubForm(ModelForm):
             'comment',
             'room',
             'telephone',
+            'shell',
         ]
 
     def clean_telephone(self):
@@ -342,41 +346,6 @@ class ClubForm(ModelForm):
                 "Un numéro de téléphone valide est requis"
             )
         return telephone
-
-
-class FullAdherentForm(AdherentForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(AdherentForm.Meta):
-        fields = [
-            'name',
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
-
-
-class FullClubForm(ClubForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(ClubForm.Meta):
-        fields = [
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
 
 
 class ClubAdminandMembersForm(ModelForm):
