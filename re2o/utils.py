@@ -69,7 +69,7 @@ def can_create(model):
     return decorator
 
 
-def can_edit(model):
+def can_edit(model, *field_list):
     """Decorator to check if an user can edit a model.
     It tries to get an instance of the model, using
     `model.get_instance(*args, **kwargs)` and assumes that the model has a
@@ -91,12 +91,20 @@ def can_edit(model):
                 return redirect(reverse('users:profil',
                     kwargs={'userid':str(request.user.id)}
                 ))
+            for field in field_list:
+                can_create = getattr(model, 'can_change_' + field)
+                can, msg = can_create(instance, request.user, *args, **kwargs)
+                if not can:
+                    messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                    return redirect(reverse('users:profil',
+                        kwargs={'userid':str(request.user.id)}
+                    ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
 
 
-def can_change(model, field_list):
+def can_change(model, *field_list):
     """Decorator to check if an user can edit a field of a model.
     It assumes that a valid user exists in the request and that the model has a
     method can_create(user) which returns true if the user can create this kind
@@ -106,7 +114,7 @@ def can_change(model, field_list):
         def wrapper(request, *args, **kwargs):
             for field in field_list:
                 can_create = getattr(model, 'can_change_' + field)
-                can, msg = can_create(request.user, *args, **kwargs)
+                can, msg = can_create(None, request.user, *args, **kwargs)
                 if not can:
                     messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                     return redirect(reverse('users:profil',
@@ -205,6 +213,35 @@ def can_view_all(model):
                     kwargs={'userid':str(request.user.id)}
                 ))
             return view(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+APP_VIEWING_RIGHT = {
+    'cotisations' : 'cableur',
+    'logs' : 'cableur',
+    'machines' : 'cableur',
+    'preferences' : 'cableur',
+    'search' : 'cableur',
+    'topologie' : 'cableur',
+    'users' : 'cableur',
+}
+
+def can_view_app(app_name):
+    """Decorator to check if an user can view an application.
+    """
+    assert app_name in APP_VIEWING_RIGHT.keys()
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            if request.user.has_perms((APP_VIEWING_RIGHT[app_name],)):
+                return view(request, *args, **kwargs)
+            messages.error(
+                request,
+                msg or "Vous ne pouvez pas accéder à l'application " + app_name
+            )
+            return redirect(reverse('users:profil',
+                kwargs={'userid':str(request.user.id)}
+            ))
         return wrapper
     return decorator
 
