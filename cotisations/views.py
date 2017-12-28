@@ -168,7 +168,7 @@ def new_facture(request, user, userid):
 
 
 @login_required
-@can_change(Facture, ['pdf'])
+@can_change(Facture, 'pdf')
 def new_facture_pdf(request):
     """Permet de générer un pdf d'une facture. Réservée
     au trésorier, permet d'emettre des factures sans objet
@@ -488,7 +488,7 @@ def del_banque(request, instances):
 
 @login_required
 @can_view_all(Facture)
-@can_change(Facture, ['control'])
+@can_change(Facture, 'control')
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""

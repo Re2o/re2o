@@ -805,6 +805,24 @@ class User(AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
+    def can_change_password(self, user_request, *args, **kwargs):
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or user_request.has_perms(('cableur',)) or\
+                user_request.adherent in self.club.administrators.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit d'éditer ce club"
+        else:
+            if self == user_request or user_request.has_perms(('bureau',)):
+                return True, None
+            elif user_request.has_perms(('cableur',)) and not Right.objects.filter(user=self):
+                return True, None
+            else:
+                return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
+
+    def can_change_state(self, user_request, *args, **kwargs):
+        return user_request.has_perms(('bureau',)), "Droit bureau requis pour changer l'état"
+
     def can_delete(self, user_request, *args, **kwargs):
         """Check if an user can delete an user object.
 
