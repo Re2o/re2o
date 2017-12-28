@@ -189,16 +189,10 @@ def select_user_edit_form(request, user):
         - droit
         - type d'object
     """
-    if not request.user.has_perms(('cableur',)):
-        if user.is_class_adherent:
-            user = AdherentForm(request.POST or None, instance=user.adherent)
-        elif user.is_class_club:
-            user = ClubForm(request.POST or None, instance=user.club)
-    else:
-        if user.is_class_adherent:
-            user = FullAdherentForm(request.POST or None, instance=user.adherent)
-        elif user.is_class_club:
-            user = FullClubForm(request.POST or None, instance=user.club)
+    if user.is_class_adherent:
+        user = AdherentForm(request.POST or None, instance=user.adherent)
+    elif user.is_class_club:
+        user = ClubForm(request.POST or None, instance=user.club)
     return user
 
 
@@ -641,16 +635,12 @@ def index(request):
 
 
 @login_required
+@can_view_all(Club)
 def index_clubs(request):
     """ Affiche l'ensemble des clubs, need droit cableur """
     options, _created = GeneralOption.objects.get_or_create()
     pagination_number = options.pagination_number
-    if not request.user.has_perms(('cableur',)):
-        clubs_list = Club.objects.filter(
-            Q(administrators=request.user.adherent) | Q(members=request.user.adherent)
-        ).distinct().select_related('room')
-    else:
-        clubs_list = Club.objects.select_related('room')
+    clubs_list = Club.objects.select_related('room')
     clubs_list = SortTable.sort(
         clubs_list,
         request.GET.get('col'),
