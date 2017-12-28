@@ -74,6 +74,8 @@ an instance of a model (either Model.can_xxx or instance.can_xxx)
 from django import template
 from django.template.base import Node, NodeList
 
+from re2o.utils import APP_VIEWING_RIGHT
+
 import cotisations.models as cotisations
 import machines.models as machines
 import preferences.models as preferences
@@ -178,6 +180,23 @@ def get_callback(tag_name, obj):
         return acl_fct(obj.can_view_all, False)
     if tag_name == 'cannot_view_all':
         return acl_fct(obj.can_view_all, True)
+    if tag_name == 'can_view_app':
+        return acl_fct(
+        lambda user:(
+            user.has_perms((APP_VIEWING_RIGHT[obj],)),
+            "Vous ne pouvez pas voir cette application."
+        ),
+        False
+    )
+    if tag_name == 'cannot_view_app':
+        return acl_fct(
+        lambda user:(
+            user.has_perms((APP_VIEWING_RIGHT[obj],)),
+            "Vous ne pouvez pas voir cette application."
+        ),
+        True
+    )
+
     raise template.TemplateSyntaxError(
         "%r tag is not a valid can_xxx tag" % tag_name
     )
@@ -196,6 +215,37 @@ def acl_fct(callback, reverse):
         return not can, msg
 
     return acl_fct_reverse if reverse else acl_fct_normal
+
+@register.tag('can_view_app')
+@register.tag('cannot_view_app')
+def acl_app_filter(parser, token):
+    """Templatetag for acl checking on applications."""
+    try:
+        tag_name, app_name = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag require 1 argument : the application"
+            % token.contents.split()[0]
+        )
+    if not app_name in APP_VIEWING_RIGHT.keys():
+        raise template.TemplateSyntaxError(
+            "%r is not a registered application for acl."
+            % app_name
+        )
+
+    callback = get_callback(tag_name, app_name)
+
+    oknodes = parser.parse(('acl_else', 'acl_end'))
+    token = parser.next_token()
+    if token.contents == 'acl_else':
+        konodes = parser.parse(('acl_end'))
+        token = parser.next_token()
+    else:
+        konodes = NodeList()
+
+    assert token.contents == 'acl_end'
+
+    return AclAppNode(callback, oknodes, konodes)
 
 
 @register.tag('can_create')
@@ -275,6 +325,21 @@ def acl_instance_filter(parser, token):
     assert token.contents == 'acl_end'
 
     return AclInstanceNode(tag_name, instance_name, oknodes, konodes, *args)
+
+
+class AclAppNode(Node):
+    """A node for compiled ACL block when ACL is based on application."""
+
+    def __init__(self, callback, oknodes, konodes):
+        self.callback = callback
+        self.oknodes = oknodes
+        self.konodes = konodes
+
+    def render(self, context):
+        can, _ = self.callback(context['user'])
+        if can:
+            return self.oknodes.render(context)
+        return self.konodes.render(context)
 
 
 class AclModelNode(Node):
