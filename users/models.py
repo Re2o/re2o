@@ -909,6 +909,19 @@ class Club(User):
         related_name='club_members'
     )
 
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        if user_request.has_perms(('cableur',)):
+            return True, None
+        if user_request.is_class_adherent:
+            if user_request.adherent.club_administrator.all() or user_request.adherent.club_members.all():
+                return True, None
+        return False, u"Vous n'avez pas accès à la liste des utilisateurs."
+
     def get_instance(clubid, *args, **kwargs):
         """Try to find an instance of `Club` with the given id.
 
@@ -1427,7 +1440,8 @@ class Ban(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return True, None
+        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+            de voir tous les bannissements"
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Ban object.
@@ -1527,7 +1541,8 @@ class Whitelist(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return True, None
+        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            droit de voir les accès gracieux"
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Whitelist object.
