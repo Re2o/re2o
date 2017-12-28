@@ -41,7 +41,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
 from reversion.models import Revision
@@ -93,7 +93,15 @@ from topologie.models import (
 )
 from preferences.models import GeneralOption
 from re2o.views import form
-from re2o.utils import all_whitelisted, all_baned, all_has_access, all_adherent
+from re2o.utils import (
+    all_whitelisted,
+    all_baned,
+    all_has_access,
+    all_adherent,
+    can_view_all,
+    can_view_app,
+    can_edit_history,
+)
 from re2o.utils import all_active_assigned_interfaces_count
 from re2o.utils import all_active_interfaces_count, SortTable
 
@@ -108,7 +116,7 @@ STATS_DICT = {
 
 
 @login_required
-@permission_required('cableur')
+@can_view_app('logs')
 def index(request):
     """Affiche les logs affinés, date reformatées, selectionne
     les event importants (ajout de droits, ajout de ban/whitelist)"""
@@ -167,7 +175,7 @@ def index(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(GeneralOption)
 def stats_logs(request):
     """Affiche l'ensemble des logs et des modifications sur les objets,
     classés par date croissante, en vrac"""
@@ -197,7 +205,7 @@ def stats_logs(request):
 
 
 @login_required
-@permission_required('bureau')
+@can_edit_history
 def revert_action(request, revision_id):
     """ Annule l'action en question """
     try:
@@ -215,7 +223,9 @@ def revert_action(request, revision_id):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(IpList)
+@can_view_all(Interface)
+@can_view_all(User)
 def stats_general(request):
     """Statistiques générales affinées sur les ip, activées, utilisées par
     range, et les statistiques générales sur les users : users actifs,
@@ -298,7 +308,10 @@ def stats_general(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_app('users')
+@can_view_app('cotisations')
+@can_view_app('machines')
+@can_view_app('topologie')
 def stats_models(request):
     """Statistiques générales, affiche les comptages par models:
     nombre d'users, d'écoles, de droits, de bannissements,
@@ -340,7 +353,7 @@ def stats_models(request):
                 OuverturePortList.objects.count()
             ],
             'vlan': [Vlan.PRETTY_NAME, Vlan.objects.count()],
-            'SOA': [Mx.PRETTY_NAME, Mx.objects.count()],
+            'SOA': [SOA.PRETTY_NAME, SOA.objects.count()],
             'Mx': [Mx.PRETTY_NAME, Mx.objects.count()],
             'Ns': [Ns.PRETTY_NAME, Ns.objects.count()],
             'nas': [Nas.PRETTY_NAME, Nas.objects.count()],
@@ -368,7 +381,7 @@ def stats_models(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_app('users')
 def stats_users(request):
     """Affiche les statistiques base de données aggrégées par user :
     nombre de machines par user, d'etablissements par user,
@@ -422,7 +435,7 @@ def stats_users(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_app('users')
 def stats_actions(request):
     """Vue qui affiche les statistiques de modifications d'objets par
     utilisateurs.
