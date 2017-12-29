@@ -98,6 +98,8 @@ from re2o.utils import (
     all_baned,
     all_has_access,
     all_adherent,
+)
+from re2o.acl import (
     can_view_all,
     can_view_app,
     can_edit_history,

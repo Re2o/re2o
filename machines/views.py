@@ -124,6 +124,8 @@ from re2o.utils import (
     all_has_access,
     filter_active_interfaces,
     SortTable,
+)
+from re2o.acl import (
     can_create,
     can_edit,
     can_delete,
@@ -219,7 +221,7 @@ def generate_ipv4_mbf_param( form, is_type_tt ):
 @can_create(Machine)
 @can_edit(User)
 def new_machine(request, user, userid):
-    """ Fonction de creation d'une machine. Cree l'objet machine, 
+    """ Fonction de creation d'une machine. Cree l'objet machine,
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
 
@@ -568,7 +570,7 @@ def add_mx(request):
 @login_required
 @can_edit(Mx)
 def edit_mx(request, mx_instance, mxid):
-    
+
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -746,7 +748,7 @@ def add_alias(request, interface, interfaceid):
             reversion.set_comment("Création")
         messages.success(request, "Cet alias a été ajouté")
         return redirect(reverse(
-            'machines:index-alias', 
+            'machines:index-alias',
             kwargs={'interfaceid':str(interfaceid)}
             ))
     return form({'aliasform': alias}, 'machines/machine.html', request)
@@ -763,7 +765,7 @@ def edit_alias(request, domain_instance, domainid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in alias.changed_data))
         messages.success(request, "Alias modifié")
         return redirect(reverse(
-            'machines:index-alias', 
+            'machines:index-alias',
             kwargs={'interfaceid':str(domain_instance.cname.interface_parent.id)}
             ))
     return form({'aliasform': alias}, 'machines/machine.html', request)
@@ -783,7 +785,7 @@ def del_alias(request, interface, interfaceid):
             except ProtectedError:
                 messages.error(request, "Erreur l'alias suivant %s ne peut être supprimé" % alias_del)
         return redirect(reverse(
-            'machines:index-alias', 
+            'machines:index-alias',
             kwargs={'interfaceid':str(interfaceid)}
             ))
     return form({'aliasform': alias}, 'machines/machine.html', request)

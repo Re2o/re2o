@@ -48,7 +48,7 @@ an instance of a model (either Model.can_xxx or instance.can_xxx)
 
 **Example**:
     {% can_create Machine targeted_user %}
-    <p>I'm authorized to create new machines for this guy \\o/</p>
+    <p>I'm authorized to create new machines.models.for this guy \\o/</p>
     {% acl_else %}
     <p>Why can't I create a little machine for this guy ? :(</p>
     {% acl_end %}
@@ -70,72 +70,71 @@ an instance of a model (either Model.can_xxx or instance.can_xxx)
     the acl function exists in the model definition
 
 """
+import sys
 
 from django import template
 from django.template.base import Node, NodeList
 
-from re2o.utils import APP_VIEWING_RIGHT
-
-import cotisations.models as cotisations
-import machines.models as machines
-import preferences.models as preferences
-import topologie.models as topologie
-import users.models as users
+import cotisations
+import machines
+import preferences
+import topologie
+import users
 
 register = template.Library()
 
 MODEL_NAME = {
     # cotisations
-    'Facture' : cotisations.Facture,
-    'Vente' : cotisations.Vente,
-    'Article' : cotisations.Article,
-    'Banque' : cotisations.Banque,
-    'Paiement' : cotisations.Paiement,
-    'Cotisation' : cotisations.Cotisation,
+    'Facture' : cotisations.models.Facture,
+    'Vente' : cotisations.models.Vente,
+    'Article' : cotisations.models.Article,
+    'Banque' : cotisations.models.Banque,
+    'Paiement' : cotisations.models.Paiement,
+    'Cotisation' : cotisations.models.Cotisation,
     # machines
-    'Machine' : machines.Machine,
-    'MachineType' : machines.MachineType,
-    'IpType' : machines.IpType,
-    'Vlan' : machines.Vlan,
-    'Nas' : machines.Nas,
-    'SOA' : machines.SOA,
-    'Extension' : machines.Extension,
-    'Mx' : machines.Mx,
-    'Ns' : machines.Ns,
-    'Txt' : machines.Txt,
-    'Srv' : machines.Srv,
-    'Interface' : machines.Interface,
-    'Domain' : machines.Domain,
-    'IpList' : machines.IpList,
-    'Service' : machines.Service,
-    'Service_link' : machines.Service_link,
-    'OuverturePortList' : machines.OuverturePortList,
-    'OuverturePort' : machines.OuverturePort,
+    'Machine' : machines.models.Machine,
+    'MachineType' : machines.models.MachineType,
+    'IpType' : machines.models.IpType,
+    'Vlan' : machines.models.Vlan,
+    'Nas' : machines.models.Nas,
+    'SOA' : machines.models.SOA,
+    'Extension' : machines.models.Extension,
+    'Mx' : machines.models.Mx,
+    'Ns' : machines.models.Ns,
+    'Txt' : machines.models.Txt,
+    'Srv' : machines.models.Srv,
+    'Interface' : machines.models.Interface,
+    'Domain' : machines.models.Domain,
+    'IpList' : machines.models.IpList,
+    'Service' : machines.models.Service,
+    'Service_link' : machines.models.Service_link,
+    'OuverturePortList' : machines.models.OuverturePortList,
+    'OuverturePort' : machines.models.OuverturePort,
     # preferences
-    'OptionalUser': preferences.OptionalUser,
-    'OptionalMachine': preferences.OptionalMachine,
-    'OptionalTopologie': preferences.OptionalTopologie,
-    'GeneralOption': preferences.GeneralOption,
-    'Service': preferences.Service,
-    'AssoOption': preferences.AssoOption,
-    'MailMessageOption': preferences.MailMessageOption,
+    'OptionalUser': preferences.models.OptionalUser,
+    'OptionalMachine': preferences.models.OptionalMachine,
+    'OptionalTopologie': preferences.models.OptionalTopologie,
+    'GeneralOption': preferences.models.GeneralOption,
+    'Service': preferences.models.Service,
+    'AssoOption': preferences.models.AssoOption,
+    'MailMessageOption': preferences.models.MailMessageOption,
     # topologie
-    'Stack' : topologie.Stack,
-    'Switch' : topologie.Switch,
-    'ModelSwitch' : topologie.ModelSwitch,
-    'ConstructorSwitch' : topologie.ConstructorSwitch,
-    'Port' : topologie.Port,
-    'Room' : topologie.Room,
+    'Stack' : topologie.models.Stack,
+    'Switch' : topologie.models.Switch,
+    'ModelSwitch' : topologie.models.ModelSwitch,
+    'ConstructorSwitch' : topologie.models.ConstructorSwitch,
+    'Port' : topologie.models.Port,
+    'Room' : topologie.models.Room,
     # users
-    'User' : users.User,
-    'Adherent' : users.Adherent,
-    'Club' : users.Club,
-    'ServiceUser' : users.ServiceUser,
-    'Right' : users.Right,
-    'School' : users.School,
-    'ListRight' : users.ListRight,
-    'Ban' : users.Ban,
-    'Whitelist' : users.Whitelist,
+    'User' : users.models.User,
+    'Adherent' : users.models.Adherent,
+    'Club' : users.models.Club,
+    'ServiceUser' : users.models.ServiceUser,
+    'Right' : users.models.Right,
+    'School' : users.models.School,
+    'ListRight' : users.models.ListRight,
+    'Ban' : users.models.Ban,
+    'Whitelist' : users.models.Whitelist,
 }
 
 
@@ -181,21 +180,9 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_all':
         return acl_fct(obj.can_view_all, True)
     if tag_name == 'can_view_app':
-        return acl_fct(
-        lambda user:(
-            user.has_perms((APP_VIEWING_RIGHT[obj],)),
-            "Vous ne pouvez pas voir cette application."
-        ),
-        False
-    )
+        return acl_fct(sys.modules[obj].can_view, False)
     if tag_name == 'cannot_view_app':
-        return acl_fct(
-        lambda user:(
-            user.has_perms((APP_VIEWING_RIGHT[obj],)),
-            "Vous ne pouvez pas voir cette application."
-        ),
-        True
-    )
+        return acl_fct(sys.modules[obj].can_view, True)
     if tag_name == 'can_edit_history':
         return acl_fct(lambda user:(user.has_perms(('admin',)),None),False)
     if tag_name == 'cannot_edit_history':
@@ -252,7 +239,7 @@ def acl_app_filter(parser, token):
             "%r tag require 1 argument : the application"
             % token.contents.split()[0]
         )
-    if not app_name in APP_VIEWING_RIGHT.keys():
+    if not app_name in sys.modules.keys():
         raise template.TemplateSyntaxError(
             "%r is not a registered application for acl."
             % app_name

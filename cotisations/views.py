@@ -43,8 +43,8 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import (
-    SortTable,
+from re2o.utils import SortTable
+from re2o.acl import (
     can_create,
     can_edit,
     can_delete,

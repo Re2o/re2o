@@ -65,8 +65,8 @@ from topologie.forms import (
     CreatePortsForm
 )
 from users.views import form
-from re2o.utils import (
-    SortTable,
+from re2o.utils import SortTable
+from re2o.acl import (
     can_create,
     can_edit,
     can_delete,

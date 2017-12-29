@@ -1,9 +1,10 @@
-# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Maël Kervella
+# Copyright © 2017  Gabriel Détraz
+# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,3 +20,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""users.acl
+
+Here are defined some functions to check acl on the application.
+"""
+
+def can_view(user):
+    """Check if an user can view the application.
+
+    Args:
+        user: The user who wants to view the application.
+
+    Returns:
+        A couple (allowed, msg) where allowed is a boolean which is True if
+        viewing is granted and msg is a message (can be None).
+    """
+    can = user.has_perms(('cableur',))
+    return can, None if can else "Vous ne pouvez pas voir cette application."
