@@ -124,7 +124,7 @@ def password_change_action(u_form, user, request, req=False):
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = AdherentForm(request.POST or None)
+    user = AdherentForm(request.POST or None, user=request.user)
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -146,7 +146,7 @@ def new_user(request):
 def new_club(request):
     """ Vue de création d'un nouveau club,
     envoie un mail pour le mot de passe"""
-    club = ClubForm(request.POST or None)
+    club = ClubForm(request.POST or None, user=request.user)
     if club.is_valid():
         club = club.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -803,7 +803,7 @@ def profil(request, users, userid):
         request,
         'users/profil.html',
         {
-            'user': users,
+            'users': users,
             'machines_list': machines,
             'facture_list': factures,
             'ban_list': bans,
