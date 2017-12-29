@@ -212,7 +212,7 @@ def acl_fct(callback, reverse):
 @register.tag('cannot_edit_history')
 def acl_history_filter(parser, token):
     """Templatetag for acl checking on history."""
-    tag_name,_ = token.split_contents()
+    tag_name, = token.split_contents()
 
     callback = get_callback(tag_name)
     oknodes = parser.parse(('acl_else', 'acl_end'))
