@@ -820,13 +820,13 @@ class User(FieldPermissionModelMixin, AbstractBaseUser):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
-    def can_change_state(self, user_request, *args, **kwargs):
+    def can_change_state(user_request, *args, **kwargs):
         return user_request.has_perms(('bureau',)), "Droit bureau requis pour changer l'état"
 
-    def can_change_shell(self, user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), "Droit requis pour forcer le déménagement"
+    def can_change_shell(user_request, *args, **kwargs):
+        return user_request.has_perms(('cableur',)), "Droit requis pour changer le shell"
 
-    def can_change_force(self, user_request, *args, **kwargs):
+    def can_change_force(user_request, *args, **kwargs):
         return user_request.has_perms(('cableur',)), "Droit requis pour forcer le déménagement"
 
     def can_delete(self, user_request, *args, **kwargs):

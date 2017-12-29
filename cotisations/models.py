@@ -149,10 +149,10 @@ class Facture(FieldPermissionModelMixin, models.Model):
         else:
             return True, None
 
-    def can_change_control(self, user, *args, **kwargs):
+    def can_change_control(user, *args, **kwargs):
         return user.has_perms(('tresorier',)), "Vous ne pouvez pas éditer le controle sans droit trésorier"
 
-    def can_change_pdf(self, user, *args, **kwargs):
+    def can_change_pdf(user, *args, **kwargs):
         return user.has_perms(('tresorier',)), "Vous ne pouvez pas éditer une facture sans droit trésorier"
 
     field_permissions = {
