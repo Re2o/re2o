@@ -713,6 +713,12 @@ class Extension(models.Model):
         return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
             de voir les extensions"
 
+    def can_use_all(user_request, *args, **kwargs):
+        """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        return user_request.has_perms(('infra',)), None
+
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit cableur
