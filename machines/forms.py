@@ -177,9 +177,10 @@ class AliasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        infra = kwargs.pop('infra')
+        user = kwargs.pop('user')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        if not infra:
+        can_use_all, reason = Extension.can_use_all(user)
+        if not can_use_all:
             self.fields['extension'].queryset = Extension.objects.filter(
                  need_infra=False
             )

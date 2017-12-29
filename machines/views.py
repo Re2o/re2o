@@ -736,7 +736,7 @@ def del_srv(request, instances):
 @can_edit(Interface)
 def add_alias(request, interface, interfaceid):
 
-    alias = AliasForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    alias = AliasForm(request.POST or None, user=request.user)
     if alias.is_valid():
         alias = alias.save(commit=False)
         alias.cname = interface.domain
@@ -755,7 +755,7 @@ def add_alias(request, interface, interfaceid):
 @can_edit(Domain)
 def edit_alias(request, domain_instance, domainid):
 
-    alias = AliasForm(request.POST or None, instance=domain_instance, infra=request.user.has_perms(('infra',)))
+    alias = AliasForm(request.POST or None, instance=domain_instance, user=request.user)
     if alias.is_valid():
         with transaction.atomic(), reversion.create_revision():
             domain_instance = alias.save()
