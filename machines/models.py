@@ -123,6 +123,7 @@ class Machine(models.Model):
         if not user_request.has_perms(('cableur',)) and self.user != user_request:
             return False, u"Vous n'avez pas droit de voir les machines autre\
                 que les vôtres"
+        return True, None
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
