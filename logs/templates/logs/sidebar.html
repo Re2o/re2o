@@ -23,9 +23,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
 
 {% block sidebar %}
-    {% if is_cableur %}
+    {% can_view_app logs %}
     <a class="list-group-item list-group-item-info" href="{% url "logs:index" %}">
         <i class="glyphicon glyphicon-stats"></i>
         Résumé
@@ -50,5 +51,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="glyphicon glyphicon-stats"></i>
         Utilisateurs
     </a>
-    {% endif %}
+    {% acl_end %}
 {% endblock %}
