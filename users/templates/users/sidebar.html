@@ -81,8 +81,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-trash"></i>
             Retirer un droit
         </a>
+    {% can_change User state %}
         <a class="list-group-item list-group-item-danger" href="{% url "users:mass-archive" %}">
             <i class="glyphicon glyphicon-book"></i>
             Archiver en masse
         </a>
+    {% acl_end %}
 {% endblock %}

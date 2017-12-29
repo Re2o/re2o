@@ -17,9 +17,6 @@ class FieldPermissionModelMixin:
             checks = self.field_permissions[field]
             if not isinstance(checks, (list, tuple)):
                 checks = [checks]
-            for i, perm in enumerate(checks):
-                if callable(perm):
-                    checks[i] = partial(perm, field=field)
 
         else:
             checks = []
@@ -45,7 +42,7 @@ class FieldPermissionModelMixin:
         # Try to find a user setting that qualifies them for permission.
         for perm in checks:
             if callable(perm):
-                result, reason = perm(self, user=user)
+                result, reason = perm(user=user)
                 if result is not None:
                     return result
             else:
