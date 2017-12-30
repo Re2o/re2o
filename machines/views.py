@@ -225,10 +225,10 @@ def new_machine(request, user, userid):
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
 
-    machine = NewMachineForm(request.POST or None)
+    machine = NewMachineForm(request.POST or None, user=user)
     interface = AddInterfaceForm(
         request.POST or None,
-        infra=request.user.has_perms(('infra',))
+        user=request.user
     )
     domain = DomainForm(request.POST or None, user=user)
     if machine.is_valid() and interface.is_valid():
@@ -275,12 +275,12 @@ def edit_interface(request, interface_instance, interfaceid):
     """ Edition d'une interface. Distingue suivant les droits les valeurs de interfaces et machines que l'user peut modifier
     infra permet de modifier le propriétaire"""
 
-    if not request.user.has_perms(('infra',)):
-        machine_form = BaseEditMachineForm(request.POST or None, instance=interface_instance.machine)
-        interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface_instance, infra=False)
-    else:
-        machine_form = EditMachineForm(request.POST or None, instance=interface_instance.machine)
-        interface_form = EditInterfaceForm(request.POST or None, instance=interface_instance)
+    machine_form = EditMachineForm(
+        request.POST or None,
+        instance=interface_instance.machine,
+        user=request.user
+    )
+    interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface_instance, user=request.user)
     domain_form = DomainForm(request.POST or None, instance=interface_instance.domain)
     if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
         new_machine = machine_form.save(commit=False)
@@ -327,7 +327,7 @@ def del_machine(request, machine, machineid):
 def new_interface(request, machine, machineid):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
-    interface_form = AddInterfaceForm(request.POST or None, infra=request.user.has_perms(('infra',)))
+    interface_form = AddInterfaceForm(request.POST or None, user=user)
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)

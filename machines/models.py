@@ -37,11 +37,13 @@ from django.core.validators import MaxValueValidator
 
 from macaddress.fields import MACAddressField
 
+from re2o.field_permissions import FieldPermissionModelMixin
+
 import users.models
 import preferences.models
 
 
-class Machine(models.Model):
+class Machine(FieldPermissionModelMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
     PRETTY_NAME = "Machine"
@@ -60,6 +62,21 @@ class Machine(models.Model):
         :param machineid: Instance id à trouver
         :return: Une instance machine évidemment"""
         return Machine.objects.get(pk=machineid)
+
+    @staticmethod
+    def can_change_user(user_request, *args, **kwargs):
+        """Checks if an user is allowed to change the user who owns a
+        Machine.
+
+        Args:
+            user_request: The user requesting to change owner.
+
+        Returns:
+            A tuple with a boolean stating if edition is allowed and an
+            explanation message.
+        """
+        return user_request.has_perms(('infra',)), "Vous ne pouvez pas \
+                modifier l'utilisateur de la machine."
 
     def can_create(user_request, userid, *args, **kwargs):
         """Vérifie qu'un user qui fait la requète peut bien créer la machine
@@ -178,6 +195,19 @@ class MachineType(models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perms(('infra',)):
             return False, u"Vous n'avez pas le droit de supprimer des types de machines"
+        return True, None
+
+    def can_use_all(user_request, *args, **kwargs):
+        """Check if an user can use every MachineType.
+
+        Args:
+            user_request: The user requesting edition.
+        Returns:
+            A tuple with a boolean stating if user can acces and an explanation
+            message is acces is not allowed.
+        """
+        if not user_request.has_perms(('infra',)):
+            return False, u"Vous n'avez pas le droit d'utiliser tout types de machines"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
@@ -312,6 +342,13 @@ class IpType(models.Model):
         :param iptypeid: Instance id à trouver
         :return: Une instance iptype évidemment"""
         return IpType.objects.get(pk=iptypeid)
+
+    def can_use_all(user_request, *args, **kwargs):
+        """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        return user_request.has_perms(('infra',)), None
+
 
     def can_create(user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour créer

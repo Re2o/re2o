@@ -38,6 +38,8 @@ from __future__ import unicode_literals
 from django.forms import ModelForm, Form
 from django import forms
 
+from re2o.field_permissions import FieldPermissionFormMixin
+
 from .models import (
     Domain,
     Machine,
@@ -58,7 +60,7 @@ from .models import (
 )
 
 
-class EditMachineForm(ModelForm):
+class EditMachineForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
     class Meta:
         model = Machine
@@ -117,10 +119,10 @@ class AddInterfaceForm(EditInterfaceForm):
         fields = ['type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
+        user = kwargs.pop('user')
         super(AddInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-        if not infra:
+        if not IpType.can_use_all(user):
             self.fields['type'].queryset = MachineType.objects.filter(
                 ip_type__in=IpType.objects.filter(need_infra=False)
             )
@@ -146,13 +148,14 @@ class BaseEditInterfaceForm(EditInterfaceForm):
         fields = ['type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
+        user = kwargs.pop('user')
         super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)
         self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-        if not infra:
+        if not MachineType.can_use_all(user):
             self.fields['type'].queryset = MachineType.objects.filter(
                 ip_type__in=IpType.objects.filter(need_infra=False)
             )
+        if not IpType.can_use_all(user):
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
