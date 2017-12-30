@@ -120,7 +120,7 @@ def finish_results(results, col, order):
     return results
 
 
-def search_single_word(word, filters, is_cableur, user_id,
+def search_single_word(word, filters, user,
                        start, end, user_state, aff):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
@@ -144,8 +144,8 @@ def search_single_word(word, filters, is_cableur, user_id,
                 adherent__room__name__icontains=word
             )
         ) & Q(state__in=user_state)
-        if not is_cableur:
-            filter_users &= Q(id=user_id)
+        if not User.can_view_all(user)[0]:
+            filter_users &= Q(id=user.id)
         filters['users'] |= filter_users
 
     # Machines
@@ -167,8 +167,8 @@ def search_single_word(word, filters, is_cableur, user_id,
         ) | Q(
             interface__ipv4__ipv4__icontains=word
         )
-        if not is_cableur:
-            filter_machines &= Q(user__id=user_id)
+        if not Machine.can_view_all(user)[0]:
+            filter_machines &= Q(user__id=user.id)
         filters['machines'] |= filter_machines
 
     # Factures
@@ -243,7 +243,7 @@ def search_single_word(word, filters, is_cableur, user_id,
         filters['whitelists'] |= filter_whitelists
 
     # Rooms
-    if '5' in aff and is_cableur:
+    if '5' in aff and Room.can_view_all(user):
         filter_rooms = Q(
             details__icontains=word
         ) | Q(
@@ -254,7 +254,7 @@ def search_single_word(word, filters, is_cableur, user_id,
         filters['rooms'] |= filter_rooms
 
     # Switch ports
-    if '6' in aff and is_cableur:
+    if '6' in aff and User.can_view_all(user):
         filter_ports = Q(
             room__name__icontains=word
         ) | Q(
@@ -275,7 +275,7 @@ def search_single_word(word, filters, is_cableur, user_id,
         filters['ports'] |= filter_ports
 
     # Switches
-    if '7' in aff and is_cableur:
+    if '7' in aff and Switch.can_view_all(user):
         filter_switches = Q(
             switch_interface__domain__name__icontains=word
         ) | Q(
@@ -374,8 +374,7 @@ def get_results(query, request, params):
         filters = search_single_word(
             word,
             filters,
-            request.user.has_perms(('cableur',)),
-            request.user.id,
+            request.user,
             start,
             end,
             user_state,
