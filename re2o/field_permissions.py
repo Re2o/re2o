@@ -60,15 +60,18 @@ class FieldPermissionModel(FieldPermissionModelMixin, models.Model):
 
 class FieldPermissionFormMixin:
     """
-    Construit le formulaire et retire les champs interdits 
+    Construit le formulaire et retire les champs interdits
     """
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
 
         super(FieldPermissionFormMixin, self).__init__(*args, **kwargs)
+        to_be_deleted = []
         for name in self.fields:
             if not self.instance.has_field_perm(user, field=name):
-                self.remove_unauthorized_field(name)
+                to_be_deleted.append(name)
+        for name in to_be_deleted:
+            self.remove_unauthorized_field(name)
 
     def remove_unauthorized_field(self, name):
         del self.fields[name]
