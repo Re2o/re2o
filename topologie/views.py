@@ -354,10 +354,13 @@ def new_switch(request):
     associée. Vue complexe. Appelle successivement les 4 models forms
     adaptés : machine, interface, domain et switch"""
     switch = NewSwitchForm(request.POST or None)
-    machine = NewMachineForm(request.POST or None)
+    machine = NewMachineForm(
+        request.POST or None,
+        user=request.user
+    )
     interface = AddInterfaceForm(
         request.POST or None,
-        infra=request.user.has_perms(('infra',))
+        user=request.user
         )
     domain = DomainForm(
         request.POST or None,
