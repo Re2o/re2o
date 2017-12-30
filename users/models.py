@@ -62,7 +62,8 @@ from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
-    BaseUserManager
+    BaseUserManager,
+    PermissionsMixin
 )
 from django.core.validators import RegexValidator
 
@@ -181,7 +182,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-class User(FieldPermissionModelMixin, AbstractBaseUser):
+class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -285,20 +286,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser):
     @property
     def is_admin(self):
         """ Renvoie si l'user est admin"""
-        try:
-            Right.objects.get(user=self, right__listright='admin')
-        except Right.DoesNotExist:
-            return False
-        return True
-
-    @is_admin.setter
-    def is_admin(self, value):
-        """ Change la valeur de admin à true ou false suivant la valeur de
-        value"""
-        if value and not self.is_admin:
-            self.make_admin()
-        elif not value and self.is_admin:
-            self.un_admin()
+        return self.is_superuser
 
     def get_full_name(self):
         """ Renvoie le nom complet de l'user formaté nom/prénom"""
@@ -311,66 +299,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser):
     def get_short_name(self):
         """ Renvoie seulement le nom"""
         return self.surname
-
-    def has_perms(self, perms, obj=None):
-        """ Renvoie true si l'user dispose de la permission.
-        Prend en argument une liste de permissions.
-        TODO : Arranger cette fonction"""
-        for perm in perms:
-            if perm in RIGHTS_LINK:
-                query = Q()
-                for right in RIGHTS_LINK[perm]:
-                    query = query | Q(right__listright=right)
-                if Right.objects.filter(Q(user=self) & query):
-                    return True
-            try:
-                Right.objects.get(user=self, right__listright=perm)
-            except Right.DoesNotExist:
-                return False
-        return True
-
-    def has_perm(self, perm, obj=None):
-        """Ne sert à rien"""
-        return True
-
-    def has_right(self, right):
-        """ Renvoie si un user a un right donné. Crée le right si il n'existe
-        pas"""
-        try:
-            list_right = ListRight.objects.get(listright=right)
-        except:
-            list_right = ListRight(listright=right, gid=get_fresh_gid())
-            list_right.save()
-        return Right.objects.filter(user=self).filter(
-            right=list_right
-        ).exists()
-
-    @cached_property
-    def is_bureau(self):
-        """ True si user a les droits bureau """
-        return self.has_right('bureau')
-
-    @cached_property
-    def is_bofh(self):
-        """ True si l'user a les droits bofh"""
-        return self.has_right('bofh')
-
-    @cached_property
-    def is_cableur(self):
-        """ True si l'user a les droits cableur
-        (également true si bureau, infra  ou bofh)"""
-        return self.has_right('cableur') or self.has_right('bureau') or\
-            self.has_right('infra') or self.has_right('bofh')
-
-    @cached_property
-    def is_trez(self):
-        """ Renvoie true si droits trésorier pour l'user"""
-        return self.has_right('tresorier')
-
-    @cached_property
-    def is_infra(self):
-        """ True si a les droits infra"""
-        return self.has_right('infra')
 
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets

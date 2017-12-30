@@ -9,9 +9,6 @@ class FieldPermissionModelMixin:
     FIELD_PERMISSION_GETTER = 'can_change_{name}'
     FIELD_PERMISSION_MISSING_DEFAULT = True
 
-    def has_perm(self, user, perm):
-        return user.has_perm(perm)  # Never give 'obj' argument here
-
     def has_field_perm(self, user, field):
         if field in self.field_permissions:
             checks = self.field_permissions[field]
