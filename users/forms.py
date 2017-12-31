@@ -40,7 +40,7 @@ from django.core.validators import MinLengthValidator
 from django.utils import timezone
 
 from preferences.models import OptionalUser
-from .models import User, ServiceUser, Right, School, ListRight, Whitelist
+from .models import User, ServiceUser, School, ListRight, Whitelist
 from .models import Ban, Adherent, Club
 from re2o.utils import remove_user_room
 
@@ -426,12 +426,12 @@ class ListRightForm(ModelForm):
     Ne peremet pas d'editer le gid, car il sert de primary key"""
     class Meta:
         model = ListRight
-        fields = ['listright', 'details']
+        fields = ['name', 'unix_name', 'permissions', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['listright'].label = 'Nom du droit/groupe'
+        self.fields['unix_name'].label = 'Nom du droit/groupe'
 
 
 class NewListRightForm(ListRightForm):
@@ -457,9 +457,9 @@ class DelListRightForm(Form):
         instances = kwargs.pop('instances', None)
         super(DelListRightForm, self).__init__(*args, **kwargs)
         if instances:
-            self.fields['listrights'].queryset = instances
+            self.fields['unix_name'].queryset = instances
         else:
-            self.fields['listrights'].queryset = ListRight.objects.all()
+            self.fields['unix_name'].queryset = ListRight.objects.all()
 
 
 class DelSchoolForm(Form):
@@ -477,32 +477,6 @@ class DelSchoolForm(Form):
             self.fields['schools'].queryset = instances
         else:
             self.fields['schools'].queryset = School.objects.all()
-
-
-class RightForm(ModelForm):
-    """Assignation d'un droit à un user"""
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(RightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['right'].label = 'Droit'
-        self.fields['right'].empty_label = "Choisir un nouveau droit"
-
-    class Meta:
-        model = Right
-        fields = ['right']
-
-
-class DelRightForm(Form):
-    """Suppression d'un droit d'un user"""
-    rights = forms.ModelMultipleChoiceField(
-        queryset=Right.objects.select_related('user'),
-        widget=forms.CheckboxSelectMultiple
-    )
-
-    def __init__(self, right, *args, **kwargs):
-        super(DelRightForm, self).__init__(*args, **kwargs)
-        self.fields['rights'].queryset = Right.objects.select_related('user')\
-        .select_related('right').filter(right=right)
 
 
 class BanForm(ModelForm):

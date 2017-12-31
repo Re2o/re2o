@@ -32,7 +32,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from .models import User, ServiceUser, School, Right, ListRight, ListShell
+from .models import User, ServiceUser, School, ListRight, ListShell
 from .models import Ban, Whitelist, Request, LdapUser, LdapServiceUser
 from .models import LdapServiceUserGroup, LdapUserGroup
 from .forms import UserChangeForm, UserCreationForm
@@ -86,16 +86,11 @@ class SchoolAdmin(VersionAdmin):
 class ListRightAdmin(VersionAdmin):
     """Gestion de la liste des droits existants
     Ne permet pas l'edition du gid (primarykey pour ldap)"""
-    list_display = ('listright',)
+    list_display = ('unix_name',)
 
 
 class ListShellAdmin(VersionAdmin):
     """Gestion de la liste des shells coté admin"""
-    pass
-
-
-class RightAdmin(VersionAdmin):
-    """Gestion de la liste des droits affectés"""
     pass
 
 
@@ -206,7 +201,6 @@ admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
 admin.site.register(LdapServiceUser, LdapServiceUserAdmin)
 admin.site.register(LdapServiceUserGroup, LdapServiceUserGroupAdmin)
 admin.site.register(School, SchoolAdmin)
-admin.site.register(Right, RightAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)

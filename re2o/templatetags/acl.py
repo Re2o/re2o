@@ -130,7 +130,6 @@ MODEL_NAME = {
     'Adherent' : users.models.Adherent,
     'Club' : users.models.Club,
     'ServiceUser' : users.models.ServiceUser,
-    'Right' : users.models.Right,
     'School' : users.models.School,
     'ListRight' : users.models.ListRight,
     'Ban' : users.models.Ban,

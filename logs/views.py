@@ -50,7 +50,6 @@ from reversion.models import Version, ContentType
 from users.models import (
     User,
     ServiceUser,
-    Right,
     School,
     ListRight,
     ListShell,
@@ -325,7 +324,6 @@ def stats_models(request):
             'clubs': [Club.PRETTY_NAME, Club.objects.count()],
             'serviceuser': [ServiceUser.PRETTY_NAME,
                             ServiceUser.objects.count()],
-            'right': [Right.PRETTY_NAME, Right.objects.count()],
             'school': [School.PRETTY_NAME, School.objects.count()],
             'listright': [ListRight.PRETTY_NAME, ListRight.objects.count()],
             'listshell': [ListShell.PRETTY_NAME, ListShell.objects.count()],
