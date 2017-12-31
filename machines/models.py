@@ -898,7 +898,7 @@ class Ns(models.Model):
 
     class Meta:
         permissions = (
-            ("view_nx", "Peut voir un objet nx"),
+            ("view_ns", "Peut voir un objet ns"),
         )
 
     @cached_property
