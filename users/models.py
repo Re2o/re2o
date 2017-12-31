@@ -1153,8 +1153,8 @@ class ListRight(Group):
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
         group_ldap.name = self.listright
-        group_ldap.members = [right.user.pseudo for right
-                              in Right.objects.filter(right=self)]
+        group_ldap.members = [user.pseudo for user
+                              in self.user_set.all()]
         group_ldap.save()
 
     def ldap_del(self):

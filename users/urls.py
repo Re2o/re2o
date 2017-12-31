@@ -40,7 +40,9 @@ urlpatterns = [
         name='edit-club-admin-members'
     ),
     url(r'^state/(?P<userid>[0-9]+)$', views.state, name='state'),
+    url(r'^groups/(?P<userid>[0-9]+)$', views.groups, name='groups'),
     url(r'^password/(?P<userid>[0-9]+)$', views.password, name='password'),
+    url(r'^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$', views.del_group, name='del-group'),
     url(r'^new_serviceuser/$', views.new_serviceuser, name='new-serviceuser'),
     url(
         r'^edit_serviceuser/(?P<userid>[0-9]+)$',

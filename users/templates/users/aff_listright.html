@@ -38,8 +38,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ listright.name }}</td>
             <td>{{ listright.gid }}</td>
-            <td>{{ listright.permissions.all }}</td>
-            <td>{{ listright.user_set.all }}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="listpermissions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Ensemble des permissions <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="listpermissions">
+                    {% for perm in listright.permissions.all %}
+                        <li>
+			{{ perm.name }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+		</div></td>
+		<td>{% for user in listright.user_set.all %}{{user}} <a role="button" href="{% url 'users:del-group' user.id listright.id %}" title="{{ desc|default:"Supprimer" }}"><i class="glyphicon glyphicon-remove" style="color:red"></i></a> | {% endfor %}</td>
 	    <td>{{ listright.details }}</td>
             <td class="text-right">
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}

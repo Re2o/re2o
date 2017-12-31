@@ -42,7 +42,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="glyphicon glyphicon-flash"></i>
             Changer le statut
         </a>
-        <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
+	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
+	    <i class="glyphicon glyphicon-ok"></i>
+            Gérer les groupes
+        </a>
+	<a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
             <i class="glyphicon glyphicon-time"></i>
             Historique
         </a>
@@ -117,9 +121,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% else %}
             <td><i class="text-danger">Désactivé</i></td>
             {% endif %}
-            <th>Droits</th>
-            {% if list_droits %}
-            <td>{% for droit in list_droits %}{{ droit.right }}{% if list_droits|length != forloop.counter %}  - {% endif %} {% endfor %}</td>
+            <th>Groupes</th>
+            {% if users.groups.all %}
+	    <td>{{ users.groups.all|join:", "}}</td>
             {% else %}
             <td>Aucun</td>
             {% endif %}
