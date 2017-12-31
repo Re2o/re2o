@@ -47,6 +47,11 @@ class OptionalUser(models.Model):
         help_text="Tous les users peuvent en créer d'autres",
     )
 
+    class Meta:
+        permissions = (
+            ("view_optionaluser", "Peut voir les options de l'user"),
+        )
+
     def get_instance(*args, **kwargs):
         return OptionalUser.objects.get_or_create()
 
@@ -56,7 +61,7 @@ class OptionalUser(models.Model):
         :param user_request: The user who wants to create a user object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_optionaluser'), u"Vous n'avez pas le droit\
             de créer les préférences concernant les users"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -66,7 +71,7 @@ class OptionalUser(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_optionaluser'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les users"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -76,7 +81,7 @@ class OptionalUser(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_optionaluser'), u"Vous n'avez pas le droit\
             de supprimer les préférences concernant les users"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -85,7 +90,7 @@ class OptionalUser(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionaluser'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les utilisateurs"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -96,7 +101,7 @@ class OptionalUser(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionaluser'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les utilisateurs"
 
     def clean(self):
@@ -115,6 +120,11 @@ class OptionalMachine(models.Model):
     max_lambdauser_aliases = models.IntegerField(default=10)
     ipv6 = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (
+            ("view_optionalmachine", "Peut voir les options de machine"),
+        )
+
     def get_instance(*args, **kwargs):
         return OptionalMachine.objects.get_or_create()
 
@@ -124,7 +134,7 @@ class OptionalMachine(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_optionalmachine'), u"Vous n'avez pas le droit\
             de créer les préférences concernant les machines"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -134,7 +144,7 @@ class OptionalMachine(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_optionalmachine'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les machines"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -145,7 +155,7 @@ class OptionalMachine(models.Model):
         :return: True if deletion is granted, and a message.
         """
 
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_optionalmachine'), u"Vous n'avez pas le droit\
             de supprimer les préférences concernant les machines"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -154,7 +164,7 @@ class OptionalMachine(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les machines"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -165,7 +175,7 @@ class OptionalMachine(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les machines"
 
 
@@ -201,6 +211,11 @@ class OptionalTopologie(models.Model):
         null=True
     )
 
+    class Meta:
+        permissions = (
+            ("view_optionaltopologie", "Peut voir les options de topologie"),
+        )
+
     def get_instance(*args, **kwargs):
         return OptionalTopologie.objects.get_or_create()
 
@@ -210,7 +225,7 @@ class OptionalTopologie(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_optionaltopologie'), u"Vous n'avez pas le droit\
             de créer les préférences concernant la topologie"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -220,7 +235,7 @@ class OptionalTopologie(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_optionaltopologie'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant la topologie"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -230,7 +245,7 @@ class OptionalTopologie(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_optionaltoplogie'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant la topologie"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -239,7 +254,7 @@ class OptionalTopologie(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionaltopologie'), u"Vous n'avez pas le droit\
             de voir les préférences concernant la topologie"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -250,7 +265,7 @@ class OptionalTopologie(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_optionaltopologie'), u"Vous n'avez pas le droit\
             de voir les préférences concernant la topologie"
 
 
@@ -271,6 +286,11 @@ class GeneralOption(models.Model):
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@serveur.net")
 
+    class Meta:
+        permissions = (
+            ("view_generaloption", "Peut voir les options générales"),
+        )
+
     def get_instance(*args, **kwargs):
         return GeneralOption.objects.get_or_create()
 
@@ -280,7 +300,7 @@ class GeneralOption(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_generaloption'), u"Vous n'avez pas le droit\
             de créer les préférences générales"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -290,7 +310,7 @@ class GeneralOption(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_generaloption'), u"Vous n'avez pas le droit\
             d'éditer les préférences générales"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -300,7 +320,7 @@ class GeneralOption(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_generaloption'), u"Vous n'avez pas le droit\
             d'éditer les préférences générales"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -310,7 +330,7 @@ class GeneralOption(models.Model):
         :return: True if the user can view the list and an explanation message.
         """
 
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_generaloption'), u"Vous n'avez pas le droit\
             de voir les préférences générales"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -321,7 +341,7 @@ class GeneralOption(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_generaloption'), u"Vous n'avez pas le droit\
             de voir les préférences générales"
 
 
@@ -333,6 +353,11 @@ class Service(models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to='logo', blank=True)
 
+    class Meta:
+        permissions = (
+            ("view_service", "Peut voir les options de service"),
+        )
+
     def get_instance(serviceid, *args, **kwargs):
         return Service.objects.get(pk=serviceid)
 
@@ -343,7 +368,7 @@ class Service(models.Model):
         :return: a message and a boolean which is True if the user can create.
         """
 
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_service'), u"Vous n'avez pas le droit\
             de créer un service pour la page d'accueil"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -353,7 +378,7 @@ class Service(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_service'), u"Vous n'avez pas le droit\
             d'éditer les services pour la page d'accueil"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -363,7 +388,7 @@ class Service(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_service'), u"Vous n'avez pas le droit\
             de supprimer les services pour la page d'accueil"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -373,7 +398,7 @@ class Service(models.Model):
         :return: True if the user can view the list and an explanation message.
         """
 
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_service'), u"Vous n'avez pas le droit\
             de voir les services pour la page d'accueil"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -384,7 +409,7 @@ class Service(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_service'), u"Vous n'avez pas le droit\
             de voir les services pour la page d'accueil"
 
     def __str__(self):
@@ -412,6 +437,11 @@ class AssoOption(models.Model):
         null=True
     )
 
+    class Meta:
+        permissions = (
+            ("view_assooption", "Peut voir les options de l'asso"),
+        )
+
     def get_instance(*args, **kwargs):
         return AssoOption.objects.get_or_create()
 
@@ -421,7 +451,7 @@ class AssoOption(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_assooption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant l'association"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -431,7 +461,7 @@ class AssoOption(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_assooption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant l'association"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -441,7 +471,7 @@ class AssoOption(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_assooption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant l'association"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -450,7 +480,7 @@ class AssoOption(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_assooption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant l'association"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -461,7 +491,7 @@ class AssoOption(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_assooption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant l'association"
 
 
@@ -472,6 +502,11 @@ class MailMessageOption(models.Model):
     welcome_mail_fr = models.TextField(default="")
     welcome_mail_en = models.TextField(default="")
 
+    class Meta:
+        permissions = (
+            ("view_mailmessageoption", "Peut voir les options de mail"),
+        )
+
     def get_instance(*args, **kwargs):
         return MailMessageOption.objects.get_or_create()
 
@@ -481,7 +516,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.add_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -492,7 +527,7 @@ class MailMessageOption(models.Model):
         :return: a message and a boolean which is True if edition is granted.
         """
 
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -502,7 +537,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('admin',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.delete_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -511,7 +546,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les mails"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -522,5 +557,5 @@ class MailMessageOption(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les mails"
