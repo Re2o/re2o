@@ -248,11 +248,16 @@ def groups(request, user, userid):
     group = GroupForm(request.POST or None, instance=user)
     if group.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            messages.success(request, "Groupes changés avec succès")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid':str(userid)}
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in group.changed_data
             ))
+        group.save()
+        messages.success(request, "Groupes changés avec succès")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid':str(userid)}
+        ))
     return form({'userform': group}, 'users/user.html', request)
 
 
