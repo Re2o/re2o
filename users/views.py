@@ -243,7 +243,7 @@ def state(request, user, userid):
 
 
 @login_required
-@can_edit(User)
+@can_edit(User, 'groups')
 def groups(request, user, userid):
     group = GroupForm(request.POST or None, instance=user)
     if group.is_valid():

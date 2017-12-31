@@ -226,6 +226,16 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    class Meta:
+        permissions = (
+            ("change_user_password", "Peut changer le mot de passe d'un user"),
+            ("change_user_state", "Peut éditer l'etat d'un user"),
+            ("change_user_force", "Peut forcer un déménagement"),
+            ("change_user_shell", "Peut éditer le shell d'un user"),
+            ("change_user_groups", "Peut éditer les groupes d'un user ! Permission critique"),
+            ("view_user", "Peut voir un objet user quelquonque"),
+        )
+
     @cached_property
     def name(self):
         """Si il s'agit d'un adhérent, on renvoie le prénom"""
@@ -682,7 +692,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         if options.all_can_create:
             return True, None
         else:
-            return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+            return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -695,43 +705,48 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         user_request has the 'cableur' right.
         """
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perms(('cableur',)) or\
+            if self == user_request or user_request.has_perm('users.change_user') or\
                 user_request.adherent in self.club.administrators.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            if self == user_request or user_request.has_perms(('cableur',)):
+            if self == user_request or user_request.has_perm('users.change_user'):
                 return True, None
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
     def can_change_password(self, user_request, *args, **kwargs):
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perms(('cableur',)) or\
+            if self == user_request or user_request.has_perm('users.change_user_password') or\
                 user_request.adherent in self.club.administrators.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            if self == user_request or user_request.has_perms(('bureau',)):
+            if self == user_request or user_request.has_perm('users.change_user_groups'):
+            # Peut éditer les groupes d'un user, c'est un privilège élevé, True
                 return True, None
-            elif user_request.has_perms(('cableur',)) and not Right.objects.filter(user=self):
+            elif user_request.has_perm('users.change_user') and not self.groups.all():
                 return True, None
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
     @staticmethod
     def can_change_state(user_request, *args, **kwargs):
-        return user_request.has_perms(('bureau',)), "Droit bureau requis pour changer l'état"
+        return user_request.has_perm('users.change_user_state'), "Droit requis pour changer l'état"
 
     @staticmethod
     def can_change_shell(user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), "Droit requis pour changer le shell"
+        return user_request.has_perm('users.change_user_shell'), "Droit requis pour changer le shell"
 
     @staticmethod
     def can_change_force(user_request, *args, **kwargs):
-        return user_request.has_perms(('cableur',)), "Droit requis pour forcer le déménagement"
+        return user_request.has_perm('users.change_user_force'), "Droit requis pour forcer le déménagement"
+
+    @staticmethod
+    def can_change_groups(user_request, *args, **kwargs):
+        return user_request.has_perm('users.change_user_groups'), "Droit requis pour éditer les groupes de l'user"
 
     def can_delete(self, user_request, *args, **kwargs):
         """Check if an user can delete an user object.
@@ -740,7 +755,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         :param user_request: The user who requests deletion.
         :return: True if user_request has the right 'bureau', and a message.
         """
-        if user_request.has_perms(('bureau',)):
+        if user_request.has_perm('users.delete_user'):
             return True, None
         else:
             return False, u"Vous ne pouvez pas supprimer cet utilisateur."
@@ -751,7 +766,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        if user_request.has_perms(('cableur',)):
+        if user_request.has_perm('users.view_user'):
             return True, None
         else:
             return False, u"Vous n'avez pas accès à la liste des utilisateurs."
@@ -765,14 +780,14 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         text
         """
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perms(('cableur',)) or\
+            if self == user_request or user_request.has_perm('users.view_user') or\
                 user_request.adherent in self.club.administrators.all() or\
                 user_request.adherent in self.club.members.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit de voir ce club"
         else:
-            if self == user_request or user_request.has_perms(('cableur',)):
+            if self == user_request or user_request.has_perm('users.view_user'):
                 return True, None
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
@@ -830,7 +845,7 @@ class Club(User):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        if user_request.has_perms(('cableur',)):
+        if user_request.has_perm('users.view_user'):
             return True, None
         if user_request.is_class_adherent:
             if user_request.adherent.club_administrator.all() or user_request.adherent.club_members.all():
@@ -900,6 +915,11 @@ class ServiceUser(AbstractBaseUser):
     USERNAME_FIELD = 'pseudo'
     objects = UserManager()
 
+    class Meta:
+        permissions = (
+            ("view_serviceuser", "Peut voir un objet serviceuser"),
+        )
+
     def ldap_sync(self):
         """ Synchronisation du ServiceUser dans sa version ldap"""
         try:
@@ -945,7 +965,7 @@ class ServiceUser(AbstractBaseUser):
         if options.all_can_create:
             return True, None
         else:
-            return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+            return user_request.has_perm('users.add_serviceuser'), u"Vous n'avez pas le droit de\
                 créer un service user"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -955,7 +975,7 @@ class ServiceUser(AbstractBaseUser):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit d'éditer\
+        return user_request.has_perm('users.change_serviceuser'), u"Vous n'avez pas le droit d'éditer\
             les services users"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -965,7 +985,7 @@ class ServiceUser(AbstractBaseUser):
         :param user_request: The user who requests deletion.
         :return: True if user_request has the right 'infra', and a message.
         """
-        return user_request.has_perms(('infra',)), u"Vous n'avez pas le droit de\
+        return user_request.has_perm('users.delete_serviceuser'), u"Vous n'avez pas le droit de\
             supprimer un service user"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -974,7 +994,7 @@ class ServiceUser(AbstractBaseUser):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
+        return user_request.has_perm('users.view_serviceuser'), u"Vous n'avez pas le droit de\
             voir un service user"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -985,7 +1005,7 @@ class ServiceUser(AbstractBaseUser):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit de\
+        return user_request.has_perm('users.view_serviceuser'), u"Vous n'avez pas le droit de\
             voir un service user"
 
     def __str__(self):
@@ -1011,6 +1031,11 @@ class School(models.Model):
 
     name = models.CharField(max_length=255)
 
+    class Meta:
+        permissions = (
+            ("view_school", "Peut voir un objet school"),
+        )
+
     def get_instance(schoolid, *args, **kwargs):
         return School.objects.get(pk=schoolid)
 
@@ -1020,7 +1045,7 @@ class School(models.Model):
         :param user_request: The user who wants to create a user object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.add_school'), u"Vous n'avez pas le\
             droit de créer des écoles"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -1030,7 +1055,7 @@ class School(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.change_school'), u"Vous n'avez pas le\
             droit d'éditer des écoles"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1040,7 +1065,7 @@ class School(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.delete_school'), u"Vous n'avez pas le\
             droit de supprimer des écoles"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -1049,7 +1074,7 @@ class School(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.view_school'), u"Vous n'avez pas le\
             droit de voir les écoles"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1060,7 +1085,7 @@ class School(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.view_school'), u"Vous n'avez pas le\
             droit de voir les écoles"
 
     def __str__(self):
@@ -1091,6 +1116,11 @@ class ListRight(Group):
         blank=True
     )
 
+    class Meta:
+        permissions = (
+            ("view_listright", "Peut voir un objet Group/ListRight"),
+        )
+
     def get_instance(listrightid, *args, **kwargs):
         return ListRight.objects.get(pk=listrightid)
 
@@ -1100,7 +1130,7 @@ class ListRight(Group):
         :param user_request: The user who wants to create a ListRight object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.add_listright'), u"Vous n'avez pas le droit\
             de créer des groupes de droits"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -1110,7 +1140,7 @@ class ListRight(Group):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.change_listright'), u"Vous n'avez pas le droit\
             d'éditer des groupes de droits"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1120,7 +1150,7 @@ class ListRight(Group):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.delete_listright'), u"Vous n'avez pas le droit\
             de supprimer des groupes de droits"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -1129,7 +1159,7 @@ class ListRight(Group):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.view_listright'), u"Vous n'avez pas le droit\
             de voir les groupes de droits"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1140,7 +1170,7 @@ class ListRight(Group):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.view_listright'), u"Vous n'avez pas le droit\
             de voir les groupes de droits"
 
     def __str__(self):
@@ -1211,6 +1241,11 @@ class Ban(models.Model):
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
     state = models.IntegerField(choices=STATES, default=STATE_HARD)
 
+    class Meta:
+        permissions = (
+            ("view_ban", "Peut voir un objet ban quelqu'il soit"),
+        )
+
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
         general_options, _created = GeneralOption.objects.get_or_create()
@@ -1244,7 +1279,7 @@ class Ban(models.Model):
         :param user_request: The user who wants to create a Ban object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit de\
+        return user_request.has_perm('users.add_ban'), u"Vous n'avez pas le droit de\
             créer des bannissements"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -1254,7 +1289,7 @@ class Ban(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.change_ban'), u"Vous n'avez pas le droit\
             d'éditer des bannissements"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1264,7 +1299,7 @@ class Ban(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.delete_ban'), u"Vous n'avez pas le droit\
             de supprimer des bannissements"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -1273,7 +1308,7 @@ class Ban(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('bofh',)), u"Vous n'avez pas le droit\
+        return user_request.has_perm('users.view_ban'), u"Vous n'avez pas le droit\
             de voir tous les bannissements"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1284,7 +1319,7 @@ class Ban(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        if not user_request.has_perms(('cableur',)) and\
+        if not user_request.has_perm('users.view_ban') and\
             self.user != user_request:
             return False, u"Vous n'avez pas le droit de voir les bannissements\
                 autre que les vôtres"
@@ -1333,6 +1368,11 @@ class Whitelist(models.Model):
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
 
+    class Meta:
+        permissions = (
+            ("view_whitelist", "Peut voir un objet whitelist"),
+        )
+
     def is_active(self):
         return self.date_end > DT_NOW
 
@@ -1345,7 +1385,7 @@ class Whitelist(models.Model):
         :param user_request: The user who wants to create a Whitelist object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.add_whitelist'), u"Vous n'avez pas le\
             droit de créer des accès gracieux"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -1355,7 +1395,7 @@ class Whitelist(models.Model):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.change_whitelist'), u"Vous n'avez pas le\
             droit d'éditer des accès gracieux"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1365,7 +1405,7 @@ class Whitelist(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.delete_whitelist'), u"Vous n'avez pas le\
             droit de supprimer des accès gracieux"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -1374,7 +1414,7 @@ class Whitelist(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perms(('cableur',)), u"Vous n'avez pas le\
+        return user_request.has_perm('users.view_whitelist'), u"Vous n'avez pas le\
             droit de voir les accès gracieux"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1385,7 +1425,7 @@ class Whitelist(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        if not user_request.has_perms(('cableur',)) and\
+        if not user_request.has_perm('users.view_whitelist') and\
             self.user != user_request:
             return False, u"Vous n'avez pas le droit de voir les accès\
                 gracieux autre que les vôtres"
