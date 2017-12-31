@@ -38,6 +38,7 @@ from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
 from .models import User, ServiceUser, School, ListRight, Whitelist
@@ -409,6 +410,23 @@ class StateForm(ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
+class GroupForm(ModelForm):
+    """ Gestion des groupes d'un user"""
+    groups = forms.ModelMultipleChoiceField(
+        Group.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = User
+        fields = ['groups']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
 class SchoolForm(ModelForm):
     """Edition, creation d'un école"""
     class Meta:
@@ -424,6 +442,12 @@ class SchoolForm(ModelForm):
 class ListRightForm(ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
+    permissions = forms.ModelMultipleChoiceField(
+        Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = ListRight
         fields = ['name', 'unix_name', 'permissions', 'details']
@@ -457,9 +481,9 @@ class DelListRightForm(Form):
         instances = kwargs.pop('instances', None)
         super(DelListRightForm, self).__init__(*args, **kwargs)
         if instances:
-            self.fields['unix_name'].queryset = instances
+            self.fields['listrights'].queryset = instances
         else:
-            self.fields['unix_name'].queryset = ListRight.objects.all()
+            self.fields['listrights'].queryset = ListRight.objects.all()
 
 
 class DelSchoolForm(Form):

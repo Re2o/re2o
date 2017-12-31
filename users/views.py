@@ -80,7 +80,8 @@ from users.forms import (
     MassArchiveForm,
     PassForm,
     ResetPasswordForm,
-    ClubAdminandMembersForm
+    ClubAdminandMembersForm,
+    GroupForm
 )
 from cotisations.models import Facture
 from machines.models import Machine
@@ -242,6 +243,20 @@ def state(request, user, userid):
 
 
 @login_required
+@can_edit(User)
+def groups(request, user, userid):
+    group = GroupForm(request.POST or None, instance=user)
+    if group.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            messages.success(request, "Groupes changés avec succès")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid':str(userid)}
+            ))
+    return form({'userform': group}, 'users/user.html', request)
+
+
+@login_required
 @can_edit(User, 'password')
 def password(request, user, userid):
     """ Reinitialisation d'un mot de passe à partir de l'userid,
@@ -251,6 +266,16 @@ def password(request, user, userid):
     if u_form.is_valid():
         return password_change_action(u_form, user, request)
     return form({'userform': u_form}, 'users/user.html', request)
+
+
+@login_required
+@can_edit(User)
+def del_group(request, user, userid, listrightid):
+    with transaction.atomic(), reversion.create_revision():
+        user.groups.remove(ListRight.objects.get(id=listrightid))
+        user.save()
+        messages.success(request, "Droit supprimé à %s" % user)
+    return redirect(reverse('users:index-listright'))
 
 
 @login_required
