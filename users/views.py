@@ -55,7 +55,6 @@ from reversion import revisions as reversion
 from users.serializers import MailSerializer
 from users.models import (
     User,
-    Right,
     Ban,
     Whitelist,
     School,
@@ -66,14 +65,12 @@ from users.models import (
     Club,
 )
 from users.forms import (
-    DelRightForm,
     BanForm,
     WhitelistForm,
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
     StateForm,
-    RightForm,
     SchoolForm,
     EditServiceUserForm,
     ServiceUserForm,
@@ -311,51 +308,6 @@ def del_serviceuser(request, user, userid):
         'users/delete.html',
         request
     )
-
-
-@login_required
-@can_create(Right)
-@can_edit(User)
-def add_right(request, user, userid):
-    """ Ajout d'un droit à un user, need droit bureau """
-    right = RightForm(request.POST or None)
-    if right.is_valid():
-        right = right.save(commit=False)
-        right.user = user
-        try:
-            with transaction.atomic(), reversion.create_revision():
-                reversion.set_user(request.user)
-                reversion.set_comment("Ajout du droit %s" % right.right)
-                right.save()
-            messages.success(request, "Droit ajouté")
-        except IntegrityError:
-            pass
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid':str(userid)}
-            ))
-    return form({'userform': right}, 'users/user.html', request)
-
-
-@login_required
-@permission_required('bureau')
-def del_right(request):
-    """ Supprimer un droit à un user, need droit bureau """
-    user_right_list = dict()
-    for right in ListRight.objects.all():
-        user_right_list[right] = DelRightForm(right, request.POST or None)
-    for _keys, right_item in user_right_list.items():
-        if right_item.is_valid():
-            right_del = right_item.cleaned_data['rights']
-            with transaction.atomic(), reversion.create_revision():
-                reversion.set_user(request.user)
-                reversion.set_comment("Retrait des droit %s" % ','.join(
-                    str(deleted_right) for deleted_right in right_del
-                ))
-                right_del.delete()
-            messages.success(request, "Droit retiré avec succès")
-            return redirect(reverse('users:index'))
-    return form({'userform': user_right_list}, 'users/del_right.html', request)
 
 
 @login_required
@@ -731,7 +683,7 @@ def index_school(request):
 @can_view_all(ListRight)
 def index_listright(request):
     """ Affiche l'ensemble des droits , need droit cableur """
-    listright_list = ListRight.objects.order_by('listright')
+    listright_list = ListRight.objects.order_by('unix_name')
     return render(
         request,
         'users/index_listright.html',
@@ -796,7 +748,6 @@ def profil(request, users, userid):
         request.GET.get('order'),
         SortTable.USERS_INDEX_WHITE
     )
-    list_droits = Right.objects.filter(user=users)
     options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde
     return render(
@@ -808,7 +759,6 @@ def profil(request, users, userid):
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,
-            'list_droits': list_droits,
             'user_solde': user_solde,
         }
     )

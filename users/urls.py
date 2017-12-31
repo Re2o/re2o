@@ -64,8 +64,6 @@ urlpatterns = [
         views.edit_whitelist,
         name='edit-whitelist'
     ),
-    url(r'^add_right/(?P<userid>[0-9]+)$', views.add_right, name='add-right'),
-    url(r'^del_right/$', views.del_right, name='del-right'),
     url(r'^add_school/$', views.add_school, name='add-school'),
     url(
         r'^edit_school/(?P<schoolid>[0-9]+)$',

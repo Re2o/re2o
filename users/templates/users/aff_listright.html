@@ -27,6 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Droit</th>
                 <th>Gid</th>
+                <th>Permissions</th>
+                <th>Users</th>
                 <th>Details</th>
 		<th></th>
                 <th></th>
@@ -34,8 +36,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for listright in listright_list %}
         <tr>
-            <td>{{ listright.listright }}</td>
+            <td>{{ listright.name }}</td>
             <td>{{ listright.gid }}</td>
+            <td>{{ listright.permissions.all }}</td>
+            <td>{{ listright.user_set.all }}</td>
 	    <td>{{ listright.details }}</td>
             <td class="text-right">
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}

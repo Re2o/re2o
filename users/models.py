@@ -63,7 +63,8 @@ from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
-    PermissionsMixin
+    PermissionsMixin,
+    Group
 )
 from django.core.validators import RegexValidator
 
@@ -128,18 +129,6 @@ def get_fresh_gid():
     return min(free_gids)
 
 
-def get_admin_right():
-    """ Renvoie l'instance droit admin. La crée si elle n'existe pas
-    Lui attribue un gid libre"""
-    try:
-        admin_right = ListRight.objects.get(listright="admin")
-    except ListRight.DoesNotExist:
-        admin_right = ListRight(listright="admin")
-        admin_right.gid = get_fresh_gid()
-        admin_right.save()
-    return admin_right
-
-
 class UserManager(BaseUserManager):
     """User manager basique de django"""
     def _create_user(
@@ -163,9 +152,9 @@ class UserManager(BaseUserManager):
         )
 
         user.set_password(password)
-        user.save(using=self._db)
         if su:
-            user.make_admin()
+            user.is_superuser=True
+        user.save(using=self._db)    
         return user
 
     def create_user(self, pseudo, surname, email, password=None):
@@ -479,23 +468,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         self.assign_ips()
         self.state = User.STATE_ACTIVE
 
-    def has_module_perms(self, app_label):
-        """True, a toutes les permissions de module"""
-        return True
-
-    def make_admin(self):
-        """ Make User admin """
-        user_admin_right = Right(user=self, right=get_admin_right())
-        user_admin_right.save()
-
-    def un_admin(self):
-        """Supprime les droits admin d'un user"""
-        try:
-            user_right = Right.objects.get(user=self, right=get_admin_right())
-        except Right.DoesNotExist:
-            return
-        user_right.delete()
-
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False):
         """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
         self
@@ -538,8 +510,9 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
         if group_refresh:
-            for right in Right.objects.filter(user=self):
-                right.right.ldap_sync()
+            for group in self.groups.all():
+                if hasattr(group, 'listright'):
+                    group.listright.ldap_sync()
         user_ldap.save()
 
     def ldap_del(self):
@@ -1032,88 +1005,6 @@ def service_user_post_delete(sender, **kwargs):
     service_user.ldap_del()
 
 
-class Right(models.Model):
-    """ Couple droit/user. Peut-être aurait-on mieux fait ici d'utiliser un
-    manytomany
-    Ceci dit le résultat aurait été le même avec une table intermediaire"""
-    PRETTY_NAME = "Droits affectés à des users"
-
-    user = models.ForeignKey('User', on_delete=models.PROTECT)
-    right = models.ForeignKey('ListRight', on_delete=models.PROTECT)
-
-    class Meta:
-        unique_together = ("user", "right")
-
-    def get_instance(rightid, *args, **kwargs):
-        return Right.objects.get(pk=rightid)
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a Right object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
-            créer des droits"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a Right object.
-
-        :param self: The Right which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit\
-                d'éditer des droits."
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a Right object.
-
-        :param self: The Right which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perms(('bureau',)), u"Vous n'avez pas le droit de\
-            supprimer des droits"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every Right objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perms(('cableur',)), u"Vous ne pouvez pas voir\
-                la liste des droits."
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a Right object.
-
-        :param self: The targeted Right.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perms(('cableur',)), u"Vous ne pouvez pas voir\
-                ce droit."
-
-    def __str__(self):
-        return str(self.user)
-
-
-@receiver(post_save, sender=Right)
-def right_post_save(sender, **kwargs):
-    """ Synchronise les users ldap groups avec les groupes de droits"""
-    right = kwargs['instance'].right
-    right.ldap_sync()
-
-
-@receiver(post_delete, sender=Right)
-def right_post_delete(sender, **kwargs):
-    """ Supprime l'user du groupe"""
-    right = kwargs['instance'].right
-    right.ldap_sync()
-
-
 class School(models.Model):
     """ Etablissement d'enseignement"""
     PRETTY_NAME = "Etablissements enregistrés"
@@ -1176,7 +1067,7 @@ class School(models.Model):
         return self.name
 
 
-class ListRight(models.Model):
+class ListRight(Group):
     """ Ensemble des droits existants. Chaque droit crée un groupe
     ldap synchronisé, avec gid.
     Permet de gérer facilement les accès serveurs et autres
@@ -1184,7 +1075,7 @@ class ListRight(models.Model):
     il n'est plus modifiable après creation"""
     PRETTY_NAME = "Liste des droits existants"
 
-    listright = models.CharField(
+    unix_name = models.CharField(
         max_length=255,
         unique=True,
         validators=[RegexValidator(
@@ -1253,7 +1144,7 @@ class ListRight(models.Model):
             de voir les groupes de droits"
 
     def __str__(self):
-        return self.listright
+        return self.name
 
     def ldap_sync(self):
         """Sychronise les groups ldap avec le model listright coté django"""
