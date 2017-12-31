@@ -60,30 +60,35 @@ class Stack(models.Model):
     member_id_min = models.PositiveIntegerField()
     member_id_max = models.PositiveIntegerField()
 
+    class Meta:
+        permissions = (
+            ("view_stack", "Peut voir un objet stack"),
+        )
+
     def get_instance(stack_id, *args, **kwargs):
         return Stack.objects.get(pk=stack_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_stack') , u"Vous n'avez pas le droit\
             de créer un stack"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_stack'):
             return False, u"Vous n'avez pas le droit d'éditer des stack"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_stack'):
             return False, u"Vous n'avez pas le droit de supprimer une stack"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_stack'):
             return False, u"Vous n'avez pas le droit de voir une stack"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_stack'):
             return False, u"Vous n'avez pas le droit de voir une stack"
         return True, None
 
@@ -140,31 +145,34 @@ class Switch(models.Model):
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
+        permissions = (
+            ("view_switch", "Peut voir un objet switch"),
+        )
 
     def get_instance(switch_id, *args, **kwargs):
         return Switch.objects.get(pk=switch_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_switch') , u"Vous n'avez pas le droit\
             de créer un switch"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_switch'):
             return False, u"Vous n'avez pas le droit d'éditer des switch"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_switch'):
             return False, u"Vous n'avez pas le droit de supprimer un switch"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_switch'):
             return False, u"Vous n'avez pas le droit de coir les switch"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_switch'):
             return False, u"Vous n'avez pas le droit de coir les switch"
         return True, None
  
@@ -221,30 +229,35 @@ class ModelSwitch(models.Model):
         on_delete=models.PROTECT
     )
 
+    class Meta:
+        permissions = (
+            ("view_modelswitch", "Peut voir un objet modelswitch"),
+        )
+
     def get_instance(model_switch_id, *args, **kwargs):
         return ModelSwitch.objects.get(pk=model_switch_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_modelswitch') , u"Vous n'avez pas le droit\
             de créer un modèle de switch"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_modelswitch'):
             return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_modelswitch'):
             return False, u"Vous n'avez pas le droit de supprimer un modèle switch"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_modelswitch'):
             return False, u"Vous n'avez pas le droit de voir un modèle switch"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_modelswitch'):
             return False, u"Vous n'avez pas le droit de voir un modèle switch"
         return True, None
    
@@ -257,31 +270,36 @@ class ConstructorSwitch(models.Model):
     PRETTY_NAME = "Constructeur de switch"
     name = models.CharField(max_length=255)
 
+    class Meta:
+        permissions = (
+            ("view_constructorswitch", "Peut voir un objet constructorswitch"),
+        )
+
     def get_instance(constructor_switch_id, *args, **kwargs):
         return ConstructorSwitch.objects.get(pk=constructor_switch_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_constructorswitch') , u"Vous n'avez pas le droit\
             de créer un constructeur de switch"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_constructorswitch'):
             return False, u"Vous n'avez pas le droit d'éditer des\
                 constructeurs de switchs"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_constructorswitch'):
             return False, u"Vous n'avez pas le droit de supprimer un constructeur"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_constructorswitch'):
             return False, u"Vous n'avez pas le droit de voir un constructeur"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_constructorswitch'):
             return False, u"Vous n'avez pas le droit de voir un constructeur"
         return True, None
     
@@ -348,6 +366,9 @@ class Port(models.Model):
 
     class Meta:
         unique_together = ('switch', 'port')
+        permissions = (
+            ("view_port", "Peut voir un objet port"),
+        )
 
     def get_instance(port_id, *args, **kwargs):
         return Port.objects\
@@ -359,26 +380,26 @@ class Port(models.Model):
             .get(pk=port_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_port') , u"Vous n'avez pas le droit\
             de créer un port"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_port'):
             return False, u"Vous n'avez pas le droit d'éditer des ports"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_port'):
             return False, u"Vous n'avez pas le droit de supprimer un port"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_port'):
             return False, u"Vous n'avez pas le droit de voir les ports"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_port'):
             return False, u"Vous n'avez pas le droit de voir les ports"
         return True, None
    
@@ -435,31 +456,34 @@ class Room(models.Model):
 
     class Meta:
         ordering = ['name']
+        permissions = (
+            ("view_room", "Peut voir un objet chambre"),
+        )
 
     def get_instance(room_id, *args, **kwargs):
         return Room.objects.get(pk=room_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perms(('infra',)) , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_room') , u"Vous n'avez pas le droit\
             de créer une chambre"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.change_room'):
             return False, u"Vous n'avez pas le droit d'éditer une chambre"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('infra',)):
+        if not user_request.has_perm('topologie.delete_room'):
             return False, u"Vous n'avez pas le droit de supprimer une chambre"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_room'):
             return False, u"Vous n'avez pas le droit de voir les chambres"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perms(('cableur',)):
+        if not user_request.has_perm('topologie.view_room'):
             return False, u"Vous n'avez pas le droit de voir les chambres"
         return True, None
 
