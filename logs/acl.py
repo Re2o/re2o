@@ -35,5 +35,5 @@ def can_view(user):
         A couple (allowed, msg) where allowed is a boolean which is True if
         viewing is granted and msg is a message (can be None).
     """
-    can = user.has_perms(('cableur',))
+    can = user.has_module_perms('logs')
     return can, None if can else "Vous ne pouvez pas voir cette application."
