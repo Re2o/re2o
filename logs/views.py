@@ -408,7 +408,7 @@ def stats_users(request):
                 num=Count('whitelist')
             ).order_by('-num')[:10],
             'Droits': User.objects.annotate(
-                num=Count('right')
+                num=Count('groups')
             ).order_by('-num')[:10],
         },
         'Etablissement': {
