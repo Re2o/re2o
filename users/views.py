@@ -274,7 +274,7 @@ def password(request, user, userid):
 
 
 @login_required
-@can_edit(User)
+@can_edit(User, 'groups')
 def del_group(request, user, userid, listrightid):
     with transaction.atomic(), reversion.create_revision():
         user.groups.remove(ListRight.objects.get(id=listrightid))
