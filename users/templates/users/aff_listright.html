@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Droit</th>
                 <th>Gid</th>
-                <th>Permissions</th>
+                <th>Informations</th>
                 <th>Details</th>
 		<th></th>
             </tr>
@@ -35,15 +35,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for listright in listright_list %}
         <tr class="active">
             <td>
-		    <a data-toggle="collapse" data-parent="#accordion_{{listright.gid}}" href="#collapseListRight_user_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_user_{{listright.gid}}">
-                    {{ listright.name }} ({{listright.user_set.all|length}} users)
-                </a>
+                {{ listright.name }}
             </td>
             <td>{{ listright.gid }}</td>
             <td>
                 <div class="dropdown">
-			<button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_perm_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_perm_{{listright.gid}}">
-                        Ensemble des permissions
+                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_user_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_user_{{listright.gid}}">
+                        Utilisateurs ({{ listright.user_set.all|length }})
+                    </button>
+                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_perm_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_perm_{{listright.gid}}">
+                        Ensemble des permissions ({{ listright.permissions.all|length }})
                     </button>
 		</div>
 	    </td>
