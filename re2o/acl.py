@@ -78,8 +78,8 @@ def can_edit(model, *field_list):
                     kwargs={'userid':str(request.user.id)}
                 ))
             for field in field_list:
-                can_create = getattr(model, 'can_change_' + field)
-                can, msg = can_create(instance, request.user, *args, **kwargs)
+                can_change = getattr(model, 'can_change_' + field)
+                can, msg = can_change(request.user, *args, **kwargs)
                 if not can:
                     messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                     return redirect(reverse('users:profil',
@@ -97,8 +97,8 @@ def can_change(model, *field_list):
     def decorator(view):
         def wrapper(request, *args, **kwargs):
             for field in field_list:
-                can_create = getattr(model, 'can_change_' + field)
-                can, msg = can_create(request.user, *args, **kwargs)
+                can_change = getattr(model, 'can_change_' + field)
+                can, msg = can_change(request.user, *args, **kwargs)
                 if not can:
                     messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                     return redirect(reverse('users:profil',
