@@ -516,7 +516,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who wants to create an object.
         :return: a message and a boolean which is True if the user can create.
         """
-        return user_request.has_perm('users.add_mailmessageoption'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.add_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -527,7 +527,7 @@ class MailMessageOption(models.Model):
         :return: a message and a boolean which is True if edition is granted.
         """
 
-        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.change_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -537,7 +537,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who requests deletion.
         :return: True if deletion is granted, and a message.
         """
-        return user_request.has_perm('users.delete_mailmessageoption'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.delete_mailmessageoption'), u"Vous n'avez pas le droit\
             d'éditer les préférences concernant les mails"
 
     def can_view_all(user_request, *args, **kwargs):
@@ -546,7 +546,7 @@ class MailMessageOption(models.Model):
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation message.
         """
-        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_mailmessageoption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les mails"
 
     def can_view(self, user_request, *args, **kwargs):
@@ -557,5 +557,5 @@ class MailMessageOption(models.Model):
         :return: A boolean telling if the acces is granted and an explanation
         text
         """
-        return user_request.has_perm('users.change_mailmessageoption'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('preferences.view_mailmessageoption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les mails"
