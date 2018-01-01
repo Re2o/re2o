@@ -9,6 +9,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0065_auto_20171231_2053'),
+        ('cotisations', '0028_auto_20171231_0007'),
+        ('machines', '0071_auto_20171231_2100'),
+        ('preferences', '0025_auto_20171231_2142'),
+        ('topologie', '0033_auto_20171231_1743'),
     ]
     def transfer_permissions(apps, schema_editor):
         permission_groups = {'bofh': ['add_ban',
