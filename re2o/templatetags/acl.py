@@ -183,9 +183,9 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_app':
         return acl_fct(sys.modules[obj].can_view, True)
     if tag_name == 'can_edit_history':
-        return acl_fct(lambda user:(user.has_perms(('admin',)),None),False)
+        return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),False)
     if tag_name == 'cannot_edit_history':
-        return acl_fct(lambda user:(user.has_perms(('admin',)),None),True)
+        return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),True)
 
     raise template.TemplateSyntaxError(
         "%r tag is not a valid can_xxx tag" % tag_name

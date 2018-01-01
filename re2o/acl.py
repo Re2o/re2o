@@ -222,7 +222,7 @@ def can_view_app(app_name):
 def can_edit_history(view):
     """Decorator to check if an user can edit history."""
     def wrapper(request, *args, **kwargs):
-        if request.user.has_perms(('admin',)):
+        if request.user.has_perm('admin.change_logentry'):
             return view(request, *args, **kwargs)
         messages.error(
            request,
