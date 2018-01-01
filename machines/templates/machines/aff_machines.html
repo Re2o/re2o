@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=machines_list %}
 {% endif %}
 
-<table class="table">
+<table class="table" id="machines_table">
     <colgroup>
         <col>
         <col>
@@ -65,21 +65,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>
             {% if interface.domain.related_domain.all %}
-                <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{ interface.domain }} <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="editioninterface">
-                    {% for al in interface.domain.related_domain.all %}
-                        <li>
-                            <a href="http://{{ al }}">
-                                {{ al }}
-                                <i class="glyphicon glyphicon-share-alt"></i>
-                            </a>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
+	        {{ interface.domain }}
+		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
+                    Afficher les alias
+                </button>
             {% else %}
                 {{ interface.domain }}
             {% endif %}
@@ -132,6 +121,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         </tr>
+	{% if interface.domain.related_domain.all %}
+	<tr>
+            <td colspan=5 style="border-top: none; padding: 1px;">
+                <div class="collapse in" id="collapseDomain_{{interface.id}}">
+                    <ul class="list-group" style="margin-bottom: 0px;">
+                        {% for al in interface.domain.related_domain.all %}
+                        <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
+                            <a href="http://{{ al }}">
+                                {{ al }}
+                                <i class="glyphicon glyphicon-share-alt"></i>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+        <tr>
+        {% endif %}
         {% endfor %}
         <tr>
             <td colspan="8"></td>
@@ -139,6 +146,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endfor %}
     </tbody>
 </table>
+
+<script>
+$("#machines_table").ready( function() {
+    var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
+    for (var i=0 ; i<alias_div.length ; i++) {
+	alias_div[i].collapse('hide');
+    }
+} );
+</script>
 
 {% if machines_list.paginator %}
 {% include "pagination.html" with list=machines_list %}

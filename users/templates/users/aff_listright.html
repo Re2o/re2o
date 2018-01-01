@@ -90,10 +90,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <script>
 $("#listRights_table").ready( function () {
-	var listRights_div = [{% for listright in listright_list %}[$("#accordion_{{listright.gid}}"), $("#collapseListRight_user_{{listright.gid}}"), $("#collapseListRight_perm_{{listright.gid}}")], {% endfor %}];
+    var listRights_div = [{% for listright in listright_list %}[$("#accordion_{{listright.gid}}"), $("#collapseListRight_user_{{listright.gid}}"), $("#collapseListRight_perm_{{listright.gid}}")], {% endfor %}];
     for (var i=0 ; i<listRights_div.length ; i++) {
-	    listRights_div[i][1].collapse({ toggle: true, parent: listRights_div[i][0] });
-	    listRights_div[i][2].collapse({ toggle: true, parent: listRights_div[i][0] });
+        listRights_div[i][1].collapse({ toggle: true, parent: listRights_div[i][0] });
+        listRights_div[i][2].collapse({ toggle: true, parent: listRights_div[i][0] });
     }
 } );
 </script>
