@@ -530,7 +530,7 @@ class Nas(models.Model):
         un nas
         :param user_request: instance utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.create_nas'), u"Vous n'avez pas le droit\
+        return user_request.has_perm('machines.add_nas'), u"Vous n'avez pas le droit\
             de créer un nas"
 
     def can_edit(self, user_request, *args, **kwargs):
