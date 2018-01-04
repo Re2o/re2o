@@ -37,10 +37,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             Créer un adhérent
         </a>
     {% acl_end %}
+    {% can_view_all Club %}
 	<a class="list-group-item list-group-item-info" href="{% url "users:index-clubs" %}">
             <i class="glyphicon glyphicon-list"></i>
             Clubs et assos
         </a>
+    {% acl_end %}
     {% can_view_all Adherent %}
 	<a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
             <i class="glyphicon glyphicon-list"></i>
