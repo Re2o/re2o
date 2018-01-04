@@ -78,7 +78,7 @@ def can_edit(model, *field_list):
                     kwargs={'userid':str(request.user.id)}
                 ))
             for field in field_list:
-                can_change = getattr(model, 'can_change_' + field)
+                can_change = getattr(instance, 'can_change_' + field)
                 can, msg = can_change(request.user, *args, **kwargs)
                 if not can:
                     messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
