@@ -80,6 +80,7 @@ urlpatterns = [
         r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,
         name='history',
+        kwargs={'application':'machines'},
     ),
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),

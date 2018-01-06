@@ -49,7 +49,8 @@ urlpatterns = [
     url(
         r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,
-        name='history'
+        name='history',
+        kwargs={'application':'topologie'},
     ),
     url(r'^edit_port/(?P<port_id>[0-9]+)$', views.edit_port, name='edit-port'),
     url(r'^new_port/(?P<switch_id>[0-9]+)$', views.new_port, name='new-port'),
