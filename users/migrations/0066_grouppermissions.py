@@ -227,16 +227,24 @@ class Migration(migrations.Migration):
 
         rights = apps.get_model("users", "ListRight")
         permissions = apps.get_model("auth", "Permission")
+        groups = apps.get_model("auth", "Group")
         db_alias = schema_editor.connection.alias
         for group in permission_groups:
-            group_object = rights.objects.using(db_alias).filter(unix_name=group).first()
-            if group_object:
-                group_object = group_object.group_ptr
-                for permission in permission_groups[group]:
-                    perm = permissions.objects.using(db_alias).filter(codename=permission).first()
-                    if perm:
-                        group_object.permissions.add(perm)
-                group_object.save()
+            lr_object = rights.objects.using(db_alias).filter(unix_name=group).first()
+            if not lr_object:
+                last = rights.objects.using(db_alias).all().order_by('gid').last()
+                if last:
+                    gid = last.gid + 1
+                else:
+                    gid = 501
+                group_object = groups.objects.using(db_alias).create(name=group)
+                lr_object = rights.objects.using(db_alias).create(unix_name=group, gid=gid, group_ptr=group_object)
+            lr_object = lr_object.group_ptr
+            for permission in permission_groups[group]:
+                perm = permissions.objects.using(db_alias).filter(codename=permission).first()
+                if perm:
+                    lr_object.permissions.add(perm)
+            lr_object.save()
 
     def untransfer_permissions(apps, schema_editor):
         return
