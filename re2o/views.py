@@ -54,41 +54,51 @@ def index(request):
 
 #: Binding the corresponding char sequence of history url to re2o models.
 HISTORY_BIND = {
-    'user' : users.models.User,
-    'ban' : users.models.Ban,
-    'whitelist' : users.models.Whitelist,
-    'school' : users.models.School,
-    'listright' : users.models.ListRight,
-    'serviceuser' : users.models.ServiceUser,
-    'service' : preferences.models.Service,
-    'facture' : cotisations.models.Facture,
-    'article' : cotisations.models.Article,
-    'paiement' : cotisations.models.Paiement,
-    'banque' : cotisations.models.Banque,
-    'switch' : topologie.models.Switch,
-    'port' : topologie.models.Port,
-    'room' : topologie.models.Room,
-    'stack' : topologie.models.Stack,
-    'model_switch' : topologie.models.ModelSwitch,
-    'constructor_switch' : topologie.models.ConstructorSwitch,
-    'machine' : machines.models.Machine,
-    'interface' : machines.models.Interface,
-    'alias' : machines.models.Domain,
-    'machinetype' : machines.models.MachineType,
-    'iptype' : machines.models.IpType,
-    'extension' : machines.models.Extension,
-    'soa' : machines.models.SOA,
-    'mx' : machines.models.Mx,
-    'txt' : machines.models.Txt,
-    'srv' : machines.models.Srv,
-    'ns' : machines.models.Ns,
-    'service' : machines.models.Service,
-    'vlan' : machines.models.Vlan,
-    'nas' : machines.models.Vlan,
+    'users' : {
+        'user' : users.models.User,
+        'ban' : users.models.Ban,
+        'whitelist' : users.models.Whitelist,
+        'school' : users.models.School,
+        'listright' : users.models.ListRight,
+        'serviceuser' : users.models.ServiceUser,
+    },
+    'preferences' : {
+        'service' : preferences.models.Service,
+    },
+    'cotisations' : {
+        'facture' : cotisations.models.Facture,
+        'article' : cotisations.models.Article,
+        'paiement' : cotisations.models.Paiement,
+        'banque' : cotisations.models.Banque,
+    },
+    'topologie' : {
+        'switch' : topologie.models.Switch,
+        'port' : topologie.models.Port,
+        'room' : topologie.models.Room,
+        'stack' : topologie.models.Stack,
+        'model_switch' : topologie.models.ModelSwitch,
+        'constructor_switch' : topologie.models.ConstructorSwitch,
+    },
+    'machines' : {
+        'machine' : machines.models.Machine,
+        'interface' : machines.models.Interface,
+        'alias' : machines.models.Domain,
+        'machinetype' : machines.models.MachineType,
+        'iptype' : machines.models.IpType,
+        'extension' : machines.models.Extension,
+        'soa' : machines.models.SOA,
+        'mx' : machines.models.Mx,
+        'txt' : machines.models.Txt,
+        'srv' : machines.models.Srv,
+        'ns' : machines.models.Ns,
+        'service' : machines.models.Service,
+        'vlan' : machines.models.Vlan,
+        'nas' : machines.models.Vlan,
+    },
 }
 
 @login_required
-def history(request, object_name, object_id):
+def history(request, application, object_name, object_id):
     """Render history for a model.
 
     The model is determined using the `HISTORY_BIND` dictionnary if none is
@@ -108,7 +118,7 @@ def history(request, object_name, object_id):
         Http404: This kind of models doesn't have history.
     """
     try:
-        model = HISTORY_BIND[object_name]
+        model = HISTORY_BIND[application][object_name]
     except KeyError as e:
         raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
     try:

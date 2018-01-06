@@ -97,7 +97,8 @@ urlpatterns = [
     url(
         r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,
-        name='history'
+        name='history',
+        kwargs={'application':'users'},
     ),
     url(r'^$', views.index, name='index'),
     url(r'^index_clubs/$', views.index_clubs, name='index-clubs'),

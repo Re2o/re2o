@@ -104,6 +104,7 @@ urlpatterns = [
         r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,
         name='history',
+        kwargs={'application':'cotisations'},
     ),
     url(r'^control/$',
         views.control,
