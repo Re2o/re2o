@@ -1098,7 +1098,7 @@ class JSONResponse(HttpResponse):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def mac_ip_list(request):
     interfaces = all_active_assigned_interfaces()
     seria = InterfaceSerializer(interfaces, many=True)
@@ -1106,7 +1106,7 @@ def mac_ip_list(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def full_mac_ip_list(request):
     interfaces = all_active_assigned_interfaces()
     seria = FullInterfaceSerializer(interfaces, many=True)
@@ -1114,7 +1114,7 @@ def full_mac_ip_list(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def alias(request):
     alias = Domain.objects.filter(interface_parent=None).filter(cname__in=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
     seria = DomainSerializer(alias, many=True)
@@ -1122,7 +1122,7 @@ def alias(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def corresp(request):
     type = IpType.objects.all().select_related('extension')
     seria = TypeSerializer(type, many=True)
@@ -1130,7 +1130,7 @@ def corresp(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def mx(request):
     mx = Mx.objects.all().select_related('zone').select_related('name__extension')
     seria = MxSerializer(mx, many=True)
@@ -1138,7 +1138,7 @@ def mx(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def txt(request):
     txt = Txt.objects.all().select_related('zone')
     seria = TxtSerializer(txt, many=True)
@@ -1146,7 +1146,7 @@ def txt(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def srv(request):
     srv = Srv.objects.all().select_related('extension').select_related('target__extension')
     seria = SrvSerializer(srv, many=True)
@@ -1154,7 +1154,7 @@ def srv(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def ns(request):
     ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None))).select_related('zone').select_related('ns__extension')
     seria = NsSerializer(ns, many=True)
@@ -1162,7 +1162,7 @@ def ns(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def zones(request):
     zones = Extension.objects.all().select_related('origin')
     seria = ExtensionSerializer(zones, many=True)
@@ -1170,21 +1170,21 @@ def zones(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def mac_ip(request):
     seria = mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def mac_ip_dns(request):
     seria = full_mac_ip_list(request)
     return JSONResponse(seria)
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def service_servers(request):
     service_link = Service_link.objects.all().select_related('server__domain').select_related('service')
     seria = ServiceServersSerializer(service_link, many=True)
@@ -1192,7 +1192,7 @@ def service_servers(request):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def ouverture_ports(request):
     r = {'ipv4':{}, 'ipv6':{}}
     for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set').prefetch_related('interface_set', 'interface_set__ipv4'):
@@ -1220,7 +1220,7 @@ def ouverture_ports(request):
     return JSONResponse(r)
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def regen_achieved(request):
     obj = Service_link.objects.filter(service__in=Service.objects.filter(service_type=request.POST['service']), server__in=Interface.objects.filter(domain__in=Domain.objects.filter(name=request.POST['server'])))
     if obj:
