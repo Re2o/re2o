@@ -232,7 +232,7 @@ class MachineType(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance machinetype à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -397,7 +397,7 @@ class IpType(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des iptype,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_iptype'), u"Vous n'avez pas le droit\
@@ -405,7 +405,7 @@ class IpType(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance iptype à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -465,7 +465,7 @@ class Vlan(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des vlan,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_vlan'), u"Vous n'avez pas le droit\
@@ -473,7 +473,7 @@ class Vlan(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance vlan à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -554,7 +554,7 @@ class Nas(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des nas,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
 
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -563,7 +563,7 @@ class Nas(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance nas à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -646,7 +646,7 @@ class SOA(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des soa,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
@@ -654,7 +654,7 @@ class SOA(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance soa à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -784,7 +784,7 @@ class Extension(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des extension,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_extension'), u"Vous n'avez pas le droit\
@@ -798,7 +798,7 @@ class Extension(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance extension à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -870,7 +870,7 @@ class Mx(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des mx,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_mx'), u"Vous n'avez pas le droit\
@@ -878,7 +878,7 @@ class Mx(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance mx à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -941,7 +941,7 @@ class Ns(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des ns,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_ns'), u"Vous n'avez pas le droit\
@@ -949,7 +949,7 @@ class Ns(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance ns à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1008,7 +1008,7 @@ class Txt(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des txt,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_txt'), u"Vous n'avez pas le droit\
@@ -1016,7 +1016,7 @@ class Txt(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance txt à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1116,7 +1116,7 @@ class Srv(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des srv,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
@@ -1124,7 +1124,7 @@ class Srv(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance srv à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1293,7 +1293,7 @@ class Interface(models.Model):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits cableur pour del
+        """Verifie que l'user a les bons droits delete object pour del
         cette instance interface, ou qu'elle lui appartient
         :param self: Instance interface à del
         :param user_request: Utilisateur qui fait la requête
@@ -1305,7 +1305,7 @@ class Interface(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des interfaces,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_interface'):
@@ -1315,7 +1315,7 @@ class Interface(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur ou qu'elle appartient à l'user
+        droit view objet ou qu'elle appartient à l'user
         :param self: instance interface à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1471,7 +1471,7 @@ class Domain(models.Model):
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits cableur pour editer
+        """Verifie que l'user a les bons droits pour editer
         cette instance domain
         :param self: Instance domain à editer
         :param user_request: Utilisateur qui fait la requête
@@ -1483,7 +1483,7 @@ class Domain(models.Model):
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits cableur pour del
+        """Verifie que l'user a les bons droits delete object pour del
         cette instance domain, ou qu'elle lui appartient
         :param self: Instance domain à del
         :param user_request: Utilisateur qui fait la requête
@@ -1496,7 +1496,7 @@ class Domain(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des domain,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_domain'):
@@ -1506,7 +1506,7 @@ class Domain(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur ou qu'elle appartient à l'user
+        droit view objet ou qu'elle appartient à l'user
         :param self: instance domain à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1584,7 +1584,7 @@ class IpList(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des ip,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_iplist'):
@@ -1681,7 +1681,7 @@ class Service(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des services,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
@@ -1689,7 +1689,7 @@ class Service(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance service à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1772,7 +1772,7 @@ class Service_link(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des services,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
@@ -1780,7 +1780,7 @@ class Service_link(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance service à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1844,7 +1844,7 @@ class OuverturePortList(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des ouvertureport,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.view_ouvertureportlist'), u"Vous n'avez pas le droit\
@@ -1852,7 +1852,7 @@ class OuverturePortList(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance ouvertureport à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -1965,7 +1965,7 @@ class OuverturePort(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des ouvertureport,
-        droit particulier cableur correspondant
+        droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_ouvertureportlist'):
@@ -1974,7 +1974,7 @@ class OuverturePort(models.Model):
 
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit cableur
+        droit view objet
         :param self: instance ouvertureport à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
