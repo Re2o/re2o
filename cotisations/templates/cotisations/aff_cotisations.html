@@ -58,11 +58,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <ul class="dropdown-menu" aria-labelledby="editionfacture">
             {% can_edit facture %}
                 <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Modifier</a></li>
-                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
-                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></li>
             {% acl_else %}
                 <li>Facture controlée</li>
-	    {% acl_end %}
+            {% acl_end %}
+            {% can_delete facture %}
+                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
+            {% acl_end %}
+                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></li>
             </ul>
             </div>
             </td>
