@@ -43,7 +43,7 @@ from django.contrib.auth import views as auth_views
 from .views import index
 
 urlpatterns = [
-    url(r'^$', index),
+    url(r'^$', index, name='index'),
     url('^logout/', auth_views.logout, {'next_page': '/'}),
     url('^', include('django.contrib.auth.urls')),
     url(r'^admin/', include(admin.site.urls)),
