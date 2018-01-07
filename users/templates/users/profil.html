@@ -24,31 +24,33 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-
+{% load acl %}
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h2>{{ user.class_name }}</h2>
+<h2>{{ users.class_name }}</h2>
     <div>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
             <i class="glyphicon glyphicon-edit"></i>
             Editer
         </a>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
             <i class="glyphicon glyphicon-lock"></i>
             Changer le mot de passe
         </a>
-        {% if is_bureau %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}">
+	{% can_change User state %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
             <i class="glyphicon glyphicon-flash"></i>
             Changer le statut
         </a>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-right' user.id %}">
-            <i class="glyphicon glyphicon-ok"></i>
-            Ajouter un droit
+	{% acl_end %}
+        {% can_change User groups %}
+	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
+	    <i class="glyphicon glyphicon-ok"></i>
+            Gérer les groupes
         </a>
-        {% endif %}
-        <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' user.id %}">
+	{% acl_end %}
+	<a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
             <i class="glyphicon glyphicon-time"></i>
             Historique
         </a>
@@ -59,58 +61,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <tr>
             <th>Prénom</th>
-            <td>{{ user.name }}</td>
+            <td>{{ users.name }}</td>
             <th>Nom</th>
-            <td>{{ user.surname }}</td>
+            <td>{{ users.surname }}</td>
         </tr>
         <tr>
             <th>Pseudo</th>
-            <td>{{ user.pseudo }}</td>
+            <td>{{ users.pseudo }}</td>
             <th>E-mail</th>
-            <td>{{ user.email }}</td>
+            <td>{{ users.email }}</td>
         </tr>
         <tr>
             <th>Chambre</th>
-            <td>{{ user.room }}</td>
+            <td>{{ users.room }}</td>
             <th>Téléphone</th>
-        <td>{{ user.telephone }}</td>
+	    <td>{{ users.telephone }}</td>
         </tr>
         <tr>
             <th>École</th>
-            <td>{{ user.school }}</td>
+            <td>{{ users.school }}</td>
             <th>Commentaire</th>
-            <td>{{ user.comment }}</td>
+            <td>{{ users.comment }}</td>
         </tr>
         <tr>
             <th>Date d'inscription</th>
-            <td>{{ user.registered }}</td>
+            <td>{{ users.registered }}</td>
             <th>Dernière connexion</th>
-            <td>{{ user.last_login }}</td>
+            <td>{{ users.last_login }}</td>
         </tr>
         <tr>
             <th>Fin d'adhésion</th>
-            {% if user.end_adhesion != None %}
-            <td><i class="text-success">{{ user.end_adhesion }}</i></td>
+            {% if users.end_adhesion != None %}
+            <td><i class="text-success">{{ users.end_adhesion }}</i></td>
             {% else %}
             <td><i class="text-danger">Non adhérent</i></td>
             {% endif %}
             <th>Accès gracieux</th>
-            {% if user.end_whitelist != None %}
-            <td><i class="text-success">{{ user.end_whitelist }}</i></td>
+            {% if users.end_whitelist != None %}
+            <td><i class="text-success">{{ users.end_whitelist }}</i></td>
             {% else %}
             <td><i class="text-warning">Aucun</i></td>
             {% endif %}
         <tr>
             <th>Bannissement</th>
-            {% if user.end_ban != None %}
-            <td><i class="text-danger">{{ user.end_ban }}</i></td>
+            {% if users.end_ban != None %}
+            <td><i class="text-danger">{{ users.end_ban }}</i></td>
             {% else %}
             <td><i class="text-success">Non banni</i></td>
             {% endif %}
             <th>Statut</th>
-            {% if user.state == 0 %}
+            {% if users.state == 0 %}
             <td><i class="text-success">Actif</i></td>
-            {% elif user.state == 1 %}
+            {% elif users.state == 1 %}
             <td><i class="text-danger">Désactivé</i></td>
             {% else %}
             <td><i class="text-warning">Archivé</i></td>
@@ -118,31 +120,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         <tr>
             <th>Accès internet</th>
-            {% if user.has_access == True %}
-        <td><i class="text-success">Actif (jusqu'au {{ user.end_access }})</i></td>
+            {% if users.has_access == True %}
+	    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
             {% else %}
             <td><i class="text-danger">Désactivé</i></td>
             {% endif %}
-            <th>Droits</th>
-            {% if list_droits %}
-            <td>{% for droit in list_droits %}{{ droit.right }}{% if list_droits|length != forloop.counter %}  - {% endif %} {% endfor %}</td>
+            <th>Groupes</th>
+            {% if users.groups.all %}
+	    <td>{{ users.groups.all|join:", "}}</td>
             {% else %}
             <td>Aucun</td>
             {% endif %}
         </tr>
-    {% if user_solde %}
+        {% if user_solde %}
         <tr>
             <th>Solde</th>
-            <td>{{ user.solde }} €</td>
+            <td>{{ users.solde }} €</td>
         </tr>
-    {% endif %}
-    {% if user.shell %}
-        <th>Shell</th>
-        <td>{{ user.shell }}</td>
-    {% endif %}
+	{% endif %}
+	{% if users.shell %}
+	    <th>Shell</th>
+	    <td>{{ users.shell }}</td>
+	{% endif %}
     </table>
-    {% if user.is_class_club %}
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' user.club.id %}">
+    {% if users.is_class_club %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
         <i class="glyphicon glyphicon-lock"></i>
         Gérer admin et membres
     </a>
@@ -155,7 +157,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Pseudo</th>
             </tr>
         </thead>
-        {% for admin in user.club.administrators.all %}
+        {% for admin in users.club.administrators.all %}
         <tr>
             <td>{{ admin.surname }}</td>
             <td>{{ admin.name }}</td>
@@ -172,7 +174,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Pseudo</th>
             </tr>
         </thead>
-        {% for admin in user.club.members.all %}
+        {% for admin in users.club.members.all %}
         <tr>
             <td>{{ admin.surname }}</td>
             <td>{{ admin.name }}</td>
@@ -182,28 +184,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     {% endif %}
     <h2>Machines</h2>
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
     {% if machines_list %}
     {% include "machines/aff_machines.html" with machines_list=machines_list %}
     {% else %}
     <p>Aucune machine</p>
     {% endif %}
     <h2>Cotisations</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>{% endif%}
+    <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>{% acl_end %}  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>
     {% if facture_list %}
     {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% else %}
     <p>Aucune facture</p>
     {% endif %}
     <h2>Bannissements</h2>
-    {% if is_bofh %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% endif %}
+    {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% acl_end %}
     {% if ban_list %}
     {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% else %}
     <p>Aucun bannissement</p>
     {% endif %}
     <h2>Accès à titre gracieux :</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% endif %}
+    {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
     {% if white_list %}
     {% include "users/aff_whitelists.html" with white_list=white_list %}
     {% else %}

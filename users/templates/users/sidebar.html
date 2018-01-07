@@ -22,57 +22,67 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-
+{% load acl %}
 
 {% block sidebar %}
-   {% if is_cableur %}
+   {% can_create Club %}
         <a class="list-group-item list-group-item-success" href="{% url "users:new-club" %}">
             <i class="glyphicon glyphicon-plus"></i>
             Créer un club/association
         </a>
-   {% endif %}
+   {% acl_end %}
+   {% can_create User %}
         <a class="list-group-item list-group-item-success" href="{% url "users:new-user" %}">
             <i class="glyphicon glyphicon-plus"></i>
             Créer un adhérent
         </a>
+    {% acl_end %}
+    {% can_view_all Club %}
 	<a class="list-group-item list-group-item-info" href="{% url "users:index-clubs" %}">
             <i class="glyphicon glyphicon-list"></i>
             Clubs et assos
         </a>
-    {% if is_cableur %}
+    {% acl_end %}
+    {% can_view_all Adherent %}
 	<a class="list-group-item list-group-item-info" href="{% url "users:index" %}">
             <i class="glyphicon glyphicon-list"></i>
             Adherents
         </a>
+    {% acl_end %}
+    {% can_view_all Ban %}
 	<a class="list-group-item list-group-item-info" href="{% url "users:index-ban" %}">
             <i class="glyphicon glyphicon-list"></i>
             Bannissements
         </a>
+    {% acl_end %}
+    {% can_view_all Whitelist %}
         <a class="list-group-item list-group-item-info" href="{% url "users:index-white" %}">
             <i class="glyphicon glyphicon-list"></i>
             Accès à titre gracieux
         </a>
+    {% acl_end %}
+    {% can_view_all School %}
         <a class="list-group-item list-group-item-info" href="{% url "users:index-school" %}">
             <i class="glyphicon glyphicon-list"></i>
             Établissements
         </a>
+    {% acl_end %}
+    {% can_view_all ListRight %}
         <a class="list-group-item list-group-item-info" href="{% url "users:index-listright" %}">
             <i class="glyphicon glyphicon-list"></i>
-            Droits
+            Groupes de droits
         </a>
+    {% acl_end %}
+    {% can_view_all ServiceUser %}
         <a class="list-group-item list-group-item-info" href="{% url "users:index-serviceusers" %}">
             <i class="glyphicon glyphicon-list"></i>
             Gérer les service users
         </a>
-	{% if is_bureau %}
-        <a class="list-group-item list-group-item-danger" href="{% url "users:del-right" %}">
-            <i class="glyphicon glyphicon-trash"></i>
-            Retirer un droit
-        </a>
+    {% acl_end %}
+    {% can_change User state %}
         <a class="list-group-item list-group-item-danger" href="{% url "users:mass-archive" %}">
             <i class="glyphicon glyphicon-book"></i>
             Archiver en masse
         </a>
-        {% endif %}
-    {% endif %}
+    {% acl_end %}
 {% endblock %}

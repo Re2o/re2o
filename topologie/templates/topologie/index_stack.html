@@ -24,14 +24,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Stacks{% endblock %}
 
 {% block content %}
   <h2>Stacks</h2>
-{% if is_infra %}
+{% can_create Stack %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une stack</a>
-{% endif %}
+{% acl_end %}
     {% include "topologie/aff_stacks.html" with stack_list=stack_list %}
     <br />
     <br />

@@ -38,11 +38,14 @@ from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
-from .models import User, ServiceUser, Right, School, ListRight, Whitelist
+from .models import User, ServiceUser, School, ListRight, Whitelist
 from .models import Ban, Adherent, Club
 from re2o.utils import remove_user_room
+
+from re2o.field_permissions import FieldPermissionFormMixin
 
 NOW = timezone.now()
 
@@ -253,7 +256,7 @@ class MassArchiveForm(forms.Form):
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class AdherentForm(ModelForm):
+class AdherentForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -278,6 +281,7 @@ class AdherentForm(ModelForm):
             'school',
             'comment',
             'room',
+            'shell',
             'telephone',
         ]
 
@@ -306,7 +310,7 @@ class AdherentForm(ModelForm):
         return
 
 
-class ClubForm(ModelForm):
+class ClubForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -330,6 +334,7 @@ class ClubForm(ModelForm):
             'comment',
             'room',
             'telephone',
+            'shell',
         ]
 
     def clean_telephone(self):
@@ -342,41 +347,6 @@ class ClubForm(ModelForm):
                 "Un numéro de téléphone valide est requis"
             )
         return telephone
-
-
-class FullAdherentForm(AdherentForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(AdherentForm.Meta):
-        fields = [
-            'name',
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
-
-
-class FullClubForm(ClubForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(ClubForm.Meta):
-        fields = [
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
 
 
 class ClubAdminandMembersForm(ModelForm):
@@ -440,6 +410,23 @@ class StateForm(ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
+class GroupForm(ModelForm):
+    """ Gestion des groupes d'un user"""
+    groups = forms.ModelMultipleChoiceField(
+        Group.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = User
+        fields = ['groups']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
 class SchoolForm(ModelForm):
     """Edition, creation d'un école"""
     class Meta:
@@ -455,14 +442,20 @@ class SchoolForm(ModelForm):
 class ListRightForm(ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
+    permissions = forms.ModelMultipleChoiceField(
+        Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = ListRight
-        fields = ['listright', 'details']
+        fields = ['name', 'unix_name', 'permissions', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['listright'].label = 'Nom du droit/groupe'
+        self.fields['unix_name'].label = 'Nom du droit/groupe'
 
 
 class NewListRightForm(ListRightForm):
@@ -479,45 +472,35 @@ class NewListRightForm(ListRightForm):
 class DelListRightForm(Form):
     """Suppression d'un ou plusieurs groupes"""
     listrights = forms.ModelMultipleChoiceField(
-        queryset=ListRight.objects.all(),
+        queryset=ListRight.objects.none(),
         label="Droits actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelListRightForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['listrights'].queryset = instances
+        else:
+            self.fields['listrights'].queryset = ListRight.objects.all()
 
 
 class DelSchoolForm(Form):
     """Suppression d'une ou plusieurs écoles"""
     schools = forms.ModelMultipleChoiceField(
-        queryset=School.objects.all(),
+        queryset=School.objects.none(),
         label="Etablissements actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
-
-class RightForm(ModelForm):
-    """Assignation d'un droit à un user"""
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(RightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['right'].label = 'Droit'
-        self.fields['right'].empty_label = "Choisir un nouveau droit"
-
-    class Meta:
-        model = Right
-        fields = ['right']
-
-
-class DelRightForm(Form):
-    """Suppression d'un droit d'un user"""
-    rights = forms.ModelMultipleChoiceField(
-        queryset=Right.objects.select_related('user'),
-        widget=forms.CheckboxSelectMultiple
-    )
-
-    def __init__(self, right, *args, **kwargs):
-        super(DelRightForm, self).__init__(*args, **kwargs)
-        self.fields['rights'].queryset = Right.objects.select_related('user')\
-        .select_related('right').filter(right=right)
+        instances = kwargs.pop('instances', None)
+        super(DelSchoolForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['schools'].queryset = instances
+        else:
+            self.fields['schools'].queryset = School.objects.all()
 
 
 class BanForm(ModelForm):
@@ -531,14 +514,6 @@ class BanForm(ModelForm):
         model = Ban
         exclude = ['user']
 
-    def clean_date_end(self):
-        """Verification que date_end est après now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut\
-            pas être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end
-
 
 class WhitelistForm(ModelForm):
     """Creation, edition d'un objet whitelist"""
@@ -550,11 +525,3 @@ class WhitelistForm(ModelForm):
     class Meta:
         model = Whitelist
         exclude = ['user']
-
-    def clean_date_end(self):
-        """Verification  que la date_end est posterieur à now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut pas\
-            être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end

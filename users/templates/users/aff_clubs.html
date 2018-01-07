@@ -26,6 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=clubs_list %} 
 {% endif %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -38,7 +40,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
         {% for club in clubs_list %}    
-        <tr>
+	{% can_view club %}
+	<tr> 
             <td>{{ club.surname }}</td>
             <td>{{ club.pseudo }}</td>
             <td>{{ club.room }}</td>
@@ -52,6 +55,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
             </td>
         </tr>
+	{% acl_end %}
         {% endfor %}
     </table>
 

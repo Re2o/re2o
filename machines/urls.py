@@ -24,7 +24,7 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-
+import re2o
 from . import views
 
 urlpatterns = [
@@ -61,7 +61,7 @@ urlpatterns = [
     url(r'^del_srv/$', views.del_srv, name='del-srv'),
     url(r'^index_extension/$', views.index_extension, name='index-extension'),
     url(r'^add_alias/(?P<interfaceid>[0-9]+)$', views.add_alias, name='add-alias'),
-    url(r'^edit_alias/(?P<aliasid>[0-9]+)$', views.edit_alias, name='edit-alias'),
+    url(r'^edit_alias/(?P<domainid>[0-9]+)$', views.edit_alias, name='edit-alias'),
     url(r'^del_alias/(?P<interfaceid>[0-9]+)$', views.del_alias, name='del-alias'),
     url(r'^index_alias/(?P<interfaceid>[0-9]+)$', views.index_alias, name='index-alias'),
     url(r'^add_service/$', views.add_service, name='add-service'),
@@ -76,20 +76,12 @@ urlpatterns = [
     url(r'^edit_nas/(?P<nasid>[0-9]+)$', views.edit_nas, name='edit-nas'),
     url(r'^del_nas/$', views.del_nas, name='del-nas'),
     url(r'^index_nas/$', views.index_nas, name='index-nas'),
-    url(r'^history/(?P<object>machine)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>interface)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>machinetype)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>extension)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>soa)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>mx)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>ns)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>txt)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>srv)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>iptype)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>alias)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>vlan)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>nas)/(?P<id>[0-9]+)$', views.history, name='history'),
-    url(r'^history/(?P<object>service)/(?P<id>[0-9]+)$', views.history, name='history'),
+    url(
+        r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
+        name='history',
+        kwargs={'application':'machines'},
+    ),
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/regen-achieved/$', views.regen_achieved, name='regen-achieved'),
@@ -104,9 +96,9 @@ urlpatterns = [
     url(r'^rest/service_servers/$', views.service_servers, name='service-servers'),
     url(r'^rest/ouverture_ports/$', views.ouverture_ports, name='ouverture-ports'),
     url(r'index_portlist/$', views.index_portlist, name='index-portlist'),
-    url(r'^edit_portlist/(?P<pk>[0-9]+)$', views.edit_portlist, name='edit-portlist'),
-    url(r'^del_portlist/(?P<pk>[0-9]+)$', views.del_portlist, name='del-portlist'),
+    url(r'^edit_portlist/(?P<ouvertureportlistid>[0-9]+)$', views.edit_portlist, name='edit-portlist'),
+    url(r'^del_portlist/(?P<ouvertureportlistid>[0-9]+)$', views.del_portlist, name='del-portlist'),
     url(r'^add_portlist/$', views.add_portlist, name='add-portlist'),
-    url(r'^port_config/(?P<pk>[0-9]+)$', views.configure_ports, name='port-config'),
+    url(r'^port_config/(?P<interfaceid>[0-9]+)$', views.configure_ports, name='port-config'),
 
     ]

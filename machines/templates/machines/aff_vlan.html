@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -39,9 +41,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ vlan.comment }}</td>
             <td>{% for range in vlan.iptype_set.all %}{{ range }}, {% endfor%}</td>
 	    <td class="text-right">
-            {% if is_infra %}
+		{% can_create Vlan %}
                 {% include 'buttons/edit.html' with href='machines:edit-vlan' id=vlan.id %}
-            {% endif %}
+		{% acl_end %}
                 {% include 'buttons/history.html' with href='machines:history' name='vlan' id=vlan.id %}
             </td>
         </tr>

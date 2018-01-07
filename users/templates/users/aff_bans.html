@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-
+{% load acl %}
 {% if ban_list.paginator %}
 {% include "pagination.html" with list=ban_list %}
 {% endif %}
@@ -47,9 +47,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
             <td class="text-right">
-            {% if is_bofh %}
+            {% can_edit ban %}
                 {% include 'buttons/edit.html' with href='users:edit-ban' id=ban.id %}
-            {% endif %}
+            {% acl_end %}
                 {% include 'buttons/history.html' with href='users:history' name='ban' id=ban.id %}
             </td>
         </tr>

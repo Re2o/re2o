@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -48,9 +50,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ srv.port }}</td>
 	    <td>{{ srv.target }}</td>
 	    <td class="text-right">
-            {% if is_infra %}
+	    {% can_edit srv %}
             {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
-            {% endif %}
+	    {% acl_end %}
             {% include 'buttons/history.html' with href='machines:history' name='srv' id=srv.id %}
             </td>
         </tr>

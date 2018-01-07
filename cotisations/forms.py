@@ -43,6 +43,8 @@ from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 from .models import Article, Paiement, Facture, Banque
 
+from re2o.field_permissions import FieldPermissionFormMixin
+
 
 class NewFactureForm(ModelForm):
     """Creation d'une facture, moyen de paiement, banque et numero
@@ -141,27 +143,18 @@ class NewFactureFormPdf(Form):
     )
 
 
-class EditFactureForm(NewFactureForm):
+class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
     """Edition d'une facture : moyen de paiement, banque, user parent"""
     class Meta(NewFactureForm.Meta):
-        fields = ['paiement', 'banque', 'cheque', 'user']
+        model = Facture
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
         self.fields['user'].empty_label = "Séléctionner\
             l'adhérent propriétaire"
-
-
-class TrezEditFactureForm(EditFactureForm):
-    """Vue pour édition controle trésorier"""
-    class Meta(EditFactureForm.Meta):
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super(TrezEditFactureForm, self).__init__(*args, **kwargs)
         self.fields['valid'].label = 'Validité de la facture'
-        self.fields['control'].label = 'Contrôle de la facture'
 
 
 class ArticleForm(ModelForm):
@@ -180,10 +173,18 @@ class DelArticleForm(Form):
     """Suppression d'un ou plusieurs articles en vente. Choix
     parmis les modèles"""
     articles = forms.ModelMultipleChoiceField(
-        queryset=Article.objects.all(),
+        queryset=Article.objects.none(),
         label="Articles actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelArticleForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['articles'].queryset = instances
+        else:
+            self.fields['articles'].queryset = Article.objects.all()
 
 
 class PaiementForm(ModelForm):
@@ -204,10 +205,18 @@ class DelPaiementForm(Form):
     """Suppression d'un ou plusieurs moyens de paiements, selection
     parmis les models"""
     paiements = forms.ModelMultipleChoiceField(
-        queryset=Paiement.objects.all(),
+        queryset=Paiement.objects.none(),
         label="Moyens de paiement actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelPaiementForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['paiements'].queryset = instances
+        else:
+            self.fields['paiements'].queryset = Paiement.objects.all()
 
 
 class BanqueForm(ModelForm):
@@ -225,7 +234,15 @@ class BanqueForm(ModelForm):
 class DelBanqueForm(Form):
     """Selection d'une ou plusieurs banques, pour suppression"""
     banques = forms.ModelMultipleChoiceField(
-        queryset=Banque.objects.all(),
+        queryset=Banque.objects.none(),
         label="Banques actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelBanqueForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['banques'].queryset = instances
+        else:
+            self.fields['banques'].queryset = Banque.objects.all()
