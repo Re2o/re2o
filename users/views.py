@@ -111,7 +111,7 @@ def password_change_action(u_form, user, request, req=False):
     messages.success(request, "Le mot de passe a changé")
     if req:
         req.delete()
-        return redirect("/")
+        return redirect(reverse('index'))
     return redirect(reverse(
         'users:profil',
         kwargs={'userid':str(user.id)}
@@ -809,7 +809,7 @@ def reset_password(request):
         user.reset_passwd_mail(request)
         messages.success(request, "Un mail pour l'initialisation du mot\
         de passe a été envoyé")
-        redirect("/")
+        redirect(reverse('index'))
     return form({'userform': userform}, 'users/user.html', request)
 
 
@@ -822,7 +822,7 @@ def process(request, token):
         return process_passwd(request, req)
     else:
         messages.error(request, "Entrée incorrecte, contactez un admin")
-        redirect("/")
+        redirect(reverse('index'))
 
 
 def process_passwd(request, req):
