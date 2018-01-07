@@ -705,8 +705,9 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         user_request has the 'cableur' right.
         """
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perm('users.change_user') or\
-                user_request.adherent in self.club.administrators.all():
+            if self == user_request or \
+                    user_request.has_perm('users.change_user') or \
+                    user_request.adherent in self.club.administrators.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
@@ -718,14 +719,16 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
 
     def can_change_password(self, user_request, *args, **kwargs):
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perm('users.change_user_password') or\
-                user_request.adherent in self.club.administrators.all():
+            if self == user_request or \
+                    user_request.has_perm('users.change_user_password') or \
+                    user_request.adherent in self.club.administrators.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            if self == user_request or user_request.has_perm('users.change_user_groups'):
-            # Peut éditer les groupes d'un user, c'est un privilège élevé, True
+            if self == user_request or \
+                    user_request.has_perm('users.change_user_groups'):
+                    # Peut éditer les groupes d'un user, c'est un privilège élevé, True
                 return True, None
             elif user_request.has_perm('users.change_user') and not self.groups.all():
                 return True, None
@@ -780,9 +783,10 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         text
         """
         if self.is_class_club and user_request.is_class_adherent:
-            if self == user_request or user_request.has_perm('users.view_user') or\
-                user_request.adherent in self.club.administrators.all() or\
-                user_request.adherent in self.club.members.all():
+            if self == user_request or \
+                    user_request.has_perm('users.view_user') or \
+                    user_request.adherent in self.club.administrators.all() or \
+                    user_request.adherent in self.club.members.all():
                 return True, None
             else:
                 return False, u"Vous n'avez pas le droit de voir ce club"
@@ -961,12 +965,9 @@ class ServiceUser(AbstractBaseUser):
         :return: a message and a boolean which is True if the user can create
         or if the `options.all_can_create` is set.
         """
-        options, _created = OptionalUser.objects.get_or_create()
-        if options.all_can_create:
-            return True, None
-        else:
-            return user_request.has_perm('users.add_serviceuser'), u"Vous n'avez pas le droit de\
-                créer un service user"
+        return user_request.has_perm('users.add_serviceuser'), (
+            u"Vous n'avez pas le droit de créer un service user"
+        )
 
     def can_edit(self, user_request, *args, **kwargs):
         """Check if an user can edit a ServiceUser object.
@@ -975,8 +976,9 @@ class ServiceUser(AbstractBaseUser):
         :param user_request: The user who requests to edit self.
         :return: a message and a boolean which is True if edition is granted.
         """
-        return user_request.has_perm('users.change_serviceuser'), u"Vous n'avez pas le droit d'éditer\
-            les services users"
+        return user_request.has_perm('users.change_serviceuser'), (
+            u"Vous n'avez pas le droit d'éditer les services users"
+        )
 
     def can_delete(self, user_request, *args, **kwargs):
         """Check if an user can delete a ServiceUser object.
@@ -1027,7 +1029,7 @@ def service_user_post_delete(sender, **kwargs):
 
 class School(models.Model):
     """ Etablissement d'enseignement"""
-    PRETTY_NAME = "Etablissements enregistrés"
+    PRETTY_NAME = "Établissements enregistrés"
 
     name = models.CharField(max_length=255)
 
