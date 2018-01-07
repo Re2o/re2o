@@ -24,12 +24,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Utilisateurs{% endblock %}
 
 {% block content %}
   <h2>Liste des droits</h2>
+  {% can_create ListRight %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-listright'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un droit ou groupe</a>
+  {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:del-listright'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs droits/groupes</a>
   {%  include "users/aff_listright.html" with  listright_list=listright_list %}
   <br />

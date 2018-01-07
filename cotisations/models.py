@@ -56,8 +56,10 @@ from django.db.models import Max
 from django.utils import timezone
 from machines.models import regen
 
+from re2o.field_permissions import FieldPermissionModelMixin
 
-class Facture(models.Model):
+
+class Facture(FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
     plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
     et si il y a lieu un numero pour les chèques. Possède les valeurs
@@ -75,6 +77,15 @@ class Facture(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     valid = models.BooleanField(default=True)
     control = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = False
+        permissions = (
+            ("change_facture_control", "Peut changer l'etat de controle"),
+            ("change_facture_pdf", "Peut éditer une facture pdf"),
+            ("view_facture", "Peut voir un objet facture"),
+            ("change_all_facture", "Superdroit, peut modifier toutes les factures"),
+        )
 
     def prix(self):
         """Renvoie le prix brut sans les quantités. Méthode
@@ -102,6 +113,59 @@ class Facture(models.Model):
             facture=self
             ).values_list('name', flat=True))
         return name
+
+    def get_instance(factureid, *args, **kwargs):
+        return Facture.objects.get(pk=factureid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_facture'), u"Vous n'avez pas le\
+            droit de créer des factures"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.change_facture'):
+            return False, u"Vous n'avez pas le droit d'éditer les factures"
+        elif not user_request.has_perm('cotisations.change_all_facture') and\
+            (self.control or not self.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une facture\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_facture'):
+            return False, u"Vous n'avez pas le droit de supprimer une facture"
+        if self.control or not self.valid:
+            return False, u"Vous ne pouvez pas supprimer une facture\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_facture'):
+            return False, u"Vous n'avez pas le droit de voir les factures"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_facture') and\
+            self.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                facture d'un autre user que vous sans droit cableur"
+        elif not self.valid:
+            return False, u"La facture est invalidée et ne peut être affichée"
+        else:
+            return True, None
+
+    @staticmethod
+    def can_change_control(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.change_facture_control'), "Vous ne pouvez pas éditer le controle sans droit trésorier"
+
+    @staticmethod
+    def can_change_pdf(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.change_facture_pdf'), "Vous ne pouvez pas éditer une facture sans droit trésorier"
+
+    field_permissions = {
+        'control': can_change_control,
+    }
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
@@ -148,6 +212,12 @@ class Vente(models.Model):
         null=True,
         max_length=255
     )
+
+    class Meta:
+        permissions = (
+            ("view_vente", "Peut voir un objet vente"),
+            ("change_all_vente", "Superdroit, peut modifier toutes les ventes"),
+        )
 
     def prix_total(self):
         """Renvoie le prix_total de self (nombre*prix)"""
@@ -200,6 +270,46 @@ class Vente(models.Model):
                     ensembles")
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
+
+    def get_instance(venteid, *args, **kwargs):
+        return Vente.objects.get(pk=venteid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_vente'), u"Vous n'avez pas le\
+            droit de créer des ventes"
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.change_vente'):
+            return False, u"Vous n'avez pas le droit d'éditer les ventes"
+        elif not user_request.has_perm('cotisations.change_all_vente') and\
+            (self.facture.control or not self.facture.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une vente\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_vente'):
+            return False, u"Vous n'avez pas le droit de supprimer une vente"
+        if self.facture.control or not self.facture.valid:
+            return False, u"Vous ne pouvez pas supprimer une vente\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_vente'):
+            return False, u"Vous n'avez pas le droit de voir les ventes"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_vente') and\
+            self.facture.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                facture d'un autre user que vous sans droit cableur"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
@@ -269,6 +379,11 @@ class Article(models.Model):
 
     unique_together = ('name', 'type_user')
 
+    class Meta:
+        permissions = (
+            ("view_article", "Peut voir un objet article"),
+        )
+
     def clean(self):
         if self.name.lower() == "solde":
             raise ValidationError("Solde est un nom d'article invalide")
@@ -276,6 +391,29 @@ class Article(models.Model):
             raise ValidationError(
                 "La durée est obligatoire si il s'agit d'une cotisation"
             )
+
+    def get_instance(articleid, *args, **kwargs):
+        return Article.objects.get(pk=articleid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_article'), u"Vous n'avez pas le\
+            droit d'ajouter des articles"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.change_article'), u"Vous n'avez pas le\
+            droit d'éditer des articles"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.delete_article'), u"Vous n'avez pas le\
+            droit de supprimer des articles"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
+            droit de voir des articles"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
+            droit de voir des articles"
 
     def __str__(self):
         return self.name
@@ -286,6 +424,34 @@ class Banque(models.Model):
     PRETTY_NAME = "Banques enregistrées"
 
     name = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ("view_banque", "Peut voir un objet banque"),
+        )
+
+    def get_instance(banqueid, *args, **kwargs):
+        return Banque.objects.get(pk=banqueid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_banque'), u"Vous n'avez pas le\
+            droit d'ajouter des banques"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.change_banque'), u"Vous n'avez pas le\
+            droit d'éditer des banques"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.delete_banque'), u"Vous n'avez pas le\
+            droit de supprimer des banques"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
+            droit de voir des banques"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
+            droit de voir des banques"
 
     def __str__(self):
         return self.name
@@ -301,6 +467,34 @@ class Paiement(models.Model):
 
     moyen = models.CharField(max_length=255)
     type_paiement = models.IntegerField(choices=PAYMENT_TYPES, default=0)
+
+    class Meta:
+        permissions = (
+            ("view_paiement", "Peut voir un objet paiement"),
+        )
+
+    def get_instance(paiementid, *args, **kwargs):
+        return Paiement.objects.get(pk=paiementid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_paiement'), u"Vous n'avez pas le\
+            droit d'ajouter des paiements"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.change_paiement'), u"Vous n'avez pas le\
+            droit d'éditer des paiements"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.delete_paiement'), u"Vous n'avez pas le\
+            droit de supprimer des paiements"
+
+    def can_view_all(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
+            droit de voir des paiements"
+
+    def can_view(self, user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
+            droit de voir des paiements"
 
     def __str__(self):
         return self.moyen
@@ -333,6 +527,52 @@ class Cotisation(models.Model):
     )
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
+
+    class Meta:
+        permissions = (
+            ("view_cotisation", "Peut voir un objet cotisation"),
+            ("change_all_cotisation", "Superdroit, peut modifier toutes les cotisations"),
+        )
+
+    def get_instance(cotisationid, *args, **kwargs):
+        return Cotisations.objects.get(pk=cotisationid)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('cotisations.add_cotisation'), u"Vous n'avez pas le\
+            droit de créer des cotisations"
+        return True, None
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.change_cotisation'):
+            return False, u"Vous n'avez pas le droit d'éditer les cotisations"
+        elif not user_request.has_perm('cotisations.change_all_cotisation') and\
+            (self.vente.facture.control or not self.vente.facture.valid):
+            return False, u"Vous n'avez pas le droit d'éditer une cotisation\
+                controlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_cotisation'):
+            return False, u"Vous n'avez pas le droit de supprimer une cotisations"
+        if self.vente.facture.control or not self.vente.facture.valid:
+            return False, u"Vous ne pouvez pas supprimer une cotisations\
+                contrôlée ou invalidée par un trésorier"
+        else:
+            return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_cotisation'):
+            return False, u"Vous n'avez pas le droit de voir les cotisations"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.view_cotisation') and\
+            self.vente.facture.user != user_request:
+            return False, u"Vous ne pouvez pas afficher l'historique d'une\
+                cotisation d'un autre user que vous sans droit cableur"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.vente)

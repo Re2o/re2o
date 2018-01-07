@@ -24,15 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Switchs{% endblock %}
 
 {% block content %}
   <h2>Switchs</h2>
-{% if is_infra %}
+{% can_create Switch %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un switch</a>
 <hr>
-{% endif %}
+{% acl_end %}
     {% include "topologie/aff_switch.html" with switch_list=switch_list %}
     <br />
     <br />

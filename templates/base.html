@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {# Load the tag library #}
 {% load bootstrap3 %}
-
+{% load acl %}
 <!DOCTYPE html>
 <html lang="fr">
     <head prefix="og: http://ogp.me/ns#">
@@ -73,13 +73,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
                             <li><a href="{% url "users:mon-profil" %}">Mon profil</a></li>
-                            {% if is_cableur %}
+                            {% can_view_app users %}
+
                             <li><a href="{% url "users:index" %}">Adhérents</a></li>
+                            {% acl_end %}
+                            {% can_view_app machines %}
                             <li><a href="{% url "machines:index" %}">Machines</a></li>
+                            {% acl_end %}
+                            {% can_view_app cotisations %}
                             <li><a href="{% url "cotisations:index" %}">Cotisations</a></li>
+                            {% acl_end %}
+                            {% can_view_app topologie %}
                             <li><a href="{% url "topologie:index" %}">Topologie</a></li>
+                            {% acl_end %}
+                            {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}">Statistiques</a></li>
-                            {% endif %}
+                            {% acl_end %}
                         </ul>
                         <div class="col-sm-3 col-md-3 navbar-right">
                             <form action="{% url "search:search"%}" class="navbar-form" role="search">
@@ -103,9 +112,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <span class="glyphicon glyphicon-log-in"></span> Login
                                 </a>
                                 {% endif %}
-                            </li>
-                        </ul>
-                        {% if is_cableur %}
+			    </li>
+			</ul>
+                        {% can_view_app preferences %}
                         <ul class="nav navbar-nav navbar-right">
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
@@ -113,7 +122,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </a>
 			    </li>
 			</ul>
-                        {% endif %}
+                        {% acl_end %}
 		    </div>
                 </div>
             </nav>
@@ -205,7 +214,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <footer class="navbar">
             <div class="containerfluid text-center">
-                <p>Re2o 2016 - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella</p>
+                <p>Re2o 2016-2018 - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella, Hugo Levy-Falk</p>
             </div>
         </footer>
         {# Read the documentation for more information #}

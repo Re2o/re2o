@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+import re2o
 
 
 urlpatterns = [
@@ -61,17 +62,18 @@ urlpatterns = [
         views.edit_options,
         name='edit-options'
         ),
-    url(r'^add_services/$', views.add_services, name='add-services'),
+    url(r'^add_service/$', views.add_service, name='add-service'),
     url(
-        r'^edit_services/(?P<servicesid>[0-9]+)$',
-        views.edit_services,
-        name='edit-services'
+        r'^edit_service/(?P<serviceid>[0-9]+)$',
+        views.edit_service,
+        name='edit-service'
         ),
     url(r'^del_services/$', views.del_services, name='del-services'),
     url(
-        r'^history/(?P<object_name>service)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
+        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
+        name='history',
+        kwargs={'application':'preferences'},
         ),
     url(r'^$', views.display_options, name='display-options'),
 ]

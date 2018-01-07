@@ -30,6 +30,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+import re2o
 from . import views
 
 urlpatterns = [
@@ -45,24 +46,12 @@ urlpatterns = [
     url(r'^switch/(?P<switch_id>[0-9]+)$',
         views.index_port,
         name='index-port'),
-    url(r'^history/(?P<object_name>switch)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
-    url(r'^history/(?P<object_name>port)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
-    url(r'^history/(?P<object_name>room)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
-    url(r'^history/(?P<object_name>stack)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
-    url(r'^history/(?P<object_name>model_switch)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
-    url(r'^history/(?P<object_name>constructor_switch)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'),
+    url(
+        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
+        name='history',
+        kwargs={'application':'topologie'},
+    ),
     url(r'^edit_port/(?P<port_id>[0-9]+)$', views.edit_port, name='edit-port'),
     url(r'^new_port/(?P<switch_id>[0-9]+)$', views.new_port, name='new-port'),
     url(r'^del_port/(?P<port_id>[0-9]+)$', views.del_port, name='del-port'),

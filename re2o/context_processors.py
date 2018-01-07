@@ -39,28 +39,10 @@ def context_user(request):
         messages.warning(request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
-        is_cableur = user.is_cableur
-        is_bureau = user.is_bureau
-        is_bofh = user.is_bofh
-        is_trez = user.is_trez
-        is_infra = user.is_infra
-        is_admin = user.is_admin
     else:
         interfaces = None
-        is_cableur = False
-        is_bureau = False
-        is_bofh = False
-        is_trez = False
-        is_infra = False
-        is_admin = False
     return {
         'request_user': user,
-        'is_cableur': is_cableur,
-        'is_bureau': is_bureau,
-        'is_bofh': is_bofh,
-        'is_trez': is_trez,
-        'is_infra': is_infra,
-        'is_admin': is_admin,
         'interfaces': interfaces,
         'site_name': general_options.site_name,
         'ipv6_enabled': machine_options.ipv6,

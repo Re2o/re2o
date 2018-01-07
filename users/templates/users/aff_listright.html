@@ -22,26 +22,78 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    <table class="table table-striped">
+    <table id="listRights_table" class="table">
         <thead>
             <tr>
                 <th>Droit</th>
                 <th>Gid</th>
+                <th>Informations</th>
                 <th>Details</th>
 		<th></th>
-                <th></th>
             </tr>
         </thead>
         {% for listright in listright_list %}
-        <tr>
-            <td>{{ listright.listright }}</td>
+        <tr class="active">
+            <td>
+                {{ listright.name }}
+            </td>
             <td>{{ listright.gid }}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_user_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_user_{{listright.gid}}">
+                        Utilisateurs ({{ listright.user_set.all|length }})
+                    </button>
+                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_perm_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_perm_{{listright.gid}}">
+                        Ensemble des permissions ({{ listright.permissions.all|length }})
+                    </button>
+		</div>
+	    </td>
 	    <td>{{ listright.details }}</td>
             <td class="text-right">
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}
                 {% include 'buttons/history.html' with href='users:history' name='listright' id=listright.id %}
             </td>
         </tr>
+	<tr>
+	    <td colspan=5>
+		<div class="panel-group" id="accordion_{{listright.gid}}" role="tablist" aria-multiselectable="true" style="margin-bottom: 0px;">
+                    <div class="panel" style="border: none;">
+                        <div class="panel-collapse collapse in" id="collapseListRight_perm_{{listright.gid}}" role="tabpanel">
+                            <ul class="list-group" style="margin-bottom: 0px">
+                            {% for perm in listright.permissions.all %}
+                                <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border:none;">
+                                    {{perm.name}}
+                                </li>
+                                {% endfor %}
+                             </ul>
+                        </div>
+                    </div>
+                    <div class="panel" style="border: none;">
+                        <div class="panel-collapse collapse in" id="collapseListRight_user_{{listright.gid}}" role="tabpanel">
+                            <ul class="list-group" style="margin-bottom: 0px">
+                                {% for user in listright.user_set.all %}
+	                        <li class="list-group-item col-xs-12 col-sm-6 col-md-4" style="border:none;">
+                                    {{user}}
+                                    <a role="button" href="{% url 'users:del-group' user.id listright.id %}" title="{{ desc|default:"Supprimer" }}">
+                                        <i class="glyphicon glyphicon-remove" style="color:red"></i>
+                                    </a>
+                                </li>
+                                {% endfor %}
+	                    </ul>
+                        </div>
+                    </div>
+                </div>
+            </td>
+	</tr>
         {% endfor %}
     </table>
 
+<script>
+$("#listRights_table").ready( function () {
+    var listRights_div = [{% for listright in listright_list %}[$("#accordion_{{listright.gid}}"), $("#collapseListRight_user_{{listright.gid}}"), $("#collapseListRight_perm_{{listright.gid}}")], {% endfor %}];
+    for (var i=0 ; i<listRights_div.length ; i++) {
+        listRights_div[i][1].collapse({ toggle: true, parent: listRights_div[i][0] });
+        listRights_div[i][2].collapse({ toggle: true, parent: listRights_div[i][0] });
+    }
+} );
+</script>

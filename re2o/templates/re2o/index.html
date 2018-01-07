@@ -29,7 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
-    <h1>Bienvenue sur {{ site_name }} !</h1>
+<h1>Bienvenue sur {{ request.get_host }} !</h1>
 
 <div class="row">
 {% for service_list in services_urls %}

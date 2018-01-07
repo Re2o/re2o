@@ -25,14 +25,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 
+{% load acl %}
+
 {% block title %}Ip{% endblock %}
 
 {% block content %}
   <h2>Liste des types d'ip</h2>
-  {% if is_infra %}
+  {% can_create IpType %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'ip</a>
+  {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'ip</a>
-  {% endif %}
   {%  include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
   <br />
   <br />
