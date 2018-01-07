@@ -416,7 +416,7 @@ def create_ports(request, switch_id):
         switch = Switch.objects.get(pk=switch_id)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
-        return redirect("/topologie/")
+        return redirect(reverse('topologie:index'))
 
     s_begin = s_end = 0
     nb_ports = switch.ports.count()
@@ -439,7 +439,10 @@ def create_ports(request, switch_id):
         except ValidationError as e:
             messages.error(request, ''.join(e))
 
-        return redirect("/topologie/switch/" + str(switch.id))
+        return redirect(reverse(
+            'topologie:index-port',
+            kwargs={'switch_id':switch_id}
+            ))
 
     return form({'id_switch': switch_id, 'topoform': port_form}, 'topologie/switch.html', request)
 
@@ -573,7 +576,7 @@ def new_model_switch(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Le modèle a été créé")
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': model_switch}, 'topologie/topo.html', request)
 
 
@@ -591,7 +594,7 @@ def edit_model_switch(request, model_switch, model_switch_id):
                 field for field in model_switch.changed_data)
             )
         messages.success(request, "Le modèle a bien été modifié")
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': model_switch}, 'topologie/topo.html', request)
 
 
@@ -609,7 +612,7 @@ def del_model_switch(request, model_switch_id):
         except ProtectedError:
             messages.error(request, "Le modèle %s est affectée à un autre objet,\
                 impossible de la supprimer (switch ou user)" % model_switch)
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({
         'objet': model_switch,
         'objet_name': 'Modèle de switch'
@@ -627,7 +630,7 @@ def new_constructor_switch(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Le constructeur a été créé")
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
 
 
@@ -645,7 +648,7 @@ def edit_constructor_switch(request, constructor_switch, constructor_switch_id):
                 field for field in constructor_switch.changed_data)
             )
         messages.success(request, "Le modèle a bien été modifié")
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
 
 
@@ -663,7 +666,7 @@ def del_constructor_switch(request, constructor_switch_id):
         except ProtectedError:
             messages.error(request, "Le constructeur %s est affecté à un autre objet,\
                 impossible de la supprimer (switch ou user)" % constructor_switch)
-        return redirect("/topologie/index_model_switch/")
+        return redirect(reverse('topologie:index-model-switch'))
     return form({
         'objet': constructor_switch,
         'objet_name': 'Constructeur de switch'

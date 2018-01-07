@@ -90,7 +90,7 @@ def edit_options(request, section):
         if not can:
             messages.error(request, msg or "Vous ne pouvez pas éditer cette\
                            option.")
-            return redirect('/')
+            return redirect(reverse('index'))
         options = form_instance(
             request.POST or None,
             instance=options_instance
