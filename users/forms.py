@@ -450,7 +450,7 @@ class ListRightForm(ModelForm):
 
     class Meta:
         model = ListRight
-        fields = ['name', 'unix_name', 'permissions', 'details']
+        fields = ['name', 'unix_name', 'critical', 'permissions', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)

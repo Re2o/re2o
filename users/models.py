@@ -233,6 +233,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             ("change_user_force", "Peut forcer un déménagement"),
             ("change_user_shell", "Peut éditer le shell d'un user"),
             ("change_user_groups", "Peut éditer les groupes d'un user ! Permission critique"),
+            ("change_all_users", "Peut éditer tous les users, y compris ceux dotés de droits. Superdroit"),
             ("view_user", "Peut voir un objet user quelquonque"),
         )
 
@@ -712,7 +713,19 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            if self == user_request or user_request.has_perm('users.change_user'):
+            options, _created = AssoOption.objects.get_or_create()
+            if self == user_request:
+                return True, None
+            elif user_request.has_perm('users.change_all_users'):
+                return True, None
+            elif user_request.has_perm('users.change_user'):
+                if self.groups.filter(listright__critical=True):
+                    return False, u"Utilisateurs avec droits critiques, ne peut etre édité"
+                elif self == options.utilisateur_asso:
+                    return False, u"Impossible d'éditer l'utilisateur asso sans droit change_all_users"
+                else:
+                    return True, None
+            elif user_request.has_perm('users.change_all_users'):
                 return True, None
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
@@ -1112,6 +1125,7 @@ class ListRight(Group):
         )]
     )
     gid = models.PositiveIntegerField(unique=True, null=True)
+    critical = models.BooleanField(default=False)
     details = models.CharField(
         help_text="Description",
         max_length=255,

@@ -112,9 +112,10 @@ class Machine(FieldPermissionModelMixin, models.Model):
         :param self: instance machine à éditer
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison le cas échéant"""
-        if not user_request.has_perm('machines.change_machine') and self.user != user_request:
-            return False, u"Vous ne pouvez pas éditer une machine d'un autre user\
-                que vous sans droit"
+        if self.user != user_request:
+            if not user_request.has_perm('machines.change_interface') or not self.user.can_edit(self.user, user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -123,9 +124,10 @@ class Machine(FieldPermissionModelMixin, models.Model):
         :param self: instance machine à supprimer
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.delete_machine') and self.user != user_request:
-            return False, u"Vous ne pouvez pas éditer une machine d'un autre user\
-                que vous sans droit"
+        if self.user != user_request:
+            if not user_request.has_perm('machines.change_interface') or not self.user.can_edit(self.user, user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
@@ -1287,9 +1289,10 @@ class Interface(models.Model):
         :param self: Instance interface à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_interface') and self.machine.user != user_request:
-            return False, u"Vous ne pouvez pas éditer une machine\
-                        d'un autre user que vous sans droit"
+        if self.machine.user != user_request:
+            if not user_request.has_perm('machines.change_interface') or not self.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                    d'un autre user que vous sans droit"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1298,9 +1301,10 @@ class Interface(models.Model):
         :param self: Instance interface à del
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.delete_interface') and self.machine.user != user_request:
-            return False, u"Vous ne pouvez pas éditer une machine d'un autre\
-                user que vous sans droit"
+        if self.machine.user != user_request:
+            if not user_request.has_perm('machines.change_interface') or not self.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
