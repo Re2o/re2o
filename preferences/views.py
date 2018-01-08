@@ -79,41 +79,40 @@ def display_options(request):
 
 
 @login_required
-@permission_required('admin')
 def edit_options(request, section):
     """ Edition des préférences générales"""
     model = getattr(models, section, None)
     form_instance = getattr(forms, 'Edit' + section + 'Form', None)
-    if model and form:
-        options_instance, _created = model.objects.get_or_create()
-        can, msg = options_instance.can_edit(request.user)
-        if not can:
-            messages.error(request, msg or "Vous ne pouvez pas éditer cette\
-                           option.")
-            return redirect(reverse('index'))
-        options = form_instance(
-            request.POST or None,
-            instance=options_instance
-        )
-        if options.is_valid():
-            with transaction.atomic(), reversion.create_revision():
-                options.save()
-                reversion.set_user(request.user)
-                reversion.set_comment(
-                    "Champs modifié(s) : %s" % ', '.join(
-                        field for field in options.changed_data
-                    )
-                )
-            messages.success(request, "Préférences modifiées")
-            return redirect(reverse('preferences:display-options'))
-        return form(
-            {'options': options},
-            'preferences/edit_preferences.html',
-            request
-            )
-    else:
+    if not (model or form_instance):
         messages.error(request, "Objet  inconnu")
         return redirect(reverse('preferences:display-options'))
+
+    options_instance, _created = model.objects.get_or_create()
+    can, msg = options_instance.can_edit(request.user)
+    if not can:
+        messages.error(request, msg or "Vous ne pouvez pas éditer cette\
+                   option.")
+        return redirect(reverse('index'))
+    options = form_instance(
+        request.POST or None,
+        instance=options_instance
+    )
+    if options.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            options.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in options.changed_data
+                )
+            )
+            messages.success(request, "Préférences modifiées")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'options': options},
+        'preferences/edit_preferences.html',
+        request
+    )
 
 
 @login_required
