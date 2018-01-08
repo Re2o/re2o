@@ -124,6 +124,8 @@ class Facture(FieldPermissionModelMixin, models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_facture'):
             return False, u"Vous n'avez pas le droit d'éditer les factures"
+        elif not user_request.has_perm('cotisations.change_all_facture') and not self.user.can_edit(user_request, *args, **kwargs)[0]:
+            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
         elif not user_request.has_perm('cotisations.change_all_facture') and\
             (self.control or not self.valid):
             return False, u"Vous n'avez pas le droit d'éditer une facture\
@@ -134,6 +136,8 @@ class Facture(FieldPermissionModelMixin, models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_facture'):
             return False, u"Vous n'avez pas le droit de supprimer une facture"
+        if not self.user.can_edit(user_request, *args, **kwargs)[0]:
+            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
         if self.control or not self.valid:
             return False, u"Vous ne pouvez pas supprimer une facture\
                 contrôlée ou invalidée par un trésorier"
@@ -282,6 +286,8 @@ class Vente(models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_vente'):
             return False, u"Vous n'avez pas le droit d'éditer les ventes"
+        elif not user_request.has_perm('cotisations.change_all_facture') and not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
+            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"       
         elif not user_request.has_perm('cotisations.change_all_vente') and\
             (self.facture.control or not self.facture.valid):
             return False, u"Vous n'avez pas le droit d'éditer une vente\
@@ -292,6 +298,8 @@ class Vente(models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_vente'):
             return False, u"Vous n'avez pas le droit de supprimer une vente"
+        if not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
+            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
         if self.facture.control or not self.facture.valid:
             return False, u"Vous ne pouvez pas supprimer une vente\
                 contrôlée ou invalidée par un trésorier"
