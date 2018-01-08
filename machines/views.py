@@ -69,8 +69,6 @@ from .forms import (
     DelMachineTypeForm,
     ExtensionForm,
     DelExtensionForm,
-    BaseEditInterfaceForm,
-    BaseEditMachineForm
 )
 from .forms import (
     EditIpTypeForm,
@@ -225,7 +223,7 @@ def new_machine(request, user, userid):
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
 
-    machine = NewMachineForm(request.POST or None, user=user)
+    machine = NewMachineForm(request.POST or None, user=request.user)
     interface = AddInterfaceForm(
         request.POST or None,
         user=request.user
@@ -280,7 +278,7 @@ def edit_interface(request, interface_instance, interfaceid):
         instance=interface_instance.machine,
         user=request.user
     )
-    interface_form = BaseEditInterfaceForm(request.POST or None, instance=interface_instance, user=request.user)
+    interface_form = EditInterfaceForm(request.POST or None, instance=interface_instance, user=request.user)
     domain_form = DomainForm(request.POST or None, instance=interface_instance.domain)
     if machine_form.is_valid() and interface_form.is_valid() and domain_form.is_valid():
         new_machine = machine_form.save(commit=False)
@@ -327,7 +325,7 @@ def del_machine(request, machine, machineid):
 def new_interface(request, machine, machineid):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
-    interface_form = AddInterfaceForm(request.POST or None, user=user)
+    interface_form = AddInterfaceForm(request.POST or None, user=request.user)
     domain_form = DomainForm(request.POST or None)
     if interface_form.is_valid():
         new_interface = interface_form.save(commit=False)
