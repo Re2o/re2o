@@ -81,8 +81,7 @@ class Machine(FieldPermissionModelMixin, models.Model):
             A tuple with a boolean stating if edition is allowed and an
             explanation message.
         """
-        return user_request.has_perm('machines.change_machine_user'), "Vous ne pouvez pas \
-                modifier l'utilisateur de la machine."
+        return user_request.has_perm('machines.change_machine_user'), "Vous ne pouvez pas modifier l'utilisateur de la machine."
 
     def can_create(user_request, userid, *args, **kwargs):
         """Vérifie qu'un user qui fait la requète peut bien créer la machine
@@ -149,6 +148,12 @@ class Machine(FieldPermissionModelMixin, models.Model):
             return False, u"Vous n'avez pas droit de voir les machines autre\
                 que les vôtres"
         return True, None
+
+    def __init__(self, *args, **kwargs):
+        super(Machine, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'user' : self.can_change_user,
+        }
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
@@ -1147,7 +1152,7 @@ class Srv(models.Model):
             str(self.port) + ' ' + str(self.target) + '.'
 
 
-class Interface(models.Model):
+class Interface(FieldPermissionModelMixin,models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -1172,6 +1177,7 @@ class Interface(models.Model):
     class Meta:
         permissions = (
             ("view_interface", "Peut voir un objet interface"),
+            ("change_interface_machine", "Peut changer le propriétaire d'une interface"),
         )
 
     @cached_property
@@ -1283,6 +1289,10 @@ class Interface(models.Model):
                         % max_lambdauser_interfaces
         return True, None
 
+    @staticmethod
+    def can_change_machine(user_request, *args, **kwargs):
+        return user_request.has_perm('machines.change_interface_machine'), "Droit requis pour changer la machine"
+
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
         cette instance interface, ou qu'elle lui appartient
@@ -1327,6 +1337,12 @@ class Interface(models.Model):
             return False, u"Vous n'avez pas le droit de voir des machines autre\
                 que les vôtres"
         return True, None
+
+    def __init__(self, *args, **kwargs):
+        super(Interface, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'machine' : self.can_change_machine,
+        }
 
     def __str__(self):
         try:

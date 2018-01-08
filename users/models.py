@@ -809,9 +809,11 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
-        field_permissions = {
-            'shell' : can_change_shell,
-            'force' : can_change_force,
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'shell' : self.can_change_shell,
+            'force' : self.can_change_force,
         }
 
     def __str__(self):
