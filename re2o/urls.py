@@ -40,10 +40,11 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from .views import index
+from .views import index, about_page
 
 urlpatterns = [
     url(r'^$', index, name='index'),
+    url(r'^about/$', about_page, name='about'),
     url('^logout/', auth_views.logout, {'next_page': '/'}),
     url('^', include('django.contrib.auth.urls')),
     url(r'^admin/', include(admin.site.urls)),

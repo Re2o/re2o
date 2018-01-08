@@ -1,0 +1,62 @@
+{% extends "re2o/sidebar.html" %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+
+{% block title %}Historique{% endblock %}
+
+{% block content %}
+<h2>À propos de {{AssoName}}</h2>
+    {{ description }}
+<h2>À propos de Re2o</h2>
+<p>Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+</p>
+<h3>Liste des contributeurs</h3>
+<ul>
+  <li>Gabriel Detraz</li>
+  <li>Maël Kervella</li>
+  <li>Hugo Levy-Falk</li>
+  <li>Augustin Lemesle</li>
+  <li>Goulven Kermarec</li>
+  <li>David Sinquin</li>
+  <li>root</li>
+  <li>Matthieu Michelet</li>
+  <li>Guillaume Goessels</li>
+  <li>Éloi Alain</li>
+  <li>Simon Brélivet</li>
+  <li>Laouen Fernet</li>
+  <li>Pierre Cadart</li>
+  <li>Thibault Deboutray</li>
+  <li>Eloi Alain</li>
+  <li>Daniel Stan</li>
+  <li>Hugo Hervieux</li>
+  <li>Thomas Goudine</li>
+    <br />
+    <br />
+    <br />
+{% endblock %}
+

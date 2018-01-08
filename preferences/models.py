@@ -436,6 +436,7 @@ class AssoOption(models.Model):
         blank=True,
         null=True
     )
+    description = models.TextField(default="")
 
     class Meta:
         permissions = (

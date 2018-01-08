@@ -89,6 +89,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}">Statistiques</a></li>
                             {% acl_end %}
+			    <li><a href="{% url "about" %}">À propos</a></li>
                         </ul>
                         <div class="col-sm-3 col-md-3 navbar-right">
                             <form action="{% url "search:search"%}" class="navbar-form" role="search">
