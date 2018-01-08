@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Droit</th>
                 <th>Gid</th>
+		<th>Groupe/permission critique</th>
                 <th>Informations</th>
                 <th>Details</th>
 		<th></th>
@@ -38,6 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {{ listright.name }}
             </td>
             <td>{{ listright.gid }}</td>
+	    <td>{{ listright.critical }}</td>
             <td>
                 <div class="dropdown">
                     <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_user_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_user_{{listright.gid}}">
