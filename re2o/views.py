@@ -35,7 +35,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion.models import Version
 from django.contrib import messages
 from preferences.models import Service
-from preferences.models import OptionalUser, GeneralOption
+from preferences.models import OptionalUser, GeneralOption, AssoOption
 import users, preferences, cotisations, topologie, machines
 
 def form(ctx, template, request):
@@ -154,3 +154,12 @@ def history(request, application, object_name, object_id):
         {'reversions': reversions, 'object': instance}
     )
 
+
+def about_page(request):
+    option = AssoOption.objects.get()
+    return render(
+        request,
+        "re2o/about.html",
+        {'description': option.description , 'AssoName' : option.name}
+    )
+    
