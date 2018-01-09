@@ -167,9 +167,11 @@ class Facture(FieldPermissionModelMixin, models.Model):
     def can_change_pdf(user_request, *args, **kwargs):
         return user_request.has_perm('cotisations.change_facture_pdf'), "Vous ne pouvez pas éditer une facture sans droit trésorier"
 
-    field_permissions = {
-        'control': can_change_control,
-    }
+    def __init__(self, *args, **kwargs):
+        super(Facture, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'control' : self.can_change_control,
+        }
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)

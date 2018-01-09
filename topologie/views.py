@@ -456,11 +456,13 @@ def edit_switch(request, switch, switch_id):
     switch_form = EditSwitchForm(request.POST or None, instance=switch)
     machine_form = EditMachineForm(
         request.POST or None,
-        instance=switch.switch_interface.machine
+        instance=switch.switch_interface.machine,
+        user=request.user
         )
     interface_form = EditInterfaceForm(
         request.POST or None,
-        instance=switch.switch_interface
+        instance=switch.switch_interface,
+        user=request.user
         )
     domain_form = DomainForm(
         request.POST or None,
