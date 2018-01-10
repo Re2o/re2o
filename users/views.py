@@ -359,7 +359,7 @@ def add_ban(request, user, userid):
             'users:profil',
             kwargs={'userid':str(userid)}
         ))
-    if user.is_ban:
+    if user.is_ban():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
@@ -408,7 +408,7 @@ def add_whitelist(request, user, userid):
             'users:profil',
             kwargs={'userid':str(userid)}
             ))
-    if user.is_whitelisted:
+    if user.is_whitelisted():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
