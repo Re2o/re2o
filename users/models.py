@@ -350,7 +350,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         else:
             return self.is_adherent()
 
-    @cached_property
     def end_ban(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
         date_max = Ban.objects.filter(
@@ -358,7 +357,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
-    @cached_property
     def end_whitelist(self):
         """ Renvoie la date de fin de whitelist d'un user, False sinon """
         date_max = Whitelist.objects.filter(
@@ -366,10 +364,9 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
-    @cached_property
     def is_ban(self):
         """ Renvoie si un user est banni ou non """
-        end = self.end_ban
+        end = self.end_ban()
         if not end:
             return False
         elif end < DT_NOW:
@@ -377,10 +374,9 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         else:
             return True
 
-    @cached_property
     def is_whitelisted(self):
         """ Renvoie si un user est whitelisté ou non """
-        end = self.end_whitelist
+        end = self.end_whitelist()
         if not end:
             return False
         elif end < DT_NOW:
@@ -391,20 +387,20 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE\
-            and not self.is_ban and (self.is_connected() or self.is_whitelisted)
+            and not self.is_ban() and (self.is_connected() or self.is_whitelisted())
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
         if not self.end_connexion():
-            if not self.end_whitelist:
+            if not self.end_whitelist():
                 return None
             else:
-                return self.end_whitelist
+                return self.end_whitelist()
         else:
-            if not self.end_whitelist:
+            if not self.end_whitelist():
                 return self.end_connexion()
             else:
-                return max(self.end_connexion(), self.end_whitelist)
+                return max(self.end_connexion(), self.end_whitelist())
 
     @cached_property
     def solde(self):
