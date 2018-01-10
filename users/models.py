@@ -82,8 +82,6 @@ from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
-DT_NOW = timezone.now()
-
 
 # Utilitaires généraux
 
@@ -334,7 +332,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         end = self.end_adhesion()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
@@ -345,7 +343,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         end = self.end_connexion()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return self.is_adherent()
@@ -369,7 +367,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         end = self.end_ban()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
@@ -379,7 +377,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         end = self.end_whitelist()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
@@ -1282,7 +1280,7 @@ class Ban(models.Model):
 
     def is_active(self):
         """Ce ban est-il actif?"""
-        return self.date_end > DT_NOW
+        return self.date_end > timezone.now()
 
     def get_instance(banid, *args, **kwargs):
         return Ban.objects.get(pk=banid)
@@ -1388,7 +1386,7 @@ class Whitelist(models.Model):
         )
 
     def is_active(self):
-        return self.date_end > DT_NOW
+        return self.date_end > timezone.now()
 
     def get_instance(whitelistid, *args, **kwargs):
         return Whitelist.objects.get(pk=whitelistid)
@@ -1497,7 +1495,7 @@ class Request(models.Model):
     def save(self):
         if not self.expires_at:
             options, _created = GeneralOption.objects.get_or_create()
-            self.expires_at = DT_NOW \
+            self.expires_at = timezone.now() \
                 + datetime.timedelta(hours=options.req_expire_hrs)
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
