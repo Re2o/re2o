@@ -56,6 +56,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ useroptions.all_can_create }}</td>
             <th>Auto inscription</th>
             <td>{{ useroptions.self_adhesion }}</td>
+        {% if useroptions.user_solde %}
+        <th>Rechargement max</th>
+        <td>{{ useroptions.max_recharge }}</td>
+        {% endif %}
         </tr>
 	{% if useroptions.user_solde %}
 	<tr>
