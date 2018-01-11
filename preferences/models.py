@@ -41,6 +41,11 @@ class OptionalUser(models.Model):
         decimal_places=2,
         default=0
     )
+    max_recharge = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=100
+    )
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create = models.BooleanField(
         default=False,
@@ -107,7 +112,10 @@ class OptionalUser(models.Model):
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
-            cotisations.models.Paiement.objects.get_or_create(moyen="Solde")
+            p = cotisations.models.Paiement.objects.filter(moyen="Solde")
+            if not len(p):
+                c = cotisations.models.Paiement(moyen="Solde")
+                c.save()
 
 
 class OptionalMachine(models.Model):
@@ -436,7 +444,14 @@ class AssoOption(models.Model):
         blank=True,
         null=True
     )
-
+    PAYMENT = (
+        ('NONE', 'NONE'),
+        ('COMNPAY', 'COMNPAY'),
+    )
+    payment = models.CharField(max_length=255,
+        choices=PAYMENT,
+        default='NONE',
+    )
     class Meta:
         permissions = (
             ("view_assooption", "Peut voir les options de l'asso"),

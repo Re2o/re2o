@@ -54,6 +54,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Creations d'users par tous</th>
             <td>{{ useroptions.all_can_create }}</td>
+        {% if useroptions.user_solde %}
+        <th>Rechargement max</th>
+        <td>{{ useroptions.max_recharge }}</td>
+        {% endif %}
         </tr>
     </table>
     <h4>Préférences machines</h4>
@@ -159,7 +163,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Objet utilisateur de l'association</th>
             <td>{{ assooptions.utilisateur_asso }}</td>
+            <th>Moyen de paiement automatique</th>
+            <td>{{ assooptions.payment }}</td>
         </tr>
+
     </table>
     <h4>Messages personalisé dans les mails</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
