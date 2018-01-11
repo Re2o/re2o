@@ -48,6 +48,7 @@ class EditOptionalUserForm(ModelForm):
         téléphone'
         self.fields['user_solde'].label = 'Activation du solde pour\
         les utilisateurs'
+        self.fields['max_recharge'].label = 'Rechargement max'
 
 
 class EditOptionalMachineForm(ModelForm):

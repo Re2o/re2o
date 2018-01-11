@@ -153,7 +153,7 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         if su:
             user.is_superuser=True
-        user.save(using=self._db)    
+        user.save(using=self._db)
         return user
 
     def create_user(self, pseudo, surname, email, password=None):
@@ -409,13 +409,11 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         options, _created = OptionalUser.objects.get_or_create()
         user_solde = options.user_solde
         if user_solde:
-            solde_object, _created = Paiement.objects.get_or_create(
-                moyen='Solde'
-            )
+            solde_objects = Paiement.objects.filter(moyen='Solde')
             somme_debit = Vente.objects.filter(
                 facture__in=Facture.objects.filter(
                     user=self,
-                    paiement=solde_object
+                    paiement__in=solde_objects
                 )
             ).aggregate(
                 total=models.Sum(
