@@ -711,6 +711,11 @@ def recharge(request):
             number=1,
         )
         v.save()
+<<<<<<< HEAD
         content = payment.PAYMENT_SYSTEM[options.payment](facture, request)
+=======
+        options, _created = AssoOption.objects.get_or_create()
+        content = payment.PAYMENT_SYSTEM[options.payment](facture, request.get_host())
+>>>>>>> Rechargement via comnpay du solde.
         return render(request, 'cotisations/payment.html', content)
     return form({'rechargeform':f}, 'cotisations/recharge.html', request)

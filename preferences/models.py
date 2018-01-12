@@ -55,7 +55,7 @@ class OptionalUser(models.Model):
     max_recharge = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=100
+        default=50
     )
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create = models.BooleanField(
