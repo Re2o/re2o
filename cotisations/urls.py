@@ -115,5 +115,21 @@ urlpatterns = [
         views.new_facture_solde,
         name='new_facture_solde'
         ),
+    url(r'^recharge/$',
+        views.recharge,
+        name='recharge'
+        ),
+    url(r'^payment/accept/(?P<factureid>[0-9]+)$',
+        payment.accept_payment,
+        name='accept_payment'
+       ),
+    url(r'^payment/refuse/$',
+        payment.refuse_payment,
+        name='refuse_payment'
+       ),
+    url(r'^payment/ipn/$',
+        payment.ipn,
+        name='ipn'
+       ),
     url(r'^$', views.index, name='index'),
 ]

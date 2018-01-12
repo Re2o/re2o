@@ -37,6 +37,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.debug import sensitive_variables
 from reversion import revisions as reversion
 from reversion.models import Version
 # Import des models, forms et fonctions re2o
@@ -72,6 +74,7 @@ from .forms import (
     NewFactureSoldeForm,
     RechargeForm
 )
+from . import payment
 from .tex import render_invoice
 
 
@@ -682,3 +685,23 @@ def new_facture_solde(request, userid):
         }, 'cotisations/new_facture_solde.html', request)
 
 
+@login_required
+def recharge(request):
+    f = RechargeForm(request.POST or None)
+    if f.is_valid():
+        facture = Facture(user=request.user)
+        paiement, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
+        facture.paiement = paiement
+        facture.valid = False
+        facture.save()
+        v = Vente.objects.create(
+            facture=facture,
+            name='solde',
+            prix=f.cleaned_data['value'],
+            number=1,
+        )
+        v.save()
+        options, _created = AssoOption.objects.get_or_create()
+        content = payment.PAYMENT_SYSTEM[options.payment](facture, request.get_host())
+        return render(request, 'cotisations/payment.html', content)
+    return form({'rechargeform':f}, 'cotisations/recharge.html', request)
