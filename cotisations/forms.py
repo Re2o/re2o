@@ -279,3 +279,11 @@ class NewFactureSoldeForm(NewFactureForm):
             raise forms.ValidationError("Le numéro de chèque et\
                 la banque sont obligatoires.")
         return cleaned_data
+
+
+class RechargeForm(Form):
+    value = forms.FloatField(
+        label='Valeur',
+        min_value=0.01,
+        validators = []
+    )
