@@ -413,7 +413,8 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             somme_debit = Vente.objects.filter(
                 facture__in=Facture.objects.filter(
                     user=self,
-                    paiement__in=solde_objects
+                    paiement__in=solde_objects,
+                    valid=True
                 )
             ).aggregate(
                 total=models.Sum(
@@ -422,7 +423,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
                 )
             )['total'] or 0
             somme_credit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(user=self),
+                facture__in=Facture.objects.filter(user=self, valid=True),
                 name="solde"
             ).aggregate(
                 total=models.Sum(
