@@ -29,8 +29,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Rechargement du solde{% endblock %}
 
 {% block content %}
-<h3>Rechargement du solde</h3>
-<p>Solde de l'utilisateur : {{ request.user.solde }} €</p>
+<h2>Rechargement du solde</h2>
+<h3>Solde : <span class="label label-default">{{ request.user.solde }} €</span></h3>
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form rechargeform %}
