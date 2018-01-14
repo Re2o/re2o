@@ -684,10 +684,13 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         an user or if the `options.all_can_create` is set.
         """
         options, _created = OptionalUser.objects.get_or_create()
-        if options.all_can_create:
-            return True, None
+        if(not user_request.is_authenticated and not options.self_adhesion):
+            return False, None
         else:
-            return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
+            if(options.all_can_create or options.self_adhesion):
+                return True, None
+            else:
+                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
                     droit de créer un utilisateur"
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -862,7 +865,7 @@ class Club(User):
         """
         if user_request.has_perm('users.view_user'):
             return True, None
-        if user_request.is_class_adherent:
+        if hasattr(user_request,'is_class_adherent') and user_request.is_class_adherent:
             if user_request.adherent.club_administrator.all() or user_request.adherent.club_members.all():
                 return True, None
         return False, u"Vous n'avez pas accès à la liste des utilisateurs."

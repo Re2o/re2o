@@ -137,7 +137,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<tr>
             <th>Message global affiché sur le site</th>
             <td>{{ generaloptions.general_message }}</td>
+            <th>Résumé des CGU</th>
+            <td>{{ generaloptions.GTU_sum_up }}</td>
 	<tr>
+    <tr>
+        <th>CGU</th>
+        <td>{{generaloptions.GTU}}</th>
+    </tr>
     </table>
     <h4>Données de l'association</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
