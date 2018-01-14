@@ -302,6 +302,16 @@ class GeneralOption(models.Model):
     req_expire_hrs = models.IntegerField(default=48)
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@serveur.net")
+    GTU_sum_up = models.TextField(
+        default="",
+        blank=True,
+    )
+    GTU = models.FileField(
+        upload_to = '',
+        default="",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         permissions = (

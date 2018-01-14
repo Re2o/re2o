@@ -117,6 +117,7 @@ class EditGeneralOptionForm(ModelForm):
         self.fields['site_name'].label = 'Nom du site web'
         self.fields['email_from'].label = "Adresse mail d\
         'expedition automatique"
+        self.fields['GTU_sum_up'].label = "Résumé des CGU"
 
 
 class EditAssoOptionForm(ModelForm):

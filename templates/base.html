@@ -26,6 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {# Load the tag library #}
 {% load bootstrap3 %}
 {% load acl %}
+{% load self_adhesion %}
+{% self_adhesion as var_sa %}
 <!DOCTYPE html>
 <html lang="fr">
     <head prefix="og: http://ogp.me/ns#">
@@ -102,17 +104,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </form>
                         </div>
                         <ul class="nav navbar-nav navbar-right">
-                            <li>
                                 {% if request.user.is_authenticated %}
+                                <li>
                                 <a href="{% url 'logout' %}">
                                     <span class="glyphicon glyphicon-log-out"></span> Logout
                                 </a>
+                                </li>
                                 {% else %}
+                                {% if var_sa %}
+                                <li>
+                                    <a href="{% url 'users:new-user' %}">
+                                    <span class="glyphicon glyphicon-user"></span> Créer un compte
+                                </a>
+                                </li>
+                                {% endif %}
+                                <li>
                                 <a href="{% url 'login' %}">
                                     <span class="glyphicon glyphicon-log-in"></span> Login
                                 </a>
+                                </li>
                                 {% endif %}
-			    </li>
 			</ul>
                         {% can_view_app preferences %}
                         <ul class="nav navbar-nav navbar-right">

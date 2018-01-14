@@ -117,12 +117,14 @@ def password_change_action(u_form, user, request, req=False):
         kwargs={'userid':str(user.id)}
         ))
 
-@login_required
 @can_create(Adherent)
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
     user = AdherentForm(request.POST or None, user=request.user)
+    options, _created = GeneralOption.objects.get_or_create()
+    GTU_sum_up = options.GTU_sum_up
+    GTU = options.GTU
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -136,7 +138,7 @@ def new_user(request):
             'users:profil',
             kwargs={'userid':str(user.id)}
             ))
-    return form({'userform': user}, 'users/user.html', request)
+    return form({'userform': user,'GTU_sum_up':GTU_sum_up,'GTU':GTU}, 'users/user.html', request)
 
 
 @login_required

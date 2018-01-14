@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <h3>Edition des préférences</h3>
 
-<form class="form" method="post">
+<form class="form" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 {% massive_bootstrap_form options 'utilisateur_asso' %}
 {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
