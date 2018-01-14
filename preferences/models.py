@@ -46,10 +46,19 @@ class OptionalUser(models.Model):
         decimal_places=2,
         default=50
     )
+    min_online_payment = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10
+    )
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create = models.BooleanField(
         default=False,
         help_text="Tous les users peuvent en créer d'autres",
+    )
+    self_adhesion = models.BooleanField(
+        default=False,
+        help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
 
     class Meta:

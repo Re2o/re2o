@@ -41,6 +41,8 @@ from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator,MaxValueValidator
 from .models import Article, Paiement, Facture, Banque
+from preferences.models import OptionalUser
+from users.models import User
 
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -287,3 +289,16 @@ class RechargeForm(Form):
         min_value=0.01,
         validators = []
     )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(RechargeForm, self).__init__(*args, **kwargs)
+
+    def clean_value(self):
+        value = self.cleaned_data['value']
+        options, _created = OptionalUser.objects.get_or_create()
+        if value < options.min_online_payment:
+            raise forms.ValidationError("Montant inférieur au montant minimal de paiement en ligne (%s) €" % options.min_online_payment)
+        if value + self.user.solde > options.max_solde:
+            raise forms.ValidationError("Le solde ne peux excéder %s " % options.max_solde)
+        return value

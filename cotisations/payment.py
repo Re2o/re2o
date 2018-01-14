@@ -76,7 +76,8 @@ def ipn(request):
     return HttpResponse("HTTP/1.0 200 OK")
 
 
-def comnpay(facture, host):
+def comnpay(facture, request):
+    host = request.get_host()
     p = ComnpayPayment(
         "DEMO",
         "DEMO",

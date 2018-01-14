@@ -49,6 +49,8 @@ class EditOptionalUserForm(ModelForm):
         self.fields['user_solde'].label = 'Activation du solde pour\
         les utilisateurs'
         self.fields['max_solde'].label = 'Solde maximum'
+        self.fields['min_online_payment'].label = 'Montant de rechargement minimum en ligne'
+        self.fields['self_adhesion'].label = 'Auto inscription'
 
 
 class EditOptionalMachineForm(ModelForm):
