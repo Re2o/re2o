@@ -687,7 +687,7 @@ def new_facture_solde(request, userid):
 
 @login_required
 def recharge(request):
-    f = RechargeForm(request.POST or None)
+    f = RechargeForm(request.POST or None, user=request.user)
     if f.is_valid():
         facture = Facture(user=request.user)
         paiement, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
@@ -702,6 +702,6 @@ def recharge(request):
         )
         v.save()
         options, _created = AssoOption.objects.get_or_create()
-        content = payment.PAYMENT_SYSTEM[options.payment](facture, request.get_host())
+        content = payment.PAYMENT_SYSTEM[options.payment](facture, request)
         return render(request, 'cotisations/payment.html', content)
     return form({'rechargeform':f}, 'cotisations/recharge.html', request)
