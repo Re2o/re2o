@@ -28,6 +28,8 @@ from __future__ import unicode_literals
 from django.db import models
 import cotisations.models
 
+from .aes_field import AESEncryptedField
+
 
 class OptionalUser(models.Model):
     """Options pour l'user : obligation ou nom du telephone,
@@ -471,6 +473,16 @@ class AssoOption(models.Model):
         choices=PAYMENT,
         default='NONE',
     )
+    payment_id = models.CharField(
+        max_length=255,
+        default='',
+    )
+    payment_pass = AESEncryptedField(
+        max_length=255,
+        default='',
+    )
+
+
     class Meta:
         permissions = (
             ("view_assooption", "Peut voir les options de l'asso"),
