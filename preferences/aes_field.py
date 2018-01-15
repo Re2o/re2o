@@ -27,7 +27,6 @@ def encrypt(key, s):
 def decrypt(key, s):
     obj = AES.new(key)
     ss = obj.decrypt(s)
-    print(ss)
     return ss.split(bytes(EOD, 'utf-8'))[0]
 
 
@@ -36,6 +35,10 @@ class AESEncryptedField(models.CharField):
         setattr(instance, self.name,
                 binascii.b2a_base64(encrypt(settings.AES_KEY, data)))
 
+    def value_from_object(self, obj):
+        return decrypt(settings.AES_KEY,
+                       binascii.a2b_base64(getattr(obj, self.attname))).decode('utf-8')
+
     def to_python(self, value):
         if value is None:
             return None
@@ -43,20 +46,12 @@ class AESEncryptedField(models.CharField):
                        binascii.a2b_base64(value)).decode('utf-8')
 
     def from_db_value(self, value, expression, connection, *args):
-        print('from db')
-        print(value)
         if value is None:
             return value
         return decrypt(settings.AES_KEY,
                        binascii.a2b_base64(value)).decode('utf-8')
 
     def get_prep_value(self, value):
-        print('get prep value')
-        print(value)
-        print(binascii.b2a_base64(encrypt(
-                    settings.AES_KEY,
-                    value
-        )))
         return binascii.b2a_base64(encrypt(
                     settings.AES_KEY,
                     value
