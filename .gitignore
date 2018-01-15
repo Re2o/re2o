@@ -5,3 +5,4 @@ re2o.png
 __pycache__/*
 static_files/*
 static/logo/*
+media/*
