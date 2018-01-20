@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
   <h2>Liste des services</h2>
-  {% can_create Service %}
+  {% can_create machines.Service %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
   {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
