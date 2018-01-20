@@ -106,7 +106,7 @@ MODEL_NAME = {
     'Interface' : machines.models.Interface,
     'Domain' : machines.models.Domain,
     'IpList' : machines.models.IpList,
-    'Service' : machines.models.Service,
+    'machines.Service' : machines.models.Service,
     'Service_link' : machines.models.Service_link,
     'OuverturePortList' : machines.models.OuverturePortList,
     'OuverturePort' : machines.models.OuverturePort,
@@ -115,7 +115,7 @@ MODEL_NAME = {
     'OptionalMachine': preferences.models.OptionalMachine,
     'OptionalTopologie': preferences.models.OptionalTopologie,
     'GeneralOption': preferences.models.GeneralOption,
-    'Service': preferences.models.Service,
+    'preferences.Service': preferences.models.Service,
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
     # topologie
