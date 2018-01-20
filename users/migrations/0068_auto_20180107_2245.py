@@ -17,8 +17,9 @@ class Migration(migrations.Migration):
         rights = apps.get_model("users", "ListRight")
         for right in critical_rights:
             rg = rights.objects.using(db_alias).filter(unix_name=right).first()
-            rg.critical=True
-            rg.save()
+            if rg:
+                rg.critical=True
+                rg.save()
 
     def untransfer_permissions(apps, schema_editor):
         return
