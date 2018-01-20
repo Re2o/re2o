@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             perm = permissions.objects.using(db_alias).create(
             codename='serveur',
             name='Serveur',
-            content_type=contenttype.objects.using(db_alias).filter(model='machine').first() 
+            content_type=contenttype.objects.get_for_model(machine)
             )
         group_object = rights.objects.using(db_alias).filter(unix_name='serveur').first()
         if not group_object:
