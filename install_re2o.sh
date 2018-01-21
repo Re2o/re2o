@@ -28,13 +28,21 @@ setup_ldap() {
 
 
 install_re2o_server() {
-echo "Installation de Re2o ! 
-Cet utilitaire va procéder à l'installation initiale de re2o. Le serveur présent doit être vierge.
-Preconfiguration..."
+
+
 
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get -y install sudo dialog
+
+HEIGHT=15
+WIDTH=40
+init=$(dialog --clear \
+	--title "Installation de Re2o !" \
+        --msgbox "Cet utilitaire va procéder à l'installation initiale de re2o. Le serveur présent doit être vierge de préférence. Preconfiguration..." \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
+
 
 HEIGHT=15
 WIDTH=40
@@ -145,7 +153,14 @@ ldap_is_local=$(dialog --clear \
                 "${OPTIONS[@]}" \
                 2>&1 >/dev/tty)
 
-echo "Vous devrez fournir un login/host dans le cas où le ldap est non local"
+
+HEIGHT=15
+WIDTH=40
+instal_ldap=$(dialog --clear \
+	--title "Installation de Re2o !" \
+        --msgbox "Vous devrez fournir un login/host dans le cas où le ldap est non local" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 
 TITLE="Mot de passe ldap"
 ldap_password=$(dialog --title "$TITLE" \
@@ -213,8 +228,14 @@ ldap_cn+=$ldap_dn
 ldap_host="localhost"
 fi
 
+HEIGHT=15
+WIDTH=40
+install_base=$(dialog --clear \
+	--title "Installation de Re2o !" \
+        --msgbox "Installation des paquets de base" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 
-echo "Installation des paquets de base"
 apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
@@ -270,8 +291,14 @@ then
 setup_ldap $ldap_password $ldap_dn
 
 else
-echo "Vous devrez manuellement effectuer les opérations de setup de la base ldap sur le serveurs distant.
-Lancez la commande : ./install_re2o.sh ldap $ldap_password $ldap_dn"
+
+HEIGHT=15
+WIDTH=40
+ldap_setup=$(dialog --clear \
+	--title "Setup ldap" \
+        --msgbox "Vous devrez manuellement effectuer les opérations de setup de la base ldap sur le serveurs distant. Lancez la commande : ./install_re2o.sh ldap $ldap_password $ldap_dn" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 fi
 
 echo "Ecriture de settings_local"
@@ -298,10 +325,22 @@ sed -i 's/example.org/'"$extension_locale"'/g' re2o/settings_local.py
 sed -i 's/MY_EMAIL_HOST/'"$email_host"'/g' re2o/settings_local.py
 sed -i 's/MY_EMAIL_PORT/'"$email_port"'/g' re2o/settings_local.py
 
-echo "Application des migrations"
+HEIGHT=15
+WIDTH=40
+migrations=$(dialog --clear \
+	--title "Setup django" \
+        --msgbox "Application des migrations" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 python3 manage.py migrate
 
-echo "Collecte des statics"
+HEIGHT=15
+WIDTH=40
+static=$(dialog --clear \
+	--title "Setup django" \
+        --msgbox "Collecte des statiques" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 python3 manage.py collectstatic
 
 BACKTITLE="Fin de l'installation"
@@ -319,7 +358,7 @@ web_serveur=$(dialog --clear \
 
 clear
 
-TITLE="Url où servir le serveur web (ex : re2o.example.org)"
+TITLE="Url où servir le serveur web (ex : re2o.example.org). Assurez-vous que ce tld existe bien et répond auprès du DNS"
 url_server=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
         --inputbox "$TITLE" $HEIGHT $WIDTH \
@@ -365,11 +404,25 @@ sed -i 's|PATH|'"$current_path"'|g' /etc/apache2/sites-available/re2o.conf
 a2ensite re2o
 service apache2 reload
 else
-echo "Nginx non supporté, vous devrez installer manuellement"
+HEIGHT=15
+WIDTH=40
+web_server=$(dialog --clear \
+	--title "Setup serveur web" \
+        --msgbox "Nginx non supporté, vous devrez installer manuellement" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
+
 fi
 
 python3 manage.py createsuperuser
 
+HEIGHT=15
+WIDTH=40
+end=$(dialog --clear \
+	--title "Installation terminée" \
+        --msgbox "Vous pouvez à présent vous rendre sur $url_server, et vous connecter. Votre utilisateur dispose des privilèges superuser" \
+	$HEIGHT $WIDTH \
+	2>&1 >/dev/tty)
 }
 
 main_function() {
