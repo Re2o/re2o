@@ -171,10 +171,9 @@ re2o/wsgi.py permet de fonctionner avec apache2 en production
 Une fois démaré, le site web devrait être accessible. 
 Pour créer un premier user, faire '''python3 manage.py createsuperuser''' 
 qui va alors créer un user admin.
-Il est conseillé de créer alors les droits cableur, bureau, trésorier et infra, 
-qui n'existent pas par défaut dans le menu adhérents.
-Il est également conseillé de créer un user portant le nom de
-l'association/organisation, qui possedera l'ensemble des machines.
+Il est conseillé de créer un user portant le nom de
+l'association/organisation, qui possedera l'ensemble des machines, à indiquer
+dans le menu reglages sur l'interface.
 
 ## Installations Optionnelles
 ### Générer le schéma des dépendances
