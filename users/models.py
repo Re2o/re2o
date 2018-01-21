@@ -143,9 +143,10 @@ class UserManager(BaseUserManager):
         if not linux_user_check(pseudo):
             raise ValueError('Username shall only contain [a-z0-9-]')
 
-        user = self.model(
+        user = Adherent(
             pseudo=pseudo,
             surname=surname,
+            name=surname,
             email=self.normalize_email(email),
         )
 
@@ -823,6 +824,8 @@ class Adherent(User):
         blank=True,
         null=True
     )
+
+
 
     def get_instance(adherentid, *args, **kwargs):
         """Try to find an instance of `Adherent` with the given id.
