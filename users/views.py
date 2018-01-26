@@ -85,7 +85,7 @@ from users.forms import (
 )
 from cotisations.models import Facture
 from machines.models import Machine
-from preferences.models import OptionalUser, GeneralOption
+from preferences.models import OptionalUser, GeneralOption, AssoOption
 
 from re2o.views import form
 from re2o.utils import (
@@ -782,6 +782,8 @@ def profil(request, users, userid):
     )
     options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde
+    options, _created = AssoOption.objects.get_or_create()
+    allow_online_payment = options.payment != 'NONE'
     return render(
         request,
         'users/profil.html',
@@ -792,6 +794,7 @@ def profil(request, users, userid):
             'ban_list': bans,
             'white_list': whitelists,
             'user_solde': user_solde,
+            'allow_online_payment' : allow_online_payment,
         }
     )
 
