@@ -241,6 +241,7 @@ apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fo
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
 pip3 install django-macaddress
+pip3 install pycrypto
 
 if [ $sql_bdd_type == 1 ]
 then
