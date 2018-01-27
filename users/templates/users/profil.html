@@ -32,19 +32,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <p>
 Vous êtes
 {% if users.end_adhesion != None %}
+<span class="text-success">
 un {{ users.class_name | lower}}
+</span>
 {% else %}
+<span class="text-danger">
 non adhérent
+</span>
 {% endif %}
 et votre connexion est
 {% if users.has_access %}
+<span class="text-success">
 active.
+</span>
 {% else %}
+<span class="text-danger">
 désactivée.
+</span>
 {% endif %}
 </p>
 <div class="panel-group" id="accordion">
-    <div class="panel panel-default">
+
+
+	<div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
                 <a data-toggle="collapse" href="#collapse1">
