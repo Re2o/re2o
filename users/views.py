@@ -138,7 +138,7 @@ def new_user(request):
             'users:profil',
             kwargs={'userid':str(user.id)}
             ))
-    return form({'userform': user,'GTU_sum_up':GTU_sum_up,'GTU':GTU}, 'users/user.html', request)
+    return form({'userform': user,'GTU_sum_up':GTU_sum_up,'GTU':GTU,'showCGU':True}, 'users/user.html', request)
 
 
 @login_required
@@ -160,7 +160,7 @@ def new_club(request):
             'users:profil',
             kwargs={'userid':str(club.id)}
             ))
-    return form({'userform': club}, 'users/user.html', request)
+    return form({'userform': club, 'showCGU':False}, 'users/user.html', request)
 
 
 @login_required
@@ -181,7 +181,7 @@ def edit_club_admin_members(request, club_instance, clubid):
             'users:profil',
             kwargs={'userid':str(club_instance.id)}
             ))
-    return form({'userform': club}, 'users/user.html', request)
+    return form({'userform': club, 'showCGU':False}, 'users/user.html', request)
 
 
 @login_required
@@ -366,7 +366,7 @@ def add_ban(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
         )
-    return form({'userform': ban}, 'users/user.html', request)
+        return form({'userform': ban}, 'users/user.html', request)
 
 @login_required
 @can_edit(Ban)
@@ -415,7 +415,7 @@ def add_whitelist(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
         )
-    return form({'userform': whitelist}, 'users/user.html', request)
+        return form({'userform': whitelist}, 'users/user.html', request)
 
 
 @login_required
