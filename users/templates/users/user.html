@@ -37,9 +37,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>
 <br>
+{% if showCGU %}
 <p>En cliquant sur Créer ou modifier, l'utilisateur s'engage à respecter les <a href="/media/{{ GTU }}" download="CGU" >règles d'utilisation du réseau</a>.</p>
 <h3>Résumé des règles d'utilisations</h3>
 <p>{{ GTU_sum_up }}</p>
+{% endif %}
 <br/>
 <br/>
 <br/>
