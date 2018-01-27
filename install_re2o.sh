@@ -237,11 +237,11 @@ install_base=$(dialog --clear \
 	$HEIGHT $WIDTH \
 	2>&1 >/dev/tty)
 
+echo "Installation des paquets de base"
 apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev python3-crypto
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
 pip3 install django-macaddress
-pip3 install pycrypto
 
 if [ $sql_bdd_type == 1 ]
 then
