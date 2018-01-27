@@ -26,66 +26,96 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 {% block title %}Profil{% endblock %}
-
 {% block content %}
 <h2>{{ users.surname }} {{users.name}}</h2>
-<p>
-Vous êtes
-{% if users.end_adhesion != None %}
-<span class="text-success">
-un {{ users.class_name | lower}}
-</span>
-{% else %}
-<span class="text-danger">
-non adhérent
-</span>
-{% endif %}
-et votre connexion est
-{% if users.has_access %}
-<span class="text-success">
-active.
-</span>
-{% else %}
-<span class="text-danger">
-désactivée.
-</span>
+<p>Vous êtes {% if users.end_adhesion != None %}<span class="label label-success">
+un {{ users.class_name | lower}}</span>{% else %}<span class="label label-danger">
+non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
+<span class="label label-success">active</span>{% else %}<span class="label label-danger">désactivée</span>{% endif %}.</p>
+{% if user_solde %}
+<p>Votre solde est de <span class="badge">{{ user.solde }}€</span>.
+{% if allow_online_payment %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:recharge' %}">
+    <i class="glyphicon glyphicon-piggy-bank"></i>
+    Recharger
+</a>
 {% endif %}
 </p>
+{% endif %}
+
 <div class="panel-group" id="accordion">
-
-
 	<div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse1">
                     Informations détaillées
                 </a>
             </h3>
+            <div class="dropdown pull-right">
+                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="glyphicon glyphicon-edit"></i> Édition<span class="caret"></span></button>
+                <ul class="dropdown-menu" arialabelledby="editionuser">
+                    <li>
+                        <a href="{% url 'users:edit-info' users.id %}">
+                            <i class="glyphicon glyphicon-edit"></i>
+                            Editer
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'users:password' users.id %}">
+                            <i class="glyphicon glyphicon-lock"></i>
+                            Changer le mot de passe
+                        </a>
+                    </li>
+        	        {% can_change User state %}
+                    <li>
+                        <a href="{% url 'users:state' users.id %}">
+                            <i class="glyphicon glyphicon-flash"></i>
+                            Changer le statut
+                        </a>
+                    </li>
+        	        {% acl_end %}
+                    {% can_change User groups %}
+                    <li>
+        	            <a href="{% url 'users:groups' users.id %}">
+        	                <i class="glyphicon glyphicon-ok"></i>
+                            Gérer les groupes
+                        </a>
+                    </li>
+        	        {% acl_end %}
+                    <li>
+        	            <a href="{% url 'users:history' 'user' users.id %}">
+                            <i class="glyphicon glyphicon-time"></i>
+                            Historique
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="panel-collapse collapse in" id="collapse1">
+        <div class="panel-collapse collapse" id="collapse1">
             <div class="panel-body">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="fa fa-edit"></i>
                     Editer
                 </a>
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
-                    <i class="glyphicon glyphicon-lock"></i>
+                    <i class="fa fa-lock"></i>
                     Changer le mot de passe
                 </a>
         	{% can_change User state %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
-                    <i class="glyphicon glyphicon-flash"></i>
+                    <i class="fa fa-badge"></i>
                     Changer le statut
                 </a>
         	{% acl_end %}
                 {% can_change User groups %}
         	    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
-        	        <i class="glyphicon glyphicon-ok"></i>
+        	        <i class="fa fa-check"></i>
                     Gérer les groupes
                 </a>
         	{% acl_end %}
         	    <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
-                    <i class="glyphicon glyphicon-time"></i>
+                    <i class="fa fa-history"></i>
                     Historique
                 </a>
                 <p>
@@ -186,18 +216,20 @@ désactivée.
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse2">Gérer le club</a>
             </h3>
-        </div>
-        <div class="panel-collapse collapse" id="collapse2">
-            <div class="panel-body">
+            <div class="btn-group pull-right">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
                     <i class="fa fa-lock"></i>
                     Gérer admin et membres
                 </a>
-                <h4>Administrateurs du club</h4>
+            </div>
+        </div>
+        <div class="panel-collapse collapse" id="collapse2">
+            <div class="panel-body">
+                                <h4>Administrateurs du club</h4>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -236,11 +268,12 @@ désactivée.
     </div>
     {% endif %}
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse3">Machines</a>
+                <span class="badge">{{machines_list.count}}</span>
             </h3>
-
+            <a class="btn btn-primary btn-sm pull-right" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a>
         </div>
         <div id="collapse3" class="panel-collapse collapse">
             <div class="panel-body">
@@ -254,14 +287,30 @@ désactivée.
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse4">Cotisations</a>
             </h3>
+            <div class="btn-group pull-right">
+                {% can_create Facture %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                    <i class="glyphicon glyphicon-piggy-bank"></i>
+                    Ajouter une cotisation
+                </a>
+                {% if user_solde %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+                    <i class="glyphicon glyphicon-piggy-bank"></i>
+                    Modifier le solde
+                </a>
+                {% endif%}{% acl_else %}
+                {% if user_solde %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
+                    <i class="glyphicon glyphicon-piggy-bank"></i>
+                    Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
+            </div>
         </div>
         <div id="collapse4" class="panel-collapse collapse">
             <div class="panel-body">
-                <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}{% acl_else %}{% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}</h4>
                 {% if facture_list %}
                 {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
                 {% else %}
@@ -271,14 +320,20 @@ désactivée.
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse5">Bannissements</a>
             </h3>
+            <div class="btn-group pull-right">
+                {% can_create Ban %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}">
+                    <i class="fa fa-ban"></i>
+                    Ajouter un bannissement
+                </a>{% acl_end %}
+            </div>
         </div>
         <div id="collapse5" class="panel-collapse collapse">
             <div class="panel-body">
-                {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="fa fa-ban"></i> Ajouter un bannissement</a></h4>{% acl_end %}
                 {% if ban_list %}
                 {% include "users/aff_bans.html" with ban_list=ban_list %}
                 {% else %}
@@ -288,14 +343,21 @@ désactivée.
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
                 <a data-toggle="collapse" href="#collapse6">Accès à titre gracieux</a>
             </h3>
+            <div class="btn-group pull-right">
+                {% can_create Whitelist %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}">
+                    <i class="fa fa-check-circle"></i>
+                    Accorder un accès à titre gracieux
+                </a>
+                {% acl_end %}
+            </div>
         </div>
         <div id="collapse6" class="panel-collapse collapse">
             <div class="panel-body">
-                {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="fa fa-check-circle"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
                 {% if white_list %}
                 {% include "users/aff_whitelists.html" with white_list=white_list %}
                 {% else %}
