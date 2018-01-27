@@ -29,8 +29,6 @@ setup_ldap() {
 
 install_re2o_server() {
 
-
-
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get -y install sudo dialog
@@ -107,7 +105,7 @@ clear
 
 
 if [ $sql_is_local == 2 ]
-then 
+then
 TITLE="Login sql"
 sql_login=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -169,7 +167,7 @@ ldap_password=$(dialog --title "$TITLE" \
         2>&1 >/dev/tty)
 clear
 if [ $ldap_is_local == 2 ]
-then 
+then
 TITLE="Cn ldap admin"
 ldap_cn=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -209,7 +207,7 @@ email_port=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 if [ $ldap_is_local == 2 ]
-then 
+then
 TITLE="Cn ldap admin"
 ldap_cn=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -240,6 +238,7 @@ apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fo
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
 pip3 install django-macaddress
+pip3 install pycrypto
 
 if [ $sql_bdd_type == 1 ]
 then
@@ -253,7 +252,7 @@ then
     echo $mysql_command
     while true; do
 	read -p "Continue (y/n)?" choice
-	case "$choice" in 
+	case "$choice" in
 	y|Y ) break;;
 	n|N ) exit;;
 	* ) echo "invalid";;
@@ -276,14 +275,14 @@ else
     echo sudo -u postgres psql $pgsql_command3
     while true; do
 	read -p "Continue (y/n)?" choice
-	case "$choice" in 
+	case "$choice" in
 	y|Y ) break;;
 	n|N ) exit;;
 	* ) echo "invalid";;
 	esac
     done
     fi
-fi 
+fi
 
 if [ $ldap_is_local == 1 ]
 then
@@ -430,7 +429,7 @@ if [ ! -z "$1" ]
 then
 if [ $1 == ldap ]
 then
-if [ ! -z "$2" ] 
+if [ ! -z "$2" ]
 then
 echo Installation du ldap
 setup_ldap $2 $3
