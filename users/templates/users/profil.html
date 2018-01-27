@@ -28,206 +28,274 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h2>{{ users.class_name }} : {{ users.surname }} {{users.name}}</h2>
-    <div>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
-            <i class="fa fa-edit"></i>
-            Editer
-        </a>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
-            <i class="fa fa-lock"></i>
-            Changer le mot de passe
-        </a>
-	{% can_change User state %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
-            <i class="fa fa-id-badge"></i>
-            Changer le statut
-        </a>
-	{% acl_end %}
-        {% can_change User groups %}
-	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
-	    <i class="fa fa-check"></i>
-            Gérer les groupes
-        </a>
-	{% acl_end %}
-	<a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
-            <i class="fa fa-history"></i>
-            Historique
-        </a>
-    </div>
-    <p>
-        <br />
-    </p>
-    <table class="table table-striped">
-        <tr>
-	    {% if users.is_class_club %}
-	    <th>Mailing</th>
-            {% if users.club.mailing %}
-	    <td>{{ users.pseudo }}(-admin)</td>
-	    {% else %}
-	    <td>Mailing désactivée</td>
-	    {% endif %}
-	    {% else %}
-            <th>Prénom</th>
-            <td>{{ users.name }}</td>
-	    {% endif %}
-            <th>Nom</th>
-            <td>{{ users.surname }}</td>
-        </tr>
-        <tr>
-            <th>Pseudo</th>
-            <td>{{ users.pseudo }}</td>
-            <th>E-mail</th>
-            <td>{{ users.email }}</td>
-        </tr>
-        <tr>
-            <th>Chambre</th>
-            <td>{{ users.room }}</td>
-            <th>Téléphone</th>
-	    <td>{{ users.telephone }}</td>
-        </tr>
-        <tr>
-            <th>École</th>
-            <td>{{ users.school }}</td>
-            <th>Commentaire</th>
-            <td>{{ users.comment }}</td>
-        </tr>
-        <tr>
-            <th>Date d'inscription</th>
-            <td>{{ users.registered }}</td>
-            <th>Dernière connexion</th>
-            <td>{{ users.last_login }}</td>
-        </tr>
-        <tr>
-            <th>Fin d'adhésion</th>
-            {% if users.end_adhesion != None %}
-            <td><i class="text-success">{{ users.end_adhesion }}</i></td>
-            {% else %}
-            <td><i class="text-danger">Non adhérent</i></td>
-            {% endif %}
-            <th>Accès gracieux</th>
-            {% if users.end_whitelist != None %}
-            <td><i class="text-success">{{ users.end_whitelist }}</i></td>
-            {% else %}
-            <td><i class="text-warning">Aucun</i></td>
-            {% endif %}
-        <tr>
-            <th>Bannissement</th>
-            {% if users.end_ban != None %}
-            <td><i class="text-danger">{{ users.end_ban }}</i></td>
-            {% else %}
-            <td><i class="text-success">Non banni</i></td>
-            {% endif %}
-            <th>Statut</th>
-            {% if users.state == 0 %}
-            <td><i class="text-success">Actif</i></td>
-            {% elif users.state == 1 %}
-            <td><i class="text-danger">Désactivé</i></td>
-            {% else %}
-            <td><i class="text-warning">Archivé</i></td>
-            {% endif %}
-        </tr>
-        <tr>
-            <th>Accès internet</th>
-            {% if users.has_access == True %}
-	    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
-            {% else %}
-            <td><i class="text-danger">Désactivé</i></td>
-            {% endif %}
-            <th>Groupes</th>
-            {% if users.groups.all %}
-	    <td>{{ users.groups.all|join:", "}}</td>
-            {% else %}
-            <td>Aucun</td>
-            {% endif %}
-        </tr>
-        {% if allow_online_payment %}
-        <tr>
-            <th>Solde</th>
-            <td>{{ users.solde }} €
-		    <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
-                    <i class="fa fa-euro-sign"></i>
-                    Recharger
+<h2>{{ users.surname }} {{users.name}}</h2>
+<p>
+Vous êtes
+{% if users.end_adhesion != None %}
+un {{ users.class_name | lower}}
+{% else %}
+non adhérent
+{% endif %}
+et votre connexion est
+{% if users.has_access %}
+active.
+{% else %}
+désactivée.
+{% endif %}
+</p>
+<div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse1">
+                    Informations détaillées
                 </a>
-            </td>
-	{% endif %}
-	{% if users.shell %}
-	    <th>Shell</th>
-	    <td>{{ users.shell }}</td>
-	{% endif %}
-        </tr>
-    </table>
+            </h3>
+        </div>
+        <div class="panel-collapse collapse in" id="collapse1">
+            <div class="panel-body">
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                    Editer
+                </a>
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
+                    <i class="glyphicon glyphicon-lock"></i>
+                    Changer le mot de passe
+                </a>
+        	{% can_change User state %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
+                    <i class="glyphicon glyphicon-flash"></i>
+                    Changer le statut
+                </a>
+        	{% acl_end %}
+                {% can_change User groups %}
+        	    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
+        	        <i class="glyphicon glyphicon-ok"></i>
+                    Gérer les groupes
+                </a>
+        	{% acl_end %}
+        	    <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
+                    <i class="glyphicon glyphicon-time"></i>
+                    Historique
+                </a>
+                <p>
+                    <br />
+                </p>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Prénom</th>
+                        <td>{{ users.name }}</td>
+                        <th>Nom</th>
+                        <td>{{ users.surname }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pseudo</th>
+                        <td>{{ users.pseudo }}</td>
+                        <th>E-mail</th>
+                        <td>{{ users.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Chambre</th>
+                        <td>{{ users.room }}</td>
+                        <th>Téléphone</th>
+            	    <td>{{ users.telephone }}</td>
+                    </tr>
+                    <tr>
+                        <th>École</th>
+                        <td>{{ users.school }}</td>
+                        <th>Commentaire</th>
+                        <td>{{ users.comment }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date d'inscription</th>
+                        <td>{{ users.registered }}</td>
+                        <th>Dernière connexion</th>
+                        <td>{{ users.last_login }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fin d'adhésion</th>
+                        {% if users.end_adhesion != None %}
+                        <td><i class="text-success">{{ users.end_adhesion }}</i></td>
+                        {% else %}
+                        <td><i class="text-danger">Non adhérent</i></td>
+                        {% endif %}
+                        <th>Accès gracieux</th>
+                        {% if users.end_whitelist != None %}
+                        <td><i class="text-success">{{ users.end_whitelist }}</i></td>
+                        {% else %}
+                        <td><i class="text-warning">Aucun</i></td>
+                        {% endif %}
+                    <tr>
+                        <th>Bannissement</th>
+                        {% if users.end_ban != None %}
+                        <td><i class="text-danger">{{ users.end_ban }}</i></td>
+                        {% else %}
+                        <td><i class="text-success">Non banni</i></td>
+                        {% endif %}
+                        <th>Statut</th>
+                        {% if users.state == 0 %}
+                        <td><i class="text-success">Actif</i></td>
+                        {% elif users.state == 1 %}
+                        <td><i class="text-danger">Désactivé</i></td>
+                        {% else %}
+                        <td><i class="text-warning">Archivé</i></td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>Accès internet</th>
+                        {% if users.has_access == True %}
+            	    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
+                        {% else %}
+                        <td><i class="text-danger">Désactivé</i></td>
+                        {% endif %}
+                        <th>Groupes</th>
+                        {% if users.groups.all %}
+            	    <td>{{ users.groups.all|join:", "}}</td>
+                        {% else %}
+                        <td>Aucun</td>
+                        {% endif %}
+                    </tr>
+                    {% if allow_online_payment %}
+                    <tr>
+                        <th>Solde</th>
+                        <td>{{ users.solde }} €
+            		    <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                                <i class="glyphicon glyphicon-piggy-bank"></i>
+                                Recharger
+                            </a>
+                        </td>
+            	{% endif %}
+            	{% if users.shell %}
+            	    <th>Shell</th>
+            	    <td>{{ users.shell }}</td>
+            	{% endif %}
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
     {% if users.is_class_club %}
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
-        <i class="fa fa-lock"></i>
-        Gérer admin et membres
-    </a>
-    <h3>Administrateurs du club</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Pseudo</th>
-            </tr>
-        </thead>
-        {% for admin in users.club.administrators.all %}
-        <tr>
-            <td>{{ admin.surname }}</td>
-            <td>{{ admin.name }}</td>
-	    <td>{{ admin.pseudo }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <h3>Membres</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Pseudo</th>
-            </tr>
-        </thead>
-        {% for admin in users.club.members.all %}
-        <tr>
-            <td>{{ admin.surname }}</td>
-            <td>{{ admin.name }}</td>
-	    <td>{{ admin.pseudo }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse2">Gérer le club</a>
+            </h3>
+        </div>
+        <div class="panel-collapse collapse" id="collapse2">
+            <div class="panel-body">
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                    <i class="fa fa-lock"></i>
+                    Gérer admin et membres
+                </a>
+                <h4>Administrateurs du club</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Pseudo</th>
+                        </tr>
+                    </thead>
+                    {% for admin in users.club.administrators.all %}
+                    <tr>
+                        <td>{{ admin.surname }}</td>
+                        <td>{{ admin.name }}</td>
+            	    <td>{{ admin.pseudo }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <h4>Membres</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Pseudo</th>
+                        </tr>
+                    </thead>
+                    {% for admin in users.club.members.all %}
+                    <tr>
+                        <td>{{ admin.surname }}</td>
+                        <td>{{ admin.name }}</td>
+            	    <td>{{ admin.pseudo }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
     {% endif %}
-    <h2>Machines</h2>
-    {% can_create Machine users.id %}
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a></h4>
-    {% acl_end %}
-    {% if machines_list %}
-    {% include "machines/aff_machines.html" with machines_list=machines_list %}
-    {% else %}
-    <p>Aucune machine</p>
-    {% endif %}
-    <h2>Cotisations</h2>
-    <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="fa fa-euro-sign"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="fa fa-euro-sign"></i> Modifier le solde</a>{% endif%}{% acl_else %}{% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}"><i class="fa fa-euro-sign"></i> Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}</h4>
-    {% if facture_list %}
-    {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
-    {% else %}
-    <p>Aucune facture</p>
-    {% endif %}
-    <h2>Bannissements</h2>
-    {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="fa fa-ban"></i> Ajouter un bannissement</a></h4>{% acl_end %}
-    {% if ban_list %}
-    {% include "users/aff_bans.html" with ban_list=ban_list %}
-    {% else %}
-    <p>Aucun bannissement</p>
-    {% endif %}
-    <h2>Accès à titre gracieux :</h2>
-    {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="fa fa-check-circle"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
-    {% if white_list %}
-    {% include "users/aff_whitelists.html" with white_list=white_list %}
-    {% else %}
-    <p>Aucun accès gracieux</p>
-    {% endif %}
-    <br />
-    <br />
-    <br />
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse3">Machines</a>
+            </h3>
+
+        </div>
+        <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">
+                <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a></h4>
+                {% if machines_list %}
+                {% include "machines/aff_machines.html" with machines_list=machines_list %}
+                {% else %}
+                <p>Aucune machine</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse4">Cotisations</a>
+            </h3>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
+                <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}{% acl_else %}{% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}</h4>
+                {% if facture_list %}
+                {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
+                {% else %}
+                <p>Aucune facture</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse5">Bannissements</a>
+            </h3>
+        </div>
+        <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="fa fa-ban"></i> Ajouter un bannissement</a></h4>{% acl_end %}
+                {% if ban_list %}
+                {% include "users/aff_bans.html" with ban_list=ban_list %}
+                {% else %}
+                <p>Aucun bannissement</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" href="#collapse6">Accès à titre gracieux</a>
+            </h3>
+        </div>
+        <div id="collapse6" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="fa fa-check-circle"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
+                {% if white_list %}
+                {% include "users/aff_whitelists.html" with white_list=white_list %}
+                {% else %}
+                <p>Aucun accès gracieux</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
 {% endblock %}
