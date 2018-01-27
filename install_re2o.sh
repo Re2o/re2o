@@ -28,6 +28,9 @@ setup_ldap() {
 
 
 install_re2o_server() {
+echo "Installation de Re2o !
+Cet utilitaire va procéder à l'installation initiale de re2o. Le serveur présent doit être vierge.
+Preconfiguration..."
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -238,6 +241,7 @@ apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fo
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
 pip3 install django-macaddress
+pip3 install pycrypto
 
 if [ $sql_bdd_type == 1 ]
 then
