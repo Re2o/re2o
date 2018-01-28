@@ -28,6 +28,8 @@ from __future__ import unicode_literals
 from django.db import models
 import cotisations.models
 
+from .aes_field import AESEncryptedField
+
 
 class OptionalUser(models.Model):
     """Options pour l'user : obligation ou nom du telephone,
@@ -41,10 +43,24 @@ class OptionalUser(models.Model):
         decimal_places=2,
         default=0
     )
+    max_solde = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=50
+    )
+    min_online_payment = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10
+    )
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create = models.BooleanField(
         default=False,
         help_text="Tous les users peuvent en créer d'autres",
+    )
+    self_adhesion = models.BooleanField(
+        default=False,
+        help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
 
     class Meta:
@@ -107,7 +123,10 @@ class OptionalUser(models.Model):
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
-            cotisations.models.Paiement.objects.get_or_create(moyen="Solde")
+            p = cotisations.models.Paiement.objects.filter(moyen="Solde")
+            if not len(p):
+                c = cotisations.models.Paiement(moyen="Solde")
+                c.save()
 
 
 class OptionalMachine(models.Model):
@@ -285,6 +304,16 @@ class GeneralOption(models.Model):
     req_expire_hrs = models.IntegerField(default=48)
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@serveur.net")
+    GTU_sum_up = models.TextField(
+        default="",
+        blank=True,
+    )
+    GTU = models.FileField(
+        upload_to = '',
+        default="",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         permissions = (
@@ -436,6 +465,23 @@ class AssoOption(models.Model):
         blank=True,
         null=True
     )
+    PAYMENT = (
+        ('NONE', 'NONE'),
+        ('COMNPAY', 'COMNPAY'),
+    )
+    payment = models.CharField(max_length=255,
+        choices=PAYMENT,
+        default='NONE',
+    )
+    payment_id = models.CharField(
+        max_length=255,
+        default='',
+    )
+    payment_pass = AESEncryptedField(
+        max_length=255,
+        default='',
+    )
+
 
     class Meta:
         permissions = (

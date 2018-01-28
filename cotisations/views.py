@@ -29,6 +29,7 @@ import os
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.validators import MaxValueValidator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import ProtectedError
@@ -36,6 +37,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.debug import sensitive_variables
 from reversion import revisions as reversion
 from reversion.models import Version
 # Import des models, forms et fonctions re2o
@@ -67,8 +70,11 @@ from .forms import (
     NewFactureFormPdf,
     SelectUserArticleForm,
     SelectClubArticleForm,
-    CreditSoldeForm
+    CreditSoldeForm,
+    NewFactureSoldeForm,
+    RechargeForm
 )
+from . import payment
 from .tex import render_invoice
 
 
@@ -584,3 +590,127 @@ def index(request):
     return render(request, 'cotisations/index.html', {
         'facture_list': facture_list
         })
+
+
+@login_required
+def new_facture_solde(request, userid):
+    """Creation d'une facture pour un user. Renvoie la liste des articles
+    et crée des factures dans un formset. Utilise un peu de js coté template
+    pour ajouter des articles.
+    Parse les article et boucle dans le formset puis save les ventes,
+    enfin sauve la facture parente.
+    TODO : simplifier cette fonction, déplacer l'intelligence coté models
+    Facture et Vente."""
+    user = request.user
+    facture = Facture(user=user)
+    paiement, _created = Paiement.objects.get_or_create(moyen='Solde')
+    facture.paiement = paiement
+    # Le template a besoin de connaitre les articles pour le js
+    article_list = Article.objects.filter(
+        Q(type_user='All') | Q(type_user=request.user.class_name)
+    )
+    if request.user.is_class_club:
+        article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+    else:
+        article_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+    if article_formset.is_valid():
+        articles = article_formset
+        # Si au moins un article est rempli
+        if any(art.cleaned_data for art in articles):
+            options, _created = OptionalUser.objects.get_or_create()
+            user_solde = options.user_solde
+            solde_negatif = options.solde_negatif
+            # Si on paye par solde, que l'option est activée,
+            # on vérifie que le négatif n'est pas atteint
+            if user_solde:
+                prix_total = 0
+                for art_item in articles:
+                    if art_item.cleaned_data:
+                        prix_total += art_item.cleaned_data['article']\
+                                .prix*art_item.cleaned_data['quantity']
+                if float(user.solde) - float(prix_total) < solde_negatif:
+                    messages.error(request, "Le solde est insuffisant pour\
+                            effectuer l'opération")
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': userid}
+                        ))
+            with transaction.atomic(), reversion.create_revision():
+                facture.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            for art_item in articles:
+                if art_item.cleaned_data:
+                    article = art_item.cleaned_data['article']
+                    quantity = art_item.cleaned_data['quantity']
+                    new_vente = Vente.objects.create(
+                        facture=facture,
+                        name=article.name,
+                        prix=article.prix,
+                        type_cotisation=article.type_cotisation,
+                        duration=article.duration,
+                        number=quantity
+                    )
+                    with transaction.atomic(), reversion.create_revision():
+                        new_vente.save()
+                        reversion.set_user(request.user)
+                        reversion.set_comment("Création")
+            if any(art_item.cleaned_data['article'].type_cotisation
+                   for art_item in articles if art_item.cleaned_data):
+                messages.success(
+                    request,
+                    "La cotisation a été prolongée\
+                    pour l'adhérent %s jusqu'au %s" % (
+                        user.pseudo, user.end_adhesion()
+                    )
+                    )
+            else:
+                messages.success(request, "La facture a été crée")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': userid}
+                ))
+        messages.error(
+            request,
+            u"Il faut au moins un article valide pour créer une facture"
+            )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': userid}
+        ))
+
+    return form({
+        'venteform': article_formset,
+        'articlelist': article_list
+        }, 'cotisations/new_facture_solde.html', request)
+
+
+@login_required
+def recharge(request):
+    options, _created = AssoOption.objects.get_or_create()
+    if options.payment == 'NONE':
+        messages.error(
+            request,
+            "Le paiement en ligne est désactivé."
+        )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': request.user.id}
+        ))
+    f = RechargeForm(request.POST or None, user=request.user)
+    if f.is_valid():
+        facture = Facture(user=request.user)
+        paiement, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
+        facture.paiement = paiement
+        facture.valid = False
+        facture.save()
+        v = Vente.objects.create(
+            facture=facture,
+            name='solde',
+            prix=f.cleaned_data['value'],
+            number=1,
+        )
+        v.save()
+        content = payment.PAYMENT_SYSTEM[options.payment](facture, request)
+        return render(request, 'cotisations/payment.html', content)
+    return form({'rechargeform':f}, 'cotisations/recharge.html', request)

@@ -1,4 +1,4 @@
-{% extends "preferences/sidebar.html" %}
+{% extends "cotisations/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -24,21 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
+{% load staticfiles%}
 
-{% block title %}Création et modification des préférences{% endblock %}
+{% block title %}Rechargement du solde{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors options %}
-
-<h3>Edition des préférences</h3>
-
-<form class="form" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-{% massive_bootstrap_form options 'utilisateur_asso' %}
-{% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+<h2>Rechargement du solde</h2>
+<h3>Solde : <span class="label label-default">{{ request.user.solde }} €</span></h3>
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form rechargeform %}
+    {% bootstrap_button "Valider" button_type="submit" icon="piggy-bank" %}
 </form>
-  <br />
-  <br />
-  <br />
 {% endblock %}
