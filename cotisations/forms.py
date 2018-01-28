@@ -26,9 +26,8 @@ importé par les views.
 Permet de créer une nouvelle facture pour un user (NewFactureForm),
 et de l'editer (soit l'user avec EditFactureForm,
 soit le trésorier avec TrezEdit qui a plus de possibilités que self
-notamment sur le controle trésorier)
-
-SelectArticleForm est utilisée lors de la creation d'une facture en
+notamment sur le controle trésorier SelectArticleForm est utilisée
+lors de la creation d'une facture en
 parrallèle de NewFacture pour le choix des articles désirés.
 (la vue correspondante est unique)
 
@@ -40,8 +39,10 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator,MaxValueValidator
 from .models import Article, Paiement, Facture, Banque
+from preferences.models import OptionalUser
+from users.models import User
 
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -246,3 +247,58 @@ class DelBanqueForm(Form):
             self.fields['banques'].queryset = instances
         else:
             self.fields['banques'].queryset = Banque.objects.all()
+
+
+class NewFactureSoldeForm(NewFactureForm):
+    """Creation d'une facture, moyen de paiement, banque et numero
+    de cheque"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        self.fields['cheque'].required = False
+        self.fields['banque'].required = False
+        self.fields['cheque'].label = 'Numero de chèque'
+        self.fields['banque'].empty_label = "Non renseigné"
+        self.fields['paiement'].empty_label = "Séléctionner\
+        une bite de paiement"
+        paiement_list = Paiement.objects.filter(type_paiement=1)
+        if paiement_list:
+            self.fields['paiement'].widget\
+                .attrs['data-cheque'] = paiement_list.first().id
+
+    class Meta:
+        model = Facture
+        fields = ['paiement', 'banque']
+
+
+    def clean(self):
+        cleaned_data = super(NewFactureSoldeForm, self).clean()
+        paiement = cleaned_data.get("paiement")
+        cheque = cleaned_data.get("cheque")
+        banque = cleaned_data.get("banque")
+        if not paiement:
+            raise forms.ValidationError("Le moyen de paiement est obligatoire")
+        elif paiement.type_paiement == "check" and not (cheque and banque):
+            raise forms.ValidationError("Le numéro de chèque et\
+                la banque sont obligatoires.")
+        return cleaned_data
+
+
+class RechargeForm(Form):
+    value = forms.FloatField(
+        label='Valeur',
+        min_value=0.01,
+        validators = []
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(RechargeForm, self).__init__(*args, **kwargs)
+
+    def clean_value(self):
+        value = self.cleaned_data['value']
+        options, _created = OptionalUser.objects.get_or_create()
+        if value < options.min_online_payment:
+            raise forms.ValidationError("Montant inférieur au montant minimal de paiement en ligne (%s) €" % options.min_online_payment)
+        if value + self.user.solde > options.max_solde:
+            raise forms.ValidationError("Le solde ne peux excéder %s " % options.max_solde)
+        return value

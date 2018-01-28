@@ -150,7 +150,7 @@ STATICFILES_DIRS = (
     ),
 )
 
-MEDIA_ROOT = '/var/www/re2o/static'
+MEDIA_ROOT = '/var/www/re2o/media'
 
 STATIC_URL = '/static/'
 
