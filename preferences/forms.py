@@ -51,7 +51,6 @@ class EditOptionalUserForm(ModelForm):
         self.fields['max_solde'].label = 'Solde maximum'
         self.fields['min_online_payment'].label = 'Montant de rechargement minimum en ligne'
         self.fields['self_adhesion'].label = 'Auto inscription'
-        self.fields['max_recharge'].label = 'Rechargement max'
 
 
 class EditOptionalMachineForm(ModelForm):
