@@ -18,9 +18,4 @@ class Migration(migrations.Migration):
             name='payment_id',
             field=models.CharField(max_length=255, null=True),
         ),
-        migrations.AddField(
-            model_name='assooption',
-            name='payment_pass',
-            field=preferences.aes_field.AESEncryptedField(max_length=255, null=True),
-        ),
     ]
