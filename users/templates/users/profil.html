@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h2>{{ users.class_name }}</h2>
+<h2>{{ users.class_name }} : {{ users.surname }} {{users.name}}</h2>
     <div>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
             <i class="glyphicon glyphicon-edit"></i>
@@ -132,16 +132,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>Aucun</td>
             {% endif %}
         </tr>
-        {% if user_solde %}
+        {% if allow_online_payment %}
         <tr>
             <th>Solde</th>
-            <td>{{ users.solde }} €</td>
-        </tr>
+            <td>{{ users.solde }} €
+		    <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                    <i class="glyphicon glyphicon-piggy-bank"></i>
+                    Recharger
+                </a>
+            </td>
 	{% endif %}
 	{% if users.shell %}
 	    <th>Shell</th>
 	    <td>{{ users.shell }}</td>
 	{% endif %}
+        </tr>
     </table>
     {% if users.is_class_club %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
@@ -191,7 +196,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>Aucune machine</p>
     {% endif %}
     <h2>Cotisations</h2>
-    <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>{% acl_end %}  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>
+    <h4>{% can_create Facture %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}{% acl_else %}{% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}</h4>
     {% if facture_list %}
     {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
     {% else %}

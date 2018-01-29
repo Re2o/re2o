@@ -289,7 +289,7 @@ class Vente(models.Model):
         if not user_request.has_perm('cotisations.change_vente'):
             return False, u"Vous n'avez pas le droit d'éditer les ventes"
         elif not user_request.has_perm('cotisations.change_all_facture') and not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"       
+            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
         elif not user_request.has_perm('cotisations.change_all_vente') and\
             (self.facture.control or not self.facture.valid):
             return False, u"Vous n'avez pas le droit d'éditer une vente\

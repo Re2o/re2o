@@ -48,6 +48,9 @@ class EditOptionalUserForm(ModelForm):
         téléphone'
         self.fields['user_solde'].label = 'Activation du solde pour\
         les utilisateurs'
+        self.fields['max_solde'].label = 'Solde maximum'
+        self.fields['min_online_payment'].label = 'Montant de rechargement minimum en ligne'
+        self.fields['self_adhesion'].label = 'Auto inscription'
 
 
 class EditOptionalMachineForm(ModelForm):
@@ -114,6 +117,7 @@ class EditGeneralOptionForm(ModelForm):
         self.fields['site_name'].label = 'Nom du site web'
         self.fields['email_from'].label = "Adresse mail d\
         'expedition automatique"
+        self.fields['GTU_sum_up'].label = "Résumé des CGU"
 
 
 class EditAssoOptionForm(ModelForm):

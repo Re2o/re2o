@@ -1,3 +1,4 @@
 django-bootstrap3
 django-macaddress
 python-dateutil
+pycrypto

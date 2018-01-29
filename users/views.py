@@ -85,7 +85,7 @@ from users.forms import (
 )
 from cotisations.models import Facture
 from machines.models import Machine
-from preferences.models import OptionalUser, GeneralOption
+from preferences.models import OptionalUser, GeneralOption, AssoOption
 
 from re2o.views import form
 from re2o.utils import (
@@ -117,12 +117,14 @@ def password_change_action(u_form, user, request, req=False):
         kwargs={'userid':str(user.id)}
         ))
 
-@login_required
 @can_create(Adherent)
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
     user = AdherentForm(request.POST or None, user=request.user)
+    options, _created = GeneralOption.objects.get_or_create()
+    GTU_sum_up = options.GTU_sum_up
+    GTU = options.GTU
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -136,7 +138,7 @@ def new_user(request):
             'users:profil',
             kwargs={'userid':str(user.id)}
             ))
-    return form({'userform': user}, 'users/user.html', request)
+    return form({'userform': user,'GTU_sum_up':GTU_sum_up,'GTU':GTU,'showCGU':True}, 'users/user.html', request)
 
 
 @login_required
@@ -158,7 +160,7 @@ def new_club(request):
             'users:profil',
             kwargs={'userid':str(club.id)}
             ))
-    return form({'userform': club}, 'users/user.html', request)
+    return form({'userform': club, 'showCGU':False}, 'users/user.html', request)
 
 
 @login_required
@@ -179,7 +181,7 @@ def edit_club_admin_members(request, club_instance, clubid):
             'users:profil',
             kwargs={'userid':str(club_instance.id)}
             ))
-    return form({'userform': club}, 'users/user.html', request)
+    return form({'userform': club, 'showCGU':False}, 'users/user.html', request)
 
 
 @login_required
@@ -364,7 +366,7 @@ def add_ban(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
         )
-    return form({'userform': ban}, 'users/user.html', request)
+        return form({'userform': ban}, 'users/user.html', request)
 
 @login_required
 @can_edit(Ban)
@@ -413,7 +415,7 @@ def add_whitelist(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
         )
-    return form({'userform': whitelist}, 'users/user.html', request)
+        return form({'userform': whitelist}, 'users/user.html', request)
 
 
 @login_required
@@ -780,6 +782,8 @@ def profil(request, users, userid):
     )
     options, _created = OptionalUser.objects.get_or_create()
     user_solde = options.user_solde
+    options, _created = AssoOption.objects.get_or_create()
+    allow_online_payment = options.payment != 'NONE'
     return render(
         request,
         'users/profil.html',
@@ -790,6 +794,7 @@ def profil(request, users, userid):
             'ban_list': bans,
             'white_list': whitelists,
             'user_solde': user_solde,
+            'allow_online_payment' : allow_online_payment,
         }
     )
 
