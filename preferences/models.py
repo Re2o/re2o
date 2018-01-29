@@ -479,7 +479,8 @@ class AssoOption(models.Model):
     )
     payment_pass = AESEncryptedField(
         max_length=255,
-        default='',
+        null=True,
+        blank=True,
     )
 
 
