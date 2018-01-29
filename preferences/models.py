@@ -25,6 +25,7 @@ Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 """
 from __future__ import unicode_literals
 
+from django.utils.functional import cached_property
 from django.db import models
 import cotisations.models
 
@@ -115,10 +116,27 @@ class OptionalMachine(models.Model):
     sans droit, activation de l'ipv6"""
     PRETTY_NAME = "Options machines"
 
+    SLAAC = 'SLAAC'
+    DHCPV6 = 'DHCPV6'
+    DISABLED = 'DISABLED'
+    CHOICE_IPV6 = (
+        (SLAAC, 'Autoconfiguration par RA'),
+        (DHCPV6, 'Attribution des ip par dhcpv6'),
+        (DISABLED, 'Désactivé'),
+    )
+
     password_machine = models.BooleanField(default=False)
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
-    ipv6 = models.BooleanField(default=False)
+    ipv6_mode = models.CharField(
+        max_length=32,
+        choices=CHOICE_IPV6,
+        default='DISABLED'
+    )
+
+    @cached_property
+    def ipv6(self):
+         return not self.ipv6_mode == 'DISABLED'
 
     class Meta:
         permissions = (

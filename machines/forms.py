@@ -57,6 +57,7 @@ from .models import (
     Nas,
     IpType,
     OuverturePortList,
+    Ipv6List,
 )
 
 
@@ -272,6 +273,17 @@ class DelExtensionForm(Form):
             self.fields['extensions'].queryset = instances
         else:
             self.fields['extensions'].queryset = Extension.objects.all()
+
+
+class Ipv6ListForm(FieldPermissionFormMixin, ModelForm):
+    """Gestion des ipv6 d'une machine"""
+    class Meta:
+        model = Ipv6List
+        fields = ['ipv6', 'slaac_ip']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(Ipv6ListForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
 class SOAForm(ModelForm):

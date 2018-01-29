@@ -94,6 +94,7 @@ HISTORY_BIND = {
         'service' : machines.models.Service,
         'vlan' : machines.models.Vlan,
         'nas' : machines.models.Vlan,
+        'ipv6list' : machines.models.Ipv6List,
     },
 }
 

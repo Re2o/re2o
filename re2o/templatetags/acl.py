@@ -106,6 +106,7 @@ MODEL_NAME = {
     'Interface' : machines.models.Interface,
     'Domain' : machines.models.Domain,
     'IpList' : machines.models.IpList,
+    'Ipv6List' : machines.models.Ipv6List,
     'machines.Service' : machines.models.Service,
     'Service_link' : machines.models.Service_link,
     'OuverturePortList' : machines.models.OuverturePortList,

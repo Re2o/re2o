@@ -1188,7 +1188,7 @@ class Interface(FieldPermissionModelMixin,models.Model):
         return machine.active and user.has_access()
 
     @cached_property
-    def ipv6_object(self):
+    def ipv6_slaac(self):
         """ Renvoie un objet type ipv6 à partir du prefix associé à
         l'iptype parent"""
         if self.type.ip_type.prefix_v6:
@@ -1198,10 +1198,29 @@ class Interface(FieldPermissionModelMixin,models.Model):
         else:
             return None
 
-    @cached_property
+    def sync_ipv6_slaac(self):
+        """Cree, mets à jour et supprime si il y a lieu l'ipv6 slaac associée
+        à la machine
+        Sans prefixe ipv6, on return
+        Si l'ip slaac n'est pas celle qu'elle devrait être, on maj"""
+        ipv6_slaac = self.ipv6_slaac
+        if not ipv6_slaac:
+            return
+        ipv6_object = Ipv6List.objects.filter(interface=self, slaac_ip=True).first()
+        if not ipv6_object:
+            ipv6_object = Ipv6List(interface=self, slaac_ip=True)
+        if ipv6_object.ipv6 != str(ipv6_slaac):
+            ipv6_object.ipv6 = str(ipv6_slaac)
+            ipv6_object.save()
+
     def ipv6(self):
-        """ Renvoie l'ipv6 en str. Mise en cache et propriété de l'objet"""
-        return str(self.ipv6_object)
+        """ Renvoie le queryset de la liste des ipv6
+        On renvoie l'ipv6 slaac que si le mode slaac est activé (et non dhcpv6)"""
+        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
+        if machine_options.ipv6_mode == 'SLAAC':
+            return Ipv6List.objects.filter(interface=self)
+        else:
+            return Ipv6List.objects.filter(interface=self, slaac_ip=False)
 
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
@@ -1363,6 +1382,104 @@ class Interface(FieldPermissionModelMixin,models.Model):
         Permet de ne pas exporter des ouvertures sur des ip privées
         (useless)"""
         return self.ipv4 and not self.has_private_ip()
+
+
+class Ipv6List(FieldPermissionModelMixin, models.Model):
+    PRETTY_NAME = 'Enregistrements Ipv6 des machines'
+
+    ipv6 = models.GenericIPAddressField(
+        protocol='IPv6',
+        unique=True
+    )
+    interface = models.ForeignKey('Interface', on_delete=models.CASCADE)
+    slaac_ip = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("interface", "slaac_ip"),)
+        permissions = (
+            ("view_ipv6list", "Peut voir un objet ipv6"),
+            ("change_ipv6list_slaac_ip", "Peut changer la valeur slaac sur une ipv6"),
+        )
+
+    def get_instance(ipv6listid, *args, **kwargs):
+        """Récupère une instance
+        :param interfaceid: Instance id à trouver
+        :return: Une instance interface évidemment"""
+        return Ipv6List.objects.get(pk=ipv6listid)
+
+    def can_create(user_request, interfaceid, *args, **kwargs):
+        """Verifie que l'user a les bons droits infra pour créer
+        une ipv6, ou possède l'interface associée
+        :param interfaceid: Id de l'interface associée à cet objet domain
+        :param user_request: instance utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        try:
+            interface = Interface.objects.get(pk=interfaceid)
+        except Interface.DoesNotExist:
+            return False, u"Interface inexistante"
+        if not user_request.has_perm('machines.add_ipv6list'):
+            if interface.machine.user != user_request:
+                return False, u"Vous ne pouvez pas ajouter un alias à une\
+                        machine d'un autre user que vous sans droit"
+        return True, None
+
+    @staticmethod
+    def can_change_slaac_ip(user_request, *args, **kwargs):
+        return user_request.has_perm('machines.change_ipv6list_slaac_ip'), "Droit requis pour changer la valeur slaac ip"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Verifie que l'user a les bons droits infra pour editer
+        cette instance interface, ou qu'elle lui appartient
+        :param self: Instance interface à editer
+        :param user_request: Utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        if self.interface.machine.user != user_request:
+            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                    d'un autre user que vous sans droit"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Verifie que l'user a les bons droits delete object pour del
+        cette instance interface, ou qu'elle lui appartient
+        :param self: Instance interface à del
+        :param user_request: Utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        if self.interface.machine.user != user_request:
+            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Vérifie qu'on peut bien afficher l'ensemble des interfaces,
+        droit particulier view objet correspondant
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perm('machines.view_ipv6list'):
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Vérifie qu'on peut bien voir cette instance particulière avec
+        droit view objet ou qu'elle appartient à l'user
+        :param self: instance interface à voir
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perm('machines.view_ipv6list') and self.interface.machine.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
+    def __init__(self, *args, **kwargs):
+        super(Ipv6List, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'slaac_ip' : self.can_change_slaac_ip,
+        }
+
+    def __str__(self):
+        return str(self.ipv6)
 
 
 class Domain(models.Model):
@@ -2039,6 +2156,7 @@ def interface_post_save(sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs['instance']
+    interface.sync_ipv6_slaac()
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     # Regen services
