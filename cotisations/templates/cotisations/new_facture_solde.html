@@ -1,3 +1,4 @@
+
 {% extends "cotisations/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
@@ -29,15 +30,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Création et modification de factures{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors factureform %}
+{% bootstrap_form_errors venteform.management_form %}
 
 <form class="form" method="post">
     {% csrf_token %}
     <h3>Nouvelle facture</h3>
-    <p>
-	Solde de l'utilisateur : {{ user.solde }} €
-    </p>
-    {% bootstrap_form factureform %}
     {{ venteform.management_form }}
     <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
     <h3>Articles de la facture</h3>
@@ -157,3 +154,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </script>
 
 {% endblock %}
+

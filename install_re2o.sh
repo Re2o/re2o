@@ -28,8 +28,9 @@ setup_ldap() {
 
 
 install_re2o_server() {
-
-
+echo "Installation de Re2o !
+Cet utilitaire va procéder à l'installation initiale de re2o. Le serveur présent doit être vierge.
+Preconfiguration..."
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -107,7 +108,7 @@ clear
 
 
 if [ $sql_is_local == 2 ]
-then 
+then
 TITLE="Login sql"
 sql_login=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -169,7 +170,7 @@ ldap_password=$(dialog --title "$TITLE" \
         2>&1 >/dev/tty)
 clear
 if [ $ldap_is_local == 2 ]
-then 
+then
 TITLE="Cn ldap admin"
 ldap_cn=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -209,7 +210,7 @@ email_port=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 if [ $ldap_is_local == 2 ]
-then 
+then
 TITLE="Cn ldap admin"
 ldap_cn=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
@@ -236,7 +237,7 @@ install_base=$(dialog --clear \
 	$HEIGHT $WIDTH \
 	2>&1 >/dev/tty)
 
-apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev
+apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev python3-crypto
 pip3 install django-bootstrap3
 pip3 install django-ldapdb
 pip3 install django-macaddress
@@ -253,7 +254,7 @@ then
     echo $mysql_command
     while true; do
 	read -p "Continue (y/n)?" choice
-	case "$choice" in 
+	case "$choice" in
 	y|Y ) break;;
 	n|N ) exit;;
 	* ) echo "invalid";;
@@ -276,14 +277,14 @@ else
     echo sudo -u postgres psql $pgsql_command3
     while true; do
 	read -p "Continue (y/n)?" choice
-	case "$choice" in 
+	case "$choice" in
 	y|Y ) break;;
 	n|N ) exit;;
 	* ) echo "invalid";;
 	esac
     done
     fi
-fi 
+fi
 
 if [ $ldap_is_local == 1 ]
 then
@@ -430,7 +431,7 @@ if [ ! -z "$1" ]
 then
 if [ $1 == ldap ]
 then
-if [ ! -z "$2" ] 
+if [ ! -z "$2" ]
 then
 echo Installation du ldap
 setup_ldap $2 $3

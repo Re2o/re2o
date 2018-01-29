@@ -2271,3 +2271,4 @@ def srv_post_save(sender, **kwargs):
 def text_post_delete(sender, **kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
+

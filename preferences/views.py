@@ -95,6 +95,7 @@ def edit_options(request, section):
         return redirect(reverse('index'))
     options = form_instance(
         request.POST or None,
+        request.FILES or None,
         instance=options_instance
     )
     if options.is_valid():
