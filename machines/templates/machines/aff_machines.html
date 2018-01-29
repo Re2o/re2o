@@ -83,7 +83,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <b>IPv4</b> {{ interface.ipv4 }}
                 <br>
                 {% if ipv6_enabled and interface.ipv6 != 'None'%}
-                <b>IPv6</b> {{ interface.ipv6|join:"," }}
+                <b>IPv6</b>
+            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
+                        Afficher l'IPV6
+                </button>
                 {% endif %}
             </td>
             <td class="text-right">
@@ -128,6 +131,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         </tr>
+
+  {% if ipv6_enabled and interface.ipv6 != 'None'%}
+  <tr>
+            <td colspan=5 style="border-top: none; padding: 1px;">
+                <div class="collapse in" id="collapseDomain_IPV6">
+                    <ul class="list-group" style="margin-bottom: 0px;">
+                        {{interface.ipv6}}
+                    </ul>
+                </div>
+            </td>
+        <tr>
+        {% endif %}
+        {% endfor %}
+        <tr>
+            <td colspan="8"></td>
+        </tr>
+  {% endif %}
+
+
 	{% if interface.domain.related_domain.all %}
 	<tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
