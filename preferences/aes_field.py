@@ -33,6 +33,8 @@ def decrypt(key, s):
 
 class AESEncryptedField(models.CharField):
     def save_form_data(self, instance, data):
+        if value is None:
+            return value
         setattr(instance, self.name,
                 binascii.b2a_base64(encrypt(settings.AES_KEY, data)))
 
@@ -49,6 +51,8 @@ class AESEncryptedField(models.CharField):
                        binascii.a2b_base64(value)).decode('utf-8')
 
     def get_prep_value(self, value):
+        if value is None:
+            return value
         return binascii.b2a_base64(encrypt(
                     settings.AES_KEY,
                     value
