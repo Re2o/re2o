@@ -72,6 +72,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if nasform %}
     {% bootstrap_form_errors nasform %}
 {% endif %}
+{% if ipv6form %}
+    {% bootstrap_form_errors ipv6form %}
+{% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
@@ -138,6 +141,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if nasform %}
         <h3>NAS</h3>
         {% bootstrap_form nasform %}
+    {% endif %}
+    {% if ipv6form %}
+        <h3>Ipv6</h3>
+        {% bootstrap_form ipv6form %}
     {% endif %}
     {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
 </form>

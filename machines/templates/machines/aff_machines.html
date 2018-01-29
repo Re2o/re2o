@@ -83,7 +83,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <b>IPv4</b> {{ interface.ipv4 }}
                 <br>
                 {% if ipv6_enabled and interface.ipv6 != 'None'%}
-                <b>IPv6</b> {{ interface.ipv6 }}
+                <b>IPv6</b> {{ interface.ipv6|join:"," }}
                 {% endif %}
             </td>
             <td class="text-right">
@@ -107,6 +107,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <li>
                             <a href="{% url 'machines:index-alias' interface.id %}">
                                 <i class="glyphicon glyphicon-edit"></i> Gerer les alias
+                            </a>
+                        </li>
+			{% acl_end %}
+			{% can_create Ipv6List interface.id %}
+                        <li>
+                            <a href="{% url 'machines:index-ipv6' interface.id %}">
+                                <i class="glyphicon glyphicon-edit"></i> Gerer les ipv6
                             </a>
                         </li>
 			{% acl_end %}
