@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 import re
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+from ipaddress import IPv6Address
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -335,6 +336,14 @@ class IpType(models.Model):
             affectées, impossible de supprimer le range")
         for ip in self.ip_objects():
             ip.delete()
+
+    def check_replace_prefixv6(self):
+        """Remplace les prefixv6 des interfaces liées à ce type d'ip"""
+        if not self.prefix_v6:
+            return
+        else:
+            for ipv6 in Ipv6List.objects.filter(interface__in=Interface.objects.filter(type__in=MachineType.objects.filter(ip_type=self))):
+                ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
     def clean(self):
         """ Nettoyage. Vérifie :
@@ -1477,9 +1486,17 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
             'slaac_ip' : self.can_change_slaac_ip,
         }
 
+    def check_and_replace_prefix(self, prefix=None):
+        """Si le prefixe v6 est incorrect, on maj l'ipv6"""
+        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix or self.interface.type.ip_type.prefix_v6).exploded[:20]:
+            self.ipv6 = IPv6Address(IPv6Address(prefix or self.interface.type.ip_type.prefix_v6).exploded[:20] + IPv6Address(self.ipv6).exploded[20:])
+            self.save()
+
     def clean(self, *args, **kwargs):
         if self.slaac_ip and Ipv6List.objects.filter(interface=self.interface, slaac_ip=True).exclude(id=self.id):
             raise ValidationError("Une ip slaac est déjà enregistrée")
+        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(self.interface.type.ip_type.prefix_v6).exploded[:20]:
+            raise ValidationError("Le prefixv6 est incorrect et ne correspond pas au type associé à la machine")
         super(Ipv6List, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -2187,6 +2204,7 @@ def iptype_post_save(sender, **kwargs):
     """Generation des objets ip après modification d'un range ip"""
     iptype = kwargs['instance']
     iptype.gen_ip_range()
+    iptype.check_replace_prefixv6()
 
 
 @receiver(post_save, sender=MachineType)
