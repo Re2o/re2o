@@ -539,7 +539,7 @@ def edit_extension(request, extension_instance, extensionid):
             extension.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
-        mssages.success(request, "Extension modifiée")
+        messages.success(request, "Extension modifiée")
         return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
