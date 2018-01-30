@@ -65,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>
 	        {{ interface.domain }}
-		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDetails_{{interface.id}}" aria-expanded="true" aria-controls="collapseDetails_{{interface.id}}">
+		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="true" aria-controls="collapseIPV6_{{interface.id}} collapsealts_{{interface.id}}">
                     Détails...
                 </button>
             </td>
@@ -121,22 +121,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
         </tr>
       
-    <div class="collapse in" id="collapseDetails_{{interface.id}}">
-      
+      <div class="collapse in" id="collapseIPV6_{{interface.id}}">
       {% if ipv6_enabled and interface.ipv6 != 'None'%}
         <tr>
-            <td colspan=5 style="border-top: none; padding: 1px;">
-          <tr class="info">
-          <td>  <b>IPV6</b> </td>
-          </tr>
+          <td colspan=5 style="border-top: none; padding: 1px;">
+              <tr class="info">
+                <td>  <b>IPV6</b> </td>
+              </tr>
               <ul class="list-group" style="margin-bottom: 0px;">
 		    {% for ipv6 in interface.ipv6.all %}
                         <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
 		        {{ipv6}}
-			</li>
+			           </li>
 		        {% endfor %}
-		    </ul>
-            </td>
+		      </ul>
+          </td>
+        </tr>
         <tr>
     {% endif %}
 
@@ -159,12 +159,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </ul>
             </td>
       {% endif %}
-      </div>
-      <tr>  </tr>
+      </tr>
       {% endfor %}
         <tr>
             <td colspan="8"></td>
         </tr>
+      </div>
     {% endfor %}
     </tbody>
 </table>
