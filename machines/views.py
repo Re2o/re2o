@@ -375,10 +375,9 @@ def del_interface(request, interface, interfaceid):
 @can_edit(Interface)
 def new_ipv6list(request, interface, interfaceid):
     """Nouvelle ipv6"""
-    ipv6 = Ipv6ListForm(request.POST or None, user=request.user)
+    ipv6list_instance = Ipv6List(interface=interface)
+    ipv6 = Ipv6ListForm(request.POST or None, instance=ipv6list_instance, user=request.user)
     if ipv6.is_valid():
-        ipv6 = ipv6.save(commit=False)
-        ipv6.interface = interface
         with transaction.atomic(), reversion.create_revision():
             ipv6.save()
             reversion.set_user(request.user)
