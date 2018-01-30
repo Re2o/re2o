@@ -64,14 +64,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for interface in machine.interface_set.all %}
         <tr>
             <td>
-            {% if interface.domain.related_domain.all %}
 	        {{ interface.domain }}
-		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
-                    Afficher les alias
+		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDetails_{{interface.id}}" aria-expanded="true" aria-controls="collapseDetails_{{interface.id}}">
+                    Détails...
                 </button>
-            {% else %}
-                {{ interface.domain }}
-            {% endif %}
             </td>
             <td>
                 {{ interface.type }}
@@ -81,13 +77,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
             <td>
                 <b>IPv4</b> {{ interface.ipv4 }}
-                <br>
-                {% if ipv6_enabled and interface.ipv6 != 'None'%}
-                <b>IPv6</b>
-            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseIpv6_{{interface.id}}" aria-expanded="true" aria-controls="collapseIpv6_{{interface.id}}">
-                        Afficher l'IPV6
-                        </button>
-                {% endif %}
             </td>
             <td class="text-right">
                 <div class="dropdown" style="width: 128px;">
@@ -131,11 +120,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         </tr>
-
-        {% if ipv6_enabled and interface.ipv6 != 'None'%}
+      
+      {% if ipv6_enabled and interface.ipv6 != 'None'%}
+        <tr class="info">
+          <td>  <b>IPV6</b> </td>
+        </tr>
         <tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-		 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
+		 <div class="collapse in" id="collapseDetails_{{interface.id}}">
+           <div style="">IPV6</div>
                     <ul class="list-group" style="margin-bottom: 0px;">
 		    {% for ipv6 in interface.ipv6.all %}
                         <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
@@ -146,13 +139,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         <tr>
-        {% endif %}
+    {% endif %}
 
 
 	{% if interface.domain.related_domain.all %}
+    <tr class="info">
+          <td> <b>Aliases</b> </td>
+    </tr>
 	<tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-                <div class="collapse in" id="collapseDomain_{{interface.id}}">
+                <div class="collapse in" id="collapseDetails_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
                         {% for al in interface.domain.related_domain.all %}
                         <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
@@ -166,8 +162,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         <tr>
-        {% endif %}
-        {% endfor %}
+      {% endif %}
+    
+      {% endfor %}
         <tr>
             <td colspan="8"></td>
         </tr>
