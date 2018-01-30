@@ -28,6 +28,9 @@ from __future__ import unicode_literals
 from django.utils.functional import cached_property
 from django.db import models
 import cotisations.models
+import machines.models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from .aes_field import AESEncryptedField
 
@@ -214,6 +217,15 @@ class OptionalMachine(models.Model):
         """
         return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les machines"
+
+
+@receiver(post_save, sender=OptionalMachine)
+def interface_post_save(sender, **kwargs):
+    """Synchronisation ipv6"""            
+    machine_pref = kwargs['instance']
+    if machine_pref.ipv6_mode != "DISABLED":
+        for interface in machines.models.Interface.objects.all():
+            interface.sync_ipv6()
 
 
 class OptionalTopologie(models.Model):
