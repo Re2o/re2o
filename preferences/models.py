@@ -25,8 +25,12 @@ Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 """
 from __future__ import unicode_literals
 
+from django.utils.functional import cached_property
 from django.db import models
 import cotisations.models
+import machines.models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from .aes_field import AESEncryptedField
 
@@ -134,10 +138,27 @@ class OptionalMachine(models.Model):
     sans droit, activation de l'ipv6"""
     PRETTY_NAME = "Options machines"
 
+    SLAAC = 'SLAAC'
+    DHCPV6 = 'DHCPV6'
+    DISABLED = 'DISABLED'
+    CHOICE_IPV6 = (
+        (SLAAC, 'Autoconfiguration par RA'),
+        (DHCPV6, 'Attribution des ip par dhcpv6'),
+        (DISABLED, 'Désactivé'),
+    )
+
     password_machine = models.BooleanField(default=False)
     max_lambdauser_interfaces = models.IntegerField(default=10)
     max_lambdauser_aliases = models.IntegerField(default=10)
-    ipv6 = models.BooleanField(default=False)
+    ipv6_mode = models.CharField(
+        max_length=32,
+        choices=CHOICE_IPV6,
+        default='DISABLED'
+    )
+
+    @cached_property
+    def ipv6(self):
+         return not self.ipv6_mode == 'DISABLED'
 
     class Meta:
         permissions = (
@@ -196,6 +217,15 @@ class OptionalMachine(models.Model):
         """
         return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
             de voir les préférences concernant les machines"
+
+
+@receiver(post_save, sender=OptionalMachine)
+def interface_post_save(sender, **kwargs):
+    """Synchronisation ipv6"""            
+    machine_pref = kwargs['instance']
+    if machine_pref.ipv6_mode != "DISABLED":
+        for interface in machines.models.Interface.objects.all():
+            interface.sync_ipv6()
 
 
 class OptionalTopologie(models.Model):

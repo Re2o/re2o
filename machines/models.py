@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 import re
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+from ipaddress import IPv6Address
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -335,6 +336,14 @@ class IpType(models.Model):
             affectées, impossible de supprimer le range")
         for ip in self.ip_objects():
             ip.delete()
+
+    def check_replace_prefixv6(self):
+        """Remplace les prefixv6 des interfaces liées à ce type d'ip"""
+        if not self.prefix_v6:
+            return
+        else:
+            for ipv6 in Ipv6List.objects.filter(interface__in=Interface.objects.filter(type__in=MachineType.objects.filter(ip_type=self))):
+                ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
     def clean(self):
         """ Nettoyage. Vérifie :
@@ -815,7 +824,7 @@ class Extension(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self):
+    def clean(self, *args, **kwargs):
         if self.name and self.name[0] != '.':
             raise ValidationError("Une extension doit commencer par un point")
         super(Extension, self).clean(*args, **kwargs)
@@ -1188,7 +1197,7 @@ class Interface(FieldPermissionModelMixin,models.Model):
         return machine.active and user.has_access()
 
     @cached_property
-    def ipv6_object(self):
+    def ipv6_slaac(self):
         """ Renvoie un objet type ipv6 à partir du prefix associé à
         l'iptype parent"""
         if self.type.ip_type.prefix_v6:
@@ -1199,9 +1208,60 @@ class Interface(FieldPermissionModelMixin,models.Model):
             return None
 
     @cached_property
+    def gen_ipv6_dhcpv6(self):
+        """Cree une ip, à assigner avec dhcpv6 sur une machine"""
+        prefix_v6 = self.type.ip_type.prefix_v6
+        if not prefix_v6:
+            return None
+        return IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.id).exploded[20:])
+
+    def sync_ipv6_dhcpv6(self):
+        """Affecte une ipv6 dhcpv6 calculée à partir de l'id de la machine"""
+        ipv6_dhcpv6 = self.gen_ipv6_dhcpv6
+        if not ipv6_dhcpv6:
+            return
+        ipv6 = Ipv6List.objects.filter(ipv6=str(ipv6_dhcpv6)).first()
+        if not ipv6:
+            ipv6 = Ipv6List(ipv6=str(ipv6_dhcpv6))
+        ipv6.interface = self
+        ipv6.save()
+        return
+
+    def sync_ipv6_slaac(self):
+        """Cree, mets à jour et supprime si il y a lieu l'ipv6 slaac associée
+        à la machine
+        Sans prefixe ipv6, on return
+        Si l'ip slaac n'est pas celle qu'elle devrait être, on maj"""
+        ipv6_slaac = self.ipv6_slaac
+        if not ipv6_slaac:
+            return
+        ipv6_object = Ipv6List.objects.filter(interface=self, slaac_ip=True).first()
+        if not ipv6_object:
+            ipv6_object = Ipv6List(interface=self, slaac_ip=True)
+        if ipv6_object.ipv6 != str(ipv6_slaac):
+            ipv6_object.ipv6 = str(ipv6_slaac)
+            ipv6_object.save()
+
+    def sync_ipv6(self):
+        """Cree et met à jour l'ensemble des ipv6 en fonction du mode choisi"""
+        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
+        if machine_options.ipv6_mode == 'SLAAC':
+            self.sync_ipv6_slaac()
+        elif machine_options.ipv6_mode == 'DHCPV6':
+            self.sync_ipv6_dhcpv6()
+        else:
+            return
+
     def ipv6(self):
-        """ Renvoie l'ipv6 en str. Mise en cache et propriété de l'objet"""
-        return str(self.ipv6_object)
+        """ Renvoie le queryset de la liste des ipv6
+        On renvoie l'ipv6 slaac que si le mode slaac est activé (et non dhcpv6)"""
+        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
+        if machine_options.ipv6_mode == 'SLAAC':
+            return Ipv6List.objects.filter(interface=self)
+        elif machine_options.ipv6_mode == 'DHCPV6':
+            return Ipv6List.objects.filter(interface=self, slaac_ip=False)
+        else:
+            return None
 
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
@@ -1363,6 +1423,126 @@ class Interface(FieldPermissionModelMixin,models.Model):
         Permet de ne pas exporter des ouvertures sur des ip privées
         (useless)"""
         return self.ipv4 and not self.has_private_ip()
+
+
+class Ipv6List(FieldPermissionModelMixin, models.Model):
+    PRETTY_NAME = 'Enregistrements Ipv6 des machines'
+
+    ipv6 = models.GenericIPAddressField(
+        protocol='IPv6',
+        unique=True
+    )
+    interface = models.ForeignKey('Interface', on_delete=models.CASCADE)
+    slaac_ip = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = (
+            ("view_ipv6list", "Peut voir un objet ipv6"),
+            ("change_ipv6list_slaac_ip", "Peut changer la valeur slaac sur une ipv6"),
+        )
+
+    def get_instance(ipv6listid, *args, **kwargs):
+        """Récupère une instance
+        :param interfaceid: Instance id à trouver
+        :return: Une instance interface évidemment"""
+        return Ipv6List.objects.get(pk=ipv6listid)
+
+    def can_create(user_request, interfaceid, *args, **kwargs):
+        """Verifie que l'user a les bons droits infra pour créer
+        une ipv6, ou possède l'interface associée
+        :param interfaceid: Id de l'interface associée à cet objet domain
+        :param user_request: instance utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        try:
+            interface = Interface.objects.get(pk=interfaceid)
+        except Interface.DoesNotExist:
+            return False, u"Interface inexistante"
+        if not user_request.has_perm('machines.add_ipv6list'):
+            if interface.machine.user != user_request:
+                return False, u"Vous ne pouvez pas ajouter un alias à une\
+                        machine d'un autre user que vous sans droit"
+        return True, None
+
+    @staticmethod
+    def can_change_slaac_ip(user_request, *args, **kwargs):
+        return user_request.has_perm('machines.change_ipv6list_slaac_ip'), "Droit requis pour changer la valeur slaac ip"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Verifie que l'user a les bons droits infra pour editer
+        cette instance interface, ou qu'elle lui appartient
+        :param self: Instance interface à editer
+        :param user_request: Utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        if self.interface.machine.user != user_request:
+            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                    d'un autre user que vous sans droit"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Verifie que l'user a les bons droits delete object pour del
+        cette instance interface, ou qu'elle lui appartient
+        :param self: Instance interface à del
+        :param user_request: Utilisateur qui fait la requête
+        :return: soit True, soit False avec la raison de l'échec"""
+        if self.interface.machine.user != user_request:
+            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
+                return False, u"Vous ne pouvez pas éditer une machine\
+                        d'un autre user que vous sans droit"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Vérifie qu'on peut bien afficher l'ensemble des interfaces,
+        droit particulier view objet correspondant
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perm('machines.view_ipv6list'):
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Vérifie qu'on peut bien voir cette instance particulière avec
+        droit view objet ou qu'elle appartient à l'user
+        :param self: instance interface à voir
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perm('machines.view_ipv6list') and self.interface.machine.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir des machines autre\
+                que les vôtres"
+        return True, None
+
+    def __init__(self, *args, **kwargs):
+        super(Ipv6List, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'slaac_ip' : self.can_change_slaac_ip,
+        }
+
+    def check_and_replace_prefix(self, prefix=None):
+        """Si le prefixe v6 est incorrect, on maj l'ipv6"""
+        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6
+        if not prefix_v6:
+            return
+        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
+            self.ipv6 = IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.ipv6).exploded[20:])
+            self.save()
+
+    def clean(self, *args, **kwargs):
+        if self.slaac_ip and Ipv6List.objects.filter(interface=self.interface, slaac_ip=True).exclude(id=self.id):
+            raise ValidationError("Une ip slaac est déjà enregistrée")
+        prefix_v6 = self.interface.type.ip_type.prefix_v6
+        if prefix_v6:
+            if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
+                raise ValidationError("Le prefixv6 est incorrect et ne correspond pas au type associé à la machine")
+        super(Ipv6List, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        """Force à avoir appellé clean avant"""
+        self.full_clean()
+        super(Ipv6List, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.ipv6)
 
 
 class Domain(models.Model):
@@ -2039,6 +2219,7 @@ def interface_post_save(sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs['instance']
+    interface.sync_ipv6()
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     # Regen services
@@ -2060,6 +2241,7 @@ def iptype_post_save(sender, **kwargs):
     """Generation des objets ip après modification d'un range ip"""
     iptype = kwargs['instance']
     iptype.gen_ip_range()
+    iptype.check_replace_prefixv6()
 
 
 @receiver(post_save, sender=MachineType)
