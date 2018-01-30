@@ -815,7 +815,7 @@ class Extension(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self):
+    def clean(self, *args, **kwargs):
         if self.name and self.name[0] != '.':
             raise ValidationError("Une extension doit commencer par un point")
         super(Extension, self).clean(*args, **kwargs)
