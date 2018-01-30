@@ -31,6 +31,7 @@ import cotisations.models
 import machines.models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.core.cache import cache
 
 from .aes_field import AESEncryptedField
 
@@ -66,6 +67,20 @@ class OptionalUser(models.Model):
         default=False,
         help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
+
+    @classmethod
+    def set_in_cache(cls, key):
+        machine_options, _created = cls.objects.get_or_create()
+        value = getattr(machine_options, key)
+        cache.set('optionaluser_' + key, value, None)
+        return value
+
+    @classmethod
+    def get_cached_value(cls, key):
+        value = cache.get('optionaluser_' + key)
+        if value == None:
+            value = cls.set_in_cache(key)
+        return value
 
     class Meta:
         permissions = (
@@ -158,7 +173,21 @@ class OptionalMachine(models.Model):
 
     @cached_property
     def ipv6(self):
-         return not self.ipv6_mode == 'DISABLED'
+         return not self.get_cached_value('ipv6_mode') == 'DISABLED'
+
+    @classmethod
+    def set_in_cache(cls, key):
+        machine_options, _created = cls.objects.get_or_create()
+        value = getattr(machine_options, key)
+        cache.set('optionalmachine_' + key, value, None)
+        return value
+
+    @classmethod
+    def get_cached_value(cls, key):
+        value = cache.get('optionalmachine_' + key)
+        if value == None:
+            value = cls.set_in_cache(key)
+        return value
 
     class Meta:
         permissions = (
@@ -220,9 +249,10 @@ class OptionalMachine(models.Model):
 
 
 @receiver(post_save, sender=OptionalMachine)
-def interface_post_save(sender, **kwargs):
+def optionalmachine_post_save(sender, **kwargs):
     """Synchronisation ipv6"""            
     machine_pref = kwargs['instance']
+
     if machine_pref.ipv6_mode != "DISABLED":
         for interface in machines.models.Interface.objects.all():
             interface.sync_ipv6()
@@ -259,6 +289,20 @@ class OptionalTopologie(models.Model):
         blank=True,
         null=True
     )
+
+    @classmethod
+    def set_in_cache(cls, key):
+        machine_options, _created = cls.objects.get_or_create()
+        value = getattr(machine_options, key)
+        cache.set('optionaltopologie_' + key, value, None)
+        return value
+
+    @classmethod
+    def get_cached_value(cls, key):
+        value = cache.get('optionaltopologie_' + key)
+        if value == None:
+            value = cls.set_in_cache(key)
+        return value
 
     class Meta:
         permissions = (
@@ -344,6 +388,20 @@ class GeneralOption(models.Model):
         null=True,
         blank=True,
     )
+
+    @classmethod
+    def set_in_cache(cls, key):
+        machine_options, _created = cls.objects.get_or_create()
+        value = getattr(machine_options, key)
+        cache.set('generaloption_' + key, value, None)
+        return value
+
+    @classmethod
+    def get_cached_value(cls, key):
+        value = cache.get('generaloption_' + key)
+        if value == None:
+            value = cls.set_in_cache(key)
+        return value
 
     class Meta:
         permissions = (

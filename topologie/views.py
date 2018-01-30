@@ -99,8 +99,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX
     )
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     paginator = Paginator(switch_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -153,8 +152,7 @@ def index_room(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_ROOM
     )
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     paginator = Paginator(room_list, pagination_number)
     page = request.GET.get('page')
     try:

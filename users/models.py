@@ -406,8 +406,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         """ Renvoie le solde d'un user. Vérifie que l'option solde est
         activé, retourne 0 sinon.
         Somme les crédits de solde et retire les débit payés par solde"""
-        options, _created = OptionalUser.objects.get_or_create()
-        user_solde = options.user_solde
+        user_solde = OptionalUser.get_cached_value('user_solde')
         if user_solde:
             solde_objects = Paiement.objects.filter(moyen='Solde')
             somme_debit = Vente.objects.filter(
@@ -534,7 +533,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         assooptions, _created = AssoOption.objects.get_or_create()
         mailmessageoptions, _created = MailMessageOption\
             .objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
             'asso_name': assooptions.name,
@@ -548,7 +546,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
                 'name': assooptions.name
                 },
             '',
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.email],
             html_message=template.render(context)
         )
@@ -563,21 +561,20 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         req.save()
         template = loader.get_template('users/email_passwd_request')
         options, _created = AssoOption.objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = {
             'name': req.user.get_full_name(),
             'asso': options.name,
             'asso_mail': options.contact,
-            'site_name': general_options.site_name,
+            'site_name': GeneralOption.get_cached_value('site_name'),
             'url': request.build_absolute_uri(
                 reverse('users:process', kwargs={'token': req.token})),
-            'expire_in': str(general_options.req_expire_hrs) + ' heures',
+            'expire_in': str(GeneralOption.get_cached_value('req_expire_hrs')) + ' heures',
             }
         send_mail(
             'Changement de mot de passe du %(name)s / Password\
             renewal for %(name)s' % {'name': options.name},
             template.render(context),
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [req.user.email],
             fail_silently=False
         )
@@ -587,8 +584,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
-        options, _created = OptionalMachine.objects.get_or_create()
-        if all_interfaces.count() > options.max_lambdauser_interfaces:
+        if all_interfaces.count() > OptionalMachine.get_cached_value('max_lambdauser_interfaces'):
             return False, "Maximum de machines enregistrees atteinte"
         if not nas_type:
             return False, "Re2o ne sait pas à quel machinetype affecter cette\
@@ -622,7 +618,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         ajoutée par le radius"""
         template = loader.get_template('users/email_auto_newmachine')
         assooptions, _created = AssoOption.objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
             'mac_address' : interface.mac_address,
@@ -634,7 +629,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         send_mail(
             "Ajout automatique d'une machine / New machine autoregistered",
             '',
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.email],
             html_message=template.render(context)
         )
@@ -683,11 +678,10 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         :return: a message and a boolean which is True if the user can create
         an user or if the `options.all_can_create` is set.
         """
-        options, _created = OptionalUser.objects.get_or_create()
-        if(not user_request.is_authenticated and not options.self_adhesion):
+        if(not user_request.is_authenticated and not OptionalUser.get_cached_value('self_adhesion')):
             return False, None
         else:
-            if(options.all_can_create or options.self_adhesion):
+            if(OptionalUser.get_cached_value('all_can_create') or OptionalUser.get_cached_value('self_adhesion')):
                 return True, None
             else:
                 return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
@@ -1265,7 +1259,6 @@ class Ban(models.Model):
 
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
-        general_options, _created = GeneralOption.objects.get_or_create()
         template = loader.get_template('users/email_ban_notif')
         options, _created = AssoOption.objects.get_or_create()
         context = Context({
@@ -1277,7 +1270,7 @@ class Ban(models.Model):
         send_mail(
             'Deconnexion disciplinaire',
             template.render(context),
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.user.email],
             fail_silently=False
         )
@@ -1499,9 +1492,8 @@ class Request(models.Model):
 
     def save(self):
         if not self.expires_at:
-            options, _created = GeneralOption.objects.get_or_create()
             self.expires_at = timezone.now() \
-                + datetime.timedelta(hours=options.req_expire_hrs)
+                + datetime.timedelta(hours=GeneralOption.get_cached_value('req_expire_hrs'))
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()

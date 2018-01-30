@@ -106,9 +106,8 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, _created = OptionalUser.objects.get_or_create()
-            user_solde = options.user_solde
-            solde_negatif = options.solde_negatif
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
@@ -498,8 +497,7 @@ def del_banque(request, instances):
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user').select_related('paiement')
     facture_list = SortTable.sort(
         facture_list,
@@ -567,8 +565,7 @@ def index_banque(request):
 @can_view_all(Facture)
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user')\
         .select_related('paiement').prefetch_related('vente_set')
     facture_list = SortTable.sort(
@@ -617,9 +614,8 @@ def new_facture_solde(request, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, _created = OptionalUser.objects.get_or_create()
-            user_solde = options.user_solde
-            solde_negatif = options.solde_negatif
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
