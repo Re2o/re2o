@@ -1207,6 +1207,26 @@ class Interface(FieldPermissionModelMixin,models.Model):
         else:
             return None
 
+    @cached_property
+    def gen_ipv6_dhcpv6(self):
+        """Cree une ip, à assigner avec dhcpv6 sur une machine"""
+        prefix_v6 = self.type.ip_type.prefix_v6
+        if not prefix_v6:
+            return None
+        return IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.id).exploded[20:])
+
+    def sync_ipv6_dhcpv6(self):
+        """Affecte une ipv6 dhcpv6 calculée à partir de l'id de la machine"""
+        ipv6_dhcpv6 = self.gen_ipv6_dhcpv6
+        if not ipv6_dhcpv6:
+            return
+        ipv6 = Ipv6List.objects.filter(ipv6=str(ipv6_dhcpv6)).first()
+        if not ipv6:
+            ipv6 = Ipv6List(ipv6=str(ipv6_dhcpv6))
+        ipv6.interface = self
+        ipv6.save()
+        return
+
     def sync_ipv6_slaac(self):
         """Cree, mets à jour et supprime si il y a lieu l'ipv6 slaac associée
         à la machine
@@ -1221,6 +1241,16 @@ class Interface(FieldPermissionModelMixin,models.Model):
         if ipv6_object.ipv6 != str(ipv6_slaac):
             ipv6_object.ipv6 = str(ipv6_slaac)
             ipv6_object.save()
+
+    def sync_ipv6(self):
+        """Cree et met à jour l'ensemble des ipv6 en fonction du mode choisi"""
+        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
+        if machine_options.ipv6_mode == 'SLAAC':
+            self.sync_ipv6_slaac()
+        elif machine_options.ipv6_mode == 'DHCPV6':
+            self.sync_ipv6_dhcpv6()
+        else:
+            return
 
     def ipv6(self):
         """ Renvoie le queryset de la liste des ipv6
@@ -1488,15 +1518,20 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
 
     def check_and_replace_prefix(self, prefix=None):
         """Si le prefixe v6 est incorrect, on maj l'ipv6"""
-        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix or self.interface.type.ip_type.prefix_v6).exploded[:20]:
-            self.ipv6 = IPv6Address(IPv6Address(prefix or self.interface.type.ip_type.prefix_v6).exploded[:20] + IPv6Address(self.ipv6).exploded[20:])
+        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6
+        if not prefix_v6:
+            return
+        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
+            self.ipv6 = IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.ipv6).exploded[20:])
             self.save()
 
     def clean(self, *args, **kwargs):
         if self.slaac_ip and Ipv6List.objects.filter(interface=self.interface, slaac_ip=True).exclude(id=self.id):
             raise ValidationError("Une ip slaac est déjà enregistrée")
-        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(self.interface.type.ip_type.prefix_v6).exploded[:20]:
-            raise ValidationError("Le prefixv6 est incorrect et ne correspond pas au type associé à la machine")
+        prefix_v6 = self.interface.type.ip_type.prefix_v6
+        if prefix_v6:
+            if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
+                raise ValidationError("Le prefixv6 est incorrect et ne correspond pas au type associé à la machine")
         super(Ipv6List, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -2182,7 +2217,7 @@ def interface_post_save(sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs['instance']
-    interface.sync_ipv6_slaac()
+    interface.sync_ipv6()
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     # Regen services
