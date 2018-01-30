@@ -1268,14 +1268,16 @@ def ouverture_ports(request):
                 d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
                 d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
                 r['ipv4'][i.ipv4.ipv4] = d
-            if i.ipv6_object:
-                d = r['ipv6'].get(i.ipv6.first(), {})
-                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
-                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
-                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
-                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
-                r['ipv6'][i.ipv6] = d
+            if i.ipv6():
+                for ipv6 in i.ipv6():
+                    d = r['ipv6'].get(ipv6.ipv6, {})
+                    d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                    d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                    d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                    d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                    r['ipv6'][ipv6.ipv6] = d
     return JSONResponse(r)
+
 @csrf_exempt
 @login_required
 @permission_required('machines.serveur')
