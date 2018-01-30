@@ -121,22 +121,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
         </tr>
       
+    <div class="collapse in" id="collapseDetails_{{interface.id}}">
+      
       {% if ipv6_enabled and interface.ipv6 != 'None'%}
-        <tr class="info">
-          <td>  <b>IPV6</b> </td>
-        </tr>
         <tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-		 <div class="collapse in" id="collapseDetails_{{interface.id}}">
-           <div style="">IPV6</div>
-                    <ul class="list-group" style="margin-bottom: 0px;">
+          <tr class="info">
+          <td>  <b>IPV6</b> </td>
+          </tr>
+              <ul class="list-group" style="margin-bottom: 0px;">
 		    {% for ipv6 in interface.ipv6.all %}
                         <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
 		        {{ipv6}}
 			</li>
 		        {% endfor %}
 		    </ul>
-                </div>
             </td>
         <tr>
     {% endif %}
@@ -148,7 +147,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </tr>
 	<tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-                <div class="collapse in" id="collapseDetails_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
                         {% for al in interface.domain.related_domain.all %}
                         <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
@@ -159,11 +157,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </li>
                         {% endfor %}
                     </ul>
-                </div>
             </td>
-        <tr>
       {% endif %}
-    
+      </div>
+      <tr>  </tr>
       {% endfor %}
         <tr>
             <td colspan="8"></td>
