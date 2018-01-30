@@ -84,9 +84,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <br>
                 {% if ipv6_enabled and interface.ipv6 != 'None'%}
                 <b>IPv6</b>
-            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
+            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseIpv6_{{interface.id}}" aria-expanded="true" aria-controls="collapseIpv6_{{interface.id}}">
                         Afficher l'IPV6
-                </button>
+                        </button>
                 {% endif %}
             </td>
             <td class="text-right">
@@ -132,22 +132,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
         </tr>
 
-  {% if ipv6_enabled and interface.ipv6 != 'None'%}
-  <tr>
+        {% if ipv6_enabled and interface.ipv6 != 'None'%}
+        <tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-                <div class="collapse in" id="collapseDomain_IPV6">
+		 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
-                        {{interface.ipv6}}
-                    </ul>
+		    {% for ipv6 in interface.ipv6.all %}
+                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
+		        {{ipv6}}
+			</li>
+		        {% endfor %}
+		    </ul>
                 </div>
             </td>
         <tr>
         {% endif %}
-        {% endfor %}
-        <tr>
-            <td colspan="8"></td>
-        </tr>
-  {% endif %}
 
 
 	{% if interface.domain.related_domain.all %}
@@ -181,6 +180,12 @@ $("#machines_table").ready( function() {
     var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
     for (var i=0 ; i<alias_div.length ; i++) {
 	alias_div[i].collapse('hide');
+    }
+} );
+$("#machines_table").ready( function() {
+    var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
+    for (var i=0 ; i<ipv6_div.length ; i++) {
+	ipv6_div[i].collapse('hide');
     }
 } );
 </script>
