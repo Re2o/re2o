@@ -1258,8 +1258,10 @@ class Interface(FieldPermissionModelMixin,models.Model):
         machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
         if machine_options.ipv6_mode == 'SLAAC':
             return Ipv6List.objects.filter(interface=self)
-        else:
+        elif machine_options.ipv6_mode == 'DHCPV6':
             return Ipv6List.objects.filter(interface=self, slaac_ip=False)
+        else:
+            return None
 
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
