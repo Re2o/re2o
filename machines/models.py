@@ -1395,7 +1395,6 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
     slaac_ip = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = (("interface", "slaac_ip"),)
         permissions = (
             ("view_ipv6list", "Peut voir un objet ipv6"),
             ("change_ipv6list_slaac_ip", "Peut changer la valeur slaac sur une ipv6"),
@@ -1477,6 +1476,16 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
         self.field_permissions = {
             'slaac_ip' : self.can_change_slaac_ip,
         }
+
+    def clean(self, *args, **kwargs):
+        if self.slaac_ip and Ipv6List.objects.filter(interface=self.interface, slaac_ip=True).exclude(id=self.id):
+            raise ValidationError("Une ip slaac est déjà enregistrée")
+        super(Ipv6List, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        """Force à avoir appellé clean avant"""
+        self.full_clean()
+        super(Ipv6List, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.ipv6)
