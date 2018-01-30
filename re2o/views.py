@@ -136,8 +136,7 @@ def history(request, application, object_name, object_id):
             'users:profil',
             kwargs={'userid':str(request.user.id)}
         ))
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     reversions = Version.objects.get_for_object(instance)
     paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')

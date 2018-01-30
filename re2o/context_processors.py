@@ -31,10 +31,8 @@ from preferences.models import GeneralOption, OptionalMachine
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
     renvoie les infos sur l'user, la liste de ses droits, ses machines"""
-    general_options, _created = GeneralOption.objects.get_or_create()
-    machine_options, _created = OptionalMachine.objects.get_or_create()
     user = request.user
-    global_message = general_options.general_message
+    global_message = GeneralOption.get_cached_value('general_message')
     if global_message:
         messages.warning(request, global_message)
     if user.is_authenticated():
@@ -44,6 +42,6 @@ def context_user(request):
     return {
         'request_user': user,
         'interfaces': interfaces,
-        'site_name': general_options.site_name,
-        'ipv6_enabled': machine_options.ipv6,
+        'site_name': GeneralOption.get_cached_value('site_name'),
+        'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
     }

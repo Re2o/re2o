@@ -121,15 +121,23 @@ def filter_active_interfaces(interface_set):
     .distinct()
 
 
-def all_active_interfaces():
+def filter_complete_interfaces(interface_set):
+    """Appel la fonction précédente avec un prefetch_related ipv6 en plus"""
+    return filter_active_interfaces(interface_set).prefetch_related('ipv6list')
+
+
+def all_active_interfaces(full=False):
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return filter_active_interfaces(Interface.objects)
+    if full:
+        return filter_complete_interfaces(Interface.objects)
+    else:
+        return filter_active_interfaces(Interface.objects)
 
 
-def all_active_assigned_interfaces():
+def all_active_assigned_interfaces(full=False):
     """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et
     disposant de l'accès internet"""
-    return all_active_interfaces().filter(ipv4__isnull=False)
+    return all_active_interfaces(full=full).filter(ipv4__isnull=False)
 
 
 def all_active_interfaces_count():

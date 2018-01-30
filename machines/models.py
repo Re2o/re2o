@@ -94,8 +94,7 @@ class Machine(FieldPermissionModelMixin, models.Model):
             user = users.models.User.objects.get(pk=userid)
         except users.models.User.DoesNotExist:
             return False, u"Utilisateur inexistant"
-        options, created = preferences.models.OptionalMachine.objects.get_or_create()
-        max_lambdauser_interfaces = options.max_lambdauser_interfaces
+        max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
         if not user_request.has_perm('machines.add_machine'):
             if user != user_request:
                 return False, u"Vous ne pouvez pas ajouter une machine à un\
@@ -1244,7 +1243,6 @@ class Interface(FieldPermissionModelMixin,models.Model):
 
     def sync_ipv6(self):
         """Cree et met à jour l'ensemble des ipv6 en fonction du mode choisi"""
-        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
         if machine_options.ipv6_mode == 'SLAAC':
             self.sync_ipv6_slaac()
         elif machine_options.ipv6_mode == 'DHCPV6':
@@ -1255,11 +1253,10 @@ class Interface(FieldPermissionModelMixin,models.Model):
     def ipv6(self):
         """ Renvoie le queryset de la liste des ipv6
         On renvoie l'ipv6 slaac que si le mode slaac est activé (et non dhcpv6)"""
-        machine_options, _created = preferences.models.OptionalMachine.objects.get_or_create()
-        if machine_options.ipv6_mode == 'SLAAC':
-            return Ipv6List.objects.filter(interface=self)
-        elif machine_options.ipv6_mode == 'DHCPV6':
-            return Ipv6List.objects.filter(interface=self, slaac_ip=False)
+        if preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'SLAAC':
+            return self.ipv6list.all()
+        elif preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'DHCPV6':
+            return self.ipv6list.filter(slaac_ip=False)
         else:
             return None
 
@@ -1338,8 +1335,7 @@ class Interface(FieldPermissionModelMixin,models.Model):
         except Machine.DoesNotExist:
             return False, u"Machine inexistante"
         if not user_request.has_perm('machines.add_interface'):
-            options, created = preferences.models.OptionalMachine.objects.get_or_create()
-            max_lambdauser_interfaces = options.max_lambdauser_interfaces
+            max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
             if machine.user != user_request:
                 return False, u"Vous ne pouvez pas ajouter une interface à une\
                         machine d'un autre user que vous sans droit"
@@ -1432,7 +1428,7 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
         protocol='IPv6',
         unique=True
     )
-    interface = models.ForeignKey('Interface', on_delete=models.CASCADE)
+    interface = models.ForeignKey('Interface', on_delete=models.CASCADE, related_name='ipv6list')
     slaac_ip = models.BooleanField(default=False)
 
     class Meta:
@@ -1655,8 +1651,7 @@ class Domain(models.Model):
         except Interface.DoesNotExist:
             return False, u"Interface inexistante"
         if not user_request.has_perm('machines.add_domain'):
-            options, created = preferences.models.OptionalMachine.objects.get_or_create()
-            max_lambdauser_aliases = options.max_lambdauser_aliases
+            max_lambdauser_aliases = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_aliases')
             if interface.machine.user != user_request:
                 return False, u"Vous ne pouvez pas ajouter un alias à une\
                         machine d'un autre user que vous sans droit"

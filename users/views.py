@@ -122,9 +122,8 @@ def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
     user = AdherentForm(request.POST or None, user=request.user)
-    options, _created = GeneralOption.objects.get_or_create()
-    GTU_sum_up = options.GTU_sum_up
-    GTU = options.GTU
+    GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
+    GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
         user = user.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
@@ -595,8 +594,7 @@ def mass_archive(request):
 @can_view_all(Adherent)
 def index(request):
     """ Affiche l'ensemble des adherents, need droit cableur """
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     users_list = Adherent.objects.select_related('room')
     users_list = SortTable.sort(
         users_list,
@@ -621,8 +619,7 @@ def index(request):
 @can_view_all(Club)
 def index_clubs(request):
     """ Affiche l'ensemble des clubs, need droit cableur """
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     clubs_list = Club.objects.select_related('room')
     clubs_list = SortTable.sort(
         clubs_list,
@@ -647,8 +644,7 @@ def index_clubs(request):
 @can_view_all(Ban)
 def index_ban(request):
     """ Affiche l'ensemble des ban, need droit cableur """
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     ban_list = Ban.objects.select_related('user')
     ban_list = SortTable.sort(
         ban_list,
@@ -673,8 +669,7 @@ def index_ban(request):
 @can_view_all(Whitelist)
 def index_white(request):
     """ Affiche l'ensemble des whitelist, need droit cableur """
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     white_list = Whitelist.objects.select_related('user')
     white_list = SortTable.sort(
         white_list,
@@ -780,8 +775,7 @@ def profil(request, users, userid):
         request.GET.get('order'),
         SortTable.USERS_INDEX_WHITE
     )
-    options, _created = OptionalUser.objects.get_or_create()
-    user_solde = options.user_solde
+    user_solde = OptionalUser.get_cached_value('user_solde')
     options, _created = AssoOption.objects.get_or_create()
     allow_online_payment = options.payment != 'NONE'
     return render(
