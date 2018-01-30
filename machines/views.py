@@ -93,6 +93,7 @@ from .forms import (
     DelNasForm,
     SrvForm,
     DelSrvForm,
+    Ipv6ListForm,
 )
 from .forms import EditOuverturePortListForm, EditOuverturePortConfigForm
 from .models import (
@@ -114,6 +115,7 @@ from .models import (
     Srv,
     OuverturePortList,
     OuverturePort,
+    Ipv6List,
 )
 from users.models import User
 from preferences.models import GeneralOption, OptionalMachine
@@ -369,6 +371,58 @@ def del_interface(request, interface, interfaceid):
     return form({'objet': interface, 'objet_name': 'interface'}, 'machines/delete.html', request)
 
 @login_required
+@can_create(Ipv6List)
+@can_edit(Interface)
+def new_ipv6list(request, interface, interfaceid):
+    """Nouvelle ipv6"""
+    ipv6list_instance = Ipv6List(interface=interface)
+    ipv6 = Ipv6ListForm(request.POST or None, instance=ipv6list_instance, user=request.user)
+    if ipv6.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            ipv6.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Ipv6 ajoutée")
+        return redirect(reverse(
+            'machines:index-ipv6',
+            kwargs={'interfaceid':str(interface.id)}
+            ))
+    return form({'ipv6form': ipv6}, 'machines/machine.html', request)
+
+@login_required
+@can_edit(Ipv6List)
+def edit_ipv6list(request, ipv6list_instance, ipv6listid):
+    """Edition d'une ipv6"""
+    ipv6 = Ipv6ListForm(request.POST or None, instance=ipv6list_instance, user=request.user)
+    if ipv6.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            ipv6.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ipv6.changed_data))
+        messages.success(request, "Ipv6 modifiée")
+        return redirect(reverse(
+            'machines:index-ipv6',
+            kwargs={'interfaceid':str(ipv6list_instance.interface.id)}
+            ))
+    return form({'ipv6form': ipv6}, 'machines/machine.html', request)
+
+@login_required
+@can_delete(Ipv6List)
+def del_ipv6list(request, ipv6list, ipv6listid):
+    """ Supprime une ipv6"""
+    if request.method == "POST":
+        interfaceid = ipv6list.interface.id
+        with transaction.atomic(), reversion.create_revision():
+            ipv6list.delete()
+            reversion.set_user(request.user)
+        messages.success(request, "L'ipv6 a été détruite")
+        return redirect(reverse(
+            'machines:index-ipv6',
+            kwargs={'interfaceid':str(interfaceid)}
+            ))
+    return form({'objet': ipv6list, 'objet_name': 'ipv6'}, 'machines/delete.html', request)
+
+@login_required
 @can_create(IpType)
 def add_iptype(request):
     """ Ajoute un range d'ip. Intelligence dans le models, fonction views minimaliste"""
@@ -485,7 +539,7 @@ def edit_extension(request, extension_instance, extensionid):
             extension.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
-        mssages.success(request, "Extension modifiée")
+        messages.success(request, "Extension modifiée")
         return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension}, 'machines/machine.html', request)
 
@@ -995,6 +1049,12 @@ def index_alias(request, interface, interfaceid):
     return render(request, 'machines/index_alias.html', {'alias_list':alias_list, 'interface_id': interfaceid})
 
 @login_required
+@can_edit(Interface)
+def index_ipv6(request, interface, interfaceid):
+    ipv6_list = Ipv6List.objects.filter(interface=interface)
+    return render(request, 'machines/index_ipv6.html', {'ipv6_list':ipv6_list, 'interface_id': interfaceid})
+
+@login_required
 @can_view_all(Service)
 def index_service(request):
     service_list = Service.objects.prefetch_related('service_link_set__server__domain__extension').all()
@@ -1208,14 +1268,16 @@ def ouverture_ports(request):
                 d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
                 d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
                 r['ipv4'][i.ipv4.ipv4] = d
-            if i.ipv6_object:
-                d = r['ipv6'].get(i.ipv6, {})
-                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
-                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
-                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
-                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
-                r['ipv6'][i.ipv6] = d
+            if i.ipv6():
+                for ipv6 in i.ipv6():
+                    d = r['ipv6'].get(ipv6.ipv6, {})
+                    d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                    d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                    d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                    d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                    r['ipv6'][ipv6.ipv6] = d
     return JSONResponse(r)
+
 @csrf_exempt
 @login_required
 @permission_required('machines.serveur')

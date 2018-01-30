@@ -83,7 +83,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <b>IPv4</b> {{ interface.ipv4 }}
                 <br>
                 {% if ipv6_enabled and interface.ipv6 != 'None'%}
-                <b>IPv6</b> {{ interface.ipv6 }}
+                <b>IPv6</b>
+            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseIpv6_{{interface.id}}" aria-expanded="true" aria-controls="collapseIpv6_{{interface.id}}">
+                        Afficher l'IPV6
+                        </button>
                 {% endif %}
             </td>
             <td class="text-right">
@@ -110,6 +113,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </a>
                         </li>
 			{% acl_end %}
+			{% can_create Ipv6List interface.id %}
+                        <li>
+                            <a href="{% url 'machines:index-ipv6' interface.id %}">
+                                <i class="glyphicon glyphicon-edit"></i> Gerer les ipv6
+                            </a>
+                        </li>
+			{% acl_end %}
 			{% can_create OuverturePortList %}
                         <li>
                             <a href="{% url 'machines:port-config' interface.id%}">
@@ -121,6 +131,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </td>
         </tr>
+
+        {% if ipv6_enabled and interface.ipv6 != 'None'%}
+        <tr>
+            <td colspan=5 style="border-top: none; padding: 1px;">
+		 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
+                    <ul class="list-group" style="margin-bottom: 0px;">
+		    {% for ipv6 in interface.ipv6.all %}
+                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
+		        {{ipv6}}
+			</li>
+		        {% endfor %}
+		    </ul>
+                </div>
+            </td>
+        <tr>
+        {% endif %}
+
+
 	{% if interface.domain.related_domain.all %}
 	<tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
@@ -152,6 +180,12 @@ $("#machines_table").ready( function() {
     var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
     for (var i=0 ; i<alias_div.length ; i++) {
 	alias_div[i].collapse('hide');
+    }
+} );
+$("#machines_table").ready( function() {
+    var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
+    for (var i=0 ; i<ipv6_div.length ; i++) {
+	ipv6_div[i].collapse('hide');
     }
 } );
 </script>
