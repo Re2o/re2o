@@ -129,7 +129,7 @@ def add_service(request):
         messages.success(request, "Ce service a été ajouté")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service},
+        {'preferenceform': service, 'action_name' : 'Ajouter'},
         'preferences/preferences.html',
         request
         )
@@ -152,7 +152,7 @@ def edit_service(request, service_instance, serviceid):
         messages.success(request, "Service modifié")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service},
+        {'preferenceform': service, 'action_name' : 'Editer'},
         'preferences/preferences.html',
         request
     )
@@ -176,7 +176,7 @@ def del_services(request, instances):
                 suivant %s ne peut être supprimé" % services_del)
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services},
+        {'preferenceform': services, 'action_name' : 'Supprimer'},
         'preferences/preferences.html',
         request
     )
