@@ -263,7 +263,8 @@ def new_machine(request, user, userid):
             'machineform': machine,
             'interfaceform': interface,
             'domainform': domain,
-            'i_mbf_param': i_mbf_param
+            'i_mbf_param': i_mbf_param,
+            'action_name' : 'Créer une machine'
         },
         'machines/machine.html',
         request
@@ -304,7 +305,13 @@ def edit_interface(request, interface_instance, interfaceid):
             kwargs={'userid':str(interface_instance.machine.user.id)}
             ))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
-    return form({'machineform': machine_form, 'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
+    return form({
+        'machineform': machine_form,
+        'interfaceform': interface_form,
+        'domainform': domain_form,
+        'i_mbf_param': i_mbf_param,
+        'action_name' : 'Editer une interface'
+    }, 'machines/machine.html', request)
 
 @login_required
 @can_delete(Machine)
@@ -350,7 +357,12 @@ def new_interface(request, machine, machineid):
                 kwargs={'userid':str(machine.user.id)}
                 ))
     i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
-    return form({'interfaceform': interface_form, 'domainform': domain_form, 'i_mbf_param': i_mbf_param}, 'machines/machine.html', request)
+    return form({
+        'interfaceform': interface_form,
+        'domainform': domain_form,
+        'i_mbf_param': i_mbf_param,
+        'action_name' : 'Créer une interface' 
+    }, 'machines/machine.html', request)
 
 @login_required
 @can_delete(Interface)
@@ -387,7 +399,7 @@ def new_ipv6list(request, interface, interfaceid):
             'machines:index-ipv6',
             kwargs={'interfaceid':str(interface.id)}
             ))
-    return form({'ipv6form': ipv6}, 'machines/machine.html', request)
+    return form({'ipv6form': ipv6, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Ipv6List)
@@ -404,7 +416,7 @@ def edit_ipv6list(request, ipv6list_instance, ipv6listid):
             'machines:index-ipv6',
             kwargs={'interfaceid':str(ipv6list_instance.interface.id)}
             ))
-    return form({'ipv6form': ipv6}, 'machines/machine.html', request)
+    return form({'ipv6form': ipv6, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete(Ipv6List)
@@ -435,7 +447,7 @@ def add_iptype(request):
             reversion.set_comment("Création")
         messages.success(request, "Ce type d'ip a été ajouté")
         return redirect(reverse('machines:index-iptype'))
-    return form({'iptypeform': iptype}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(IpType)
@@ -450,7 +462,7 @@ def edit_iptype(request, iptype_instance, iptypeid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in iptype.changed_data))
         messages.success(request, "Type d'ip modifié")
         return redirect(reverse('machines:index-iptype'))
-    return form({'iptypeform': iptype}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(IpType)
@@ -468,7 +480,7 @@ def del_iptype(request, instances):
             except ProtectedError:
                 messages.error(request, "Le type d'ip %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % iptype_del)
         return redirect(reverse('machines:index-iptype'))
-    return form({'iptypeform': iptype}, 'machines/machine.html', request)
+    return form({'iptypeform': iptype, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(MachineType)
@@ -482,7 +494,7 @@ def add_machinetype(request):
             reversion.set_comment("Création")
         messages.success(request, "Ce type de machine a été ajouté")
         return redirect(reverse('machines:index-machinetype'))
-    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(MachineType)
@@ -496,7 +508,7 @@ def edit_machinetype(request, machinetype_instance, machinetypeid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in machinetype.changed_data))
         messages.success(request, "Type de machine modifié")
         return redirect(reverse('machines:index-machinetype'))
-    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(MachineType)
@@ -513,7 +525,7 @@ def del_machinetype(request, instances):
             except ProtectedError:
                 messages.error(request, "Le type de machine %s est affectée à au moins une machine, vous ne pouvez pas le supprimer" % machinetype_del)
         return redirect(reverse('machines:index-machinetype'))
-    return form({'machinetypeform': machinetype}, 'machines/machine.html', request)
+    return form({'machinetypeform': machinetype, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Extension)
@@ -527,7 +539,7 @@ def add_extension(request):
             reversion.set_comment("Création")
         messages.success(request, "Cette extension a été ajoutée")
         return redirect(reverse('machines:index-extension'))
-    return form({'extensionform': extension}, 'machines/machine.html', request)
+    return form({'extensionform': extension, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Extension)
@@ -541,7 +553,7 @@ def edit_extension(request, extension_instance, extensionid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in extension.changed_data))
         messages.success(request, "Extension modifiée")
         return redirect(reverse('machines:index-extension'))
-    return form({'extensionform': extension}, 'machines/machine.html', request)
+    return form({'extensionform': extension, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Extension)
@@ -558,7 +570,7 @@ def del_extension(request, instances):
             except ProtectedError:
                 messages.error(request, "L'extension %s est affectée à au moins un type de machine, vous ne pouvez pas la supprimer" % extension_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'extensionform': extension}, 'machines/machine.html', request)
+    return form({'extensionform': extension, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(SOA)
@@ -572,7 +584,7 @@ def add_soa(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement SOA a été ajouté")
         return redirect(reverse('machines:index-extension'))
-    return form({'soaform': soa}, 'machines/machine.html', request)
+    return form({'soaform': soa, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(SOA)
@@ -586,7 +598,7 @@ def edit_soa(request, soa_instance, soaid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in soa.changed_data))
         messages.success(request, "SOA modifié")
         return redirect(reverse('machines:index-extension'))
-    return form({'soaform': soa}, 'machines/machine.html', request)
+    return form({'soaform': soa, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(SOA)
@@ -603,7 +615,7 @@ def del_soa(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le SOA suivant %s ne peut être supprimé" % soa_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'soaform': soa}, 'machines/machine.html', request)
+    return form({'soaform': soa, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Mx)
@@ -617,7 +629,7 @@ def add_mx(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement mx a été ajouté")
         return redirect(reverse('machines:index-extension'))
-    return form({'mxform': mx}, 'machines/machine.html', request)
+    return form({'mxform': mx, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Mx)
@@ -631,7 +643,7 @@ def edit_mx(request, mx_instance, mxid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in mx.changed_data))
         messages.success(request, "Mx modifié")
         return redirect(reverse('machines:index-extension'))
-    return form({'mxform': mx}, 'machines/machine.html', request)
+    return form({'mxform': mx, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Mx)
@@ -648,7 +660,7 @@ def del_mx(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Mx suivant %s ne peut être supprimé" % mx_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'mxform': mx}, 'machines/machine.html', request)
+    return form({'mxform': mx, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Ns)
@@ -662,7 +674,7 @@ def add_ns(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement ns a été ajouté")
         return redirect(reverse('machines:index-extension'))
-    return form({'nsform': ns}, 'machines/machine.html', request)
+    return form({'nsform': ns, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Ns)
@@ -676,7 +688,7 @@ def edit_ns(request, ns_instance, nsid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in ns.changed_data))
         messages.success(request, "Ns modifié")
         return redirect(reverse('machines:index-extension'))
-    return form({'nsform': ns}, 'machines/machine.html', request)
+    return form({'nsform': ns, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Ns)
@@ -693,7 +705,7 @@ def del_ns(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Ns suivant %s ne peut être supprimé" % ns_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'nsform': ns}, 'machines/machine.html', request)
+    return form({'nsform': ns, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Txt)
@@ -707,7 +719,7 @@ def add_txt(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement text a été ajouté")
         return redirect(reverse('machines:index-extension'))
-    return form({'txtform': txt}, 'machines/machine.html', request)
+    return form({'txtform': txt, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Txt)
@@ -721,7 +733,7 @@ def edit_txt(request, txt_instance, txtid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in txt.changed_data))
         messages.success(request, "Txt modifié")
         return redirect(reverse('machines:index-extension'))
-    return form({'txtform': txt}, 'machines/machine.html', request)
+    return form({'txtform': txt, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Txt)
@@ -738,7 +750,7 @@ def del_txt(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Txt suivant %s ne peut être supprimé" % txt_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'txtform': txt}, 'machines/machine.html', request)
+    return form({'txtform': txt, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Srv)
@@ -752,7 +764,7 @@ def add_srv(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement srv a été ajouté")
         return redirect(reverse('machines:index-extension'))
-    return form({'srvform': srv}, 'machines/machine.html', request)
+    return form({'srvform': srv, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Srv)
@@ -766,7 +778,7 @@ def edit_srv(request, srv_instance, srvid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in srv.changed_data))
         messages.success(request, "Srv modifié")
         return redirect(reverse('machines:index-extension'))
-    return form({'srvform': srv}, 'machines/machine.html', request)
+    return form({'srvform': srv, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Srv)
@@ -783,7 +795,7 @@ def del_srv(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Srv suivant %s ne peut être supprimé" % srv_del)
         return redirect(reverse('machines:index-extension'))
-    return form({'srvform': srv}, 'machines/machine.html', request)
+    return form({'srvform': srv, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Domain)
@@ -803,7 +815,7 @@ def add_alias(request, interface, interfaceid):
             'machines:index-alias',
             kwargs={'interfaceid':str(interfaceid)}
             ))
-    return form({'aliasform': alias}, 'machines/machine.html', request)
+    return form({'aliasform': alias, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Domain)
@@ -820,7 +832,7 @@ def edit_alias(request, domain_instance, domainid):
             'machines:index-alias',
             kwargs={'interfaceid':str(domain_instance.cname.interface_parent.id)}
             ))
-    return form({'aliasform': alias}, 'machines/machine.html', request)
+    return form({'aliasform': alias, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Interface)
@@ -840,7 +852,7 @@ def del_alias(request, interface, interfaceid):
             'machines:index-alias',
             kwargs={'interfaceid':str(interfaceid)}
             ))
-    return form({'aliasform': alias}, 'machines/machine.html', request)
+    return form({'aliasform': alias, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 
 @login_required
@@ -855,7 +867,7 @@ def add_service(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement service a été ajouté")
         return redirect(reverse('machines:index-service'))
-    return form({'serviceform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Service)
@@ -869,7 +881,7 @@ def edit_service(request, service_instance, serviceid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in service.changed_data))
         messages.success(request, "Service modifié")
         return redirect(reverse('machines:index-service'))
-    return form({'serviceform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Service)
@@ -886,7 +898,7 @@ def del_service(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le service suivant %s ne peut être supprimé" % service_del)
         return redirect(reverse('machines:index-service'))
-    return form({'serviceform': service}, 'machines/machine.html', request)
+    return form({'serviceform': service, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Vlan)
@@ -900,7 +912,7 @@ def add_vlan(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement vlan a été ajouté")
         return redirect(reverse('machines:index-vlan'))
-    return form({'vlanform': vlan}, 'machines/machine.html', request)
+    return form({'vlanform': vlan, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Vlan)
@@ -914,7 +926,7 @@ def edit_vlan(request, vlan_instance, vlanid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in vlan.changed_data))
         messages.success(request, "Vlan modifié")
         return redirect(reverse('machines:index-vlan'))
-    return form({'vlanform': vlan}, 'machines/machine.html', request)
+    return form({'vlanform': vlan, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Vlan)
@@ -931,7 +943,7 @@ def del_vlan(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Vlan suivant %s ne peut être supprimé" % vlan_del)
         return redirect(reverse('machines:index-vlan'))
-    return form({'vlanform': vlan}, 'machines/machine.html', request)
+    return form({'vlanform': vlan, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(Nas)
@@ -945,7 +957,7 @@ def add_nas(request):
             reversion.set_comment("Création")
         messages.success(request, "Cet enregistrement nas a été ajouté")
         return redirect(reverse('machines:index-nas'))
-    return form({'nasform': nas}, 'machines/machine.html', request)
+    return form({'nasform': nas, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_edit(Nas)
@@ -959,7 +971,7 @@ def edit_nas(request, nas_instance, nasid):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in nas.changed_data))
         messages.success(request, "Nas modifié")
         return redirect(reverse('machines:index-nas'))
-    return form({'nasform': nas}, 'machines/machine.html', request)
+    return form({'nasform': nas, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
 @login_required
 @can_delete_set(Nas)
@@ -976,7 +988,7 @@ def del_nas(request, instances):
             except ProtectedError:
                 messages.error(request, "Erreur le Nas suivant %s ne peut être supprimé" % nas_del)
         return redirect(reverse('machines:index-nas'))
-    return form({'nasform': nas}, 'machines/machine.html', request)
+    return form({'nasform': nas, 'action_name' : 'Supprimer'}, 'machines/machine.html', request)
 
 @login_required
 @can_view_all(Machine)
@@ -1130,7 +1142,7 @@ def add_portlist(request):
         port_list.save()
         messages.success(request, "Liste de ports créée")
         return redirect(reverse('machines:index-portlist'))
-    return form({'machineform' : port_list}, 'machines/machine.html', request)
+    return form({'machineform' : port_list, 'action_name' : 'Créer'}, 'machines/machine.html', request)
 
 @login_required
 @can_create(OuverturePort)
@@ -1143,7 +1155,7 @@ def configure_ports(request, interface_instance, interfaceid):
         interface.save()
         messages.success(request, "Configuration des ports mise à jour.")
         return redirect(reverse('machines:index'))
-    return form({'interfaceform' : interface}, 'machines/machine.html', request)
+    return form({'interfaceform' : interface, 'action_name' : 'Editer la configuration'}, 'machines/machine.html', request)
 
 """ Framework Rest """
 

@@ -235,7 +235,7 @@ def new_port(request, switch_id):
             'topologie:index-port',
             kwargs={'switch_id':switch_id}
             ))
-    return form({'id_switch': switch_id,'topoform': port}, 'topologie/topo.html', request)
+    return form({'id_switch': switch_id,'topoform': port, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -257,7 +257,7 @@ def edit_port(request, port_object, port_id):
             'topologie:index-port',
             kwargs={'switch_id': str(port_object.switch.id)}
             ))
-    return form({'id_switch': str(port_object.switch.id), 'topoform': port}, 'topologie/topo.html', request)
+    return form({'id_switch': str(port_object.switch.id), 'topoform': port, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -292,7 +292,7 @@ def new_stack(request):
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Stack crée")
-    return form({'topoform': stack}, 'topologie/topo.html', request)
+    return form({'topoform': stack, 'action_name' : 'Créer'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -311,7 +311,7 @@ def edit_stack(request, stack, stack_id):
                     )
                 )
             return redirect(reverse('topologie:index-stack'))
-    return form({'topoform': stack}, 'topologie/topo.html', request)
+    return form({'topoform': stack, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -522,7 +522,7 @@ def new_room(request):
             reversion.set_comment("Création")
         messages.success(request, "La chambre a été créé")
         return redirect(reverse('topologie:index-room'))
-    return form({'topoform': room}, 'topologie/topo.html', request)
+    return form({'topoform': room, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -540,7 +540,7 @@ def edit_room(request, room, room_id):
                                  )
         messages.success(request, "La chambre a bien été modifiée")
         return redirect(reverse('topologie:index-room'))
-    return form({'topoform': room}, 'topologie/topo.html', request)
+    return form({'topoform': room, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -576,7 +576,7 @@ def new_model_switch(request):
             reversion.set_comment("Création")
         messages.success(request, "Le modèle a été créé")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': model_switch}, 'topologie/topo.html', request)
+    return form({'topoform': model_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -594,7 +594,7 @@ def edit_model_switch(request, model_switch, model_switch_id):
             )
         messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': model_switch}, 'topologie/topo.html', request)
+    return form({'topoform': model_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -630,7 +630,7 @@ def new_constructor_switch(request):
             reversion.set_comment("Création")
         messages.success(request, "Le constructeur a été créé")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
+    return form({'topoform': constructor_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
 @login_required
@@ -648,7 +648,7 @@ def edit_constructor_switch(request, constructor_switch, constructor_switch_id):
             )
         messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': constructor_switch}, 'topologie/topo.html', request)
+    return form({'topoform': constructor_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required

@@ -207,7 +207,8 @@ def new_facture_pdf(request):
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
             })
     return form({
-        'factureform': facture_form
+        'factureform': facture_form,
+        'action_name' : 'Editer'
         }, 'cotisations/facture.html', request)
 
 
@@ -313,7 +314,7 @@ def credit_solde(request, user, userid):
             reversion.set_comment("Création")
         messages.success(request, "Solde modifié")
         return redirect(reverse('cotisations:index'))
-    return form({'factureform': facture}, 'cotisations/facture.html', request)
+    return form({'factureform': facture, 'action_name' : 'Créditer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -334,7 +335,7 @@ def add_article(request):
             reversion.set_comment("Création")
         messages.success(request, "L'article a été ajouté")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -354,7 +355,7 @@ def edit_article(request, article_instance, articleid):
             )
         messages.success(request, "Type d'article modifié")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -369,7 +370,7 @@ def del_article(request, instances):
             reversion.set_user(request.user)
         messages.success(request, "Le/les articles ont été supprimé")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -385,7 +386,7 @@ def add_paiement(request):
             reversion.set_comment("Création")
         messages.success(request, "Le moyen de paiement a été ajouté")
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -404,7 +405,7 @@ def edit_paiement(request, paiement_instance, paiementid):
             )
         messages.success(request, "Type de paiement modifié")
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -431,7 +432,7 @@ def del_paiement(request, instances):
                     facture, vous ne pouvez pas le supprimer" % paiement_del
                 )
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -446,7 +447,7 @@ def add_banque(request):
             reversion.set_comment("Création")
         messages.success(request, "La banque a été ajoutée")
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -465,7 +466,7 @@ def edit_banque(request, banque_instance, banqueid):
             )
         messages.success(request, "Banque modifiée")
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -486,7 +487,7 @@ def del_banque(request, instances):
                 messages.error(request, "La banque %s est affectée à au moins\
                     une facture, vous ne pouvez pas la supprimer" % banque_del)
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
