@@ -38,7 +38,6 @@ def refuse_payment(request):
 
 @csrf_exempt
 def ipn(request):
-    option, _created = AssoOption.objects.get_or_create()
     p = ComnpayPayment()
     order = ('idTpe', 'idTransaction', 'montant', 'result', 'sec', )
     try:
@@ -46,7 +45,7 @@ def ipn(request):
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
-    if not p.validSec(data, option.payment_pass):
+    if not p.validSec(data, AssoOption.get_cached_value('payment_pass')):
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
     result = True if (request.POST['result'] == 'OK') else False
@@ -54,7 +53,7 @@ def ipn(request):
     idTransaction = request.POST['idTransaction']
 
     # On vérifie que le paiement nous est destiné
-    if not idTpe == option.payment_id:
+    if not idTpe == AssoOption.get_cached_value('payment_id'):
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
     try:
@@ -81,10 +80,9 @@ def ipn(request):
 
 def comnpay(facture, request):
     host = request.get_host()
-    option, _created = AssoOption.objects.get_or_create()
     p = ComnpayPayment(
-        str(option.payment_id),
-        str(option.payment_pass),
+        str(AssoOption.get_cached_value('payment_id')),
+        str(AssoOption.get_cached_value('payment_pass')),
         'https://' + host + reverse(
             'cotisations:accept_payment',
             kwargs={'factureid':facture.id}
