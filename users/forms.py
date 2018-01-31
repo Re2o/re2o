@@ -50,10 +50,15 @@ from re2o.field_permissions import FieldPermissionFormMixin
 NOW = timezone.now()
 
 
-class PassForm(forms.Form):
+class PassForm(FieldPermissionFormMixin, forms.ModelForm):
     """Formulaire de changement de mot de passe. Verifie que les 2
     nouveaux mots de passe renseignés sont identiques et respectent
     une norme"""
+    selfpasswd = forms.CharField(
+        label=u'Saisir le mot de passe existant',
+        max_length=255,
+        widget=forms.PasswordInput
+    )
     passwd1 = forms.CharField(
         label=u'Nouveau mot de passe',
         max_length=255,
@@ -67,14 +72,30 @@ class PassForm(forms.Form):
         widget=forms.PasswordInput
     )
 
+    class Meta:
+        model = User
+        fields = []
+
     def clean_passwd2(self):
         """Verifie que passwd1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("passwd1")
         password2 = self.cleaned_data.get("passwd2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
+            raise forms.ValidationError("Les 2 nouveaux mots de passe sont différents")
         return password2
+
+    def clean_selfpasswd(self):
+        """Verifie si il y a lieu que le mdp self est correct"""
+        if not self.instance.check_password(self.cleaned_data.get("selfpasswd")):
+            raise forms.ValidationError("Le mot de passe actuel est incorrect")
+        return
+
+    def save(self, commit=True):
+        """Changement du mot de passe"""
+        user = super(PassForm, self).save(commit=False)
+        user.set_password(self.cleaned_data.get("passwd1"))
+        user.save()
 
 
 class UserCreationForm(forms.ModelForm):

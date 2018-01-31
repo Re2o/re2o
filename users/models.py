@@ -735,6 +735,9 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
 
+    def check_selfpasswd(self, user_request, *args, **kwargs):
+        return user_request == self, None
+
     @staticmethod
     def can_change_state(user_request, *args, **kwargs):
         return user_request.has_perm('users.change_user_state'), "Droit requis pour changer l'état"
@@ -801,6 +804,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         self.field_permissions = {
             'shell' : self.can_change_shell,
             'force' : self.can_change_force,
+            'selfpasswd' : self.check_selfpasswd,
         }
 
     def __str__(self):
