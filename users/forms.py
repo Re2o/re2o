@@ -441,7 +441,7 @@ class ListRightForm(ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
     permissions = forms.ModelMultipleChoiceField(
-        Permission.objects.all(),
+        Permission.objects.all().select_related('content_type'),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )

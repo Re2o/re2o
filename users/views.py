@@ -710,7 +710,8 @@ def index_school(request):
 @can_view_all(ListRight)
 def index_listright(request):
     """ Affiche l'ensemble des droits , need droit cableur """
-    listright_list = ListRight.objects.order_by('unix_name')
+    listright_list = ListRight.objects.order_by('unix_name')\
+        .prefetch_related('permissions').prefetch_related('user_set')
     return render(
         request,
         'users/index_listright.html',
