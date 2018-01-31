@@ -69,18 +69,17 @@ class OptionalUser(models.Model):
     )
 
     @classmethod
-    def set_in_cache(cls, key):
-        machine_options, _created = cls.objects.get_or_create()
-        value = getattr(machine_options, key)
-        cache.set('optionaluser_' + key, value, None)
-        return value
+    def set_in_cache(cls):
+        optionaluser, _created = cls.objects.get_or_create()
+        cache.set('optionaluser', optionaluser, None)
+        return optionaluser
 
     @classmethod
     def get_cached_value(cls, key):
-        value = cache.get('optionaluser_' + key)
-        if value == None:
-            value = cls.set_in_cache(key)
-        return value
+        optionaluser = cache.get('optionaluser')
+        if optionaluser == None:
+            optionaluser = cls.set_in_cache() 
+        return getattr(optionaluser, key)
 
     class Meta:
         permissions = (
@@ -148,6 +147,13 @@ class OptionalUser(models.Model):
                 c.save()
 
 
+@receiver(post_save, sender=OptionalUser)
+def optionaluser_post_save(sender, **kwargs):
+    """Ecriture dans le cache"""            
+    user_pref = kwargs['instance']
+    user_pref.set_in_cache()
+
+
 class OptionalMachine(models.Model):
     """Options pour les machines : maximum de machines ou d'alias par user
     sans droit, activation de l'ipv6"""
@@ -176,18 +182,17 @@ class OptionalMachine(models.Model):
          return not self.get_cached_value('ipv6_mode') == 'DISABLED'
 
     @classmethod
-    def set_in_cache(cls, key):
-        machine_options, _created = cls.objects.get_or_create()
-        value = getattr(machine_options, key)
-        cache.set('optionalmachine_' + key, value, None)
-        return value
+    def set_in_cache(cls):
+        optionalmachine, _created = cls.objects.get_or_create()
+        cache.set('optionalmachine', optionalmachine, None)
+        return optionalmachine
 
     @classmethod
     def get_cached_value(cls, key):
-        value = cache.get('optionalmachine_' + key)
-        if value == None:
-            value = cls.set_in_cache(key)
-        return value
+        optionalmachine = cache.get('optionalmachine')
+        if optionalmachine == None:
+            optionalmachine = cls.set_in_cache() 
+        return getattr(optionalmachine, key)
 
     class Meta:
         permissions = (
@@ -250,9 +255,9 @@ class OptionalMachine(models.Model):
 
 @receiver(post_save, sender=OptionalMachine)
 def optionalmachine_post_save(sender, **kwargs):
-    """Synchronisation ipv6"""            
+    """Synchronisation ipv6 et ecriture dans le cache"""            
     machine_pref = kwargs['instance']
-
+    machine_pref.set_in_cache()
     if machine_pref.ipv6_mode != "DISABLED":
         for interface in machines.models.Interface.objects.all():
             interface.sync_ipv6()
@@ -291,18 +296,17 @@ class OptionalTopologie(models.Model):
     )
 
     @classmethod
-    def set_in_cache(cls, key):
-        machine_options, _created = cls.objects.get_or_create()
-        value = getattr(machine_options, key)
-        cache.set('optionaltopologie_' + key, value, None)
-        return value
+    def set_in_cache(cls):
+        optionaltopologie, _created = cls.objects.get_or_create()
+        cache.set('optionaltopologie', optionaltopologie, None)
+        return optionaltopologie
 
     @classmethod
     def get_cached_value(cls, key):
-        value = cache.get('optionaltopologie_' + key)
-        if value == None:
-            value = cls.set_in_cache(key)
-        return value
+        optionaltopologie = cache.get('optionaltopologie')
+        if optionaltopologie == None:
+            optionaltopologie = cls.set_in_cache() 
+        return getattr(optionaltopologie, key)
 
     class Meta:
         permissions = (
@@ -362,6 +366,13 @@ class OptionalTopologie(models.Model):
             de voir les préférences concernant la topologie"
 
 
+@receiver(post_save, sender=OptionalTopologie)
+def optionaltopologie_post_save(sender, **kwargs):
+    """Ecriture dans le cache"""            
+    topologie_pref = kwargs['instance']
+    topologie_pref.set_in_cache()
+
+
 class GeneralOption(models.Model):
     """Options générales : nombre de resultats par page, nom du site,
     temps où les liens sont valides"""
@@ -390,18 +401,17 @@ class GeneralOption(models.Model):
     )
 
     @classmethod
-    def set_in_cache(cls, key):
-        machine_options, _created = cls.objects.get_or_create()
-        value = getattr(machine_options, key)
-        cache.set('generaloption_' + key, value, None)
-        return value
+    def set_in_cache(cls):
+        generaloption, _created = cls.objects.get_or_create()
+        cache.set('generaloption', generaloption, None)
+        return generaloption
 
     @classmethod
     def get_cached_value(cls, key):
-        value = cache.get('generaloption_' + key)
-        if value == None:
-            value = cls.set_in_cache(key)
-        return value
+        generaloption = cache.get('generaloption')
+        if generaloption == None:
+            generaloption = cls.set_in_cache() 
+        return getattr(generaloption, key)
 
     class Meta:
         permissions = (
@@ -460,6 +470,13 @@ class GeneralOption(models.Model):
         """
         return user_request.has_perm('preferences.view_generaloption'), u"Vous n'avez pas le droit\
             de voir les préférences générales"
+
+
+@receiver(post_save, sender=GeneralOption)
+def generaloption_post_save(sender, **kwargs):
+    """Ecriture dans le cache"""            
+    general_pref = kwargs['instance']
+    general_pref.set_in_cache()
 
 
 class Service(models.Model):
@@ -572,18 +589,17 @@ class AssoOption(models.Model):
     )
 
     @classmethod
-    def set_in_cache(cls, key):
-        machine_options, _created = cls.objects.get_or_create()
-        value = getattr(machine_options, key)
-        cache.set('assooption_' + key, value, None)
-        return value
+    def set_in_cache(cls):
+        assooption, _created = cls.objects.get_or_create()
+        cache.set('assooption', assooption, None)
+        return assooption
 
     @classmethod
     def get_cached_value(cls, key):
-        value = cache.get('assooption_' + key)
-        if value == None:
-            value = cls.set_in_cache(key)
-        return value
+        assooption = cache.get('assooption')
+        if assooption == None:
+            assooption = cls.set_in_cache() 
+        return getattr(assooption, key)
 
     class Meta:
         permissions = (
@@ -641,6 +657,13 @@ class AssoOption(models.Model):
         """
         return user_request.has_perm('preferences.view_assooption'), u"Vous n'avez pas le droit\
             de voir les préférences concernant l'association"
+
+
+@receiver(post_save, sender=AssoOption)
+def assooption_post_save(sender, **kwargs):
+    """Ecriture dans le cache"""            
+    asso_pref = kwargs['instance']
+    asso_pref.set_in_cache()
 
 
 class MailMessageOption(models.Model):

@@ -364,8 +364,7 @@ def new_switch(request):
         request.POST or None,
         )
     if switch.is_valid() and machine.is_valid() and interface.is_valid():
-        options, _created = AssoOption.objects.get_or_create()
-        user = options.utilisateur_asso
+        user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
