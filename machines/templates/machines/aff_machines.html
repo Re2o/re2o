@@ -65,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>
 	        {{ interface.domain }}
-		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target=".multiple-collapse" aria-expanded="true" aria-controls="collapseDetails1_{{interface.id}} collapseDetails2_{{interface.id}} collapseDetails3_{{interface.id}} collapseDetails4_{{interface.id}} ">
+		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDetails_{{interface.id}}" aria-expanded="true" aria-controls="collapseDetails_{{interface.id}}">
                     Détails...
                 </button>
             </td>
@@ -122,75 +122,57 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
       
       <div class="collapse in" id="collapseDetails_{{interface.id}}">
-
-      {% if ipv6_enabled and interface.ipv6 != 'None'%}
-        <tr>
+          <tr>
+            
+          {% if ipv6_enabled and interface.ipv6 != 'None'%}
           <td colspan=5 style="border-top: none; padding: 1px;">
-            
               <tr class="info">
-                <td>  <div class="collapse in" id="collapseDetails1_{{interface.id}}"> <b>IPV6</b> </div> </td>
+                <td>  <b>IPV6</b> </td>
               </tr>
-            
-            <div class="collapse in" id="collapseDetails2_{{interface.id}}"> 
-              <ul class="list-group" style="margin-bottom: 0px;">
-		    {% for ipv6 in interface.ipv6.all %}
-                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
-		        {{ipv6}}
-			           </li>
+          <ul class="list-group" style="margin-bottom: 0px;">
+                {% for ipv6 in interface.ipv6.all %}
+                <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
+                            {{ipv6}}
+			     </li>
 		        {% endfor %}
-		      </ul>
-              </div>
+            </ul>
+            {% endif %}
             
-          
-          </td>
-        </tr>
-        <tr>
-    {% endif %}
-
-
-	{% if interface.domain.related_domain.all %}
-    <tr class="info">
-      <td> <div class="collapse in" id="collapseDetails3_{{interface.id}}"> <b>Aliases</b> </div> </td>
-    </tr>
-	<tr>
+            {% if interface.domain.related_domain.all %}
             <td colspan=5 style="border-top: none; padding: 1px;">
-              
-              <div class="collapse in" id="collapseDetails4_{{interface.id}}">
-                    <ul class="list-group" style="margin-bottom: 0px;">
-                        {% for al in interface.domain.related_domain.all %}
-                        <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
+              <tr class="info">
+                <td>  <b>Aliases</b> </td>
+              </tr>
+          <ul class="list-group" style="margin-bottom: 0px;">
+                {% for al in interface.domain.related_domain.all %}
+                <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
                             <a href="http://{{ al }}">
                                 {{ al }}
                                 <i class="glyphicon glyphicon-share-alt"></i>
                             </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-              </div>
-              
+                </li>
+                
+                {% endfor %}
+            {% endif %}
+
+		    </ul>
             </td>
-      {% endif %}
-      </tr>
+            </tr>
+          </div>  
+      
       {% endfor %}
         <tr>
             <td colspan="8"></td>
         </tr>
-      </div>
     {% endfor %}
     </tbody>
 </table>
 
 <script>
-$("#machines_table").ready( function() {
-    var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
-    for (var i=0 ; i<alias_div.length ; i++) {
-	alias_div[i].collapse('hide');
-    }
-} );
-$("#machines_table").ready( function() {
-    var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
+  $("#machines_table").ready( function() {
+    var details_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseDetails_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
     for (var i=0 ; i<ipv6_div.length ; i++) {
-	ipv6_div[i].collapse('hide');
+	details_div[i].collapse('hide');
     }
 } );
 </script>
