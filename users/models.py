@@ -701,7 +701,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            options, _created = AssoOption.objects.get_or_create()
             if self == user_request:
                 return True, None
             elif user_request.has_perm('users.change_all_users'):
@@ -709,7 +708,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             elif user_request.has_perm('users.change_user'):
                 if self.groups.filter(listright__critical=True):
                     return False, u"Utilisateurs avec droits critiques, ne peut etre édité"
-                elif self == options.utilisateur_asso:
+                elif self == AssoOption.get_cached_value('utilisateur_asso'):
                     return False, u"Impossible d'éditer l'utilisateur asso sans droit change_all_users"
                 else:
                     return True, None
