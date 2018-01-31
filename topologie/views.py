@@ -99,8 +99,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX
     )
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     paginator = Paginator(switch_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -153,8 +152,7 @@ def index_room(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_ROOM
     )
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     paginator = Paginator(room_list, pagination_number)
     page = request.GET.get('page')
     try:
@@ -192,7 +190,7 @@ def index_stack(request):
 @can_view_all(ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
-    model_switch_list = ModelSwitch.objects
+    model_switch_list = ModelSwitch.objects.select_related('constructor')
     constructor_switch_list = ConstructorSwitch.objects
     model_switch_list = SortTable.sort(
         model_switch_list,
@@ -366,8 +364,7 @@ def new_switch(request):
         request.POST or None,
         )
     if switch.is_valid() and machine.is_valid() and interface.is_valid():
-        options, _created = AssoOption.objects.get_or_create()
-        user = options.utilisateur_asso
+        user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")

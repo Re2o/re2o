@@ -296,9 +296,8 @@ class RechargeForm(Form):
 
     def clean_value(self):
         value = self.cleaned_data['value']
-        options, _created = OptionalUser.objects.get_or_create()
-        if value < options.min_online_payment:
-            raise forms.ValidationError("Montant inférieur au montant minimal de paiement en ligne (%s) €" % options.min_online_payment)
-        if value + self.user.solde > options.max_solde:
-            raise forms.ValidationError("Le solde ne peux excéder %s " % options.max_solde)
+        if value < OptionalUser.get_cached_value('min_online_payment'):
+            raise forms.ValidationError("Montant inférieur au montant minimal de paiement en ligne (%s) €" % OptionalUser.get_cached_value('min_online_payment'))
+        if value + self.user.solde > OptionalUser.get_cached_value('max_solde'):
+            raise forms.ValidationError("Le solde ne peux excéder %s " % OptionalUser.get_cached_value('max_solde'))
         return value

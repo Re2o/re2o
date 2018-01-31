@@ -111,8 +111,7 @@ def finish_results(results, col, order):
         SortTable.TOPOLOGIE_INDEX
     )
 
-    options, _ = GeneralOption.objects.get_or_create()
-    max_result = options.search_display_page
+    max_result = GeneralOption.get_cached_value('search_display_page')
     for name, val in results.items():
         results[name] = val.distinct()[:max_result]
     results.update({'max_result': max_result})

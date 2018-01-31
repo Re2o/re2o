@@ -289,8 +289,7 @@ class AdherentForm(FieldPermissionFormMixin, ModelForm):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
         telephone = self.cleaned_data['telephone']
-        preferences, _created = OptionalUser.objects.get_or_create()
-        if not telephone and preferences.is_tel_mandatory:
+        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
                 "Un numéro de téléphone valide est requis"
             )
@@ -341,8 +340,7 @@ class ClubForm(FieldPermissionFormMixin, ModelForm):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
         telephone = self.cleaned_data['telephone']
-        preferences, _created = OptionalUser.objects.get_or_create()
-        if not telephone and preferences.is_tel_mandatory:
+        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
                 "Un numéro de téléphone valide est requis"
             )
@@ -443,7 +441,7 @@ class ListRightForm(ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
     permissions = forms.ModelMultipleChoiceField(
-        Permission.objects.all(),
+        Permission.objects.all().select_related('content_type'),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
