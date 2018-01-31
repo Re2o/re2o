@@ -65,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>
 	        {{ interface.domain }}
-		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="true" aria-controls="collapseIPV6_{{interface.id}} collapsealts_{{interface.id}}">
+		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDetails_{{interface.id}}" aria-expanded="true" aria-controls="collapseDetails_{{interface.id}}">
                     Détails...
                 </button>
             </td>
@@ -121,7 +121,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
         </tr>
       
-      <div class="collapse in" id="collapseIPV6_{{interface.id}}">
+      <div class="collapse in" id="collapseDetails_{{interface.id}}">
+
       {% if ipv6_enabled and interface.ipv6 != 'None'%}
         <tr>
           <td colspan=5 style="border-top: none; padding: 1px;">
