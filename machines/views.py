@@ -981,9 +981,8 @@ def del_nas(request, instances):
 @login_required
 @can_view_all(Machine)
 def index(request):
-    options, created = GeneralOption.objects.get_or_create()
-    pagination_large_number = options.pagination_large_number
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension')
+    pagination_large_number = GeneralOption.get_cached_value('pagination_large_number')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension').prefetch_related('interface_set__ipv6list')
     machines_list = SortTable.sort(
         machines_list,
         request.GET.get('col'),
@@ -1166,7 +1165,7 @@ def mac_ip_list(request):
 @login_required
 @permission_required('machines.serveur')
 def full_mac_ip_list(request):
-    interfaces = all_active_assigned_interfaces()
+    interfaces = all_active_assigned_interfaces(full=True)
     seria = FullInterfaceSerializer(interfaces, many=True)
     return seria.data
 

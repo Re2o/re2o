@@ -45,7 +45,6 @@ def can_create(model):
     def decorator(view):
         def wrapper(request, *args, **kwargs):
             can, msg = model.can_create(request.user, *args, **kwargs)
-            #options, _created = OptionalUser.objects.get_or_create()
             if not can:
                 messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('index'))

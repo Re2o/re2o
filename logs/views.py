@@ -121,8 +121,7 @@ STATS_DICT = {
 def index(request):
     """Affiche les logs affinés, date reformatées, selectionne
     les event importants (ajout de droits, ajout de ban/whitelist)"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     # The types of content kept for display
     content_type_filter = ['ban', 'whitelist', 'vente', 'interface', 'user']
     # Select only wanted versions
@@ -180,8 +179,7 @@ def index(request):
 def stats_logs(request):
     """Affiche l'ensemble des logs et des modifications sur les objets,
     classés par date croissante, en vrac"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     revisions = Revision.objects.all().select_related('user')\
         .prefetch_related('version_set__object')
     revisions = SortTable.sort(

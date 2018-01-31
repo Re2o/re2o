@@ -106,9 +106,8 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, _created = OptionalUser.objects.get_or_create()
-            user_solde = options.user_solde
-            solde_negatif = options.solde_negatif
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
@@ -181,7 +180,6 @@ def new_facture_pdf(request):
     Vente ou Facture correspondant en bdd"""
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
-        options, _created = AssoOption.objects.get_or_create()
         tbl = []
         article = facture_form.cleaned_data['article']
         quantite = facture_form.cleaned_data['number']
@@ -200,12 +198,12 @@ def new_facture_pdf(request):
             'article': tbl,
             'total': prix_total,
             'paid': paid,
-            'asso_name': options.name,
-            'line1': options.adresse1,
-            'line2': options.adresse2,
-            'siret': options.siret,
-            'email': options.contact,
-            'phone': options.telephone,
+            'asso_name': AssoOption.get_cached_value('name'),
+            'line1': AssoOption.get_cached_value('adresse1'),
+            'line2': AssoOption.get_cached_value('adresse2'),
+            'siret': AssoOption.get_cached_value('siret'),
+            'email': AssoOption.get_cached_value('contact'),
+            'phone': AssoOption.get_cached_value('telephone'),
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
             })
     return form({
@@ -223,7 +221,6 @@ def facture_pdf(request, facture, factureid):
 
     ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
-    options, _created = AssoOption.objects.get_or_create()
     for vente in ventes_objects:
         ventes.append([vente, vente.number, vente.prix_total])
     return render_invoice(request, {
@@ -233,12 +230,12 @@ def facture_pdf(request, facture, factureid):
         'dest': facture.user,
         'article': ventes,
         'total': facture.prix_total(),
-        'asso_name': options.name,
-        'line1': options.adresse1,
-        'line2': options.adresse2,
-        'siret': options.siret,
-        'email': options.contact,
-        'phone': options.telephone,
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
         })
 
@@ -498,8 +495,7 @@ def del_banque(request, instances):
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user').select_related('paiement')
     facture_list = SortTable.sort(
         facture_list,
@@ -567,8 +563,7 @@ def index_banque(request):
 @can_view_all(Facture)
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user')\
         .select_related('paiement').prefetch_related('vente_set')
     facture_list = SortTable.sort(
@@ -617,9 +612,8 @@ def new_facture_solde(request, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, _created = OptionalUser.objects.get_or_create()
-            user_solde = options.user_solde
-            solde_negatif = options.solde_negatif
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
@@ -687,8 +681,7 @@ def new_facture_solde(request, userid):
 
 @login_required
 def recharge(request):
-    options, _created = AssoOption.objects.get_or_create()
-    if options.payment == 'NONE':
+    if AssoOption.get_cached_value('payment') == 'NONE':
         messages.error(
             request,
             "Le paiement en ligne est désactivé."
@@ -711,6 +704,6 @@ def recharge(request):
             number=1,
         )
         v.save()
-        content = payment.PAYMENT_SYSTEM[options.payment](facture, request)
+        content = payment.PAYMENT_SYSTEM[AssoOption.get_cached_value('payment')](facture, request)
         return render(request, 'cotisations/payment.html', content)
     return form({'rechargeform':f}, 'cotisations/recharge.html', request)
