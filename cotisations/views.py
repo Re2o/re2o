@@ -180,7 +180,6 @@ def new_facture_pdf(request):
     Vente ou Facture correspondant en bdd"""
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
-        options, _created = AssoOption.objects.get_or_create()
         tbl = []
         article = facture_form.cleaned_data['article']
         quantite = facture_form.cleaned_data['number']
@@ -199,12 +198,12 @@ def new_facture_pdf(request):
             'article': tbl,
             'total': prix_total,
             'paid': paid,
-            'asso_name': options.name,
-            'line1': options.adresse1,
-            'line2': options.adresse2,
-            'siret': options.siret,
-            'email': options.contact,
-            'phone': options.telephone,
+            'asso_name': AssoOption.get_cached_value('name'),
+            'line1': AssoOption.get_cached_value('adresse1'),
+            'line2': AssoOption.get_cached_value('adresse2'),
+            'siret': AssoOption.get_cached_value('siret'),
+            'email': AssoOption.get_cached_value('contact'),
+            'phone': AssoOption.get_cached_value('telephone'),
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
             })
     return form({
@@ -222,7 +221,6 @@ def facture_pdf(request, facture, factureid):
 
     ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
-    options, _created = AssoOption.objects.get_or_create()
     for vente in ventes_objects:
         ventes.append([vente, vente.number, vente.prix_total])
     return render_invoice(request, {
@@ -232,12 +230,12 @@ def facture_pdf(request, facture, factureid):
         'dest': facture.user,
         'article': ventes,
         'total': facture.prix_total(),
-        'asso_name': options.name,
-        'line1': options.adresse1,
-        'line2': options.adresse2,
-        'siret': options.siret,
-        'email': options.contact,
-        'phone': options.telephone,
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
         })
 
@@ -683,8 +681,7 @@ def new_facture_solde(request, userid):
 
 @login_required
 def recharge(request):
-    options, _created = AssoOption.objects.get_or_create()
-    if options.payment == 'NONE':
+    if AssoOption.get_cached_value('payment') == 'NONE':
         messages.error(
             request,
             "Le paiement en ligne est désactivé."
@@ -707,6 +704,6 @@ def recharge(request):
             number=1,
         )
         v.save()
-        content = payment.PAYMENT_SYSTEM[options.payment](facture, request)
+        content = payment.PAYMENT_SYSTEM[AssoOption.get_cached_value('payment')](facture, request)
         return render(request, 'cotisations/payment.html', content)
     return form({'rechargeform':f}, 'cotisations/recharge.html', request)

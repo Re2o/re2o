@@ -530,20 +530,19 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
         template = loader.get_template('users/email_welcome')
-        assooptions, _created = AssoOption.objects.get_or_create()
         mailmessageoptions, _created = MailMessageOption\
             .objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
-            'asso_name': assooptions.name,
-            'asso_email': assooptions.contact,
+            'asso_name': AssoOption.get_cached_value('name'),
+            'asso_email': AssoOption.get_cached_value('contact'),
             'welcome_mail_fr': mailmessageoptions.welcome_mail_fr,
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
-                'name': assooptions.name
+                'name': AssoOption.get_cached_value('name')
                 },
             '',
             GeneralOption.get_cached_value('email_from'),
@@ -560,11 +559,10 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         req.user = self
         req.save()
         template = loader.get_template('users/email_passwd_request')
-        options, _created = AssoOption.objects.get_or_create()
         context = {
             'name': req.user.get_full_name(),
-            'asso': options.name,
-            'asso_mail': options.contact,
+            'asso': AssoOption.get_cached_value('name'),
+            'asso_mail': AssoOption.get_cached_value('contact'),
             'site_name': GeneralOption.get_cached_value('site_name'),
             'url': request.build_absolute_uri(
                 reverse('users:process', kwargs={'token': req.token})),
@@ -572,7 +570,7 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             }
         send_mail(
             'Changement de mot de passe du %(name)s / Password\
-            renewal for %(name)s' % {'name': options.name},
+            renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
             [req.user.email],
@@ -617,13 +615,12 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         """Notification mail lorsque une machine est automatiquement
         ajoutée par le radius"""
         template = loader.get_template('users/email_auto_newmachine')
-        assooptions, _created = AssoOption.objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
             'mac_address' : interface.mac_address,
-            'asso_name': assooptions.name,
+            'asso_name': AssoOption.get_cached_value('name'),
             'interface_name' : interface.domain,
-            'asso_email': assooptions.contact,
+            'asso_email': AssoOption.get_cached_value('contact'),
             'pseudo': self.pseudo,
         })
         send_mail(
@@ -1260,12 +1257,11 @@ class Ban(models.Model):
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
         template = loader.get_template('users/email_ban_notif')
-        options, _created = AssoOption.objects.get_or_create()
         context = Context({
             'name': self.user.get_full_name(),
             'raison': self.raison,
             'date_end': self.date_end,
-            'asso_name': options.name,
+            'asso_name': AssoOption.get_cached_value('name'),
         })
         send_mail(
             'Deconnexion disciplinaire',

@@ -571,6 +571,19 @@ class AssoOption(models.Model):
         blank=True,
     )
 
+    @classmethod
+    def set_in_cache(cls, key):
+        machine_options, _created = cls.objects.get_or_create()
+        value = getattr(machine_options, key)
+        cache.set('assooption_' + key, value, None)
+        return value
+
+    @classmethod
+    def get_cached_value(cls, key):
+        value = cache.get('assooption_' + key)
+        if value == None:
+            value = cls.set_in_cache(key)
+        return value
 
     class Meta:
         permissions = (

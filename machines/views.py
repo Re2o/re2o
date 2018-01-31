@@ -982,7 +982,7 @@ def del_nas(request, instances):
 @can_view_all(Machine)
 def index(request):
     pagination_large_number = GeneralOption.get_cached_value('pagination_large_number')
-    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension')
+    machines_list = Machine.objects.select_related('user').prefetch_related('interface_set__domain__extension').prefetch_related('interface_set__ipv4__ip_type').prefetch_related('interface_set__type__ip_type__extension').prefetch_related('interface_set__domain__related_domain__extension').prefetch_related('interface_set__ipv6list')
     machines_list = SortTable.sort(
         machines_list,
         request.GET.get('col'),

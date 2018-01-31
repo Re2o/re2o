@@ -190,7 +190,7 @@ def index_stack(request):
 @can_view_all(ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
-    model_switch_list = ModelSwitch.objects
+    model_switch_list = ModelSwitch.objects.select_related('constructor')
     constructor_switch_list = ConstructorSwitch.objects
     model_switch_list = SortTable.sort(
         model_switch_list,
