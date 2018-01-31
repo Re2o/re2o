@@ -102,21 +102,6 @@ from re2o.acl import (
     can_change
 )
 
-def password_change_action(u_form, user, request, req=False):
-    """ Fonction qui effectue le changeemnt de mdp bdd"""
-    user.set_user_password(u_form.cleaned_data['passwd1'])
-    with transaction.atomic(), reversion.create_revision():
-        user.save()
-        reversion.set_comment("Réinitialisation du mot de passe")
-    messages.success(request, "Le mot de passe a changé")
-    if req:
-        req.delete()
-        return redirect(reverse('index'))
-    return redirect(reverse(
-        'users:profil',
-        kwargs={'userid':str(user.id)}
-        ))
-
 @can_create(Adherent)
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
@@ -268,9 +253,17 @@ def password(request, user, userid):
     """ Reinitialisation d'un mot de passe à partir de l'userid,
     pour self par défaut, pour tous sans droit si droit cableur,
     pour tous si droit bureau """
-    u_form = PassForm(request.POST or None)
+    u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
-        return password_change_action(u_form, user, request)
+        with transaction.atomic(), reversion.create_revision():
+            u_form.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Changement du mot de passe")
+        messages.success(request, "Le mot de passe a changé")
+        return redirect(reverse(
+        'users:profil',
+        kwargs={'userid':str(user.id)}
+        ))
     return form({'userform': u_form}, 'users/user.html', request)
 
 
@@ -827,10 +820,15 @@ def process(request, token):
 def process_passwd(request, req):
     """Process le changeemnt de mot de passe, renvoie le formulaire
     demandant le nouveau password"""
-    u_form = PassForm(request.POST or None)
     user = req.user
+    u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
-        return password_change_action(u_form, user, request, req=req)
+        with transaction.atomic(), reversion.create_revision():
+            u_form.save()
+            reversion.set_comment("Réinitialisation du mot de passe")
+        req.delete()
+        messages.success(request, "Le mot de passe a changé")
+        return redirect(reverse('index'))       
     return form({'userform': u_form}, 'users/user.html', request)
 
 
