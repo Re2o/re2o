@@ -1243,9 +1243,9 @@ class Interface(FieldPermissionModelMixin,models.Model):
 
     def sync_ipv6(self):
         """Cree et met à jour l'ensemble des ipv6 en fonction du mode choisi"""
-        if machine_options.ipv6_mode == 'SLAAC':
+        if preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'SLAAC':
             self.sync_ipv6_slaac()
-        elif machine_options.ipv6_mode == 'DHCPV6':
+        elif preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'DHCPV6':
             self.sync_ipv6_dhcpv6()
         else:
             return
