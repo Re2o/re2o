@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% massive_bootstrap_form topoform 'room,related,machine_interface' %}
-    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="ok" %}
+    {% bootstrap_button action_name button_type="submit" icon="ok" %}
 </form>
   <br />
   <br />
