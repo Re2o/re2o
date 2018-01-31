@@ -36,7 +36,25 @@ from django.core.cache import cache
 from .aes_field import AESEncryptedField
 
 
-class OptionalUser(models.Model):
+class PreferencesModel(models.Model):
+    @classmethod
+    def set_in_cache(cls):
+        instance, _created = cls.objects.get_or_create()
+        cache.set(cls().__class__.__name__.lower(), instance, None)
+        return instance
+
+    @classmethod
+    def get_cached_value(cls, key):
+        instance = cache.get(cls().__class__.__name__.lower())
+        if instance == None:
+            instance = cls.set_in_cache() 
+        return getattr(instance, key)
+
+    class Meta:
+        abstract = True
+
+
+class OptionalUser(PreferencesModel):
     """Options pour l'user : obligation ou nom du telephone,
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
     PRETTY_NAME = "Options utilisateur"
@@ -67,19 +85,6 @@ class OptionalUser(models.Model):
         default=False,
         help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
-
-    @classmethod
-    def set_in_cache(cls):
-        optionaluser, _created = cls.objects.get_or_create()
-        cache.set('optionaluser', optionaluser, None)
-        return optionaluser
-
-    @classmethod
-    def get_cached_value(cls, key):
-        optionaluser = cache.get('optionaluser')
-        if optionaluser == None:
-            optionaluser = cls.set_in_cache() 
-        return getattr(optionaluser, key)
 
     class Meta:
         permissions = (
@@ -154,7 +159,7 @@ def optionaluser_post_save(sender, **kwargs):
     user_pref.set_in_cache()
 
 
-class OptionalMachine(models.Model):
+class OptionalMachine(PreferencesModel):
     """Options pour les machines : maximum de machines ou d'alias par user
     sans droit, activation de l'ipv6"""
     PRETTY_NAME = "Options machines"
@@ -180,19 +185,6 @@ class OptionalMachine(models.Model):
     @cached_property
     def ipv6(self):
          return not self.get_cached_value('ipv6_mode') == 'DISABLED'
-
-    @classmethod
-    def set_in_cache(cls):
-        optionalmachine, _created = cls.objects.get_or_create()
-        cache.set('optionalmachine', optionalmachine, None)
-        return optionalmachine
-
-    @classmethod
-    def get_cached_value(cls, key):
-        optionalmachine = cache.get('optionalmachine')
-        if optionalmachine == None:
-            optionalmachine = cls.set_in_cache() 
-        return getattr(optionalmachine, key)
 
     class Meta:
         permissions = (
@@ -263,7 +255,7 @@ def optionalmachine_post_save(sender, **kwargs):
             interface.sync_ipv6()
 
 
-class OptionalTopologie(models.Model):
+class OptionalTopologie(PreferencesModel):
     """Reglages pour la topologie : mode d'accès radius, vlan où placer
     les machines en accept ou reject"""
     PRETTY_NAME = "Options topologie"
@@ -294,19 +286,6 @@ class OptionalTopologie(models.Model):
         blank=True,
         null=True
     )
-
-    @classmethod
-    def set_in_cache(cls):
-        optionaltopologie, _created = cls.objects.get_or_create()
-        cache.set('optionaltopologie', optionaltopologie, None)
-        return optionaltopologie
-
-    @classmethod
-    def get_cached_value(cls, key):
-        optionaltopologie = cache.get('optionaltopologie')
-        if optionaltopologie == None:
-            optionaltopologie = cls.set_in_cache() 
-        return getattr(optionaltopologie, key)
 
     class Meta:
         permissions = (
@@ -373,7 +352,7 @@ def optionaltopologie_post_save(sender, **kwargs):
     topologie_pref.set_in_cache()
 
 
-class GeneralOption(models.Model):
+class GeneralOption(PreferencesModel):
     """Options générales : nombre de resultats par page, nom du site,
     temps où les liens sont valides"""
     PRETTY_NAME = "Options générales"
@@ -399,19 +378,6 @@ class GeneralOption(models.Model):
         null=True,
         blank=True,
     )
-
-    @classmethod
-    def set_in_cache(cls):
-        generaloption, _created = cls.objects.get_or_create()
-        cache.set('generaloption', generaloption, None)
-        return generaloption
-
-    @classmethod
-    def get_cached_value(cls, key):
-        generaloption = cache.get('generaloption')
-        if generaloption == None:
-            generaloption = cls.set_in_cache() 
-        return getattr(generaloption, key)
 
     class Meta:
         permissions = (
@@ -550,7 +516,7 @@ class Service(models.Model):
         return str(self.name)
 
 
-class AssoOption(models.Model):
+class AssoOption(PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""
     PRETTY_NAME = "Options de l'association"
 
@@ -587,19 +553,6 @@ class AssoOption(models.Model):
         null=True,
         blank=True,
     )
-
-    @classmethod
-    def set_in_cache(cls):
-        assooption, _created = cls.objects.get_or_create()
-        cache.set('assooption', assooption, None)
-        return assooption
-
-    @classmethod
-    def get_cached_value(cls, key):
-        assooption = cache.get('assooption')
-        if assooption == None:
-            assooption = cls.set_in_cache() 
-        return getattr(assooption, key)
 
     class Meta:
         permissions = (
