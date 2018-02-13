@@ -132,6 +132,7 @@ class TypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IpType
         fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop',
+                  'prefix_v6',
                   'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out',
                   'ouverture_ports_udp_in', 'ouverture_ports_udp_out',)
 
