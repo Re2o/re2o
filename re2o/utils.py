@@ -48,10 +48,8 @@ from machines.models import Domain, Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import Service
 
-DT_NOW = timezone.now()
 
-
-def all_adherent(search_time=DT_NOW):
+def all_adherent(search_time=timezone.now()):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
     qu'une seule requete sql
     Inspecte les factures de l'user et ses cotisation, regarde si elles
@@ -70,7 +68,7 @@ def all_adherent(search_time=DT_NOW):
     ).distinct()
 
 
-def all_baned(search_time=DT_NOW):
+def all_baned(search_time=timezone.now()):
     """ Fonction renvoyant tous les users bannis """
     return User.objects.filter(
         ban__in=Ban.objects.filter(
@@ -79,7 +77,7 @@ def all_baned(search_time=DT_NOW):
     ).distinct()
 
 
-def all_whitelisted(search_time=DT_NOW):
+def all_whitelisted(search_time=timezone.now()):
     """ Fonction renvoyant tous les users whitelistes """
     return User.objects.filter(
         whitelist__in=Whitelist.objects.filter(
@@ -88,7 +86,7 @@ def all_whitelisted(search_time=DT_NOW):
     ).distinct()
 
 
-def all_has_access(search_time=DT_NOW):
+def all_has_access(search_time=timezone.now()):
     """  Renvoie tous les users beneficiant d'une connexion
     : user adherent ou whiteliste et non banni """
     return User.objects.filter(
