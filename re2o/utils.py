@@ -49,11 +49,13 @@ from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import Service
 
 
-def all_adherent(search_time=timezone.now()):
+def all_adherent(search_time=None):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
     qu'une seule requete sql
     Inspecte les factures de l'user et ses cotisation, regarde si elles
     sont posterieur à now (end_time)"""
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         facture__in=Facture.objects.filter(
             vente__in=Vente.objects.filter(
@@ -68,8 +70,10 @@ def all_adherent(search_time=timezone.now()):
     ).distinct()
 
 
-def all_baned(search_time=timezone.now()):
+def all_baned(search_time=None):
     """ Fonction renvoyant tous les users bannis """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         ban__in=Ban.objects.filter(
             date_end__gt=search_time
@@ -77,8 +81,10 @@ def all_baned(search_time=timezone.now()):
     ).distinct()
 
 
-def all_whitelisted(search_time=timezone.now()):
+def all_whitelisted(search_time=None):
     """ Fonction renvoyant tous les users whitelistes """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         whitelist__in=Whitelist.objects.filter(
             date_end__gt=search_time
@@ -86,9 +92,11 @@ def all_whitelisted(search_time=timezone.now()):
     ).distinct()
 
 
-def all_has_access(search_time=timezone.now()):
+def all_has_access(search_time=None):
     """  Renvoie tous les users beneficiant d'une connexion
     : user adherent ou whiteliste et non banni """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         Q(state=User.STATE_ACTIVE) &
         ~Q(ban__in=Ban.objects.filter(date_end__gt=search_time)) &
