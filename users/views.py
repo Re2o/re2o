@@ -358,7 +358,7 @@ def add_ban(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
         )
-        return form({'userform': ban, 'action_name': 'Ajouter un ban'}, 'users/user.html', request)
+    return form({'userform': ban, 'action_name': 'Ajouter un ban'}, 'users/user.html', request)
 
 @login_required
 @can_edit(Ban)
@@ -828,7 +828,7 @@ def process_passwd(request, req):
             reversion.set_comment("Réinitialisation du mot de passe")
         req.delete()
         messages.success(request, "Le mot de passe a changé")
-        return redirect(reverse('index'))       
+        return redirect(reverse('index'))
     return form({'userform': u_form, 'action_name': 'Changer le mot de passe'}, 'users/user.html', request)
 
 
