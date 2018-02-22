@@ -77,9 +77,13 @@ class OptionalUser(PreferencesModel):
         default=10
     )
     gpg_fingerprint = models.BooleanField(default=True)
-    all_can_create = models.BooleanField(
+    all_can_create_club = models.BooleanField(
         default=False,
-        help_text="Tous les users peuvent en créer d'autres",
+        help_text="Les users peuvent créer un club"
+    )
+    all_can_create_adherent = models.BooleanField(
+        default=False,
+        help_text="Les users peuvent créer d'autres adhérents",
     )
     self_adhesion = models.BooleanField(
         default=False,

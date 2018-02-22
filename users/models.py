@@ -668,22 +668,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         """
         return User.objects.get(pk=userid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create an user object.
-
-        :param user_request: The user who wants to create a user object.
-        :return: a message and a boolean which is True if the user can create
-        an user or if the `options.all_can_create` is set.
-        """
-        if(not user_request.is_authenticated and not OptionalUser.get_cached_value('self_adhesion')):
-            return False, None
-        else:
-            if(OptionalUser.get_cached_value('all_can_create') or OptionalUser.get_cached_value('self_adhesion')):
-                return True, None
-            else:
-                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
-                    droit de créer un utilisateur"
-
     def can_edit(self, user_request, *args, **kwargs):
         """Check if an user can edit an user object.
 
@@ -831,6 +815,22 @@ class Adherent(User):
         """
         return Adherent.objects.get(pk=adherentid)
 
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create an user object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        an user or if the `options.all_can_create` is set.
+        """
+        if(not user_request.is_authenticated and not OptionalUser.get_cached_value('self_adhesion')):
+            return False, None
+        else:
+            if(OptionalUser.get_cached_value('all_can_create_adherent') or OptionalUser.get_cached_value('self_adhesion')):
+                return True, None
+            else:
+                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
+                    droit de créer un utilisateur"
+
 
 class Club(User):
     PRETTY_NAME = "Clubs"
@@ -850,6 +850,22 @@ class Club(User):
         to='users.Adherent',
         related_name='club_members'
     )
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create an user object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        an user or if the `options.all_can_create` is set.
+        """
+        if not user_request.is_authenticated:
+            return False, None
+        else:
+            if OptionalUser.get_cached_value('all_can_create_club'):
+                return True, None
+            else:
+                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
+                    droit de créer un club"
 
     def can_view_all(user_request, *args, **kwargs):
         """Check if an user can access to the list of every user objects
