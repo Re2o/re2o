@@ -27,14 +27,11 @@ def encrypt(key, s):
 def decrypt(key, s):
     obj = AES.new(key)
     ss = obj.decrypt(s)
-    print(ss)
     return ss.split(bytes(EOD, 'utf-8'))[0]
 
 
 class AESEncryptedField(models.CharField):
     def save_form_data(self, instance, data):
-        if value is None:
-            return value
         setattr(instance, self.name,
                 binascii.b2a_base64(encrypt(settings.AES_KEY, data)))
 
