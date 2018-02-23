@@ -27,7 +27,6 @@ def encrypt(key, s):
 def decrypt(key, s):
     obj = AES.new(key)
     ss = obj.decrypt(s)
-    print(ss)
     return ss.split(bytes(EOD, 'utf-8'))[0]
 
 
