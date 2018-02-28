@@ -407,7 +407,7 @@ def add_whitelist(request, user, userid):
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
         )
-        return form({'userform': whitelist, 'action_name': 'Ajouter une whitelist'}, 'users/user.html', request)
+    return form({'userform': whitelist, 'action_name': 'Ajouter une whitelist'}, 'users/user.html', request)
 
 
 @login_required
