@@ -96,6 +96,8 @@ class Machine(FieldPermissionModelMixin, models.Model):
             return False, u"Utilisateur inexistant"
         max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
         if not user_request.has_perm('machines.add_machine'):
+            if not preferences.models.OptionalMachine.get_cached_value('create_machine'):
+                return False, u"Vous ne pouvez pas ajouter une machine"
             if user != user_request:
                 return False, u"Vous ne pouvez pas ajouter une machine à un\
                         autre user que vous sans droit"
@@ -1335,6 +1337,8 @@ class Interface(FieldPermissionModelMixin,models.Model):
         except Machine.DoesNotExist:
             return False, u"Machine inexistante"
         if not user_request.has_perm('machines.add_interface'):
+            if not preferences.models.OptionalMachine.get_cached_value('create_machine'):
+                return False, u"Vous ne pouvez pas ajouter une machine"
             max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
             if machine.user != user_request:
                 return False, u"Vous ne pouvez pas ajouter une interface à une\

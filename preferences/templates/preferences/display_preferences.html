@@ -90,6 +90,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Support de l'ipv6</th>
             <td>{{ machineoptions.ipv6_mode }}</td>
      	</tr>
+	<tr>
+	    <th>Creation de machines</th>
+            <td>{{ machineoptions.create_machine }}</td>
+	</tr>
     </table>
     <h4>Préférences topologie</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">

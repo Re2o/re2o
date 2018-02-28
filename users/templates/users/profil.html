@@ -189,7 +189,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     {% endif %}
     <h2>Machines</h2>
+    {% can_create Machine users.id %}
     <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
+    {% acl_end %}
     {% if machines_list %}
     {% include "machines/aff_machines.html" with machines_list=machines_list %}
     {% else %}
