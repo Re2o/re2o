@@ -185,6 +185,10 @@ class OptionalMachine(PreferencesModel):
         choices=CHOICE_IPV6,
         default='DISABLED'
     )
+    create_machine = models.BooleanField(
+        default=True,
+        help_text="Permet à l'user de créer une machine"
+    )
 
     @cached_property
     def ipv6(self):
