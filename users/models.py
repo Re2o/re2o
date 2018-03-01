@@ -632,10 +632,10 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         )
         return
 
-    def set_user_password(self, password):
+    def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
-        self.set_password(password)
+        super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
 
