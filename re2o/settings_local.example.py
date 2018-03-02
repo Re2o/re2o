@@ -26,8 +26,8 @@ SECRET_KEY = 'SUPER_SECRET_KEY'
 
 DB_PASSWORD = 'SUPER_SECRET_DB'
 
-# AES key for secret key encryption
-AES_KEY = 'WHAT_A_WONDERFULL_KEY'
+# AES key for secret key encryption length must be a multiple of 16
+AES_KEY = 'THE_AES_KEY'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
