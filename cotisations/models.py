@@ -534,6 +534,7 @@ class Cotisation(models.Model):
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         max_length=255,
+        default='All',
     )
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
