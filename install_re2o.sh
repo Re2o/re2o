@@ -305,6 +305,7 @@ fi
 echo "Ecriture de settings_local"
 
 django_secret_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")
+aes_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(32)]))")
 
 cp re2o/settings_local.example.py re2o/settings_local.py
 if [ $sql_bdd_type == 1 ]
@@ -314,6 +315,7 @@ else
     sed -i 's/db_engine/django.db.backends.postgresql_psycopg2/g' re2o/settings_local.py
 fi
 sed -i 's/SUPER_SECRET_KEY/'"$django_secret_key"'/g' re2o/settings_local.py
+sed -i 's/THE_AES_KEY/'"$aes_key"'/g' re2o/settings_local.py
 sed -i 's/SUPER_SECRET_DB/'"$sql_password"'/g' re2o/settings_local.py
 sed -i 's/db_name_value/'"$sql_name"'/g' re2o/settings_local.py
 sed -i 's/db_user_value/'"$sql_login"'/g' re2o/settings_local.py
