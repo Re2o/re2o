@@ -32,36 +32,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {{ description }}
 <h2>À propos de Re2o</h2>
 <p>Re2o est un logiciel d'administration développé initialement au RézoMetz. Il
-se veut agnostique au réseau considéré, de manière à être installable en
+se veut indépendant de l'architecture du réseau considéré, de manière à être installable en
 quelques clics.
+C'est un logiciel totallement libre disponible sur le <a href="https://gitlab.federez.net/federez/re2o/">gitlab de FedeRez</a>.
 </p>
+
 <h3>Liste des contributeurs</h3>
 <div class="row">
 <div class="col-md-6">
+	
 <ul>
-  <li>Gabriel Detraz</li>
-  <li>Maël Kervella</li>
-  <li>Hugo Levy-Falk</li>
-  <li>Augustin Lemesle</li>
-  <li>Goulven Kermarec</li>
-  <li>David Sinquin</li>
-  <li>root</li>
-  <li>Matthieu Michelet</li>
-  <li>Yoann Pietri</li>
-  <li>Guillaume Goessel</li>
+  {% for i in contrib_1 %}
+    <li> {{i}} </li>
+  {% endfor %}
 </ul>
 </div>
 <div class="col-md-6">
 <ul>
-  <li>Éloi Alain</li>
-  <li>Simon Brélivet</li>
-  <li>Laouen Fernet</li>
-  <li>Pierre Cadart</li>
-  <li>Thibault de Boutray</li>
-  <li>Eloi Alain</li>
-  <li>Daniel Stan</li>
-  <li>Hugo Hervieux</li>
-  <li>Thomas Goudine</li>
+  {% for i in contrib_2 %}
+    <li> {{i}} </li>
+  {%endfor%}
 </ul>
 </div>
 </div>

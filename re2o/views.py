@@ -36,6 +36,10 @@ from reversion.models import Version
 from django.contrib import messages
 from preferences.models import Service
 from preferences.models import OptionalUser, GeneralOption, AssoOption
+from django.conf import settings
+from contributors import contributeurs
+import os
+import time
 import users, preferences, cotisations, topologie, machines
 
 def form(ctx, template, request):
@@ -157,9 +161,12 @@ def history(request, application, object_name, object_id):
 
 def about_page(request):
     option = AssoOption.objects.get()
+    n = len(contributeurs)
+    contrib_1 = contributeurs[:n//2]
+    contrib_2 = contributeurs[n//2:]
     return render(
         request,
         "re2o/about.html",
-        {'description': option.description , 'AssoName' : option.name}
+        {'description': option.description , 'AssoName' : option.name , 'contrib_1' : contrib_1 , 'contrib_2' : contrib_2}
     )
-    
+
