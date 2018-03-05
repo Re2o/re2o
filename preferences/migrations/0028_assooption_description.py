@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('preferences', '0027_merge_20180106_2019'),
+        ('preferences', '0043_optionalmachine_create_machine'),
     ]
 
     operations = [
