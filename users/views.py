@@ -842,7 +842,7 @@ class JSONResponse(HttpResponse):
 
 @csrf_exempt
 @login_required
-@permission_required('serveur')
+@permission_required('machines.serveur')
 def mailing(request):
     """ Fonction de serialisation des addresses mail de tous les users
     Pour generation de ml all users"""
