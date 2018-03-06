@@ -80,6 +80,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% csrf_token %}
     {% if machineform %}
         <h3>Machine</h3>
+        {% massive_bootstrap_form machineform 'user' %}
         {% bootstrap_form machineform %}
     {% endif %}
     {% if interfaceform %}
