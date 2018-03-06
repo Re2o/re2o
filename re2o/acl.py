@@ -33,7 +33,13 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 
-import cotisations, logs, machines, preferences, search, topologie, users
+import cotisations
+import logs
+import machines
+import preferences
+import search
+import topologie
+import users
 
 
 def can_create(model):
@@ -46,7 +52,8 @@ def can_create(model):
         def wrapper(request, *args, **kwargs):
             can, msg = model.can_create(request.user, *args, **kwargs)
             if not can:
-                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                messages.error(
+                    request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('index'))
             return view(request, *args, **kwargs)
         return wrapper
@@ -67,22 +74,25 @@ def can_edit(model, *field_list):
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             can, msg = instance.can_edit(request.user)
             if not can:
-                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                messages.error(
+                    request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             for field in field_list:
                 can_change = getattr(instance, 'can_change_' + field)
                 can, msg = can_change(request.user, *args, **kwargs)
                 if not can:
-                    messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                    messages.error(
+                        request, msg or "Vous ne pouvez pas accéder à ce menu")
                     return redirect(reverse('users:profil',
-                        kwargs={'userid':str(request.user.id)}
-                    ))
+                                            kwargs={'userid': str(
+                                                request.user.id)}
+                                            ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -98,10 +108,12 @@ def can_change(model, *field_list):
                 can_change = getattr(model, 'can_change_' + field)
                 can, msg = can_change(request.user, *args, **kwargs)
                 if not can:
-                    messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                    messages.error(
+                        request, msg or "Vous ne pouvez pas accéder à ce menu")
                     return redirect(reverse('users:profil',
-                        kwargs={'userid':str(request.user.id)}
-                    ))
+                                            kwargs={'userid': str(
+                                                request.user.id)}
+                                            ))
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
@@ -121,14 +133,15 @@ def can_delete(model):
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             can, msg = instance.can_delete(request.user)
             if not can:
-                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                messages.error(
+                    request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -149,8 +162,8 @@ def can_delete_set(model):
             if not instances:
                 messages.error(request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             return view(request, instances, *args, **kwargs)
         return wrapper
     return decorator
@@ -170,14 +183,15 @@ def can_view(model):
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             can, msg = instance.can_view(request.user)
             if not can:
-                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                messages.error(
+                    request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -190,10 +204,11 @@ def can_view_all(model):
         def wrapper(request, *args, **kwargs):
             can, msg = model.can_view_all(request.user)
             if not can:
-                messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+                messages.error(
+                    request, msg or "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse('users:profil',
-                    kwargs={'userid':str(request.user.id)}
-                ))
+                                        kwargs={'userid': str(request.user.id)}
+                                        ))
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
@@ -203,16 +218,17 @@ def can_view_app(app_name):
     """Decorator to check if an user can view an application.
     """
     assert app_name in sys.modules.keys()
+
     def decorator(view):
         def wrapper(request, *args, **kwargs):
             app = sys.modules[app_name]
-            can,msg = app.can_view(request.user)
+            can, msg = app.can_view(request.user)
             if can:
                 return view(request, *args, **kwargs)
             messages.error(request, msg)
             return redirect(reverse('users:profil',
-                kwargs={'userid':str(request.user.id)}
-            ))
+                                    kwargs={'userid': str(request.user.id)}
+                                    ))
         return wrapper
     return decorator
 
@@ -223,11 +239,10 @@ def can_edit_history(view):
         if request.user.has_perm('admin.change_logentry'):
             return view(request, *args, **kwargs)
         messages.error(
-           request,
-           "Vous ne pouvez pas éditer l'historique."
+            request,
+            "Vous ne pouvez pas éditer l'historique."
         )
         return redirect(reverse('users:profil',
-            kwargs={'userid':str(request.user.id)}
-        ))
+                                kwargs={'userid': str(request.user.id)}
+                                ))
     return wrapper
-
