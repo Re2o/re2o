@@ -180,13 +180,17 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_all':
         return acl_fct(obj.can_view_all, True)
     if tag_name == 'can_view_app':
-        return acl_fct(sys.modules[obj].can_view, False)
+        return acl_fct(lambda x : (not any(not sys.modules[o].can_view(x) for o in obj), None), False)
     if tag_name == 'cannot_view_app':
-        return acl_fct(sys.modules[obj].can_view, True)
+        return acl_fct(lambda x : (not any(not sys.modules[o].can_view(x) for o in obj), None), True)
     if tag_name == 'can_edit_history':
         return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),False)
     if tag_name == 'cannot_edit_history':
         return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),True)
+    if tag_name == 'can_view_any_app':
+        return acl_fct(lambda x : (any(sys.modules[o].can_view(x) for o in obj), None), False)
+    if tag_name == 'cannot_view_any_app':
+        return acl_fct(lambda x : (any(sys.modules[o].can_view(x) for o in obj), None), True)
 
     raise template.TemplateSyntaxError(
         "%r tag is not a valid can_xxx tag" % tag_name
@@ -228,22 +232,25 @@ def acl_history_filter(parser, token):
     return AclNode(callback, oknodes, konodes)
 
 
+@register.tag('can_view_any_app')
+@register.tag('cannot_view_any_app')
 @register.tag('can_view_app')
 @register.tag('cannot_view_app')
 def acl_app_filter(parser, token):
     """Templatetag for acl checking on applications."""
     try:
-        tag_name, app_name = token.split_contents()
+        tag_name, *app_name = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require 1 argument : the application"
+            "%r tag require 1 argument : an application"
             % token.contents.split()[0]
         )
-    if not app_name in sys.modules.keys():
-        raise template.TemplateSyntaxError(
-            "%r is not a registered application for acl."
-            % app_name
-        )
+    for name in app_name:
+        if not name in sys.modules.keys():
+            raise template.TemplateSyntaxError(
+                "%r is not a registered application for acl."
+                % name
+            )
 
     callback = get_callback(tag_name, app_name)
 
