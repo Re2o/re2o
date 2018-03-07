@@ -31,27 +31,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <h2>{{ users.class_name }} : {{ users.surname }} {{users.name}}</h2>
     <div>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
-            <i class="glyphicon glyphicon-lock"></i>
+            <i class="fa fa-lock"></i>
             Changer le mot de passe
         </a>
 	{% can_change User state %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
-            <i class="glyphicon glyphicon-flash"></i>
+            <i class="fa fa-id-badge"></i>
             Changer le statut
         </a>
 	{% acl_end %}
         {% can_change User groups %}
 	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
-	    <i class="glyphicon glyphicon-ok"></i>
+	    <i class="fa fa-check"></i>
             Gérer les groupes
         </a>
 	{% acl_end %}
 	<a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
-            <i class="glyphicon glyphicon-time"></i>
+            <i class="fa fa-history"></i>
             Historique
         </a>
     </div>
@@ -150,7 +150,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     {% if users.is_class_club %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
-        <i class="glyphicon glyphicon-lock"></i>
+        <i class="fa fa-lock"></i>
         Gérer admin et membres
     </a>
     <h3>Administrateurs du club</h3>
@@ -190,7 +190,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     <h2>Machines</h2>
     {% can_create Machine users.id %}
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
+    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a></h4>
     {% acl_end %}
     {% if machines_list %}
     {% include "machines/aff_machines.html" with machines_list=machines_list %}
@@ -205,14 +205,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>Aucune facture</p>
     {% endif %}
     <h2>Bannissements</h2>
-    {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% acl_end %}
+    {% can_create Ban %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}"><i class="fa fa-ban"></i> Ajouter un bannissement</a></h4>{% acl_end %}
     {% if ban_list %}
     {% include "users/aff_bans.html" with ban_list=ban_list %}
     {% else %}
     <p>Aucun bannissement</p>
     {% endif %}
     <h2>Accès à titre gracieux :</h2>
-    {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
+    {% can_create Whitelist %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}"><i class="fa fa-check-circle"></i> Accorder un accès à titre gracieux</a></h4>{% acl_end %}
     {% if white_list %}
     {% include "users/aff_whitelists.html" with white_list=white_list %}
     {% else %}

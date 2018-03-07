@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% if users_list.paginator %}
-{% include "pagination.html" with list=users_list %} 
+{% include "pagination.html" with list=users_list %}
 {% endif %}
 
     <table class="table table-striped">
@@ -38,7 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Profil</th>
             </tr>
         </thead>
-        {% for user in users_list %}    
+        {% for user in users_list %}
         <tr>
             <td>{{ user.name }}</td>
             <td>{{ user.surname }}</td>
@@ -51,12 +51,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <i class="text-danger">Désactivée</i>
                 {% endif %}
             </td>
-            <td><a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
+            <td><a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
             </td>
         </tr>
         {% endfor %}
     </table>
 
 {% if users_list.paginator %}
-{% include "pagination.html" with list=users_list %} 
+{% include "pagination.html" with list=users_list %}
 {% endif %}

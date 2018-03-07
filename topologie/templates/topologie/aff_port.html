@@ -60,16 +60,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
-                <i class="glyphicon glyphicon-time"></i>
+                <i class="fa fa-history"></i>
             </a>
         {% can_edit port %}
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
-                <i class="glyphicon glyphicon-edit"></i>
+                <i class="fa fa-edit"></i>
             </a>
 	{% acl_end %}
 	{% can_delete port %}
 	    <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
-                   <i class="glyphicon glyphicon-trash"></i>
+                   <i class="fa fa-trash"></i>
            </a>
         {% acl_end %}
         </td>

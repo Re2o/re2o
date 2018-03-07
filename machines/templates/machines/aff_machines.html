@@ -46,9 +46,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for machine in machines_list %}
         <tr class="info">
             <td colspan="4">
-                <b>{{ machine.name|default:'<i>Pas de nom</i>' }}</b> <i class="glyphicon glyphicon-chevron-right"></i>
+                <b>{{ machine.name|default:'<i>Pas de nom</i>' }}</b> <i class="fa-angle-right"></i>
                 <a href="{% url 'users:profil' userid=machine.user.id %}" title="Voir le profil">
-                    <i class="glyphicon glyphicon-user"></i> {{ machine.user }}
+                    <i class="fa fa-user"></i> {{ machine.user }}
                 </a>
             </td>
             <td class="text-right">
@@ -92,7 +92,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td class="text-right">
                 <div class="dropdown" style="width: 128px;">
                     <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="glyphicon glyphicon-edit"></i> <span class="caret"></span>
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
                     </button>
                     {% include 'buttons/history.html' with href='machines:history' name='interface' id=interface.id %}
 		    {% can_delete interface %}
@@ -102,28 +102,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			{% can_edit interface %}
 			<li>
                             <a href="{% url 'machines:edit-interface' interface.id %}">
-                                <i class="glyphicon glyphicon-edit"></i> Editer
+                                <i class="fa fa-edit"></i> Editer
                             </a>
                         </li>
 		        {% acl_end %}
 			{% can_create Domain interface.id %}
                         <li>
                             <a href="{% url 'machines:index-alias' interface.id %}">
-                                <i class="glyphicon glyphicon-edit"></i> Gerer les alias
+                                <i class="fa fa-edit"></i> Gerer les alias
                             </a>
                         </li>
 			{% acl_end %}
 			{% can_create Ipv6List interface.id %}
                         <li>
                             <a href="{% url 'machines:index-ipv6' interface.id %}">
-                                <i class="glyphicon glyphicon-edit"></i> Gerer les ipv6
+                                <i class="fa fa-edit"></i> Gerer les ipv6
                             </a>
                         </li>
 			{% acl_end %}
 			{% can_create OuverturePortList %}
                         <li>
                             <a href="{% url 'machines:port-config' interface.id%}">
-                                <i class="glyphicon glyphicon-edit"></i> Gerer la configuration des ports
+                                <i class="fa fa-edit"></i> Gerer la configuration des ports
                             </a>
                         </li>
 			{% acl_end %}
@@ -138,7 +138,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
 		    {% for ipv6 in interface.ipv6.all %}
-                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">  
+                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
 		        {{ipv6}}
 			</li>
 		        {% endfor %}
@@ -158,7 +158,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
                             <a href="http://{{ al }}">
                                 {{ al }}
-                                <i class="glyphicon glyphicon-share-alt"></i>
+                                <i class="fa fa-share"></i>
                             </a>
                         </li>
                         {% endfor %}

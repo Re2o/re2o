@@ -32,9 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
   <h2>Liste des types de machines</h2>
   {% can_create MachineType %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-machinetype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type de machine</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-machinetype'  %}"><i class="fa fa-plus"></i> Ajouter un type de machine</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machinetype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types de machines</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machinetype'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs types de machines</a>
   {%  include "machines/aff_machinetype.html" with  machinetype_list=machinetype_list %}
   <br />
   <br />

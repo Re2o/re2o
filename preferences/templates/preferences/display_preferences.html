@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     <h4>Préférences utilisateur</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
-	    <i class="glyphicon glyphicon-edit"></i>
+	    <i class="fa fa-edit"></i>
             Editer
 	</a>
     <p>
@@ -72,7 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
     <p>
@@ -97,7 +97,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     <h4>Préférences topologie</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
     <p>
@@ -118,7 +118,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     <h4>Préférences generales</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
     <p>
@@ -155,7 +155,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     <h4>Données de l'association</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
     <p>
@@ -192,7 +192,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     <h4>Messages personalisé dans les mails</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
     <p>
@@ -209,9 +209,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
   <h2>Liste des services page d'accueil</h2>
   {% can_create preferences.Service%}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
   <br />
   <br />

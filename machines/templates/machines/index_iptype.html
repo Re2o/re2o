@@ -32,9 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
   <h2>Liste des types d'ip</h2>
   {% can_create IpType %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'ip</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype'  %}"><i class="fa fa-plus"></i> Ajouter un type d'ip</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'ip</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs types d'ip</a>
   {%  include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
   <br />
   <br />

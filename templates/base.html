@@ -70,6 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
+                            {% if request.user.is_authenticated %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -77,18 +78,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Se déconnecter</a></li>
                                 </ul>
                             </li>
+                            {% endif %}
                             {% can_view_any_app users machines cotisations %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> Adhérents<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     {% can_view_app users %}
-                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-users"></i> Voir les adhérents</a></li>
+                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-users"></i> Gérer les adhérents</a></li>
                                     {% acl_end %}
                                     {% can_view_app machines %}
-                                    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Voir les machines</a></li>
+                                    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Gérer les machines</a></li>
                                     {% acl_end %}
                                     {% can_view_app cotisations %}
-                                    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> Voir les cotisations</a></li>
+                                    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> Gérer les cotisations</a></li>
                                     {% acl_end %}
                                 </ul>
                             </li>
@@ -216,7 +218,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% endfor %}
                             {% if interfaces|length > 5 %}
                                 <a class="list-group-item list-group-item-info" role="button" href="{% url "users:mon-profil" %}">
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <i class="fa fa-plus"></i>
                                     Voir mes machines
                                 </a>
                             {% endif %}
