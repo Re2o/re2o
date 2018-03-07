@@ -53,24 +53,24 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             </h3>
             <div class="dropdown pull-right">
                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="glyphicon glyphicon-edit"></i> Édition<span class="caret"></span></button>
+                        <i class="fa fa-edit"></i> Édition<span class="caret"></span></button>
                 <ul class="dropdown-menu" arialabelledby="editionuser">
                     <li>
                         <a href="{% url 'users:edit-info' users.id %}">
-                            <i class="glyphicon glyphicon-edit"></i>
+                            <i class="fa fa-edit"></i>
                             Editer
                         </a>
                     </li>
                     <li>
                         <a href="{% url 'users:password' users.id %}">
-                            <i class="glyphicon glyphicon-lock"></i>
+                            <i class="fa fa-lock"></i>
                             Changer le mot de passe
                         </a>
                     </li>
         	        {% can_change User state %}
                     <li>
                         <a href="{% url 'users:state' users.id %}">
-                            <i class="glyphicon glyphicon-flash"></i>
+                            <i class="fa fa-id-badge"></i>
                             Changer le statut
                         </a>
                     </li>
@@ -78,14 +78,14 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     {% can_change User groups %}
                     <li>
         	            <a href="{% url 'users:groups' users.id %}">
-        	                <i class="glyphicon glyphicon-ok"></i>
+        	                <i class="fa fa-check"></i>
                             Gérer les groupes
                         </a>
                     </li>
         	        {% acl_end %}
                     <li>
         	            <a href="{% url 'users:history' 'user' users.id %}">
-                            <i class="glyphicon glyphicon-time"></i>
+                            <i class="fa fa-history"></i>
                             Historique
                         </a>
                     </li>
@@ -94,33 +94,6 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
         <div class="panel-collapse collapse" id="collapse1">
             <div class="panel-body">
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
-                    <i class="fa fa-edit"></i>
-                    Editer
-                </a>
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
-                    <i class="fa fa-lock"></i>
-                    Changer le mot de passe
-                </a>
-        	{% can_change User state %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
-                    <i class="fa fa-badge"></i>
-                    Changer le statut
-                </a>
-        	{% acl_end %}
-                {% can_change User groups %}
-        	    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
-        	        <i class="fa fa-check"></i>
-                    Gérer les groupes
-                </a>
-        	{% acl_end %}
-        	    <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
-                    <i class="fa fa-history"></i>
-                    Historique
-                </a>
-                <p>
-                    <br />
-                </p>
                 <table class="table table-striped">
                     <tr>
                         <th>Prénom</th>
@@ -277,7 +250,6 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
         <div id="collapse3" class="panel-collapse collapse">
             <div class="panel-body">
-                <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a></h4>
                 {% if machines_list %}
                 {% include "machines/aff_machines.html" with machines_list=machines_list %}
                 {% else %}
