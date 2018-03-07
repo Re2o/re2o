@@ -343,6 +343,7 @@ class ClubForm(FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = 'Local'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
+        self.fields['mailing'].label = 'Utiliser une mailing'
 
     class Meta:
         model = Club
@@ -355,6 +356,7 @@ class ClubForm(FieldPermissionFormMixin, ModelForm):
             'room',
             'telephone',
             'shell',
+            'mailing'
         ]
 
     def clean_telephone(self):
