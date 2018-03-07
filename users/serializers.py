@@ -23,9 +23,16 @@
 #Maël Kervella
 
 from rest_framework import serializers
-from users.models import User
+from users.models import Club, Adherent
 
-class MailSerializer(serializers.ModelSerializer):
+class MailingSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='pseudo')
+
     class Meta:
-        model = User
+        model = Club
+        fields = ('name',)
+
+class MailingMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Adherent
         fields = ('email',)
