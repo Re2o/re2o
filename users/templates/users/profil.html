@@ -45,11 +45,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
 
 <div class="panel-group" id="accordion">
 	<div class="panel panel-default">
-        <div class="panel-heading clearfix">
-            <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse1">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
+            <h3 class="panel-title pull-left" >
                     Informations détaillées
-                </a>
             </h3>
             <div class="dropdown pull-right">
                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -92,7 +90,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 </ul>
             </div>
         </div>
-        <div class="panel-collapse collapse" id="collapse1">
+        <div class="panel-collapse collapse in" id="collapse1">
             <div class="panel-body">
                 <table class="table table-striped">
                     <tr>
@@ -189,9 +187,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse2">
             <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse2">Gérer le club</a>
+                Gérer le club
             </h3>
             <div class="btn-group pull-right">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
@@ -241,9 +239,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     </div>
     {% endif %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
             <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse3">Machines</a>
+                Machines
                 <span class="badge">{{machines_list.count}}</span>
             </h3>
             <a class="btn btn-primary btn-sm pull-right" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a>
@@ -259,9 +257,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
             <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse4">Cotisations</a>
+                Cotisations
             </h3>
             <div class="btn-group pull-right">
                 {% can_create Facture %}
@@ -292,9 +290,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
             <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse5">Bannissements</a>
+                Bannissements
             </h3>
             <div class="btn-group pull-right">
                 {% can_create Ban %}
@@ -315,9 +313,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
             <h3 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse6">Accès à titre gracieux</a>
+                Accès à titre gracieux
             </h3>
             <div class="btn-group pull-right">
                 {% can_create Whitelist %}
