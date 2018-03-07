@@ -52,7 +52,7 @@ from rest_framework.renderers import JSONRenderer
 
 from reversion.models import Version
 from reversion import revisions as reversion
-from users.serializers import MailSerializer
+from users.serializers import MailingSerializer, MailingMemberSerializer
 from users.models import (
     User,
     Ban,
@@ -843,9 +843,64 @@ class JSONResponse(HttpResponse):
 @csrf_exempt
 @login_required
 @permission_required('machines.serveur')
-def mailing(request):
-    """ Fonction de serialisation des addresses mail de tous les users
-    Pour generation de ml all users"""
-    mails = all_has_access().values('email').distinct()
-    seria = MailSerializer(mails, many=True)
+def ml_std_list(request):
+    """ API view sending all the available standard mailings"""
+    return JSONResponse([
+        {'name': 'adherents'}
+    ])
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+def ml_std_members(request, ml_name):
+    """ API view sending all the members for a standard mailing"""
+    # All with active connextion
+    if ml_name == 'adherents':
+        members = all_has_access().values('email').distinct()
+    # Unknown mailing
+    else:
+        messages.error(request, "Cette mailing n'existe pas")
+        return redirect(reverse('index'))
+    seria = MailingMemberSerializer(members, many=True)
+    return JSONResponse(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+def ml_club_list(request):
+    """ API view sending all the available club mailings"""
+    clubs = Club.objects.filter(mailing=True).values('pseudo')
+    seria = MailingSerializer(clubs, many=True)
+    return JSONResponse(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+def ml_club_admins(request, ml_name):
+    """ API view sending all the administrators for a specific club mailing"""
+    try:
+        club = Club.objects.get(mailing=True, pseudo=ml_name)
+    except Club.DoesNotExist:
+        messages.error(request, "Cette mailing n'existe pas")
+        return redirect(reverse('index'))
+    members = club.administrators.all().values('email').distinct()
+    seria = MailingMemberSerializer(members, many=True)
+    return JSONResponse(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+def ml_club_members(request, ml_name):
+    """ API view sending all the members for a specific club mailing"""
+    try:
+        club = Club.objects.get(mailing=True, pseudo=ml_name)
+    except Club.DoesNotExist:
+        messages.error(request, "Cette mailing n'existe pas")
+        return redirect(reverse('index'))
+    members = club.administrators.all().values('email').distinct() | club.members.all().values('email').distinct()
+    seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)

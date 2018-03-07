@@ -850,6 +850,9 @@ class Club(User):
         to='users.Adherent',
         related_name='club_members'
     )
+    mailing = models.BooleanField(
+        default = False
+    )
 
     def can_create(user_request, *args, **kwargs):
         """Check if an user can create an user object.

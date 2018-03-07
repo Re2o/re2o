@@ -60,8 +60,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </p>
     <table class="table table-striped">
         <tr>
+	    {% if users.is_class_club %}
+	    <th>Mailing</th>
+            {% if users.club.mailing %}
+	    <td>{{ users.pseudo }}(-admin)</td>
+	    {% else %}
+	    <td>Mailing désactivée</td>
+	    {% endif %}
+	    {% else %}
             <th>Prénom</th>
             <td>{{ users.name }}</td>
+	    {% endif %}
             <th>Nom</th>
             <td>{{ users.surname }}</td>
         </tr>
