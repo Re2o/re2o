@@ -36,6 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <meta property="og:url" content="\\{{request.get_host}}" />
     <meta property="og:image" content="\\{{request.get_host}}/static/logo/re2o.png"/>
     <meta property="og:description" content="Site de gestion de réseau supporté par FedeRez." />
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
 	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
@@ -68,22 +69,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
-                            <li><a href="{% url "users:mon-profil" %}">Mon profil</a></li>
-                            {% can_view_app users %}
-
-                            <li><a href="{% url "users:index" %}">Adhérents</a></li>
-                            {% acl_end %}
-                            {% can_view_app machines %}
-                            <li><a href="{% url "machines:index" %}">Machines</a></li>
-                            {% acl_end %}
-                            {% can_view_app cotisations %}
-                            <li><a href="{% url "cotisations:index" %}">Cotisations</a></li>
+                            {% if request.user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> Mon profil</a></li>
+                                    <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Se déconnecter</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+                            {% can_view_any_app users machines cotisations %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> Adhérents<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    {% can_view_app users %}
+                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-users"></i> Gérer les adhérents</a></li>
+                                    {% acl_end %}
+                                    {% can_view_app machines %}
+                                    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Gérer les machines</a></li>
+                                    {% acl_end %}
+                                    {% can_view_app cotisations %}
+                                    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> Gérer les cotisations</a></li>
+                                    {% acl_end %}
+                                </ul>
+                            </li>
                             {% acl_end %}
                             {% can_view_app topologie %}
-                            <li><a href="{% url "topologie:index" %}">Topologie</a></li>
+                            <li><a href="{% url "topologie:index" %}"><i class="fa fa-sitemap"></i> Topologie</a></li>
                             {% acl_end %}
                             {% can_view_app logs %}
-                            <li><a href="{% url "logs:index" %}">Statistiques</a></li>
+                            <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> Statistiques</a></li>
                             {% acl_end %}
                         </ul>
                         <div class="col-sm-3 col-md-3 navbar-right">
@@ -91,30 +106,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
                                     <div class="input-group-btn">
-                                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                                        <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="glyphicon glyphicon-plus"></i></a>
+                                        <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                        <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
                                     </div>
                                 </div>
                             </form>
                         </div>
                         <ul class="nav navbar-nav navbar-right">
-                                {% if request.user.is_authenticated %}
-                                <li>
-                                <a href="{% url 'logout' %}">
-                                    <span class="glyphicon glyphicon-log-out"></span> Logout
-                                </a>
-                                </li>
-                                {% else %}
+                                {% if not request.user.is_authenticated %}
                                 {% if var_sa %}
                                 <li>
                                     <a href="{% url 'users:new-user' %}">
-                                    <span class="glyphicon glyphicon-user"></span> Créer un compte
+                                    <i class="fa fa-user-plus"></i> Créer un compte
                                 </a>
                                 </li>
                                 {% endif %}
                                 <li>
                                 <a href="{% url 'login' %}">
-                                    <span class="glyphicon glyphicon-log-in"></span> Login
+                                    <i class="fa fa-sign-in-alt"></i> Login
                                 </a>
                                 </li>
                                 {% endif %}
@@ -123,9 +132,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <ul class="nav navbar-nav navbar-right">
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
-                                    <span class="glyphicon glyphicon-cog"></span> Preferences
+                                    <i class="fa fa-cogs"></i> Preferences
                                 </a>
 			    </li>
+                <li>
+                    <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> A propos</a>
+                </li>
 			</ul>
                         {% acl_end %}
 		    </div>
@@ -186,7 +198,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </table>
                             <div class="list-group">
                                 <a class="list-group-item list-group-item-info" role="button"href="{% url "users:mon-profil" %}">
-                                    <i class="glyphicon glyphicon-user"></i>
+                                    <i class="fa fa-user-circle"></i>
                                     Voir mon profil
                                 </a>
                             </div>
@@ -205,7 +217,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% endfor %}
                             {% if interfaces|length > 5 %}
                                 <a class="list-group-item list-group-item-info" role="button" href="{% url "users:mon-profil" %}">
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <i class="fa fa-plus"></i>
                                     Voir mes machines
                                 </a>
                             {% endif %}

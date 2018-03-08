@@ -23,8 +23,6 @@
 Write in a python file the list of all contributors sorted by number of commits.
 This list is extracted from the FedeRez gitlab repository.
 """
-fous moi un truc adapté au dessus aussi
-
 
 from django.core.management.base import BaseCommand, CommandError
 import os

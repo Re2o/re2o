@@ -31,9 +31,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
   <h2>Liste des types d'articles</h2>
   {% can_create Article %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un type d'articles</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article'  %}"><i class="fa fa-cart-plus"></i> Ajouter un type d'articles</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs types d'articles</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs types d'articles</a>
   {%  include "cotisations/aff_article.html" with  article_list=article_list %}
   <br />
   <br />

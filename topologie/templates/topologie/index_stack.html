@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
   <h2>Stacks</h2>
 {% can_create Stack %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une stack</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}"><i class="fa fa-plus"></i> Ajouter une stack</a>
 {% acl_end %}
     {% include "topologie/aff_stacks.html" with stack_list=stack_list %}
     <br />
