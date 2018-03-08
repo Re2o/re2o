@@ -168,12 +168,12 @@ class Switch(models.Model):
 
     def can_view_all(user_request, *args, **kwargs):
         if not user_request.has_perm('topologie.view_switch'):
-            return False, u"Vous n'avez pas le droit de coir les switch"
+            return False, u"Vous n'avez pas le droit de voir les switch"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('topologie.view_switch'):
-            return False, u"Vous n'avez pas le droit de coir les switch"
+            return False, u"Vous n'avez pas le droit de voir les switch"
         return True, None
  
     def __str__(self):
