@@ -284,8 +284,8 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_admin(self):
-        admin,_ = Group.objects.get_or_create(name="admin")
         """ Renvoie si l'user est admin"""
+        admin,_ = Group.objects.get_or_create(name="admin")
         return self.is_superuser or admin in self.groups.all()
 
     def get_full_name(self):
