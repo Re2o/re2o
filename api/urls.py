@@ -35,6 +35,9 @@ urlpatterns = [
     url(r'^services/(?P<server_name>\w+)/(?P<service_name>\w+)/regen/$', views.services_server_service_regen),
     url(r'^services/(?P<server_name>\w+)/$', views.services_server),
 
+    # DHCP
+    url(r'^dhcp/mac-ip/$', views.dhcp_mac_ip),
+
     # Mailings
     url(r'^mailing/standard/$', views.mailing_standard),
     url(r'^mailing/standard/(?P<ml_name>\w+)/members/$', views.mailing_standard_ml_members),

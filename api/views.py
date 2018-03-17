@@ -27,7 +27,7 @@ HTML pages such as the login and index pages for a better integration.
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 
-from re2o.utils import all_has_access
+from re2o.utils import all_has_access, all_active_assigned_interfaces
 
 from users.models import Club
 from machines.models import Service_link, Service, Interface, Domain
@@ -111,6 +111,30 @@ def services_server(request, server_name):
     
     services = query.all()
     seria = ServiceLinkSerializer(services, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dhcp_mac_ip(request):
+    """The list of all active interfaces with all the associated infos
+    (MAC, IP, IpType, DNS name and associated zone extension)
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each interface) containing:
+              * a field `ipv4` containing:
+                * a field `ipv4`: the ip for this interface
+                * a field `ip_type`: the name of the IpType of this interface
+              * a field `mac_address`: the MAC of this interface
+              * a field `domain`: the DNS name for this interface
+              * a field `extension`: the extension for the DNS zone of this interface
+    """
+    interfaces = all_active_assigned_interfaces()
+    seria = InterfaceSerializer(interfaces, many=True)
     return JSONSuccess(seria.data)
 
 

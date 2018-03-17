@@ -24,7 +24,10 @@ Serializers for the API app
 
 from rest_framework import serializers
 from users.models import Club, Adherent
-from machines.models import Service_link
+from machines.models import (
+    Interface,
+    Service_link,
+)
 
 
 class ServiceLinkSerializer(serializers.ModelSerializer):
@@ -47,6 +50,29 @@ class MailingMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Adherent
         fields = ('email', 'name', 'surname', 'pseudo',)
+
+
+class InterfaceSerializer(serializers.ModelSerializer):
+    """Serialisation d'une interface, ipv4, domain et extension sont
+    des foreign_key, on les override et on les evalue avec des fonctions
+    get_..."""
+    ipv4 = IpListSerializer(read_only=True)
+    mac_address = serializers.SerializerMethodField('get_macaddress')
+    domain = serializers.SerializerMethodField('get_dns')
+    extension = serializers.SerializerMethodField('get_interface_extension')
+
+    class Meta:
+        model = Interface
+        fields = ('ipv4', 'mac_address', 'domain', 'extension')
+
+    def get_dns(self, obj):
+        return obj.domain.name
+
+    def get_interface_extension(self, obj):
+        return obj.domain.extension.name
+
+    def get_macaddress(self, obj):
+        return str(obj.mac_address)
 
 
 class ServicesSerializer(serializers.ModelSerializer):
