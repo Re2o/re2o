@@ -44,14 +44,15 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
 {% endif %}
 
 <div class="panel-group" id="accordion">
-	<div class="panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
             <h3 class="panel-title pull-left" >
                     Informations détaillées
             </h3>
             <div class="dropdown pull-right">
-                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="fa fa-edit"></i> Édition<span class="caret"></span></button>
+                <a class="btn btn-default btn-sm" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
                 <ul class="dropdown-menu" arialabelledby="editionuser">
                     <li>
                         <a href="{% url 'users:edit-info' users.id %}">
@@ -65,24 +66,24 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                             Changer le mot de passe
                         </a>
                     </li>
-        	        {% can_change User state %}
+                    {% can_change User state %}
                     <li>
                         <a href="{% url 'users:state' users.id %}">
                             <i class="fa fa-id-badge"></i>
                             Changer le statut
                         </a>
                     </li>
-        	        {% acl_end %}
+                    {% acl_end %}
                     {% can_change User groups %}
                     <li>
-        	            <a href="{% url 'users:groups' users.id %}">
-        	                <i class="fa fa-check"></i>
+                        <a href="{% url 'users:groups' users.id %}">
+                            <i class="fa fa-check"></i>
                             Gérer les groupes
                         </a>
                     </li>
-        	        {% acl_end %}
+                    {% acl_end %}
                     <li>
-        	            <a href="{% url 'users:history' 'user' users.id %}">
+                        <a href="{% url 'users:history' 'user' users.id %}">
                             <i class="fa fa-history"></i>
                             Historique
                         </a>
@@ -109,7 +110,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                         <th>Chambre</th>
                         <td>{{ users.room }}</td>
                         <th>Téléphone</th>
-            	    <td>{{ users.telephone }}</td>
+                    <td>{{ users.telephone }}</td>
                     </tr>
                     <tr>
                         <th>École</th>
@@ -155,13 +156,13 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <th>Accès internet</th>
                         {% if users.has_access == True %}
-            	    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
+                    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
                         {% else %}
                         <td><i class="text-danger">Désactivé</i></td>
                         {% endif %}
                         <th>Groupes</th>
                         {% if users.groups.all %}
-            	    <td>{{ users.groups.all|join:", "}}</td>
+                    <td>{{ users.groups.all|join:", "}}</td>
                         {% else %}
                         <td>Aucun</td>
                         {% endif %}
@@ -170,16 +171,16 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <th>Solde</th>
                         <td>{{ users.solde }} €
-            		    <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
                                 <i class="glyphicon glyphicon-piggy-bank"></i>
                                 Recharger
                             </a>
                         </td>
-            	{% endif %}
-            	{% if users.shell %}
-            	    <th>Shell</th>
-            	    <td>{{ users.shell }}</td>
-            	{% endif %}
+                {% endif %}
+                {% if users.shell %}
+                    <th>Shell</th>
+                    <td>{{ users.shell }}</td>
+                {% endif %}
                     </tr>
                 </table>
             </div>
@@ -191,11 +192,18 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left">
                 Gérer le club
             </h3>
-            <div class="btn-group pull-right">
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
-                    <i class="fa fa-lock"></i>
-                    Gérer admin et membres
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionclub" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
                 </a>
+                <ul class="dropdown-menu" arialabelledby="editionclub">
+                    <li>
+                        <a href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                        <i class="fa fa-lock"></i>
+                        Gérer admin et membres
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="panel-collapse collapse" id="collapse2">
@@ -213,7 +221,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <td>{{ admin.surname }}</td>
                         <td>{{ admin.name }}</td>
-            	    <td>{{ admin.pseudo }}</td>
+                    <td>{{ admin.pseudo }}</td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -230,7 +238,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <td>{{ admin.surname }}</td>
                         <td>{{ admin.name }}</td>
-            	    <td>{{ admin.pseudo }}</td>
+                    <td>{{ admin.pseudo }}</td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -244,7 +252,19 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 Machines
                 <span class="badge">{{machines_list.count}}</span>
             </h3>
-            <a class="btn btn-primary btn-sm pull-right" role="button" href="{% url 'machines:new-machine' users.id %}"><i class="fa fa-desktop"></i> Ajouter une machine</a>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionmachines" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionmachines">
+                    <li>
+                       <a href="{% url 'machines:new-machine' users.id %}">
+                           <i class="fa fa-desktop"></i>
+                           Ajouter une machine
+                       </a>
+                    </li>
+                </ul>
+            </div>
         </div>
         <div id="collapse3" class="panel-collapse collapse">
             <div class="panel-body">
@@ -261,22 +281,34 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left">
                 Cotisations
             </h3>
-            <div class="btn-group pull-right">
-                {% can_create Facture %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                    <i class="glyphicon glyphicon-piggy-bank"></i>
-                    Ajouter une cotisation
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
                 </a>
+                <ul class="dropdown-menu" arialabelledby="editionfacture">
+                    {% can_create Facture %}
+                    <li>
+                        <a href="{% url 'cotisations:new-facture' users.id %}">
+                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            Ajouter une cotisation
+                        </a>
+                    </li>
                 {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    <i class="glyphicon glyphicon-piggy-bank"></i>
-                    Modifier le solde
-                </a>
+                    <li>
+                        <a href="{% url 'cotisations:credit-solde' users.id %}">
+                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            Modifier le solde
+                        </a>
+                    </li>
                 {% endif%}{% acl_else %}
                 {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
-                    <i class="glyphicon glyphicon-piggy-bank"></i>
-                    Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
+                    <li>
+                        <a href="{% url 'cotisations:new_facture_solde' user.id %}">
+                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
         <div id="collapse4" class="panel-collapse collapse">
@@ -294,12 +326,20 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left">
                 Bannissements
             </h3>
-            <div class="btn-group pull-right">
-                {% can_create Ban %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}">
-                    <i class="fa fa-ban"></i>
-                    Ajouter un bannissement
-                </a>{% acl_end %}
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionban" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionban">
+                    {% can_create Ban %}
+                    <li>
+                        <a href="{% url 'users:add-ban' users.id %}">
+                            <i class="fa fa-ban"></i>
+                            Ajouter un bannissement
+                        </a>
+                    </li>
+                    {% acl_end %}
+                </ul>
             </div>
         </div>
         <div id="collapse5" class="panel-collapse collapse">
@@ -317,13 +357,20 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left">
                 Accès à titre gracieux
             </h3>
-            <div class="btn-group pull-right">
-                {% can_create Whitelist %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}">
-                    <i class="fa fa-check-circle"></i>
-                    Accorder un accès à titre gracieux
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionwhitelist" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
                 </a>
+                <ul class="dropdown-menu" arialabelledby="editionwhitelist">
+                {% can_create Whitelist %}
+                    <li>
+                    <a href="{% url 'users:add-whitelist' users.id %}">
+                        <i class="fa fa-check-circle"></i>
+                        Accorder un accès à titre gracieux
+                    </a>
+                    </li>
                 {% acl_end %}
+                </ul>
             </div>
         </div>
         <div id="collapse6" class="panel-collapse collapse">
