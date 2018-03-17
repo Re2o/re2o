@@ -119,6 +119,191 @@ def services_server(request, server_name):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
+def dns_mac_ip_dns(request):
+    """The list of all active interfaces with all the associated infos
+    (MAC, IP, IpType, DNS name and associated zone extension)
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each interface) containing:
+              * a field `ipv4` containing:
+                * a field `ipv4`: the ip for this interface
+                * a field `ip_type`: the name of the IpType of this interface
+              * a field `ipv6` containing `null` if ipv6 is deactivated else:
+                * a field `ipv6`: the ip for this interface
+                * a field `ip_type`: the name of the IpType of this interface
+              * a field `mac_address`: the MAC of this interface
+              * a field `domain`: the DNS name for this interface
+              * a field `extension`: the extension for the DNS zone of this interface
+    """
+    interfaces = all_active_assigned_interfaces(full=True)
+    seria = FullInterfaceSerializer(interfaces, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_alias(request):
+    """The list of all the alias used and the DNS info associated
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each alias) containing:
+              * a field `name`: the alias used
+              * a field `cname`: the target of the alias (real name of the interface)
+              * a field `cname_entry`: the entry to write in the DNS to have the alias
+              * a field `extension`: the extension for the DNS zone of this interface
+    """
+    alias = Domain.objects.filter(interface_parent=None).filter(cname__in=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
+    seria = DomainSerializer(alias, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_corresp(request):
+    """The list of the IpTypes possible with the infos about each
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each IpType) containing:
+              * a field `type`: the name of the type
+              * a field `extension`: the DNS extension associated
+              * a field `domain_ip_start`: the first ip to use for this type
+              * a field `domain_ip_stop`: the last ip to use for this type
+              * a field `prefix_v6`: `null` if IPv6 is deactivated else the prefix to use
+              * a field `ouverture_ports_tcp_in`: the policy for TCP IN ports
+              * a field `ouverture_ports_tcp_out`: the policy for TCP OUT ports
+              * a field `ouverture_ports_udp_in`: the policy for UDP IN ports
+              * a field `ouverture_ports_udp_out`: the policy for UDP OUT ports
+    """
+    ip_type = IpType.objects.all().select_related('extension')
+    seria = TypeSerializer(ip_type, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_mx(request):
+    """The list of MX record to add to the DNS
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each MX record) containing:
+              * a field `zone`: the extension for the concerned zone
+              * a field `priority`: the priority to use
+              * a field `name`: the name of the target
+              * a field `mx_entry`: the full entry to add in the DNS for this MX record
+    """
+    mx = Mx.objects.all().select_related('zone').select_related('name__extension')
+    seria = MxSerializer(mx, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_ns(request):
+    """The list of NS record to add to the DNS
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each NS record) containing:
+              * a field `zone`: the extension for the concerned zone
+              * a field `ns`: the DNS name for the NS server targeted
+              * a field `ns_entry`: the full entry to add in the DNS for this NS record
+    """
+    ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None))).select_related('zone').select_related('ns__extension')
+    seria = NsSerializer(ns, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_txt(request):
+    """The list of TXT record to add to the DNS
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each TXT record) containing:
+              * a field `zone`: the extension for the concerned zone
+              * a field `field1`: the first field in the record (target)
+              * a field `field2`: the second field in the record (value)
+              * a field `txt_entry`: the full entry to add in the DNS for this TXT record
+    """
+    txt = Txt.objects.all().select_related('zone')
+    seria = TxtSerializer(txt, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_srv(request):
+    """The list of SRV record to add to the DNS
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each SRV record) containing:
+              * a field `extension`: the extension for the concerned zone
+              * a field `service`: the name of the service concerned
+              * a field `protocole`: the name of the protocol to use
+              * a field `ttl`: the Time To Live to use
+              * a field `priority`: the priority for this service
+              * a field `weight`: the weight for same priority entries
+              * a field `port`: the port targeted
+              * a field `target`: the interface targeted by this service
+              * a field `srv_entry`: the full entry to add in the DNS for this SRV record
+    """
+    srv = Srv.objects.all().select_related('extension').select_related('target__extension')
+    seria = SrvSerializer(srv, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def dns_zones(request):
+    """The list of the zones managed 
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each zone) containing:
+              * a field `name`: the extension for the zone
+              * a field `origin`: the server IPv4 for the orgin of the zone
+              * a field `origin_v6`: `null` if ipv6 is deactivated else the server IPv6 for the origin of the zone
+              * a field `soa` containing:
+                * a field `mail` containing the mail to contact in case of problem with the zone
+                * a field `param` containing the full soa paramters to use in the DNS for this zone
+              * a field `zone_entry`: the full entry to add in the DNS for the origin of the zone
+    """
+    zones = Extension.objects.all().select_related('origin')
+    seria = ExtensionSerializer(zones, many=True)
+    return JSONSuccess(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
 def firewall_ouverture_ports(request):
     """The list of the ports authorized to be openned by the firewall
 

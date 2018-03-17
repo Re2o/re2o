@@ -35,6 +35,16 @@ urlpatterns = [
     url(r'^services/(?P<server_name>\w+)/(?P<service_name>\w+)/regen/$', views.services_server_service_regen),
     url(r'^services/(?P<server_name>\w+)/$', views.services_server),
 
+    # DNS
+    url(r'^dns/mac-ip-dns/$', views.dns_mac_ip_dns),
+    url(r'^dns/alias/$', views.dns_alias),
+    url(r'^dns/corresp/$', views.dns_corresp),
+    url(r'^dns/mx/$', views.dns_mx),
+    url(r'^dns/ns/$', views.dns_ns),
+    url(r'^dns/txt/$', views.dns_txt),
+    url(r'^dns/srv/$', views.dns_srv),
+    url(r'^dns/zones/$', views.dns_zones),
+
     # Firewall
     url(r'^firewall/ouverture_ports/$', views.firewall_ouverture_ports),
 
