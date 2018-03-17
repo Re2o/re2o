@@ -18,7 +18,37 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""api.serializers
-
+"""
 Serializers for the API app
 """
+
+from rest_framework import serializers
+from machines.models import Service_link
+
+
+class ServiceLinkSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='service.service_type')
+
+    class Meta:
+        model = Service_link
+        fields = ('name',)
+
+
+class ServicesSerializer(serializers.ModelSerializer):
+    """Evaluation d'un Service, et serialisation"""
+    server = serializers.SerializerMethodField('get_server_name')
+    service = serializers.SerializerMethodField('get_service_name')
+    need_regen = serializers.SerializerMethodField('get_regen_status')
+
+    class Meta:
+        model = Service_link
+        fields = ('server', 'service', 'need_regen')
+
+    def get_server_name(self, obj):
+        return str(obj.server.domain.name)
+
+    def get_service_name(self, obj):
+        return str(obj.service)
+
+    def get_regen_status(self, obj):
+        return obj.need_regen()

@@ -26,5 +26,12 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+from . import views
+
+
 urlpatterns = [
+    # Services
+    url(r'^services/$', views.services),
+    url(r'^services/(?P<server_name>\w+)/(?P<service_name>\w+)/regen/$', views.services_server_service_regen),
+    url(r'^services/(?P<server_name>\w+)/$', views.services_server),
 ]
