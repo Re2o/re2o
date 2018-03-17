@@ -93,6 +93,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         </div>
         <div class="panel-collapse collapse in" id="collapse1">
             <div class="panel-body">
+                <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
                         <th>Prénom</th>
@@ -183,6 +184,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 {% endif %}
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -209,6 +211,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
         <div class="panel-collapse collapse" id="collapse2">
             <div class="panel-body">
                                 <h4>Administrateurs du club</h4>
+                <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -225,7 +228,9 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     </tr>
                     {% endfor %}
                 </table>
+                </div>
                 <h4>Membres</h4>
+                <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -242,6 +247,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     </tr>
                     {% endfor %}
                 </table>
+                </div>
             </div>
         </div>
     </div>
