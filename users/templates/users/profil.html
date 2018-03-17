@@ -36,7 +36,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
 <p>Votre solde est de <span class="badge">{{ user.solde }}€</span>.
 {% if allow_online_payment %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:recharge' %}">
-    <i class="glyphicon glyphicon-piggy-bank"></i>
+    <i class="fa fa-euro-sign"></i>
     Recharger
 </a>
 {% endif %}
@@ -47,7 +47,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
             <h3 class="panel-title pull-left" >
-                    Informations détaillées
+                <i class="fa fa-user"></i> Informations détaillées
             </h3>
             <div class="dropdown pull-right">
                 <a class="btn btn-default btn-sm" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -172,7 +172,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                         <th>Solde</th>
                         <td>{{ users.solde }} €
                         <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
-                                <i class="glyphicon glyphicon-piggy-bank"></i>
+                                <i class="fa fa-euro-sign"></i>
                                 Recharger
                             </a>
                         </td>
@@ -190,7 +190,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse2">
             <h3 class="panel-title pull-left">
-                Gérer le club
+                <i class="fa fa-users"></i> Gérer le club
             </h3>
             <div class="dropdown pull-right">
                 <a class="btn btn-default btn-sm" id="editionclub" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -249,6 +249,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
             <h3 class="panel-title pull-left">
+                <i class="fa fa-desktop"></i>
                 Machines
                 <span class="badge">{{machines_list.count}}</span>
             </h3>
@@ -279,6 +280,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
             <h3 class="panel-title pull-left">
+                <i class="fa fa-euro-sign"></i>
                 Cotisations
             </h3>
             <div class="dropdown pull-right">
@@ -289,14 +291,14 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     {% can_create Facture %}
                     <li>
                         <a href="{% url 'cotisations:new-facture' users.id %}">
-                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            <i class="fa fa-euro-sign"></i>
                             Ajouter une cotisation
                         </a>
                     </li>
                 {% if user_solde %}
                     <li>
                         <a href="{% url 'cotisations:credit-solde' users.id %}">
-                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            <i class="fa fa-euro-sign"></i>
                             Modifier le solde
                         </a>
                     </li>
@@ -304,7 +306,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 {% if user_solde %}
                     <li>
                         <a href="{% url 'cotisations:new_facture_solde' user.id %}">
-                            <i class="glyphicon glyphicon-piggy-bank"></i>
+                            <i class="fa fa-euro-sign"></i>
                             Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
                         </a>
                     </li>
@@ -324,6 +326,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
             <h3 class="panel-title pull-left">
+                <i class="fa fa-ban"></i>
                 Bannissements
             </h3>
             <div class="dropdown pull-right">
@@ -355,6 +358,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
             <h3 class="panel-title pull-left">
+                <i class="fa fa-check-circle"></i>
                 Accès à titre gracieux
             </h3>
             <div class="dropdown pull-right">
