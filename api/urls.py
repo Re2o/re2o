@@ -35,6 +35,9 @@ urlpatterns = [
     url(r'^services/(?P<server_name>\w+)/(?P<service_name>\w+)/regen/$', views.services_server_service_regen),
     url(r'^services/(?P<server_name>\w+)/$', views.services_server),
 
+    # Firewall
+    url(r'^firewall/ouverture_ports/$', views.firewall_ouverture_ports),
+
     # DHCP
     url(r'^dhcp/mac-ip/$', views.dhcp_mac_ip),
 

@@ -30,7 +30,8 @@ from django.views.decorators.csrf import csrf_exempt
 from re2o.utils import all_has_access, all_active_assigned_interfaces
 
 from users.models import Club
-from machines.models import Service_link, Service, Interface, Domain
+from machines.models import (Service_link, Service, Interface, Domain,
+    OuverturePortList)
 
 from .serializers import *
 from .utils import JSONError, JSONSuccess, accept_method
@@ -113,6 +114,61 @@ def services_server(request, server_name):
     seria = ServiceLinkSerializer(services, many=True)
     return JSONSuccess(seria.data)
 
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def firewall_ouverture_ports(request):
+    """The list of the ports authorized to be openned by the firewall
+
+    Returns:
+        GET:
+            A JSONSuccess response with a `data` field containing:
+            * a field `ipv4` containing:
+              * a field `tcp_in` containing:
+                * a list of port number where ipv4 tcp in should be ok
+              * a field `tcp_out` containing:
+                * a list of port number where ipv4 tcp ou should be ok
+              * a field `udp_in` containing:
+                * a list of port number where ipv4 udp in should be ok
+              * a field `udp_out` containing:
+                * a list of port number where ipv4 udp out should be ok
+            * a field `ipv6` containing:
+              * a field `tcp_in` containing:
+                * a list of port number where ipv6 tcp in should be ok
+              * a field `tcp_out` containing:
+                * a list of port number where ipv6 tcp ou should be ok
+              * a field `udp_in` containing:
+                * a list of port number where ipv6 udp in should be ok
+              * a field `udp_out` containing:
+                * a list of port number where ipv6 udp out should be ok
+    """
+    r = {'ipv4':{}, 'ipv6':{}}
+    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set').prefetch_related('interface_set', 'interface_set__ipv4'):
+        pl = {
+            "tcp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.IN))),
+            "tcp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.OUT))),
+            "udp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.IN))),
+            "udp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.OUT))),
+        }
+        for i in filter_active_interfaces(o.interface_set):
+            if i.may_have_port_open():
+                d = r['ipv4'].get(i.ipv4.ipv4, {})
+                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                r['ipv4'][i.ipv4.ipv4] = d
+            if i.ipv6():
+                for ipv6 in i.ipv6():
+                    d = r['ipv6'].get(ipv6.ipv6, {})
+                    d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
+                    d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
+                    d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
+                    d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                    r['ipv6'][ipv6.ipv6] = d
+    return JSONSuccess(r)
 
 @csrf_exempt
 @login_required
