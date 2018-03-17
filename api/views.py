@@ -27,6 +27,9 @@ HTML pages such as the login and index pages for a better integration.
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 
+from re2o.utils import all_has_access
+
+from users.models import Club
 from machines.models import Service_link, Service, Interface, Domain
 
 from .serializers import *
@@ -108,4 +111,89 @@ def services_server(request, server_name):
     
     services = query.all()
     seria = ServiceLinkSerializer(services, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def mailing_standard(request):
+    """All the available standard mailings.
+
+    Returns:
+        GET:
+            A JSONSucess response with a field `data` containing:
+            * a list of dictionnaries (one for each mailing) containing:
+              * a field `name`: the name of a mailing
+    """
+    return JSONSuccess([
+        {'name': 'adherents'}
+    ])
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def mailing_standard_ml_members(request):
+    """All the members of a specific standard mailing
+
+    Returns:
+        GET:
+            A JSONSucess response with a field `data` containing:
+            * a list if dictionnaries (one for each member) containing:
+              * a field `email`:   the email of the member
+              * a field `name`:    the name of the member
+              * a field `surname`: the surname of the member
+              * a field `pseudo`:  the pseudo of the member
+    """
+    # All with active connextion
+    if ml_name == 'adherents':
+        members = all_has_access().values('email').distinct()
+    # Unknown mailing
+    else:
+        return JSONError("This mailing does not exist")
+    seria = MailingMemberSerializer(members, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def mailing_club(request):
+    """All the available club mailings.
+
+    Returns:
+        GET:
+            A JSONSucess response with a field `data` containing:
+            * a list of dictionnaries (one for each mailing) containing:
+              * a field `name` indicating the name of a mailing
+    """
+    clubs = Club.objects.filter(mailing=True).values('pseudo')
+    seria = MailingSerializer(clubs, many=True)
+    return JSONSuccess(seria.data)
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
+def mailing_club_ml_members(request):
+    """All the members of a specific club mailing
+
+    Returns:
+        GET:
+            A JSONSucess response with a field `data` containing:
+            * a list if dictionnaries (one for each member) containing:
+              * a field `email`:   the email of the member
+              * a field `name`:    the name of the member
+              * a field `surname`: the surname of the member
+              * a field `pseudo`:  the pseudo of the member
+    """
+    try:
+        club = Club.objects.get(mailing=True, pseudo=ml_name)
+    except Club.DoesNotExist:
+        return JSONError("This mailing does not exist")
+    members = club.administrators.all().values('email').distinct()
+    seria = MailingMemberSerializer(members, many=True)
     return JSONSuccess(seria.data)

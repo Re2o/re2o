@@ -23,6 +23,7 @@ Serializers for the API app
 """
 
 from rest_framework import serializers
+from users.models import Club, Adherent
 from machines.models import Service_link
 
 
@@ -32,6 +33,20 @@ class ServiceLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service_link
         fields = ('name',)
+
+
+class MailingSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='pseudo')
+
+    class Meta:
+        model = Club
+        fields = ('name',)
+
+
+class MailingMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Adherent
+        fields = ('email', 'name', 'surname', 'pseudo',)
 
 
 class ServicesSerializer(serializers.ModelSerializer):
