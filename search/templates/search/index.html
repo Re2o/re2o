@@ -32,6 +32,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>Résultats dans les utilisateurs</h2>
         {% include "users/aff_users.html" with users_list=users %}
     {% endif%}
+    {% if clubs %}
+    <h2>Résultats dans les clubs</h2>
+        {% include "users/aff_clubs.html" with clubs_list=clubs %}
+    {% endif%}
     {% if machines %}
     <h2>Résultats dans les machines : </h2>
         {% include "machines/aff_machines.html" with machines_list=machines %}
