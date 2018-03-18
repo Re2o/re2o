@@ -31,7 +31,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
-from users.models import User, Ban, Whitelist
+from users.models import User, Adherent, Club, Ban, Whitelist
 from machines.models import Machine
 from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
@@ -134,18 +134,19 @@ def search_single_word(word, filters, user,
             Q(
                 surname__icontains=word
             ) | Q(
-                adherent__name__icontains=word
-            ) | Q(
                 pseudo__icontains=word
             ) | Q(
-                club__room__name__icontains=word
+                room__name__icontains=word
             ) | Q(
-                adherent__room__name__icontains=word
+                room__name__icontains=word
             )
         ) & Q(state__in=user_state)
         if not User.can_view_all(user)[0]:
             filter_users &= Q(id=user.id)
+        filter_clubs = filter_users
+        filter_users |= Q(name__icontains=word)       
         filters['users'] |= filter_users
+        filters['clubs'] |= filter_clubs
 
     # Machines
     if '1' in aff:
@@ -359,6 +360,7 @@ def get_results(query, request, params):
 
     filters = {
         'users': Q(),
+        'clubs': Q(),
         'machines': Q(),
         'factures': Q(),
         'bans': Q(),
@@ -381,7 +383,8 @@ def get_results(query, request, params):
         )
 
     results = {
-        'users': User.objects.filter(filters['users']),
+        'users': Adherent.objects.filter(filters['users']),
+        'clubs': Club.objects.filter(filters['clubs']),
         'machines': Machine.objects.filter(filters['machines']),
         'factures': Facture.objects.filter(filters['factures']),
         'bans': Ban.objects.filter(filters['bans']),
