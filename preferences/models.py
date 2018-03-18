@@ -47,7 +47,7 @@ class PreferencesModel(models.Model):
     def get_cached_value(cls, key):
         instance = cache.get(cls().__class__.__name__.lower())
         if instance == None:
-            instance = cls.set_in_cache() 
+            instance = cls.set_in_cache()
         return getattr(instance, key)
 
     class Meta:
@@ -158,7 +158,7 @@ class OptionalUser(PreferencesModel):
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(sender, **kwargs):
-    """Ecriture dans le cache"""            
+    """Ecriture dans le cache"""
     user_pref = kwargs['instance']
     user_pref.set_in_cache()
 
@@ -255,7 +255,7 @@ class OptionalMachine(PreferencesModel):
 
 @receiver(post_save, sender=OptionalMachine)
 def optionalmachine_post_save(sender, **kwargs):
-    """Synchronisation ipv6 et ecriture dans le cache"""            
+    """Synchronisation ipv6 et ecriture dans le cache"""
     machine_pref = kwargs['instance']
     machine_pref.set_in_cache()
     if machine_pref.ipv6_mode != "DISABLED":
@@ -355,7 +355,7 @@ class OptionalTopologie(PreferencesModel):
 
 @receiver(post_save, sender=OptionalTopologie)
 def optionaltopologie_post_save(sender, **kwargs):
-    """Ecriture dans le cache"""            
+    """Ecriture dans le cache"""
     topologie_pref = kwargs['instance']
     topologie_pref.set_in_cache()
 
@@ -448,7 +448,7 @@ class GeneralOption(PreferencesModel):
 
 @receiver(post_save, sender=GeneralOption)
 def generaloption_post_save(sender, **kwargs):
-    """Ecriture dans le cache"""            
+    """Ecriture dans le cache"""
     general_pref = kwargs['instance']
     general_pref.set_in_cache()
 
@@ -548,13 +548,15 @@ class AssoOption(PreferencesModel):
         ('NONE', 'NONE'),
         ('COMNPAY', 'COMNPAY'),
     )
-    payment = models.CharField(max_length=255,
+    payment = models.CharField(
+        max_length=255,
         choices=PAYMENT,
         default='NONE',
     )
     payment_id = models.CharField(
         max_length=255,
         default='',
+        blank=True
     )
     payment_pass = AESEncryptedField(
         max_length=255,
@@ -623,7 +625,7 @@ class AssoOption(PreferencesModel):
 
 @receiver(post_save, sender=AssoOption)
 def assooption_post_save(sender, **kwargs):
-    """Ecriture dans le cache"""            
+    """Ecriture dans le cache"""
     asso_pref = kwargs['instance']
     asso_pref.set_in_cache()
 
