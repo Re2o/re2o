@@ -143,6 +143,25 @@ class EditAssoOptionForm(ModelForm):
         self.fields['utilisateur_asso'].label = 'Compte utilisé pour\
         faire les modifications depuis /admin'
 
+    def clean(self):
+        cleaned_data = super().clean()
+        payment = cleaned_data.get('payment')
+
+        if payment == 'NONE':
+            return cleaned_data
+
+        if not cleaned_data.get('payment_id', ''):
+            msg = forms.ValidationError("Vous devez spécifier un identifiant \
+                                        de paiement.")
+            self.add_error('payment_id', msg)
+        if not cleaned_data.get('payment_pass', ''):
+            msg = forms.ValidationError("Vous devez spécifier un mot de passe \
+                                        de paiement.")
+            self.add_error('payment_pass', msg)
+
+        return cleaned_data
+
+
 
 class EditMailMessageOptionForm(ModelForm):
     """Formulaire d'edition des messages de bienvenue personnalisés"""
