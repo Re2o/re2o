@@ -561,7 +561,10 @@ class AssoOption(PreferencesModel):
         null=True,
         blank=True,
     )
-    description = models.TextField(default="")
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         permissions = (
