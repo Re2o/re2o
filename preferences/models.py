@@ -375,7 +375,7 @@ class GeneralOption(PreferencesModel):
     pagination_large_number = models.IntegerField(default=8)
     req_expire_hrs = models.IntegerField(default=48)
     site_name = models.CharField(max_length=32, default="Re2o")
-    email_from = models.EmailField(default="www-data@serveur.net")
+    email_from = models.EmailField(default="www-data@example.com")
     GTU_sum_up = models.TextField(
         default="",
         blank=True,
