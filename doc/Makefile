@@ -43,6 +43,7 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 	@echo "  dummy      to check syntax errors of document sources"
+	@echo "  apidoc     to generate autodoc"
 
 .PHONY: clean
 clean:
@@ -223,3 +224,9 @@ dummy:
 	$(SPHINXBUILD) -b dummy $(ALLSPHINXOPTS) $(BUILDDIR)/dummy
 	@echo
 	@echo "Build finished. Dummy builder generates no files."
+
+.PHONY: apidoc
+apidoc:
+	sphinx-apidoc -o source ../
+	@echo
+	@echo "Generated autodoc"
