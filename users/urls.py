@@ -27,6 +27,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+import re2o
 from . import views
 
 urlpatterns = [
@@ -39,7 +40,9 @@ urlpatterns = [
         name='edit-club-admin-members'
     ),
     url(r'^state/(?P<userid>[0-9]+)$', views.state, name='state'),
+    url(r'^groups/(?P<userid>[0-9]+)$', views.groups, name='groups'),
     url(r'^password/(?P<userid>[0-9]+)$', views.password, name='password'),
+    url(r'^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$', views.del_group, name='del-group'),
     url(r'^new_serviceuser/$', views.new_serviceuser, name='new-serviceuser'),
     url(
         r'^edit_serviceuser/(?P<userid>[0-9]+)$',
@@ -63,8 +66,6 @@ urlpatterns = [
         views.edit_whitelist,
         name='edit-whitelist'
     ),
-    url(r'^add_right/(?P<userid>[0-9]+)$', views.add_right, name='add-right'),
-    url(r'^del_right/$', views.del_right, name='del-right'),
     url(r'^add_school/$', views.add_school, name='add-school'),
     url(
         r'^edit_school/(?P<schoolid>[0-9]+)$',
@@ -94,36 +95,36 @@ urlpatterns = [
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
     url(r'^mass_archive/$', views.mass_archive, name='mass-archive'),
     url(
-        r'^history/(?P<object_name>user)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>ban)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>whitelist)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>school)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>listright)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
-    ),
-    url(
-        r'^history/(?P<object_name>serviceuser)/(?P<object_id>[0-9]+)$',
-        views.history,
-        name='history'
+        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+        re2o.views.history,
+        name='history',
+        kwargs={'application':'users'},
     ),
     url(r'^$', views.index, name='index'),
     url(r'^index_clubs/$', views.index_clubs, name='index-clubs'),
-    url(r'^rest/mailing/$', views.mailing, name='mailing'),
+    url(
+        r'^rest/ml/std/$',
+        views.ml_std_list,
+        name='ml-std-list'
+    ),
+    url(
+        r'^rest/ml/std/member/(?P<ml_name>\w+)/$',
+        views.ml_std_members,
+        name='ml-std-members'
+    ),
+    url(
+        r'^rest/ml/club/$',
+        views.ml_club_list,
+        name='ml-club-list'
+    ),
+    url(
+        r'^rest/ml/club/admin/(?P<ml_name>\w+)/$',
+        views.ml_club_admins,
+        name='ml-club-admins'
+    ),
+    url(
+        r'^rest/ml/club/member/(?P<ml_name>\w+)/$',
+        views.ml_club_members,
+        name='ml-club-members'
+    ),
 ]

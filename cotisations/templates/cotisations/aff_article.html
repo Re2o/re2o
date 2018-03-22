@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -41,13 +43,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ article.duration }}</td>
 	    <td>{{ article.type_user }}</td>
             <td class="text-right">
-            {% if is_trez %}
+	    {% can_edit article %}
                 <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'cotisations:edit-article' article.id %}">
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="fa fa-edit"></i>
                 </a>
-            {% endif %}
+	    {% acl_end %}
                 <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'article' article.id %}">
-                    <i class="glyphicon glyphicon-time"></i>
+                    <i class="fa fa-history"></i>
                 </a>
             </td>
         </tr>

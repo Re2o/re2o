@@ -39,20 +39,23 @@ from __future__ import unicode_literals
 
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.urls import reverse
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import Service
 
-DT_NOW = timezone.now()
 
-
-def all_adherent(search_time=DT_NOW):
+def all_adherent(search_time=None):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
     qu'une seule requete sql
     Inspecte les factures de l'user et ses cotisation, regarde si elles
     sont posterieur à now (end_time)"""
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         facture__in=Facture.objects.filter(
             vente__in=Vente.objects.filter(
@@ -67,8 +70,10 @@ def all_adherent(search_time=DT_NOW):
     ).distinct()
 
 
-def all_baned(search_time=DT_NOW):
+def all_baned(search_time=None):
     """ Fonction renvoyant tous les users bannis """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         ban__in=Ban.objects.filter(
             date_end__gt=search_time
@@ -76,8 +81,10 @@ def all_baned(search_time=DT_NOW):
     ).distinct()
 
 
-def all_whitelisted(search_time=DT_NOW):
+def all_whitelisted(search_time=None):
     """ Fonction renvoyant tous les users whitelistes """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         whitelist__in=Whitelist.objects.filter(
             date_end__gt=search_time
@@ -85,9 +92,11 @@ def all_whitelisted(search_time=DT_NOW):
     ).distinct()
 
 
-def all_has_access(search_time=DT_NOW):
+def all_has_access(search_time=None):
     """  Renvoie tous les users beneficiant d'une connexion
     : user adherent ou whiteliste et non banni """
+    if search_time is None:
+        search_time = timezone.now()
     return User.objects.filter(
         Q(state=User.STATE_ACTIVE) &
         ~Q(ban__in=Ban.objects.filter(date_end__gt=search_time)) &
@@ -118,15 +127,23 @@ def filter_active_interfaces(interface_set):
     .distinct()
 
 
-def all_active_interfaces():
+def filter_complete_interfaces(interface_set):
+    """Appel la fonction précédente avec un prefetch_related ipv6 en plus"""
+    return filter_active_interfaces(interface_set).prefetch_related('ipv6list')
+
+
+def all_active_interfaces(full=False):
     """Renvoie l'ensemble des machines autorisées à sortir sur internet """
-    return filter_active_interfaces(Interface.objects)
+    if full:
+        return filter_complete_interfaces(Interface.objects)
+    else:
+        return filter_active_interfaces(Interface.objects)
 
 
-def all_active_assigned_interfaces():
+def all_active_assigned_interfaces(full=False):
     """ Renvoie l'ensemble des machines qui ont une ipv4 assignées et
     disposant de l'accès internet"""
-    return all_active_interfaces().filter(ipv4__isnull=False)
+    return all_active_interfaces(full=full).filter(ipv4__isnull=False)
 
 
 def all_active_interfaces_count():

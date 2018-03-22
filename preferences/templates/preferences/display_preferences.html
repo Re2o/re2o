@@ -24,17 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
     <h4>Préférences utilisateur</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
-	    <i class="glyphicon glyphicon-edit"></i>
+	    <i class="fa fa-edit"></i>
             Editer
 	</a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -53,17 +52,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    {% endif %}
         </tr>
         <tr>
-            <th>Creations d'users par tous</th>
-            <td>{{ useroptions.all_can_create }}</td>
+            <th>Creations d'adhérents par tous</th>
+            <td>{{ useroptions.all_can_create_adherent }}</td>
+	    <th>Creations de clubs par tous</th>
+	    <td>{{ useroptions.all_can_create_club }}</td>
         </tr>
+        <tr>
+	    <th>Auto inscription</th>
+            <td>{{ useroptions.self_adhesion }}</td>
+        </tr>
+	{% if useroptions.user_solde %}
+	<tr>
+	<th>Solde maximum</th>
+        <td>{{ useroptions.max_solde }}</td>
+	<th>Montant minimal de rechargement en ligne</th>
+	<td>{{ useroptions.min_online_payment }}</td>
+	</tr>
+	{% endif %}
     </table>
     <h4>Préférences machines</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -77,16 +88,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Alias dns autorisé par utilisateur</th>
             <td>{{ machineoptions.max_lambdauser_aliases }}</td>
             <th>Support de l'ipv6</th>
-            <td>{{ machineoptions.ipv6 }}</td>
+            <td>{{ machineoptions.ipv6_mode }}</td>
      	</tr>
+	<tr>
+	    <th>Creation de machines</th>
+            <td>{{ machineoptions.create_machine }}</td>
+	</tr>
     </table>
     <h4>Préférences topologie</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -104,14 +117,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
     <h4>Préférences generales</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
-    </p>    
+    </p>
     <table class="table table-striped">
         <tr>
             <th>Nom du site web</th>
@@ -134,15 +145,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<tr>
             <th>Message global affiché sur le site</th>
             <td>{{ generaloptions.general_message }}</td>
+            <th>Résumé des CGU</th>
+            <td>{{ generaloptions.GTU_sum_up }}</td>
 	<tr>
+    <tr>
+        <th>CGU</th>
+        <td>{{generaloptions.GTU}}</th>
+    </tr>
     </table>
     <h4>Données de l'association</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -164,19 +179,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.telephone }}</td>
             <th>Pseudo d'usage</th>
             <td>{{ assooptions.pseudo }}</td>
-        </tr>   
+        </tr>
         <tr>
             <th>Objet utilisateur de l'association</th>
             <td>{{ assooptions.utilisateur_asso }}</td>
-        </tr>   
-    </table> 
+            <th>Moyen de paiement automatique</th>
+            <td>{{ assooptions.payment }}</td>
+            <th>Description de l'association</th>
+            <td>{{ assooptions.description }}</td>
+        </tr>
+
+    </table>
     <h4>Messages personalisé dans les mails</h4>
-    {% if is_bureau %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
-            <i class="glyphicon glyphicon-edit"></i>
+            <i class="fa fa-edit"></i>
             Editer
         </a>
-    {% endif %}
     <p>
     </p>
     <table class="table table-striped">
@@ -190,10 +208,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
   <h2>Liste des services page d'accueil</h2>
-  {% if is_infra %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-services'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
-  {% endif %}
+  {% can_create preferences.Service%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
   <br />
   <br />

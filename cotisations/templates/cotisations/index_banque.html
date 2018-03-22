@@ -24,15 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Banques{% endblock %}
 
 {% block content %}
   <h2>Liste des banques</h2>
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-banque'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter une banque</a>
-  {% if is_trez %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-banque'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer une ou plusieurs banques</a>
-  {% endif %}
+  {% can_create Banque %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-banque'  %}"><i class="fa fa-cart-plus"></i> Ajouter une banque</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-banque'  %}"><i class="fa fa-trash"></i> Supprimer une ou plusieurs banques</a>
   {%  include "cotisations/aff_banque.html" with  banque_list=banque_list %}
   <br />
   <br />

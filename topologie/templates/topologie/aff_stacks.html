@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -44,16 +46,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if forloop.first %}
             <td rowspan="{{ stack.switch_set.all|length }}">
                 <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
-                    <i class="glyphicon glyphicon-time"></i>
+                    <i class="fa fa-history"></i>
                 </a>
-                {% if is_infra %}
+                {% can_edit stack %}
                 <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="fa fa-edit"></i>
                 </a>
+		{% acl_end %}
+		{% can_delete stack %}
                 <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
-                    <i class="glyphicon glyphicon-trash"></i>
+                    <i class="fa fa-trash"></i>
                 </a>
-                {% endif %}
+		{% acl_end %}
             </td>
             {% endif %}
         </tr>
@@ -65,16 +69,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>Aucun</td>
             <td>
                 <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'stack' stack.pk %}">
-                    <i class="glyphicon glyphicon-time"></i>
+                    <i class="fa fa-history"></i>
                 </a>
-                {% if is_infra %}
+                {% can_edit stack %}
                 <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-stack' stack.id %}">
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="fa fa-edit"></i>
                 </a>
+		{% acl_end %}
+		{% can_delete stack %}
                 <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-stack' stack.pk %}">
-                    <i class="glyphicon glyphicon-trash"></i>
+                    <i class="fa fa-trash"></i>
                 </a>
-                {% endif %}
+                {% acl_end %}
             </td>
         {% endfor %}
     </tbody>

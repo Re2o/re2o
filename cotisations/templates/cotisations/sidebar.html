@@ -23,32 +23,41 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
 
 {% block sidebar %}
-    {% if is_trez %}
+    {% can_change Facture pdf %}
     <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-facture-pdf" %}">
-        <i class="glyphicon glyphicon-plus"></i>
+        <i class="fa fa-plus"></i>
         Créer une facture
     </a>
     <a class="list-group-item list-group-item-warning" href="{% url "cotisations:control" %}">
-        <i class="glyphicon glyphicon-eye-open"></i>
+        <i class="fa fa-eye"></i>
         Contrôler les factures
     </a>
-    {% endif %}
+    {% acl_end %}
+    {% can_view_all Facture %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Factures
     </a>
+    {% acl_end %}
+    {% can_view_all Article %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-article" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Articles en vente
     </a>
+    {% acl_end %}
+    {% can_view_all Banque %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-banque" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Banques
     </a>
+    {% acl_end %}
+    {% can_view_all Paiement %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-paiement" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Moyens de paiement
     </a>
+    {% acl_end %}
 {% endblock %}

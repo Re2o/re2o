@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-
+{% load acl %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -40,9 +40,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.description }}</td>
             <td>{{ service.image }}</td>
             <td class="text-right">
-            {% if is_admin %}
-            {% include 'buttons/edit.html' with href='preferences:edit-services' id=service.id %}
-            {% endif %}
+            {% can_edit service%}
+            {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
+            {% acl_end %}
             {% include 'buttons/history.html' with href='preferences:history' name='service' id=service.id %}
             </td>
         </tr>

@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
 {% if switch_list.paginator %}
 {% include "pagination.html" with list=switch_list %}
 {% endif %}
@@ -56,11 +58,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td>{{switch.details}}</td>
        <td class="text-right">
        	   {% include 'buttons/history.html' with href='topologie:history' name='switch' id=switch.pk%}
-       	   {% if is_infra %}
-           {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %} 
+       	   {% can_edit switch %}
+           {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
+	   {% acl_end %}
+	   {% can_delete switch %}
            {% include 'buttons/suppr.html' with href='machines:del-interface' id=switch.switch_interface.id %} 
+	   {% acl_end %}
+	   {% can_create Port %}
 	   {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.pk desc='Création de ports'%}
-           {% endif %}
+           {% acl_end %}
        </td>
    </tr>
    {% endfor %}

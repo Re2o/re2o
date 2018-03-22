@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cotisation',
             name='type_cotisation',
-            field=models.CharField(choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], max_length=255),
+            field=models.CharField(choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], max_length=255, default='All'),
         ),
         migrations.AddField(
             model_name='vente',

@@ -62,7 +62,9 @@ from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
-    BaseUserManager
+    BaseUserManager,
+    PermissionsMixin,
+    Group
 )
 from django.core.validators import RegexValidator
 
@@ -73,13 +75,12 @@ import ldapdb.models.fields
 
 from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
+from re2o.field_permissions import FieldPermissionModelMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
-
-DT_NOW = timezone.now()
 
 
 # Utilitaires généraux
@@ -126,18 +127,6 @@ def get_fresh_gid():
     return min(free_gids)
 
 
-def get_admin_right():
-    """ Renvoie l'instance droit admin. La crée si elle n'existe pas
-    Lui attribue un gid libre"""
-    try:
-        admin_right = ListRight.objects.get(listright="admin")
-    except ListRight.DoesNotExist:
-        admin_right = ListRight(listright="admin")
-        admin_right.gid = get_fresh_gid()
-        admin_right.save()
-    return admin_right
-
-
 class UserManager(BaseUserManager):
     """User manager basique de django"""
     def _create_user(
@@ -154,16 +143,17 @@ class UserManager(BaseUserManager):
         if not linux_user_check(pseudo):
             raise ValueError('Username shall only contain [a-z0-9-]')
 
-        user = self.model(
+        user = Adherent(
             pseudo=pseudo,
             surname=surname,
+            name=surname,
             email=self.normalize_email(email),
         )
 
         user.set_password(password)
-        user.save(using=self._db)
         if su:
-            user.make_admin()
+            user.is_superuser=True
+        user.save(using=self._db)
         return user
 
     def create_user(self, pseudo, surname, email, password=None):
@@ -180,8 +170,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-
-class User(AbstractBaseUser):
+class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -236,6 +225,17 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+    class Meta:
+        permissions = (
+            ("change_user_password", "Peut changer le mot de passe d'un user"),
+            ("change_user_state", "Peut éditer l'etat d'un user"),
+            ("change_user_force", "Peut forcer un déménagement"),
+            ("change_user_shell", "Peut éditer le shell d'un user"),
+            ("change_user_groups", "Peut éditer les groupes d'un user ! Permission critique"),
+            ("change_all_users", "Peut éditer tous les users, y compris ceux dotés de droits. Superdroit"),
+            ("view_user", "Peut voir un objet user quelquonque"),
+        )
+
     @cached_property
     def name(self):
         """Si il s'agit d'un adhérent, on renvoie le prénom"""
@@ -285,20 +285,8 @@ class User(AbstractBaseUser):
     @property
     def is_admin(self):
         """ Renvoie si l'user est admin"""
-        try:
-            Right.objects.get(user=self, right__listright='admin')
-        except Right.DoesNotExist:
-            return False
-        return True
-
-    @is_admin.setter
-    def is_admin(self, value):
-        """ Change la valeur de admin à true ou false suivant la valeur de
-        value"""
-        if value and not self.is_admin:
-            self.make_admin()
-        elif not value and self.is_admin:
-            self.un_admin()
+        admin,_ = Group.objects.get_or_create(name="admin")
+        return self.is_superuser or admin in self.groups.all()
 
     def get_full_name(self):
         """ Renvoie le nom complet de l'user formaté nom/prénom"""
@@ -311,66 +299,6 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         """ Renvoie seulement le nom"""
         return self.surname
-
-    def has_perms(self, perms, obj=None):
-        """ Renvoie true si l'user dispose de la permission.
-        Prend en argument une liste de permissions.
-        TODO : Arranger cette fonction"""
-        for perm in perms:
-            if perm in RIGHTS_LINK:
-                query = Q()
-                for right in RIGHTS_LINK[perm]:
-                    query = query | Q(right__listright=right)
-                if Right.objects.filter(Q(user=self) & query):
-                    return True
-            try:
-                Right.objects.get(user=self, right__listright=perm)
-            except Right.DoesNotExist:
-                return False
-        return True
-
-    def has_perm(self, perm, obj=None):
-        """Ne sert à rien"""
-        return True
-
-    def has_right(self, right):
-        """ Renvoie si un user a un right donné. Crée le right si il n'existe
-        pas"""
-        try:
-            list_right = ListRight.objects.get(listright=right)
-        except:
-            list_right = ListRight(listright=right, gid=get_fresh_gid())
-            list_right.save()
-        return Right.objects.filter(user=self).filter(
-            right=list_right
-        ).exists()
-
-    @cached_property
-    def is_bureau(self):
-        """ True si user a les droits bureau """
-        return self.has_right('bureau')
-
-    @cached_property
-    def is_bofh(self):
-        """ True si l'user a les droits bofh"""
-        return self.has_right('bofh')
-
-    @cached_property
-    def is_cableur(self):
-        """ True si l'user a les droits cableur
-        (également true si bureau, infra  ou bofh)"""
-        return self.has_right('cableur') or self.has_right('bureau') or\
-            self.has_right('infra') or self.has_right('bofh')
-
-    @cached_property
-    def is_trez(self):
-        """ Renvoie true si droits trésorier pour l'user"""
-        return self.has_right('tresorier')
-
-    @cached_property
-    def is_infra(self):
-        """ True si a les droits infra"""
-        return self.has_right('infra')
 
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
@@ -406,7 +334,7 @@ class User(AbstractBaseUser):
         end = self.end_adhesion()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
@@ -417,12 +345,11 @@ class User(AbstractBaseUser):
         end = self.end_connexion()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return self.is_adherent()
 
-    @cached_property
     def end_ban(self):
         """ Renvoie la date de fin de ban d'un user, False sinon """
         date_max = Ban.objects.filter(
@@ -430,7 +357,6 @@ class User(AbstractBaseUser):
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
-    @cached_property
     def end_whitelist(self):
         """ Renvoie la date de fin de whitelist d'un user, False sinon """
         date_max = Whitelist.objects.filter(
@@ -438,24 +364,22 @@ class User(AbstractBaseUser):
         ).aggregate(models.Max('date_end'))['date_end__max']
         return date_max
 
-    @cached_property
     def is_ban(self):
         """ Renvoie si un user est banni ou non """
-        end = self.end_ban
+        end = self.end_ban()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
 
-    @cached_property
     def is_whitelisted(self):
         """ Renvoie si un user est whitelisté ou non """
-        end = self.end_whitelist
+        end = self.end_whitelist()
         if not end:
             return False
-        elif end < DT_NOW:
+        elif end < timezone.now():
             return False
         else:
             return True
@@ -463,36 +387,34 @@ class User(AbstractBaseUser):
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return self.state == User.STATE_ACTIVE\
-            and not self.is_ban and (self.is_connected() or self.is_whitelisted)
+            and not self.is_ban() and (self.is_connected() or self.is_whitelisted())
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
         if not self.end_connexion():
-            if not self.end_whitelist:
+            if not self.end_whitelist():
                 return None
             else:
-                return self.end_whitelist
+                return self.end_whitelist()
         else:
-            if not self.end_whitelist:
+            if not self.end_whitelist():
                 return self.end_connexion()
             else:
-                return max(self.end_connexion(), self.end_whitelist)
+                return max(self.end_connexion(), self.end_whitelist())
 
     @cached_property
     def solde(self):
         """ Renvoie le solde d'un user. Vérifie que l'option solde est
         activé, retourne 0 sinon.
         Somme les crédits de solde et retire les débit payés par solde"""
-        options, _created = OptionalUser.objects.get_or_create()
-        user_solde = options.user_solde
+        user_solde = OptionalUser.get_cached_value('user_solde')
         if user_solde:
-            solde_object, _created = Paiement.objects.get_or_create(
-                moyen='Solde'
-            )
+            solde_objects = Paiement.objects.filter(moyen='Solde')
             somme_debit = Vente.objects.filter(
                 facture__in=Facture.objects.filter(
                     user=self,
-                    paiement=solde_object
+                    paiement__in=solde_objects,
+                    valid=True
                 )
             ).aggregate(
                 total=models.Sum(
@@ -501,7 +423,7 @@ class User(AbstractBaseUser):
                 )
             )['total'] or 0
             somme_credit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(user=self),
+                facture__in=Facture.objects.filter(user=self, valid=True),
                 name="solde"
             ).aggregate(
                 total=models.Sum(
@@ -551,23 +473,6 @@ class User(AbstractBaseUser):
         self.assign_ips()
         self.state = User.STATE_ACTIVE
 
-    def has_module_perms(self, app_label):
-        """True, a toutes les permissions de module"""
-        return True
-
-    def make_admin(self):
-        """ Make User admin """
-        user_admin_right = Right(user=self, right=get_admin_right())
-        user_admin_right.save()
-
-    def un_admin(self):
-        """Supprime les droits admin d'un user"""
-        try:
-            user_right = Right.objects.get(user=self, right=get_admin_right())
-        except Right.DoesNotExist:
-            return
-        user_right.delete()
-
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False):
         """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
         self
@@ -610,8 +515,9 @@ class User(AbstractBaseUser):
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
         if group_refresh:
-            for right in Right.objects.filter(user=self):
-                right.right.ldap_sync()
+            for group in self.groups.all():
+                if hasattr(group, 'listright'):
+                    group.listright.ldap_sync()
         user_ldap.save()
 
     def ldap_del(self):
@@ -625,24 +531,22 @@ class User(AbstractBaseUser):
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
         template = loader.get_template('users/email_welcome')
-        assooptions, _created = AssoOption.objects.get_or_create()
         mailmessageoptions, _created = MailMessageOption\
             .objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
-            'asso_name': assooptions.name,
-            'asso_email': assooptions.contact,
+            'asso_name': AssoOption.get_cached_value('name'),
+            'asso_email': AssoOption.get_cached_value('contact'),
             'welcome_mail_fr': mailmessageoptions.welcome_mail_fr,
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
-                'name': assooptions.name
+                'name': AssoOption.get_cached_value('name')
                 },
             '',
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.email],
             html_message=template.render(context)
         )
@@ -656,22 +560,20 @@ class User(AbstractBaseUser):
         req.user = self
         req.save()
         template = loader.get_template('users/email_passwd_request')
-        options, _created = AssoOption.objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = {
             'name': req.user.get_full_name(),
-            'asso': options.name,
-            'asso_mail': options.contact,
-            'site_name': general_options.site_name,
+            'asso': AssoOption.get_cached_value('name'),
+            'asso_mail': AssoOption.get_cached_value('contact'),
+            'site_name': GeneralOption.get_cached_value('site_name'),
             'url': request.build_absolute_uri(
                 reverse('users:process', kwargs={'token': req.token})),
-            'expire_in': str(general_options.req_expire_hrs) + ' heures',
+            'expire_in': str(GeneralOption.get_cached_value('req_expire_hrs')) + ' heures',
             }
         send_mail(
             'Changement de mot de passe du %(name)s / Password\
-            renewal for %(name)s' % {'name': options.name},
+            renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
             template.render(context),
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [req.user.email],
             fail_silently=False
         )
@@ -681,8 +583,7 @@ class User(AbstractBaseUser):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
-        options, _created = OptionalMachine.objects.get_or_create()
-        if all_interfaces.count() > options.max_lambdauser_interfaces:
+        if all_interfaces.count() > OptionalMachine.get_cached_value('max_lambdauser_interfaces'):
             return False, "Maximum de machines enregistrees atteinte"
         if not nas_type:
             return False, "Re2o ne sait pas à quel machinetype affecter cette\
@@ -715,29 +616,27 @@ class User(AbstractBaseUser):
         """Notification mail lorsque une machine est automatiquement
         ajoutée par le radius"""
         template = loader.get_template('users/email_auto_newmachine')
-        assooptions, _created = AssoOption.objects.get_or_create()
-        general_options, _created = GeneralOption.objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
             'mac_address' : interface.mac_address,
-            'asso_name': assooptions.name,
+            'asso_name': AssoOption.get_cached_value('name'),
             'interface_name' : interface.domain,
-            'asso_email': assooptions.contact,
+            'asso_email': AssoOption.get_cached_value('contact'),
             'pseudo': self.pseudo,
         })
         send_mail(
             "Ajout automatique d'une machine / New machine autoregistered",
             '',
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.email],
             html_message=template.render(context)
         )
         return
 
-    def set_user_password(self, password):
+    def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
-        self.set_password(password)
+        super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
 
@@ -762,27 +661,136 @@ class User(AbstractBaseUser):
             num += 1
         return composed_pseudo(num)
 
-    def can_create(user):
-        options, _created = OptionalUser.objects.get_or_create()
-        if options.all_can_create:
-            return True
-        else:
-            return user.has_perms(('cableur',))
+    def get_instance(userid, *args, **kwargs):
+        """Get the User instance with userid.
 
-    def can_edit(self, user):
-        if self.is_class_club and user.is_class_adherent:
-            return self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all() 
-        else:
-            return self == user or user.has_perms(('cableur',))
+        :param userid: The id
+        :return: The user
+        """
+        return User.objects.get(pk=userid)
 
-    def can_view(self, user):
-        if self.is_class_club and user.is_class_adherent:
-            return self == user or user.has_perms(('cableur',)) or\
-                user.adherent in self.club.administrators.all() or\
-                user.adherent in self.club.members.all()
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit an user object.
+
+        :param self: The user which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if self is a club and
+        user_request one of its member, or if user_request is self, or if
+        user_request has the 'cableur' right.
+        """
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or \
+                    user_request.has_perm('users.change_user') or \
+                    user_request.adherent in self.club.administrators.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit d'éditer ce club"
         else:
-            return self == user or user.has_perms(('cableur',))
+            if self == user_request:
+                return True, None
+            elif user_request.has_perm('users.change_all_users'):
+                return True, None
+            elif user_request.has_perm('users.change_user'):
+                if self.groups.filter(listright__critical=True):
+                    return False, u"Utilisateurs avec droits critiques, ne peut etre édité"
+                elif self == AssoOption.get_cached_value('utilisateur_asso'):
+                    return False, u"Impossible d'éditer l'utilisateur asso sans droit change_all_users"
+                else:
+                    return True, None
+            elif user_request.has_perm('users.change_all_users'):
+                return True, None
+            else:
+                return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
+
+    def can_change_password(self, user_request, *args, **kwargs):
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or \
+                    user_request.has_perm('users.change_user_password') or \
+                    user_request.adherent in self.club.administrators.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit d'éditer ce club"
+        else:
+            if self == user_request or \
+                    user_request.has_perm('users.change_user_groups'):
+                    # Peut éditer les groupes d'un user, c'est un privilège élevé, True
+                return True, None
+            elif user_request.has_perm('users.change_user') and not self.groups.all():
+                return True, None
+            else:
+                return False, u"Vous ne pouvez éditer un autre utilisateur que vous même"
+
+    def check_selfpasswd(self, user_request, *args, **kwargs):
+        return user_request == self, None
+
+    @staticmethod
+    def can_change_state(user_request, *args, **kwargs):
+        return user_request.has_perm('users.change_user_state'), "Droit requis pour changer l'état"
+
+    @staticmethod
+    def can_change_shell(user_request, *args, **kwargs):
+        return user_request.has_perm('users.change_user_shell'), "Droit requis pour changer le shell"
+
+    @staticmethod
+    def can_change_force(user_request, *args, **kwargs):
+        return user_request.has_perm('users.change_user_force'), "Droit requis pour forcer le déménagement"
+
+    @staticmethod
+    def can_change_groups(user_request, *args, **kwargs):
+        return user_request.has_perm('users.change_user_groups'), "Droit requis pour éditer les groupes de l'user"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete an user object.
+
+        :param self: The user who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'bureau', and a message.
+        """
+        if user_request.has_perm('users.delete_user'):
+            return True, None
+        else:
+            return False, u"Vous ne pouvez pas supprimer cet utilisateur."
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        if user_request.has_perm('users.view_user'):
+            return True, None
+        else:
+            return False, u"Vous n'avez pas accès à la liste des utilisateurs."
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view an user object.
+
+        :param self: The targeted user.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        if self.is_class_club and user_request.is_class_adherent:
+            if self == user_request or \
+                    user_request.has_perm('users.view_user') or \
+                    user_request.adherent in self.club.administrators.all() or \
+                    user_request.adherent in self.club.members.all():
+                return True, None
+            else:
+                return False, u"Vous n'avez pas le droit de voir ce club"
+        else:
+            if self == user_request or user_request.has_perm('users.view_user'):
+                return True, None
+            else:
+                return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.field_permissions = {
+            'shell' : self.can_change_shell,
+            'force' : self.can_change_force,
+            'selfpasswd' : self.check_selfpasswd,
+        }
 
     def __str__(self):
         return self.pseudo
@@ -797,8 +805,32 @@ class Adherent(User):
         blank=True,
         null=True
     )
-    pass
 
+
+
+    def get_instance(adherentid, *args, **kwargs):
+        """Try to find an instance of `Adherent` with the given id.
+
+        :param adherentid: The id of the adherent we are looking for.
+        :return: An adherent.
+        """
+        return Adherent.objects.get(pk=adherentid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create an user object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        an user or if the `options.all_can_create` is set.
+        """
+        if(not user_request.is_authenticated and not OptionalUser.get_cached_value('self_adhesion')):
+            return False, None
+        else:
+            if(OptionalUser.get_cached_value('all_can_create_adherent') or OptionalUser.get_cached_value('self_adhesion')):
+                return True, None
+            else:
+                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
+                    droit de créer un utilisateur"
 
 
 class Club(User):
@@ -819,8 +851,46 @@ class Club(User):
         to='users.Adherent',
         related_name='club_members'
     )
+    mailing = models.BooleanField(
+        default = False
+    )
 
-    pass
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create an user object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        an user or if the `options.all_can_create` is set.
+        """
+        if not user_request.is_authenticated:
+            return False, None
+        else:
+            if OptionalUser.get_cached_value('all_can_create_club'):
+                return True, None
+            else:
+                return user_request.has_perm('users.add_user'), u"Vous n'avez pas le\
+                    droit de créer un club"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        if user_request.has_perm('users.view_user'):
+            return True, None
+        if hasattr(user_request,'is_class_adherent') and user_request.is_class_adherent:
+            if user_request.adherent.club_administrator.all() or user_request.adherent.club_members.all():
+                return True, None
+        return False, u"Vous n'avez pas accès à la liste des utilisateurs."
+
+    def get_instance(clubid, *args, **kwargs):
+        """Try to find an instance of `Club` with the given id.
+
+        :param clubid: The id of the adherent we are looking for.
+        :return: A club.
+        """
+        return Club.objects.get(pk=clubid)
 
 
 @receiver(post_save, sender=Adherent)
@@ -845,7 +915,6 @@ def user_post_delete(sender, **kwargs):
     user = kwargs['instance']
     user.ldap_del()
     regen('mailing')
-
 
 class ServiceUser(AbstractBaseUser):
     """ Classe des users daemons, règle leurs accès au ldap"""
@@ -878,6 +947,11 @@ class ServiceUser(AbstractBaseUser):
     USERNAME_FIELD = 'pseudo'
     objects = UserManager()
 
+    class Meta:
+        permissions = (
+            ("view_serviceuser", "Peut voir un objet serviceuser"),
+        )
+
     def ldap_sync(self):
         """ Synchronisation du ServiceUser dans sa version ldap"""
         try:
@@ -909,9 +983,63 @@ class ServiceUser(AbstractBaseUser):
             )]).values_list('dn', flat=True))
         group.save()
 
+    def get_instance(userid, *args, **kwargs):
+        return ServiceUser.objects.get(pk=userid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a ServiceUser object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create
+        or if the `options.all_can_create` is set.
+        """
+        return user_request.has_perm('users.add_serviceuser'), (
+            u"Vous n'avez pas le droit de créer un service user"
+        )
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a ServiceUser object.
+
+        :param self: The ServiceUser which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_serviceuser'), (
+            u"Vous n'avez pas le droit d'éditer les services users"
+        )
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a ServiceUser object.
+
+        :param self: The ServiceUser who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'infra', and a message.
+        """
+        return user_request.has_perm('users.delete_serviceuser'), u"Vous n'avez pas le droit de\
+            supprimer un service user"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every ServiceUser objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_serviceuser'), u"Vous n'avez pas le droit de\
+            voir un service user"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a ServiceUser object.
+
+        :param self: The targeted ServiceUser.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        return user_request.has_perm('users.view_serviceuser'), u"Vous n'avez pas le droit de\
+            voir un service user"
+
     def __str__(self):
         return self.pseudo
-
 
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(sender, **kwargs):
@@ -927,47 +1055,74 @@ def service_user_post_delete(sender, **kwargs):
     service_user.ldap_del()
 
 
-class Right(models.Model):
-    """ Couple droit/user. Peut-être aurait-on mieux fait ici d'utiliser un
-    manytomany
-    Ceci dit le résultat aurait été le même avec une table intermediaire"""
-    PRETTY_NAME = "Droits affectés à des users"
-
-    user = models.ForeignKey('User', on_delete=models.PROTECT)
-    right = models.ForeignKey('ListRight', on_delete=models.PROTECT)
-
-    class Meta:
-        unique_together = ("user", "right")
-
-    def __str__(self):
-        return str(self.user)
-
-
-@receiver(post_save, sender=Right)
-def right_post_save(sender, **kwargs):
-    """ Synchronise les users ldap groups avec les groupes de droits"""
-    right = kwargs['instance'].right
-    right.ldap_sync()
-
-
-@receiver(post_delete, sender=Right)
-def right_post_delete(sender, **kwargs):
-    """ Supprime l'user du groupe"""
-    right = kwargs['instance'].right
-    right.ldap_sync()
-
-
 class School(models.Model):
     """ Etablissement d'enseignement"""
-    PRETTY_NAME = "Etablissements enregistrés"
+    PRETTY_NAME = "Établissements enregistrés"
 
     name = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ("view_school", "Peut voir un objet school"),
+        )
+
+    def get_instance(schoolid, *args, **kwargs):
+        return School.objects.get(pk=schoolid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a School object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create.
+        """
+        return user_request.has_perm('users.add_school'), u"Vous n'avez pas le\
+            droit de créer des écoles"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a School object.
+
+        :param self: The School which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_school'), u"Vous n'avez pas le\
+            droit d'éditer des écoles"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a School object.
+
+        :param self: The School which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perm('users.delete_school'), u"Vous n'avez pas le\
+            droit de supprimer des écoles"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every School objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_school'), u"Vous n'avez pas le\
+            droit de voir les écoles"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a School object.
+
+        :param self: The targeted School.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        return user_request.has_perm('users.view_school'), u"Vous n'avez pas le\
+            droit de voir les écoles"
 
     def __str__(self):
         return self.name
 
 
-class ListRight(models.Model):
+class ListRight(Group):
     """ Ensemble des droits existants. Chaque droit crée un groupe
     ldap synchronisé, avec gid.
     Permet de gérer facilement les accès serveurs et autres
@@ -975,7 +1130,7 @@ class ListRight(models.Model):
     il n'est plus modifiable après creation"""
     PRETTY_NAME = "Liste des droits existants"
 
-    listright = models.CharField(
+    unix_name = models.CharField(
         max_length=255,
         unique=True,
         validators=[RegexValidator(
@@ -985,14 +1140,72 @@ class ListRight(models.Model):
         )]
     )
     gid = models.PositiveIntegerField(unique=True, null=True)
+    critical = models.BooleanField(default=False)
     details = models.CharField(
         help_text="Description",
         max_length=255,
         blank=True
     )
 
+    class Meta:
+        permissions = (
+            ("view_listright", "Peut voir un objet Group/ListRight"),
+        )
+
+    def get_instance(listrightid, *args, **kwargs):
+        return ListRight.objects.get(pk=listrightid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a ListRight object.
+
+        :param user_request: The user who wants to create a ListRight object.
+        :return: a message and a boolean which is True if the user can create.
+        """
+        return user_request.has_perm('users.add_listright'), u"Vous n'avez pas le droit\
+            de créer des groupes de droits"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a ListRight object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_listright'), u"Vous n'avez pas le droit\
+            d'éditer des groupes de droits"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a ListRight object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perm('users.delete_listright'), u"Vous n'avez pas le droit\
+            de supprimer des groupes de droits"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every ListRight objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_listright'), u"Vous n'avez pas le droit\
+            de voir les groupes de droits"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a ListRight object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        return user_request.has_perm('users.view_listright'), u"Vous n'avez pas le droit\
+            de voir les groupes de droits"
+
     def __str__(self):
-        return self.listright
+        return self.name
 
     def ldap_sync(self):
         """Sychronise les groups ldap avec le model listright coté django"""
@@ -1001,8 +1214,8 @@ class ListRight(models.Model):
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
         group_ldap.name = self.listright
-        group_ldap.members = [right.user.pseudo for right
-                              in Right.objects.filter(right=self)]
+        group_ldap.members = [user.pseudo for user
+                              in self.user_set.all()]
         group_ldap.save()
 
     def ldap_del(self):
@@ -1059,21 +1272,24 @@ class Ban(models.Model):
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
     state = models.IntegerField(choices=STATES, default=STATE_HARD)
 
+    class Meta:
+        permissions = (
+            ("view_ban", "Peut voir un objet ban quelqu'il soit"),
+        )
+
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
-        general_options, _created = GeneralOption.objects.get_or_create()
         template = loader.get_template('users/email_ban_notif')
-        options, _created = AssoOption.objects.get_or_create()
         context = Context({
             'name': self.user.get_full_name(),
             'raison': self.raison,
             'date_end': self.date_end,
-            'asso_name': options.name,
+            'asso_name': AssoOption.get_cached_value('name'),
         })
         send_mail(
             'Deconnexion disciplinaire',
             template.render(context),
-            general_options.email_from,
+            GeneralOption.get_cached_value('email_from'),
             [self.user.email],
             fail_silently=False
         )
@@ -1081,7 +1297,63 @@ class Ban(models.Model):
 
     def is_active(self):
         """Ce ban est-il actif?"""
-        return self.date_end > DT_NOW
+        return self.date_end > timezone.now()
+
+    def get_instance(banid, *args, **kwargs):
+        return Ban.objects.get(pk=banid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a Ban object.
+
+        :param user_request: The user who wants to create a Ban object.
+        :return: a message and a boolean which is True if the user can create.
+        """
+        return user_request.has_perm('users.add_ban'), u"Vous n'avez pas le droit de\
+            créer des bannissements"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a Ban object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_ban'), u"Vous n'avez pas le droit\
+            d'éditer des bannissements"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a Ban object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perm('users.delete_ban'), u"Vous n'avez pas le droit\
+            de supprimer des bannissements"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every Ban objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_ban'), u"Vous n'avez pas le droit\
+            de voir tous les bannissements"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a Ban object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        if not user_request.has_perm('users.view_ban') and\
+            self.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir les bannissements\
+                autre que les vôtres"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -1125,8 +1397,69 @@ class Whitelist(models.Model):
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
 
+    class Meta:
+        permissions = (
+            ("view_whitelist", "Peut voir un objet whitelist"),
+        )
+
     def is_active(self):
-        return self.date_end > DT_NOW
+        return self.date_end > timezone.now()
+
+    def get_instance(whitelistid, *args, **kwargs):
+        return Whitelist.objects.get(pk=whitelistid)
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a Whitelist object.
+
+        :param user_request: The user who wants to create a Whitelist object.
+        :return: a message and a boolean which is True if the user can create.
+        """
+        return user_request.has_perm('users.add_whitelist'), u"Vous n'avez pas le\
+            droit de créer des accès gracieux"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a Whitelist object.
+
+        :param self: The object which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_whitelist'), u"Vous n'avez pas le\
+            droit d'éditer des accès gracieux"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a Whitelist object.
+
+        :param self: The object which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perm('users.delete_whitelist'), u"Vous n'avez pas le\
+            droit de supprimer des accès gracieux"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every Whitelist objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_whitelist'), u"Vous n'avez pas le\
+            droit de voir les accès gracieux"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a Whitelist object.
+
+        :param self: The targeted object.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        if not user_request.has_perm('users.view_whitelist') and\
+            self.user != user_request:
+            return False, u"Vous n'avez pas le droit de voir les accès\
+                gracieux autre que les vôtres"
+        else:
+            return True, None
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -1178,9 +1511,8 @@ class Request(models.Model):
 
     def save(self):
         if not self.expires_at:
-            options, _created = GeneralOption.objects.get_or_create()
-            self.expires_at = DT_NOW \
-                + datetime.timedelta(hours=options.req_expire_hrs)
+            self.expires_at = timezone.now() \
+                + datetime.timedelta(hours=GeneralOption.get_cached_value('req_expire_hrs'))
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()

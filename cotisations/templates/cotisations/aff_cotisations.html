@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
 {% if facture_list.paginator %}
 {% include "pagination.html" with list=facture_list %}
 {% endif %}
@@ -47,7 +49,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
 	    <td>{{ facture.id }}</td>
-            {% if is_cableur %}
             <td>
             <div class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -55,21 +56,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="editionfacture">
-            {% if facture.valid and not facture.control or is_trez %}
-                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="glyphicon glyphicon-bitcoin"></i> Modifier</a></li>
-                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer</a></li>
-                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="glyphicon glyphicon-time"></i> Historique</a></li>
-            {% else %}
+            {% can_edit facture %}
+                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="fa fa-dollar-sign"></i> Modifier</a></li>
+            {% acl_else %}
                 <li>Facture controlée</li>
-            {% endif %}
+            {% acl_end %}
+            {% can_delete facture %}
+                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="fa fa-trash"></i> Supprimer</a></li>
+            {% acl_end %}
+                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="fa fa-history"></i> Historique</a></li>
             </ul>
             </div>
             </td>
-            {% endif %}
             <td>
             {% if facture.valid %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}">
-                    <i class="glyphicon glyphicon-save"></i>
+                    <i class="fa fa-file-pdf"></i>
                     PDF
                 </a>
             {% else %}

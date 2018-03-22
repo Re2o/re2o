@@ -29,8 +29,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
   <h2>Liste des alias de l'interface</h2>
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-alias' interface_id  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un alias</a>
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-alias'  interface_id %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs alias</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-alias' interface_id  %}"><i class="fa fa-plus"></i> Ajouter un alias</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-alias'  interface_id %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs alias</a>
   {%  include "machines/aff_alias.html" with  alias_list=alias_list %}
   <br />
   <br />

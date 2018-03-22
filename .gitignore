@@ -6,3 +6,4 @@ __pycache__/*
 static_files/*
 static/logo/*
 doc/build/
+media/*

@@ -72,12 +72,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if nasform %}
     {% bootstrap_form_errors nasform %}
 {% endif %}
+{% if ipv6form %}
+    {% bootstrap_form_errors ipv6form %}
+{% endif %}
 
 <form class="form" method="post">
     {% csrf_token %}
     {% if machineform %}
         <h3>Machine</h3>
-        {% bootstrap_form machineform %}
+        {% massive_bootstrap_form machineform 'user' %}
     {% endif %}
     {% if interfaceform %}
         <h3>Interface</h3>
@@ -139,7 +142,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <h3>NAS</h3>
         {% bootstrap_form nasform %}
     {% endif %}
-    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+    {% if ipv6form %}
+        <h3>Ipv6</h3>
+        {% bootstrap_form ipv6form %}
+    {% endif %}
+    {% bootstrap_button action_name button_type="submit" icon="star" %}
 </form>
   <br />
   <br />

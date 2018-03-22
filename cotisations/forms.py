@@ -26,9 +26,8 @@ importé par les views.
 Permet de créer une nouvelle facture pour un user (NewFactureForm),
 et de l'editer (soit l'user avec EditFactureForm,
 soit le trésorier avec TrezEdit qui a plus de possibilités que self
-notamment sur le controle trésorier)
-
-SelectArticleForm est utilisée lors de la creation d'une facture en
+notamment sur le controle trésorier SelectArticleForm est utilisée
+lors de la creation d'une facture en
 parrallèle de NewFacture pour le choix des articles désirés.
 (la vue correspondante est unique)
 
@@ -40,8 +39,12 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator,MaxValueValidator
 from .models import Article, Paiement, Facture, Banque
+from preferences.models import OptionalUser
+from users.models import User
+
+from re2o.field_permissions import FieldPermissionFormMixin
 
 
 class NewFactureForm(ModelForm):
@@ -141,27 +144,18 @@ class NewFactureFormPdf(Form):
     )
 
 
-class EditFactureForm(NewFactureForm):
+class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
     """Edition d'une facture : moyen de paiement, banque, user parent"""
     class Meta(NewFactureForm.Meta):
-        fields = ['paiement', 'banque', 'cheque', 'user']
+        model = Facture
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(EditFactureForm, self).__init__(*args, **kwargs)
         self.fields['user'].label = 'Adherent'
         self.fields['user'].empty_label = "Séléctionner\
             l'adhérent propriétaire"
-
-
-class TrezEditFactureForm(EditFactureForm):
-    """Vue pour édition controle trésorier"""
-    class Meta(EditFactureForm.Meta):
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super(TrezEditFactureForm, self).__init__(*args, **kwargs)
         self.fields['valid'].label = 'Validité de la facture'
-        self.fields['control'].label = 'Contrôle de la facture'
 
 
 class ArticleForm(ModelForm):
@@ -180,10 +174,18 @@ class DelArticleForm(Form):
     """Suppression d'un ou plusieurs articles en vente. Choix
     parmis les modèles"""
     articles = forms.ModelMultipleChoiceField(
-        queryset=Article.objects.all(),
+        queryset=Article.objects.none(),
         label="Articles actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelArticleForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['articles'].queryset = instances
+        else:
+            self.fields['articles'].queryset = Article.objects.all()
 
 
 class PaiementForm(ModelForm):
@@ -204,10 +206,18 @@ class DelPaiementForm(Form):
     """Suppression d'un ou plusieurs moyens de paiements, selection
     parmis les models"""
     paiements = forms.ModelMultipleChoiceField(
-        queryset=Paiement.objects.all(),
+        queryset=Paiement.objects.none(),
         label="Moyens de paiement actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelPaiementForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['paiements'].queryset = instances
+        else:
+            self.fields['paiements'].queryset = Paiement.objects.all()
 
 
 class BanqueForm(ModelForm):
@@ -225,7 +235,69 @@ class BanqueForm(ModelForm):
 class DelBanqueForm(Form):
     """Selection d'une ou plusieurs banques, pour suppression"""
     banques = forms.ModelMultipleChoiceField(
-        queryset=Banque.objects.all(),
+        queryset=Banque.objects.none(),
         label="Banques actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelBanqueForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['banques'].queryset = instances
+        else:
+            self.fields['banques'].queryset = Banque.objects.all()
+
+
+class NewFactureSoldeForm(NewFactureForm):
+    """Creation d'une facture, moyen de paiement, banque et numero
+    de cheque"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        self.fields['cheque'].required = False
+        self.fields['banque'].required = False
+        self.fields['cheque'].label = 'Numero de chèque'
+        self.fields['banque'].empty_label = "Non renseigné"
+        self.fields['paiement'].empty_label = "Séléctionner\
+        une bite de paiement"
+        paiement_list = Paiement.objects.filter(type_paiement=1)
+        if paiement_list:
+            self.fields['paiement'].widget\
+                .attrs['data-cheque'] = paiement_list.first().id
+
+    class Meta:
+        model = Facture
+        fields = ['paiement', 'banque']
+
+
+    def clean(self):
+        cleaned_data = super(NewFactureSoldeForm, self).clean()
+        paiement = cleaned_data.get("paiement")
+        cheque = cleaned_data.get("cheque")
+        banque = cleaned_data.get("banque")
+        if not paiement:
+            raise forms.ValidationError("Le moyen de paiement est obligatoire")
+        elif paiement.type_paiement == "check" and not (cheque and banque):
+            raise forms.ValidationError("Le numéro de chèque et\
+                la banque sont obligatoires.")
+        return cleaned_data
+
+
+class RechargeForm(Form):
+    value = forms.FloatField(
+        label='Valeur',
+        min_value=0.01,
+        validators = []
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(RechargeForm, self).__init__(*args, **kwargs)
+
+    def clean_value(self):
+        value = self.cleaned_data['value']
+        if value < OptionalUser.get_cached_value('min_online_payment'):
+            raise forms.ValidationError("Montant inférieur au montant minimal de paiement en ligne (%s) €" % OptionalUser.get_cached_value('min_online_payment'))
+        if value + self.user.solde > OptionalUser.get_cached_value('max_solde'):
+            raise forms.ValidationError("Le solde ne peux excéder %s " % OptionalUser.get_cached_value('max_solde'))
+        return value

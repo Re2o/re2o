@@ -24,192 +24,377 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-
+{% load acl %}
 {% block title %}Profil{% endblock %}
-
 {% block content %}
-<h2>{{ user.class_name }}</h2>
-    <div>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' user.id %}">
-            <i class="glyphicon glyphicon-edit"></i>
-            Editer
-        </a>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' user.id %}">
-            <i class="glyphicon glyphicon-lock"></i>
-            Changer le mot de passe
-        </a>
-        {% if is_bureau %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' user.id %}">
-            <i class="glyphicon glyphicon-flash"></i>
-            Changer le statut
-        </a>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-right' user.id %}">
-            <i class="glyphicon glyphicon-ok"></i>
-            Ajouter un droit
-        </a>
-        {% endif %}
-        <a class="btn btn-info btn-sm" role="button" href="{% url 'users:history' 'user' user.id %}">
-            <i class="glyphicon glyphicon-time"></i>
-            Historique
-        </a>
+<h2>{{ users.surname }} {{users.name}}</h2>
+<p>Vous êtes {% if users.end_adhesion != None %}<span class="label label-success">
+un {{ users.class_name | lower}}</span>{% else %}<span class="label label-danger">
+non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
+<span class="label label-success">active</span>{% else %}<span class="label label-danger">désactivée</span>{% endif %}.</p>
+{% if user_solde %}
+<p>Votre solde est de <span class="badge">{{ user.solde }}€</span>.
+{% if allow_online_payment %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:recharge' %}">
+    <i class="fa fa-euro-sign"></i>
+    Recharger
+</a>
+{% endif %}
+</p>
+{% endif %}
+
+<div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
+            <h3 class="panel-title pull-left" >
+                <i class="fa fa-user"></i> Informations détaillées
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionuser">
+                    <li>
+                        <a href="{% url 'users:edit-info' users.id %}">
+                            <i class="fa fa-edit"></i>
+                            Editer
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'users:password' users.id %}">
+                            <i class="fa fa-lock"></i>
+                            Changer le mot de passe
+                        </a>
+                    </li>
+                    {% can_change User state %}
+                    <li>
+                        <a href="{% url 'users:state' users.id %}">
+                            <i class="fa fa-id-badge"></i>
+                            Changer le statut
+                        </a>
+                    </li>
+                    {% acl_end %}
+                    {% can_change User groups %}
+                    <li>
+                        <a href="{% url 'users:groups' users.id %}">
+                            <i class="fa fa-check"></i>
+                            Gérer les groupes
+                        </a>
+                    </li>
+                    {% acl_end %}
+                    <li>
+                        <a href="{% url 'users:history' 'user' users.id %}">
+                            <i class="fa fa-history"></i>
+                            Historique
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="panel-collapse collapse in" id="collapse1">
+            <div class="panel-body">
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Prénom</th>
+                        <td>{{ users.name }}</td>
+                        <th>Nom</th>
+                        <td>{{ users.surname }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pseudo</th>
+                        <td>{{ users.pseudo }}</td>
+                        <th>E-mail</th>
+                        <td>{{ users.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Chambre</th>
+                        <td>{{ users.room }}</td>
+                        <th>Téléphone</th>
+                    <td>{{ users.telephone }}</td>
+                    </tr>
+                    <tr>
+                        <th>École</th>
+                        <td>{{ users.school }}</td>
+                        <th>Commentaire</th>
+                        <td>{{ users.comment }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date d'inscription</th>
+                        <td>{{ users.registered }}</td>
+                        <th>Dernière connexion</th>
+                        <td>{{ users.last_login }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fin d'adhésion</th>
+                        {% if users.end_adhesion != None %}
+                        <td><i class="text-success">{{ users.end_adhesion }}</i></td>
+                        {% else %}
+                        <td><i class="text-danger">Non adhérent</i></td>
+                        {% endif %}
+                        <th>Accès gracieux</th>
+                        {% if users.end_whitelist != None %}
+                        <td><i class="text-success">{{ users.end_whitelist }}</i></td>
+                        {% else %}
+                        <td><i class="text-warning">Aucun</i></td>
+                        {% endif %}
+                    <tr>
+                        <th>Bannissement</th>
+                        {% if users.end_ban != None %}
+                        <td><i class="text-danger">{{ users.end_ban }}</i></td>
+                        {% else %}
+                        <td><i class="text-success">Non banni</i></td>
+                        {% endif %}
+                        <th>Statut</th>
+                        {% if users.state == 0 %}
+                        <td><i class="text-success">Actif</i></td>
+                        {% elif users.state == 1 %}
+                        <td><i class="text-danger">Désactivé</i></td>
+                        {% else %}
+                        <td><i class="text-warning">Archivé</i></td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>Accès internet</th>
+                        {% if users.has_access == True %}
+                    <td><i class="text-success">Actif (jusqu'au {{ users.end_access }})</i></td>
+                        {% else %}
+                        <td><i class="text-danger">Désactivé</i></td>
+                        {% endif %}
+                        <th>Groupes</th>
+                        {% if users.groups.all %}
+                    <td>{{ users.groups.all|join:", "}}</td>
+                        {% else %}
+                        <td>Aucun</td>
+                        {% endif %}
+                    </tr>
+                    {% if allow_online_payment %}
+                    <tr>
+                        <th>Solde</th>
+                        <td>{{ users.solde }} €
+                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                                <i class="fa fa-euro-sign"></i>
+                                Recharger
+                            </a>
+                        </td>
+                {% endif %}
+                {% if users.shell %}
+                    <th>Shell</th>
+                    <td>{{ users.shell }}</td>
+                {% endif %}
+                    </tr>
+                </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <p>
-        <br />
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>Prénom</th>
-            <td>{{ user.name }}</td>
-            <th>Nom</th>
-            <td>{{ user.surname }}</td>
-        </tr>
-        <tr>
-            <th>Pseudo</th>
-            <td>{{ user.pseudo }}</td>
-            <th>E-mail</th>
-            <td>{{ user.email }}</td>
-        </tr>
-        <tr>
-            <th>Chambre</th>
-            <td>{{ user.room }}</td>
-            <th>Téléphone</th>
-        <td>{{ user.telephone }}</td>
-        </tr>
-        <tr>
-            <th>École</th>
-            <td>{{ user.school }}</td>
-            <th>Commentaire</th>
-            <td>{{ user.comment }}</td>
-        </tr>
-        <tr>
-            <th>Date d'inscription</th>
-            <td>{{ user.registered }}</td>
-            <th>Dernière connexion</th>
-            <td>{{ user.last_login }}</td>
-        </tr>
-        <tr>
-            <th>Fin d'adhésion</th>
-            {% if user.end_adhesion != None %}
-            <td><i class="text-success">{{ user.end_adhesion }}</i></td>
-            {% else %}
-            <td><i class="text-danger">Non adhérent</i></td>
-            {% endif %}
-            <th>Accès gracieux</th>
-            {% if user.end_whitelist != None %}
-            <td><i class="text-success">{{ user.end_whitelist }}</i></td>
-            {% else %}
-            <td><i class="text-warning">Aucun</i></td>
-            {% endif %}
-        <tr>
-            <th>Bannissement</th>
-            {% if user.end_ban != None %}
-            <td><i class="text-danger">{{ user.end_ban }}</i></td>
-            {% else %}
-            <td><i class="text-success">Non banni</i></td>
-            {% endif %}
-            <th>Statut</th>
-            {% if user.state == 0 %}
-            <td><i class="text-success">Actif</i></td>
-            {% elif user.state == 1 %}
-            <td><i class="text-danger">Désactivé</i></td>
-            {% else %}
-            <td><i class="text-warning">Archivé</i></td>
-            {% endif %}
-        </tr>
-        <tr>
-            <th>Accès internet</th>
-            {% if user.has_access == True %}
-        <td><i class="text-success">Actif (jusqu'au {{ user.end_access }})</i></td>
-            {% else %}
-            <td><i class="text-danger">Désactivé</i></td>
-            {% endif %}
-            <th>Droits</th>
-            {% if list_droits %}
-            <td>{% for droit in list_droits %}{{ droit.right }}{% if list_droits|length != forloop.counter %}  - {% endif %} {% endfor %}</td>
-            {% else %}
-            <td>Aucun</td>
-            {% endif %}
-        </tr>
-    {% if user_solde %}
-        <tr>
-            <th>Solde</th>
-            <td>{{ user.solde }} €</td>
-        </tr>
+    {% if users.is_class_club %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse2">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-users"></i> Gérer le club
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionclub" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionclub">
+                    <li>
+                        <a href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                        <i class="fa fa-lock"></i>
+                        Gérer admin et membres
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="panel-collapse collapse" id="collapse2">
+            <div class="panel-body">
+                                <h4>Administrateurs du club</h4>
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Pseudo</th>
+                        </tr>
+                    </thead>
+                    {% for admin in users.club.administrators.all %}
+                    <tr>
+                        <td>{{ admin.surname }}</td>
+                        <td>{{ admin.name }}</td>
+                    <td>{{ admin.pseudo }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </div>
+                <h4>Membres</h4>
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Pseudo</th>
+                        </tr>
+                    </thead>
+                    {% for admin in users.club.members.all %}
+                    <tr>
+                        <td>{{ admin.surname }}</td>
+                        <td>{{ admin.name }}</td>
+                    <td>{{ admin.pseudo }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endif %}
-    {% if user.shell %}
-        <th>Shell</th>
-        <td>{{ user.shell }}</td>
-    {% endif %}
-    </table>
-    {% if user.is_class_club %}
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' user.club.id %}">
-        <i class="glyphicon glyphicon-lock"></i>
-        Gérer admin et membres
-    </a>
-    <h3>Administrateurs du club</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Pseudo</th>
-            </tr>
-        </thead>
-        {% for admin in user.club.administrators.all %}
-        <tr>
-            <td>{{ admin.surname }}</td>
-            <td>{{ admin.name }}</td>
-	    <td>{{ admin.pseudo }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <h3>Membres</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Pseudo</th>
-            </tr>
-        </thead>
-        {% for admin in user.club.members.all %}
-        <tr>
-            <td>{{ admin.surname }}</td>
-            <td>{{ admin.name }}</td>
-	    <td>{{ admin.pseudo }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
-    <h2>Machines</h2>
-    <h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' user.id %}"><i class="glyphicon glyphicon-phone"></i> Ajouter une machine</a></h4>
-    {% if machines_list %}
-    {% include "machines/aff_machines.html" with machines_list=machines_list %}
-    {% else %}
-    <p>Aucune machine</p>
-    {% endif %}
-    <h2>Cotisations</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Ajouter une cotisation</a>  {% if user_solde %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' user.id %}"><i class="glyphicon glyphicon-piggy-bank"></i> Modifier le solde</a>{% endif%}</h4>{% endif%}
-    {% if facture_list %}
-    {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
-    {% else %}
-    <p>Aucune facture</p>
-    {% endif %}
-    <h2>Bannissements</h2>
-    {% if is_bofh %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' user.id %}"><i class="glyphicon glyphicon-pushpin"></i> Ajouter un bannissement</a></h4>{% endif %}
-    {% if ban_list %}
-    {% include "users/aff_bans.html" with ban_list=ban_list %}
-    {% else %}
-    <p>Aucun bannissement</p>
-    {% endif %}
-    <h2>Accès à titre gracieux :</h2>
-    {% if is_cableur %}<h4><a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' user.id %}"><i class="glyphicon glyphicon-flag"></i> Accorder un accès à titre gracieux</a></h4>{% endif %}
-    {% if white_list %}
-    {% include "users/aff_whitelists.html" with white_list=white_list %}
-    {% else %}
-    <p>Aucun accès gracieux</p>
-    {% endif %}
-    <br />
-    <br />
-    <br />
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-desktop"></i>
+                Machines
+                <span class="badge">{{machines_list.count}}</span>
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionmachines" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionmachines">
+                    <li>
+                       <a href="{% url 'machines:new-machine' users.id %}">
+                           <i class="fa fa-desktop"></i>
+                           Ajouter une machine
+                       </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% if machines_list %}
+                {% include "machines/aff_machines.html" with machines_list=machines_list %}
+                {% else %}
+                <p>Aucune machine</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-euro-sign"></i>
+                Cotisations
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionfacture">
+                    {% can_create Facture %}
+                    <li>
+                        <a href="{% url 'cotisations:new-facture' users.id %}">
+                            <i class="fa fa-euro-sign"></i>
+                            Ajouter une cotisation
+                        </a>
+                    </li>
+                {% if user_solde %}
+                    <li>
+                        <a href="{% url 'cotisations:credit-solde' users.id %}">
+                            <i class="fa fa-euro-sign"></i>
+                            Modifier le solde
+                        </a>
+                    </li>
+                {% endif%}{% acl_else %}
+                {% if user_solde %}
+                    <li>
+                        <a href="{% url 'cotisations:new_facture_solde' user.id %}">
+                            <i class="fa fa-euro-sign"></i>
+                            Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% if facture_list %}
+                {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
+                {% else %}
+                <p>Aucune facture</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-ban"></i>
+                Bannissements
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionban" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionban">
+                    {% can_create Ban %}
+                    <li>
+                        <a href="{% url 'users:add-ban' users.id %}">
+                            <i class="fa fa-ban"></i>
+                            Ajouter un bannissement
+                        </a>
+                    </li>
+                    {% acl_end %}
+                </ul>
+            </div>
+        </div>
+        <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% if ban_list %}
+                {% include "users/aff_bans.html" with ban_list=ban_list %}
+                {% else %}
+                <p>Aucun bannissement</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-check-circle"></i>
+                Accès à titre gracieux
+            </h3>
+            <div class="dropdown pull-right">
+                <a class="btn btn-default btn-sm" id="editionwhitelist" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-edit"></i> <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" arialabelledby="editionwhitelist">
+                {% can_create Whitelist %}
+                    <li>
+                    <a href="{% url 'users:add-whitelist' users.id %}">
+                        <i class="fa fa-check-circle"></i>
+                        Accorder un accès à titre gracieux
+                    </a>
+                    </li>
+                {% acl_end %}
+                </ul>
+            </div>
+        </div>
+        <div id="collapse6" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% if white_list %}
+                {% include "users/aff_whitelists.html" with white_list=white_list %}
+                {% else %}
+                <p>Aucun accès gracieux</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
 {% endblock %}

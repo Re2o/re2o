@@ -23,8 +23,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% if clubs_list.paginator %}
-{% include "pagination.html" with list=clubs_list %} 
+{% include "pagination.html" with list=clubs_list %}
 {% endif %}
+
+{% load acl %}
 
     <table class="table table-striped">
         <thead>
@@ -37,8 +39,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Profil</th>
             </tr>
         </thead>
-        {% for club in clubs_list %}    
-        <tr>
+        {% for club in clubs_list %}
+	{% can_view club %}
+	<tr>
             <td>{{ club.surname }}</td>
             <td>{{ club.pseudo }}</td>
             <td>{{ club.room }}</td>
@@ -49,12 +52,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <i class="text-danger">Désactivée</i>
                 {% endif %}
             </td>
-            <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="glyphicon glyphicon-user"></i></a>
+            <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
             </td>
         </tr>
+	{% acl_end %}
         {% endfor %}
     </table>
 
 {% if clubs_list.paginator %}
-{% include "pagination.html" with list=clubs_list %} 
+{% include "pagination.html" with list=clubs_list %}
 {% endif %}

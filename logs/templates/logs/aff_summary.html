@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 
 {% load logs_extra %}
-
+{% load acl %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -51,14 +51,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% endif %}
                 </i>)
             </td>
-        {% if is_bureau %}
+        {% can_edit_history %}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-times"></i>
                     Annuler
                 </a>
             </td>
-        {% endif %}
+        {% acl_end %}
         </tr>
     {% elif v.version.content_type.model == 'whitelist' %}
         <tr class="success">
@@ -74,14 +74,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% endif %}
                 </i>)
             </td>
-        {% if is_bureau %}
+        {% can_edit_history%}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-times"></i>
                     Annuler
                 </a>
             </td>
-        {% endif %}
+        {% acl_end %}
         </tr>
     {% elif v.version.content_type.model == 'user' %}
         <tr>
@@ -93,14 +93,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 (<i>{{ v.comment }}</i>)
             {% endif %}
             </td>
-        {% if is_bureau %}
+        {% can_edit_history %}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-times"></i>
                     Annuler
                 </a>
             </td>
-        {% endif %}
+        {% acl_end %}
         </tr>
     {% elif v.version.content_type.model == 'vente' %}
         <tr>
@@ -112,14 +112,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 (<i>+{{ v.version.object.duration }} mois</i>)
             {% endif %}
             </td>
-        {% if is_bureau %}
+        {% can_edit_history %}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-times"></i>
                     Annuler
                 </a>
             </td>
-        {% endif %}
+        {% acl_end %}
         </tr>
     {% elif v.version.content_type.model == 'interface' %}
         <tr>
@@ -131,14 +131,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 (<i>{{ v.comment }}</i>)
             {% endif %}
             </td>
-        {% if is_bureau %}
+        {% can_edit_history %}
             <td>
                 <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' v.rev_id %}">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-times"></i>
                     Annuler
                 </a>
             </td>
-        {% endif %}
+        {% acl_end %}
         </tr>
     {% endif %}
     {% endfor %}

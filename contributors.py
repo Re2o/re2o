@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+
+contributeurs = ['Gabriel Detraz', 'chirac', 'Maël Kervella', 'LEVY-FALK Hugo', 'Dalahro', 'lhark', 'root', 'Hugo LEVY-FALK', 'Chirac', 'guimoz', 'Mael Kervella', 'klafyvel', 'matthieu', 'Yoann Pietri', 'Simon Brélivet', 'chibrac', 'David Sinquin', 'Pierre Cadart', 'moamoak', 'Éloi Alain', 'FERNET Laouen', 'Hugo Levy-Falk', 'Joanne Steiner', 'Matthieu Michelet', 'Yoann PIETRI', 'B', 'Daniel STAN', 'Eloi Alain', 'Guimoz', 'Hugo Hervieux', 'Laouen Fernet', 'Lemesle', 'MICHELET matthieu', 'Nymous', 'Thibault de BOUTRAY', 'Tipunchetrhum', 'Éloi ALAIN']

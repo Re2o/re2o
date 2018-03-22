@@ -24,15 +24,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Machines{% endblock %}
 
 {% block content %}
   <h2>Liste des services</h2>
-  {% if is_infra %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service</a>
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service'  %}"><i class="glyphicon glyphicon-trash"></i> Supprimer un ou plusieurs service</a>
-  {% endif %}
+  {% can_create machines.Service %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
   {%  include "machines/aff_service.html" with  service_list=service_list %}
   <h2>Etat des serveurs</h2>
   {%  include "machines/aff_servers.html" with  servers_list=servers_list %}

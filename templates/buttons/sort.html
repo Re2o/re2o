@@ -31,18 +31,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if prefix %}
         {% with prefix|add:'_'|add:col as colname %}
         <a role="button" href="{% url_insert_param request.get_full_path col=colname order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
-            <span class="glyphicon glyphicon-triangle-top"></span>
+            <span class="fa fa-caret-up"></span>
         </a>
         <a role="button" href="{% url_insert_param request.get_full_path col=colname order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
-            <span class="glyphicon glyphicon-triangle-bottom"></span>
+            <span class="fa fa-caret-down"></span>
         </a>
         {% endwith %}
         {% else %}
         <a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
-            <span class="glyphicon glyphicon-triangle-top"></span>
+            <span class="fa fa-caret-up"></span>
         </a>
         <a role="button" href="{% url_insert_param request.get_full_path col=col order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
-            <span class="glyphicon glyphicon-triangle-bottom"></span>
+            <span class="fa fa-caret-down"></span>
         </a>
         {% endif %}
     </div>

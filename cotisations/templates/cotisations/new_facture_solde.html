@@ -1,0 +1,157 @@
+
+{% extends "cotisations/sidebar.html" %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load staticfiles%}
+
+{% block title %}Création et modification de factures{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors venteform.management_form %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    <h3>Nouvelle facture</h3>
+    {{ venteform.management_form }}
+    <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
+    <h3>Articles de la facture</h3>
+    <div id="form_set" class="form-group">
+    {% for form in venteform.forms %}
+        <div class='product_to_sell form-inline'>
+		Article : &nbsp;
+		{% bootstrap_form form label_class='sr-only' %}
+		&nbsp;
+                <button class="btn btn-danger btn-sm"
+			id="id_form-0-article-remove" type="button">
+                    <span class="fa fa-times"></span>
+                </button>
+        </div>
+    {% endfor %}
+    </div>
+    <input class="btn btn-primary btn-sm" role="button" value="Ajouter un article" id="add_one">
+    <p>
+        Prix total : <span id="total_price">0,00</span> €
+    </p>
+    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+</form>
+
+<script type="text/javascript">
+
+    var prices = {};
+    {% for article in articlelist %}
+        prices[{{ article.id|escapejs }}] = {{ article.prix }};
+    {% endfor %}
+
+    var template = `Article : &nbsp;
+        {% bootstrap_form venteform.empty_form label_class='sr-only' %}
+        &nbsp;
+        <button class="btn btn-danger btn-sm"
+	    id="id_form-__prefix__-article-remove" type="button">
+	    <span class="fa fa-times"></span>
+	</button>`
+
+    function add_article(){
+        // Index start at 0 => new_index = number of items
+        var new_index =
+            document.getElementsByClassName('product_to_sell').length;
+        document.getElementById('id_form-TOTAL_FORMS').value ++;
+        var new_article = document.createElement('div');
+        new_article.className = 'product_to_sell form-inline';
+        new_article.innerHTML = template.replace(/__prefix__/g, new_index);
+        document.getElementById('form_set').appendChild(new_article);
+        add_listenner_for_id(new_index);
+    }
+
+    function update_price(){
+        var price = 0;
+        var product_count =
+            document.getElementsByClassName('product_to_sell').length;
+        var article, article_price, quantity;
+        for (i = 0; i < product_count; ++i){
+            article = document.getElementById(
+                'id_form-' + i.toString() + '-article').value;
+            if (article == '') {
+                continue;
+            }
+            article_price = prices[article];
+            quantity = document.getElementById(
+                'id_form-' + i.toString() + '-quantity').value;
+            price += article_price * quantity;
+        }
+        document.getElementById('total_price').innerHTML =
+            price.toFixed(2).toString().replace('.', ',');
+    }
+
+    function add_listenner_for_id(i){
+        document.getElementById('id_form-' + i.toString() + '-article')
+            .addEventListener("change", update_price, true);
+        document.getElementById('id_form-' + i.toString() + '-article')
+            .addEventListener("onkeypress", update_price, true);
+        document.getElementById('id_form-' + i.toString() + '-quantity')
+            .addEventListener("change", update_price, true);
+        document.getElementById('id_form-' + i.toString() + '-article-remove')
+	    .addEventListener("click", function(event) {
+		    var article = event.target.parentNode;
+		    article.parentNode.removeChild(article);
+                    document.getElementById('id_form-TOTAL_FORMS').value --;
+		    update_price();
+		}
+	    )
+    }
+
+    function set_cheque_info_visibility() {
+        var paiement = document.getElementById("id_Facture-paiement");
+        var visible = paiement.value == paiement.getAttribute('data-cheque');
+        p = document.getElementById("id_Facture-paiement");
+        var display = 'none';
+        if (visible) {
+            display = 'block';
+        }
+        document.getElementById("id_Facture-cheque")
+		.parentNode.style.display = display;
+        document.getElementById("id_Facture-banque")
+		.parentNode.style.display = display;
+    }
+
+    // Add events manager when DOM is fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("add_one")
+            .addEventListener("click", add_article, true);
+        var product_count =
+            document.getElementsByClassName('product_to_sell').length;
+        for (i = 0; i < product_count; ++i){
+            add_listenner_for_id(i);
+        }
+        document.getElementById("id_Facture-paiement")
+            .addEventListener("change", set_cheque_info_visibility, true);
+        set_cheque_info_visibility();
+        update_price();
+    });
+
+</script>
+
+{% endblock %}
+

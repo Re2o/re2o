@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -33,7 +35,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ alias }}</td>
             <td class="text-right">
+		    {% can_edit alias %}
 		    {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
+		    {% acl_end %}
 		    {% include 'buttons/history.html' with href='machines:history' name='alias' id=alias.id %}
             </td>
         </tr>

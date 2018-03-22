@@ -38,6 +38,8 @@ from __future__ import unicode_literals
 from django.forms import ModelForm, Form
 from django import forms
 
+from re2o.field_permissions import FieldPermissionFormMixin
+
 from .models import (
     Domain,
     Machine,
@@ -55,10 +57,11 @@ from .models import (
     Nas,
     IpType,
     OuverturePortList,
+    Ipv6List,
 )
 
 
-class EditMachineForm(ModelForm):
+class EditMachineForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
     class Meta:
         model = Machine
@@ -76,14 +79,7 @@ class NewMachineForm(EditMachineForm):
         fields = ['name']
 
 
-class BaseEditMachineForm(EditMachineForm):
-    """Edition basique, ne permet que de changer le nom et le statut.
-    Réservé aux users sans droits spécifiques"""
-    class Meta(EditMachineForm.Meta):
-        fields = ['name', 'active']
-
-
-class EditInterfaceForm(ModelForm):
+class EditInterfaceForm(FieldPermissionFormMixin, ModelForm):
     """Edition d'une interface. Edition complète"""
     class Meta:
         model = Interface
@@ -91,16 +87,24 @@ class EditInterfaceForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        user = kwargs.get('user')
         super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['mac_address'].label = 'Adresse mac'
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
         if "ipv4" in self.fields:
-            self.fields['ipv4'].empty_label = "Assignation automatique\
-            de l'ipv4"
+            self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
+            if not IpType.can_use_all(user):
+                self.fields['ipv4'].queryset = IpList.objects.filter(
+                    interface__isnull=True
+                ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
+            else:
+                self.fields['ipv4'].queryset = IpList.objects.filter(
+                    interface__isnull=True
+                )
             # Add it's own address
             self.fields['ipv4'].queryset |= IpList.objects.filter(
                 interface=self.instance
@@ -108,6 +112,10 @@ class EditInterfaceForm(ModelForm):
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all()\
                 .select_related('user')
+        if not MachineType.can_use_all(user):
+            self.fields['type'].queryset = MachineType.objects.filter(
+                ip_type__in=IpType.objects.filter(need_infra=False)
+            )
 
 
 class AddInterfaceForm(EditInterfaceForm):
@@ -115,58 +123,6 @@ class AddInterfaceForm(EditInterfaceForm):
     affiche ou non l'ensemble des ip disponibles"""
     class Meta(EditInterfaceForm.Meta):
         fields = ['type', 'ipv4', 'mac_address', 'details']
-
-    def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
-        super(AddInterfaceForm, self).__init__(*args, **kwargs)
-        self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-        if not infra:
-            self.fields['type'].queryset = MachineType.objects.filter(
-                ip_type__in=IpType.objects.filter(need_infra=False)
-            )
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
-        else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            )
-
-
-class NewInterfaceForm(EditInterfaceForm):
-    """Formulaire light, sans choix de l'ipv4; d'ajout d'une interface"""
-    class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'mac_address', 'details']
-
-
-class BaseEditInterfaceForm(EditInterfaceForm):
-    """Edition basique d'une interface. En fonction des droits,
-    ajoute ou non l'ensemble des ipv4 disponibles (infra)"""
-    class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details']
-
-    def __init__(self, *args, **kwargs):
-        infra = kwargs.pop('infra')
-        super(BaseEditInterfaceForm, self).__init__(*args, **kwargs)
-        self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
-        if not infra:
-            self.fields['type'].queryset = MachineType.objects.filter(
-                ip_type__in=IpType.objects.filter(need_infra=False)
-            )
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
-            # Add it's own address
-            self.fields['ipv4'].queryset |= IpList.objects.filter(
-                interface=self.instance
-            )
-        else:
-            self.fields['ipv4'].queryset = IpList.objects.filter(
-                interface__isnull=True
-            )
-            self.fields['ipv4'].queryset |= IpList.objects.filter(
-                interface=self.instance
-            )
 
 
 class AliasForm(ModelForm):
@@ -177,9 +133,10 @@ class AliasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        infra = kwargs.pop('infra')
+        user = kwargs.pop('user')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        if not infra:
+        can_use_all, reason = Extension.can_use_all(user)
+        if not can_use_all:
             self.fields['extension'].queryset = Extension.objects.filter(
                  need_infra=False
             )
@@ -233,10 +190,18 @@ class MachineTypeForm(ModelForm):
 class DelMachineTypeForm(Form):
     """Suppression d'un ou plusieurs machinetype"""
     machinetypes = forms.ModelMultipleChoiceField(
-        queryset=MachineType.objects.all(),
+        queryset=MachineType.objects.none(),
         label="Types de machines actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelMachineTypeForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['machinetypes'].queryset = instances
+        else:
+            self.fields['machinetypes'].queryset = MachineType.objects.all()
 
 
 class IpTypeForm(ModelForm):
@@ -264,10 +229,18 @@ class EditIpTypeForm(IpTypeForm):
 class DelIpTypeForm(Form):
     """Suppression d'un ou plusieurs iptype"""
     iptypes = forms.ModelMultipleChoiceField(
-        queryset=IpType.objects.all(),
+        queryset=IpType.objects.none(),
         label="Types d'ip actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelIpTypeForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['iptypes'].queryset = instances
+        else:
+            self.fields['iptypes'].queryset = IpType.objects.all()
 
 
 class ExtensionForm(ModelForm):
@@ -288,10 +261,29 @@ class ExtensionForm(ModelForm):
 class DelExtensionForm(Form):
     """Suppression d'une ou plusieurs extensions"""
     extensions = forms.ModelMultipleChoiceField(
-        queryset=Extension.objects.all(),
+        queryset=Extension.objects.none(),
         label="Extensions actuelles",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelExtensionForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['extensions'].queryset = instances
+        else:
+            self.fields['extensions'].queryset = Extension.objects.all()
+
+
+class Ipv6ListForm(FieldPermissionFormMixin, ModelForm):
+    """Gestion des ipv6 d'une machine"""
+    class Meta:
+        model = Ipv6List
+        fields = ['ipv6', 'slaac_ip']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(Ipv6ListForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
 class SOAForm(ModelForm):
@@ -308,10 +300,18 @@ class SOAForm(ModelForm):
 class DelSOAForm(Form):
     """Suppression d'un ou plusieurs SOA"""
     soa = forms.ModelMultipleChoiceField(
-        queryset=SOA.objects.all(),
+        queryset=SOA.objects.none(),
         label="SOA actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelSOAForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['soa'].queryset = instances
+        else:
+            self.fields['soa'].queryset = SOA.objects.all()
 
 
 class MxForm(ModelForm):
@@ -327,14 +327,21 @@ class MxForm(ModelForm):
             interface_parent=None
         ).select_related('extension')
 
-
 class DelMxForm(Form):
     """Suppression d'un ou plusieurs MX"""
     mx = forms.ModelMultipleChoiceField(
-        queryset=Mx.objects.all(),
+        queryset=Mx.objects.none(),
         label="MX actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelMxForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['mx'].queryset = instances
+        else:
+            self.fields['mx'].queryset = Mx.objects.all()
 
 
 class NsForm(ModelForm):
@@ -356,10 +363,18 @@ class NsForm(ModelForm):
 class DelNsForm(Form):
     """Suppresion d'un ou plusieurs NS"""
     ns = forms.ModelMultipleChoiceField(
-        queryset=Ns.objects.all(),
+        queryset=Ns.objects.none(),
         label="Enregistrements NS actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelNsForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['ns'].queryset = instances
+        else:
+            self.fields['ns'].queryset = Ns.objects.all()
 
 
 class TxtForm(ModelForm):
@@ -376,12 +391,20 @@ class TxtForm(ModelForm):
 class DelTxtForm(Form):
     """Suppression d'un ou plusieurs TXT"""
     txt = forms.ModelMultipleChoiceField(
-        queryset=Txt.objects.all(),
+        queryset=Txt.objects.none(),
         label="Enregistrements Txt actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
-    
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelTxtForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['txt'].queryset = instances
+        else:
+            self.fields['txt'].queryset = Txt.objects.all()
+
+
 class SrvForm(ModelForm):
     """Ajout d'un srv pour une zone"""
     class Meta:
@@ -396,10 +419,18 @@ class SrvForm(ModelForm):
 class DelSrvForm(Form):
     """Suppression d'un ou plusieurs Srv"""
     srv = forms.ModelMultipleChoiceField(
-        queryset=Srv.objects.all(),
+        queryset=Srv.objects.none(),
         label="Enregistrements Srv actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelSrvForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['srv'].queryset = instances
+        else:
+            self.fields['srv'].queryset = Srv.objects.all()
 
 
 class NasForm(ModelForm):
@@ -417,10 +448,18 @@ class NasForm(ModelForm):
 class DelNasForm(Form):
     """Suppression d'un ou plusieurs nas"""
     nas = forms.ModelMultipleChoiceField(
-        queryset=Nas.objects.all(),
+        queryset=Nas.objects.none(),
         label="Enregistrements Nas actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelNasForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['nas'].queryset = instances
+        else:
+            self.fields['nas'].queryset = Nas.objects.all()
 
 
 class ServiceForm(ModelForm):
@@ -446,10 +485,18 @@ class ServiceForm(ModelForm):
 class DelServiceForm(Form):
     """Suppression d'un ou plusieurs service"""
     service = forms.ModelMultipleChoiceField(
-        queryset=Service.objects.all(),
+        queryset=Service.objects.none(),
         label="Services actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelServiceForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['service'].queryset = instances
+        else:
+            self.fields['service'].queryset = Service.objects.all()
 
 
 class VlanForm(ModelForm):
@@ -466,10 +513,18 @@ class VlanForm(ModelForm):
 class DelVlanForm(Form):
     """Suppression d'un ou plusieurs vlans"""
     vlan = forms.ModelMultipleChoiceField(
-        queryset=Vlan.objects.all(),
+        queryset=Vlan.objects.none(),
         label="Vlan actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelVlanForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['vlan'].queryset = instances
+        else:
+            self.fields['vlan'].queryset = Vlan.objects.all()
 
 
 class EditOuverturePortConfigForm(ModelForm):

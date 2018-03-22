@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load acl %}
 
 {% block title %}Utilisateurs{% endblock %}
 
@@ -31,7 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <h2>Liste des service users LDAP</h2>
   <h5>Les service users LDAP sont des utilisateurs spéciaux qui disposent d'un accès uniquement sur le ldap pour effectuer des opération d'authentification.
   Il est recommandé de créer un service-user doté d'un login/mdp par service concerné</h5>
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:new-serviceuser'  %}"><i class="glyphicon glyphicon-plus"></i> Ajouter un service user</a>
+  {% can_create ServiceUser %}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:new-serviceuser'  %}"><i class="fa fa-plus"></i> Ajouter un service user</a>
+  {% acl_end %}
   {%  include "users/aff_serviceusers.html" with  serviceusers_list=serviceusers_list %}
   <br />
   <br />

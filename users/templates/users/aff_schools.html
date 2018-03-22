@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-
+{% load acl %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -33,7 +33,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ school.name }}</td>
             <td class="text-right">
+                {% can_edit school %}
                 {% include 'buttons/edit.html' with href='users:edit-school' id=school.id %}
+                {% acl_end %}
                 {% include 'buttons/history.html' with href='users:history' name='school' id=school.id %}
             </td>
         </tr>

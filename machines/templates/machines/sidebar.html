@@ -23,42 +23,55 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load acl %}
 
 {% block sidebar %}
-    {% if is_cableur %}
+    {% can_view_all Machine %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Machines
     </a>
+    {% acl_end %}
+    {% can_view_all MachineType %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-machinetype" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Types de machines
     </a>
+    {% acl_end %}
+    {% can_view_all Extension %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-extension" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Extensions et zones
     </a>
+    {% acl_end %}
+    {% can_view_all IpType %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-iptype" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Plages d'IP
     </a>
+    {% acl_end %}
+    {% can_view_all Vlan %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-vlan" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Vlans
     </a>
+    {% acl_end %}
+    {% can_view_all Nas %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-nas" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Gestion des nas
     </a>
+    {% acl_end %}
+    {% can_view_all machines.Service %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-service" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Services (dhcp, dns...)
-    </a>   
-    {% endif %}
-    {% if is_cableur %}
+    </a>
+    {% acl_end %}
+    {% can_view_all OuverturePortList %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-portlist" %}">
-        <i class="glyphicon glyphicon-list"></i>
+        <i class="fa fa-list-ul"></i>
         Ouverture de ports
-    </a>   
-    {%endif%}
+    </a>
+    {% acl_end %}
 {% endblock %}

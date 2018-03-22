@@ -76,7 +76,8 @@ INSTALLED_APPS = (
     'preferences',
     'logs',
     'rest_framework',
-    'reversion'
+    'reversion',
+    'api'
 ) + OPTIONNAL_APPS
 
 MIDDLEWARE_CLASSES = (
@@ -150,7 +151,7 @@ STATICFILES_DIRS = (
     ),
 )
 
-MEDIA_ROOT = '/var/www/re2o/static'
+MEDIA_ROOT = '/var/www/re2o/media'
 
 STATIC_URL = '/static/'
 

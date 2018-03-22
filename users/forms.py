@@ -38,19 +38,27 @@ from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
-from .models import User, ServiceUser, Right, School, ListRight, Whitelist
+from .models import User, ServiceUser, School, ListRight, Whitelist
 from .models import Ban, Adherent, Club
 from re2o.utils import remove_user_room
+
+from re2o.field_permissions import FieldPermissionFormMixin
 
 NOW = timezone.now()
 
 
-class PassForm(forms.Form):
+class PassForm(FieldPermissionFormMixin, forms.ModelForm):
     """Formulaire de changement de mot de passe. Verifie que les 2
     nouveaux mots de passe renseignés sont identiques et respectent
     une norme"""
+    selfpasswd = forms.CharField(
+        label=u'Saisir le mot de passe existant',
+        max_length=255,
+        widget=forms.PasswordInput
+    )
     passwd1 = forms.CharField(
         label=u'Nouveau mot de passe',
         max_length=255,
@@ -64,14 +72,30 @@ class PassForm(forms.Form):
         widget=forms.PasswordInput
     )
 
+    class Meta:
+        model = User
+        fields = []
+
     def clean_passwd2(self):
         """Verifie que passwd1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("passwd1")
         password2 = self.cleaned_data.get("passwd2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
+            raise forms.ValidationError("Les 2 nouveaux mots de passe sont différents")
         return password2
+
+    def clean_selfpasswd(self):
+        """Verifie si il y a lieu que le mdp self est correct"""
+        if not self.instance.check_password(self.cleaned_data.get("selfpasswd")):
+            raise forms.ValidationError("Le mot de passe actuel est incorrect")
+        return
+
+    def save(self, commit=True):
+        """Changement du mot de passe"""
+        user = super(PassForm, self).save(commit=False)
+        user.set_password(self.cleaned_data.get("passwd1"))
+        user.save()
 
 
 class UserCreationForm(forms.ModelForm):
@@ -253,7 +277,7 @@ class MassArchiveForm(forms.Form):
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class AdherentForm(ModelForm):
+class AdherentForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -278,6 +302,7 @@ class AdherentForm(ModelForm):
             'school',
             'comment',
             'room',
+            'shell',
             'telephone',
         ]
 
@@ -285,8 +310,7 @@ class AdherentForm(ModelForm):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
         telephone = self.cleaned_data['telephone']
-        preferences, _created = OptionalUser.objects.get_or_create()
-        if not telephone and preferences.is_tel_mandatory:
+        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
                 "Un numéro de téléphone valide est requis"
             )
@@ -306,7 +330,7 @@ class AdherentForm(ModelForm):
         return
 
 
-class ClubForm(ModelForm):
+class ClubForm(FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -319,6 +343,7 @@ class ClubForm(ModelForm):
         self.fields['room'].label = 'Local'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
+        self.fields['mailing'].label = 'Utiliser une mailing'
 
     class Meta:
         model = Club
@@ -330,53 +355,19 @@ class ClubForm(ModelForm):
             'comment',
             'room',
             'telephone',
+            'shell',
+            'mailing'
         ]
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
         telephone = self.cleaned_data['telephone']
-        preferences, _created = OptionalUser.objects.get_or_create()
-        if not telephone and preferences.is_tel_mandatory:
+        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
                 "Un numéro de téléphone valide est requis"
             )
         return telephone
-
-
-class FullAdherentForm(AdherentForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(AdherentForm.Meta):
-        fields = [
-            'name',
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
-
-
-class FullClubForm(ClubForm):
-    """Edition complète d'un user. Utilisé par admin,
-    permet d'editer normalement la chambre, ou le shell
-    Herite de la base"""
-    class Meta(ClubForm.Meta):
-        fields = [
-            'surname',
-            'pseudo',
-            'email',
-            'school',
-            'comment',
-            'room',
-            'shell',
-            'telephone',
-        ]
 
 
 class ClubAdminandMembersForm(ModelForm):
@@ -440,6 +431,23 @@ class StateForm(ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
+class GroupForm(ModelForm):
+    """ Gestion des groupes d'un user"""
+    groups = forms.ModelMultipleChoiceField(
+        Group.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = User
+        fields = ['groups']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
 class SchoolForm(ModelForm):
     """Edition, creation d'un école"""
     class Meta:
@@ -455,14 +463,20 @@ class SchoolForm(ModelForm):
 class ListRightForm(ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
+    permissions = forms.ModelMultipleChoiceField(
+        Permission.objects.all().select_related('content_type'),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = ListRight
-        fields = ['listright', 'details']
+        fields = ['name', 'unix_name', 'critical', 'permissions', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['listright'].label = 'Nom du droit/groupe'
+        self.fields['unix_name'].label = 'Nom du droit/groupe'
 
 
 class NewListRightForm(ListRightForm):
@@ -479,45 +493,35 @@ class NewListRightForm(ListRightForm):
 class DelListRightForm(Form):
     """Suppression d'un ou plusieurs groupes"""
     listrights = forms.ModelMultipleChoiceField(
-        queryset=ListRight.objects.all(),
+        queryset=ListRight.objects.none(),
         label="Droits actuels",
         widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelListRightForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['listrights'].queryset = instances
+        else:
+            self.fields['listrights'].queryset = ListRight.objects.all()
 
 
 class DelSchoolForm(Form):
     """Suppression d'une ou plusieurs écoles"""
     schools = forms.ModelMultipleChoiceField(
-        queryset=School.objects.all(),
+        queryset=School.objects.none(),
         label="Etablissements actuels",
         widget=forms.CheckboxSelectMultiple
     )
 
-
-class RightForm(ModelForm):
-    """Assignation d'un droit à un user"""
     def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(RightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['right'].label = 'Droit'
-        self.fields['right'].empty_label = "Choisir un nouveau droit"
-
-    class Meta:
-        model = Right
-        fields = ['right']
-
-
-class DelRightForm(Form):
-    """Suppression d'un droit d'un user"""
-    rights = forms.ModelMultipleChoiceField(
-        queryset=Right.objects.select_related('user'),
-        widget=forms.CheckboxSelectMultiple
-    )
-
-    def __init__(self, right, *args, **kwargs):
-        super(DelRightForm, self).__init__(*args, **kwargs)
-        self.fields['rights'].queryset = Right.objects.select_related('user')\
-        .select_related('right').filter(right=right)
+        instances = kwargs.pop('instances', None)
+        super(DelSchoolForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['schools'].queryset = instances
+        else:
+            self.fields['schools'].queryset = School.objects.all()
 
 
 class BanForm(ModelForm):
@@ -531,14 +535,6 @@ class BanForm(ModelForm):
         model = Ban
         exclude = ['user']
 
-    def clean_date_end(self):
-        """Verification que date_end est après now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut\
-            pas être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end
-
 
 class WhitelistForm(ModelForm):
     """Creation, edition d'un objet whitelist"""
@@ -550,11 +546,3 @@ class WhitelistForm(ModelForm):
     class Meta:
         model = Whitelist
         exclude = ['user']
-
-    def clean_date_end(self):
-        """Verification  que la date_end est posterieur à now"""
-        date_end = self.cleaned_data['date_end']
-        if date_end < NOW:
-            raise forms.ValidationError("Triple buse, la date de fin ne peut pas\
-            être avant maintenant... Re2o ne voyage pas dans le temps")
-        return date_end

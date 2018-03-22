@@ -31,37 +31,17 @@ from preferences.models import GeneralOption, OptionalMachine
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
     renvoie les infos sur l'user, la liste de ses droits, ses machines"""
-    general_options, _created = GeneralOption.objects.get_or_create()
-    machine_options, _created = OptionalMachine.objects.get_or_create()
     user = request.user
-    global_message = general_options.general_message
+    global_message = GeneralOption.get_cached_value('general_message')
     if global_message:
         messages.warning(request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
-        is_cableur = user.is_cableur
-        is_bureau = user.is_bureau
-        is_bofh = user.is_bofh
-        is_trez = user.is_trez
-        is_infra = user.is_infra
-        is_admin = user.is_admin
     else:
         interfaces = None
-        is_cableur = False
-        is_bureau = False
-        is_bofh = False
-        is_trez = False
-        is_infra = False
-        is_admin = False
     return {
         'request_user': user,
-        'is_cableur': is_cableur,
-        'is_bureau': is_bureau,
-        'is_bofh': is_bofh,
-        'is_trez': is_trez,
-        'is_infra': is_infra,
-        'is_admin': is_admin,
         'interfaces': interfaces,
-        'site_name': general_options.site_name,
-        'ipv6_enabled': machine_options.ipv6,
+        'site_name': GeneralOption.get_cached_value('site_name'),
+        'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
     }

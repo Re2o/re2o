@@ -42,6 +42,7 @@ from reversion.models import Version
 from reversion import revisions as reversion
 
 from re2o.views import form
+from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
 from .forms import ServiceForm, DelServiceForm
 from .models import Service, OptionalUser, OptionalMachine, AssoOption
 from .models import MailMessageOption, GeneralOption, OptionalTopologie
@@ -50,7 +51,12 @@ from . import forms
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(OptionalUser)
+@can_view_all(OptionalMachine)
+@can_view_all(OptionalTopologie)
+@can_view_all(GeneralOption)
+@can_view_all(AssoOption)
+@can_view_all(MailMessageOption)
 def display_options(request):
     """Vue pour affichage des options (en vrac) classé selon les models
     correspondants dans un tableau"""
@@ -73,90 +79,90 @@ def display_options(request):
 
 
 @login_required
-@permission_required('admin')
 def edit_options(request, section):
     """ Edition des préférences générales"""
     model = getattr(models, section, None)
     form_instance = getattr(forms, 'Edit' + section + 'Form', None)
-    if model and form:
-        options_instance, _created = model.objects.get_or_create()
-        options = form_instance(
-            request.POST or None,
-            instance=options_instance
-        )
-        if options.is_valid():
-            with transaction.atomic(), reversion.create_revision():
-                options.save()
-                reversion.set_user(request.user)
-                reversion.set_comment(
-                    "Champs modifié(s) : %s" % ', '.join(
-                        field for field in options.changed_data
-                    )
-                )
-            messages.success(request, "Préférences modifiées")
-            return redirect(reverse('preferences:display-options'))
-        return form(
-            {'options': options},
-            'preferences/edit_preferences.html',
-            request
-            )
-    else:
+    if not (model or form_instance):
         messages.error(request, "Objet  inconnu")
         return redirect(reverse('preferences:display-options'))
 
+    options_instance, _created = model.objects.get_or_create()
+    can, msg = options_instance.can_edit(request.user)
+    if not can:
+        messages.error(request, msg or "Vous ne pouvez pas éditer cette\
+                   option.")
+        return redirect(reverse('index'))
+    options = form_instance(
+        request.POST or None,
+        request.FILES or None,
+        instance=options_instance
+    )
+    if options.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            options.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in options.changed_data
+                )
+            )
+            messages.success(request, "Préférences modifiées")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'options': options},
+        'preferences/edit_preferences.html',
+        request
+    )
+
 
 @login_required
-@permission_required('admin')
-def add_services(request):
+@can_create(Service)
+def add_service(request):
     """Ajout d'un service de la page d'accueil"""
-    services = ServiceForm(request.POST or None)
-    if services.is_valid():
+    service = ServiceForm(request.POST or None)
+    if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            services.save()
+            service.save()
             reversion.set_user(request.user)
             reversion.set_comment("Création")
         messages.success(request, "Ce service a été ajouté")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services},
+        {'preferenceform': service, 'action_name' : 'Ajouter'},
         'preferences/preferences.html',
         request
         )
 
 
 @login_required
-@permission_required('admin')
-def edit_services(request, servicesid):
+@can_edit(Service)
+def edit_service(request, service_instance, serviceid):
     """Edition des services affichés sur la page d'accueil"""
-    try:
-        services_instance = Service.objects.get(pk=servicesid)
-    except Service.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('preferences:display-options'))
-    services = ServiceForm(request.POST or None, instance=services_instance)
-    if services.is_valid():
+    service = ServiceForm(request.POST or None, instance=service_instance)
+    if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
-            services.save()
+            service.save()
             reversion.set_user(request.user)
             reversion.set_comment(
                 "Champs modifié(s) : %s" % ', '.join(
-                    field for field in services.changed_data
+                    field for field in service.changed_data
                     )
             )
         messages.success(request, "Service modifié")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services},
+        {'preferenceform': service, 'action_name' : 'Editer'},
         'preferences/preferences.html',
         request
     )
 
 
 @login_required
-@permission_required('admin')
-def del_services(request):
+@can_delete_set(Service)
+def del_services(request, instances):
     """Suppression d'un service de la page d'accueil"""
-    services = DelServiceForm(request.POST or None)
+    services = DelServiceForm(request.POST or None, instances=instances)
     if services.is_valid():
         services_dels = services.cleaned_data['services']
         for services_del in services_dels:
@@ -164,43 +170,13 @@ def del_services(request):
                 with transaction.atomic(), reversion.create_revision():
                     services_del.delete()
                     reversion.set_user(request.user)
-                messages.success(request, "Le services a été supprimée")
+                messages.success(request, "Le service a été supprimée")
             except ProtectedError:
                 messages.error(request, "Erreur le service\
                 suivant %s ne peut être supprimé" % services_del)
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services},
+        {'preferenceform': services, 'action_name' : 'Supprimer'},
         'preferences/preferences.html',
         request
     )
-
-
-@login_required
-@permission_required('cableur')
-def history(request, object_name, object_id):
-    """Historique de creation et de modification d'un service affiché sur
-    la page d'accueil"""
-    if object_name == 'service':
-        try:
-            object_instance = Service.objects.get(pk=object_id)
-        except Service.DoesNotExist:
-            messages.error(request, "Service inexistant")
-            return redirect(reverse('preferences:display-options'))
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
-    reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        reversions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        reversions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        reversions = paginator.page(paginator.num_pages)
-    return render(request, 're2o/history.html', {
-        'reversions': reversions,
-        'object': object_instance
-        })

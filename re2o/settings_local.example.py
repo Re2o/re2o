@@ -26,6 +26,10 @@ SECRET_KEY = 'SUPER_SECRET_KEY'
 
 DB_PASSWORD = 'SUPER_SECRET_DB'
 
+# AES key for secret key encryption length must be a multiple of 16
+AES_KEY = 'THE_AES_KEY'
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -53,12 +57,12 @@ DATABASES = {
      }
 }
 
-# Security settings
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+# Security settings, à activer une fois https en place
+SECURE_CONTENT_TYPE_NOSNIFF = False
+SECURE_BROWSER_XSS_FILTER = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_AGE = 60 * 60 * 3
 

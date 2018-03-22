@@ -37,7 +37,8 @@ from machines.models import (
     Service_link,
     Ns,
     OuverturePortList,
-    OuverturePort
+    OuverturePort,
+    Ipv6List
 )
 
 
@@ -55,6 +56,12 @@ class IpListSerializer(serializers.ModelSerializer):
     class Meta:
         model = IpList
         fields = ('ipv4', 'ip_type')
+
+
+class Ipv6ListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ipv6List
+        fields = ('ipv6', 'slaac_ip')
 
 
 class InterfaceSerializer(serializers.ModelSerializer):
@@ -81,8 +88,9 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
 
 class FullInterfaceSerializer(serializers.ModelSerializer):
-    """Serialisation complete d'une interface avec l'ipv6 en plus"""
+    """Serialisation complete d'une interface avec les ipv6 en plus"""
     ipv4 = IpListSerializer(read_only=True)
+    ipv6 = Ipv6ListSerializer(read_only=True, many=True)
     mac_address = serializers.SerializerMethodField('get_macaddress')
     domain = serializers.SerializerMethodField('get_dns')
     extension = serializers.SerializerMethodField('get_interface_extension')
@@ -124,6 +132,7 @@ class TypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IpType
         fields = ('type', 'extension', 'domaine_ip_start', 'domaine_ip_stop',
+                  'prefix_v6',
                   'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out',
                   'ouverture_ports_udp_in', 'ouverture_ports_udp_out',)
 

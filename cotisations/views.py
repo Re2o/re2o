@@ -29,6 +29,7 @@ import os
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.validators import MaxValueValidator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.db.models import ProtectedError
@@ -36,6 +37,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.debug import sensitive_variables
 from reversion import revisions as reversion
 from reversion.models import Version
 # Import des models, forms et fonctions re2o
@@ -44,11 +47,19 @@ from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
 from re2o.utils import SortTable
+from re2o.acl import (
+    can_create,
+    can_edit,
+    can_delete,
+    can_view,
+    can_view_all,
+    can_delete_set,
+    can_change,
+)
 from preferences.models import OptionalUser, AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
     NewFactureForm,
-    TrezEditFactureForm,
     EditFactureForm,
     ArticleForm,
     DelArticleForm,
@@ -59,14 +70,19 @@ from .forms import (
     NewFactureFormPdf,
     SelectUserArticleForm,
     SelectClubArticleForm,
-    CreditSoldeForm
+    CreditSoldeForm,
+    NewFactureSoldeForm,
+    RechargeForm
 )
+from . import payment
 from .tex import render_invoice
 
 
+
 @login_required
-@permission_required('cableur')
-def new_facture(request, userid):
+@can_create(Facture)
+@can_edit(User)
+def new_facture(request, user, userid):
     """Creation d'une facture pour un user. Renvoie la liste des articles
     et crée des factures dans un formset. Utilise un peu de js coté template
     pour ajouter des articles.
@@ -74,11 +90,6 @@ def new_facture(request, userid):
     enfin sauve la facture parente.
     TODO : simplifier cette fonction, déplacer l'intelligence coté models
     Facture et Vente."""
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant")
-        return redirect(reverse('cotisations:index'))
     facture = Facture(user=user)
     # Le template a besoin de connaitre les articles pour le js
     article_list = Article.objects.filter(
@@ -95,9 +106,8 @@ def new_facture(request, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
-            options, _created = OptionalUser.objects.get_or_create()
-            user_solde = options.user_solde
-            solde_negatif = options.solde_negatif
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
@@ -163,14 +173,13 @@ def new_facture(request, userid):
 
 
 @login_required
-@permission_required('tresorier')
+@can_change(Facture, 'pdf')
 def new_facture_pdf(request):
     """Permet de générer un pdf d'une facture. Réservée
     au trésorier, permet d'emettre des factures sans objet
     Vente ou Facture correspondant en bdd"""
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
-        options, _created = AssoOption.objects.get_or_create()
         tbl = []
         article = facture_form.cleaned_data['article']
         quantite = facture_form.cleaned_data['number']
@@ -189,48 +198,30 @@ def new_facture_pdf(request):
             'article': tbl,
             'total': prix_total,
             'paid': paid,
-            'asso_name': options.name,
-            'line1': options.adresse1,
-            'line2': options.adresse2,
-            'siret': options.siret,
-            'email': options.contact,
-            'phone': options.telephone,
+            'asso_name': AssoOption.get_cached_value('name'),
+            'line1': AssoOption.get_cached_value('adresse1'),
+            'line2': AssoOption.get_cached_value('adresse2'),
+            'siret': AssoOption.get_cached_value('siret'),
+            'email': AssoOption.get_cached_value('contact'),
+            'phone': AssoOption.get_cached_value('telephone'),
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
             })
     return form({
-        'factureform': facture_form
+        'factureform': facture_form,
+        'action_name' : 'Editer'
         }, 'cotisations/facture.html', request)
 
 
 @login_required
-def facture_pdf(request, factureid):
+@can_view(Facture)
+def facture_pdf(request, facture, factureid):
     """Affiche en pdf une facture. Cree une ligne par Vente de la facture,
     et génére une facture avec le total, le moyen de paiement, l'adresse
     de l'adhérent, etc. Réservée à self pour un user sans droits,
     les droits cableurs permettent d'afficher toute facture"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
-    if not request.user.has_perms(('cableur',))\
-            and facture.user != request.user:
-        messages.error(request, "Vous ne pouvez pas afficher une facture ne vous\
-                appartenant pas sans droit cableur")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    if not facture.valid:
-        messages.error(request, "Vous ne pouvez pas afficher\
-        une facture non valide")
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
+
     ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
-    options, _created = AssoOption.objects.get_or_create()
     for vente in ventes_objects:
         ventes.append([vente, vente.number, vente.prix_total])
     return render_invoice(request, {
@@ -240,38 +231,23 @@ def facture_pdf(request, factureid):
         'dest': facture.user,
         'article': ventes,
         'total': facture.prix_total(),
-        'asso_name': options.name,
-        'line1': options.adresse1,
-        'line2': options.adresse2,
-        'siret': options.siret,
-        'email': options.contact,
-        'phone': options.telephone,
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
         })
 
 
 @login_required
-@permission_required('cableur')
-def edit_facture(request, factureid):
+@can_edit(Facture)
+def edit_facture(request, facture, factureid):
     """Permet l'édition d'une facture. On peut y éditer les ventes
     déjà effectuer, ou rendre une facture invalide (non payées, chèque
     en bois etc). Mets à jour les durée de cotisation attenantes"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
-    if request.user.has_perms(['tresorier']):
-        facture_form = TrezEditFactureForm(
-            request.POST or None,
-            instance=facture
-        )
-    elif facture.control or not facture.valid:
-        messages.error(request, "Vous ne pouvez pas editer une facture\
-                controlée ou invalidée par le trésorier")
-        return redirect(reverse('cotisations:index'))
-    else:
-        facture_form = EditFactureForm(request.POST or None, instance=facture)
+    facture_form = EditFactureForm(request.POST or None, instance=facture, user=request.user)
     ventes_objects = Vente.objects.filter(facture=facture)
     vente_form_set = modelformset_factory(
         Vente,
@@ -297,19 +273,10 @@ def edit_facture(request, factureid):
 
 
 @login_required
-@permission_required('cableur')
-def del_facture(request, factureid):
+@can_delete(Facture)
+def del_facture(request, facture, factureid):
     """Suppression d'une facture. Supprime en cascade les ventes
     et cotisations filles"""
-    try:
-        facture = Facture.objects.get(pk=factureid)
-    except Facture.DoesNotExist:
-        messages.error(request, u"Facture inexistante")
-        return redirect(reverse('cotisations:index'))
-    if facture.control or not facture.valid:
-        messages.error(request, "Vous ne pouvez pas editer une facture\
-                controlée ou invalidée par le trésorier")
-        return redirect(reverse('cotisations:index'))
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
             facture.delete()
@@ -323,14 +290,10 @@ def del_facture(request, factureid):
 
 
 @login_required
-@permission_required('cableur')
-def credit_solde(request, userid):
+@can_create(Facture)
+@can_edit(User)
+def credit_solde(request, user, userid):
     """ Credit ou débit de solde """
-    try:
-        user = User.objects.get(pk=userid)
-    except User.DoesNotExist:
-        messages.error(request, u"Utilisateur inexistant")
-        return redirect(reverse('cotisations:index'))
     facture = CreditSoldeForm(request.POST or None)
     if facture.is_valid():
         facture_instance = facture.save(commit=False)
@@ -351,11 +314,11 @@ def credit_solde(request, userid):
             reversion.set_comment("Création")
         messages.success(request, "Solde modifié")
         return redirect(reverse('cotisations:index'))
-    return form({'factureform': facture}, 'cotisations/facture.html', request)
+    return form({'factureform': facture, 'action_name' : 'Créditer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
+@can_create(Article)
 def add_article(request):
     """Ajoute un article. Champs : désignation,
     prix, est-ce une cotisation et si oui sa durée
@@ -372,19 +335,14 @@ def add_article(request):
             reversion.set_comment("Création")
         messages.success(request, "L'article a été ajouté")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def edit_article(request, articleid):
+@can_edit(Article)
+def edit_article(request, article_instance, articleid):
     """Edition d'un article (designation, prix, etc)
     Réservé au trésorier"""
-    try:
-        article_instance = Article.objects.get(pk=articleid)
-    except Article.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-article'))
     article = ArticleForm(request.POST or None, instance=article_instance)
     if article.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -397,14 +355,14 @@ def edit_article(request, articleid):
             )
         messages.success(request, "Type d'article modifié")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def del_article(request):
+@can_delete_set(Article)
+def del_article(request, instances):
     """Suppression d'un article en vente"""
-    article = DelArticleForm(request.POST or None)
+    article = DelArticleForm(request.POST or None, instances=instances)
     if article.is_valid():
         article_del = article.cleaned_data['articles']
         with transaction.atomic(), reversion.create_revision():
@@ -412,11 +370,11 @@ def del_article(request):
             reversion.set_user(request.user)
         messages.success(request, "Le/les articles ont été supprimé")
         return redirect(reverse('cotisations:index-article'))
-    return form({'factureform': article}, 'cotisations/facture.html', request)
+    return form({'factureform': article, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
+@can_create(Paiement)
 def add_paiement(request):
     """Ajoute un moyen de paiement. Relié aux factures
     via foreign key"""
@@ -428,18 +386,13 @@ def add_paiement(request):
             reversion.set_comment("Création")
         messages.success(request, "Le moyen de paiement a été ajouté")
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def edit_paiement(request, paiementid):
+@can_edit(Paiement)
+def edit_paiement(request, paiement_instance, paiementid):
     """Edition d'un moyen de paiement"""
-    try:
-        paiement_instance = Paiement.objects.get(pk=paiementid)
-    except Paiement.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-paiement'))
     paiement = PaiementForm(request.POST or None, instance=paiement_instance)
     if paiement.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -452,14 +405,14 @@ def edit_paiement(request, paiementid):
             )
         messages.success(request, "Type de paiement modifié")
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def del_paiement(request):
+@can_delete_set(Paiement)
+def del_paiement(request, instances):
     """Suppression d'un moyen de paiement"""
-    paiement = DelPaiementForm(request.POST or None)
+    paiement = DelPaiementForm(request.POST or None, instances=instances)
     if paiement.is_valid():
         paiement_dels = paiement.cleaned_data['paiements']
         for paiement_del in paiement_dels:
@@ -479,11 +432,11 @@ def del_paiement(request):
                     facture, vous ne pouvez pas le supprimer" % paiement_del
                 )
         return redirect(reverse('cotisations:index-paiement'))
-    return form({'factureform': paiement}, 'cotisations/facture.html', request)
+    return form({'factureform': paiement, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('cableur')
+@can_create(Banque)
 def add_banque(request):
     """Ajoute une banque à la liste des banques"""
     banque = BanqueForm(request.POST or None)
@@ -494,18 +447,13 @@ def add_banque(request):
             reversion.set_comment("Création")
         messages.success(request, "La banque a été ajoutée")
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def edit_banque(request, banqueid):
+@can_edit(Banque)
+def edit_banque(request, banque_instance, banqueid):
     """Edite le nom d'une banque"""
-    try:
-        banque_instance = Banque.objects.get(pk=banqueid)
-    except Banque.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('cotisations:index-banque'))
     banque = BanqueForm(request.POST or None, instance=banque_instance)
     if banque.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -518,14 +466,14 @@ def edit_banque(request, banqueid):
             )
         messages.success(request, "Banque modifiée")
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
-def del_banque(request):
+@can_delete_set(Banque)
+def del_banque(request, instances):
     """Supprime une banque"""
-    banque = DelBanqueForm(request.POST or None)
+    banque = DelBanqueForm(request.POST or None, instances=instances)
     if banque.is_valid():
         banque_dels = banque.cleaned_data['banques']
         for banque_del in banque_dels:
@@ -539,16 +487,16 @@ def del_banque(request):
                 messages.error(request, "La banque %s est affectée à au moins\
                     une facture, vous ne pouvez pas la supprimer" % banque_del)
         return redirect(reverse('cotisations:index-banque'))
-    return form({'factureform': banque}, 'cotisations/facture.html', request)
+    return form({'factureform': banque, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
 @login_required
-@permission_required('tresorier')
+@can_view_all(Facture)
+@can_change(Facture, 'control')
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user').select_related('paiement')
     facture_list = SortTable.sort(
         facture_list,
@@ -583,7 +531,7 @@ def control(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Article)
 def index_article(request):
     """Affiche l'ensemble des articles en vente"""
     article_list = Article.objects.order_by('name')
@@ -593,7 +541,7 @@ def index_article(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Paiement)
 def index_paiement(request):
     """Affiche l'ensemble des moyens de paiement en vente"""
     paiement_list = Paiement.objects.order_by('moyen')
@@ -603,7 +551,7 @@ def index_paiement(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Banque)
 def index_banque(request):
     """Affiche l'ensemble des banques"""
     banque_list = Banque.objects.order_by('name')
@@ -613,11 +561,10 @@ def index_banque(request):
 
 
 @login_required
-@permission_required('cableur')
+@can_view_all(Facture)
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user')\
         .select_related('paiement').prefetch_related('vente_set')
     facture_list = SortTable.sort(
@@ -642,57 +589,122 @@ def index(request):
 
 
 @login_required
-def history(request, object_name, object_id):
-    """Affiche l'historique de chaque objet"""
-    if object_name == 'facture':
-        try:
-            object_instance = Facture.objects.get(pk=object_id)
-        except Facture.DoesNotExist:
-            messages.error(request, "Facture inexistante")
-            return redirect(reverse('cotisations:index'))
-        if not request.user.has_perms(('cableur',))\
-                and object_instance.user != request.user:
-            messages.error(request, "Vous ne pouvez pas afficher l'historique\
-                 d'une facture d'un autre user que vous sans droit cableur")
+def new_facture_solde(request, userid):
+    """Creation d'une facture pour un user. Renvoie la liste des articles
+    et crée des factures dans un formset. Utilise un peu de js coté template
+    pour ajouter des articles.
+    Parse les article et boucle dans le formset puis save les ventes,
+    enfin sauve la facture parente.
+    TODO : simplifier cette fonction, déplacer l'intelligence coté models
+    Facture et Vente."""
+    user = request.user
+    facture = Facture(user=user)
+    paiement, _created = Paiement.objects.get_or_create(moyen='Solde')
+    facture.paiement = paiement
+    # Le template a besoin de connaitre les articles pour le js
+    article_list = Article.objects.filter(
+        Q(type_user='All') | Q(type_user=request.user.class_name)
+    )
+    if request.user.is_class_club:
+        article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+    else:
+        article_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+    if article_formset.is_valid():
+        articles = article_formset
+        # Si au moins un article est rempli
+        if any(art.cleaned_data for art in articles):
+            user_solde = OptionalUser.get_cached_value('user_solde')
+            solde_negatif = OptionalUser.get_cached_value('solde_negatif')
+            # Si on paye par solde, que l'option est activée,
+            # on vérifie que le négatif n'est pas atteint
+            if user_solde:
+                prix_total = 0
+                for art_item in articles:
+                    if art_item.cleaned_data:
+                        prix_total += art_item.cleaned_data['article']\
+                                .prix*art_item.cleaned_data['quantity']
+                if float(user.solde) - float(prix_total) < solde_negatif:
+                    messages.error(request, "Le solde est insuffisant pour\
+                            effectuer l'opération")
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': userid}
+                        ))
+            with transaction.atomic(), reversion.create_revision():
+                facture.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            for art_item in articles:
+                if art_item.cleaned_data:
+                    article = art_item.cleaned_data['article']
+                    quantity = art_item.cleaned_data['quantity']
+                    new_vente = Vente.objects.create(
+                        facture=facture,
+                        name=article.name,
+                        prix=article.prix,
+                        type_cotisation=article.type_cotisation,
+                        duration=article.duration,
+                        number=quantity
+                    )
+                    with transaction.atomic(), reversion.create_revision():
+                        new_vente.save()
+                        reversion.set_user(request.user)
+                        reversion.set_comment("Création")
+            if any(art_item.cleaned_data['article'].type_cotisation
+                   for art_item in articles if art_item.cleaned_data):
+                messages.success(
+                    request,
+                    "La cotisation a été prolongée\
+                    pour l'adhérent %s jusqu'au %s" % (
+                        user.pseudo, user.end_adhesion()
+                    )
+                    )
+            else:
+                messages.success(request, "La facture a été crée")
             return redirect(reverse(
                 'users:profil',
-                kwargs={'userid':str(request.user.id)}
-            ))
-    elif object_name == 'paiement' and request.user.has_perms(('cableur',)):
-        try:
-            object_instance = Paiement.objects.get(pk=object_id)
-        except Paiement.DoesNotExist:
-            messages.error(request, "Paiement inexistant")
-            return redirect(reverse('cotisations:index'))
-    elif object_name == 'article' and request.user.has_perms(('cableur',)):
-        try:
-            object_instance = Article.objects.get(pk=object_id)
-        except Article.DoesNotExist:
-            messages.error(request, "Article inexistante")
-            return redirect(reverse('cotisations:index'))
-    elif object_name == 'banque' and request.user.has_perms(('cableur',)):
-        try:
-            object_instance = Banque.objects.get(pk=object_id)
-        except Banque.DoesNotExist:
-            messages.error(request, "Banque inexistante")
-            return redirect(reverse('cotisations:index'))
-    else:
-        messages.error(request, "Objet  inconnu")
-        return redirect(reverse('cotisations:index'))
-    options, _created = GeneralOption.objects.get_or_create()
-    pagination_number = options.pagination_number
-    reversions = Version.objects.get_for_object(object_instance)
-    paginator = Paginator(reversions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        reversions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        reversions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        reversions = paginator.page(paginator.num_pages)
-    return render(request, 're2o/history.html', {
-        'reversions': reversions,
-        'object': object_instance
-        })
+                kwargs={'userid': userid}
+                ))
+        messages.error(
+            request,
+            u"Il faut au moins un article valide pour créer une facture"
+            )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': userid}
+        ))
+
+    return form({
+        'venteform': article_formset,
+        'articlelist': article_list
+        }, 'cotisations/new_facture_solde.html', request)
+
+
+@login_required
+def recharge(request):
+    if AssoOption.get_cached_value('payment') == 'NONE':
+        messages.error(
+            request,
+            "Le paiement en ligne est désactivé."
+        )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': request.user.id}
+        ))
+    f = RechargeForm(request.POST or None, user=request.user)
+    if f.is_valid():
+        facture = Facture(user=request.user)
+        paiement, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
+        facture.paiement = paiement
+        facture.valid = False
+        facture.save()
+        v = Vente.objects.create(
+            facture=facture,
+            name='solde',
+            prix=f.cleaned_data['value'],
+            number=1,
+        )
+        v.save()
+        content = payment.PAYMENT_SYSTEM[AssoOption.get_cached_value('payment')](facture, request)
+        return render(request, 'cotisations/payment.html', content)
+    return form({'rechargeform':f}, 'cotisations/recharge.html', request)
