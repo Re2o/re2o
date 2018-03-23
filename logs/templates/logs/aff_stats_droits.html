@@ -1,0 +1,110 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load acl %}
+
+<div class="panel-group" id="accordion">
+    {% for droit in stats_list %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse{{droit.id}}">
+            <h2 class="panel-title pull-left">
+                <i class="fa fa-address-book"></i>
+                {{droit}}
+                <span class="badge">{{droit.user_set.all.count}}</span>
+            </h2>
+            
+        </div>
+            <div class="panel-collapse collapse" id="collapse{{droit.id}}">
+                <div class="panel-body">
+                    
+                    <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Pseudo</th>
+                            <th>Adhésion</th>
+                            <th>Derniere connection</th>
+                            <th>Nombre d'actions</th>
+                            <th>Supprimer </th>
+                        </tr>
+                        </thead>
+                        {% for user in droit.user_set.all %}
+                        <tr>
+                            <td>{{ user.pseudo }}</td>
+                            {% if user.is_adherent %}
+                                <td><p class="text-success">Adhérent</p></td>
+                            {% elif not user.end_adhesion %}
+                                <td><p class="text-danger">On ne s'en souvient plus...</p></td>
+                            {% else %}
+                                <td><p class="text-danger">Plus depuis {{ user.end_adhesion }}</p></td>
+                            {% endif %}
+                            <td>{{ user.last_login }}</td>
+                            <td>{{ user.name }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    </table>
+                    </div>
+                    
+
+                    <!--
+                    <div class="table-responsive" ">
+                    <table class="table table-striped" ">
+                        
+                        {% for user in droit.user_set.all %}
+
+                        <tr>
+                            <div class="table-responsive" ">
+                            <table class="table table-striped" ">
+                                
+                                <tr>
+                                    <td>Pseudo</td>
+                                    <td>Adhésion</td>
+                                    <td>Derniere connection</td>
+                                    <td>Nombre d'actions</td>
+                                </tr>
+
+                                <tr>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.is_adherent }}</td>
+                                    <td>{{ user.last_login }}</td>
+                                    <td>{{ user.name }}</td>
+                                </tr>
+                            
+                            </table>
+                            </div>
+                            
+                        </tr>
+                        
+                            
+                        {% endfor %}
+                    </table>
+                    </div>
+                    -->
+                </div>
+            </div>
+    </div>
+    {% endfor %}
+</div>
