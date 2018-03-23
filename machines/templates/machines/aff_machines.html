@@ -23,10 +23,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
-
+<div class="table-responsive">
 {% if machines_list.paginator %}
 {% include "pagination.html" with list=machines_list %}
 {% endif %}
+
 
 <table class="table" id="machines_table">
     <colgroup>
@@ -175,6 +176,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </tbody>
 </table>
 
+
 <script>
 $("#machines_table").ready( function() {
     var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
@@ -193,3 +195,4 @@ $("#machines_table").ready( function() {
 {% if machines_list.paginator %}
 {% include "pagination.html" with list=machines_list %}
 {% endif %}
+</div>
