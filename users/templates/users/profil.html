@@ -168,16 +168,16 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                         <td>Aucun</td>
                         {% endif %}
                     </tr>
-                    {% if allow_online_payment %}
                     <tr>
                         <th>Solde</th>
                         <td>{{ users.solde }} €
+                        {% if allow_online_payment %}
                         <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
                                 <i class="fa fa-euro-sign"></i>
                                 Recharger
-                            </a>
-                        </td>
-                {% endif %}
+                        </a>
+                        {% endif %}
+			</td>
                 {% if users.shell %}
                     <th>Shell</th>
                     <td>{{ users.shell }}</td>

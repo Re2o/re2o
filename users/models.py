@@ -1248,6 +1248,10 @@ class ListShell(models.Model):
 
     shell = models.CharField(max_length=255, unique=True)
 
+    def get_pretty_name(self):
+        """Return the canonical name of the shell"""
+        return self.shell.split("/")[-1]
+
     def __str__(self):
         return self.shell
 
