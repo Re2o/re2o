@@ -53,7 +53,8 @@ from topologie.models import (
     Room,
     Stack,
     ModelSwitch,
-    ConstructorSwitch
+    ConstructorSwitch,
+    Borne
 )
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import (
@@ -62,7 +63,9 @@ from topologie.forms import (
     StackForm,
     EditModelSwitchForm,
     EditConstructorSwitchForm,
-    CreatePortsForm
+    CreatePortsForm,
+    AddBorneForm,
+    EditBorneForm
 )
 from users.views import form
 from re2o.utils import SortTable
@@ -165,6 +168,33 @@ def index_room(request):
         room_list = paginator.page(paginator.num_pages)
     return render(request, 'topologie/index_room.html', {
         'room_list': room_list
+        })
+
+
+@login_required
+@can_view_all(Borne)
+def index_borne(request):
+    """ Affichage de l'ensemble des bornes"""
+    borne_list = Borne.objects
+    borne_list = SortTable.sort(
+        borne_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_BORNE
+    )
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    paginator = Paginator(borne_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        borne_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        borne_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        borne_list = paginator.page(paginator.num_pages)
+    return render(request, 'topologie/index_borne.html', {
+        'borne_list': borne_list
         })
 
 
@@ -509,6 +539,119 @@ def edit_switch(request, switch, switch_id):
         'i_mbf_param': i_mbf_param
         }, 'topologie/switch.html', request)
 
+
+@login_required
+@can_create(Borne)
+def new_borne(request):
+    """ Creation d'une borne. Cree en meme temps l'interface et la machine
+    associée. Vue complexe. Appelle successivement les 3 models forms
+    adaptés : machine, interface, domain et switch"""
+    borne = AddBorneForm(
+        request.POST or None,
+        user=request.user
+    )
+    machine = NewMachineForm(
+        request.POST or None,
+        user=request.user
+    )
+    domain = DomainForm(
+        request.POST or None,
+        )
+    if borne.is_valid() and machine.is_valid():
+        user = AssoOption.get_cached_value('utilisateur_asso')
+        if not user:
+            messages.error(request, "L'user association n'existe pas encore,\
+            veuillez le créer ou le linker dans preferences")
+            return redirect(reverse('topologie:index'))
+        new_machine = machine.save(commit=False)
+        new_machine.user = user
+        new_borne = borne.save(commit=False)
+        domain.instance.interface_parent = new_borne
+        if domain.is_valid():
+            new_domain_instance = domain.save(commit=False)
+            with transaction.atomic(), reversion.create_revision():
+                new_machine.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_borne.machine = new_machine
+            with transaction.atomic(), reversion.create_revision():
+                new_borne.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain_instance.interface_parent = new_borne
+            with transaction.atomic(), reversion.create_revision():
+                new_domain_instance.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "La borne a été créé")
+            return redirect(reverse('topologie:index-borne'))
+    i_mbf_param = generate_ipv4_mbf_param(borne, False)
+    return form({
+        'topoform': borne,
+        'machineform': machine,
+        'domainform': domain,
+        'i_mbf_param': i_mbf_param
+        }, 'topologie/borne.html', request)
+
+
+@login_required
+@can_edit(Borne)
+def edit_borne(request, borne, borne_id):
+    """ Edition d'un switch. Permet de chambre nombre de ports,
+    place dans le stack, interface et machine associée"""
+    borne_form = EditBorneForm(
+        request.POST or None,
+        user=request.user,
+        instance=borne
+    )
+    machine_form = NewMachineForm(
+        request.POST or None,
+        user=request.user,
+        instance=borne.machine
+    )
+    domain_form = DomainForm(
+        request.POST or None,
+        instance=borne.domain
+        )
+    if borne_form.is_valid() and machine_form.is_valid():
+        user = AssoOption.get_cached_value('utilisateur_asso')
+        if not user:
+            messages.error(request, "L'user association n'existe pas encore,\
+            veuillez le créer ou le linker dans preferences")
+            return redirect(reverse('topologie:index-borne'))
+        new_machine = machine_form.save(commit=False)
+        new_borne = borne_form.save(commit=False)
+        new_domain = domain_form.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            new_machine.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in machine_form.changed_data)
+            )
+        with transaction.atomic(), reversion.create_revision():
+            new_borne.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in borne_form.changed_data)
+            )
+            reversion.set_comment("Création")
+        with transaction.atomic(), reversion.create_revision():
+            new_domain.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in domain_form.changed_data)
+            )
+        messages.success(request, "La borne a été modifiée")
+        return redirect(reverse('topologie:index-borne'))
+    i_mbf_param = generate_ipv4_mbf_param(borne_form, False )
+    return form({
+        'topoform': borne_form,
+        'machineform': machine_form,
+        'domainform': domain_form,
+        'i_mbf_param': i_mbf_param
+        }, 'topologie/borne.html', request)
+    
 
 @login_required
 @can_create(Room)

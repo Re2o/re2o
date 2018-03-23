@@ -47,6 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
+from machines.models import Interface
 
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
@@ -106,6 +107,53 @@ class Stack(models.Model):
         if self.member_id_max < self.member_id_min:
             raise ValidationError({'member_id_max': "L'id maximale est\
                 inférieure à l'id minimale"})
+
+
+class Borne(Interface):
+    """Define a wireless AP. Inherit from machines.interfaces
+    
+    Definition pour une borne wifi , hérite de machines.interfaces
+    """
+    PRETTY_NAME = "Borne WiFi"
+
+    location = models.CharField(    
+        max_length=255,
+        help_text="Détails sur la localisation de l'AP",
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        permissions = (
+            ("view_borne", "Peut voir une borne"),
+        )
+
+    def get_instance(borne_id, *args, **kwargs):
+        return Borne.objects.get(pk=borne_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('topologie.add_borne') , u"Vous n'avez pas le droit\
+            de créer une borne"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.change_borne'):
+            return False, u"Vous n'avez pas le droit d'éditer des bornes"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.delete_borne'):
+            return False, u"Vous n'avez pas le droit de supprimer une borne"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.view_borne'):
+            return False, u"Vous n'avez pas le droit de voir les bornes"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.view_borne'):
+            return False, u"Vous n'avez pas le droit de voir les bornes"
+        return True, None
 
 
 class Switch(models.Model):
@@ -192,6 +240,7 @@ class Switch(models.Model):
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
+
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données sont cohérentes. """
 
