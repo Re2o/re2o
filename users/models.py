@@ -1248,9 +1248,66 @@ class ListShell(models.Model):
 
     shell = models.CharField(max_length=255, unique=True)
 
+    class Meta:
+        permissions = (
+            ("view_listshell", "Peut voir un objet shell quelqu'il soit"),
+        )
+
+    def get_instance(shellid, *args, **kwargs):
+        return ListShell.objects.get(pk=shellid)
+
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
         return self.shell.split("/")[-1]
+
+    def can_create(user_request, *args, **kwargs):
+        """Check if an user can create a ListShell object.
+
+        :param user_request: The user who wants to create a user object.
+        :return: a message and a boolean which is True if the user can create.
+        """
+        return user_request.has_perm('users.add_listshell'), u"Vous n'avez pas le\
+            droit de créer des shells"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        """Check if an user can edit a ListShell object.
+
+        :param self: The Shell which is to be edited.
+        :param user_request: The user who requests to edit self.
+        :return: a message and a boolean which is True if edition is granted.
+        """
+        return user_request.has_perm('users.change_listshell'), u"Vous n'avez pas le\
+            droit d'éditer des shells"
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete a ListShell object.
+
+        :param self: The Shell which is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if deletion is granted, and a message.
+        """
+        return user_request.has_perm('users.delete_listshell'), u"Vous n'avez pas le\
+            droit de supprimer des shells"
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every ListShell objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_listshell'), u"Vous n'avez pas le\
+            droit de voir les shells"
+
+    def can_view(self, user_request, *args, **kwargs):
+        """Check if an user can view a ListShell object.
+
+        :param self: The targeted ListShell instance.
+        :param user_request: The user who ask for viewing the target.
+        :return: A boolean telling if the acces is granted and an explanation
+        text
+        """
+        return user_request.has_perm('users.view_listshell'), u"Vous n'avez pas le\
+            droit de voir les shells"
 
     def __str__(self):
         return self.shell

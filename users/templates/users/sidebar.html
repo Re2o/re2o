@@ -69,6 +69,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             Établissements
         </a>
     {% acl_end %}
+    {% can_view_all ListShell %}
+        <a class="list-group-item list-group-item-info" href="{% url "users:index-shell" %}">
+            <i class="fa fa-list-ul"></i>
+            Liste des shells
+        </a>
+    {% acl_end %}
     {% can_view_all ListRight %}
         <a class="list-group-item list-group-item-info" href="{% url "users:index-listright" %}">
             <i class="fa fa-list-ul"></i>

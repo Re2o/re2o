@@ -65,6 +65,7 @@ HISTORY_BIND = {
         'school' : users.models.School,
         'listright' : users.models.ListRight,
         'serviceuser' : users.models.ServiceUser,
+        'shell' : users.models.ListShell,
     },
     'preferences' : {
         'service' : preferences.models.Service,
