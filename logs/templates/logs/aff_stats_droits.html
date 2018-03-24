@@ -25,86 +25,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 
-<div class="panel-group" id="accordion">
-    {% for droit in stats_list %}
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse{{droit.id}}">
-            <h2 class="panel-title pull-left">
-                <i class="fa fa-address-book"></i>
-                {{droit}}
-                <span class="badge">{{droit.user_set.all.count}}</span>
-            </h2>
-            
-        </div>
-            <div class="panel-collapse collapse" id="collapse{{droit.id}}">
-                <div class="panel-body">
-                    
-                    <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Pseudo</th>
-                            <th>Adhésion</th>
-                            <th>Derniere connection</th>
-                            <th>Nombre d'actions</th>
-                            <th>Supprimer </th>
-                        </tr>
-                        </thead>
-                        {% for user in droit.user_set.all %}
-                        <tr>
-                            <td>{{ user.pseudo }}</td>
-                            {% if user.is_adherent %}
-                                <td><p class="text-success">Adhérent</p></td>
-                            {% elif not user.end_adhesion %}
-                                <td><p class="text-danger">On ne s'en souvient plus...</p></td>
-                            {% else %}
-                                <td><p class="text-danger">Plus depuis {{ user.end_adhesion }}</p></td>
-                            {% endif %}
-                            <td>{{ user.last_login }}</td>
-                            <td>{{ user.name }}</td>
-                        </tr>
-                        {% endfor %}
-
-                    </table>
-                    </div>
-                    
-
-                    <!--
-                    <div class="table-responsive" ">
-                    <table class="table table-striped" ">
-                        
-                        {% for user in droit.user_set.all %}
-
-                        <tr>
-                            <div class="table-responsive" ">
-                            <table class="table table-striped" ">
-                                
-                                <tr>
-                                    <td>Pseudo</td>
-                                    <td>Adhésion</td>
-                                    <td>Derniere connection</td>
-                                    <td>Nombre d'actions</td>
-                                </tr>
-
-                                <tr>
-                                    <td>{{ user.name }}</td>
-                                    <td>{{ user.is_adherent }}</td>
-                                    <td>{{ user.last_login }}</td>
-                                    <td>{{ user.name }}</td>
-                                </tr>
-                            
-                            </table>
-                            </div>
-                            
-                        </tr>
-                        
-                            
-                        {% endfor %}
-                    </table>
-                    </div>
-                    -->
-                </div>
-            </div>
+{% for droit,users in stats_list.items %}
+<div class="panel panel-default">
+    <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse{{droit.id}}">
+        <h2 class="panel-title pull-left">
+            <i class="fa fa-address-book"></i>
+            {{droit}}
+            <span class="badge">{{users.count}}</span>
+        </h2>
     </div>
-    {% endfor %}
+    <div class="panel-collapse collapse" id="collapse{{droit.id}}">
+        <div class="panel-body">
+            <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Pseudo</th>
+                    <th>Adhésion</th>
+                    <th>Derniere connexion</th>
+                    <th>Nombre d'actions</th>
+                    <th>Date de la dernière action</th>
+                    <th></th>
+                </tr>
+                </thead>
+                {% for utilisateur in users %}
+                <tr>
+                    <td>{{ utilisateur.pseudo }}</td>
+                    {% if utilisateur.is_adherent %}
+                        <td><p class="text-success">Adhérent</p></td>
+                    {% elif not utilisateur.end_adhesion %}
+                        <td><p class="text-warning">On ne s'en souvient plus...</p></td>
+                    {% else %}
+                        <td><p class="text-danger">Plus depuis {{ utilisateur.end_adhesion }}</p></td>
+                    {% endif %}
+                    <td>{{ utilisateur.last_login }}</td>
+                    <td>{{ utilisateur.num }}</td>
+                    {% if not utilisateur.last %}
+                        <td><p class="text-danger">Jamais</p></td>
+                    {% else %}
+                        <td><p class="text-success">{{utilisateur.last}}</p></td>
+                    {% endif %}
+                    <td>
+                        <a href="{% url 'users:del-group' utilisateur.id droit.id %}">
+                            <button type="button" class="btn btn-danger" aria-label="Left Align">
+                                <span class="fa fa-user-times" aria-hidden="true"></span>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            </div>
+        </div>
+    </div>
 </div>
+{% endfor %}
