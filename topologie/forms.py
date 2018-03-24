@@ -33,9 +33,18 @@ NewSwitchForm)
 from __future__ import unicode_literals
 
 from machines.models import Interface
+from machines.forms import EditInterfaceForm
 from django import forms
 from django.forms import ModelForm, Form
-from .models import Port, Switch, Room, Stack, ModelSwitch, ConstructorSwitch
+from .models import ( 
+    Port,
+    Switch,
+    Room,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch,
+    Borne
+)
 
 
 class PortForm(ModelForm):
@@ -100,6 +109,21 @@ class StackForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class AddBorneForm(EditInterfaceForm):
+    """Formulaire pour la création d'une borne
+    Relié directement au modèle borne"""
+    class Meta:
+        model = Borne
+        fields = ['mac_address', 'type', 'ipv4', 'details', 'location']
+
+
+class EditBorneForm(EditInterfaceForm):
+    """Edition d'une interface. Edition complète"""
+    class Meta:
+        model = Borne
+        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location']
 
 
 class EditSwitchForm(ModelForm):

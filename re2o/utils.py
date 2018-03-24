@@ -233,6 +233,12 @@ class SortTable:
         'room_name': ['name'],
         'default': ['name']
     }
+    TOPOLOGIE_INDEX_BORNE = {
+        'borne_name': ['domain__name'],
+        'borne_ip': ['ipv4__ipv4'],
+        'borne_mac': ['mac_address'],
+        'default': ['domain__name']
+    }
     TOPOLOGIE_INDEX_STACK = {
         'stack_name': ['name'],
         'stack_id': ['stack_id'],

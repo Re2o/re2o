@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "topologie/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,26 +23,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load bootstrap3 %}
+{% load acl %}
 
-{% block sidebar %}
-    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-room" %}">
-        <i class="fa fa-home"></i>
-        Chambres et locaux
-    </a>
-     <a class="list-group-item list-group-item-info" href="{% url "topologie:index" %}">
-        <i class="fa fa-microchip"></i>
-        Switchs
-    </a>
-     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-borne" %}">
-        <i class="fa fa-wifi"></i>
-        Bornes WiFi
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-stack" %}">
-        <i class="fa fa-list-ul"></i>
-        Stacks
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "topologie:index-model-switch" %}">
-        <i class="fa fa-list-ul"></i>
-        Modèles switches et constructeurs
-    </a>
+{% block title %}Bornes WiFi{% endblock %}
+
+{% block content %}
+  <h2>Points d'accès WiFi</h2>
+{% can_create Room %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-borne' %}"><i class="fa fa-plus"></i> Ajouter une borne</a>
+<hr>
+{% acl_end %}
+    {% include "topologie/aff_borne.html" with borne_list=borne_list %}
+    <br />
+    <br />
+    <br />
 {% endblock %}

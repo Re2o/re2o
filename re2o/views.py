@@ -82,6 +82,7 @@ HISTORY_BIND = {
         'stack' : topologie.models.Stack,
         'model_switch' : topologie.models.ModelSwitch,
         'constructor_switch' : topologie.models.ConstructorSwitch,
+        'borne' : topologie.models.Borne,
     },
     'machines' : {
         'machine' : machines.models.Machine,
