@@ -133,6 +133,7 @@ MODEL_NAME = {
     'ServiceUser' : users.models.ServiceUser,
     'School' : users.models.School,
     'ListRight' : users.models.ListRight,
+    'ListShell' : users.models.ListShell,
     'Ban' : users.models.Ban,
     'Whitelist' : users.models.Whitelist,
 }

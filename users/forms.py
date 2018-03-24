@@ -41,8 +41,17 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
-from .models import User, ServiceUser, School, ListRight, Whitelist
-from .models import Ban, Adherent, Club
+from .models import (
+    User,
+    ServiceUser,
+    School,
+    ListRight,
+    Whitelist,
+    ListShell,
+    Ban,
+    Adherent,
+    Club
+)
 from re2o.utils import remove_user_room
 
 from re2o.field_permissions import FieldPermissionFormMixin
@@ -458,6 +467,18 @@ class SchoolForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(SchoolForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Établissement'
+
+
+class ShellForm(ModelForm):
+    """Edition, creation d'un école"""
+    class Meta:
+        model = ListShell
+        fields = ['shell']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ShellForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['shell'].label = 'Nom du shell'
 
 
 class ListRightForm(ModelForm):

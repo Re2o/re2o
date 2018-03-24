@@ -446,3 +446,10 @@ def stats_actions(request):
         },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
+
+@login_required
+@can_view_app('users')
+def stats_droits(request):
+    """Affiche la liste des droits disponibles"""
+    droits=ListRight.objects.all().prefetch_related('user_set')
+    return render(request, 'logs/stats_droits.html', {'stats_list': droits})
