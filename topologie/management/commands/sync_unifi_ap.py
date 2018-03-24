@@ -21,6 +21,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from pymongo import MongoClient
+from topologie.models import Borne
 
 class Command(BaseCommand):
     help = 'Ce script donne un nom aux bornes dans le controleur unifi.
@@ -32,10 +33,15 @@ class Command(BaseCommand):
         db = client.ace
         device = db['device']
 
-    def set_bornes_names(liste_bornes):
-        """Met à jour les noms des bornes dans la bdd du controleur"""
-        for borne in liste_bornes:
-            device.find_one_and_update({'ip': str(borne['ipHostNumber'][0])}, {'$set': {'name': borne['host'][0].split('.')[0]}})
-        return
+        bornes = Borne.objects.all()
+        
+        def set_bornes_names(liste_bornes):
+            """Met à jour les noms des bornes dans la bdd du controleur"""
+            for borne in liste_bornes:
+                if borne.ipv4 and borne.domain:
+                    device.find_one_and_update({'ip': str(borne.ipv4)}, {'$set': {'name': str(borne.domain.name)}})
+            return
+
+        set_bornes_names(bornes)
 
         self.stdout.write(self.style.SUCCESS('Mise à jour de la base de donnée unifi avec succès'))
