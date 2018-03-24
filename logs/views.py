@@ -43,9 +43,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from django.db.models import Max
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
+
+from time import time
 
 from users.models import (
     User,
@@ -450,6 +453,20 @@ def stats_actions(request):
 @login_required
 @can_view_app('users')
 def stats_droits(request):
-    """Affiche la liste des droits disponibles"""
-    droits=ListRight.objects.all().prefetch_related('user_set')
-    return render(request, 'logs/stats_droits.html', {'stats_list': droits})
+    """Affiche la liste des droits et les users ayant chaque droit"""
+    depart=time()
+    stats_list={}
+    
+    for droit in ListRight.objects.all().select_related('group_ptr'):#.prefetch_related('group_ptr__user_set__revision_set'):
+        stats_list[droit]=droit.user_set.all().annotate(num=Count('revision'),last=Max('revision__date_created'))
+    
+    # count,last=0,0
+    # for droit in ListRight.objects.all():
+    #     for use in droit.user_set.all():
+    #         countRevision.objects.filter(user=use).count()
+    #         print(Revision.objects.order_by('date_created').last().date_created)
+    #     stats_list[droit]=use.annotate(num=count,las)
+
+    #raise ValueError('temps='+str(time()-depart))
+
+    return render(request, 'logs/stats_droits.html', {'stats_list': stats_list})
