@@ -300,6 +300,12 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
         """ Renvoie seulement le nom"""
         return self.surname
 
+    @property
+    def get_shell(self):
+        """ A utiliser de préférence, prend le shell par défaut
+        si il n'est pas défini"""
+        return self.shell or OptionalUser.get_cached_value('shell_default')
+
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
         cotisation"""
@@ -502,8 +508,8 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             user_ldap.gid = LDAP['user_gid']
             user_ldap.user_password = self.password[:6] + self.password[7:]
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
-            if self.shell:
-                user_ldap.login_shell = self.shell.shell
+            if self.get_shell:
+                user_ldap.login_shell = str(self.get_shell)
             if self.state == self.STATE_DISABLED:
                 user_ldap.shadowexpire = str(0)
             else:

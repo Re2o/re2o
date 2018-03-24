@@ -68,7 +68,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
 	    <th>Auto inscription</th>
             <td>{{ useroptions.self_adhesion }}</td>
-        </tr>
+ 	    <th>Shell par défaut des utilisateurs</th>
+            <td>{{ useroptions.shell_default }}</td>       
+	</tr>
     </table>
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
