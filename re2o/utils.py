@@ -235,7 +235,8 @@ class SortTable:
     }
     TOPOLOGIE_INDEX_BORNE = {
         'borne_name': ['domain__name'],
-        'borne_ipv4': ['borne__ipv4__ipv4'],
+        'borne_ip': ['ipv4__ipv4'],
+        'borne_mac': ['mac_address'],
         'default': ['domain__name']
     }
     TOPOLOGIE_INDEX_STACK = {
