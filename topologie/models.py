@@ -190,7 +190,7 @@ class Switch(Interface):
     class Meta:
         unique_together = ('stack', 'stack_member_id')
         permissions = (
-            ("view_newswitch", "Peut voir un objet switch"),
+            ("view_switch", "Peut voir un objet switch"),
         )
 
     def get_instance(switch_id, *args, **kwargs):
@@ -220,11 +220,10 @@ class Switch(Interface):
             return False, u"Vous n'avez pas le droit de voir les switch"
         return True, None
  
-#    def __str__(self):
-#        return self.location + ' ' + str(self.switch_interface)
-
     def clean(self):
-        """ Verifie que l'id stack est dans le bon range"""
+        """ Verifie que l'id stack est dans le bon range
+        Appelle également le clean de la classe parente"""
+        super(Switch, self).clean()
         if self.stack is not None:
             if self.stack_member_id is not None:
                 if (self.stack_member_id > self.stack.member_id_max) or\

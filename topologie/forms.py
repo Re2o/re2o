@@ -132,12 +132,6 @@ class EditSwitchForm(EditInterfaceForm):
         model = Switch
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
 
-   # def __init__(self, *args, **kwargs):
-   #     prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-   #     super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
-   #     self.fields['location'].label = 'Localisation'
-   #     self.fields['number'].label = 'Nombre de ports'
-
 
 class NewSwitchForm(EditInterfaceForm):
     """Permet de créer un switch : emplacement, paramètres machine,
@@ -145,11 +139,6 @@ class NewSwitchForm(EditInterfaceForm):
     class Meta(EditSwitchForm.Meta):
         fields = ['type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
 
-    #def __init__(self, *args, **kwargs):
-    #    prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-    #    super(NewSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
-    #    self.fields['location'].label = 'Localisation'
-    #    self.fields['number'].label = 'Nombre de ports'
 
 class EditRoomForm(ModelForm):
     """Permet d'éediter le nom et commentaire d'une prise murale"""
