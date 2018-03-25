@@ -156,7 +156,7 @@ class Borne(Interface):
         return True, None
 
 
-class Switch(models.Model):
+class Switch(Interface):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -170,13 +170,9 @@ class Switch(models.Model):
     id_max de la stack parente"""
     PRETTY_NAME = "Switch / Commutateur"
 
-    switch_interface = models.OneToOneField(
-        'machines.Interface',
-        on_delete=models.CASCADE
-        )
+
     location = models.CharField(max_length=255)
     number = models.PositiveIntegerField()
-    details = models.CharField(max_length=255, blank=True)
     stack = models.ForeignKey(
         'topologie.Stack',
         blank=True,
@@ -194,7 +190,7 @@ class Switch(models.Model):
     class Meta:
         unique_together = ('stack', 'stack_member_id')
         permissions = (
-            ("view_switch", "Peut voir un objet switch"),
+            ("view_newswitch", "Peut voir un objet switch"),
         )
 
     def get_instance(switch_id, *args, **kwargs):
@@ -224,8 +220,8 @@ class Switch(models.Model):
             return False, u"Vous n'avez pas le droit de voir les switch"
         return True, None
  
-    def __str__(self):
-        return self.location + ' ' + str(self.switch_interface)
+#    def __str__(self):
+#        return self.location + ' ' + str(self.switch_interface)
 
     def clean(self):
         """ Verifie que l'id stack est dans le bon range"""
@@ -421,7 +417,7 @@ class Port(models.Model):
 
     def get_instance(port_id, *args, **kwargs):
         return Port.objects\
-            .select_related('switch__switch_interface__domain__extension')\
+            .select_related('switch__domain__extension')\
             .select_related('machine_interface__domain__extension')\
             .select_related('machine_interface__switch')\
             .select_related('room')\
