@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
 
-{% block title %}Création et modification d'une borne{% endblock %}
+{% block title %}Création et modification d'un objet topologie{% endblock %}
 
 {% block content %}
 {% if topoform %}
@@ -44,11 +44,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% if topoform %}
-    <h3>Réglage spécifiques de la borne</h3>
+    <h3>Réglage spécifiques du {{ device }}</h3>
     {% massive_bootstrap_form topoform 'ipv4,machine' mbf_param=i_mbf_param%}
     {% endif %}
     {% if machineform %}
-    <h3>Réglages généraux de la machine associée à la borne</h3>
+    <h3>Réglages généraux de la machine associée au {{ device }}</h3>
     {% massive_bootstrap_form machineform 'user' %}
     {% endif %}
     {% if domainform %}

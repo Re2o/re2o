@@ -78,7 +78,7 @@ class EditPortForm(ModelForm):
         self.fields['machine_interface'].queryset = Interface.objects.all()\
             .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__switch_interface__domain__extension')\
+            .select_related('switch__domain__extension')\
             .order_by('switch', 'port')
 
 
@@ -95,7 +95,7 @@ class AddPortForm(ModelForm):
         self.fields['machine_interface'].queryset = Interface.objects.all()\
             .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__switch_interface__domain__extension')\
+            .select_related('switch__domain__extension')\
             .order_by('switch', 'port')
 
 
@@ -126,32 +126,19 @@ class EditBorneForm(EditInterfaceForm):
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location']
 
 
-class EditSwitchForm(ModelForm):
+class EditSwitchForm(EditInterfaceForm):
     """Permet d'éditer un switch : nom et nombre de ports"""
     class Meta:
         model = Switch
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['switch_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
-        self.fields['location'].label = 'Localisation'
-        self.fields['number'].label = 'Nombre de ports'
+        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
 
 
-class NewSwitchForm(ModelForm):
+class NewSwitchForm(EditInterfaceForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['location', 'number', 'details', 'stack', 'stack_member_id']
+        fields = ['type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
 
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['location'].label = 'Localisation'
-        self.fields['number'].label = 'Nombre de ports'
 
 class EditRoomForm(ModelForm):
     """Permet d'éediter le nom et commentaire d'une prise murale"""
