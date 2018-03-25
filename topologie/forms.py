@@ -43,7 +43,7 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    Borne
+    AccessPoint
 )
 
 
@@ -111,18 +111,18 @@ class StackForm(ModelForm):
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class AddBorneForm(EditInterfaceForm):
+class AddAccessPointForm(EditInterfaceForm):
     """Formulaire pour la création d'une borne
     Relié directement au modèle borne"""
     class Meta:
-        model = Borne
+        model = AccessPoint
         fields = ['mac_address', 'type', 'ipv4', 'details', 'location']
 
 
-class EditBorneForm(EditInterfaceForm):
+class EditAccessPointForm(EditInterfaceForm):
     """Edition d'une interface. Edition complète"""
     class Meta:
-        model = Borne
+        model = AccessPoint
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location']
 
 

@@ -109,7 +109,7 @@ class Stack(models.Model):
                 inférieure à l'id minimale"})
 
 
-class Borne(Interface):
+class AccessPoint(Interface):
     """Define a wireless AP. Inherit from machines.interfaces
     
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -125,33 +125,33 @@ class Borne(Interface):
 
     class Meta:
         permissions = (
-            ("view_borne", "Peut voir une borne"),
+            ("view_ap", "Peut voir une borne"),
         )
 
-    def get_instance(borne_id, *args, **kwargs):
-        return Borne.objects.get(pk=borne_id)
+    def get_instance(ap_id, *args, **kwargs):
+        return AccessPoint.objects.get(pk=ap_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_borne') , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_ap') , u"Vous n'avez pas le droit\
             de créer une borne"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_borne'):
+        if not user_request.has_perm('topologie.change_ap'):
             return False, u"Vous n'avez pas le droit d'éditer des bornes"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_borne'):
+        if not user_request.has_perm('topologie.delete_ap'):
             return False, u"Vous n'avez pas le droit de supprimer une borne"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_borne'):
+        if not user_request.has_perm('topologie.view_ap'):
             return False, u"Vous n'avez pas le droit de voir les bornes"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_borne'):
+        if not user_request.has_perm('topologie.view_ap'):
             return False, u"Vous n'avez pas le droit de voir les bornes"
         return True, None
 

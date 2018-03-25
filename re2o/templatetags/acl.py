@@ -122,6 +122,7 @@ MODEL_NAME = {
     # topologie
     'Stack' : topologie.models.Stack,
     'Switch' : topologie.models.Switch,
+    'AccessPoint' : topologie.models.AccessPoint,
     'ModelSwitch' : topologie.models.ModelSwitch,
     'ConstructorSwitch' : topologie.models.ConstructorSwitch,
     'Port' : topologie.models.Port,

@@ -35,11 +35,11 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^index_borne/$', views.index_borne, name='index-borne'),
-    url(r'^new_borne/$', views.new_borne, name='new-borne'),
-    url(r'^edit_borne/(?P<borne_id>[0-9]+)$',
-        views.edit_borne,
-        name='edit-borne'),
+    url(r'^index_ap/$', views.index_ap, name='index-ap'),
+    url(r'^new_ap/$', views.new_ap, name='new-ap'),
+    url(r'^edit_ap/(?P<ap_id>[0-9]+)$',
+        views.edit_ap,
+        name='edit-ap'),
     url(r'^create_ports/(?P<switch_id>[0-9]+)$',
         views.create_ports,
         name='create-ports'),
