@@ -32,6 +32,12 @@ application = get_wsgi_application()
 from django.core.management.base import CommandError
 from users.models import User
 
+from django.utils.html import strip_tags
+from reversion import revisions as reversion
+from django.db import transaction
+from getpass import getpass
+
+
 def get_user(pseudo):
     """Cherche un utilisateur re2o à partir de son pseudo"""
     user = User.objects.filter(pseudo=pseudo)
@@ -45,3 +51,36 @@ def get_user(pseudo):
 def get_system_user():
     """Retourne l'utilisateur système ayant lancé la commande"""
     return pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
+
+
+def form_cli(Form,user,action,*args,**kwargs):
+    """
+    Remplit un formulaire à partir de la ligne de commande
+        Form : le formulaire (sous forme de classe) à remplir
+        user : l'utilisateur re2o faisant la modification
+        action : l'action réalisée par le formulaire (pour les logs)
+    Les arguments suivants sont transmis tels quels au formulaire.
+    """
+    data={}
+    dumb_form = Form(user=user,*args,**kwargs)
+    for key in dumb_form.fields:
+        if not dumb_form.fields[key].widget.input_type=='hidden':
+            if dumb_form.fields[key].widget.input_type=='password':
+                data[key]=getpass("%s : " % dumb_form.fields[key].label)
+            else:
+                data[key]=input("%s : " % dumb_form.fields[key].label)
+
+    form = Form(data,user=user,*args,**kwargs)
+    if not form.is_valid():
+        sys.stderr.write("Erreurs : \n")
+        for err in form.errors:
+            #Oui, oui, on gère du HTML là où d'autres ont eu la lumineuse idée de le mettre
+            sys.stderr.write("\t%s : %s\n" % (err,strip_tags(form.errors[err])))
+        raise CommandError("Formulaire invalide")
+
+    with transaction.atomic(), reversion.create_revision():
+       form.save()
+       reversion.set_user(user)
+       reversion.set_comment(action)
+
+    sys.stdout.write("%s : effectué. La modification peut prendre quelques minutes pour s'appliquer.\n" % action)
