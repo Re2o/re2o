@@ -41,3 +41,7 @@ def get_user(pseudo):
         raise CommandError("Plusieurs utilisateurs correspondant à ce pseudo. Ceci NE DEVRAIT PAS arriver")
     return user[0]
 
+
+def get_system_user():
+    """Retourne l'utilisateur système ayant lancé la commande"""
+    return pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
