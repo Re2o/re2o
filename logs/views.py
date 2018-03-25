@@ -459,14 +459,5 @@ def stats_droits(request):
     
     for droit in ListRight.objects.all().select_related('group_ptr'):#.prefetch_related('group_ptr__user_set__revision_set'):
         stats_list[droit]=droit.user_set.all().annotate(num=Count('revision'),last=Max('revision__date_created'))
-    
-    # count,last=0,0
-    # for droit in ListRight.objects.all():
-    #     for use in droit.user_set.all():
-    #         countRevision.objects.filter(user=use).count()
-    #         print(Revision.objects.order_by('date_created').last().date_created)
-    #     stats_list[droit]=use.annotate(num=count,las)
-
-    #raise ValueError('temps='+str(time()-depart))
 
     return render(request, 'logs/stats_droits.html', {'stats_list': stats_list})
