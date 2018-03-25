@@ -501,8 +501,7 @@ def del_school(request, instances):
 @login_required
 @can_create(ListShell)
 def add_shell(request):
-    """ Ajouter un établissement d'enseignement à la base de donnée,
-    need cableur"""
+    """ Ajouter un shell à la base de donnée"""
     shell = ShellForm(request.POST or None)
     if shell.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -517,8 +516,7 @@ def add_shell(request):
 @login_required
 @can_edit(ListShell)
 def edit_shell(request, shell_instance, shellid):
-    """ Editer un établissement d'enseignement à partir du shellid dans
-    la base de donnée, need cableur"""
+    """ Editer un shell à partir du shellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
         with transaction.atomic(), reversion.create_revision():

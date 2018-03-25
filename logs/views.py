@@ -42,8 +42,7 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.db.models import Max
+from django.db.models import Count, Max
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -457,7 +456,7 @@ def stats_droits(request):
     depart=time()
     stats_list={}
     
-    for droit in ListRight.objects.all().select_related('group_ptr'):#.prefetch_related('group_ptr__user_set__revision_set'):
+    for droit in ListRight.objects.all().select_related('group_ptr'):
         stats_list[droit]=droit.user_set.all().annotate(num=Count('revision'),last=Max('revision__date_created'))
 
     return render(request, 'logs/stats_droits.html', {'stats_list': stats_list})
