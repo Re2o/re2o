@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+    migrations.AlterUniqueTogether(
+        name='port',
+        unique_together=set([]),
+    ),
     migrations.RemoveField(
         model_name='port',
         name='switch',
