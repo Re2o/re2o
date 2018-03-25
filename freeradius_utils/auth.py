@@ -201,7 +201,7 @@ def post_auth(data):
         if instance_stack:
             # Si c'est le cas, on resélectionne le bon switch dans la stack
             id_stack_member = port.split("-")[1].split('/')[0]
-            nas_instance = Interface.objects.filter(switch__in=Switch.objects.filter(stack=instance_stack).filter(stack_member_id=id_stack_member)).select_related('domain__extension').first()
+            nas_instance = Switch.objects.filter(stack=instance_stack).filter(stack_member_id=id_stack_member).select_related('domain__extension').first()
         # On récupère le numéro du port sur l'output de freeradius. La ligne suivante fonctionne pour cisco, HP et Juniper
         port = port.split(".")[0].split('/')[-1][-2:]
         out = decide_vlan_and_register_switch(nas_instance, nas_type, port, mac)
