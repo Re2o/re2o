@@ -74,6 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> Mon profil</a></li>
+                                    <li><a href="{% url 'machines:new-machine' request.user.id %}"><i class="fa fa-plus"></i> Ajouter une machine</a></li>
                                     <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Se déconnecter</a></li>
                                 </ul>
                             </li>
@@ -84,6 +85,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <ul class="dropdown-menu">
                                     {% can_view_app users %}
                                     <li><a href="{% url 'users:index' %}"><i class="fa fa-users"></i> Gérer les adhérents</a></li>
+                                    {% acl_end %}
+                                    {% can_create Adherent %}
+                                    <li><a href="{% url 'users:new-user' %}"><i class="fa fa-user-plus"></i> Créer un adhérent</a></li>
+                                    {% acl_end %}
+                                    {% can_create Club %}
+                                    <li><a href="{% url 'users:new-club' %}"><i class="fa fa-plus"></i> Créer un club/association</a></li>
                                     {% acl_end %}
                                     {% can_view_app machines %}
                                     <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Gérer les machines</a></li>
