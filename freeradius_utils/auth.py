@@ -301,7 +301,7 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
 
     sw_name = str(nas)
 
-    port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number).first()
+    port = Port.objects.filter(switch=Switch.objects.filter(interface_ptr=nas), port=port_number).first()
     #Si le port est inconnu, on place sur le vlan defaut
     if not port:
         return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK)
