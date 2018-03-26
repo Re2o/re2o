@@ -47,7 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
-from machines.models import Interface
+from machines.models import Machine, Interface
 
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
@@ -109,7 +109,7 @@ class Stack(models.Model):
                 inférieure à l'id minimale"})
 
 
-class Borne(Interface):
+class AccessPoint(Machine):
     """Define a wireless AP. Inherit from machines.interfaces
     
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -125,38 +125,38 @@ class Borne(Interface):
 
     class Meta:
         permissions = (
-            ("view_borne", "Peut voir une borne"),
+            ("view_ap", "Peut voir une borne"),
         )
 
-    def get_instance(borne_id, *args, **kwargs):
-        return Borne.objects.get(pk=borne_id)
+    def get_instance(ap_id, *args, **kwargs):
+        return AccessPoint.objects.get(pk=ap_id)
 
     def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_borne') , u"Vous n'avez pas le droit\
+        return user_request.has_perm('topologie.add_ap') , u"Vous n'avez pas le droit\
             de créer une borne"
 
     def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_borne'):
+        if not user_request.has_perm('topologie.change_ap'):
             return False, u"Vous n'avez pas le droit d'éditer des bornes"
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_borne'):
+        if not user_request.has_perm('topologie.delete_ap'):
             return False, u"Vous n'avez pas le droit de supprimer une borne"
         return True, None
 
     def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_borne'):
+        if not user_request.has_perm('topologie.view_ap'):
             return False, u"Vous n'avez pas le droit de voir les bornes"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_borne'):
+        if not user_request.has_perm('topologie.view_ap'):
             return False, u"Vous n'avez pas le droit de voir les bornes"
         return True, None
 
 
-class Switch(Interface):
+class Switch(Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -262,6 +262,9 @@ class Switch(Interface):
                     reversion.set_comment("Création")
             except IntegrityError:
                 ValidationError("Création d'un port existant.")
+
+    def __str__(self):
+        return str(self.interface_set.first())
 
 
 class ModelSwitch(models.Model):
@@ -416,11 +419,11 @@ class Port(models.Model):
 
     def get_instance(port_id, *args, **kwargs):
         return Port.objects\
-            .select_related('switch__domain__extension')\
             .select_related('machine_interface__domain__extension')\
-            .select_related('machine_interface__switch')\
+            .select_related('machine_interface__machine__switch')\
             .select_related('room')\
             .select_related('related')\
+            .prefetch_related('switch__interface_set__domain__extension')\
             .get(pk=port_id)
 
     def can_create(user_request, *args, **kwargs):

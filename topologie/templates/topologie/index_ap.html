@@ -30,11 +30,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
   <h2>Points d'accès WiFi</h2>
-{% can_create Room %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-borne' %}"><i class="fa fa-plus"></i> Ajouter une borne</a>
+{% can_create AccessPoint %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-ap' %}"><i class="fa fa-plus"></i> Ajouter une borne</a>
 <hr>
 {% acl_end %}
-    {% include "topologie/aff_borne.html" with borne_list=borne_list %}
+    {% include "topologie/aff_ap.html" with ap_list=ap_list %}
     <br />
     <br />
     <br />

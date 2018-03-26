@@ -36,7 +36,7 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    Borne
+    AccessPoint
 )
 
 
@@ -55,7 +55,7 @@ class PortAdmin(VersionAdmin):
     pass
 
 
-class BorneAdmin(VersionAdmin):
+class AccessPointAdmin(VersionAdmin):
     """Administration d'une borne"""
     pass
 
@@ -76,7 +76,7 @@ class ConstructorSwitchAdmin(VersionAdmin):
 
 
 admin.site.register(Port, PortAdmin)
-admin.site.register(Borne, BorneAdmin)
+admin.site.register(AccessPoint, AccessPointAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Switch, SwitchAdmin)
 admin.site.register(Stack, StackAdmin)

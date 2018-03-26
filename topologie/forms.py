@@ -33,9 +33,14 @@ NewSwitchForm)
 from __future__ import unicode_literals
 
 from machines.models import Interface
-from machines.forms import EditInterfaceForm
+from machines.forms import (
+    EditInterfaceForm,
+    EditMachineForm,
+    NewMachineForm
+)
 from django import forms
 from django.forms import ModelForm, Form
+from django.db.models import Prefetch
 from .models import ( 
     Port,
     Switch,
@@ -43,7 +48,7 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    Borne
+    AccessPoint
 )
 
 
@@ -76,10 +81,12 @@ class EditPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class AddPortForm(ModelForm):
@@ -93,10 +100,12 @@ class AddPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class StackForm(ModelForm):
@@ -111,33 +120,33 @@ class StackForm(ModelForm):
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class AddBorneForm(EditInterfaceForm):
+class AddAccessPointForm(NewMachineForm):
     """Formulaire pour la création d'une borne
     Relié directement au modèle borne"""
     class Meta:
-        model = Borne
-        fields = ['mac_address', 'type', 'ipv4', 'details', 'location']
+        model = AccessPoint
+        fields = ['location', 'name']
 
 
-class EditBorneForm(EditInterfaceForm):
-    """Edition d'une interface. Edition complète"""
+class EditAccessPointForm(EditMachineForm):
+    """Edition d'une borne. Edition complète"""
     class Meta:
-        model = Borne
-        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location']
+        model = AccessPoint
+        fields = '__all__'
 
 
-class EditSwitchForm(EditInterfaceForm):
+class EditSwitchForm(EditMachineForm):
     """Permet d'éditer un switch : nom et nombre de ports"""
     class Meta:
         model = Switch
-        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
+        fields = '__all__'
 
 
-class NewSwitchForm(EditInterfaceForm):
+class NewSwitchForm(NewMachineForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
+        fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
 
 
 class EditRoomForm(ModelForm):
