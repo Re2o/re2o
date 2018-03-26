@@ -47,7 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
-from machines.models import Interface
+from machines.models import Machine, Interface
 
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
@@ -109,7 +109,7 @@ class Stack(models.Model):
                 inférieure à l'id minimale"})
 
 
-class AccessPoint(Interface):
+class AccessPoint(Machine):
     """Define a wireless AP. Inherit from machines.interfaces
     
     Definition pour une borne wifi , hérite de machines.interfaces

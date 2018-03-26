@@ -43,10 +43,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		</thead>
 		{% for ap in ap_list %}
 		<tr>
-			<td>{{ap}}</td>
-			<td>{{ap.mac_address}}</td>
-			<td>{{ap.ipv4}}</td>
-			<td>{{ap.details}}</td>
+			<td>{{ap.interface_set.first}}</td>
+			<td>{{ap.interface_set.first.mac_address}}</td>
+			<td>{{ap.interface_set.first.ipv4}}</td>
+			<td>{{ap.interface_set.first.details}}</td>
 			<td>{{ap.location}}</td>
 			<td class="text-right">
 				<a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'ap' ap.pk %}">
@@ -58,7 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 				</a>
 				{% acl_end %}
 				{% can_delete ap %}
-				<a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'machines:del-interface' ap.id %}">
+				<a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'machines:del-machine' ap.id %}">
 					<i class="fa fa-trash"></i>
 				</a>
 				{% acl_end %}

@@ -535,45 +535,45 @@ def new_ap(request):
         request.POST or None,
         user=request.user
     )
-    machine = NewMachineForm(
+    interface = AddInterfaceForm(
         request.POST or None,
         user=request.user
     )
     domain = DomainForm(
         request.POST or None,
         )
-    if ap.is_valid() and machine.is_valid():
+    if ap.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
             return redirect(reverse('topologie:index'))
-        new_machine = machine.save(commit=False)
-        new_machine.user = user
         new_ap = ap.save(commit=False)
-        domain.instance.interface_parent = new_ap
+        new_ap.user = user
+        new_interface = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface
         if domain.is_valid():
             new_domain_instance = domain.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
-            new_ap.machine = new_machine
             with transaction.atomic(), reversion.create_revision():
                 new_ap.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
-            new_domain_instance.interface_parent = new_ap
+            new_interface.machine = new_ap
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain_instance.interface_parent = new_interface
             with transaction.atomic(), reversion.create_revision():
                 new_domain_instance.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "La borne a été créé")
             return redirect(reverse('topologie:index-ap'))
-    i_mbf_param = generate_ipv4_mbf_param(ap, False)
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form({
-        'topoform': ap,
-        'machineform': machine,
+        'topoform': interface,
+        'machineform': ap,
         'domainform': domain,
         'i_mbf_param': i_mbf_param,
         'device' : 'wifi ap',
@@ -585,41 +585,41 @@ def new_ap(request):
 def edit_ap(request, ap, ap_id):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
+    interface_form = EditInterfaceForm(
+        request.POST or None,
+        user=request.user,
+        instance=ap.interface_set.first()
+    )
     ap_form = EditAccessPointForm(
         request.POST or None,
         user=request.user,
         instance=ap
     )
-    machine_form = NewMachineForm(
-        request.POST or None,
-        user=request.user,
-        instance=ap.machine
-    )
     domain_form = DomainForm(
         request.POST or None,
-        instance=ap.domain
+        instance=ap.interface_set.first().domain
         )
-    if ap_form.is_valid() and machine_form.is_valid():
+    if ap_form.is_valid() and interface_form.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
             return redirect(reverse('topologie:index-ap'))
-        new_machine = machine_form.save(commit=False)
         new_ap = ap_form.save(commit=False)
+        new_interface = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            new_machine.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in machine_form.changed_data)
-            )
         with transaction.atomic(), reversion.create_revision():
             new_ap.save()
             reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in ap_form.changed_data)
+            )
+        with transaction.atomic(), reversion.create_revision():
+            new_interface.save()
+            reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in ap_form.changed_data)
+                field for field in interface_form.changed_data)
             )
             reversion.set_comment("Création")
         with transaction.atomic(), reversion.create_revision():
@@ -630,10 +630,10 @@ def edit_ap(request, ap, ap_id):
             )
         messages.success(request, "La borne a été modifiée")
         return redirect(reverse('topologie:index-ap'))
-    i_mbf_param = generate_ipv4_mbf_param(ap_form, False )
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
     return form({
-        'topoform': ap_form,
-        'machineform': machine_form,
+        'topoform': interface_form,
+        'machineform': ap_form,
         'domainform': domain_form,
         'i_mbf_param': i_mbf_param,
         'device' : 'wifi ap',

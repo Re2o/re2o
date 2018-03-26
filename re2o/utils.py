@@ -234,10 +234,10 @@ class SortTable:
         'default': ['name']
     }
     TOPOLOGIE_INDEX_BORNE = {
-        'ap_name': ['domain__name'],
-        'ap_ip': ['ipv4__ipv4'],
-        'ap_mac': ['mac_address'],
-        'default': ['domain__name']
+        'ap_name': ['interface__domain__name'],
+        'ap_ip': ['interface__ipv4__ipv4'],
+        'ap_mac': ['interface__mac_address'],
+        'default': ['interface__domain__name']
     }
     TOPOLOGIE_INDEX_STACK = {
         'stack_name': ['name'],

@@ -33,7 +33,11 @@ NewSwitchForm)
 from __future__ import unicode_literals
 
 from machines.models import Interface
-from machines.forms import EditInterfaceForm
+from machines.forms import (
+    EditInterfaceForm,
+    EditMachineForm,
+    NewMachineForm
+)
 from django import forms
 from django.forms import ModelForm, Form
 from .models import ( 
@@ -111,19 +115,19 @@ class StackForm(ModelForm):
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class AddAccessPointForm(EditInterfaceForm):
+class AddAccessPointForm(NewMachineForm):
     """Formulaire pour la création d'une borne
     Relié directement au modèle borne"""
     class Meta:
         model = AccessPoint
-        fields = ['mac_address', 'type', 'ipv4', 'details', 'location']
+        fields = ['location', 'name']
 
 
-class EditAccessPointForm(EditInterfaceForm):
-    """Edition d'une interface. Edition complète"""
+class EditAccessPointForm(EditMachineForm):
+    """Edition d'une borne. Edition complète"""
     class Meta:
         model = AccessPoint
-        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location']
+        fields = '__all__'
 
 
 class EditSwitchForm(EditInterfaceForm):
