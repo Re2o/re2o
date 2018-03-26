@@ -55,7 +55,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td>{{switch.stack.name}}</td>
        <td>{{switch.stack_member_id}}</td>
        <td>{{switch.model}}</td>
-       <td>{{switch.details}}</td>
+       <td>{{switch.interface_set.first.details}}</td>
        <td class="text-right">
        	   {% include 'buttons/history.html' with href='topologie:history' name='switch' id=switch.pk%}
        	   {% can_edit switch %}
