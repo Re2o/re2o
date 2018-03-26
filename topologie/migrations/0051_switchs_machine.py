@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('topologie', '0051_transferports'),
+        ('topologie', '0050_port_new_switch'),
     ]
 
     def transfer_sw(apps, schema_editor):
@@ -36,7 +36,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(transfer_sw, untransfer_sw),
-        migrations.DeleteModel(
-            name='Switch',
-        ),
     ]

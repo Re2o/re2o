@@ -9,12 +9,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('topologie', '0052_switchs_machine'),
+        ('topologie', '0052_transferports'),
     ]
 
 
 
     operations = [
+        migrations.DeleteModel(
+        name='Switch',
+        ),
         migrations.RenameModel(
         old_name='NewSw',
         new_name='Switch',
