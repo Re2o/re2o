@@ -156,7 +156,7 @@ class AccessPoint(Machine):
         return True, None
 
 
-class Switch(Interface):
+class Switch(Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)

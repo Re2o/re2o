@@ -130,18 +130,18 @@ class EditAccessPointForm(EditMachineForm):
         fields = '__all__'
 
 
-class EditSwitchForm(EditInterfaceForm):
+class EditSwitchForm(EditMachineForm):
     """Permet d'éditer un switch : nom et nombre de ports"""
     class Meta:
         model = Switch
-        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
+        fields = '__all__'
 
 
-class NewSwitchForm(EditInterfaceForm):
+class NewSwitchForm(NewMachineForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details', 'location', 'number', 'stack', 'stack_member_id']
+        fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
 
 
 class EditRoomForm(ModelForm):

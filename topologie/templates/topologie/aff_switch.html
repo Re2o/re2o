@@ -46,10 +46,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    <tr>
        <td>
            <a title="Configuer" href="{% url 'topologie:index-port' switch.pk %}">
-               {{switch}}
+           {{switch.interface_set.first}}
            </a>
        </td>
-       <td>{{switch.ipv4}}</td>
+       <td>{{switch.interface_set.first.ipv4}}</td>
        <td>{{switch.location}}</td>
        <td>{{switch.number}}</td>
        <td>{{switch.stack.name}}</td>
@@ -62,7 +62,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
            {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
 	   {% acl_end %}
 	   {% can_delete switch %}
-           {% include 'buttons/suppr.html' with href='machines:del-interface' id=switch.id %} 
+           {% include 'buttons/suppr.html' with href='machines:del-machine' id=switch.id %} 
 	   {% acl_end %}
 	   {% can_create Port %}
 	   {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.pk desc='Création de ports'%}

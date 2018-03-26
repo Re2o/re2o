@@ -213,8 +213,8 @@ class SortTable:
         'default': ['-date']
     }
     TOPOLOGIE_INDEX = {
-        'switch_dns': ['switch_interface__domain__name'],
-        'switch_ip': ['switch_interface__ipv4__ipv4'],
+        'switch_dns': ['interface__domain__name'],
+        'switch_ip': ['interface__ipv4__ipv4'],
         'switch_loc': ['location'],
         'switch_ports': ['number'],
         'switch_stack': ['stack__name'],

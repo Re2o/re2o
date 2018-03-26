@@ -92,9 +92,9 @@ from preferences.models import AssoOption, GeneralOption
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
     switch_list = Switch.objects\
-        .select_related('domain__extension')\
-        .select_related('ipv4')\
-        .select_related('domain')\
+        .prefetch_related('interface_set__domain__extension')\
+        .prefetch_related('interface_set__ipv4__ip_type')\
+        .prefetch_related('interface_set__type__ip_type__extension')\
         .select_related('stack')
     switch_list = SortTable.sort(
         switch_list,
@@ -127,9 +127,8 @@ def index_port(request, switch, switch_id):
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
         .select_related('machine_interface__machine__user')\
-        .select_related(
-            'related__switch__domain__extension'
-        )\
+        .select_related('related__switch')\
+        .prefetch_related('related__switch__interface_set__domain__extension')\
         .select_related('switch')
     port_list = SortTable.sort(
         port_list,
@@ -385,45 +384,45 @@ def new_switch(request):
         request.POST or None,
         user=request.user
     )
-    machine = NewMachineForm(
+    interface = AddInterfaceForm(
         request.POST or None,
         user=request.user
     )
     domain = DomainForm(
         request.POST or None,
         )
-    if switch.is_valid() and machine.is_valid():
+    if switch.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
             return redirect(reverse('topologie:index'))
-        new_machine = machine.save(commit=False)
-        new_machine.user = user
-        new_switch_instance = switch.save(commit=False)
-        domain.instance.interface_parent = new_switch_instance
+        new_switch = switch.save(commit=False)
+        new_switch.user = user
+        new_interface_instance = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface_instance
         if domain.is_valid():
             new_domain_instance = domain.save(commit=False)
             with transaction.atomic(), reversion.create_revision():
-                new_machine.save()
+                new_switch.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
-            new_switch_instance.machine = new_machine
+            new_interface_instance.machine = new_switch
             with transaction.atomic(), reversion.create_revision():
-                new_switch_instance.save()
+                new_interface_instance.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
-            new_domain_instance.interface_parent = new_switch_instance
+            new_domain_instance.interface_parent = new_interface_instance
             with transaction.atomic(), reversion.create_revision():
                 new_domain_instance.save()
                 reversion.set_user(request.user)
                 reversion.set_comment("Création")
             messages.success(request, "Le switch a été créé")
             return redirect(reverse('topologie:index'))
-    i_mbf_param = generate_ipv4_mbf_param(switch, False)
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form({
-        'topoform': switch,
-        'machineform': machine,
+        'topoform': interface,
+        'machineform': switch,
         'domainform': domain,
         'i_mbf_param': i_mbf_param,
         'device' : 'switch',
@@ -479,32 +478,32 @@ def edit_switch(request, switch, switch_id):
         instance=switch,
         user=request.user
         )
-    machine_form = EditMachineForm(
+    interface_form = EditInterfaceForm(
         request.POST or None,
-        instance=switch.machine,
+        instance=switch.interface_set.first(),
         user=request.user
         )
     domain_form = DomainForm(
         request.POST or None,
-        instance=switch.domain
+        instance=switch.interface_set.first().domain
         )
-    if switch_form.is_valid() and machine_form.is_valid():
-        new_machine = machine_form.save(commit=False)
-        new_switch_instance = switch_form.save(commit=False)
+    if switch_form.is_valid() and interface_form.is_valid():
+        new_switch = switch_form.save(commit=False)
+        new_interface_instance = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
-            new_machine.save()
+            new_switch.save()
             reversion.set_user(request.user)
             reversion.set_comment(
                 "Champs modifié(s) : %s" % ', '.join(
-                    field for field in machine_form.changed_data
+                    field for field in switch_form.changed_data
                     )
                 )
         with transaction.atomic(), reversion.create_revision():
-            new_switch_instance.save()
+            new_interface_instance.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in switch_form.changed_data)
+                field for field in interface_form.changed_data)
                                  )
         with transaction.atomic(), reversion.create_revision():
             new_domain.save()
@@ -514,11 +513,11 @@ def edit_switch(request, switch, switch_id):
                                  )
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
-    i_mbf_param = generate_ipv4_mbf_param(switch_form, False )
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
     return form({
         'id_switch': switch_id,
-        'topoform': switch_form,
-        'machineform': machine_form,
+        'topoform': interface_form,
+        'machineform': switch_form,
         'domainform': domain_form,
         'i_mbf_param': i_mbf_param,
         'device' : 'switch',
