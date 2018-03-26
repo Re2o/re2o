@@ -80,10 +80,22 @@ urlpatterns = [
         name='edit-listright'
     ),
     url(r'^del_listright/$', views.del_listright, name='del-listright'),
+    url(r'^add_shell/$', views.add_shell, name='add-shell'),
+    url(
+        r'^edit_shell/(?P<shellid>[0-9]+)$',
+        views.edit_shell,
+        name='edit-shell'
+    ),
+    url(
+        r'^del_shell/(?P<shellid>[0-9]+)$',
+        views.del_shell,
+        name='del-shell'
+    ),
     url(r'^profil/(?P<userid>[0-9]+)$', views.profil, name='profil'),
     url(r'^index_ban/$', views.index_ban, name='index-ban'),
     url(r'^index_white/$', views.index_white, name='index-white'),
     url(r'^index_school/$', views.index_school, name='index-school'),
+    url(r'^index_shell/$', views.index_shell, name='index-shell'),
     url(r'^index_listright/$', views.index_listright, name='index-listright'),
     url(
         r'^index_serviceusers/$',

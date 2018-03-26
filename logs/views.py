@@ -42,10 +42,12 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.db.models import Count, Max
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
+
+from time import time
 
 from users.models import (
     User,
@@ -446,3 +448,15 @@ def stats_actions(request):
         },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
+
+@login_required
+@can_view_app('users')
+def stats_droits(request):
+    """Affiche la liste des droits et les users ayant chaque droit"""
+    depart=time()
+    stats_list={}
+    
+    for droit in ListRight.objects.all().select_related('group_ptr'):
+        stats_list[droit]=droit.user_set.all().annotate(num=Count('revision'),last=Max('revision__date_created'))
+
+    return render(request, 'logs/stats_droits.html', {'stats_list': stats_list})

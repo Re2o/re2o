@@ -192,19 +192,21 @@ def post_auth(data):
 
     mac = data.get('Calling-Station-Id', None)
 
+    # Switch et bornes héritent de machine et peuvent avoir plusieurs interfaces filles
+    nas_machine = nas_instance.machine
     # Si il s'agit d'un switch
-    if hasattr(nas_instance, 'switch'):
+    if hasattr(nas_machine, 'switch'):
         port = data.get('NAS-Port-Id', data.get('NAS-Port', None))
         #Pour les infrastructures possédant des switchs Juniper :
         #On vérifie si le switch fait partie d'un stack Juniper
-        instance_stack = nas_instance.switch.stack
+        instance_stack = nas_machine.switch.stack
         if instance_stack:
             # Si c'est le cas, on resélectionne le bon switch dans la stack
             id_stack_member = port.split("-")[1].split('/')[0]
-            nas_instance = Interface.objects.filter(switch__in=Switch.objects.filter(stack=instance_stack).filter(stack_member_id=id_stack_member)).select_related('domain__extension').first()
+            nas_machine = Switch.objects.filter(stack=instance_stack).filter(stack_member_id=id_stack_member).prefetch_related('interface_set__domain__extension').first()
         # On récupère le numéro du port sur l'output de freeradius. La ligne suivante fonctionne pour cisco, HP et Juniper
         port = port.split(".")[0].split('/')[-1][-2:]
-        out = decide_vlan_and_register_switch(nas_instance, nas_type, port, mac)
+        out = decide_vlan_and_register_switch(nas_machine, nas_type, port, mac)
         sw_name, room, reason, vlan_id = out
 
         log_message = '(fil) %s -> %s [%s%s]' % \
@@ -271,7 +273,7 @@ def check_user_machine_and_register(nas_type, username, mac_address):
         return (False, u"Machine inconnue", '')
 
 
-def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
+def decide_vlan_and_register_switch(nas_machine, nas_type, port_number, mac_address):
     """Fonction de placement vlan pour un switch en radius filaire auth par mac.
     Plusieurs modes :
     - nas inconnu, port inconnu : on place sur le vlan par defaut VLAN_OK
@@ -296,12 +298,12 @@ def decide_vlan_and_register_switch(nas, nas_type, port_number, mac_address):
     # Get port from switch and port number
     extra_log = ""
     # Si le NAS est inconnu, on place sur le vlan defaut
-    if not nas:
+    if not nas_machine:
         return ('?', u'Chambre inconnue', u'Nas inconnu', VLAN_OK)
 
-    sw_name = str(nas)
+    sw_name = str(nas_machine)
 
-    port = Port.objects.filter(switch=Switch.objects.filter(switch_interface=nas), port=port_number).first()
+    port = Port.objects.filter(switch=Switch.objects.filter(machine_ptr=nas_machine), port=port_number).first()
     #Si le port est inconnu, on place sur le vlan defaut
     if not port:
         return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK)

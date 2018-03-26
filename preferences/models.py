@@ -89,6 +89,12 @@ class OptionalUser(PreferencesModel):
         default=False,
         help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
+    shell_default = models.OneToOneField(
+        'users.ListShell',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         permissions = (

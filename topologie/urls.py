@@ -35,7 +35,11 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^new_switch/$', views.new_switch, name='new-switch'),
+    url(r'^index_ap/$', views.index_ap, name='index-ap'),
+    url(r'^new_ap/$', views.new_ap, name='new-ap'),
+    url(r'^edit_ap/(?P<ap_id>[0-9]+)$',
+        views.edit_ap,
+        name='edit-ap'),
     url(r'^create_ports/(?P<switch_id>[0-9]+)$',
         views.create_ports,
         name='create-ports'),
@@ -43,6 +47,7 @@ urlpatterns = [
     url(r'^new_room/$', views.new_room, name='new-room'),
     url(r'^edit_room/(?P<room_id>[0-9]+)$', views.edit_room, name='edit-room'),
     url(r'^del_room/(?P<room_id>[0-9]+)$', views.del_room, name='del-room'),
+    url(r'^new_switch/$', views.new_switch, name='new-switch'),
     url(r'^switch/(?P<switch_id>[0-9]+)$',
         views.index_port,
         name='index-port'),

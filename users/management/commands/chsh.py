@@ -54,7 +54,11 @@ class Command(BaseCommand):
             raise CommandError(msg)
 
         shells = ListShell.objects.all()
-        self.stdout.write("Choisissez un shell pour l'utilisateur %s :" % target_user.pseudo)
+
+        current_shell = "inconnu"
+        if target_user.shell:
+            current_shell = target_user.shell.get_pretty_name()
+        self.stdout.write("Choisissez un shell pour l'utilisateur %s (le shell actuel est %s) :" % (target_user.pseudo, current_shell))
         for shell in shells:
             self.stdout.write("%d - %s (%s)" % (shell.id, shell.get_pretty_name(), shell.shell))
         shell_id = input("Entrez un nombre : ")

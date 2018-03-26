@@ -33,9 +33,23 @@ NewSwitchForm)
 from __future__ import unicode_literals
 
 from machines.models import Interface
+from machines.forms import (
+    EditInterfaceForm,
+    EditMachineForm,
+    NewMachineForm
+)
 from django import forms
 from django.forms import ModelForm, Form
-from .models import Port, Switch, Room, Stack, ModelSwitch, ConstructorSwitch
+from django.db.models import Prefetch
+from .models import ( 
+    Port,
+    Switch,
+    Room,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch,
+    AccessPoint
+)
 
 
 class PortForm(ModelForm):
@@ -67,10 +81,12 @@ class EditPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__switch_interface__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class AddPortForm(ModelForm):
@@ -84,10 +100,12 @@ class AddPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__switch_interface__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class StackForm(ModelForm):
@@ -102,32 +120,34 @@ class StackForm(ModelForm):
         super(StackForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class EditSwitchForm(ModelForm):
+class AddAccessPointForm(NewMachineForm):
+    """Formulaire pour la création d'une borne
+    Relié directement au modèle borne"""
+    class Meta:
+        model = AccessPoint
+        fields = ['location', 'name']
+
+
+class EditAccessPointForm(EditMachineForm):
+    """Edition d'une borne. Edition complète"""
+    class Meta:
+        model = AccessPoint
+        fields = '__all__'
+
+
+class EditSwitchForm(EditMachineForm):
     """Permet d'éditer un switch : nom et nombre de ports"""
     class Meta:
         model = Switch
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['switch_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
-        self.fields['location'].label = 'Localisation'
-        self.fields['number'].label = 'Nombre de ports'
 
-
-class NewSwitchForm(ModelForm):
+class NewSwitchForm(NewMachineForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['location', 'number', 'details', 'stack', 'stack_member_id']
+        fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
 
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['location'].label = 'Localisation'
-        self.fields['number'].label = 'Nombre de ports'
 
 class EditRoomForm(ModelForm):
     """Permet d'éediter le nom et commentaire d'une prise murale"""

@@ -45,7 +45,9 @@ from django.db import IntegrityError
 from django.utils import timezone
 from django.db import transaction
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+
 
 from rest_framework.renderers import JSONRenderer
 
@@ -63,6 +65,7 @@ from users.models import (
     ServiceUser,
     Adherent,
     Club,
+    ListShell,
 )
 from users.forms import (
     BanForm,
@@ -72,6 +75,7 @@ from users.forms import (
     NewListRightForm,
     StateForm,
     SchoolForm,
+    ShellForm,
     EditServiceUserForm,
     ServiceUserForm,
     ListRightForm,
@@ -273,8 +277,10 @@ def del_group(request, user, userid, listrightid):
     with transaction.atomic(), reversion.create_revision():
         user.groups.remove(ListRight.objects.get(id=listrightid))
         user.save()
+        reversion.set_user(request.user)
+        reversion.set_comment("Suppression de droit")
         messages.success(request, "Droit supprimé à %s" % user)
-    return redirect(reverse('users:index-listright'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
@@ -493,6 +499,55 @@ def del_school(request, instances):
 
 
 @login_required
+@can_create(ListShell)
+def add_shell(request):
+    """ Ajouter un shell à la base de donnée"""
+    shell = ShellForm(request.POST or None)
+    if shell.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            shell.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Le shell a été ajouté")
+        return redirect(reverse('users:index-shell'))
+    return form({'userform': shell, 'action_name':'Ajouter'}, 'users/user.html', request)
+
+
+@login_required
+@can_edit(ListShell)
+def edit_shell(request, shell_instance, shellid):
+    """ Editer un shell à partir du shellid"""
+    shell = ShellForm(request.POST or None, instance=shell_instance)
+    if shell.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            shell.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in shell.changed_data
+            ))
+        messages.success(request, "Le shell a été modifié")
+        return redirect(reverse('users:index-shell'))
+    return form({'userform': shell, 'action_name':'Editer'}, 'users/user.html', request)
+
+
+@login_required
+@can_delete(ListShell)
+def del_shell(request, shell, shellid):
+    """Destruction d'un shell"""
+    if request.method == "POST":
+        with transaction.atomic(), reversion.create_revision():
+            shell.delete()
+            reversion.set_user(request.user)
+        messages.success(request, "Le shell a été détruit")
+        return redirect(reverse('users:index-shell'))
+    return form(
+        {'objet': shell, 'objet_name': 'shell'},
+        'users/delete.html',
+        request
+    )
+
+
+@login_required
 @can_create(ListRight)
 def add_listright(request):
     """ Ajouter un droit/groupe, nécessite droit bureau.
@@ -690,7 +745,7 @@ def index_white(request):
 @login_required
 @can_view_all(School)
 def index_school(request):
-    """ Affiche l'ensemble des établissement, need droit cableur """
+    """ Affiche l'ensemble des établissement"""
     school_list = School.objects.order_by('name')
     return render(
         request,
@@ -700,9 +755,21 @@ def index_school(request):
 
 
 @login_required
+@can_view_all(ListShell)
+def index_shell(request):
+    """ Affiche l'ensemble des shells"""
+    shell_list = ListShell.objects.order_by('shell')
+    return render(
+        request,
+        'users/index_shell.html',
+        {'shell_list': shell_list}
+    )
+
+
+@login_required
 @can_view_all(ListRight)
 def index_listright(request):
-    """ Affiche l'ensemble des droits , need droit cableur """
+    """ Affiche l'ensemble des droits"""
     listright_list = ListRight.objects.order_by('unix_name')\
         .prefetch_related('permissions').prefetch_related('user_set')
     return render(

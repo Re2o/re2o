@@ -29,7 +29,15 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import Port, Room, Switch, Stack, ModelSwitch, ConstructorSwitch
+from .models import (
+    Port,
+    Room,
+    Switch,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch,
+    AccessPoint
+)
 
 
 class StackAdmin(VersionAdmin):
@@ -44,6 +52,11 @@ class SwitchAdmin(VersionAdmin):
 
 class PortAdmin(VersionAdmin):
     """Administration d'un port de switches"""
+    pass
+
+
+class AccessPointAdmin(VersionAdmin):
+    """Administration d'une borne"""
     pass
 
 
@@ -63,6 +76,7 @@ class ConstructorSwitchAdmin(VersionAdmin):
 
 
 admin.site.register(Port, PortAdmin)
+admin.site.register(AccessPoint, AccessPointAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Switch, SwitchAdmin)
 admin.site.register(Stack, StackAdmin)

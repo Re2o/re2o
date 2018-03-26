@@ -47,6 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
+from machines.models import Machine, Interface
 
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
@@ -108,7 +109,54 @@ class Stack(models.Model):
                 inférieure à l'id minimale"})
 
 
-class Switch(models.Model):
+class AccessPoint(Machine):
+    """Define a wireless AP. Inherit from machines.interfaces
+    
+    Definition pour une borne wifi , hérite de machines.interfaces
+    """
+    PRETTY_NAME = "Borne WiFi"
+
+    location = models.CharField(    
+        max_length=255,
+        help_text="Détails sur la localisation de l'AP",
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        permissions = (
+            ("view_ap", "Peut voir une borne"),
+        )
+
+    def get_instance(ap_id, *args, **kwargs):
+        return AccessPoint.objects.get(pk=ap_id)
+
+    def can_create(user_request, *args, **kwargs):
+        return user_request.has_perm('topologie.add_ap') , u"Vous n'avez pas le droit\
+            de créer une borne"
+
+    def can_edit(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.change_ap'):
+            return False, u"Vous n'avez pas le droit d'éditer des bornes"
+        return True, None
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.delete_ap'):
+            return False, u"Vous n'avez pas le droit de supprimer une borne"
+        return True, None
+
+    def can_view_all(user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.view_ap'):
+            return False, u"Vous n'avez pas le droit de voir les bornes"
+        return True, None
+
+    def can_view(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('topologie.view_ap'):
+            return False, u"Vous n'avez pas le droit de voir les bornes"
+        return True, None
+
+
+class Switch(Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -122,13 +170,9 @@ class Switch(models.Model):
     id_max de la stack parente"""
     PRETTY_NAME = "Switch / Commutateur"
 
-    switch_interface = models.OneToOneField(
-        'machines.Interface',
-        on_delete=models.CASCADE
-        )
+
     location = models.CharField(max_length=255)
     number = models.PositiveIntegerField()
-    details = models.CharField(max_length=255, blank=True)
     stack = models.ForeignKey(
         'topologie.Stack',
         blank=True,
@@ -176,11 +220,10 @@ class Switch(models.Model):
             return False, u"Vous n'avez pas le droit de voir les switch"
         return True, None
  
-    def __str__(self):
-        return self.location + ' ' + str(self.switch_interface)
-
     def clean(self):
-        """ Verifie que l'id stack est dans le bon range"""
+        """ Verifie que l'id stack est dans le bon range
+        Appelle également le clean de la classe parente"""
+        super(Switch, self).clean()
         if self.stack is not None:
             if self.stack_member_id is not None:
                 if (self.stack_member_id > self.stack.member_id_max) or\
@@ -192,6 +235,7 @@ class Switch(models.Model):
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
+
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données sont cohérentes. """
 
@@ -218,6 +262,9 @@ class Switch(models.Model):
                     reversion.set_comment("Création")
             except IntegrityError:
                 ValidationError("Création d'un port existant.")
+
+    def __str__(self):
+        return str(self.interface_set.first())
 
 
 class ModelSwitch(models.Model):
@@ -372,11 +419,11 @@ class Port(models.Model):
 
     def get_instance(port_id, *args, **kwargs):
         return Port.objects\
-            .select_related('switch__switch_interface__domain__extension')\
             .select_related('machine_interface__domain__extension')\
-            .select_related('machine_interface__switch')\
+            .select_related('machine_interface__machine__switch')\
             .select_related('room')\
             .select_related('related')\
+            .prefetch_related('switch__interface_set__domain__extension')\
             .get(pk=port_id)
 
     def can_create(user_request, *args, **kwargs):

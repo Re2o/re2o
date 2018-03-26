@@ -41,7 +41,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
@@ -53,7 +53,8 @@ from topologie.models import (
     Room,
     Stack,
     ModelSwitch,
-    ConstructorSwitch
+    ConstructorSwitch,
+    AccessPoint
 )
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import (
@@ -62,7 +63,9 @@ from topologie.forms import (
     StackForm,
     EditModelSwitchForm,
     EditConstructorSwitchForm,
-    CreatePortsForm
+    CreatePortsForm,
+    AddAccessPointForm,
+    EditAccessPointForm
 )
 from users.views import form
 from re2o.utils import SortTable
@@ -81,6 +84,7 @@ from machines.forms import (
     AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
+from machines.models import Interface
 from preferences.models import AssoOption, GeneralOption
 
 
@@ -89,9 +93,10 @@ from preferences.models import AssoOption, GeneralOption
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
     switch_list = Switch.objects\
-        .select_related('switch_interface__domain__extension')\
-        .select_related('switch_interface__ipv4')\
-        .select_related('switch_interface__domain')\
+        .prefetch_related(Prefetch(
+            'interface_set',
+        queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+        ))\
         .select_related('stack')
     switch_list = SortTable.sort(
         switch_list,
@@ -124,9 +129,11 @@ def index_port(request, switch, switch_id):
         .select_related('room')\
         .select_related('machine_interface__domain__extension')\
         .select_related('machine_interface__machine__user')\
-        .select_related(
-            'related__switch__switch_interface__domain__extension'
-        )\
+        .select_related('related__switch')\
+        .prefetch_related(Prefetch(
+            'related__switch__interface_set',
+            queryset=Interface.objects.select_related('domain__extension')
+        ))\
         .select_related('switch')
     port_list = SortTable.sort(
         port_list,
@@ -169,11 +176,42 @@ def index_room(request):
 
 
 @login_required
+@can_view_all(AccessPoint)
+def index_ap(request):
+    """ Affichage de l'ensemble des bornes"""
+    ap_list = AccessPoint.objects\
+        .prefetch_related(Prefetch(
+            'interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+        ))
+    ap_list = SortTable.sort(
+        ap_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_BORNE
+    )
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    paginator = Paginator(ap_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        ap_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        ap_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        ap_list = paginator.page(paginator.num_pages)
+    return render(request, 'topologie/index_ap.html', {
+        'ap_list': ap_list
+        })
+
+
+@login_required
 @can_view_all(Stack)
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
-        .prefetch_related('switch_set__switch_interface__domain__extension')
+        .prefetch_related('switch_set__domain__extension')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
@@ -351,58 +389,53 @@ def new_switch(request):
     """ Creation d'un switch. Cree en meme temps l'interface et la machine
     associée. Vue complexe. Appelle successivement les 4 models forms
     adaptés : machine, interface, domain et switch"""
-    switch = NewSwitchForm(request.POST or None)
-    machine = NewMachineForm(
+    switch = NewSwitchForm(
         request.POST or None,
         user=request.user
     )
     interface = AddInterfaceForm(
         request.POST or None,
         user=request.user
-        )
+    )
     domain = DomainForm(
         request.POST or None,
         )
-    if switch.is_valid() and machine.is_valid() and interface.is_valid():
+    if switch.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
             messages.error(request, "L'user association n'existe pas encore,\
             veuillez le créer ou le linker dans preferences")
             return redirect(reverse('topologie:index'))
-        new_machine = machine.save(commit=False)
-        new_machine.user = user
-        new_interface = interface.save(commit=False)
-        new_switch_instance = switch.save(commit=False)
-        new_domain_instance = domain.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            new_machine.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        new_interface.machine = new_machine
-        with transaction.atomic(), reversion.create_revision():
-            new_interface.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        new_domain_instance.interface_parent = new_interface
-        with transaction.atomic(), reversion.create_revision():
-            new_domain_instance.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        new_switch_instance.switch_interface = new_interface
-        with transaction.atomic(), reversion.create_revision():
-            new_switch_instance.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        messages.success(request, "Le switch a été créé")
-        return redirect(reverse('topologie:index'))
-    i_mbf_param = generate_ipv4_mbf_param( interface, False)
+        new_switch = switch.save(commit=False)
+        new_switch.user = user
+        new_interface_instance = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface_instance
+        if domain.is_valid():
+            new_domain_instance = domain.save(commit=False)
+            with transaction.atomic(), reversion.create_revision():
+                new_switch.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_interface_instance.machine = new_switch
+            with transaction.atomic(), reversion.create_revision():
+                new_interface_instance.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain_instance.interface_parent = new_interface_instance
+            with transaction.atomic(), reversion.create_revision():
+                new_domain_instance.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "Le switch a été créé")
+            return redirect(reverse('topologie:index'))
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form({
-        'topoform': switch,
-        'machineform': machine,
-        'interfaceform': interface,
+        'topoform': interface,
+        'machineform': switch,
         'domainform': domain,
-        'i_mbf_param': i_mbf_param
-        }, 'topologie/switch.html', request)
+        'i_mbf_param': i_mbf_param,
+        'device' : 'switch',
+        }, 'topologie/topo_more.html', request)
 
 
 @login_required
@@ -440,7 +473,6 @@ def create_ports(request, switch_id):
             'topologie:index-port',
             kwargs={'switch_id':switch_id}
             ))
-
     return form({'id_switch': switch_id, 'topoform': port_form}, 'topologie/switch.html', request)
 
 
@@ -450,37 +482,34 @@ def edit_switch(request, switch, switch_id):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
 
-    switch_form = EditSwitchForm(request.POST or None, instance=switch)
-    machine_form = EditMachineForm(
+    switch_form = EditSwitchForm(
         request.POST or None,
-        instance=switch.switch_interface.machine,
+        instance=switch,
         user=request.user
         )
     interface_form = EditInterfaceForm(
         request.POST or None,
-        instance=switch.switch_interface,
+        instance=switch.interface_set.first(),
         user=request.user
         )
     domain_form = DomainForm(
         request.POST or None,
-        instance=switch.switch_interface.domain
+        instance=switch.interface_set.first().domain
         )
-    if switch_form.is_valid() and machine_form.is_valid()\
-            and interface_form.is_valid():
-        new_interface = interface_form.save(commit=False)
-        new_machine = machine_form.save(commit=False)
-        new_switch_instance = switch_form.save(commit=False)
+    if switch_form.is_valid() and interface_form.is_valid():
+        new_switch = switch_form.save(commit=False)
+        new_interface_instance = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
-            new_machine.save()
+            new_switch.save()
             reversion.set_user(request.user)
             reversion.set_comment(
                 "Champs modifié(s) : %s" % ', '.join(
-                    field for field in machine_form.changed_data
+                    field for field in switch_form.changed_data
                     )
                 )
         with transaction.atomic(), reversion.create_revision():
-            new_interface.save()
+            new_interface_instance.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
                 field for field in interface_form.changed_data)
@@ -491,24 +520,133 @@ def edit_switch(request, switch, switch_id):
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
                 field for field in domain_form.changed_data)
                                  )
-        with transaction.atomic(), reversion.create_revision():
-            new_switch_instance.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in switch_form.changed_data)
-                                 )
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
-    i_mbf_param = generate_ipv4_mbf_param( interface_form, False )
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
     return form({
         'id_switch': switch_id,
-        'topoform': switch_form,
-        'machineform': machine_form,
-        'interfaceform': interface_form,
+        'topoform': interface_form,
+        'machineform': switch_form,
         'domainform': domain_form,
-        'i_mbf_param': i_mbf_param
-        }, 'topologie/switch.html', request)
+        'i_mbf_param': i_mbf_param,
+        'device' : 'switch',
+        }, 'topologie/topo_more.html', request)
 
+
+@login_required
+@can_create(AccessPoint)
+def new_ap(request):
+    """ Creation d'une ap. Cree en meme temps l'interface et la machine
+    associée. Vue complexe. Appelle successivement les 3 models forms
+    adaptés : machine, interface, domain et switch"""
+    ap = AddAccessPointForm(
+        request.POST or None,
+        user=request.user
+    )
+    interface = AddInterfaceForm(
+        request.POST or None,
+        user=request.user
+    )
+    domain = DomainForm(
+        request.POST or None,
+        )
+    if ap.is_valid() and interface.is_valid():
+        user = AssoOption.get_cached_value('utilisateur_asso')
+        if not user:
+            messages.error(request, "L'user association n'existe pas encore,\
+            veuillez le créer ou le linker dans preferences")
+            return redirect(reverse('topologie:index'))
+        new_ap = ap.save(commit=False)
+        new_ap.user = user
+        new_interface = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface
+        if domain.is_valid():
+            new_domain_instance = domain.save(commit=False)
+            with transaction.atomic(), reversion.create_revision():
+                new_ap.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_interface.machine = new_ap
+            with transaction.atomic(), reversion.create_revision():
+                new_interface.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            new_domain_instance.interface_parent = new_interface
+            with transaction.atomic(), reversion.create_revision():
+                new_domain_instance.save()
+                reversion.set_user(request.user)
+                reversion.set_comment("Création")
+            messages.success(request, "La borne a été créé")
+            return redirect(reverse('topologie:index-ap'))
+    i_mbf_param = generate_ipv4_mbf_param(interface, False)
+    return form({
+        'topoform': interface,
+        'machineform': ap,
+        'domainform': domain,
+        'i_mbf_param': i_mbf_param,
+        'device' : 'wifi ap',
+        }, 'topologie/topo_more.html', request)
+
+
+@login_required
+@can_edit(AccessPoint)
+def edit_ap(request, ap, ap_id):
+    """ Edition d'un switch. Permet de chambre nombre de ports,
+    place dans le stack, interface et machine associée"""
+    interface_form = EditInterfaceForm(
+        request.POST or None,
+        user=request.user,
+        instance=ap.interface_set.first()
+    )
+    ap_form = EditAccessPointForm(
+        request.POST or None,
+        user=request.user,
+        instance=ap
+    )
+    domain_form = DomainForm(
+        request.POST or None,
+        instance=ap.interface_set.first().domain
+        )
+    if ap_form.is_valid() and interface_form.is_valid():
+        user = AssoOption.get_cached_value('utilisateur_asso')
+        if not user:
+            messages.error(request, "L'user association n'existe pas encore,\
+            veuillez le créer ou le linker dans preferences")
+            return redirect(reverse('topologie:index-ap'))
+        new_ap = ap_form.save(commit=False)
+        new_interface = interface_form.save(commit=False)
+        new_domain = domain_form.save(commit=False)
+        with transaction.atomic(), reversion.create_revision():
+            new_ap.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Champs modifié(s) : %s" % ', '.join(
+                    field for field in ap_form.changed_data)
+            )
+        with transaction.atomic(), reversion.create_revision():
+            new_interface.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in interface_form.changed_data)
+            )
+            reversion.set_comment("Création")
+        with transaction.atomic(), reversion.create_revision():
+            new_domain.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
+                field for field in domain_form.changed_data)
+            )
+        messages.success(request, "La borne a été modifiée")
+        return redirect(reverse('topologie:index-ap'))
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
+    return form({
+        'topoform': interface_form,
+        'machineform': ap_form,
+        'domainform': domain_form,
+        'i_mbf_param': i_mbf_param,
+        'device' : 'wifi ap',
+        }, 'topologie/topo_more.html', request)
+    
 
 @login_required
 @can_create(Room)

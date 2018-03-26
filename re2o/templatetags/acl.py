@@ -122,6 +122,7 @@ MODEL_NAME = {
     # topologie
     'Stack' : topologie.models.Stack,
     'Switch' : topologie.models.Switch,
+    'AccessPoint' : topologie.models.AccessPoint,
     'ModelSwitch' : topologie.models.ModelSwitch,
     'ConstructorSwitch' : topologie.models.ConstructorSwitch,
     'Port' : topologie.models.Port,
@@ -133,6 +134,7 @@ MODEL_NAME = {
     'ServiceUser' : users.models.ServiceUser,
     'School' : users.models.School,
     'ListRight' : users.models.ListRight,
+    'ListShell' : users.models.ListShell,
     'Ban' : users.models.Ban,
     'Whitelist' : users.models.Whitelist,
 }

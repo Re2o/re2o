@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
-
+<div class="table-responsive">
 {% if facture_list.paginator %}
 {% include "pagination.html" with list=facture_list %}
 {% endif %}
@@ -85,4 +85,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if facture_list.paginator %}
 {% include "pagination.html" with list=facture_list %}
 {% endif %}
-
+</div>

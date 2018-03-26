@@ -213,8 +213,8 @@ class SortTable:
         'default': ['-date']
     }
     TOPOLOGIE_INDEX = {
-        'switch_dns': ['switch_interface__domain__name'],
-        'switch_ip': ['switch_interface__ipv4__ipv4'],
+        'switch_dns': ['interface__domain__name'],
+        'switch_ip': ['interface__ipv4__ipv4'],
         'switch_loc': ['location'],
         'switch_ports': ['number'],
         'switch_stack': ['stack__name'],
@@ -232,6 +232,12 @@ class SortTable:
     TOPOLOGIE_INDEX_ROOM = {
         'room_name': ['name'],
         'default': ['name']
+    }
+    TOPOLOGIE_INDEX_BORNE = {
+        'ap_name': ['interface__domain__name'],
+        'ap_ip': ['interface__ipv4__ipv4'],
+        'ap_mac': ['interface__mac_address'],
+        'default': ['interface__domain__name']
     }
     TOPOLOGIE_INDEX_STACK = {
         'stack_name': ['name'],
