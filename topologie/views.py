@@ -41,7 +41,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion import revisions as reversion
@@ -84,6 +84,7 @@ from machines.forms import (
     AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
+from machines.models import Interface
 from preferences.models import AssoOption, GeneralOption
 
 
@@ -92,9 +93,10 @@ from preferences.models import AssoOption, GeneralOption
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
     switch_list = Switch.objects\
-        .prefetch_related('interface_set__domain__extension')\
-        .prefetch_related('interface_set__ipv4__ip_type')\
-        .prefetch_related('interface_set__type__ip_type__extension')\
+        .prefetch_related(Prefetch(
+            'interface_set',
+        queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+        ))\
         .select_related('stack')
     switch_list = SortTable.sort(
         switch_list,
@@ -128,7 +130,10 @@ def index_port(request, switch, switch_id):
         .select_related('machine_interface__domain__extension')\
         .select_related('machine_interface__machine__user')\
         .select_related('related__switch')\
-        .prefetch_related('related__switch__interface_set__domain__extension')\
+        .prefetch_related(Prefetch(
+            'related__switch__interface_set',
+            queryset=Interface.objects.select_related('domain__extension')
+        ))\
         .select_related('switch')
     port_list = SortTable.sort(
         port_list,
@@ -174,7 +179,11 @@ def index_room(request):
 @can_view_all(AccessPoint)
 def index_ap(request):
     """ Affichage de l'ensemble des bornes"""
-    ap_list = AccessPoint.objects
+    ap_list = AccessPoint.objects\
+        .prefetch_related(Prefetch(
+            'interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+        ))
     ap_list = SortTable.sort(
         ap_list,
         request.GET.get('col'),

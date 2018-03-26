@@ -40,6 +40,7 @@ from machines.forms import (
 )
 from django import forms
 from django.forms import ModelForm, Form
+from django.db.models import Prefetch
 from .models import ( 
     Port,
     Switch,
@@ -82,9 +83,10 @@ class EditPortForm(ModelForm):
         self.fields['machine_interface'].queryset = Interface.objects.all()\
            .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch')\
-            .prefetch_related('switch__interface_set__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class AddPortForm(ModelForm):
@@ -100,9 +102,10 @@ class AddPortForm(ModelForm):
         self.fields['machine_interface'].queryset = Interface.objects.all()\
            .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch')\
-            .prefetch_related('switch__interface_set__domain__extension')\
-            .order_by('switch', 'port')
+            .prefetch_related(Prefetch(
+            'switch__interface_set',
+            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+            ))
 
 
 class StackForm(ModelForm):
