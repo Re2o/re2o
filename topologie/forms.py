@@ -80,9 +80,10 @@ class EditPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__domain__extension')\
+            .select_related('switch')\
+            .prefetch_related('switch__interface_set__domain__extension')\
             .order_by('switch', 'port')
 
 
@@ -97,9 +98,10 @@ class AddPortForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['machine_interface'].queryset = Interface.objects.all()\
-            .select_related('domain__extension')
+           .select_related('domain__extension')
         self.fields['related'].queryset = Port.objects.all()\
-            .select_related('switch__domain__extension')\
+            .select_related('switch')\
+            .prefetch_related('switch__interface_set__domain__extension')\
             .order_by('switch', 'port')
 
 

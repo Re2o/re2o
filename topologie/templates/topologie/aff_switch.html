@@ -46,7 +46,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    <tr>
        <td>
            <a title="Configuer" href="{% url 'topologie:index-port' switch.pk %}">
-           {{switch.interface_set.first}}
+           {{switch}}
            </a>
        </td>
        <td>{{switch.interface_set.first.ipv4}}</td>

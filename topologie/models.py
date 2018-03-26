@@ -263,6 +263,9 @@ class Switch(Machine):
             except IntegrityError:
                 ValidationError("Création d'un port existant.")
 
+    def __str__(self):
+        return str(self.interface_set.first())
+
 
 class ModelSwitch(models.Model):
     """Un modèle (au sens constructeur) de switch"""
@@ -416,11 +419,11 @@ class Port(models.Model):
 
     def get_instance(port_id, *args, **kwargs):
         return Port.objects\
-            .select_related('switch__domain__extension')\
             .select_related('machine_interface__domain__extension')\
-            .select_related('machine_interface__switch')\
+            .select_related('machine_interface__machine__switch')\
             .select_related('room')\
             .select_related('related')\
+            .prefetch_related('switch__interface_set__domain__extension')\
             .get(pk=port_id)
 
     def can_create(user_request, *args, **kwargs):
