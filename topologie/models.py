@@ -40,7 +40,7 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -536,6 +536,18 @@ class Room(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(post_save, sender=AccessPoint)
+def ap_post_save(sender, **kwargs):
+    """Regeneration des noms des bornes vers le controleur"""
+    regen('unifi-ap-names')
+
+
+@receiver(post_delete, sender=AccessPoint)
+def ap_post_delete(sender, **kwargs):
+    """Regeneration des noms des bornes vers le controleur"""
+    regen('unifi-ap-names')
 
 
 @receiver(post_delete, sender=Stack)

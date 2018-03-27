@@ -45,6 +45,9 @@ urlpatterns = [
     url(r'^dns/srv/$', views.dns_srv),
     url(r'^dns/zones/$', views.dns_zones),
 
+    # Unifi controler AP names
+    url(r'^unifi/ap_names/$', views.accesspoint_ip_dns),
+
     # Firewall
     url(r'^firewall/ouverture_ports/$', views.firewall_ouverture_ports),
 
