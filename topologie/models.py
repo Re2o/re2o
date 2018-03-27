@@ -538,6 +538,18 @@ class Room(models.Model):
         return self.name
 
 
+@receiver(post_save, sender=AccessPoint)
+def ap_post_save(sender, **kwargs):
+    """Regeneration des noms des bornes vers le controleur"""
+    regen('unifi-ap-names')
+
+
+@receiver(post_delete, sender=AccessPoint)
+def ap_post_delete(sender, **kwargs):
+    """Regeneration des noms des bornes vers le controleur"""
+    regen('unifi-ap-names')
+
+
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(sender, **kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
