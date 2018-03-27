@@ -167,6 +167,36 @@ def dns_alias(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
+def accesspoint_ip_dns(request):
+    """The list of all active interfaces with all the associated infos
+    (MAC, IP, IpType, DNS name and associated zone extension)
+
+    Only display access points. Use to gen unifi controler names
+
+    Returns:
+        GET:
+            A JSON Success response with a field `data` containing:
+            * a list of dictionnaries (one for each interface) containing:
+              * a field `ipv4` containing:
+                * a field `ipv4`: the ip for this interface
+                * a field `ip_type`: the name of the IpType of this interface
+              * a field `ipv6` containing `null` if ipv6 is deactivated else:
+                * a field `ipv6`: the ip for this interface
+                * a field `ip_type`: the name of the IpType of this interface
+              * a field `mac_address`: the MAC of this interface
+              * a field `domain`: the DNS name for this interface
+              * a field `extension`: the extension for the DNS zone of this interface
+    """
+    interfaces = all_active_assigned_interfaces(full=True)\
+    .filter(machine__accesspoint__isnull=False)
+    seria = FullInterfaceSerializer(interfaces, many=True)
+    return JSONSuccess(seria.data)
+
+
+@csrf_exempt
+@login_required
+@permission_required('machines.serveur')
+@accept_method(['GET'])
 def dns_corresp(request):
     """The list of the IpTypes possible with the infos about each
 
