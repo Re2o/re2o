@@ -40,7 +40,7 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
