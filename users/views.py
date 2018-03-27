@@ -747,6 +747,23 @@ def index_white(request):
 def index_school(request):
     """ Affiche l'ensemble des établissement"""
     school_list = School.objects.order_by('name')
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    school_list = SortTable.sort(
+        school_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.USERS_INDEX_SCHOOL
+    )
+    paginator = Paginator(school_list, pagination_number)
+    page = request.GET.get('page')
+    try:
+        school_list = paginator.page(page)
+    except PageNotAnInteger:
+        # If page isn't an integer, deliver first page
+        school_list = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        school_list = paginator.page(paginator.num_pages)
     return render(
         request,
         'users/index_schools.html',

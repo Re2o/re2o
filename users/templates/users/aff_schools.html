@@ -22,10 +22,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
+
+<div class="table-responsive">
+
+{% if school_list.paginator %}
+{% include "pagination.html" with list=school_list %}
+{% endif %}
+
+
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Etablissement</th>
+	        <th>{% include "buttons/sort.html" with prefix='school' col='name' text='Etablissement' %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -41,4 +49,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
+
+{% if school_list.paginator %}
+{% include "pagination.html" with list=school_list %}
+{% endif %}
+</div>
 

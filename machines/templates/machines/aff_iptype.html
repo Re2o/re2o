@@ -23,15 +23,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
-
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Type d'ip</th>
                 <th>Extension</th>
                 <th>Nécessite l'autorisation infra</th>
-                <th>Début</th>
-                <th>Fin</th>
+                <th>Plage ipv4</th>
 		<th>Préfixe v6</th>
                 <th>Sur vlan</th>
 		<th>Ouverture ports par défault</th>
@@ -44,8 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.type }}</td>
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra }}</td>
-            <td>{{ type.domaine_ip_start }}</td>
-            <td>{{ type.domaine_ip_stop }}</td>
+	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
 	    <td>{{ type.prefix_v6 }}</td>
             <td>{{ type.vlan }}</td>
 	    <td>{{ type.ouverture_ports }}</td>
@@ -58,4 +56,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
-
+</div>

@@ -83,9 +83,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> Adhérents<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     {% can_view_app users %}
-                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-users"></i> Gérer les adhérents</a></li>
-                                    {% acl_end %}
-                                    {% can_view_app machines %}
+                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> Gérer les adhérents</a></li>
+                                    <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> Gérer les clubs</a></li>
+                                    {% acl_end %}                              
+			       	    {% can_view_app machines %}
                                     <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Gérer les machines</a></li>
                                     {% acl_end %}
                                     {% can_view_app cotisations %}
@@ -95,7 +96,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </li>
                             {% acl_end %}
                             {% can_view_app topologie %}
-                            <li><a href="{% url "topologie:index" %}"><i class="fa fa-sitemap"></i> Topologie</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sitemap"></i> Topologie<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+				<li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> Switchs</a></li>
+				<li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> Bornes WiFi</a></li>
+				<li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> Chambres et locaux</a></li>
+				</ul>
+			    </li>
                             {% acl_end %}
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> Statistiques</a></li>
