@@ -260,7 +260,7 @@ def search_single_word(word, filters, user,
         ) | Q(
             machine_interface__domain__name__icontains=word
         ) | Q(
-            related__switch__domain__name__icontains=word
+            related__switch__interface__domain__name__icontains=word
         ) | Q(
             radius__icontains=word
         ) | Q(
@@ -277,9 +277,9 @@ def search_single_word(word, filters, user,
     # Switches
     if '7' in aff and Switch.can_view_all(user):
         filter_switches = Q(
-            domain__name__icontains=word
+            interface__domain__name__icontains=word
         ) | Q(
-            ipv4__ipv4__icontains=word
+            interface__ipv4__ipv4__icontains=word
         ) | Q(
             location__icontains=word
         ) | Q(
@@ -289,7 +289,7 @@ def search_single_word(word, filters, user,
         ) | Q(
             model__constructor__name__icontains=word
         ) | Q(
-            details__icontains=word
+            interface__details__icontains=word
         )
         if is_int(word):
             filter_switches |= Q(
