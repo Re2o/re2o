@@ -190,6 +190,10 @@ class SortTable:
         'white_end': ['date_end'],
         'default': ['-date_end']
     }
+    USERS_INDEX_SCHOOL = {
+        'school_name': ['name'],
+        'default': ['name']
+    }
     MACHINES_INDEX = {
         'machine_name': ['name'],
         'default': ['pk']

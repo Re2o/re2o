@@ -47,7 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
-from machines.models import Machine, Interface
+from machines.models import Machine, Interface, regen
 
 class Stack(models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key

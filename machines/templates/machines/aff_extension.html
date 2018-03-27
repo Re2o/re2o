@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -38,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
         {% for extension in extension_list %}
-        <tr>
+	<tr>
             <td>{{ extension.name }}</td>
             <td>{{ extension.need_infra }}</td>
             <td>{{ extension.soa}}</td>
@@ -55,4 +56,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
-
+</div>
