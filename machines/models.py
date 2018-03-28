@@ -65,12 +65,6 @@ class Machine(FieldPermissionModelMixin, models.Model):
             ("change_machine_user", "Peut changer le propriétaire d'une machine"),
         )
 
-    def get_instance(machineid, *args, **kwargs):
-        """Récupère une instance
-        :param machineid: Instance id à trouver
-        :return: Une instance machine évidemment"""
-        return Machine.objects.get(pk=machineid)
-
     @staticmethod
     def can_change_user(user_request, *args, **kwargs):
         """Checks if an user is allowed to change the user who owns a
@@ -84,6 +78,15 @@ class Machine(FieldPermissionModelMixin, models.Model):
             explanation message.
         """
         return user_request.has_perm('machines.change_machine_user'), "Vous ne pouvez pas modifier l'utilisateur de la machine."
+
+    def can_view_all(user_request, *args, **kwargs):
+        """Vérifie qu'on peut bien afficher l'ensemble des machines,
+        droit particulier correspondant
+        :param user_request: instance user qui fait l'edition
+        :return: True ou False avec la raison de l'échec le cas échéant"""
+        if not user_request.has_perm('machines.view_machine'):
+            return False, u"Vous ne pouvez pas afficher l'ensemble des machines sans permission"
+        return True, None
 
     def can_create(user_request, userid, *args, **kwargs):
         """Vérifie qu'un user qui fait la requète peut bien créer la machine
@@ -132,15 +135,6 @@ class Machine(FieldPermissionModelMixin, models.Model):
                         d'un autre user que vous sans droit"
         return True, None
 
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des machines,
-        droit particulier correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_machine'):
-            return False, u"Vous ne pouvez pas afficher l'ensemble des machines sans permission"
-        return True, None
-
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière (soit
         machine de soi, soit droit particulier
@@ -184,13 +178,6 @@ class MachineType(AclMixin, models.Model):
         """ Renvoie toutes les interfaces (cartes réseaux) de type
         machinetype"""
         return Interface.objects.filter(type=self)
-
-    def get_instance(machinetypeid, *args, **kwargs):
-        """Récupère une instance
-        :param machinetypeid: Instance id à trouver
-        :return: Une instance machinetype évidemment"""
-        return MachineType.objects.get(pk=machinetypeid)
-
 
     def can_use_all(user_request, *args, **kwargs):
         """Check if an user can use every MachineType.
@@ -329,12 +316,6 @@ class IpType(AclMixin, models.Model):
         self.clean()
         super(IpType, self).save(*args, **kwargs)
 
-    def get_instance(iptypeid, *args, **kwargs):
-        """Récupère une instance
-        :param iptypeid: Instance id à trouver
-        :return: Une instance iptype évidemment"""
-        return IpType.objects.get(pk=iptypeid)
-
     def can_use_all(user_request, *args, **kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
         :param user_request: instance user qui fait l'edition
@@ -358,12 +339,6 @@ class Vlan(AclMixin, models.Model):
         permissions = (
             ("view_vlan", "Peut voir un objet vlan"),
         )
-
-    def get_instance(vlanid, *args, **kwargs):
-        """Récupère une instance
-        :param vlanid: Instance id à trouver
-        :return: Une instance vlan évidemment"""
-        return Vlan.objects.get(pk=vlanid)
 
     def __str__(self):
         return self.name
@@ -403,12 +378,6 @@ class Nas(AclMixin, models.Model):
         permissions = (
             ("view_nas", "Peut voir un objet Nas"),
         )
-
-    def get_instance(nasid, *args, **kwargs):
-        """Récupère une instance
-        :param nasid: Instance id à trouver
-        :return: Une instance nas évidemment"""
-        return Nas.objects.get(pk=nasid)
 
     def __str__(self):
         return self.name
@@ -450,12 +419,6 @@ class SOA(AclMixin, models.Model):
         permissions = (
             ("view_soa", "Peut voir un objet soa"),
         )
-
-    def get_instance(soaid, *args, **kwargs):
-        """Récupère une instance
-        :param soaid: Instance id à trouver
-        :return: Une instance soa évidemment"""
-        return SOA.objects.get(pk=soaid)
 
     def __str__(self):
         return str(self.name)
@@ -545,12 +508,6 @@ class Extension(AclMixin, models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
-    def get_instance(extensionid, *args, **kwargs):
-        """Récupère une instance
-        :param extensionid: Instance id à trouver
-        :return: Une instance extension évidemment"""
-        return Extension.objects.get(pk=extensionid)
-
     def can_use_all(user_request, *args, **kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
         :param user_request: instance user qui fait l'edition
@@ -587,12 +544,6 @@ class Mx(AclMixin, models.Model):
         fichiers de zones"""
         return "@               IN  MX  " + str(self.priority).ljust(3) + " " + str(self.name)
 
-    def get_instance(mxid, *args, **kwargs):
-        """Récupère une instance
-        :param mxid: Instance id à trouver
-        :return: Une instance mx évidemment"""
-        return Mx.objects.get(pk=mxid)
-
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
@@ -614,12 +565,6 @@ class Ns(AclMixin, models.Model):
         """Renvoie un enregistrement NS complet pour les filezones"""
         return "@               IN  NS      " + str(self.ns)
 
-    def get_instance(nsid, *args, **kwargs):
-        """Récupère une instance
-        :param nsid: Instance id à trouver
-        :return: Une instance ns évidemment"""
-        return Ns.objects.get(pk=nsid)
-
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
@@ -636,12 +581,6 @@ class Txt(AclMixin, models.Model):
         permissions = (
             ("view_txt", "Peut voir un objet txt"),
         )
-
-    def get_instance(txtid, *args, **kwargs):
-        """Récupère une instance
-        :param txtid: Instance id à trouver
-        :return: Une instance txt évidemment"""
-        return Txt.objects.get(pk=txtid)
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -701,12 +640,6 @@ class Srv(AclMixin, models.Model):
             ("view_soa", "Peut voir un objet soa"),
         )
 
-    def get_instance(srvid, *args, **kwargs):
-        """Récupère une instance
-        :param srvid: Instance id à trouver
-        :return: Une instance srv évidemment"""
-        return Srv.objects.get(pk=srvid)
-
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
             str(self.extension) + ' ' + str(self.priority) +\
@@ -721,7 +654,7 @@ class Srv(AclMixin, models.Model):
             str(self.port) + ' ' + str(self.target) + '.'
 
 
-class Interface(FieldPermissionModelMixin,models.Model):
+class Interface(AclMixin, FieldPermissionModelMixin,models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -879,12 +812,6 @@ class Interface(FieldPermissionModelMixin,models.Model):
                 correspondent pas")
         super(Interface, self).save(*args, **kwargs)
 
-    def get_instance(interfaceid, *args, **kwargs):
-        """Récupère une instance
-        :param interfaceid: Instance id à trouver
-        :return: Une instance interface évidemment"""
-        return Interface.objects.get(pk=interfaceid)
-
     def can_create(user_request, machineid, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour créer
         une interface, ou bien que la machine appartient bien à l'user
@@ -936,16 +863,6 @@ class Interface(FieldPermissionModelMixin,models.Model):
                         d'un autre user que vous sans droit"
         return True, None
 
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des interfaces,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_interface'):
-            return False, u"Vous n'avez pas le droit de voir des machines autre\
-                que les vôtres"
-        return True, None
-
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet ou qu'elle appartient à l'user
@@ -984,7 +901,7 @@ class Interface(FieldPermissionModelMixin,models.Model):
         return self.ipv4 and not self.has_private_ip()
 
 
-class Ipv6List(FieldPermissionModelMixin, models.Model):
+class Ipv6List(AclMixin, FieldPermissionModelMixin, models.Model):
     PRETTY_NAME = 'Enregistrements Ipv6 des machines'
 
     ipv6 = models.GenericIPAddressField(
@@ -999,12 +916,6 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
             ("view_ipv6list", "Peut voir un objet ipv6"),
             ("change_ipv6list_slaac_ip", "Peut changer la valeur slaac sur une ipv6"),
         )
-
-    def get_instance(ipv6listid, *args, **kwargs):
-        """Récupère une instance
-        :param interfaceid: Instance id à trouver
-        :return: Une instance interface évidemment"""
-        return Ipv6List.objects.get(pk=ipv6listid)
 
     def can_create(user_request, interfaceid, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour créer
@@ -1048,16 +959,6 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
             if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
                 return False, u"Vous ne pouvez pas éditer une machine\
                         d'un autre user que vous sans droit"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des interfaces,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_ipv6list'):
-            return False, u"Vous n'avez pas le droit de voir des machines autre\
-                que les vôtres"
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1104,7 +1005,7 @@ class Ipv6List(FieldPermissionModelMixin, models.Model):
         return str(self.ipv6)
 
 
-class Domain(models.Model):
+class Domain(AclMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
     ou cname sont remplis"""
@@ -1197,12 +1098,6 @@ class Domain(models.Model):
         else:
             return self.cname.get_parent_interface()
 
-    def get_instance(domainid, *args, **kwargs):
-        """Récupère une instance
-        :param domainid: Instance id à trouver
-        :return: Une instance domain évidemment"""
-        return Domain.objects.get(pk=domainid)
-
     def can_create(user_request, interfaceid, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour créer
         un domain, ou possède l'interface associée
@@ -1252,16 +1147,6 @@ class Domain(models.Model):
                 d'un autre user que vous sans droit"
         return True, None
 
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des domain,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_domain'):
-            return False, u"Vous ne pouvez pas supprimer un alias à une machine\
-                d'un autre user que vous sans droit"
-        return True, None
-
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet ou qu'elle appartient à l'user
@@ -1305,12 +1190,6 @@ class IpList(AclMixin, models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super(IpList, self).save(*args, **kwargs)
-
-    def get_instance(iplistid, *args, **kwargs):
-        """Récupère une instance
-        :param iplistid: Instance id à trouver
-        :return: Une instance iplist évidemment"""
-        return IpList.objects.get(pk=iplistid)
 
     def __str__(self):
         return self.ipv4
@@ -1357,12 +1236,6 @@ class Service(AclMixin, models.Model):
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
 
-    def get_instance(serviceid, *args, **kwargs):
-        """Récupère une instance
-        :param serviceid: Instance id à trouver
-        :return: Une instance service évidemment"""
-        return Service.objects.get(pk=serviceid)
-
     def __str__(self):
         return str(self.service_type)
 
@@ -1403,12 +1276,6 @@ class Service_link(AclMixin, models.Model):
             ) < timezone.now()
         )
 
-    def get_instance(servicelinkid, *args, **kwargs):
-        """Récupère une instance
-        :param servicelinkid: Instance id à trouver
-        :return: Une instance servicelink évidemment"""
-        return ServiceLink.objects.get(pk=servicelinkid)
-
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
@@ -1426,12 +1293,6 @@ class OuverturePortList(AclMixin, models.Model):
         permissions = (
             ("view_ouvertureportlist", "Peut voir un objet ouvertureport"),
         )
-
-    def get_instance(ouvertureportlistid, *args, **kwargs):
-        """Récupère une instance
-        :param ouvertureportlistid: Instance id à trouver
-        :return: Une instance ouvertureportlist évidemment"""
-        return OuverturePortList.objects.get(pk=ouvertureportlistid)
 
     def can_delete(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits bureau pour delete
@@ -1515,12 +1376,6 @@ class OuverturePort(AclMixin, models.Model):
             ),
         default=OUT,
     )
-
-    def get_instance(ouvertureportid, *args, **kwargs):
-        """Récupère une instance
-        :param ouvertureportid: Instance id à trouver
-        :return: Une instance ouvertureport évidemment"""
-        return OuverturePort.objects.get(pk=ouvertureportid)
 
     def __str__(self):
         if self.begin == self.end:

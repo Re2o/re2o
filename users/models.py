@@ -990,9 +990,6 @@ class ServiceUser(AclMixin, AbstractBaseUser):
             )]).values_list('dn', flat=True))
         group.save()
 
-    def get_instance(userid, *args, **kwargs):
-        return ServiceUser.objects.get(pk=userid)
-
     def __str__(self):
         return self.pseudo
 
@@ -1020,9 +1017,6 @@ class School(AclMixin, models.Model):
         permissions = (
             ("view_school", "Peut voir un objet school"),
         )
-
-    def get_instance(schoolid, *args, **kwargs):
-        return School.objects.get(pk=schoolid)
 
     def __str__(self):
         return self.name
@@ -1057,9 +1051,6 @@ class ListRight(AclMixin, Group):
         permissions = (
             ("view_listright", "Peut voir un objet Group/ListRight"),
         )
-
-    def get_instance(listrightid, *args, **kwargs):
-        return ListRight.objects.get(pk=listrightid)
 
     def __str__(self):
         return self.name
@@ -1109,9 +1100,6 @@ class ListShell(AclMixin, models.Model):
         permissions = (
             ("view_listshell", "Peut voir un objet shell quelqu'il soit"),
         )
-
-    def get_instance(shellid, *args, **kwargs):
-        return ListShell.objects.get(pk=shellid)
 
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
@@ -1235,9 +1223,6 @@ class Whitelist(AclMixin, models.Model):
 
     def is_active(self):
         return self.date_end > timezone.now()
-
-    def get_instance(whitelistid, *args, **kwargs):
-        return Whitelist.objects.get(pk=whitelistid)
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Whitelist object.

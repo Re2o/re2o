@@ -3,9 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Gabriel Détraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +27,14 @@ class AclMixin(object):
     @classmethod
     def get_modulename(cls):
         return str(cls.__module__).split('.')[0].lower()
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        """Récupère une instance
+        :param objectid: Instance id à trouver
+        :return: Une instance de la classe évidemment"""
+        object_id = kwargs.get(cls.get_classname() + 'id')
+        return cls.objects.get(pk=object_id)
 
     @classmethod
     def can_create(cls, user_request, *args, **kwargs):
