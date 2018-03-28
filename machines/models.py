@@ -39,6 +39,7 @@ from django.core.validators import MaxValueValidator
 from macaddress.fields import MACAddressField
 
 from re2o.field_permissions import FieldPermissionModelMixin
+from re2o.mixins import AclMixin 
 
 import users.models
 import preferences.models
@@ -161,7 +162,7 @@ class Machine(FieldPermissionModelMixin, models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
 
-class MachineType(models.Model):
+class MachineType(AclMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
     PRETTY_NAME = "Type de machine"
 
@@ -190,33 +191,6 @@ class MachineType(models.Model):
         :return: Une instance machinetype évidemment"""
         return MachineType.objects.get(pk=machinetypeid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un type de machine
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_machinetype'), u"Vous n'avez pas le droit\
-            de créer un type de machine"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance type de machine
-        :param self: Instance machinetype à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_machinetype'):
-            return False, u"Vous n'avez pas le droit d'éditer des types de machine"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien supprimer cette instance particulière (soit
-        machinetype de soi, soit droit particulier
-        :param self: instance machinetype à supprimer
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.delete_machinetype'):
-            return False, u"Vous n'avez pas le droit de supprimer des types de machines"
-        return True, None
 
     def can_use_all(user_request, *args, **kwargs):
         """Check if an user can use every MachineType.
@@ -231,28 +205,11 @@ class MachineType(models.Model):
             return False, u"Vous n'avez pas le droit d'utiliser tout types de machines"
         return True, None
 
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des machinetype,
-        droit particulier correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_machinetype'), u"Vous n'avez pas le droit\
-            de voir les types de machines"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance machinetype à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_machinetype'), u"Vous n'avez pas le droit\
-            de voir les types de machines"
-
     def __str__(self):
         return self.type
 
 
-class IpType(models.Model):
+class IpType(AclMixin, models.Model):
     """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
     PRETTY_NAME = "Type d'ip"
 
@@ -384,56 +341,11 @@ class IpType(models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.use_all_iptype'), None
 
-
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un type d'ip
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_iptype'), u"Vous n'avez pas le droit\
-            de créer un type d'ip"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance iptype
-        :param self: Instance iptype à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_iptype'):
-            return False, u"Vous n'avez pas le droit d'éditer des types d'ip"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour supprimer
-        cette instance iptype
-        :param self: Instance iptype à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_iptype'), u"Vous n'avez pas le droit\
-            de supprimer un type d'ip"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des iptype,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_iptype'), u"Vous n'avez pas le droit\
-            de voir les types d'ip"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance iptype à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_iptype'), u"Vous n'avez pas le droit\
-            de voir les types d'ip"
-
     def __str__(self):
         return self.type
 
 
-class Vlan(models.Model):
+class Vlan(AclMixin, models.Model):
     """ Un vlan : vlan_id et nom
     On limite le vlan id entre 0 et 4096, comme défini par la norme"""
     PRETTY_NAME = "Vlans"
@@ -453,55 +365,11 @@ class Vlan(models.Model):
         :return: Une instance vlan évidemment"""
         return Vlan.objects.get(pk=vlanid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un vlan
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_vlan'), u"Vous n'avez pas le droit\
-            de créer un vlan"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance vlan
-        :param self: Instance vlan à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_vlan'):
-            return False, u"Vous n'avez pas le droit d'éditer des vlans"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour supprimer
-        cette instance vlan
-        :param self: Instance vlan à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_vlan'), u"Vous n'avez pas le droit\
-            de suprimer un vlan"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des vlan,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_vlan'), u"Vous n'avez pas le droit\
-            de voir les vlans"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance vlan à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_vlan'), u"Vous n'avez pas le droit\
-            de voir les vlans"
-
     def __str__(self):
         return self.name
 
 
-class Nas(models.Model):
+class Nas(AclMixin, models.Model):
     """ Les nas. Associé à un machine_type.
     Permet aussi de régler le port_access_mode (802.1X ou mac-address) pour
     le radius. Champ autocapture de la mac à true ou false"""
@@ -542,56 +410,11 @@ class Nas(models.Model):
         :return: Une instance nas évidemment"""
         return Nas.objects.get(pk=nasid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un nas
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_nas'), u"Vous n'avez pas le droit\
-            de créer un nas"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance nas
-        :param self: Instance nas à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_nas'):
-            return False, u"Vous n'avez pas le droit d'éditer des nas"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour supprimer
-        cette instance nas
-        :param self: Instance nas à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_nas'), u"Vous n'avez pas le droit\
-            de supprimer un nas"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des nas,
-        droit particulier view objet correspondant
-
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_nas'), u"Vous n'avez pas le droit\
-            de voir les nas"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance nas à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_nas'), u"Vous n'avez pas le droit\
-            de voir les nas"
-
     def __str__(self):
         return self.name
 
 
-class SOA(models.Model):
+class SOA(AclMixin, models.Model):
     """
     Un enregistrement SOA associé à une extension
     Les valeurs par défault viennent des recommandations RIPE :
@@ -634,50 +457,6 @@ class SOA(models.Model):
         :return: Une instance soa évidemment"""
         return SOA.objects.get(pk=soaid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un soa
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_soa'), u"Vous n'avez pas le droit\
-            de créer un enregistrement SOA"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance soa
-        :param self: Instance soa à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_soa'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SOA"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour supprimer
-        cette instance soa
-        :param self: Instance soa à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_soa'), u"Vous n'avez pas le droit\
-            de supprimer des enregistrements SOA"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des soa,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
-            de voir les enreistrement SOA"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance soa à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
-            de voir les enreistrement SOA"
-
     def __str__(self):
         return str(self.name)
 
@@ -718,7 +497,7 @@ class SOA(models.Model):
 
 
 
-class Extension(models.Model):
+class Extension(AclMixin, models.Model):
     """ Extension dns type example.org. Précise si tout le monde peut
     l'utiliser, associé à un origin (ip d'origine)"""
     PRETTY_NAME = "Extensions dns"
@@ -772,55 +551,11 @@ class Extension(models.Model):
         :return: Une instance extension évidemment"""
         return Extension.objects.get(pk=extensionid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        une extension
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_extension'), u"Vous n'avez pas le droit\
-            de créer une extension"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance extension
-        :param self: Instance extension à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_extension'):
-            return False, u"Vous n'avez pas le droit d'éditer des extensions"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour supprimer
-        cette instance extension
-        :param self: Instance extension à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_extension'), u"Vous n'avez pas le droit\
-            de supprimer des extension"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des extension,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_extension'), u"Vous n'avez pas le droit\
-            de voir les extensions"
-
     def can_use_all(user_request, *args, **kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.use_all_extension'), None
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance extension à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_extension'), u"Vous n'avez pas le droit\
-            de voir les extensions"
 
     def __str__(self):
         return self.name
@@ -831,7 +566,7 @@ class Extension(models.Model):
         super(Extension, self).clean(*args, **kwargs)
 
 
-class Mx(models.Model):
+class Mx(AclMixin, models.Model):
     """ Entrées des MX. Enregistre la zone (extension) associée et la
     priorité
     Todo : pouvoir associer un MX à une interface """
@@ -858,55 +593,11 @@ class Mx(models.Model):
         :return: Une instance mx évidemment"""
         return Mx.objects.get(pk=mxid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un mx
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_mx'), u"Vous n'avez pas le droit\
-            de créer un enregistrement MX"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance mx
-        :param self: Instance mx à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_mx'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregstrements MX"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour del
-        cette instance mx
-        :param self: Instance mx à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_mx'), u"Vous n'avez pas le droit\
-            de supprimer un enregistrement MX"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des mx,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_mx'), u"Vous n'avez pas le droit\
-            de voir les enregistrements MX"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance mx à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_mx'), u"Vous n'avez pas le droit\
-            de voir les enregistrements MX"
-
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
 
-class Ns(models.Model):
+class Ns(AclMixin, models.Model):
     """Liste des enregistrements name servers par zone considéérée"""
     PRETTY_NAME = "Enregistrements NS"
 
@@ -929,55 +620,11 @@ class Ns(models.Model):
         :return: Une instance ns évidemment"""
         return Ns.objects.get(pk=nsid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un ns
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_ns'), u"Vous n'avez pas le droit\
-            de créer un enregistrement NS"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance ns
-        :param self: Instance ns à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_ns'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrements NS"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour del
-        cette instance ns
-        :param self: Instance ns à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.del_ns'), u"Vous n'avez pas le droit\
-            de supprimer un enregistrement NS"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des ns,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_ns'), u"Vous n'avez pas le droit\
-            de voir les enregistrements NS"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance ns à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_ns'), u"Vous n'avez pas le droit\
-            de voir les enregistrements NS"
-
     def __str__(self):
         return str(self.zone) + ' ' + str(self.ns)
 
 
-class Txt(models.Model):
+class Txt(AclMixin, models.Model):
     """ Un enregistrement TXT associé à une extension"""
     PRETTY_NAME = "Enregistrement TXT"
 
@@ -996,50 +643,6 @@ class Txt(models.Model):
         :return: Une instance txt évidemment"""
         return Txt.objects.get(pk=txtid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un txt
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_txt'), u"Vous n'avez pas le droit\
-            de créer un enregistrement TXT"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance txt
-        :param self: Instance txt à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_txt'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrement TXT"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour del
-        cette instance txt
-        :param self: Instance txt à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_txt'), u"Vous n'avez pas le droit\
-            de supprimer des enregistrements TXT"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des txt,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_txt'), u"Vous n'avez pas le droit\
-            de voir les enregistrements TXT"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance txt à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_txt'), u"Vous n'avez pas le droit\
-            de voir les enregistrements TXT"
-
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
             str(self.field2)
@@ -1050,7 +653,7 @@ class Txt(models.Model):
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
-class Srv(models.Model):
+class Srv(AclMixin, models.Model):
     PRETTY_NAME = "Enregistrement Srv"
 
     TCP = 'TCP'
@@ -1103,50 +706,6 @@ class Srv(models.Model):
         :param srvid: Instance id à trouver
         :return: Une instance srv évidemment"""
         return Srv.objects.get(pk=srvid)
-
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un srv
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_soa'), u"Vous n'avez pas le droit\
-            de créer un enregistrement SRV"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance srv
-        :param self: Instance srv à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_soa'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrements SRV"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour del
-        cette instance srv
-        :param self: Instance srv à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_soa'), u"Vous n'avez pas le droit\
-            de supprimer un enregistrement SRV"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des srv,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
-            de voir les enregistrements SRV"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance srv à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_soa'), u"Vous n'avez pas le droit\
-            de voir les enregistrements SRV"
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -1719,7 +1278,7 @@ class Domain(models.Model):
         return str(self.name) + str(self.extension)
 
 
-class IpList(models.Model):
+class IpList(AclMixin, models.Model):
     PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
@@ -1753,58 +1312,11 @@ class IpList(models.Model):
         :return: Une instance iplist évidemment"""
         return IpList.objects.get(pk=iplistid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        une ip
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_iplist'), u"Vous n'avez pas le droit\
-            de créer une ip"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance ip
-        :param self: Instance ip à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_iplist'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrements ip"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour delete
-        cette instance ip
-        :param self: Instance ip à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.delete_iplist'):
-            return False, u"Vous n'avez pas le droit d'éditer des enregistrements ip"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des ip,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_iplist'):
-            return False, u"Vous n'avez pas le droit de voir des enregistrements ip"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit infra
-        :param self: instance iplist à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_iplist'):
-            return False, u"Vous n'avez pas le droit de voir des enregistrements ip"
-        return True, None
-
     def __str__(self):
         return self.ipv4
 
 
-class Service(models.Model):
+class Service(AclMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
 
@@ -1851,50 +1363,6 @@ class Service(models.Model):
         :return: Une instance service évidemment"""
         return Service.objects.get(pk=serviceid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un service
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_service'), u"Vous n'avez pas le droit\
-            de créer un service"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance service
-        :param self: Instance service à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_service'):
-            return False, u"Vous n'avez pas le droit d'éditer des services"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour delete
-        cette instance service
-        :param self: Instance service à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.delete_service'), u"Vous n'avez pas le droit\
-            de supprimer un service"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des services,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
-            de voir des services"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance service à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
-            de voir des services"
-
     def __str__(self):
         return str(self.service_type)
 
@@ -1908,7 +1376,7 @@ def regen(service):
     return
 
 
-class Service_link(models.Model):
+class Service_link(AclMixin, models.Model):
     """ Definition du lien entre serveurs et services"""
     PRETTY_NAME = "Relation entre service et serveur"
 
@@ -1941,56 +1409,11 @@ class Service_link(models.Model):
         :return: Une instance servicelink évidemment"""
         return ServiceLink.objects.get(pk=servicelinkid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un servicelink
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_service'), u"Vous n'avez pas le droit\
-            de créer un service"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance servicelink
-        :param self: Instance servicelink à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_service'):
-            return False, u"Vous n'avez pas le droit d'éditer des services"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour delete
-        cette instance servicelink
-        :param self: Instance servicelink à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.delete_service'):
-            return False, u"Vous n'avez pas le droit d'éditer des services"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des services,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
-            de voir des liens de services"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance service à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_service'), u"Vous n'avez pas le droit\
-            de voir des liens de services"
-
     def __str__(self):
         return str(self.server) + " " + str(self.service)
 
 
-class OuverturePortList(models.Model):
+class OuverturePortList(AclMixin, models.Model):
     """Liste des ports ouverts sur une interface."""
     PRETTY_NAME = "Profil d'ouverture de ports"
 
@@ -2010,24 +1433,6 @@ class OuverturePortList(models.Model):
         :return: Une instance ouvertureportlist évidemment"""
         return OuverturePortList.objects.get(pk=ouvertureportlistid)
 
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits bureau pour créer
-        une ouverture de port
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_ouvertureportlist') , u"Vous n'avez pas le droit\
-            d'ouvrir un port"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits bureau pour editer
-        cette instance ouvertureportlist
-        :param self: Instance ouvertureportlist à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        return True, None
-
     def can_delete(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits bureau pour delete
         cette instance ouvertureportlist
@@ -2040,23 +1445,6 @@ class OuverturePortList(models.Model):
         if self.interface_set.all():
             return False, u"Cette liste de ports est utilisée"
         return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des ouvertureport,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_ouvertureportlist'), u"Vous n'avez pas le droit\
-            de voir des ouverture de ports"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance ouvertureport à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.view_ouvertureportlist'), u"Vous n'avez pas le droit\
-            de voir des ouverture de ports"
 
     def __str__(self):
         return self.name
@@ -2090,7 +1478,7 @@ class OuverturePortList(models.Model):
         )
 
 
-class OuverturePort(models.Model):
+class OuverturePort(AclMixin, models.Model):
     """
     Représente un simple port ou une plage de ports.
 
@@ -2133,54 +1521,6 @@ class OuverturePort(models.Model):
         :param ouvertureportid: Instance id à trouver
         :return: Une instance ouvertureport évidemment"""
         return OuverturePort.objects.get(pk=ouvertureportid)
-
-    def can_create(user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits bureau pour créer
-        une ouverture de port
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        return user_request.has_perm('machines.add_ouvertureportlist') , u"Vous n'avez pas le droit\
-            d'ouvrir un port"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits bureau pour editer
-        cette instance ouvertureport
-        :param self: Instance ouvertureport à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits bureau pour delete
-        cette instance ouvertureport
-        :param self: Instance ouvertureport à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.delete_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des ouvertureport,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance ouvertureport à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit d'éditer des ouvertures de port"
-        return True, None
-
 
     def __str__(self):
         if self.begin == self.end:

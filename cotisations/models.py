@@ -57,7 +57,7 @@ from django.utils import timezone
 from machines.models import regen
 
 from re2o.field_permissions import FieldPermissionModelMixin
-
+from re2o.mixins import AclMixin
 
 class Facture(FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
@@ -350,7 +350,7 @@ def vente_post_delete(sender, **kwargs):
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
-class Article(models.Model):
+class Article(AclMixin, models.Model):
     """Liste des articles en vente : prix, nom, et attribut iscotisation
     et duree si c'est une cotisation"""
     PRETTY_NAME = "Articles en vente"
@@ -405,31 +405,11 @@ class Article(models.Model):
     def get_instance(articleid, *args, **kwargs):
         return Article.objects.get(pk=articleid)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_article'), u"Vous n'avez pas le\
-            droit d'ajouter des articles"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_article'), u"Vous n'avez pas le\
-            droit d'éditer des articles"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_article'), u"Vous n'avez pas le\
-            droit de supprimer des articles"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
-            droit de voir des articles"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
-            droit de voir des articles"
-
     def __str__(self):
         return self.name
 
 
-class Banque(models.Model):
+class Banque(AclMixin, models.Model):
     """Liste des banques"""
     PRETTY_NAME = "Banques enregistrées"
 
@@ -443,31 +423,11 @@ class Banque(models.Model):
     def get_instance(banqueid, *args, **kwargs):
         return Banque.objects.get(pk=banqueid)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_banque'), u"Vous n'avez pas le\
-            droit d'ajouter des banques"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_banque'), u"Vous n'avez pas le\
-            droit d'éditer des banques"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_banque'), u"Vous n'avez pas le\
-            droit de supprimer des banques"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
-            droit de voir des banques"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
-            droit de voir des banques"
-
     def __str__(self):
         return self.name
 
 
-class Paiement(models.Model):
+class Paiement(AclMixin, models.Model):
     """Moyens de paiement"""
     PRETTY_NAME = "Moyens de paiement"
     PAYMENT_TYPES = (
@@ -485,26 +445,6 @@ class Paiement(models.Model):
 
     def get_instance(paiementid, *args, **kwargs):
         return Paiement.objects.get(pk=paiementid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_paiement'), u"Vous n'avez pas le\
-            droit d'ajouter des paiements"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_paiement'), u"Vous n'avez pas le\
-            droit d'éditer des paiements"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_paiement'), u"Vous n'avez pas le\
-            droit de supprimer des paiements"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
-            droit de voir des paiements"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
-            droit de voir des paiements"
 
     def __str__(self):
         return self.moyen
