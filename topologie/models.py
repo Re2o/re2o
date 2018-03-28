@@ -48,8 +48,9 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from machines.models import Machine, Interface, regen
+from re2o.mixins import AclMixin
 
-class Stack(models.Model):
+class Stack(AclMixin, models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
     ,contient une id de stack, un switch id min et max dans
     le stack"""
@@ -69,30 +70,6 @@ class Stack(models.Model):
     def get_instance(stack_id, *args, **kwargs):
         return Stack.objects.get(pk=stack_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_stack') , u"Vous n'avez pas le droit\
-            de créer un stack"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_stack'):
-            return False, u"Vous n'avez pas le droit d'éditer des stack"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_stack'):
-            return False, u"Vous n'avez pas le droit de supprimer une stack"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_stack'):
-            return False, u"Vous n'avez pas le droit de voir une stack"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_stack'):
-            return False, u"Vous n'avez pas le droit de voir une stack"
-        return True, None
-
     def __str__(self):
         return " ".join([self.name, self.stack_id])
 
@@ -109,7 +86,7 @@ class Stack(models.Model):
                 inférieure à l'id minimale"})
 
 
-class AccessPoint(Machine):
+class AccessPoint(AclMixin, Machine):
     """Define a wireless AP. Inherit from machines.interfaces
     
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -125,38 +102,14 @@ class AccessPoint(Machine):
 
     class Meta:
         permissions = (
-            ("view_ap", "Peut voir une borne"),
+            ("view_accesspoint", "Peut voir une borne"),
         )
 
     def get_instance(ap_id, *args, **kwargs):
         return AccessPoint.objects.get(pk=ap_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_ap') , u"Vous n'avez pas le droit\
-            de créer une borne"
 
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_ap'):
-            return False, u"Vous n'avez pas le droit d'éditer des bornes"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_ap'):
-            return False, u"Vous n'avez pas le droit de supprimer une borne"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_ap'):
-            return False, u"Vous n'avez pas le droit de voir les bornes"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_ap'):
-            return False, u"Vous n'avez pas le droit de voir les bornes"
-        return True, None
-
-
-class Switch(Machine):
+class Switch(AclMixin, Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -196,30 +149,6 @@ class Switch(Machine):
     def get_instance(switch_id, *args, **kwargs):
         return Switch.objects.get(pk=switch_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_switch') , u"Vous n'avez pas le droit\
-            de créer un switch"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_switch'):
-            return False, u"Vous n'avez pas le droit d'éditer des switch"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_switch'):
-            return False, u"Vous n'avez pas le droit de supprimer un switch"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_switch'):
-            return False, u"Vous n'avez pas le droit de voir les switch"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_switch'):
-            return False, u"Vous n'avez pas le droit de voir les switch"
-        return True, None
- 
     def clean(self):
         """ Verifie que l'id stack est dans le bon range
         Appelle également le clean de la classe parente"""
@@ -267,7 +196,7 @@ class Switch(Machine):
         return str(self.interface_set.first())
 
 
-class ModelSwitch(models.Model):
+class ModelSwitch(AclMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
     PRETTY_NAME = "Modèle de switch"
     reference = models.CharField(max_length=255)
@@ -284,35 +213,11 @@ class ModelSwitch(models.Model):
     def get_instance(model_switch_id, *args, **kwargs):
         return ModelSwitch.objects.get(pk=model_switch_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_modelswitch') , u"Vous n'avez pas le droit\
-            de créer un modèle de switch"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_modelswitch'):
-            return False, u"Vous n'avez pas le droit d'éditer des modèle de switchs"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_modelswitch'):
-            return False, u"Vous n'avez pas le droit de supprimer un modèle switch"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_modelswitch'):
-            return False, u"Vous n'avez pas le droit de voir un modèle switch"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_modelswitch'):
-            return False, u"Vous n'avez pas le droit de voir un modèle switch"
-        return True, None
-   
     def __str__(self):
         return str(self.constructor) + ' ' + self.reference
 
 
-class ConstructorSwitch(models.Model):
+class ConstructorSwitch(AclMixin, models.Model):
     """Un constructeur de switch"""
     PRETTY_NAME = "Constructeur de switch"
     name = models.CharField(max_length=255)
@@ -325,36 +230,11 @@ class ConstructorSwitch(models.Model):
     def get_instance(constructor_switch_id, *args, **kwargs):
         return ConstructorSwitch.objects.get(pk=constructor_switch_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_constructorswitch') , u"Vous n'avez pas le droit\
-            de créer un constructeur de switch"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_constructorswitch'):
-            return False, u"Vous n'avez pas le droit d'éditer des\
-                constructeurs de switchs"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_constructorswitch'):
-            return False, u"Vous n'avez pas le droit de supprimer un constructeur"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_constructorswitch'):
-            return False, u"Vous n'avez pas le droit de voir un constructeur"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_constructorswitch'):
-            return False, u"Vous n'avez pas le droit de voir un constructeur"
-        return True, None
-    
     def __str__(self):
         return self.name
 
 
-class Port(models.Model):
+class Port(AclMixin, models.Model):
     """ Definition d'un port. Relié à un switch(foreign_key),
     un port peut etre relié de manière exclusive à :
     - une chambre (room)
@@ -426,30 +306,6 @@ class Port(models.Model):
             .prefetch_related('switch__interface_set__domain__extension')\
             .get(pk=port_id)
 
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_port') , u"Vous n'avez pas le droit\
-            de créer un port"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_port'):
-            return False, u"Vous n'avez pas le droit d'éditer des ports"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_port'):
-            return False, u"Vous n'avez pas le droit de supprimer un port"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_port'):
-            return False, u"Vous n'avez pas le droit de voir les ports"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_port'):
-            return False, u"Vous n'avez pas le droit de voir les ports"
-        return True, None
-   
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
         related_port = self.related
@@ -494,7 +350,7 @@ class Port(models.Model):
         return str(self.switch) + " - " + str(self.port)
 
 
-class Room(models.Model):
+class Room(AclMixin, models.Model):
     """Une chambre/local contenant une prise murale"""
     PRETTY_NAME = "Chambre/ Prise murale"
 
@@ -509,30 +365,6 @@ class Room(models.Model):
 
     def get_instance(room_id, *args, **kwargs):
         return Room.objects.get(pk=room_id)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('topologie.add_room') , u"Vous n'avez pas le droit\
-            de créer une chambre"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.change_room'):
-            return False, u"Vous n'avez pas le droit d'éditer une chambre"
-        return True, None
-
-    def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.delete_room'):
-            return False, u"Vous n'avez pas le droit de supprimer une chambre"
-        return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_room'):
-            return False, u"Vous n'avez pas le droit de voir les chambres"
-        return True, None
-
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('topologie.view_room'):
-            return False, u"Vous n'avez pas le droit de voir les chambres"
-        return True, None
 
     def __str__(self):
         return self.name
