@@ -515,8 +515,8 @@ def add_shell(request):
 
 @login_required
 @can_edit(ListShell)
-def edit_shell(request, shell_instance, shellid):
-    """ Editer un shell à partir du shellid"""
+def edit_shell(request, shell_instance, listshellid):
+    """ Editer un shell à partir du listshellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -532,7 +532,7 @@ def edit_shell(request, shell_instance, shellid):
 
 @login_required
 @can_delete(ListShell)
-def del_shell(request, shell, shellid):
+def del_shell(request, shell, listshellid):
     """Destruction d'un shell"""
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():

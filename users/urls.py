@@ -82,12 +82,12 @@ urlpatterns = [
     url(r'^del_listright/$', views.del_listright, name='del-listright'),
     url(r'^add_shell/$', views.add_shell, name='add-shell'),
     url(
-        r'^edit_shell/(?P<shellid>[0-9]+)$',
+        r'^edit_shell/(?P<listshellid>[0-9]+)$',
         views.edit_shell,
         name='edit-shell'
     ),
     url(
-        r'^del_shell/(?P<shellid>[0-9]+)$',
+        r'^del_shell/(?P<listshellid>[0-9]+)$',
         views.del_shell,
         name='del-shell'
     ),

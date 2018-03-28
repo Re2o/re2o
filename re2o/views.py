@@ -65,7 +65,7 @@ HISTORY_BIND = {
         'school' : users.models.School,
         'listright' : users.models.ListRight,
         'serviceuser' : users.models.ServiceUser,
-        'shell' : users.models.ListShell,
+        'listshell' : users.models.ListShell,
     },
     'preferences' : {
         'service' : preferences.models.Service,
@@ -81,8 +81,8 @@ HISTORY_BIND = {
         'port' : topologie.models.Port,
         'room' : topologie.models.Room,
         'stack' : topologie.models.Stack,
-        'model_switch' : topologie.models.ModelSwitch,
-        'constructor_switch' : topologie.models.ConstructorSwitch,
+        'modelswitch' : topologie.models.ModelSwitch,
+        'constructorswitch' : topologie.models.ConstructorSwitch,
         'accesspoint' : topologie.models.AccessPoint,
     },
     'machines' : {
