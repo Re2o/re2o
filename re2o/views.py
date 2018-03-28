@@ -128,8 +128,10 @@ def history(request, application, object_name, object_id):
         model = HISTORY_BIND[application][object_name]
     except KeyError as e:
         raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
+    object_name_id = object_name + 'id'
+    kwargs = {object_name_id: object_id}
     try:
-        instance = model.get_instance(object_id)
+        instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
         messages.error(request, u"Entrée inexistante")
         return redirect(reverse('users:profil',
