@@ -282,14 +282,14 @@ class Port(AclMixin, models.Model):
             ("view_port", "Peut voir un objet port"),
         )
 
-    def get_instance(port_id, *args, **kwargs):
+    def get_instance(portid, *args, **kwargs):
         return Port.objects\
             .select_related('machine_interface__domain__extension')\
             .select_related('machine_interface__machine__switch')\
             .select_related('room')\
             .select_related('related')\
             .prefetch_related('switch__interface_set__domain__extension')\
-            .get(pk=port_id)
+            .get(pk=portid)
 
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
