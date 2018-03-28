@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^index_ap/$', views.index_ap, name='index-ap'),
     url(r'^new_ap/$', views.new_ap, name='new-ap'),
-    url(r'^edit_ap/(?P<ap_id>[0-9]+)$',
+    url(r'^edit_ap/(?P<accesspoint_id>[0-9]+)$',
         views.edit_ap,
         name='edit-ap'),
     url(r'^create_ports/(?P<switch_id>[0-9]+)$',

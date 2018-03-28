@@ -38,11 +38,16 @@ from .models import (
     Nas,
     Service,
     OuverturePort,
+    Ipv6List,
     OuverturePortList
 )
 
 
 class MachineAdmin(VersionAdmin):
+    pass
+
+
+class Ipv6ListAdmin(VersionAdmin):
     pass
 
 
@@ -124,6 +129,7 @@ admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(Vlan, VlanAdmin)
+admin.site.register(Ipv6List, Ipv6ListAdmin)
 admin.site.register(Nas, NasAdmin)
 admin.site.register(OuverturePort, OuverturePortAdmin)
 admin.site.register(OuverturePortList, OuverturePortListAdmin)

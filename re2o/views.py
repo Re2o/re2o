@@ -83,7 +83,7 @@ HISTORY_BIND = {
         'stack' : topologie.models.Stack,
         'model_switch' : topologie.models.ModelSwitch,
         'constructor_switch' : topologie.models.ConstructorSwitch,
-        'ap' : topologie.models.AccessPoint,
+        'accesspoint' : topologie.models.AccessPoint,
     },
     'machines' : {
         'machine' : machines.models.Machine,
@@ -99,7 +99,7 @@ HISTORY_BIND = {
         'ns' : machines.models.Ns,
         'service' : machines.models.Service,
         'vlan' : machines.models.Vlan,
-        'nas' : machines.models.Vlan,
+        'nas' : machines.models.Nas,
         'ipv6list' : machines.models.Ipv6List,
     },
 }
