@@ -34,7 +34,7 @@ from django.dispatch import receiver
 from django.core.cache import cache
 
 from .aes_field import AESEncryptedField
-
+from re2o.mixins import AclMixin
 
 class PreferencesModel(models.Model):
     @classmethod
@@ -54,7 +54,7 @@ class PreferencesModel(models.Model):
         abstract = True
 
 
-class OptionalUser(PreferencesModel):
+class OptionalUser(AclMixin, PreferencesModel):
     """Options pour l'user : obligation ou nom du telephone,
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
     PRETTY_NAME = "Options utilisateur"
@@ -101,58 +101,6 @@ class OptionalUser(PreferencesModel):
             ("view_optionaluser", "Peut voir les options de l'user"),
         )
 
-    def get_instance(*args, **kwargs):
-        return OptionalUser.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a OptionalUser object.
-
-        :param user_request: The user who wants to create a user object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_optionaluser'), u"Vous n'avez pas le droit\
-            de créer les préférences concernant les users"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a OptionalUser object.
-
-        :param self: The OptionalUser which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_optionaluser'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant les users"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a OptionalUser object.
-
-        :param self: The OptionalUser which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_optionaluser'), u"Vous n'avez pas le droit\
-            de supprimer les préférences concernant les users"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every OptionalUser objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perm('preferences.view_optionaluser'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les utilisateurs"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a OptionalUser object.
-
-        :param self: The targeted OptionalUser.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_optionaluser'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les utilisateurs"
-
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
@@ -169,7 +117,7 @@ def optionaluser_post_save(sender, **kwargs):
     user_pref.set_in_cache()
 
 
-class OptionalMachine(PreferencesModel):
+class OptionalMachine(AclMixin, PreferencesModel):
     """Options pour les machines : maximum de machines ou d'alias par user
     sans droit, activation de l'ipv6"""
     PRETTY_NAME = "Options machines"
@@ -205,59 +153,6 @@ class OptionalMachine(PreferencesModel):
             ("view_optionalmachine", "Peut voir les options de machine"),
         )
 
-    def get_instance(*args, **kwargs):
-        return OptionalMachine.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a OptionalMachine object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_optionalmachine'), u"Vous n'avez pas le droit\
-            de créer les préférences concernant les machines"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a OptionalMachine object.
-
-        :param self: The OptionalMachine which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_optionalmachine'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant les machines"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a OptionalMachine object.
-
-        :param self: The OptionalMachine which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-
-        return user_request.has_perm('preferences.delete_optionalmachine'), u"Vous n'avez pas le droit\
-            de supprimer les préférences concernant les machines"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every OptionalMachine objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les machines"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a OptionalMachine object.
-
-        :param self: The targeted OptionalMachine.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_optionalmachine'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les machines"
-
 
 @receiver(post_save, sender=OptionalMachine)
 def optionalmachine_post_save(sender, **kwargs):
@@ -269,7 +164,7 @@ def optionalmachine_post_save(sender, **kwargs):
             interface.sync_ipv6()
 
 
-class OptionalTopologie(PreferencesModel):
+class OptionalTopologie(AclMixin, PreferencesModel):
     """Reglages pour la topologie : mode d'accès radius, vlan où placer
     les machines en accept ou reject"""
     PRETTY_NAME = "Options topologie"
@@ -306,58 +201,6 @@ class OptionalTopologie(PreferencesModel):
             ("view_optionaltopologie", "Peut voir les options de topologie"),
         )
 
-    def get_instance(*args, **kwargs):
-        return OptionalTopologie.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a OptionalTopologie object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_optionaltopologie'), u"Vous n'avez pas le droit\
-            de créer les préférences concernant la topologie"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a OptionalTopologie object.
-
-        :param self: The OptionalTopologie which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_optionaltopologie'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant la topologie"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a OptionalTopologie object.
-
-        :param self: The OptionalTopologie which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_optionaltoplogie'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant la topologie"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every OptionalTopologie objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perm('preferences.view_optionaltopologie'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant la topologie"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a OptionalTopologie object.
-
-        :param self: The targeted OptionalTopologie.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_optionaltopologie'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant la topologie"
-
 
 @receiver(post_save, sender=OptionalTopologie)
 def optionaltopologie_post_save(sender, **kwargs):
@@ -366,7 +209,7 @@ def optionaltopologie_post_save(sender, **kwargs):
     topologie_pref.set_in_cache()
 
 
-class GeneralOption(PreferencesModel):
+class GeneralOption(AclMixin, PreferencesModel):
     """Options générales : nombre de resultats par page, nom du site,
     temps où les liens sont valides"""
     PRETTY_NAME = "Options générales"
@@ -398,59 +241,6 @@ class GeneralOption(PreferencesModel):
             ("view_generaloption", "Peut voir les options générales"),
         )
 
-    def get_instance(*args, **kwargs):
-        return GeneralOption.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a GeneralOption object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_generaloption'), u"Vous n'avez pas le droit\
-            de créer les préférences générales"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a GeneralOption object.
-
-        :param self: The GeneralOption which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_generaloption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences générales"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a GeneralOption object.
-
-        :param self: The GeneralOption which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_generaloption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences générales"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every GeneralOption objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-
-        return user_request.has_perm('preferences.view_generaloption'), u"Vous n'avez pas le droit\
-            de voir les préférences générales"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a GeneralOption object.
-
-        :param self: The targeted GeneralOption.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_generaloption'), u"Vous n'avez pas le droit\
-            de voir les préférences générales"
-
 
 @receiver(post_save, sender=GeneralOption)
 def generaloption_post_save(sender, **kwargs):
@@ -459,7 +249,7 @@ def generaloption_post_save(sender, **kwargs):
     general_pref.set_in_cache()
 
 
-class Service(models.Model):
+class Service(AclMixin, models.Model):
     """Liste des services affichés sur la page d'accueil : url, description,
     image et nom"""
     name = models.CharField(max_length=32)
@@ -472,65 +262,11 @@ class Service(models.Model):
             ("view_service", "Peut voir les options de service"),
         )
 
-    def get_instance(serviceid, *args, **kwargs):
-        return Service.objects.get(pk=serviceid)
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a Service object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-
-        return user_request.has_perm('preferences.add_service'), u"Vous n'avez pas le droit\
-            de créer un service pour la page d'accueil"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a Service object.
-
-        :param self: The Service which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_service'), u"Vous n'avez pas le droit\
-            d'éditer les services pour la page d'accueil"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a Service object.
-
-        :param self: The Right which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_service'), u"Vous n'avez pas le droit\
-            de supprimer les services pour la page d'accueil"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every Service objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-
-        return user_request.has_perm('preferences.view_service'), u"Vous n'avez pas le droit\
-            de voir les services pour la page d'accueil"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a Service object.
-
-        :param self: The targeted Service.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_service'), u"Vous n'avez pas le droit\
-            de voir les services pour la page d'accueil"
-
     def __str__(self):
         return str(self.name)
 
 
-class AssoOption(PreferencesModel):
+class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""
     PRETTY_NAME = "Options de l'association"
 
@@ -579,58 +315,6 @@ class AssoOption(PreferencesModel):
             ("view_assooption", "Peut voir les options de l'asso"),
         )
 
-    def get_instance(*args, **kwargs):
-        return AssoOption.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a AssoOption object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_assooption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant l'association"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a AssoOption object.
-
-        :param self: The AssoOption which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-        return user_request.has_perm('preferences.change_assooption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant l'association"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a AssoOption object.
-
-        :param self: The AssoOption which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_assooption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant l'association"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every AssoOption objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perm('preferences.view_assooption'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant l'association"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a AssoOption object.
-
-        :param self: The targeted AssoOption.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_assooption'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant l'association"
-
 
 @receiver(post_save, sender=AssoOption)
 def assooption_post_save(sender, **kwargs):
@@ -639,7 +323,7 @@ def assooption_post_save(sender, **kwargs):
     asso_pref.set_in_cache()
 
 
-class MailMessageOption(models.Model):
+class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
     PRETTY_NAME = "Options de corps de mail"
 
@@ -650,56 +334,3 @@ class MailMessageOption(models.Model):
         permissions = (
             ("view_mailmessageoption", "Peut voir les options de mail"),
         )
-
-    def get_instance(*args, **kwargs):
-        return MailMessageOption.objects.get_or_create()
-
-    def can_create(user_request, *args, **kwargs):
-        """Check if an user can create a MailMessageOption object.
-
-        :param user_request: The user who wants to create an object.
-        :return: a message and a boolean which is True if the user can create.
-        """
-        return user_request.has_perm('preferences.add_mailmessageoption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant les mails"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit a MailMessageOption object.
-
-        :param self: The MailMessageOption which is to be edited.
-        :param user_request: The user who requests to edit self.
-        :return: a message and a boolean which is True if edition is granted.
-        """
-
-        return user_request.has_perm('preferences.change_mailmessageoption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant les mails"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete a AssoOption object.
-
-        :param self: The AssoOption which is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if deletion is granted, and a message.
-        """
-        return user_request.has_perm('preferences.delete_mailmessageoption'), u"Vous n'avez pas le droit\
-            d'éditer les préférences concernant les mails"
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every AssoOption objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        return user_request.has_perm('preferences.view_mailmessageoption'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les mails"
-
-    def can_view(self, user_request, *args, **kwargs):
-        """Check if an user can view a AssoOption object.
-
-        :param self: The targeted AssoOption.
-        :param user_request: The user who ask for viewing the target.
-        :return: A boolean telling if the acces is granted and an explanation
-        text
-        """
-        return user_request.has_perm('preferences.view_mailmessageoption'), u"Vous n'avez pas le droit\
-            de voir les préférences concernant les mails"

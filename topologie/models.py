@@ -67,9 +67,6 @@ class Stack(AclMixin, models.Model):
             ("view_stack", "Peut voir un objet stack"),
         )
 
-    def get_instance(stack_id, *args, **kwargs):
-        return Stack.objects.get(pk=stack_id)
-
     def __str__(self):
         return " ".join([self.name, self.stack_id])
 
@@ -104,9 +101,6 @@ class AccessPoint(AclMixin, Machine):
         permissions = (
             ("view_accesspoint", "Peut voir une borne"),
         )
-
-    def get_instance(ap_id, *args, **kwargs):
-        return AccessPoint.objects.get(pk=ap_id)
 
 
 class Switch(AclMixin, Machine):
@@ -145,9 +139,6 @@ class Switch(AclMixin, Machine):
         permissions = (
             ("view_switch", "Peut voir un objet switch"),
         )
-
-    def get_instance(switch_id, *args, **kwargs):
-        return Switch.objects.get(pk=switch_id)
 
     def clean(self):
         """ Verifie que l'id stack est dans le bon range
@@ -210,9 +201,6 @@ class ModelSwitch(AclMixin, models.Model):
             ("view_modelswitch", "Peut voir un objet modelswitch"),
         )
 
-    def get_instance(model_switch_id, *args, **kwargs):
-        return ModelSwitch.objects.get(pk=model_switch_id)
-
     def __str__(self):
         return str(self.constructor) + ' ' + self.reference
 
@@ -226,9 +214,6 @@ class ConstructorSwitch(AclMixin, models.Model):
         permissions = (
             ("view_constructorswitch", "Peut voir un objet constructorswitch"),
         )
-
-    def get_instance(constructor_switch_id, *args, **kwargs):
-        return ConstructorSwitch.objects.get(pk=constructor_switch_id)
 
     def __str__(self):
         return self.name
@@ -297,14 +282,14 @@ class Port(AclMixin, models.Model):
             ("view_port", "Peut voir un objet port"),
         )
 
-    def get_instance(port_id, *args, **kwargs):
+    def get_instance(portid, *args, **kwargs):
         return Port.objects\
             .select_related('machine_interface__domain__extension')\
             .select_related('machine_interface__machine__switch')\
             .select_related('room')\
             .select_related('related')\
             .prefetch_related('switch__interface_set__domain__extension')\
-            .get(pk=port_id)
+            .get(pk=portid)
 
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
@@ -362,9 +347,6 @@ class Room(AclMixin, models.Model):
         permissions = (
             ("view_room", "Peut voir un objet chambre"),
         )
-
-    def get_instance(room_id, *args, **kwargs):
-        return Room.objects.get(pk=room_id)
 
     def __str__(self):
         return self.name

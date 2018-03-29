@@ -52,7 +52,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </td>
         <td>
         {% if port.related %}
-            <a href="{% url 'topologie:index-port' switch_id=port.related.switch.id %}">{{ port.related }}</a>
+            <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
         {% endif %}
         </td>
         <td>{{ port.radius }}</td>

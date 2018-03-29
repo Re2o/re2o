@@ -171,7 +171,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
+class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -668,14 +668,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             num += 1
         return composed_pseudo(num)
 
-    def get_instance(userid, *args, **kwargs):
-        """Get the User instance with userid.
-
-        :param userid: The id
-        :return: The user
-        """
-        return User.objects.get(pk=userid)
-
     def can_edit(self, user_request, *args, **kwargs):
         """Check if an user can edit an user object.
 
@@ -746,29 +738,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     def can_change_groups(user_request, *args, **kwargs):
         return user_request.has_perm('users.change_user_groups'), "Droit requis pour éditer les groupes de l'user"
 
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete an user object.
-
-        :param self: The user who is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if user_request has the right 'bureau', and a message.
-        """
-        if user_request.has_perm('users.delete_user'):
-            return True, None
-        else:
-            return False, u"Vous ne pouvez pas supprimer cet utilisateur."
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every user objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        if user_request.has_perm('users.view_user'):
-            return True, None
-        else:
-            return False, u"Vous n'avez pas accès à la liste des utilisateurs."
-
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view an user object.
 
@@ -791,6 +760,23 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_user'), u"Vous n'avez pas accès à la liste des utilisateurs."
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete an user object.
+
+        :param self: The user who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'bureau', and a message.
+        """
+        return user_request.has_perm('users.delete_user'), u"Vous ne pouvez pas supprimer cet utilisateur."
+
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         self.field_permissions = {
@@ -812,8 +798,6 @@ class Adherent(User):
         blank=True,
         null=True
     )
-
-
 
     def get_instance(adherentid, *args, **kwargs):
         """Try to find an instance of `Adherent` with the given id.
@@ -990,9 +974,6 @@ class ServiceUser(AclMixin, AbstractBaseUser):
             )]).values_list('dn', flat=True))
         group.save()
 
-    def get_instance(userid, *args, **kwargs):
-        return ServiceUser.objects.get(pk=userid)
-
     def __str__(self):
         return self.pseudo
 
@@ -1020,9 +1001,6 @@ class School(AclMixin, models.Model):
         permissions = (
             ("view_school", "Peut voir un objet school"),
         )
-
-    def get_instance(schoolid, *args, **kwargs):
-        return School.objects.get(pk=schoolid)
 
     def __str__(self):
         return self.name
@@ -1057,9 +1035,6 @@ class ListRight(AclMixin, Group):
         permissions = (
             ("view_listright", "Peut voir un objet Group/ListRight"),
         )
-
-    def get_instance(listrightid, *args, **kwargs):
-        return ListRight.objects.get(pk=listrightid)
 
     def __str__(self):
         return self.name
@@ -1109,9 +1084,6 @@ class ListShell(AclMixin, models.Model):
         permissions = (
             ("view_listshell", "Peut voir un objet shell quelqu'il soit"),
         )
-
-    def get_instance(shellid, *args, **kwargs):
-        return ListShell.objects.get(pk=shellid)
 
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
@@ -1235,9 +1207,6 @@ class Whitelist(AclMixin, models.Model):
 
     def is_active(self):
         return self.date_end > timezone.now()
-
-    def get_instance(whitelistid, *args, **kwargs):
-        return Whitelist.objects.get(pk=whitelistid)
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Whitelist object.
