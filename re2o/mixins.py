@@ -20,6 +20,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 class AclMixin(object):
+    """This mixin is used in nearly every class/models defined in re2o apps.
+    It is used by acl, in models (decorators can_...) and in templates tags
+    :get_instance: Applied on a class, take an id argument, return an instance
+    :can_create: Applied on a class, take the requested user, return if the user
+    can do the creation
+    :can_edit: Applied on an instance, return if the user can edit the instance
+    :can_delete: Applied on an instance, return if the user can delete the instance
+    :can_view: Applied on an instance, return if the user can view the instance
+    :can_view_all: Applied on a class, return if the user can view all instances"""
+
     @classmethod
     def get_classname(cls):
         return str(cls.__name__).lower()
