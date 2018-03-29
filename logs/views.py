@@ -90,7 +90,8 @@ from topologie.models import (
     Room,
     Stack,
     ModelSwitch,
-    ConstructorSwitch
+    ConstructorSwitch,
+    AccessPoint
 )
 from preferences.models import GeneralOption
 from re2o.views import form
@@ -360,6 +361,7 @@ def stats_models(request):
         },
         'Topologie': {
             'switch': [Switch.PRETTY_NAME, Switch.objects.count()],
+            'bornes': [AccessPoint.PRETTY_NAME, AccessPoint.objects.count()],
             'port': [Port.PRETTY_NAME, Port.objects.count()],
             'chambre': [Room.PRETTY_NAME, Room.objects.count()],
             'stack': [Stack.PRETTY_NAME, Stack.objects.count()],

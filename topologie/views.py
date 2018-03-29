@@ -123,7 +123,7 @@ def index(request):
 @login_required
 @can_view_all(Port)
 @can_view(Switch)
-def index_port(request, switch, switch_id):
+def index_port(request, switch, switchid):
     """ Affichage de l'ensemble des ports reliés à un switch particulier"""
     port_list = Port.objects.filter(switch=switch)\
         .select_related('room')\
@@ -143,7 +143,7 @@ def index_port(request, switch, switch_id):
     )
     return render(request, 'topologie/index_p.html', {
         'port_list': port_list,
-        'id_switch': switch_id,
+        'id_switch': switchid,
         'nom_switch': switch
         })
 
@@ -250,10 +250,10 @@ def index_model_switch(request):
 
 @login_required
 @can_create(Port)
-def new_port(request, switch_id):
+def new_port(request, switchid):
     """ Nouveau port"""
     try:
-        switch = Switch.objects.get(pk=switch_id)
+        switch = Switch.objects.get(pk=switchid)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect(reverse('topologie:index'))
@@ -271,14 +271,14 @@ def new_port(request, switch_id):
             messages.error(request, "Ce port existe déjà")
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switch_id':switch_id}
+            kwargs={'switchid':switchid}
             ))
-    return form({'id_switch': switch_id,'topoform': port, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form({'id_switch': switchid,'topoform': port, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
 @login_required
 @can_edit(Port)
-def edit_port(request, port_object, port_id):
+def edit_port(request, port_object, portid):
     """ Edition d'un port. Permet de changer le switch parent et
     l'affectation du port"""
 
@@ -293,14 +293,14 @@ def edit_port(request, port_object, port_id):
         messages.success(request, "Le port a bien été modifié")
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switch_id': str(port_object.switch.id)}
+            kwargs={'switchid': str(port_object.switch.id)}
             ))
     return form({'id_switch': str(port_object.switch.id), 'topoform': port, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
 @login_required
 @can_delete(Port)
-def del_port(request, port, port_id):
+def del_port(request, port, portid):
     """ Supprime le port"""
     if request.method == "POST":
         try:
@@ -314,7 +314,7 @@ def del_port(request, port, port_id):
                 impossible de le supprimer" % port)
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switch_id':str(port.switch.id)}
+            kwargs={'switchid':str(port.switch.id)}
             ))
     return form({'objet': port}, 'topologie/delete.html', request)
 
@@ -322,7 +322,7 @@ def del_port(request, port, port_id):
 @login_required
 @can_create(Stack)
 def new_stack(request):
-    """Ajoute un nouveau stack : stack_id_min, max, et nombre de switches"""
+    """Ajoute un nouveau stack : stackid_min, max, et nombre de switches"""
     stack = StackForm(request.POST or None)
     if stack.is_valid():
         with transaction.atomic(), reversion.create_revision():
@@ -335,7 +335,7 @@ def new_stack(request):
 
 @login_required
 @can_edit(Stack)
-def edit_stack(request, stack, stack_id):
+def edit_stack(request, stack, stackid):
     """Edition d'un stack (nombre de switches, nom...)"""
 
     stack = StackForm(request.POST or None, instance=stack)
@@ -354,7 +354,7 @@ def edit_stack(request, stack, stack_id):
 
 @login_required
 @can_delete(Stack)
-def del_stack(request, stack, stack_id):
+def del_stack(request, stack, stackid):
     """Supprime un stack"""
     if request.method == "POST":
         try:
@@ -372,7 +372,7 @@ def del_stack(request, stack, stack_id):
 
 @login_required
 @can_edit(Stack)
-def edit_switchs_stack(request, stack, stack_id):
+def edit_switchs_stack(request, stack, stackid):
     """Permet d'éditer la liste des switches dans une stack et l'ajouter"""
 
     if request.method == "POST":
@@ -440,10 +440,10 @@ def new_switch(request):
 
 @login_required
 @can_create(Port)
-def create_ports(request, switch_id):
+def create_ports(request, switchid):
     """ Création d'une liste de ports pour un switch."""
     try:
-        switch = Switch.objects.get(pk=switch_id)
+        switch = Switch.objects.get(pk=switchid)
     except Switch.DoesNotExist:
         messages.error(request, u"Switch inexistant")
         return redirect(reverse('topologie:index'))
@@ -471,14 +471,14 @@ def create_ports(request, switch_id):
 
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switch_id':switch_id}
+            kwargs={'switchid':switchid}
             ))
-    return form({'id_switch': switch_id, 'topoform': port_form}, 'topologie/switch.html', request)
+    return form({'id_switch': switchid, 'topoform': port_form}, 'topologie/switch.html', request)
 
 
 @login_required
 @can_edit(Switch)
-def edit_switch(request, switch, switch_id):
+def edit_switch(request, switch, switchid):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
 
@@ -524,7 +524,7 @@ def edit_switch(request, switch, switch_id):
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
     return form({
-        'id_switch': switch_id,
+        'id_switch': switchid,
         'topoform': interface_form,
         'machineform': switch_form,
         'domainform': domain_form,
@@ -590,7 +590,7 @@ def new_ap(request):
 
 @login_required
 @can_edit(AccessPoint)
-def edit_ap(request, ap, ap_id):
+def edit_ap(request, ap, accesspointid):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
     interface_form = EditInterfaceForm(
@@ -665,7 +665,7 @@ def new_room(request):
 
 @login_required
 @can_edit(Room)
-def edit_room(request, room, room_id):
+def edit_room(request, room, roomid):
     """ Edition numero et details de la chambre"""
 
     room = EditRoomForm(request.POST or None, instance=room)
@@ -683,7 +683,7 @@ def edit_room(request, room, room_id):
 
 @login_required
 @can_delete(Room)
-def del_room(request, room, room_id):
+def del_room(request, room, roomid):
     """ Suppression d'un chambre"""
     if request.method == "POST":
         try:
@@ -719,7 +719,7 @@ def new_model_switch(request):
 
 @login_required
 @can_edit(ModelSwitch)
-def edit_model_switch(request, model_switch, model_switch_id):
+def edit_model_switch(request, model_switch, modelswitchid):
     """ Edition d'un modèle de switch"""
 
     model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
@@ -737,7 +737,7 @@ def edit_model_switch(request, model_switch, model_switch_id):
 
 @login_required
 @can_delete(ModelSwitch)
-def del_model_switch(request, model_switch_id):
+def del_model_switch(request, model_switch, modelswitchid):
     """ Suppression d'un modèle de switch"""
     if request.method == "POST":
         try:
@@ -773,7 +773,7 @@ def new_constructor_switch(request):
 
 @login_required
 @can_edit(ConstructorSwitch)
-def edit_constructor_switch(request, constructor_switch, constructor_switch_id):
+def edit_constructor_switch(request, constructor_switch, constructorswitchid):
     """ Edition d'un constructeur de switch"""
 
     constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
@@ -791,7 +791,7 @@ def edit_constructor_switch(request, constructor_switch, constructor_switch_id):
 
 @login_required
 @can_delete(ConstructorSwitch)
-def del_constructor_switch(request, constructor_switch_id):
+def del_constructor_switch(request, constructor_switch, constructorswitchid):
     """ Suppression d'un constructeur de switch"""
     if request.method == "POST":
         try:

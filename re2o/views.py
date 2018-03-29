@@ -65,7 +65,7 @@ HISTORY_BIND = {
         'school' : users.models.School,
         'listright' : users.models.ListRight,
         'serviceuser' : users.models.ServiceUser,
-        'shell' : users.models.ListShell,
+        'listshell' : users.models.ListShell,
     },
     'preferences' : {
         'service' : preferences.models.Service,
@@ -81,9 +81,9 @@ HISTORY_BIND = {
         'port' : topologie.models.Port,
         'room' : topologie.models.Room,
         'stack' : topologie.models.Stack,
-        'model_switch' : topologie.models.ModelSwitch,
-        'constructor_switch' : topologie.models.ConstructorSwitch,
-        'ap' : topologie.models.AccessPoint,
+        'modelswitch' : topologie.models.ModelSwitch,
+        'constructorswitch' : topologie.models.ConstructorSwitch,
+        'accesspoint' : topologie.models.AccessPoint,
     },
     'machines' : {
         'machine' : machines.models.Machine,
@@ -99,7 +99,7 @@ HISTORY_BIND = {
         'ns' : machines.models.Ns,
         'service' : machines.models.Service,
         'vlan' : machines.models.Vlan,
-        'nas' : machines.models.Vlan,
+        'nas' : machines.models.Nas,
         'ipv6list' : machines.models.Ipv6List,
     },
 }
@@ -128,8 +128,10 @@ def history(request, application, object_name, object_id):
         model = HISTORY_BIND[application][object_name]
     except KeyError as e:
         raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
+    object_name_id = object_name + 'id'
+    kwargs = {object_name_id: object_id}
     try:
-        instance = model.get_instance(object_id)
+        instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
         messages.error(request, u"Entrée inexistante")
         return redirect(reverse('users:profil',

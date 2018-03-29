@@ -57,9 +57,9 @@ from django.utils import timezone
 from machines.models import regen
 
 from re2o.field_permissions import FieldPermissionModelMixin
+from re2o.mixins import AclMixin
 
-
-class Facture(FieldPermissionModelMixin, models.Model):
+class Facture(AclMixin, FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
     plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
     et si il y a lieu un numero pour les chèques. Possède les valeurs
@@ -114,13 +114,6 @@ class Facture(FieldPermissionModelMixin, models.Model):
             ).values_list('name', flat=True))
         return name
 
-    def get_instance(factureid, *args, **kwargs):
-        return Facture.objects.get(pk=factureid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_facture'), u"Vous n'avez pas le\
-            droit de créer des factures"
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_facture'):
             return False, u"Vous n'avez pas le droit d'éditer les factures"
@@ -143,11 +136,6 @@ class Facture(FieldPermissionModelMixin, models.Model):
                 contrôlée ou invalidée par un trésorier"
         else:
             return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('cotisations.view_facture'):
-            return False, u"Vous n'avez pas le droit de voir les factures"
-        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_facture') and\
@@ -192,7 +180,7 @@ def facture_post_delete(sender, **kwargs):
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
-class Vente(models.Model):
+class Vente(AclMixin, models.Model):
     """Objet vente, contient une quantité, une facture parente, un nom,
     un prix. Peut-être relié à un objet cotisation, via le boolean
     iscotisation"""
@@ -277,14 +265,6 @@ class Vente(models.Model):
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
-    def get_instance(venteid, *args, **kwargs):
-        return Vente.objects.get(pk=venteid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_vente'), u"Vous n'avez pas le\
-            droit de créer des ventes"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_vente'):
             return False, u"Vous n'avez pas le droit d'éditer les ventes"
@@ -307,11 +287,6 @@ class Vente(models.Model):
                 contrôlée ou invalidée par un trésorier"
         else:
             return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('cotisations.view_vente'):
-            return False, u"Vous n'avez pas le droit de voir les ventes"
-        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_vente') and\
@@ -350,7 +325,7 @@ def vente_post_delete(sender, **kwargs):
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
-class Article(models.Model):
+class Article(AclMixin, models.Model):
     """Liste des articles en vente : prix, nom, et attribut iscotisation
     et duree si c'est une cotisation"""
     PRETTY_NAME = "Articles en vente"
@@ -402,34 +377,11 @@ class Article(models.Model):
                 "La durée est obligatoire si il s'agit d'une cotisation"
             )
 
-    def get_instance(articleid, *args, **kwargs):
-        return Article.objects.get(pk=articleid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_article'), u"Vous n'avez pas le\
-            droit d'ajouter des articles"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_article'), u"Vous n'avez pas le\
-            droit d'éditer des articles"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_article'), u"Vous n'avez pas le\
-            droit de supprimer des articles"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
-            droit de voir des articles"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_article'), u"Vous n'avez pas le\
-            droit de voir des articles"
-
     def __str__(self):
         return self.name
 
 
-class Banque(models.Model):
+class Banque(AclMixin, models.Model):
     """Liste des banques"""
     PRETTY_NAME = "Banques enregistrées"
 
@@ -440,34 +392,11 @@ class Banque(models.Model):
             ("view_banque", "Peut voir un objet banque"),
         )
 
-    def get_instance(banqueid, *args, **kwargs):
-        return Banque.objects.get(pk=banqueid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_banque'), u"Vous n'avez pas le\
-            droit d'ajouter des banques"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_banque'), u"Vous n'avez pas le\
-            droit d'éditer des banques"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_banque'), u"Vous n'avez pas le\
-            droit de supprimer des banques"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
-            droit de voir des banques"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_banque'), u"Vous n'avez pas le\
-            droit de voir des banques"
-
     def __str__(self):
         return self.name
 
 
-class Paiement(models.Model):
+class Paiement(AclMixin, models.Model):
     """Moyens de paiement"""
     PRETTY_NAME = "Moyens de paiement"
     PAYMENT_TYPES = (
@@ -483,29 +412,6 @@ class Paiement(models.Model):
             ("view_paiement", "Peut voir un objet paiement"),
         )
 
-    def get_instance(paiementid, *args, **kwargs):
-        return Paiement.objects.get(pk=paiementid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_paiement'), u"Vous n'avez pas le\
-            droit d'ajouter des paiements"
-
-    def can_edit(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_paiement'), u"Vous n'avez pas le\
-            droit d'éditer des paiements"
-
-    def can_delete(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.delete_paiement'), u"Vous n'avez pas le\
-            droit de supprimer des paiements"
-
-    def can_view_all(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
-            droit de voir des paiements"
-
-    def can_view(self, user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.view_paiement'), u"Vous n'avez pas le\
-            droit de voir des paiements"
-
     def __str__(self):
         return self.moyen
 
@@ -520,7 +426,7 @@ class Paiement(models.Model):
         super(Paiement, self).save(*args, **kwargs)
 
 
-class Cotisation(models.Model):
+class Cotisation(AclMixin, models.Model):
     """Objet cotisation, debut et fin, relié en onetoone à une vente"""
     PRETTY_NAME = "Cotisations"
 
@@ -545,14 +451,6 @@ class Cotisation(models.Model):
             ("change_all_cotisation", "Superdroit, peut modifier toutes les cotisations"),
         )
 
-    def get_instance(cotisationid, *args, **kwargs):
-        return Cotisations.objects.get(pk=cotisationid)
-
-    def can_create(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.add_cotisation'), u"Vous n'avez pas le\
-            droit de créer des cotisations"
-        return True, None
-
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_cotisation'):
             return False, u"Vous n'avez pas le droit d'éditer les cotisations"
@@ -571,11 +469,6 @@ class Cotisation(models.Model):
                 contrôlée ou invalidée par un trésorier"
         else:
             return True, None
-
-    def can_view_all(user_request, *args, **kwargs):
-        if not user_request.has_perm('cotisations.view_cotisation'):
-            return False, u"Vous n'avez pas le droit de voir les cotisations"
-        return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
