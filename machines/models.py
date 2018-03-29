@@ -65,6 +65,13 @@ class Machine(FieldPermissionModelMixin, models.Model):
             ("change_machine_user", "Peut changer le propriétaire d'une machine"),
         )
 
+    def get_instance(machineid, *args, **kwargs):
+        """Get the Machine instance with machineid.
+        :param userid: The id
+        :return: The user
+        """
+        return Machine.objects.get(pk=machineid)
+
     @staticmethod
     def can_change_user(user_request, *args, **kwargs):
         """Checks if an user is allowed to change the user who owns a

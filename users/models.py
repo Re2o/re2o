@@ -171,7 +171,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
+class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -668,14 +668,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             num += 1
         return composed_pseudo(num)
 
-    def get_instance(userid, *args, **kwargs):
-        """Get the User instance with userid.
-
-        :param userid: The id
-        :return: The user
-        """
-        return User.objects.get(pk=userid)
-
     def can_edit(self, user_request, *args, **kwargs):
         """Check if an user can edit an user object.
 
@@ -746,29 +738,6 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
     def can_change_groups(user_request, *args, **kwargs):
         return user_request.has_perm('users.change_user_groups'), "Droit requis pour éditer les groupes de l'user"
 
-    def can_delete(self, user_request, *args, **kwargs):
-        """Check if an user can delete an user object.
-
-        :param self: The user who is to be deleted.
-        :param user_request: The user who requests deletion.
-        :return: True if user_request has the right 'bureau', and a message.
-        """
-        if user_request.has_perm('users.delete_user'):
-            return True, None
-        else:
-            return False, u"Vous ne pouvez pas supprimer cet utilisateur."
-
-    def can_view_all(user_request, *args, **kwargs):
-        """Check if an user can access to the list of every user objects
-
-        :param user_request: The user who wants to view the list.
-        :return: True if the user can view the list and an explanation message.
-        """
-        if user_request.has_perm('users.view_user'):
-            return True, None
-        else:
-            return False, u"Vous n'avez pas accès à la liste des utilisateurs."
-
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view an user object.
 
@@ -791,6 +760,23 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin):
             else:
                 return False, u"Vous ne pouvez voir un autre utilisateur que vous même"
 
+    def can_view_all(user_request, *args, **kwargs):
+        """Check if an user can access to the list of every user objects
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation message.
+        """
+        return user_request.has_perm('users.view_user'), u"Vous n'avez pas accès à la liste des utilisateurs."
+
+    def can_delete(self, user_request, *args, **kwargs):
+        """Check if an user can delete an user object.
+
+        :param self: The user who is to be deleted.
+        :param user_request: The user who requests deletion.
+        :return: True if user_request has the right 'bureau', and a message.
+        """
+        return user_request.has_perm('users.delete_user'), u"Vous ne pouvez pas supprimer cet utilisateur."
+
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         self.field_permissions = {
@@ -812,8 +798,6 @@ class Adherent(User):
         blank=True,
         null=True
     )
-
-
 
     def get_instance(adherentid, *args, **kwargs):
         """Try to find an instance of `Adherent` with the given id.

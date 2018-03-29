@@ -38,32 +38,32 @@ class AclMixin(object):
 
     @classmethod
     def can_create(cls, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour créer
-        un servicelink
+        """Verifie que l'user a les bons droits pour créer
+        un object
         :param user_request: instance utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         return user_request.has_perm(cls.get_modulename() + '.add_' + cls.get_classname()), u"Vous n'avez pas le droit\
             de créer un " + cls.get_classname()
 
     def can_edit(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour editer
-        cette instance servicelink
-        :param self: Instance servicelink à editer
+        """Verifie que l'user a les bons droits pour editer
+        cette instance
+        :param self: Instance à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         return user_request.has_perm(self.get_modulename() + '.change_' + self.get_classname()), u"Vous n'avez pas le droit d'éditer des " + self.get_classname()
 
     def can_delete(self, user_request, *args, **kwargs):
-        """Verifie que l'user a les bons droits infra pour delete
-        cette instance servicelink
-        :param self: Instance servicelink à delete
+        """Verifie que l'user a les bons droits pour delete
+        cette instance
+        :param self: Instance à delete
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         return user_request.has_perm(self.get_modulename() + '.delete_' + self.get_classname()), u"Vous n'avez pas le droit d'éditer des " + self.get_classname()
 
     @classmethod
     def can_view_all(cls, user_request, *args, **kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des services,
+        """Vérifie qu'on peut bien afficher l'ensemble des objets,
         droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
@@ -72,7 +72,7 @@ class AclMixin(object):
     def can_view(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet
-        :param self: instance service à voir
+        :param self: instance à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm(self.get_modulename() + '.view_' + self.get_classname()), u"Vous n'avez pas le droit de voir des " + self.get_classname()
