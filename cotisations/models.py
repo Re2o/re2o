@@ -57,6 +57,7 @@ from django.db.models import Max
 from django.utils import timezone
 from machines.models import regen
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _l
 
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
@@ -84,35 +85,35 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     cheque = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name=_("Cheque number")
+        verbose_name=_l("Cheque number")
     )
     date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name=_("Date")
+        verbose_name=_l("Date")
     )
     # TODO : change name to validity for clarity
     valid = models.BooleanField(
         default=True,
-        verbose_name=_("Validated")
+        verbose_name=_l("Validated")
     )
     # TODO : changed name to controlled for clarity
     control = models.BooleanField(
         default=False,
-        verbose_name=_("Controlled")
+        verbose_name=_l("Controlled")
     )
 
     class Meta:
         abstract = False
         permissions = (
             # TODO : change facture to invoice
-            ('change_facture_control', _("Can change the \"controlled\" state")),
+            ('change_facture_control', _l("Can change the \"controlled\" state")),
             # TODO : seems more likely to be call create_facture_pdf or create_invoice_pdf
-            ('change_facture_pdf', _("Can create a custom PDF invoice")),
-            ('view_facture', _("Can see an invoice's details")),
-            ('change_all_facture', _("Can edit all the previous invoices")),
+            ('change_facture_pdf', _l("Can create a custom PDF invoice")),
+            ('view_facture', _l("Can see an invoice's details")),
+            ('change_all_facture', _l("Can edit all the previous invoices")),
         )
-        verbose_name = _("Invoice")
-        verbose_name_plural = _("Invoices")
+        verbose_name = _l("Invoice")
+        verbose_name_plural = _l("Invoices")
 
     def linked_objects(self):
         """Return linked objects : machine and domain.
@@ -227,38 +228,38 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     # TODO : change this to English
     COTISATION_TYPE = (
-        ('Connexion', _("Connexion")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ('Connexion', _l("Connexion")),
+        ('Adhesion', _l("Membership")),
+        ('All', _l("Both of them")),
     )
 
     # TODO : change facture to invoice
     facture = models.ForeignKey(
         'Facture',
         on_delete=models.CASCADE,
-        verbose_name=_("Invoice")
+        verbose_name=_l("Invoice")
     )
     # TODO : change number to amount for clarity
     number = models.IntegerField(
         validators=[MinValueValidator(1)],
-        verbose_name=_("Amount")
+        verbose_name=_l("Amount")
     )
     # TODO : change this field for a ForeinKey to Article
     name = models.CharField(
         max_length=255,
-        verbose_name=_("Article")
+        verbose_name=_l("Article")
     )
     # TODO : change prix to price
     # TODO : this field is not needed if you use Article ForeignKey
     prix = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_("Price"))
+        verbose_name=_l("Price"))
     # TODO : this field is not needed if you use Article ForeignKey
     duration = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_("Duration (in whole month)")
+        verbose_name=_l("Duration (in whole month)")
     )
     # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
@@ -266,16 +267,16 @@ class Vente(RevMixin, AclMixin, models.Model):
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("Type of cotisation")
+        verbose_name=_l("Type of cotisation")
     )
 
     class Meta:
         permissions = (
-            ('view_vente', _("Can see a purchase's details")),
-            ('change_all_vente', _("Can edit all the previous purchases")),
+            ('view_vente', _l("Can see a purchase's details")),
+            ('change_all_vente', _l("Can edit all the previous purchases")),
         )
-        verbose_name = _("Purchase")
-        verbose_name_plural = _("Purchases")
+        verbose_name = _l("Purchase")
+        verbose_name_plural = _l("Purchases")
 
 
     # TODO : change prix_total to total_price
@@ -406,38 +407,38 @@ class Article(RevMixin, AclMixin, models.Model):
 
     # TODO : Either use TYPE or TYPES in both choices but not both
     USER_TYPES = (
-        ('Adherent', _("Member")),
-        ('Club', _("Club")),
-        ('All', _("Both of them")),
+        ('Adherent', _l("Member")),
+        ('Club', _l("Club")),
+        ('All', _l("Both of them")),
     )
 
     COTISATION_TYPE = (
-        ('Connexion', _("Connexion")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ('Connexion', _l("Connexion")),
+        ('Adhesion', _l("Membership")),
+        ('All', _l("Both of them")),
     )
 
     name = models.CharField(
         max_length=255,
-        verbose_name=_("Designation")
+        verbose_name=_l("Designation")
     )
     # TODO : change prix to price
     prix = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_("Unitary price")
+        verbose_name=_l("Unitary price")
     )
     duration = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("Duration (in whole month)")
+        verbose_name=_l("Duration (in whole month)")
     )
     type_user = models.CharField(
         choices=USER_TYPES,
         default='All',
         max_length=255,
-        verbose_name=_("Type of users concerned")
+        verbose_name=_l("Type of users concerned")
     )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
@@ -445,14 +446,14 @@ class Article(RevMixin, AclMixin, models.Model):
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("Type of cotisation")
+        verbose_name=_l("Type of cotisation")
     )
 
     unique_together = ('name', 'type_user')
 
     class Meta:
         permissions = (
-            ('view_article', _("Can see an article's details")),
+            ('view_article', _l("Can see an article's details")),
         )
         verbose_name = "Article"
         verbose_name_plural = "Articles"
@@ -477,15 +478,15 @@ class Banque(RevMixin, AclMixin, models.Model):
 
     name = models.CharField(
         max_length=255,
-        verbose_name=_("Name")
+        verbose_name=_l("Name")
     )
 
     class Meta:
         permissions = (
-            ('view_banque', _("Can see a bank's details")),
+            ('view_banque', _l("Can see a bank's details")),
         )
-        verbose_name=_("Bank")
-        verbose_name_plural=_("Banks")
+        verbose_name=_l("Bank")
+        verbose_name_plural=_l("Banks")
 
     def __str__(self):
         return self.name
@@ -497,27 +498,27 @@ class Paiement(RevMixin, AclMixin, models.Model):
     # TODO : translate docstring to English
     
     PAYMENT_TYPES = (
-        (0, _("Standard")),
-        (1, _("Cheque")),
+        (0, _l("Standard")),
+        (1, _l("Cheque")),
     )
 
     # TODO : change moyen to method
     moyen = models.CharField(
         max_length=255,
-        verbose_name=_("Method")
+        verbose_name=_l("Method")
     )
     type_paiement = models.IntegerField(
         choices=PAYMENT_TYPES,
         default=0,
-        verbose_name=_("Payment type")
+        verbose_name=_l("Payment type")
     )
 
     class Meta:
         permissions = (
-            ('view_paiement', _("Can see a payement's details")),
+            ('view_paiement', _l("Can see a payement's details")),
         )
-        verbose_name = _("Payment method")
-        verbose_name_plural = _("Payment methods")
+        verbose_name = _l("Payment method")
+        verbose_name_plural = _l("Payment methods")
 
     def __str__(self):
         return self.moyen
@@ -540,9 +541,9 @@ class Cotisation(RevMixin, AclMixin, models.Model):
     # TODO : translate docstring to English
 
     COTISATION_TYPE = (
-        ('Connexion', _("Connexion")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ('Connexion', _l("Connexion")),
+        ('Adhesion', _l("Membership")),
+        ('All', _l("Both of them")),
     )
 
     # TODO : change vente to purchase
@@ -550,25 +551,25 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         'Vente',
         on_delete=models.CASCADE,
         null=True,
-        verbose_name=_("Purchase")
+        verbose_name=_l("Purchase")
     )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         max_length=255,
         default='All',
-        verbose_name=_("Type of cotisation")
+        verbose_name=_l("Type of cotisation")
     )
     date_start = models.DateTimeField(
-        verbose_name=_("Starting date")
+        verbose_name=_l("Starting date")
     )
     date_end = models.DateTimeField(
-        verbose_name=_("Ending date")
+        verbose_name=_l("Ending date")
     )
 
     class Meta:
         permissions = (
-            ('view_cotisation', _("Can see a cotisation's details")),
-            ('change_all_cotisation', _("Can edit the previous cotisations")),
+            ('view_cotisation', _l("Can see a cotisation's details")),
+            ('change_all_cotisation', _l("Can edit the previous cotisations")),
         )
 
     def can_edit(self, user_request, *args, **kwargs):

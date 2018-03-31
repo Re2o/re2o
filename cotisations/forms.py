@@ -41,6 +41,7 @@ from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator,MaxValueValidator
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _l
 
 from .models import Article, Paiement, Facture, Banque
 from preferences.models import OptionalUser
@@ -111,11 +112,11 @@ class SelectUserArticleForm(FormRevMixin, Form):
     # TODO : translate docstring to English
     article = forms.ModelChoiceField(
         queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Adherent')),
-        label=_("Article"),
+        label=_l("Article"),
         required=True
     )
     quantity = forms.IntegerField(
-        label=_("Quantity"),
+        label=_l("Quantity"),
         validators=[MinValueValidator(1)],
         required=True
     )
@@ -126,11 +127,11 @@ class SelectClubArticleForm(Form):
     # TODO : translate docstring to English
     article = forms.ModelChoiceField(
         queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Club')),
-        label=_("Article"),
+        label=_l("Article"),
         required=True
     )
     quantity = forms.IntegerField(
-        label=_("Quantity"),
+        label=_l("Quantity"),
         validators=[MinValueValidator(1)],
         required=True
     )
@@ -141,22 +142,22 @@ class NewFactureFormPdf(Form):
     # TODO : translate docstring to English
     article = forms.ModelMultipleChoiceField(
         queryset=Article.objects.all(),
-        label=_("Article")
+        label=_l("Article")
     )
     number = forms.IntegerField(
-        label=_("Quantity"),
+        label=_l("Quantity"),
         validators=[MinValueValidator(1)]
     )
-    paid = forms.BooleanField(label=_("Paid"), required=False)
+    paid = forms.BooleanField(label=_l("Paid"), required=False)
     # TODO : change dest field to recipient
-    dest = forms.CharField(required=True, max_length=255, label=_("Recipient"))
+    dest = forms.CharField(required=True, max_length=255, label=_l("Recipient"))
     # TODO : change chambre field to address
-    chambre = forms.CharField(required=False, max_length=10, label=_("Address"))
+    chambre = forms.CharField(required=False, max_length=10, label=_l("Address"))
     # TODO : change fid field to invoice_id
     fid = forms.CharField(
         required=True,
         max_length=10,
-        label=_("Invoice number")
+        label=_l("Invoice number")
     )
 
 # TODO : change Facture to Invoice
@@ -196,7 +197,7 @@ class DelArticleForm(FormRevMixin, Form):
     # TODO : translate docstring to English
     articles = forms.ModelMultipleChoiceField(
         queryset=Article.objects.none(),
-        label=_("Existing articles"),
+        label=_l("Existing articles"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -238,7 +239,7 @@ class DelPaiementForm(FormRevMixin, Form):
     # TODO : change paiement to payment
     paiements = forms.ModelMultipleChoiceField(
         queryset=Paiement.objects.none(),
-        label=_("Existing payment method"),
+        label=_l("Existing payment method"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -273,7 +274,7 @@ class DelBanqueForm(FormRevMixin, Form):
     # TODO : change banque to bank
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
-        label=_("Existing banks"),
+        label=_l("Existing banks"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -335,7 +336,7 @@ class NewFactureSoldeForm(NewFactureForm):
 # TODO : Better name and docstring
 class RechargeForm(FormRevMixin, Form):
     value = forms.FloatField(
-        label=_("Amount"),
+        label=_l("Amount"),
         min_value=0.01,
         validators = []
     )
