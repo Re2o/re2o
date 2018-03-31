@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from collections import OrderedDict
@@ -22,7 +23,9 @@ def accept_payment(request, factureid):
     facture = get_object_or_404(Facture, id=factureid)
     messages.success(
         request,
-        "Le paiement de {} € a été accepté.".format(facture.prix())
+        _("The payment of %(amount)s € has been accepted.") % {
+            amount: facture.prix()
+        }
     )
     return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
 
@@ -32,7 +35,7 @@ def accept_payment(request, factureid):
 def refuse_payment(request):
     messages.error(
         request,
-        "Le paiement a été refusé."
+        _("The payment has been refused.")
     )
     return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
 
@@ -53,6 +56,7 @@ def ipn(request):
     idTransaction = request.POST['idTransaction']
 
     # On vérifie que le paiement nous est destiné
+    # TODO : translate comment to English
     if not idTpe == AssoOption.get_cached_value('payment_id'):
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
@@ -63,6 +67,7 @@ def ipn(request):
 
     facture = get_object_or_404(Facture, id=factureid)
 
+    # TODO : translate comments to English
     # On vérifie que le paiement est valide
     if not result:
         # Le paiement a échoué : on effectue les actions nécessaires (On indique qu'elle a échoué)

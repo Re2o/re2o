@@ -42,6 +42,7 @@ Post_save et Post_delete : sychronisation des services et régénération
 des services d'accès réseau (ex dhcp) lors de la vente d'une cotisation
 par exemple
 """
+# TODO : translate docstring to English
 
 from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
@@ -55,55 +56,86 @@ from django.core.validators import MinValueValidator
 from django.db.models import Max
 from django.utils import timezone
 from machines.models import regen
+from django.utils.translation import ugettext as _
 
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
 
+# TODO : change facture to invoice
 class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
     plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
     et si il y a lieu un numero pour les chèques. Possède les valeurs
     valides et controle (trésorerie)"""
-    PRETTY_NAME = "Factures émises"
+    # TODO : translate docstrign to English
 
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+    # TODO : change paiement to payment
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
+    # TODO : change banque to bank
     banque = models.ForeignKey(
         'Banque',
         on_delete=models.PROTECT,
         blank=True,
-        null=True)
-    cheque = models.CharField(max_length=255, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
-    valid = models.BooleanField(default=True)
-    control = models.BooleanField(default=False)
+        null=True
+    )
+    # TODO : maybe change to cheque nummber because not evident
+    cheque = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Cheque number")
+    )
+    date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Date")
+    )
+    # TODO : change name to validity for clarity
+    valid = models.BooleanField(
+        default=True,
+        verbose_name=_("Validated")
+    )
+    # TODO : changed name to controlled for clarity
+    control = models.BooleanField(
+        default=False,
+        verbose_name=_("Controlled")
+    )
 
     class Meta:
         abstract = False
         permissions = (
-            ("change_facture_control", "Peut changer l'etat de controle"),
-            ("change_facture_pdf", "Peut éditer une facture pdf"),
-            ("view_facture", "Peut voir un objet facture"),
-            ("change_all_facture", "Superdroit, peut modifier toutes les factures"),
+            # TODO : change facture to invoice
+            ('change_facture_control', _("Can change the controlled state")),
+            # TODO : seems more likely to be call create_facture_pdf or create_invoice_pdf
+            ('change_facture_pdf', _("Can create a custom PDF invoice")),
+            ('view_facture', _("Can see an invoice's details")),
+            ('change_all_facture', _("Can edit all the previous invoices")),
         )
+        verbose_name = _("Invoice")
+        verbose_name_plural = _("Invoices")
 
     def linked_objects(self):
         """Return linked objects : machine and domain.
         Usefull in history display"""
         return self.vente_set.all()
 
+    # TODO : change prix to price
     def prix(self):
         """Renvoie le prix brut sans les quantités. Méthode
         dépréciée"""
+        # TODO : translate docstring to English
+        # TODO : change prix to price
         prix = Vente.objects.filter(
             facture=self
             ).aggregate(models.Sum('prix'))['prix__sum']
         return prix
 
+    # TODO : change prix to price
     def prix_total(self):
         """Prix total : somme des produits prix_unitaire et quantité des
         ventes de l'objet"""
+        # TODO : translate docstrign to English
+        # TODO : change Vente to somethingelse
         return Vente.objects.filter(
             facture=self
             ).aggregate(
@@ -115,6 +147,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def name(self):
         """String, somme des name des ventes de self"""
+        # TODO : translate docstring to English
         name = ' - '.join(Vente.objects.filter(
             facture=self
             ).values_list('name', flat=True))
@@ -122,44 +155,41 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_facture'):
-            return False, u"Vous n'avez pas le droit d'éditer les factures"
+            return False, _("You don't have the right to edit an invoice.")
         elif not user_request.has_perm('cotisations.change_all_facture') and not self.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
+            return False, _("You don't have the right to edit this user's invoices.")
         elif not user_request.has_perm('cotisations.change_all_facture') and\
             (self.control or not self.valid):
-            return False, u"Vous n'avez pas le droit d'éditer une facture\
-                controlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to edit an invoice already controlled or invalidated.")
         else:
             return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_facture'):
-            return False, u"Vous n'avez pas le droit de supprimer une facture"
+            return False, _("You don't have the right to delete an invoice.")
         if not self.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
+            return False, _("You don't have the right to delete this user's invoices.")
         if self.control or not self.valid:
-            return False, u"Vous ne pouvez pas supprimer une facture\
-                contrôlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to delete an invoice already controlled or invalidated.")
         else:
             return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_facture') and\
             self.user != user_request:
-            return False, u"Vous ne pouvez pas afficher l'historique d'une\
-                facture d'un autre user que vous sans droit cableur"
+            return False, _("You don't have the right to see someone else's invoices history.")
         elif not self.valid:
-            return False, u"La facture est invalidée et ne peut être affichée"
+            return False, _("The invoice has been invalidated.")
         else:
             return True, None
 
     @staticmethod
     def can_change_control(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_facture_control'), "Vous ne pouvez pas éditer le controle sans droit trésorier"
+        return user_request.has_perm('cotisations.change_facture_control'), _("You don't have the right to edit the controlled state.")
 
     @staticmethod
     def can_change_pdf(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_facture_pdf'), "Vous ne pouvez pas éditer une facture sans droit trésorier"
+        return user_request.has_perm('cotisations.change_facture_pdf'), _("You don't have the right to edit an invoice.")
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
@@ -174,6 +204,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 @receiver(post_save, sender=Facture)
 def facture_post_save(sender, **kwargs):
     """Post save d'une facture, synchronise l'user ldap"""
+    # TODO : translate docstrign into English
     facture = kwargs['instance']
     user = facture.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -182,51 +213,82 @@ def facture_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Facture)
 def facture_post_delete(sender, **kwargs):
     """Après la suppression d'une facture, on synchronise l'user ldap"""
+    # TODO : translate docstring into English
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
+# TODO : change Vente to Purchase
 class Vente(RevMixin, AclMixin, models.Model):
     """Objet vente, contient une quantité, une facture parente, un nom,
     un prix. Peut-être relié à un objet cotisation, via le boolean
     iscotisation"""
-    PRETTY_NAME = "Ventes effectuées"
+    # TODO : translate docstring into English
 
+    # TODO : change this to English
     COTISATION_TYPE = (
-        ('Connexion', 'Connexion'),
-        ('Adhesion', 'Adhesion'),
-        ('All', 'All'),
+        ('Connexion', _("Connexion")),
+        ('Adhesion', _("Membership")),
+        ('All', _("Both of them")),
     )
 
-    facture = models.ForeignKey('Facture', on_delete=models.CASCADE)
-    number = models.IntegerField(validators=[MinValueValidator(1)])
-    name = models.CharField(max_length=255)
-    prix = models.DecimalField(max_digits=5, decimal_places=2)
+    # TODO : change facture to invoice
+    facture = models.ForeignKey(
+        'Facture',
+        on_delete=models.CASCADE,
+        verbose_name=_("Invoice")
+    )
+    # TODO : change number to amount for clarity
+    number = models.IntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name=_("Amount")
+    )
+    # TODO : change this field for a ForeinKey to Article
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("Article")
+    )
+    # TODO : change prix to price
+    # TODO : this field is not needed if you use Article ForeignKey
+    prix = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name=_("Price"))
+    # TODO : this field is not needed if you use Article ForeignKey
     duration = models.PositiveIntegerField(
-        help_text="Durée exprimée en mois entiers",
         blank=True,
-        null=True)
+        null=True,
+        verbose_name=_("Duration (in whole month)")
+    )
+    # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         blank=True,
         null=True,
-        max_length=255
+        max_length=255,
+        verbose_name=_("Type of cotisation")
     )
 
     class Meta:
         permissions = (
-            ("view_vente", "Peut voir un objet vente"),
-            ("change_all_vente", "Superdroit, peut modifier toutes les ventes"),
+            ('view_vente', _("Can see a purchase's details")),
+            ('change_all_vente', _("Can edit all the previous purchases")),
         )
+        verbose_name = _("Purchase")
+        verbose_name_plural = _("Purchases")
 
+
+    # TODO : change prix_total to total_price
     def prix_total(self):
         """Renvoie le prix_total de self (nombre*prix)"""
+        # TODO : translate docstring to english
         return self.prix*self.number
 
     def update_cotisation(self):
         """Mets à jour l'objet related cotisation de la vente, si
         il existe : update la date de fin à partir de la durée de
         la vente"""
+        # TODO : translate docstring to English
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
@@ -237,6 +299,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         """Update et crée l'objet cotisation associé à une facture, prend
         en argument l'user, la facture pour la quantitéi, et l'article pour
         la durée"""
+        # TODO : translate docstring to English
         if not hasattr(self, 'cotisation') and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
@@ -264,41 +327,40 @@ class Vente(RevMixin, AclMixin, models.Model):
         return
 
     def save(self, *args, **kwargs):
+        # TODO : ecrire une docstring
         # On verifie que si iscotisation, duration est présent
         if self.type_cotisation and not self.duration:
-            raise ValidationError("Cotisation et durée doivent être présents\
-                    ensembles")
+            raise ValidationError(
+                _("A cotisation should always have a duration.")
+            )
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_vente'):
-            return False, u"Vous n'avez pas le droit d'éditer les ventes"
+            return False, _("You don't have the rights to edit the purchases.")
         elif not user_request.has_perm('cotisations.change_all_facture') and not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
+            return False, _("You don't have the right to edit this user's purchases.")
         elif not user_request.has_perm('cotisations.change_all_vente') and\
             (self.facture.control or not self.facture.valid):
-            return False, u"Vous n'avez pas le droit d'éditer une vente\
-                controlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to edit a purchase already controlled or invalidated.")
         else:
             return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_vente'):
-            return False, u"Vous n'avez pas le droit de supprimer une vente"
+            return False, _("You don't have the right to delete a purchase.")
         if not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, u"Vous ne pouvez pas éditer les factures de cet user protégé"
+            return False, _("You don't have the right to delete this user's purchases.")
         if self.facture.control or not self.facture.valid:
-            return False, u"Vous ne pouvez pas supprimer une vente\
-                contrôlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to delete a purchase already controlled or invalidated.")
         else:
             return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_vente') and\
             self.facture.user != user_request:
-            return False, u"Vous ne pouvez pas afficher l'historique d'une\
-                facture d'un autre user que vous sans droit cableur"
+            return False, _("You don't have the right to see someone else's purchase history.")
         else:
             return True, None
 
@@ -306,10 +368,13 @@ class Vente(RevMixin, AclMixin, models.Model):
         return str(self.name) + ' ' + str(self.facture)
 
 
+# TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
 def vente_post_save(sender, **kwargs):
     """Post save d'une vente, déclencge la création de l'objet cotisation
     si il y a lieu(si iscotisation) """
+    # TODO : translate docstring to English
+    # TODO : change vente to purchase
     vente = kwargs['instance']
     if hasattr(vente, 'cotisation'):
         vente.cotisation.vente = vente
@@ -321,10 +386,13 @@ def vente_post_save(sender, **kwargs):
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
+# TODO : change vente to purchase
 @receiver(post_delete, sender=Vente)
 def vente_post_delete(sender, **kwargs):
     """Après suppression d'une vente, on synchronise l'user ldap (ex
     suppression d'une cotisation"""
+    # TODO : translate docstring to English
+    # TODO : change vente to purchase
     vente = kwargs['instance']
     if vente.type_cotisation:
         user = vente.facture.user
@@ -334,53 +402,69 @@ def vente_post_delete(sender, **kwargs):
 class Article(RevMixin, AclMixin, models.Model):
     """Liste des articles en vente : prix, nom, et attribut iscotisation
     et duree si c'est une cotisation"""
-    PRETTY_NAME = "Articles en vente"
+    # TODO : translate docstring to English
 
+    # TODO : Either use TYPE or TYPES in both choices but not both
     USER_TYPES = (
-        ('Adherent', 'Adherent'),
-        ('Club', 'Club'),
-        ('All', 'All'),
+        ('Adherent', _("Member")),
+        ('Club', _("Club")),
+        ('All', _("Both of them")),
     )
 
     COTISATION_TYPE = (
-        ('Connexion', 'Connexion'),
-        ('Adhesion', 'Adhesion'),
-        ('All', 'All'),
+        ('Connexion', _("Connexion")),
+        ('Adhesion', _("Membership")),
+        ('All', _("Both of them")),
     )
 
-    name = models.CharField(max_length=255)
-    prix = models.DecimalField(max_digits=5, decimal_places=2)
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("Designation")
+    )
+    # TODO : change prix to price
+    prix = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name=_("Unitary price")
+    )
     duration = models.PositiveIntegerField(
-        help_text="Durée exprimée en mois entiers",
         blank=True,
         null=True,
-        validators=[MinValueValidator(0)])
+        validators=[MinValueValidator(0)],
+        verbose_name=_("Duration (in whole month)")
+    )
     type_user = models.CharField(
         choices=USER_TYPES,
         default='All',
-        max_length=255
+        max_length=255,
+        verbose_name=_("Type of users concerned")
     )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         default=None,
         blank=True,
         null=True,
-        max_length=255
+        max_length=255,
+        verbose_name=_("Type of cotisation")
     )
 
     unique_together = ('name', 'type_user')
 
     class Meta:
         permissions = (
-            ("view_article", "Peut voir un objet article"),
+            ('view_article', _("Can see an article's details")),
         )
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
 
     def clean(self):
-        if self.name.lower() == "solde":
-            raise ValidationError("Solde est un nom d'article invalide")
+        if self.name.lower() == 'solde':
+            raise ValidationError(
+                _("Solde is a reserved article name")
+            )
         if self.type_cotisation and not self.duration:
             raise ValidationError(
-                "La durée est obligatoire si il s'agit d'une cotisation"
+                _("Duration must be specified for a cotisation")
             )
 
     def __str__(self):
@@ -389,34 +473,51 @@ class Article(RevMixin, AclMixin, models.Model):
 
 class Banque(RevMixin, AclMixin, models.Model):
     """Liste des banques"""
-    PRETTY_NAME = "Banques enregistrées"
+    # TODO : translate docstring to English
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("Name")
+    )
 
     class Meta:
         permissions = (
-            ("view_banque", "Peut voir un objet banque"),
+            ('view_banque', _("Can see a bank's details")),
         )
+        verbose_name=_("Bank")
+        verbose_name_plural=_("Banks")
 
     def __str__(self):
         return self.name
 
 
+# TODO : change Paiement to Payment
 class Paiement(RevMixin, AclMixin, models.Model):
     """Moyens de paiement"""
-    PRETTY_NAME = "Moyens de paiement"
+    # TODO : translate docstring to English
+    
     PAYMENT_TYPES = (
-        (0, 'Autre'),
-        (1, 'Chèque'),
+        (0, _("Standard")),
+        (1, _("Cheque")),
     )
 
-    moyen = models.CharField(max_length=255)
-    type_paiement = models.IntegerField(choices=PAYMENT_TYPES, default=0)
+    # TODO : change moyen to method
+    moyen = models.CharField(
+        max_length=255,
+        verbose_name=_("Method")
+    )
+    type_paiement = models.IntegerField(
+        choices=PAYMENT_TYPES,
+        default=0,
+        verbose_name=_("Payment type")
+    )
 
     class Meta:
         permissions = (
-            ("view_paiement", "Peut voir un objet paiement"),
+            ('view_paiement', _("Can see a payement's details")),
         )
+        verbose_name = _("Payment method")
+        verbose_name_plural = _("Payment methods")
 
     def __str__(self):
         return self.moyen
@@ -426,61 +527,71 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
     def save(self, *args, **kwargs):
         """Un seul type de paiement peut-etre cheque..."""
+        # TODO : translate docstring to English
         if Paiement.objects.filter(type_paiement=1).count() > 1:
-            raise ValidationError("On ne peut avoir plusieurs mode de paiement\
-                    chèque")
+            raise ValidationError(
+                _("You cannot have multiple payment method of type cheque")
+            )
         super(Paiement, self).save(*args, **kwargs)
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):
     """Objet cotisation, debut et fin, relié en onetoone à une vente"""
-    PRETTY_NAME = "Cotisations"
+    # TODO : translate docstring to English
 
     COTISATION_TYPE = (
-        ('Connexion', 'Connexion'),
-        ('Adhesion', 'Adhesion'),
-        ('All', 'All'),
+        ('Connexion', _("Connexion")),
+        ('Adhesion', _("Adhesion")),
+        ('All', _("Both of them")),
     )
 
-    vente = models.OneToOneField('Vente', on_delete=models.CASCADE, null=True)
+    # TODO : change vente to purchase
+    vente = models.OneToOneField(
+        'Vente',
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name=_("Purchase")
+    )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         max_length=255,
         default='All',
+        verbose_name=_("Type of cotisation")
     )
-    date_start = models.DateTimeField()
-    date_end = models.DateTimeField()
+    date_start = models.DateTimeField(
+        verbose_name=_("Starting date")
+    )
+    date_end = models.DateTimeField(
+        verbose_name=_("Ending date")
+    )
 
     class Meta:
         permissions = (
-            ("view_cotisation", "Peut voir un objet cotisation"),
-            ("change_all_cotisation", "Superdroit, peut modifier toutes les cotisations"),
+            ('view_cotisation', _("Can see a cotisation's details")),
+            ('change_all_cotisation', _("Can edit the previous cotisations")),
         )
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_cotisation'):
-            return False, u"Vous n'avez pas le droit d'éditer les cotisations"
+            return False, _("You don't have the right to edit a cotisation.")
         elif not user_request.has_perm('cotisations.change_all_cotisation') and\
             (self.vente.facture.control or not self.vente.facture.valid):
-            return False, u"Vous n'avez pas le droit d'éditer une cotisation\
-                controlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to edit a cotisation already controlled or invalidated.")
         else:
             return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_cotisation'):
-            return False, u"Vous n'avez pas le droit de supprimer une cotisations"
+            return False, _("You don't have the right to delete a cotisation.")
         if self.vente.facture.control or not self.vente.facture.valid:
-            return False, u"Vous ne pouvez pas supprimer une cotisations\
-                contrôlée ou invalidée par un trésorier"
+            return False, _("You don't have the right to delete a cotisation already controlled or invalidated.")
         else:
             return True, None
 
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
             self.vente.facture.user != user_request:
-            return False, u"Vous ne pouvez pas afficher l'historique d'une\
-                cotisation d'un autre user que vous sans droit cableur"
+            return False, _("You don't have the right to display someone else's cotisation history.")
         else:
             return True, None
 
@@ -491,15 +602,18 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 @receiver(post_save, sender=Cotisation)
 def cotisation_post_save(sender, **kwargs):
     """Après modification d'une cotisation, regeneration des services"""
+    # TODO : translate docstring to English
     regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
     regen('mailing')
 
 
+# TODO : should be name cotisation_post_delete
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
     """Après suppression d'une vente, régénération des services"""
+    # TODO : translate docstring to English
     cotisation = kwargs['instance']
     regen('mac_ip_list')
     regen('mailing')

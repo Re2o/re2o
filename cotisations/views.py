@@ -36,6 +36,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_variables
 # Import des models, forms et fonctions re2o
@@ -88,12 +89,16 @@ def new_facture(request, user, userid):
     enfin sauve la facture parente.
     TODO : simplifier cette fonction, déplacer l'intelligence coté models
     Facture et Vente."""
+    # TODO : translate docstring to English
+    # TODO : change facture to invoice
     facture = Facture(user=user)
+    # TODO : change comment to English
     # Le template a besoin de connaitre les articles pour le js
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     # On envoie la form fature et un formset d'articles
+    # TODO : change facture to invoice
     facture_form = NewFactureForm(request.POST or None, instance=facture)
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
@@ -104,26 +109,31 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Si au moins un article est rempli
         if any(art.cleaned_data for art in articles):
+            # TODO : change solde to balance
             user_solde = OptionalUser.get_cached_value('user_solde')
             solde_negatif = OptionalUser.get_cached_value('solde_negatif')
             # Si on paye par solde, que l'option est activée,
             # on vérifie que le négatif n'est pas atteint
             if user_solde:
+                # TODO : change Paiement to Payment
                 if new_facture_instance.paiement == Paiement.objects.get_or_create(
                         moyen='solde'
                 )[0]:
                     prix_total = 0
                     for art_item in articles:
                         if art_item.cleaned_data:
+                            # change prix to price
                             prix_total += art_item.cleaned_data['article']\
                                     .prix*art_item.cleaned_data['quantity']
                     if float(user.solde) - float(prix_total) < solde_negatif:
-                        messages.error(request, "Le solde est insuffisant pour\
-                                effectuer l'opération")
+                        messages.error(
+                            request,
+                            _("Your balance is too low for this operation.")
+                        )
                         return redirect(reverse(
                             'users:profil',
                             kwargs={'userid': userid}
-                            ))
+                        ))
             new_facture_instance.save()
             for art_item in articles:
                 if art_item.cleaned_data:
@@ -142,34 +152,43 @@ def new_facture(request, user, userid):
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
-                    "La cotisation a été prolongée\
-                    pour l'adhérent %s jusqu'au %s" % (
-                        user.pseudo, user.end_adhesion()
-                    )
-                    )
+                    _("The cotisation of %(member_name)s has been \
+                    extended to %(end_date)s.") % {
+                        member_name: user.pseudo,
+                        end_date: user.end_adhesion()
+                    }
+                )
             else:
-                messages.success(request, "La facture a été crée")
+                messages.success(
+                    request,
+                    _("The invoice has been created.")
+                )
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid': userid}
-                ))
+            ))
         messages.error(
             request,
-            u"Il faut au moins un article valide pour créer une facture"
-            )
-    return form({
-        'factureform': facture_form,
-        'venteform': article_formset,
-        'articlelist': article_list
-        }, 'cotisations/new_facture.html', request)
+            _("You need to choose at least one article.")
+        )
+    return form(
+        {
+            'factureform': facture_form,
+            'venteform': article_formset,
+            'articlelist': article_list
+        },
+        'cotisations/new_facture.html', request
+    )
 
 
+# TODO : change facture to invoice
 @login_required
 @can_change(Facture, 'pdf')
 def new_facture_pdf(request):
     """Permet de générer un pdf d'une facture. Réservée
     au trésorier, permet d'emettre des factures sans objet
     Vente ou Facture correspondant en bdd"""
+    # TODO : translate docstring to English
     facture_form = NewFactureFormPdf(request.POST or None)
     if facture_form.is_valid():
         tbl = []
@@ -204,6 +223,7 @@ def new_facture_pdf(request):
         }, 'cotisations/facture.html', request)
 
 
+# TODO : change facture to invoice
 @login_required
 @can_view(Facture)
 def facture_pdf(request, facture, factureid):
@@ -211,7 +231,8 @@ def facture_pdf(request, facture, factureid):
     et génére une facture avec le total, le moyen de paiement, l'adresse
     de l'adhérent, etc. Réservée à self pour un user sans droits,
     les droits cableurs permettent d'afficher toute facture"""
-
+    # TODO : translate docstring to English
+    # TODO : change vente to purchase
     ventes_objects = Vente.objects.all().filter(facture=facture)
     ventes = []
     for vente in ventes_objects:
@@ -233,12 +254,14 @@ def facture_pdf(request, facture, factureid):
         })
 
 
+# TODO : change facture to invoice
 @login_required
 @can_edit(Facture)
 def edit_facture(request, facture, factureid):
     """Permet l'édition d'une facture. On peut y éditer les ventes
     déjà effectuer, ou rendre une facture invalide (non payées, chèque
     en bois etc). Mets à jour les durée de cotisation attenantes"""
+    # TODO : translate docstring to English
     facture_form = EditFactureForm(request.POST or None, instance=facture, user=request.user)
     ventes_objects = Vente.objects.filter(facture=facture)
     vente_form_set = modelformset_factory(
@@ -252,7 +275,10 @@ def edit_facture(request, facture, factureid):
         if facture_form.changed_data:
             facture_form.save()
         vente_form.save()
-        messages.success(request, "La facture a bien été modifiée")
+        messages.success(
+            request,
+            _("The invoice has been successfully edited.")
+        )
         return redirect(reverse('cotisations:index'))
     return form({
         'factureform': facture_form,
@@ -260,14 +286,18 @@ def edit_facture(request, facture, factureid):
         }, 'cotisations/edit_facture.html', request)
 
 
+# TODO : change facture to invoice
 @login_required
 @can_delete(Facture)
 def del_facture(request, facture, factureid):
     """Suppression d'une facture. Supprime en cascade les ventes
     et cotisations filles"""
+    # TODO : translate docstring to English
     if request.method == "POST":
-        facture.delete()
-        messages.success(request, "La facture a été détruite")
+        messages.success(
+            request,
+            _("The invoice has been successfully deleted")
+        )
         return redirect(reverse('cotisations:index'))
     return form({
         'objet': facture,
@@ -275,11 +305,14 @@ def del_facture(request, facture, factureid):
         }, 'cotisations/delete.html', request)
 
 
+# TODO : change solde to balance
 @login_required
 @can_create(Facture)
 @can_edit(User)
 def credit_solde(request, user, userid):
     """ Credit ou débit de solde """
+    # TODO : translate docstring to English
+    # TODO : change facture to invoice
     facture = CreditSoldeForm(request.POST or None)
     if facture.is_valid():
         facture_instance = facture.save(commit=False)
@@ -292,7 +325,10 @@ def credit_solde(request, user, userid):
             number=1
             )
         new_vente.save()
-        messages.success(request, "Solde modifié")
+        messages.success(
+            request,
+            _("Banlance successfully updated.")
+        )
         return redirect(reverse('cotisations:index'))
     return form({'factureform': facture, 'action_name' : 'Créditer'}, 'cotisations/facture.html', request)
 
@@ -307,10 +343,14 @@ def add_article(request):
     aux articles en vente. La désignation, le prix... sont
     copiés à la création de la facture. Un changement de prix n'a
     PAS de conséquence sur les ventes déjà faites"""
+    # TODO : translate docstring to English
     article = ArticleForm(request.POST or None)
     if article.is_valid():
         article.save()
-        messages.success(request, "L'article a été ajouté")
+        messages.success(
+            request,
+            _("The article has been successfully created.")
+        )
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
@@ -320,11 +360,15 @@ def add_article(request):
 def edit_article(request, article_instance, articleid):
     """Edition d'un article (designation, prix, etc)
     Réservé au trésorier"""
+    # TODO : translate dosctring to English
     article = ArticleForm(request.POST or None, instance=article_instance)
     if article.is_valid():
         if article.changed_data:
             article.save()
-            messages.success(request, "Type d'article modifié")
+            messages.success(
+                request,
+                _("The article has been successfully edited.")
+            )
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -333,45 +377,62 @@ def edit_article(request, article_instance, articleid):
 @can_delete_set(Article)
 def del_article(request, instances):
     """Suppression d'un article en vente"""
+    # TODO : translate docstring to English
     article = DelArticleForm(request.POST or None, instances=instances)
     if article.is_valid():
         article_del = article.cleaned_data['articles']
         article_del.delete()
-        messages.success(request, "Le/les articles ont été supprimé")
+        messages.success(
+            request,
+            _("The article(s) have been successfully deleted.")
+        )
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
+# TODO : change paiement to payment
 @login_required
 @can_create(Paiement)
 def add_paiement(request):
     """Ajoute un moyen de paiement. Relié aux factures
     via foreign key"""
+    # TODO : translate docstring to English
+    # TODO : change paiement to Payment
     paiement = PaiementForm(request.POST or None)
     if paiement.is_valid():
         paiement.save()
-        messages.success(request, "Le moyen de paiement a été ajouté")
+        messages.success(
+            request,
+            _("The payment method has been successfully created.")
+        )
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
+# TODO : chnage paiement to Payment
 @login_required
 @can_edit(Paiement)
 def edit_paiement(request, paiement_instance, paiementid):
     """Edition d'un moyen de paiement"""
+    # TODO : translate docstring to English
     paiement = PaiementForm(request.POST or None, instance=paiement_instance)
     if paiement.is_valid():
         if paiement.changed_data:
             paiement.save()
-            messages.success(request, "Type de paiement modifié")
+            messages.success(
+                request,
+                _("The payement method has been successfully edited.")
+            )
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
+# TODO : change paiement to payment
 @login_required
 @can_delete_set(Paiement)
 def del_paiement(request, instances):
     """Suppression d'un moyen de paiement"""
+    # TODO : translate docstring to English
     paiement = DelPaiementForm(request.POST or None, instances=instances)
     if paiement.is_valid():
         paiement_dels = paiement.cleaned_data['paiements']
@@ -380,67 +441,97 @@ def del_paiement(request, instances):
                 paiement_del.delete()
                 messages.success(
                     request,
-                    "Le moyen de paiement a été supprimé"
-                    )
+                    _("The payment method %(method_name)s has been \
+                    successfully deleted") % {
+                        method_name: paiement_del
+                    }
+                )
             except ProtectedError:
                 messages.error(
                     request,
-                    "Le moyen de paiement %s est affecté à au moins une\
-                    facture, vous ne pouvez pas le supprimer" % paiement_del
+                    _("The payment method %(method_name) can't be deleted \
+                    because there are invoices using it.") % {
+                        method_name: paiement_del
+                    }
                 )
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
+# TODO : change banque to bank
 @login_required
 @can_create(Banque)
 def add_banque(request):
     """Ajoute une banque à la liste des banques"""
+    # TODO : tranlate docstring to English
     banque = BanqueForm(request.POST or None)
     if banque.is_valid():
         banque.save()
-        messages.success(request, "La banque a été ajoutée")
+        messages.success(
+            request,
+            _("The bank has been successfully created.")
+        )
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
 
 
+# TODO : change banque to bank
 @login_required
 @can_edit(Banque)
 def edit_banque(request, banque_instance, banqueid):
     """Edite le nom d'une banque"""
+    # TODO : translate docstring to English
     banque = BanqueForm(request.POST or None, instance=banque_instance)
     if banque.is_valid():
         if banque.changed_data:
             banque.save()
-            messages.success(request, "Banque modifiée")
+            messages.success(
+                request,
+                _("The bank has been successfully edited")
+            )
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
 
+# TODO : chnage banque to bank
 @login_required
 @can_delete_set(Banque)
 def del_banque(request, instances):
     """Supprime une banque"""
+    # TODO : translate docstring to English
     banque = DelBanqueForm(request.POST or None, instances=instances)
     if banque.is_valid():
         banque_dels = banque.cleaned_data['banques']
         for banque_del in banque_dels:
             try:
                 banque_del.delete()
-                messages.success(request, "La banque a été supprimée")
+                messages.success(
+                    request,
+                    _("The bank %(bank_name)s has been successfully \
+                    deleted.") % {
+                        bank_name: banque_del
+                    }
+                )
             except ProtectedError:
-                messages.error(request, "La banque %s est affectée à au moins\
-                    une facture, vous ne pouvez pas la supprimer" % banque_del)
+                messages.error(
+                    request,
+                    _("The bank %(bank_name)s can't be deleted \
+                    because there are invoices using it.") % {
+                        bank_name: banque_del
+                    }
+                )
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
 
 
+# TODO : change facture to invoice
 @login_required
 @can_view_all(Facture)
 @can_change(Facture, 'control')
 def control(request):
     """Pour le trésorier, vue pour controler en masse les
     factures.Case à cocher, pratique"""
+    # TODO : translate docstring to English
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user').select_related('paiement')
     facture_list = SortTable.sort(
@@ -470,26 +561,31 @@ def control(request):
 @can_view_all(Article)
 def index_article(request):
     """Affiche l'ensemble des articles en vente"""
+    # TODO : translate docstrign to English
     article_list = Article.objects.order_by('name')
     return render(request, 'cotisations/index_article.html', {
         'article_list': article_list
         })
 
 
+# TODO : change paiement to payment
 @login_required
 @can_view_all(Paiement)
 def index_paiement(request):
     """Affiche l'ensemble des moyens de paiement en vente"""
+    # TODO : translate docstring to English
     paiement_list = Paiement.objects.order_by('moyen')
     return render(request, 'cotisations/index_paiement.html', {
         'paiement_list': paiement_list
         })
 
 
+# TODO : change banque to bank
 @login_required
 @can_view_all(Banque)
 def index_banque(request):
     """Affiche l'ensemble des banques"""
+    # TODO : translate docstring to English
     banque_list = Banque.objects.order_by('name')
     return render(request, 'cotisations/index_banque.html', {
         'banque_list': banque_list
@@ -500,6 +596,7 @@ def index_banque(request):
 @can_view_all(Facture)
 def index(request):
     """Affiche l'ensemble des factures, pour les cableurs et +"""
+    # TODO : translate docstring to English
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     facture_list = Facture.objects.select_related('user')\
         .select_related('paiement').prefetch_related('vente_set')
@@ -515,6 +612,7 @@ def index(request):
         })
 
 
+# TODO : change facture to invoice
 @login_required
 def new_facture_solde(request, userid):
     """Creation d'une facture pour un user. Renvoie la liste des articles
@@ -524,10 +622,12 @@ def new_facture_solde(request, userid):
     enfin sauve la facture parente.
     TODO : simplifier cette fonction, déplacer l'intelligence coté models
     Facture et Vente."""
+    # TODO : translate docstring to English
     user = request.user
     facture = Facture(user=user)
     paiement, _created = Paiement.objects.get_or_create(moyen='Solde')
     facture.paiement = paiement
+    # TODO : translate comments to English
     # Le template a besoin de connaitre les articles pour le js
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
@@ -551,12 +651,14 @@ def new_facture_solde(request, userid):
                         prix_total += art_item.cleaned_data['article']\
                                 .prix*art_item.cleaned_data['quantity']
                 if float(user.solde) - float(prix_total) < solde_negatif:
-                    messages.error(request, "Le solde est insuffisant pour\
-                            effectuer l'opération")
+                    messages.error(
+                        request,
+                        _("The balance is too low for this operation.")
+                    )
                     return redirect(reverse(
                         'users:profil',
                         kwargs={'userid': userid}
-                        ))
+                    ))
             facture.save()
             for art_item in articles:
                 if art_item.cleaned_data:
@@ -575,21 +677,25 @@ def new_facture_solde(request, userid):
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
-                    "La cotisation a été prolongée\
-                    pour l'adhérent %s jusqu'au %s" % (
-                        user.pseudo, user.end_adhesion()
-                    )
-                    )
+                    _("The balance of %(member_name)s has been successfully \
+                    extended to %(end_date)s") % {
+                        member_name: user.pseudo,
+                        end_date: user.end_adhesion()
+                    }
+                )
             else:
-                messages.success(request, "La facture a été crée")
+                messages.success(
+                    request,
+                    _("The invoice has been successuflly created.")
+                )
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid': userid}
-                ))
+            ))
         messages.error(
             request,
-            u"Il faut au moins un article valide pour créer une facture"
-            )
+            _("You need to choose at least one article.")
+        )
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': userid}
@@ -601,12 +707,13 @@ def new_facture_solde(request, userid):
         }, 'cotisations/new_facture_solde.html', request)
 
 
+# TODO : change recharge to reload
 @login_required
 def recharge(request):
     if AssoOption.get_cached_value('payment') == 'NONE':
         messages.error(
             request,
-            "Le paiement en ligne est désactivé."
+            _("Online payment is disabled.")
         )
         return redirect(reverse(
             'users:profil',
