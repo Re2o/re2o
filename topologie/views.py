@@ -279,8 +279,9 @@ def edit_port(request, port_object, portid):
 
     port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
-        port.save()
-        messages.success(request, "Le port a bien été modifié")
+        if port.changed_data:
+            port.save()
+            messages.success(request, "Le port a bien été modifié")
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': str(port_object.switch.id)}
@@ -323,8 +324,9 @@ def edit_stack(request, stack, stackid):
     """Edition d'un stack (nombre de switches, nom...)"""
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
-        stack.save()
-        return redirect(reverse('topologie:index-stack'))
+        if stack.changed_data:
+            stack.save()
+            return redirect(reverse('topologie:index-stack'))
     return form({'topoform': stack, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
@@ -463,9 +465,12 @@ def edit_switch(request, switch, switchid):
         new_switch = switch_form.save(commit=False)
         new_interface_instance = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        new_switch.save()
-        new_interface_instance.save()
-        new_domain.save()
+        if switch_form.changed_data:
+            new_switch.save()
+        if interface_form.changed_data:
+            new_interface_instance.save()
+        if domain_form.changed_data:
+            new_domain.save()
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
@@ -553,9 +558,12 @@ def edit_ap(request, ap, accesspointid):
         new_ap = ap_form.save(commit=False)
         new_interface = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        new_ap.save()
-        new_interface.save()
-        new_domain.save()
+        if ap_form.changed_data:
+            new_ap.save()
+        if interface_form.changed_data:
+            new_interface.save()
+        if domain_form.changed_data:
+            new_domain.save()
         messages.success(request, "La borne a été modifiée")
         return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
@@ -586,8 +594,9 @@ def edit_room(request, room, roomid):
     """ Edition numero et details de la chambre"""
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
-        room.save()
-        messages.success(request, "La chambre a bien été modifiée")
+        if room.changed_data:
+            room.save()
+            messages.success(request, "La chambre a bien été modifiée")
         return redirect(reverse('topologie:index-room'))
     return form({'topoform': room, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -629,8 +638,9 @@ def edit_model_switch(request, model_switch, modelswitchid):
 
     model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
     if model_switch.is_valid():
-        model_switch.save()
-        messages.success(request, "Le modèle a bien été modifié")
+        if model_switch.changed_data:
+            model_switch.save()
+            messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': model_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -672,8 +682,9 @@ def edit_constructor_switch(request, constructor_switch, constructorswitchid):
 
     constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
     if constructor_switch.is_valid():
-        constructor_switch.save()
-        messages.success(request, "Le modèle a bien été modifié")
+        if constructor_switch.changed_data:
+            constructor_switch.save()
+            messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': constructor_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 

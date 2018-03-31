@@ -38,7 +38,7 @@ class FormRevMixin(object):
     def save(self, *args, **kwargs):
         if reversion.get_comment() != "" and self.changed_data != []:
             reversion.set_comment(reversion.get_comment() + ",%s" % ', '.join(field for field in self.changed_data))
-        elif self.changed_data != None:
+        elif self.changed_data:
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in self.changed_data))
         return super(FormRevMixin, self).save(*args, **kwargs)
 
