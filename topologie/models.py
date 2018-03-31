@@ -102,6 +102,9 @@ class AccessPoint(AclMixin, Machine):
             ("view_accesspoint", "Peut voir une borne"),
         )
 
+    def __str__(self):
+        return str(self.interface_set.first())
+
 
 class Switch(AclMixin, Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),

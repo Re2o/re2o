@@ -152,8 +152,9 @@ def edit_club_admin_members(request, club_instance, clubid):
     membres d'un club"""
     club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
     if club.is_valid():
-        club.save()
-        messages.success(request, "Le club a bien été modifié")
+        if club.changed_data:
+            club.save()
+            messages.success(request, "Le club a bien été modifié")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(club_instance.id)}
@@ -180,8 +181,9 @@ def edit_info(request, user, userid):
             user=request.user
         )
     if user.is_valid():
-        user.save()
-        messages.success(request, "L'user a bien été modifié")
+        if user.changed_data:
+            user.save()
+            messages.success(request, "L'user a bien été modifié")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -202,8 +204,9 @@ def state(request, user, userid):
             user.unarchive()
         elif state.cleaned_data['state'] == User.STATE_DISABLED:
             user.state = User.STATE_DISABLED
-        user.save()
-        messages.success(request, "Etat changé avec succès")
+        if user.changed_data:
+            user.save()
+            messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -216,8 +219,9 @@ def state(request, user, userid):
 def groups(request, user, userid):
     group = GroupForm(request.POST or None, instance=user)
     if group.is_valid():
-        group.save()
-        messages.success(request, "Groupes changés avec succès")
+        if group.changed_data:
+            group.save()
+            messages.success(request, "Groupes changés avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -233,8 +237,9 @@ def password(request, user, userid):
     pour tous si droit bureau """
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
-        u_form.save()
-        messages.success(request, "Le mot de passe a changé")
+        if u_form.changed_data:
+            u_form.save()
+            messages.success(request, "Le mot de passe a changé")
         return redirect(reverse(
         'users:profil',
         kwargs={'userid':str(user.id)}
@@ -277,7 +282,8 @@ def edit_serviceuser(request, user, userid):
         user_object = user.save(commit=False)
         if user.cleaned_data['password']:
             user_object.set_password(user.cleaned_data['password'])
-        user_object.save()
+        if user.changed_data:
+            user_object.save()
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
     return form({'userform': user, 'action_name':'Editer un serviceuser'}, 'users/user.html', request)
@@ -329,8 +335,9 @@ def edit_ban(request, ban_instance, banid):
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        ban.save()
-        messages.success(request, "Bannissement modifié")
+        if ban.changed_data:
+            ban.save()
+            messages.success(request, "Bannissement modifié")
         return redirect(reverse('users:index'))
     return form({'userform': ban, 'action_name': 'Editer un ban'}, 'users/user.html', request)
 
@@ -375,8 +382,9 @@ def edit_whitelist(request, whitelist_instance, whitelistid):
         instance=whitelist_instance
     )
     if whitelist.is_valid():
-        whitelist.save()
-        messages.success(request, "Whitelist modifiée")
+        if whitelist.changed_data:
+            whitelist.save()
+            messages.success(request, "Whitelist modifiée")
         return redirect(reverse('users:index'))
     return form({'userform': whitelist, 'action_name': 'Editer une whitelist'}, 'users/user.html', request)
 
@@ -401,8 +409,9 @@ def edit_school(request, school_instance, schoolid):
     la base de donnée, need cableur"""
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
-        school.save()
-        messages.success(request, "Établissement modifié")
+        if school.changed_data:
+            school.save()
+            messages.success(request, "Établissement modifié")
         return redirect(reverse('users:index-school'))
     return form({'userform': school, 'action_name':'Editer'}, 'users/user.html', request)
 
@@ -448,8 +457,9 @@ def edit_shell(request, shell_instance, listshellid):
     """ Editer un shell à partir du listshellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
-        shell.save()
-        messages.success(request, "Le shell a été modifié")
+        if shell.changed_data:
+            shell.save()
+            messages.success(request, "Le shell a été modifié")
         return redirect(reverse('users:index-shell'))
     return form({'userform': shell, 'action_name':'Editer'}, 'users/user.html', request)
 
@@ -492,8 +502,9 @@ def edit_listright(request, listright_instance, listrightid):
         instance=listright_instance
     )
     if listright.is_valid():
-        listright.save()
-        messages.success(request, "Droit modifié")
+        if listright.changed_data:
+            listright.save()
+            messages.success(request, "Droit modifié")
         return redirect(reverse('users:index-listright'))
     return form({'userform': listright, 'action_name': 'Editer'}, 'users/user.html', request)
 

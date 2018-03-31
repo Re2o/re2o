@@ -277,9 +277,12 @@ def edit_interface(request, interface_instance, interfaceid):
         new_machine = machine_form.save(commit=False)
         new_interface = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        new_machine.save()
-        new_interface.save()
-        new_domain.save()
+        if machine_form.changed_data:
+            new_machine.save()
+        if interface_form.changed_data:
+            new_interface.save()
+        if domain_form.changed_data:
+            new_domain.save()
         messages.success(request, "La machine a été modifiée")
         return redirect(reverse(
             'users:profil',
@@ -375,8 +378,9 @@ def edit_ipv6list(request, ipv6list_instance, ipv6listid):
     """Edition d'une ipv6"""
     ipv6 = Ipv6ListForm(request.POST or None, instance=ipv6list_instance, user=request.user)
     if ipv6.is_valid():
-        ipv6.save()
-        messages.success(request, "Ipv6 modifiée")
+        if ipv6.changed_data:
+            ipv6.save()
+            messages.success(request, "Ipv6 modifiée")
         return redirect(reverse(
             'machines:index-ipv6',
             kwargs={'interfaceid':str(ipv6list_instance.interface.id)}
@@ -416,8 +420,9 @@ def edit_iptype(request, iptype_instance, iptypeid):
 
     iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
-        iptype.save()
-        messages.success(request, "Type d'ip modifié")
+        if iptype.changed_data:
+            iptype.save()
+            messages.success(request, "Type d'ip modifié")
         return redirect(reverse('machines:index-iptype'))
     return form({'iptypeform': iptype, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -451,11 +456,11 @@ def add_machinetype(request):
 @login_required
 @can_edit(MachineType)
 def edit_machinetype(request, machinetype_instance, machinetypeid):
-
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
-        machinetype.save()
-        messages.success(request, "Type de machine modifié")
+        if machinetype.changed_data:
+            machinetype.save()
+            messages.success(request, "Type de machine modifié")
         return redirect(reverse('machines:index-machinetype'))
     return form({'machinetypeform': machinetype, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -477,7 +482,6 @@ def del_machinetype(request, instances):
 @login_required
 @can_create(Extension)
 def add_extension(request):
-
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
         extension.save()
@@ -488,11 +492,11 @@ def add_extension(request):
 @login_required
 @can_edit(Extension)
 def edit_extension(request, extension_instance, extensionid):
-
     extension = ExtensionForm(request.POST or None, instance=extension_instance)
     if extension.is_valid():
-        extension.save()
-        messages.success(request, "Extension modifiée")
+        if extension.changed_data:
+            extension.save()
+            messages.success(request, "Extension modifiée")
         return redirect(reverse('machines:index-extension'))
     return form({'extensionform': extension, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -514,7 +518,6 @@ def del_extension(request, instances):
 @login_required
 @can_create(SOA)
 def add_soa(request):
-
     soa = SOAForm(request.POST or None)
     if soa.is_valid():
         soa.save()
@@ -525,11 +528,11 @@ def add_soa(request):
 @login_required
 @can_edit(SOA)
 def edit_soa(request, soa_instance, soaid):
-
     soa = SOAForm(request.POST or None, instance=soa_instance)
     if soa.is_valid():
-        soa.save()
-        messages.success(request, "SOA modifié")
+        if soa.changed_data:
+            soa.save()
+            messages.success(request, "SOA modifié")
         return redirect(reverse('machines:index-extension'))
     return form({'soaform': soa, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -551,7 +554,6 @@ def del_soa(request, instances):
 @login_required
 @can_create(Mx)
 def add_mx(request):
-
     mx = MxForm(request.POST or None)
     if mx.is_valid():
         mx.save()
@@ -562,11 +564,11 @@ def add_mx(request):
 @login_required
 @can_edit(Mx)
 def edit_mx(request, mx_instance, mxid):
-
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
-        mx.save()
-        messages.success(request, "Mx modifié")
+        if mx.changed_data:
+            mx.save()
+            messages.success(request, "Mx modifié")
         return redirect(reverse('machines:index-extension'))
     return form({'mxform': mx, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -588,7 +590,6 @@ def del_mx(request, instances):
 @login_required
 @can_create(Ns)
 def add_ns(request):
-
     ns = NsForm(request.POST or None)
     if ns.is_valid():
         ns.save()
@@ -599,11 +600,11 @@ def add_ns(request):
 @login_required
 @can_edit(Ns)
 def edit_ns(request, ns_instance, nsid):
-
     ns = NsForm(request.POST or None, instance=ns_instance)
     if ns.is_valid():
-        ns.save()
-        messages.success(request, "Ns modifié")
+        if ns.changed_data:
+            ns.save()
+            messages.success(request, "Ns modifié")
         return redirect(reverse('machines:index-extension'))
     return form({'nsform': ns, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -625,7 +626,6 @@ def del_ns(request, instances):
 @login_required
 @can_create(Txt)
 def add_txt(request):
-
     txt = TxtForm(request.POST or None)
     if txt.is_valid():
         txt.save()
@@ -636,11 +636,11 @@ def add_txt(request):
 @login_required
 @can_edit(Txt)
 def edit_txt(request, txt_instance, txtid):
-
     txt = TxtForm(request.POST or None, instance=txt_instance)
     if txt.is_valid():
-        txt.save()
-        messages.success(request, "Txt modifié")
+        if txt.changed_data:
+            txt.save()
+            messages.success(request, "Txt modifié")
         return redirect(reverse('machines:index-extension'))
     return form({'txtform': txt, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -662,7 +662,6 @@ def del_txt(request, instances):
 @login_required
 @can_create(Srv)
 def add_srv(request):
-
     srv = SrvForm(request.POST or None)
     if srv.is_valid():
         srv.save()
@@ -673,11 +672,11 @@ def add_srv(request):
 @login_required
 @can_edit(Srv)
 def edit_srv(request, srv_instance, srvid):
-
     srv = SrvForm(request.POST or None, instance=srv_instance)
     if srv.is_valid():
-        srv.save()
-        messages.success(request, "Srv modifié")
+        if srv.changed_data:
+            srv.save()
+            messages.success(request, "Srv modifié")
         return redirect(reverse('machines:index-extension'))
     return form({'srvform': srv, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -700,7 +699,6 @@ def del_srv(request, instances):
 @can_create(Domain)
 @can_edit(Interface)
 def add_alias(request, interface, interfaceid):
-
     alias = AliasForm(request.POST or None, user=request.user)
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -716,11 +714,11 @@ def add_alias(request, interface, interfaceid):
 @login_required
 @can_edit(Domain)
 def edit_alias(request, domain_instance, domainid):
-
     alias = AliasForm(request.POST or None, instance=domain_instance, user=request.user)
     if alias.is_valid():
-        domain_instance = alias.save()
-        messages.success(request, "Alias modifié")
+        if alias.changed_data:
+            domain_instance = alias.save()
+            messages.success(request, "Alias modifié")
         return redirect(reverse(
             'machines:index-alias',
             kwargs={'interfaceid':str(domain_instance.cname.interface_parent.id)}
@@ -749,7 +747,6 @@ def del_alias(request, interface, interfaceid):
 @login_required
 @can_create(Service)
 def add_service(request):
-
     service = ServiceForm(request.POST or None)
     if service.is_valid():
         service.save()
@@ -760,11 +757,11 @@ def add_service(request):
 @login_required
 @can_edit(Service)
 def edit_service(request, service_instance, serviceid):
-
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
-        service.save()
-        messages.success(request, "Service modifié")
+        if service.changed_data:
+            service.save()
+            messages.success(request, "Service modifié")
         return redirect(reverse('machines:index-service'))
     return form({'serviceform': service, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -786,7 +783,6 @@ def del_service(request, instances):
 @login_required
 @can_create(Vlan)
 def add_vlan(request):
-
     vlan = VlanForm(request.POST or None)
     if vlan.is_valid():
         vlan.save()
@@ -797,11 +793,11 @@ def add_vlan(request):
 @login_required
 @can_edit(Vlan)
 def edit_vlan(request, vlan_instance, vlanid):
-
     vlan = VlanForm(request.POST or None, instance=vlan_instance)
     if vlan.is_valid():
-        vlan.save()
-        messages.success(request, "Vlan modifié")
+        if vlan.changed_data:
+            vlan.save()
+            messages.success(request, "Vlan modifié")
         return redirect(reverse('machines:index-vlan'))
     return form({'vlanform': vlan, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -823,7 +819,6 @@ def del_vlan(request, instances):
 @login_required
 @can_create(Nas)
 def add_nas(request):
-
     nas = NasForm(request.POST or None)
     if nas.is_valid():
         nas.save()
@@ -834,11 +829,11 @@ def add_nas(request):
 @login_required
 @can_edit(Nas)
 def edit_nas(request, nas_instance, nasid):
-
     nas = NasForm(request.POST or None, instance=nas_instance)
     if nas.is_valid():
-        nas.save()
-        messages.success(request, "Nas modifié")
+        if nas.changed_data:
+            nas.save()
+            messages.success(request, "Nas modifié")
         return redirect(reverse('machines:index-nas'))
     return form({'nasform': nas, 'action_name' : 'Editer'}, 'machines/machine.html', request)
 
@@ -951,7 +946,6 @@ def index_portlist(request):
 @login_required
 @can_edit(OuverturePortList)
 def edit_portlist(request, ouvertureportlist_instance, ouvertureportlistid):
-
     port_list = EditOuverturePortListForm(request.POST or None, instance=ouvertureportlist_instance)
     port_formset = modelformset_factory(
             OuverturePort,
@@ -962,7 +956,10 @@ def edit_portlist(request, ouvertureportlist_instance, ouvertureportlistid):
 	    validate_min=True,
     )(request.POST or None, queryset=ouvertureportlist_instance.ouvertureport_set.all())
     if port_list.is_valid() and port_formset.is_valid():
-        pl = port_list.save()
+        if port_list.changed_data:
+            pl = port_list.save()
+        else:
+            pl = ouvertureportlist_instance
         instances = port_formset.save(commit=False)
         for to_delete in port_formset.deleted_objects:
             to_delete.delete()
@@ -983,7 +980,6 @@ def del_portlist(request, port_list_instance, ouvertureportlistid):
 @login_required
 @can_create(OuverturePortList)
 def add_portlist(request):
-
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
             OuverturePort,
@@ -1019,8 +1015,9 @@ def configure_ports(request, interface_instance, interfaceid):
         messages.error(request, "Attention, l'ipv4 n'est pas publique, l'ouverture n'aura pas d'effet en v4")
     interface = EditOuverturePortConfigForm(request.POST or None, instance=interface_instance)
     if interface.is_valid():
-        interface.save()
-        messages.success(request, "Configuration des ports mise à jour.")
+        if interface.changed_data:
+            interface.save()
+            messages.success(request, "Configuration des ports mise à jour.")
         return redirect(reverse('machines:index'))
     return form({'interfaceform' : interface, 'action_name' : 'Editer la configuration'}, 'machines/machine.html', request)
 

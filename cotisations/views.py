@@ -249,8 +249,10 @@ def edit_facture(request, facture, factureid):
         )
     vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
     if facture_form.is_valid() and vente_form.is_valid():
-        facture_form.save()
-        vente_form.save()
+        if facture_form.changed_data:
+            facture_form.save()
+        if vente_form.changed_data:
+            vente_form.save()
         messages.success(request, "La facture a bien été modifiée")
         return redirect(reverse('cotisations:index'))
     return form({
@@ -321,8 +323,9 @@ def edit_article(request, article_instance, articleid):
     Réservé au trésorier"""
     article = ArticleForm(request.POST or None, instance=article_instance)
     if article.is_valid():
-        article.save()
-        messages.success(request, "Type d'article modifié")
+        if article.changed_data:
+            article.save()
+            messages.success(request, "Type d'article modifié")
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -359,8 +362,9 @@ def edit_paiement(request, paiement_instance, paiementid):
     """Edition d'un moyen de paiement"""
     paiement = PaiementForm(request.POST or None, instance=paiement_instance)
     if paiement.is_valid():
-        paiement.save()
-        messages.success(request, "Type de paiement modifié")
+        if paiement.changed_data:
+            paiement.save()
+            messages.success(request, "Type de paiement modifié")
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -407,8 +411,9 @@ def edit_banque(request, banque_instance, banqueid):
     """Edite le nom d'une banque"""
     banque = BanqueForm(request.POST or None, instance=banque_instance)
     if banque.is_valid():
-        banque.save()
-        messages.success(request, "Banque modifiée")
+        if banque.changed_data:
+            banque.save()
+            messages.success(request, "Banque modifiée")
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
