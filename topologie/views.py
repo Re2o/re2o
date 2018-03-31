@@ -321,7 +321,6 @@ def new_stack(request):
 @can_edit(Stack)
 def edit_stack(request, stack, stackid):
     """Edition d'un stack (nombre de switches, nom...)"""
-
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
         stack.save()
@@ -433,7 +432,6 @@ def create_ports(request, switchid):
             messages.success(request, "Ports créés.")
         except ValidationError as e:
             messages.error(request, ''.join(e))
-
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid':switchid}
@@ -586,7 +584,6 @@ def new_room(request):
 @can_edit(Room)
 def edit_room(request, room, roomid):
     """ Edition numero et details de la chambre"""
-
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
         room.save()

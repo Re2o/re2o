@@ -64,7 +64,7 @@ class PortForm(FormRevMixin, ModelForm):
         super(PortForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class EditPortForm(ModelForm):
+class EditPortForm(FormRevMixin, ModelForm):
     """Form pour l'édition d'un port de switche : changement des reglages
     radius ou vlan, ou attribution d'une chambre, autre port ou machine
 
@@ -89,7 +89,7 @@ class EditPortForm(ModelForm):
             ))
 
 
-class AddPortForm(ModelForm):
+class AddPortForm(FormRevMixin, ModelForm):
     """Permet d'ajouter un port de switch. Voir EditPortForm pour plus
     d'informations"""
     class Meta(PortForm.Meta):
@@ -108,7 +108,7 @@ class AddPortForm(ModelForm):
             ))
 
 
-class StackForm(ModelForm):
+class StackForm(FormRevMixin, ModelForm):
     """Permet d'edition d'une stack : stack_id, et switches membres
     de la stack"""
     class Meta:
@@ -160,7 +160,7 @@ class EditRoomForm(FormRevMixin, ModelForm):
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class CreatePortsForm(FormRevMixin, forms.Form):
+class CreatePortsForm(forms.Form):
     """Permet de créer une liste de ports pour un switch."""
     begin = forms.IntegerField(label="Début :", min_value=0)
     end = forms.IntegerField(label="Fin :", min_value=0)
