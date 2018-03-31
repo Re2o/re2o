@@ -296,7 +296,7 @@ def del_facture(request, facture, factureid):
     if request.method == "POST":
         messages.success(
             request,
-            _("The invoice has been successfully deleted")
+            _("The invoice has been successfully deleted.")
         )
         return redirect(reverse('cotisations:index'))
     return form({
@@ -327,7 +327,7 @@ def credit_solde(request, user, userid):
         new_vente.save()
         messages.success(
             request,
-            _("Banlance successfully updated.")
+            _("Balance successfully updated.")
         )
         return redirect(reverse('cotisations:index'))
     return form({'factureform': facture, 'action_name' : 'Créditer'}, 'cotisations/facture.html', request)
@@ -442,14 +442,14 @@ def del_paiement(request, instances):
                 messages.success(
                     request,
                     _("The payment method %(method_name)s has been \
-                    successfully deleted") % {
+                    successfully deleted.") % {
                         method_name: paiement_del
                     }
                 )
             except ProtectedError:
                 messages.error(
                     request,
-                    _("The payment method %(method_name) can't be deleted \
+                    _("The payment method %(method_name)s can't be deleted \
                     because there are invoices using it.") % {
                         method_name: paiement_del
                     }
@@ -677,8 +677,8 @@ def new_facture_solde(request, userid):
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
                     request,
-                    _("The balance of %(member_name)s has been successfully \
-                    extended to %(end_date)s") % {
+                    _("The cotisation of %(member_name)s has been successfully \
+                    extended to %(end_date)s.") % {
                         member_name: user.pseudo,
                         end_date: user.end_adhesion()
                     }

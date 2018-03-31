@@ -105,7 +105,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         abstract = False
         permissions = (
             # TODO : change facture to invoice
-            ('change_facture_control', _("Can change the controlled state")),
+            ('change_facture_control', _("Can change the \"controlled\" state")),
             # TODO : seems more likely to be call create_facture_pdf or create_invoice_pdf
             ('change_facture_pdf', _("Can create a custom PDF invoice")),
             ('view_facture', _("Can see an invoice's details")),
@@ -185,7 +185,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     @staticmethod
     def can_change_control(user_request, *args, **kwargs):
-        return user_request.has_perm('cotisations.change_facture_control'), _("You don't have the right to edit the controlled state.")
+        return user_request.has_perm('cotisations.change_facture_control'), _("You don't have the right to edit the \"controlled\" state.")
 
     @staticmethod
     def can_change_pdf(user_request, *args, **kwargs):
@@ -338,7 +338,7 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_vente'):
-            return False, _("You don't have the rights to edit the purchases.")
+            return False, _("You don't have the right to edit the purchases.")
         elif not user_request.has_perm('cotisations.change_all_facture') and not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
             return False, _("You don't have the right to edit this user's purchases.")
         elif not user_request.has_perm('cotisations.change_all_vente') and\
@@ -541,7 +541,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     COTISATION_TYPE = (
         ('Connexion', _("Connexion")),
-        ('Adhesion', _("Adhesion")),
+        ('Adhesion', _("Membership")),
         ('All', _("Both of them")),
     )
 
@@ -591,7 +591,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
     def can_view(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
             self.vente.facture.user != user_request:
-            return False, _("You don't have the right to display someone else's cotisation history.")
+            return False, _("You don't have the right to see someone else's cotisation history.")
         else:
             return True, None
 

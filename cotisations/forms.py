@@ -80,11 +80,11 @@ class NewFactureForm(FormRevMixin, ModelForm):
         banque = cleaned_data.get('banque')
         if not paiement:
             raise forms.ValidationError(
-                _("A payment method must be specified")
+                _("A payment method must be specified.")
             )
         elif paiement.type_paiement == 'check' and not (cheque and banque):
             raise forms.ValidationError(
-                _("A cheque number and a bank must be specified")
+                _("A cheque number and a bank must be specified.")
             )
         return cleaned_data
 
@@ -225,7 +225,7 @@ class PaiementForm(FormRevMixin, ModelForm):
         self.fields['moyen'].label = _("Payment method name")
         self.fields['type_paiement'].label = _("Payment type")
         self.fields['type_paiement'].help_text = \
-            _("The payement type is use for specific behaviour.\
+            _("The payement type is used for specific behaviour.\
             The \"cheque\" type means a cheque number and a bank name\
             may be added when using this payment method.")
 
@@ -349,7 +349,7 @@ class RechargeForm(FormRevMixin, Form):
         if value < OptionalUser.get_cached_value('min_online_payment'):
             raise forms.ValidationError(
                 _("Requested amount is too small. Minimum amount possible : \
-                %(min_online_amount)s €") % {
+                %(min_online_amount)s €.") % {
                     min_online_amount: OptionalUser.get_cached_value(
                         'min_online_payment'
                     )
@@ -358,7 +358,7 @@ class RechargeForm(FormRevMixin, Form):
         if value + self.user.solde > OptionalUser.get_cached_value('max_solde'):
             raise forms.ValidationError(
                 _("Requested amount is too high. Your balance can't exceed \
-                %(max_online_balance)s €") % {
+                %(max_online_balance)s €.") % {
                     max_online_balance: OptionalUser.get_cached_value(
                         'max_solde'
                     )
