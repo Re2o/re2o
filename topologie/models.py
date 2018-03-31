@@ -48,9 +48,9 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from machines.models import Machine, Interface, regen
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 
-class Stack(AclMixin, models.Model):
+class Stack(AclMixin, RevMixin, models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
     ,contient une id de stack, un switch id min et max dans
     le stack"""
@@ -187,7 +187,7 @@ class Switch(AclMixin, Machine):
         return str(self.interface_set.first())
 
 
-class ModelSwitch(AclMixin, models.Model):
+class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
     PRETTY_NAME = "Modèle de switch"
     reference = models.CharField(max_length=255)
@@ -205,7 +205,7 @@ class ModelSwitch(AclMixin, models.Model):
         return str(self.constructor) + ' ' + self.reference
 
 
-class ConstructorSwitch(AclMixin, models.Model):
+class ConstructorSwitch(AclMixin, RevMixin, models.Model):
     """Un constructeur de switch"""
     PRETTY_NAME = "Constructeur de switch"
     name = models.CharField(max_length=255)
@@ -219,7 +219,7 @@ class ConstructorSwitch(AclMixin, models.Model):
         return self.name
 
 
-class Port(AclMixin, models.Model):
+class Port(AclMixin, RevMixin, models.Model):
     """ Definition d'un port. Relié à un switch(foreign_key),
     un port peut etre relié de manière exclusive à :
     - une chambre (room)
@@ -335,7 +335,7 @@ class Port(AclMixin, models.Model):
         return str(self.switch) + " - " + str(self.port)
 
 
-class Room(AclMixin, models.Model):
+class Room(AclMixin, RevMixin, models.Model):
     """Une chambre/local contenant une prise murale"""
     PRETTY_NAME = "Chambre/ Prise murale"
 

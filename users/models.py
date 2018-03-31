@@ -76,7 +76,7 @@ import ldapdb.models.fields
 from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -171,7 +171,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
+class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -907,7 +907,7 @@ def user_post_delete(sender, **kwargs):
     user.ldap_del()
     regen('mailing')
 
-class ServiceUser(AclMixin, AbstractBaseUser):
+class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
     """ Classe des users daemons, règle leurs accès au ldap"""
     readonly = 'readonly'
     ACCESS = (
@@ -991,7 +991,7 @@ def service_user_post_delete(sender, **kwargs):
     service_user.ldap_del()
 
 
-class School(AclMixin, models.Model):
+class School(RevMixin, AclMixin, models.Model):
     """ Etablissement d'enseignement"""
     PRETTY_NAME = "Établissements enregistrés"
 
@@ -1006,7 +1006,7 @@ class School(AclMixin, models.Model):
         return self.name
 
 
-class ListRight(AclMixin, Group):
+class ListRight(RevMixin, AclMixin, Group):
     """ Ensemble des droits existants. Chaque droit crée un groupe
     ldap synchronisé, avec gid.
     Permet de gérer facilement les accès serveurs et autres
@@ -1073,7 +1073,7 @@ def listright_post_delete(sender, **kwargs):
     right.ldap_del()
 
 
-class ListShell(AclMixin, models.Model):
+class ListShell(RevMixin, AclMixin, models.Model):
     """Un shell possible. Pas de check si ce shell existe, les
     admin sont des grands"""
     PRETTY_NAME = "Liste des shells disponibles"
@@ -1093,7 +1093,7 @@ class ListShell(AclMixin, models.Model):
         return self.shell
 
 
-class Ban(AclMixin, models.Model):
+class Ban(RevMixin, AclMixin, models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
     Gagnerait à être granulaire"""
     PRETTY_NAME = "Liste des bannissements"
@@ -1189,7 +1189,7 @@ def ban_post_delete(sender, **kwargs):
     regen('mac_ip_list')
 
 
-class Whitelist(AclMixin, models.Model):
+class Whitelist(RevMixin, AclMixin, models.Model):
     """Accès à titre gracieux. L'utilisateur ne paye pas; se voit
     accorder un accès internet pour une durée défini. Moins
     fort qu'un ban quel qu'il soit"""

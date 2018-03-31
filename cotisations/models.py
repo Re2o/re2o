@@ -57,9 +57,10 @@ from django.utils import timezone
 from machines.models import regen
 
 from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 
-class Facture(AclMixin, FieldPermissionModelMixin, models.Model):
+
+class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ Définition du modèle des factures. Une facture regroupe une ou
     plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
     et si il y a lieu un numero pour les chèques. Possède les valeurs
@@ -180,7 +181,7 @@ def facture_post_delete(sender, **kwargs):
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
-class Vente(AclMixin, models.Model):
+class Vente(RevMixin, AclMixin, models.Model):
     """Objet vente, contient une quantité, une facture parente, un nom,
     un prix. Peut-être relié à un objet cotisation, via le boolean
     iscotisation"""
@@ -325,7 +326,7 @@ def vente_post_delete(sender, **kwargs):
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
-class Article(AclMixin, models.Model):
+class Article(RevMixin, AclMixin, models.Model):
     """Liste des articles en vente : prix, nom, et attribut iscotisation
     et duree si c'est une cotisation"""
     PRETTY_NAME = "Articles en vente"
@@ -381,7 +382,7 @@ class Article(AclMixin, models.Model):
         return self.name
 
 
-class Banque(AclMixin, models.Model):
+class Banque(RevMixin, AclMixin, models.Model):
     """Liste des banques"""
     PRETTY_NAME = "Banques enregistrées"
 
@@ -396,7 +397,7 @@ class Banque(AclMixin, models.Model):
         return self.name
 
 
-class Paiement(AclMixin, models.Model):
+class Paiement(RevMixin, AclMixin, models.Model):
     """Moyens de paiement"""
     PRETTY_NAME = "Moyens de paiement"
     PAYMENT_TYPES = (
@@ -426,7 +427,7 @@ class Paiement(AclMixin, models.Model):
         super(Paiement, self).save(*args, **kwargs)
 
 
-class Cotisation(AclMixin, models.Model):
+class Cotisation(RevMixin, AclMixin, models.Model):
     """Objet cotisation, debut et fin, relié en onetoone à une vente"""
     PRETTY_NAME = "Cotisations"
 

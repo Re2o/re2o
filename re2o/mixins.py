@@ -4,6 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2018  Gabriel Détraz
+# Copyright © 2017  Charlie Jacomme
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +19,29 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+from reversion import revisions as reversion
+
+
+class RevMixin(object):
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            reversion.set_comment("Création")
+        return super(RevMixin, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        reversion.set_comment("Suppresion")
+        return super(RevMixin, self).delete(*args, **kwargs)
+
+
+class FormRevMixin(object):
+    def save(self, *args, **kwargs):
+        if reversion.get_comment() != "" and self.changed_data != []:
+            reversion.set_comment(reversion.get_comment() + ",%s" % ', '.join(field for field in self.changed_data))
+        elif self.changed_data != None:
+            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(field for field in self.changed_data))
+        return super(FormRevMixin, self).save(*args, **kwargs)
+
 
 class AclMixin(object):
     """This mixin is used in nearly every class/models defined in re2o apps.

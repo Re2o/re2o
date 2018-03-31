@@ -50,9 +50,9 @@ from .models import (
     ConstructorSwitch,
     AccessPoint
 )
+from re2o.mixins import FormRevMixin
 
-
-class PortForm(ModelForm):
+class PortForm(FormRevMixin, ModelForm):
     """Formulaire pour la création d'un port d'un switch
     Relié directement au modèle port"""
     class Meta:
@@ -149,7 +149,7 @@ class NewSwitchForm(NewMachineForm):
         fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
 
 
-class EditRoomForm(ModelForm):
+class EditRoomForm(FormRevMixin, ModelForm):
     """Permet d'éediter le nom et commentaire d'une prise murale"""
     class Meta:
         model = Room
@@ -160,13 +160,13 @@ class EditRoomForm(ModelForm):
         super(EditRoomForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class CreatePortsForm(forms.Form):
+class CreatePortsForm(FormRevMixin, forms.Form):
     """Permet de créer une liste de ports pour un switch."""
     begin = forms.IntegerField(label="Début :", min_value=0)
     end = forms.IntegerField(label="Fin :", min_value=0)
 
 
-class EditModelSwitchForm(ModelForm):
+class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter un modèle de switch : nom et constructeur"""
     class Meta:
         model = ModelSwitch
@@ -177,7 +177,7 @@ class EditModelSwitchForm(ModelForm):
         super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class EditConstructorSwitchForm(ModelForm):
+class EditConstructorSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter le nom d'un constructeur"""
     class Meta:
         model = ConstructorSwitch

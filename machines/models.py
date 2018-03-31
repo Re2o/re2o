@@ -39,13 +39,13 @@ from django.core.validators import MaxValueValidator
 from macaddress.fields import MACAddressField
 
 from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin 
+from re2o.mixins import AclMixin, RevMixin 
 
 import users.models
 import preferences.models
 
 
-class Machine(FieldPermissionModelMixin, models.Model):
+class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
     PRETTY_NAME = "Machine"
@@ -163,7 +163,7 @@ class Machine(FieldPermissionModelMixin, models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
 
-class MachineType(AclMixin, models.Model):
+class MachineType(RevMixin, AclMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
     PRETTY_NAME = "Type de machine"
 
@@ -203,7 +203,7 @@ class MachineType(AclMixin, models.Model):
         return self.type
 
 
-class IpType(AclMixin, models.Model):
+class IpType(RevMixin, AclMixin, models.Model):
     """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
     PRETTY_NAME = "Type d'ip"
 
@@ -333,7 +333,7 @@ class IpType(AclMixin, models.Model):
         return self.type
 
 
-class Vlan(AclMixin, models.Model):
+class Vlan(RevMixin, AclMixin, models.Model):
     """ Un vlan : vlan_id et nom
     On limite le vlan id entre 0 et 4096, comme défini par la norme"""
     PRETTY_NAME = "Vlans"
@@ -351,7 +351,7 @@ class Vlan(AclMixin, models.Model):
         return self.name
 
 
-class Nas(AclMixin, models.Model):
+class Nas(RevMixin, AclMixin, models.Model):
     """ Les nas. Associé à un machine_type.
     Permet aussi de régler le port_access_mode (802.1X ou mac-address) pour
     le radius. Champ autocapture de la mac à true ou false"""
@@ -390,7 +390,7 @@ class Nas(AclMixin, models.Model):
         return self.name
 
 
-class SOA(AclMixin, models.Model):
+class SOA(RevMixin, AclMixin, models.Model):
     """
     Un enregistrement SOA associé à une extension
     Les valeurs par défault viennent des recommandations RIPE :
@@ -467,7 +467,7 @@ class SOA(AclMixin, models.Model):
 
 
 
-class Extension(AclMixin, models.Model):
+class Extension(RevMixin, AclMixin, models.Model):
     """ Extension dns type example.org. Précise si tout le monde peut
     l'utiliser, associé à un origin (ip d'origine)"""
     PRETTY_NAME = "Extensions dns"
@@ -530,7 +530,7 @@ class Extension(AclMixin, models.Model):
         super(Extension, self).clean(*args, **kwargs)
 
 
-class Mx(AclMixin, models.Model):
+class Mx(RevMixin, AclMixin, models.Model):
     """ Entrées des MX. Enregistre la zone (extension) associée et la
     priorité
     Todo : pouvoir associer un MX à une interface """
@@ -555,7 +555,7 @@ class Mx(AclMixin, models.Model):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
 
 
-class Ns(AclMixin, models.Model):
+class Ns(RevMixin, AclMixin, models.Model):
     """Liste des enregistrements name servers par zone considéérée"""
     PRETTY_NAME = "Enregistrements NS"
 
@@ -576,7 +576,7 @@ class Ns(AclMixin, models.Model):
         return str(self.zone) + ' ' + str(self.ns)
 
 
-class Txt(AclMixin, models.Model):
+class Txt(RevMixin, AclMixin, models.Model):
     """ Un enregistrement TXT associé à une extension"""
     PRETTY_NAME = "Enregistrement TXT"
 
@@ -599,7 +599,7 @@ class Txt(AclMixin, models.Model):
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
-class Srv(AclMixin, models.Model):
+class Srv(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Enregistrement Srv"
 
     TCP = 'TCP'
@@ -661,7 +661,7 @@ class Srv(AclMixin, models.Model):
             str(self.port) + ' ' + str(self.target) + '.'
 
 
-class Interface(AclMixin, FieldPermissionModelMixin,models.Model):
+class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -908,7 +908,7 @@ class Interface(AclMixin, FieldPermissionModelMixin,models.Model):
         return self.ipv4 and not self.has_private_ip()
 
 
-class Ipv6List(AclMixin, FieldPermissionModelMixin, models.Model):
+class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     PRETTY_NAME = 'Enregistrements Ipv6 des machines'
 
     ipv6 = models.GenericIPAddressField(
@@ -1012,7 +1012,7 @@ class Ipv6List(AclMixin, FieldPermissionModelMixin, models.Model):
         return str(self.ipv6)
 
 
-class Domain(AclMixin, models.Model):
+class Domain(RevMixin, AclMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
     ou cname sont remplis"""
@@ -1170,7 +1170,7 @@ class Domain(AclMixin, models.Model):
         return str(self.name) + str(self.extension)
 
 
-class IpList(AclMixin, models.Model):
+class IpList(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
@@ -1202,7 +1202,7 @@ class IpList(AclMixin, models.Model):
         return self.ipv4
 
 
-class Service(AclMixin, models.Model):
+class Service(RevMixin, AclMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
 
@@ -1256,7 +1256,7 @@ def regen(service):
     return
 
 
-class Service_link(AclMixin, models.Model):
+class Service_link(RevMixin, AclMixin, models.Model):
     """ Definition du lien entre serveurs et services"""
     PRETTY_NAME = "Relation entre service et serveur"
 
@@ -1287,7 +1287,7 @@ class Service_link(AclMixin, models.Model):
         return str(self.server) + " " + str(self.service)
 
 
-class OuverturePortList(AclMixin, models.Model):
+class OuverturePortList(RevMixin, AclMixin, models.Model):
     """Liste des ports ouverts sur une interface."""
     PRETTY_NAME = "Profil d'ouverture de ports"
 
@@ -1346,7 +1346,7 @@ class OuverturePortList(AclMixin, models.Model):
         )
 
 
-class OuverturePort(AclMixin, models.Model):
+class OuverturePort(RevMixin, AclMixin, models.Model):
     """
     Représente un simple port ou une plage de ports.
 
