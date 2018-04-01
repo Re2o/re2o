@@ -305,36 +305,36 @@ def new_serviceuser(request):
 
 @login_required
 @can_edit(ServiceUser)
-def edit_serviceuser(request, user, userid):
+def edit_serviceuser(request, serviceuser, serviceuserid):
     """ Edit a ServiceUser """
-    user = EditServiceUserForm(request.POST or None, instance=user)
-    if user.is_valid():
-        user_object = user.save(commit=False)
+    serviceuser = EditServiceUserForm(request.POST or None, instance=serviceuser)
+    if serviceuser.is_valid():
+        user_object = serviceuser.save(commit=False)
         with transaction.atomic(), reversion.create_revision():
-            if user.cleaned_data['password']:
-                user_object.set_password(user.cleaned_data['password'])
+            if serviceuser.cleaned_data['password']:
+                user_object.set_password(serviceuser.cleaned_data['password'])
             user_object.save()
             reversion.set_user(request.user)
             reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in user.changed_data
+                field for field in serviceuser.changed_data
             ))
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
-    return form({'userform': user, 'action_name':'Editer un serviceuser'}, 'users/user.html', request)
+    return form({'userform': serviceuser, 'action_name':'Editer un serviceuser'}, 'users/user.html', request)
 
 
 @login_required
 @can_delete(ServiceUser)
-def del_serviceuser(request, user, userid):
+def del_serviceuser(request, serviceuser, serviceuserid):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
-            user.delete()
+            serviceuser.delete()
             reversion.set_user(request.user)
         messages.success(request, "L'user a été détruite")
         return redirect(reverse('users:index-serviceusers'))
     return form(
-        {'objet': user, 'objet_name': 'serviceuser'},
+        {'objet': serviceuser, 'objet_name': 'serviceuser'},
         'users/delete.html',
         request
     )
