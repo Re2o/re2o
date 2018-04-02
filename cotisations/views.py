@@ -39,8 +39,6 @@ from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_variables
-from reversion import revisions as reversion
-from reversion.models import Version
 # Import des models, forms et fonctions re2o
 from users.models import User
 from re2o.settings import LOGO_PATH
@@ -126,10 +124,7 @@ def new_facture(request, user, userid):
                             'users:profil',
                             kwargs={'userid': userid}
                             ))
-            with transaction.atomic(), reversion.create_revision():
-                new_facture_instance.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_facture_instance.save()
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
@@ -142,10 +137,7 @@ def new_facture(request, user, userid):
                         duration=article.duration,
                         number=quantity
                     )
-                    with transaction.atomic(), reversion.create_revision():
-                        new_vente.save()
-                        reversion.set_user(request.user)
-                        reversion.set_comment("Création")
+                    new_vente.save()
             if any(art_item.cleaned_data['article'].type_cotisation
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(
@@ -257,13 +249,9 @@ def edit_facture(request, facture, factureid):
         )
     vente_form = vente_form_set(request.POST or None, queryset=ventes_objects)
     if facture_form.is_valid() and vente_form.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if facture_form.changed_data:
             facture_form.save()
-            vente_form.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for form in vente_form for field
-                in facture_form.changed_data + form.changed_data))
+        vente_form.save()
         messages.success(request, "La facture a bien été modifiée")
         return redirect(reverse('cotisations:index'))
     return form({
@@ -278,9 +266,7 @@ def del_facture(request, facture, factureid):
     """Suppression d'une facture. Supprime en cascade les ventes
     et cotisations filles"""
     if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            facture.delete()
-            reversion.set_user(request.user)
+        facture.delete()
         messages.success(request, "La facture a été détruite")
         return redirect(reverse('cotisations:index'))
     return form({
@@ -297,21 +283,15 @@ def credit_solde(request, user, userid):
     facture = CreditSoldeForm(request.POST or None)
     if facture.is_valid():
         facture_instance = facture.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            facture_instance.user = user
-            facture_instance.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        facture_instance.user = user
+        facture_instance.save()
         new_vente = Vente.objects.create(
             facture=facture_instance,
             name="solde",
             prix=facture.cleaned_data['montant'],
             number=1
             )
-        with transaction.atomic(), reversion.create_revision():
-            new_vente.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        new_vente.save()
         messages.success(request, "Solde modifié")
         return redirect(reverse('cotisations:index'))
     return form({'factureform': facture, 'action_name' : 'Créditer'}, 'cotisations/facture.html', request)
@@ -329,10 +309,7 @@ def add_article(request):
     PAS de conséquence sur les ventes déjà faites"""
     article = ArticleForm(request.POST or None)
     if article.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            article.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        article.save()
         messages.success(request, "L'article a été ajouté")
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
@@ -345,15 +322,9 @@ def edit_article(request, article_instance, articleid):
     Réservé au trésorier"""
     article = ArticleForm(request.POST or None, instance=article_instance)
     if article.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if article.changed_data:
             article.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in article.changed_data
-                )
-            )
-        messages.success(request, "Type d'article modifié")
+            messages.success(request, "Type d'article modifié")
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -365,9 +336,7 @@ def del_article(request, instances):
     article = DelArticleForm(request.POST or None, instances=instances)
     if article.is_valid():
         article_del = article.cleaned_data['articles']
-        with transaction.atomic(), reversion.create_revision():
-            article_del.delete()
-            reversion.set_user(request.user)
+        article_del.delete()
         messages.success(request, "Le/les articles ont été supprimé")
         return redirect(reverse('cotisations:index-article'))
     return form({'factureform': article, 'action_name' : 'Supprimer'}, 'cotisations/facture.html', request)
@@ -380,10 +349,7 @@ def add_paiement(request):
     via foreign key"""
     paiement = PaiementForm(request.POST or None)
     if paiement.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            paiement.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        paiement.save()
         messages.success(request, "Le moyen de paiement a été ajouté")
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
@@ -395,15 +361,9 @@ def edit_paiement(request, paiement_instance, paiementid):
     """Edition d'un moyen de paiement"""
     paiement = PaiementForm(request.POST or None, instance=paiement_instance)
     if paiement.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if paiement.changed_data:
             paiement.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in paiement.changed_data
-                    )
-            )
-        messages.success(request, "Type de paiement modifié")
+            messages.success(request, "Type de paiement modifié")
         return redirect(reverse('cotisations:index-paiement'))
     return form({'factureform': paiement, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -417,10 +377,7 @@ def del_paiement(request, instances):
         paiement_dels = paiement.cleaned_data['paiements']
         for paiement_del in paiement_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    paiement_del.delete()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Destruction")
+                paiement_del.delete()
                 messages.success(
                     request,
                     "Le moyen de paiement a été supprimé"
@@ -441,10 +398,7 @@ def add_banque(request):
     """Ajoute une banque à la liste des banques"""
     banque = BanqueForm(request.POST or None)
     if banque.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            banque.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        banque.save()
         messages.success(request, "La banque a été ajoutée")
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Ajouter'}, 'cotisations/facture.html', request)
@@ -456,15 +410,9 @@ def edit_banque(request, banque_instance, banqueid):
     """Edite le nom d'une banque"""
     banque = BanqueForm(request.POST or None, instance=banque_instance)
     if banque.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if banque.changed_data:
             banque.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in banque.changed_data
-                )
-            )
-        messages.success(request, "Banque modifiée")
+            messages.success(request, "Banque modifiée")
         return redirect(reverse('cotisations:index-banque'))
     return form({'factureform': banque, 'action_name' : 'Editer'}, 'cotisations/facture.html', request)
 
@@ -478,10 +426,7 @@ def del_banque(request, instances):
         banque_dels = banque.cleaned_data['banques']
         for banque_del in banque_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    banque_del.delete()
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Destruction")
+                banque_del.delete()
                 messages.success(request, "La banque a été supprimée")
             except ProtectedError:
                 messages.error(request, "La banque %s est affectée à au moins\
@@ -519,10 +464,7 @@ def control(request):
         facture_list = paginator.page(paginator.num.pages)
     controlform = controlform_set(request.POST or None, queryset=facture_list.object_list)
     if controlform.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            controlform.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Controle trésorier")
+        controlform.save()
         return redirect(reverse('cotisations:control'))
     return render(request, 'cotisations/control.html', {
         'facture_list': facture_list,
@@ -630,10 +572,7 @@ def new_facture_solde(request, userid):
                         'users:profil',
                         kwargs={'userid': userid}
                         ))
-            with transaction.atomic(), reversion.create_revision():
-                facture.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            facture.save()
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
@@ -646,10 +585,7 @@ def new_facture_solde(request, userid):
                         duration=article.duration,
                         number=quantity
                     )
-                    with transaction.atomic(), reversion.create_revision():
-                        new_vente.save()
-                        reversion.set_user(request.user)
-                        reversion.set_comment("Création")
+                    new_vente.save()
             if any(art_item.cleaned_data['article'].type_cotisation
                    for art_item in articles if art_item.cleaned_data):
                 messages.success(

@@ -76,7 +76,7 @@ import ldapdb.models.fields
 from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -171,7 +171,7 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(pseudo, surname, email, password, True)
 
-class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
+class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin):
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
@@ -548,15 +548,15 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMix
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
-        send_mail(
-            'Bienvenue au %(name)s / Welcome to %(name)s' % {
-                'name': AssoOption.get_cached_value('name')
-                },
-            '',
-            GeneralOption.get_cached_value('email_from'),
-            [self.email],
-            html_message=template.render(context)
-        )
+        #send_mail(
+        #    'Bienvenue au %(name)s / Welcome to %(name)s' % {
+        #        'name': AssoOption.get_cached_value('name')
+        #        },
+        #    '',
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [self.email],
+        #    html_message=template.render(context)
+        #)
         return
 
     def reset_passwd_mail(self, request):
@@ -576,14 +576,14 @@ class User(FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMix
                 reverse('users:process', kwargs={'token': req.token})),
             'expire_in': str(GeneralOption.get_cached_value('req_expire_hrs')) + ' heures',
             }
-        send_mail(
-            'Changement de mot de passe du %(name)s / Password\
-            renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
-            template.render(context),
-            GeneralOption.get_cached_value('email_from'),
-            [req.user.email],
-            fail_silently=False
-        )
+        #send_mail(
+        #    'Changement de mot de passe du %(name)s / Password\
+        #    renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
+        #    template.render(context),
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [req.user.email],
+        #    fail_silently=False
+        #)
         return
 
     def autoregister_machine(self, mac_address, nas_type):
@@ -892,8 +892,8 @@ def user_post_save(sender, **kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    if is_created:
-        user.notif_inscription()
+    #if is_created:
+        #user.notif_inscription()
     user.ldap_sync(base=True, access_refresh=True, mac_refresh=False, group_refresh=True)
     regen('mailing')
 
@@ -907,7 +907,7 @@ def user_post_delete(sender, **kwargs):
     user.ldap_del()
     regen('mailing')
 
-class ServiceUser(AclMixin, AbstractBaseUser):
+class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
     """ Classe des users daemons, règle leurs accès au ldap"""
     readonly = 'readonly'
     ACCESS = (
@@ -991,7 +991,7 @@ def service_user_post_delete(sender, **kwargs):
     service_user.ldap_del()
 
 
-class School(AclMixin, models.Model):
+class School(RevMixin, AclMixin, models.Model):
     """ Etablissement d'enseignement"""
     PRETTY_NAME = "Établissements enregistrés"
 
@@ -1006,7 +1006,7 @@ class School(AclMixin, models.Model):
         return self.name
 
 
-class ListRight(AclMixin, Group):
+class ListRight(RevMixin, AclMixin, Group):
     """ Ensemble des droits existants. Chaque droit crée un groupe
     ldap synchronisé, avec gid.
     Permet de gérer facilement les accès serveurs et autres
@@ -1073,7 +1073,7 @@ def listright_post_delete(sender, **kwargs):
     right.ldap_del()
 
 
-class ListShell(AclMixin, models.Model):
+class ListShell(RevMixin, AclMixin, models.Model):
     """Un shell possible. Pas de check si ce shell existe, les
     admin sont des grands"""
     PRETTY_NAME = "Liste des shells disponibles"
@@ -1093,7 +1093,7 @@ class ListShell(AclMixin, models.Model):
         return self.shell
 
 
-class Ban(AclMixin, models.Model):
+class Ban(RevMixin, AclMixin, models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
     Gagnerait à être granulaire"""
     PRETTY_NAME = "Liste des bannissements"
@@ -1127,21 +1127,18 @@ class Ban(AclMixin, models.Model):
             'date_end': self.date_end,
             'asso_name': AssoOption.get_cached_value('name'),
         })
-        send_mail(
-            'Deconnexion disciplinaire',
-            template.render(context),
-            GeneralOption.get_cached_value('email_from'),
-            [self.user.email],
-            fail_silently=False
-        )
+        #send_mail(
+        #    'Deconnexion disciplinaire',
+        #    template.render(context),
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [self.user.email],
+        #    fail_silently=False
+        #)
         return
 
     def is_active(self):
         """Ce ban est-il actif?"""
         return self.date_end > timezone.now()
-
-    def get_instance(banid, *args, **kwargs):
-        return Ban.objects.get(pk=banid)
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Ban object.
@@ -1189,7 +1186,7 @@ def ban_post_delete(sender, **kwargs):
     regen('mac_ip_list')
 
 
-class Whitelist(AclMixin, models.Model):
+class Whitelist(RevMixin, AclMixin, models.Model):
     """Accès à titre gracieux. L'utilisateur ne paye pas; se voit
     accorder un accès internet pour une durée défini. Moins
     fort qu'un ban quel qu'il soit"""
