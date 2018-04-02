@@ -40,6 +40,7 @@ from django.conf import settings
 from contributors import contributeurs
 import os
 import time
+from itertools import chain
 import users, preferences, cotisations, topologie, machines
 
 def form(ctx, template, request):
@@ -146,6 +147,9 @@ def history(request, application, object_name, object_id):
         ))
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     reversions = Version.objects.get_for_object(instance)
+    if hasattr(instance, 'linked_objects'):
+        for related_object in chain(instance.linked_objects()):
+            reversions = reversions | Version.objects.get_for_object(related_object)
     paginator = Paginator(reversions, pagination_number)
     page = request.GET.get('page')
     try:
