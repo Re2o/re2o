@@ -251,8 +251,7 @@ def edit_facture(request, facture, factureid):
     if facture_form.is_valid() and vente_form.is_valid():
         if facture_form.changed_data:
             facture_form.save()
-        if vente_form.changed_data:
-            vente_form.save()
+        vente_form.save()
         messages.success(request, "La facture a bien été modifiée")
         return redirect(reverse('cotisations:index'))
     return form({

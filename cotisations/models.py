@@ -88,6 +88,11 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             ("change_all_facture", "Superdroit, peut modifier toutes les factures"),
         )
 
+    def linked_objects(self):
+        """Return linked objects : machine and domain.
+        Usefull in history display"""
+        return self.vente_set.all()
+
     def prix(self):
         """Renvoie le prix brut sans les quantités. Méthode
         dépréciée"""

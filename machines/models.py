@@ -27,6 +27,7 @@ from datetime import timedelta
 import re
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
 from ipaddress import IPv6Address
+from itertools import chain
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -71,6 +72,11 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :return: The user
         """
         return Machine.objects.get(pk=machineid)
+
+    def linked_objects(self):
+        """Return linked objects : machine and domain.
+        Usefull in history display"""
+        return chain(self.interface_set.all(), Domain.objects.filter(interface_parent__in=self.interface_set.all()))
 
     @staticmethod
     def can_change_user(user_request, *args, **kwargs):
