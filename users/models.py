@@ -548,15 +548,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser, PermissionsMix
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
-        send_mail(
-            'Bienvenue au %(name)s / Welcome to %(name)s' % {
-                'name': AssoOption.get_cached_value('name')
-                },
-            '',
-            GeneralOption.get_cached_value('email_from'),
-            [self.email],
-            html_message=template.render(context)
-        )
+        #send_mail(
+        #    'Bienvenue au %(name)s / Welcome to %(name)s' % {
+        #        'name': AssoOption.get_cached_value('name')
+        #        },
+        #    '',
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [self.email],
+        #    html_message=template.render(context)
+        #)
         return
 
     def reset_passwd_mail(self, request):
@@ -576,14 +576,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser, PermissionsMix
                 reverse('users:process', kwargs={'token': req.token})),
             'expire_in': str(GeneralOption.get_cached_value('req_expire_hrs')) + ' heures',
             }
-        send_mail(
-            'Changement de mot de passe du %(name)s / Password\
-            renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
-            template.render(context),
-            GeneralOption.get_cached_value('email_from'),
-            [req.user.email],
-            fail_silently=False
-        )
+        #send_mail(
+        #    'Changement de mot de passe du %(name)s / Password\
+        #    renewal for %(name)s' % {'name': AssoOption.get_cached_value('name')},
+        #    template.render(context),
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [req.user.email],
+        #    fail_silently=False
+        #)
         return
 
     def autoregister_machine(self, mac_address, nas_type):
@@ -892,8 +892,8 @@ def user_post_save(sender, **kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    if is_created:
-        user.notif_inscription()
+    #if is_created:
+        #user.notif_inscription()
     user.ldap_sync(base=True, access_refresh=True, mac_refresh=False, group_refresh=True)
     regen('mailing')
 
@@ -1127,21 +1127,18 @@ class Ban(RevMixin, AclMixin, models.Model):
             'date_end': self.date_end,
             'asso_name': AssoOption.get_cached_value('name'),
         })
-        send_mail(
-            'Deconnexion disciplinaire',
-            template.render(context),
-            GeneralOption.get_cached_value('email_from'),
-            [self.user.email],
-            fail_silently=False
-        )
+        #send_mail(
+        #    'Deconnexion disciplinaire',
+        #    template.render(context),
+        #    GeneralOption.get_cached_value('email_from'),
+        #    [self.user.email],
+        #    fail_silently=False
+        #)
         return
 
     def is_active(self):
         """Ce ban est-il actif?"""
         return self.date_end > timezone.now()
-
-    def get_instance(banid, *args, **kwargs):
-        return Ban.objects.get(pk=banid)
 
     def can_view(self, user_request, *args, **kwargs):
         """Check if an user can view a Ban object.

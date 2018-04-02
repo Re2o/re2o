@@ -24,6 +24,64 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 
+
+<div class="table-responsive" style="font-size: 12px">
+    <table class="table table-bordered text-center text-nowrap">
+        <thead>
+        <tr>
+
+        {% for port in port_list|slice:"::2" %}
+            <td class="bg-primary text-white">{{ port.port }}</td>
+        {% endfor %}
+
+        </tr>
+        <tr>
+
+        {% for port in port_list|slice:"::2" %}
+            <td class="p-3 mb-2 bg-success text-dark">
+                {% if port.room %}
+                {{ port.room }}
+                {% elif port.machine_interface %}
+                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
+                {% elif port.related%}
+                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
+                {% else %}
+                Vide
+                {% endif %}
+            </td>
+        {% endfor %}
+        
+        </tr>
+
+        <tr>
+
+        {% for port in port_list|slice:"1::2" %}
+            <td class="bg-primary text-white">{{ port.port }}</td>
+        {% endfor %}
+
+        </tr>
+        <tr>
+
+        {% for port in port_list|slice:"1::2" %}
+            <td class="p-3 mb-2 bg-success text-dark">
+                {% if port.room %}
+                {{ port.room }}
+                {% elif port.machine_interface %}
+                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
+                {% elif port.related%}
+                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
+                {% else %}
+                Vide
+                {% endif %}
+            </td>
+        {% endfor %}
+        
+        </tr>
+    </table>
+</div>
+
+
+<div class="table-responsive">
 <table class="table table-striped">
     <thead>
         <tr>
@@ -76,3 +134,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    </tr>
    {% endfor %}
 </table>
+</div>
