@@ -89,7 +89,7 @@ HISTORY_BIND = {
     'machines' : {
         'machine' : machines.models.Machine,
         'interface' : machines.models.Interface,
-        'alias' : machines.models.Domain,
+        'domain' : machines.models.Domain,
         'machinetype' : machines.models.MachineType,
         'iptype' : machines.models.IpType,
         'extension' : machines.models.Extension,
