@@ -45,12 +45,12 @@ urlpatterns = [
     url(r'^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$', views.del_group, name='del-group'),
     url(r'^new_serviceuser/$', views.new_serviceuser, name='new-serviceuser'),
     url(
-        r'^edit_serviceuser/(?P<userid>[0-9]+)$',
+        r'^edit_serviceuser/(?P<serviceuserid>[0-9]+)$',
         views.edit_serviceuser,
         name='edit-serviceuser'
     ),
     url(
-        r'^del_serviceuser/(?P<userid>[0-9]+)$',
+        r'^del_serviceuser/(?P<serviceuserid>[0-9]+)$',
         views.del_serviceuser,
         name='del-serviceuser'
     ),

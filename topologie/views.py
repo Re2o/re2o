@@ -181,7 +181,7 @@ def index_ap(request):
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
-        .prefetch_related('switch_set__domain__extension')
+        .prefetch_related('switch_set__interface_set__domain__extension')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
