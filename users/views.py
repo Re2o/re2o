@@ -37,7 +37,6 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, Q
@@ -95,6 +94,7 @@ from re2o.views import form
 from re2o.utils import (
     all_has_access,
     SortTable,
+    re2o_paginator
 )
 from re2o.acl import (
     can_create,
@@ -115,10 +115,7 @@ def new_user(request):
     GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
         user = user.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            user.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        user.save()
         user.reset_passwd_mail(request)
         messages.success(request, "L'utilisateur %s a été crée, un mail\
         pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
@@ -137,10 +134,7 @@ def new_club(request):
     club = ClubForm(request.POST or None, user=request.user)
     if club.is_valid():
         club = club.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            club.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        club.save()
         club.reset_passwd_mail(request)
         messages.success(request, "L'utilisateur %s a été crée, un mail\
         pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
@@ -158,13 +152,9 @@ def edit_club_admin_members(request, club_instance, clubid):
     membres d'un club"""
     club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
     if club.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if club.changed_data:
             club.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in club.changed_data
-            ))
-        messages.success(request, "Le club a bien été modifié")
+            messages.success(request, "Le club a bien été modifié")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(club_instance.id)}
@@ -191,13 +181,9 @@ def edit_info(request, user, userid):
             user=request.user
         )
     if user.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if user.changed_data:
             user.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in user.changed_data
-            ))
-        messages.success(request, "L'user a bien été modifié")
+            messages.success(request, "L'user a bien été modifié")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -212,19 +198,15 @@ def state(request, user, userid):
     need droit bureau """
     state = StateForm(request.POST or None, instance=user)
     if state.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
-                user.archive()
-            elif state.cleaned_data['state'] == User.STATE_ACTIVE:
-                user.unarchive()
-            elif state.cleaned_data['state'] == User.STATE_DISABLED:
-                user.state = User.STATE_DISABLED
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in state.changed_data
-            ))
+        if state.cleaned_data['state'] == User.STATE_ARCHIVE:
+            user.archive()
+        elif state.cleaned_data['state'] == User.STATE_ACTIVE:
+            user.unarchive()
+        elif state.cleaned_data['state'] == User.STATE_DISABLED:
+            user.state = User.STATE_DISABLED
+        if user.changed_data:
             user.save()
-        messages.success(request, "Etat changé avec succès")
+            messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -237,13 +219,9 @@ def state(request, user, userid):
 def groups(request, user, userid):
     group = GroupForm(request.POST or None, instance=user)
     if group.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in group.changed_data
-            ))
-        group.save()
-        messages.success(request, "Groupes changés avec succès")
+        if group.changed_data:
+            group.save()
+            messages.success(request, "Groupes changés avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid':str(userid)}
@@ -259,11 +237,9 @@ def password(request, user, userid):
     pour tous si droit bureau """
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if u_form.changed_data:
             u_form.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Changement du mot de passe")
-        messages.success(request, "Le mot de passe a changé")
+            messages.success(request, "Le mot de passe a changé")
         return redirect(reverse(
         'users:profil',
         kwargs={'userid':str(user.id)}
@@ -274,12 +250,9 @@ def password(request, user, userid):
 @login_required
 @can_edit(User, 'groups')
 def del_group(request, user, userid, listrightid):
-    with transaction.atomic(), reversion.create_revision():
-        user.groups.remove(ListRight.objects.get(id=listrightid))
-        user.save()
-        reversion.set_user(request.user)
-        reversion.set_comment("Suppression de droit")
-        messages.success(request, "Droit supprimé à %s" % user)
+    user.groups.remove(ListRight.objects.get(id=listrightid))
+    user.save()
+    messages.success(request, "Droit supprimé à %s" % user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -290,11 +263,8 @@ def new_serviceuser(request):
     user = ServiceUserForm(request.POST or None)
     if user.is_valid():
         user_object = user.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            user_object.set_password(user.cleaned_data['password'])
-            user_object.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        user_object.set_password(user.cleaned_data['password'])
+        user_object.save()
         messages.success(
             request,
             "L'utilisateur %s a été crée" % user_object.pseudo
@@ -307,17 +277,13 @@ def new_serviceuser(request):
 @can_edit(ServiceUser)
 def edit_serviceuser(request, serviceuser, serviceuserid):
     """ Edit a ServiceUser """
-    serviceuser = EditServiceUserForm(request.POST or None, instance=serviceuser)
-    if serviceuser.is_valid():
-        user_object = serviceuser.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
-            if serviceuser.cleaned_data['password']:
-                user_object.set_password(serviceuser.cleaned_data['password'])
+    user = EditServiceUserForm(request.POST or None, instance=user)
+    if user.is_valid():
+        user_object = user.save(commit=False)
+        if user.cleaned_data['password']:
+            user_object.set_password(user.cleaned_data['password'])
+        if user.changed_data:
             user_object.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in serviceuser.changed_data
-            ))
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
     return form({'userform': serviceuser, 'action_name':'Editer un serviceuser'}, 'users/user.html', request)
@@ -328,9 +294,7 @@ def edit_serviceuser(request, serviceuser, serviceuserid):
 def del_serviceuser(request, serviceuser, serviceuserid):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            serviceuser.delete()
-            reversion.set_user(request.user)
+        user.delete()
         messages.success(request, "L'user a été détruite")
         return redirect(reverse('users:index-serviceusers'))
     return form(
@@ -350,10 +314,7 @@ def add_ban(request, user, userid):
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            _ban_object = ban.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        _ban_object = ban.save()
         messages.success(request, "Bannissement ajouté")
         return redirect(reverse(
             'users:profil',
@@ -374,13 +335,9 @@ def edit_ban(request, ban_instance, banid):
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if ban.changed_data:
             ban.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in ban.changed_data
-            ))
-        messages.success(request, "Bannissement modifié")
+            messages.success(request, "Bannissement modifié")
         return redirect(reverse('users:index'))
     return form({'userform': ban, 'action_name': 'Editer un ban'}, 'users/user.html', request)
 
@@ -399,10 +356,7 @@ def add_whitelist(request, user, userid):
         instance=whitelist_instance
     )
     if whitelist.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            whitelist.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        whitelist.save()
         messages.success(request, "Accès à titre gracieux accordé")
         return redirect(reverse(
             'users:profil',
@@ -428,13 +382,9 @@ def edit_whitelist(request, whitelist_instance, whitelistid):
         instance=whitelist_instance
     )
     if whitelist.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if whitelist.changed_data:
             whitelist.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in whitelist.changed_data
-            ))
-        messages.success(request, "Whitelist modifiée")
+            messages.success(request, "Whitelist modifiée")
         return redirect(reverse('users:index'))
     return form({'userform': whitelist, 'action_name': 'Editer une whitelist'}, 'users/user.html', request)
 
@@ -446,10 +396,7 @@ def add_school(request):
     need cableur"""
     school = SchoolForm(request.POST or None)
     if school.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            school.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        school.save()
         messages.success(request, "L'établissement a été ajouté")
         return redirect(reverse('users:index-school'))
     return form({'userform': school, 'action_name':'Ajouter'}, 'users/user.html', request)
@@ -462,13 +409,9 @@ def edit_school(request, school_instance, schoolid):
     la base de donnée, need cableur"""
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if school.changed_data:
             school.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in school.changed_data
-            ))
-        messages.success(request, "Établissement modifié")
+            messages.success(request, "Établissement modifié")
         return redirect(reverse('users:index-school'))
     return form({'userform': school, 'action_name':'Editer'}, 'users/user.html', request)
 
@@ -485,9 +428,7 @@ def del_school(request, instances):
         school_dels = school.cleaned_data['schools']
         for school_del in school_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    school_del.delete()
-                    reversion.set_comment("Destruction")
+                school_del.delete()
                 messages.success(request, "L'établissement a été supprimé")
             except ProtectedError:
                 messages.error(
@@ -504,10 +445,7 @@ def add_shell(request):
     """ Ajouter un shell à la base de donnée"""
     shell = ShellForm(request.POST or None)
     if shell.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            shell.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        shell.save()
         messages.success(request, "Le shell a été ajouté")
         return redirect(reverse('users:index-shell'))
     return form({'userform': shell, 'action_name':'Ajouter'}, 'users/user.html', request)
@@ -519,13 +457,9 @@ def edit_shell(request, shell_instance, listshellid):
     """ Editer un shell à partir du listshellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if shell.changed_data:
             shell.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in shell.changed_data
-            ))
-        messages.success(request, "Le shell a été modifié")
+            messages.success(request, "Le shell a été modifié")
         return redirect(reverse('users:index-shell'))
     return form({'userform': shell, 'action_name':'Editer'}, 'users/user.html', request)
 
@@ -535,9 +469,7 @@ def edit_shell(request, shell_instance, listshellid):
 def del_shell(request, shell, listshellid):
     """Destruction d'un shell"""
     if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            shell.delete()
-            reversion.set_user(request.user)
+        shell.delete()
         messages.success(request, "Le shell a été détruit")
         return redirect(reverse('users:index-shell'))
     return form(
@@ -554,10 +486,7 @@ def add_listright(request):
     Obligation de fournir un gid pour la synchro ldap, unique """
     listright = NewListRightForm(request.POST or None)
     if listright.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            listright.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        listright.save()
         messages.success(request, "Le droit/groupe a été ajouté")
         return redirect(reverse('users:index-listright'))
     return form({'userform': listright, 'action_name': 'Ajouter'}, 'users/user.html', request)
@@ -573,13 +502,9 @@ def edit_listright(request, listright_instance, listrightid):
         instance=listright_instance
     )
     if listright.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if listright.changed_data:
             listright.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in listright.changed_data
-            ))
-        messages.success(request, "Droit modifié")
+            messages.success(request, "Droit modifié")
         return redirect(reverse('users:index-listright'))
     return form({'userform': listright, 'action_name': 'Editer'}, 'users/user.html', request)
 
@@ -594,9 +519,7 @@ def del_listright(request, instances):
         listright_dels = listright.cleaned_data['listrights']
         for listright_del in listright_dels:
             try:
-                with transaction.atomic(), reversion.create_revision():
-                    listright_del.delete()
-                    reversion.set_comment("Destruction")
+                listright_del.delete()
                 messages.success(request, "Le droit/groupe a été supprimé")
             except ProtectedError:
                 messages.error(
@@ -625,7 +548,6 @@ def mass_archive(request):
                 with transaction.atomic(), reversion.create_revision():
                     user.archive()
                     user.save()
-                    reversion.set_user(request.user)
                     reversion.set_comment("Archivage")
             messages.success(request, "%s users ont été archivés" % len(
                 to_archive_list
@@ -650,16 +572,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX
     )
-    paginator = Paginator(users_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        users_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        users_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        users_list = paginator.page(paginator.num_pages)
+    users_list = re2o_paginator(request, users_list, pagination_number)
     return render(request, 'users/index.html', {'users_list': users_list})
 
 
@@ -675,16 +588,7 @@ def index_clubs(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX
     )
-    paginator = Paginator(clubs_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        clubs_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        clubs_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        clubs_list = paginator.page(paginator.num_pages)
+    clubs_list = re2o_paginator(request, clubs_list, pagination_number)
     return render(request, 'users/index_clubs.html', {'clubs_list': clubs_list})
 
 
@@ -700,16 +604,7 @@ def index_ban(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_BAN
     )
-    paginator = Paginator(ban_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        ban_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        ban_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        ban_list = paginator.page(paginator.num_pages)
+    ban_list = re2o_paginator(request, ban_list, pagination_number)
     return render(request, 'users/index_ban.html', {'ban_list': ban_list})
 
 
@@ -725,16 +620,7 @@ def index_white(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_BAN
     )
-    paginator = Paginator(white_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        white_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        white_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        white_list = paginator.page(paginator.num_pages)
+    white_list = re2o_paginator(request, white_list, pagination_number)
     return render(
         request,
         'users/index_whitelist.html',
@@ -754,16 +640,7 @@ def index_school(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_SCHOOL
     )
-    paginator = Paginator(school_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        school_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        school_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        school_list = paginator.page(paginator.num_pages)
+    school_list = re2o_paginator(request, school_list, pagination_number)
     return render(
         request,
         'users/index_schools.html',
@@ -832,6 +709,8 @@ def profil(request, users, userid):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
+    pagination_large_number = GeneralOption.get_cached_value('pagination_large_number')
+    machines = re2o_paginator(request, machines, pagination_large_number)
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
         factures,

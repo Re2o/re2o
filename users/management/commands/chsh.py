@@ -26,6 +26,7 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from users.models import User, ListShell
+from re2o.script_utils import get_user, get_system_user
 
 class Command(BaseCommand):
     help = 'Change the default shell of a user'
@@ -35,14 +36,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        def get_user(user_pseudo):
-            """Return the user queried by pseudo, and exit the script if not found."""
-            user = User.objects.filter(pseudo=user_pseudo)
-            if not user:
-                raise CommandError("Utilisateur invalide")
-            return user[0]
-
-        current_username = pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
+        current_username = get_system_user() 
         current_user = get_user(current_username)
 
         target_username = options["target_username"] or current_username

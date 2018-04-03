@@ -53,13 +53,11 @@ from .models import (
     Club
 )
 from re2o.utils import remove_user_room
-
+from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
-NOW = timezone.now()
 
-
-class PassForm(FieldPermissionFormMixin, forms.ModelForm):
+class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
     """Formulaire de changement de mot de passe. Verifie que les 2
     nouveaux mots de passe renseignés sont identiques et respectent
     une norme"""
@@ -107,7 +105,7 @@ class PassForm(FieldPermissionFormMixin, forms.ModelForm):
         user.save()
 
 
-class UserCreationForm(forms.ModelForm):
+class UserCreationForm(FormRevMixin, forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password.
 
@@ -154,7 +152,7 @@ class UserCreationForm(forms.ModelForm):
         return user
 
 
-class ServiceUserCreationForm(forms.ModelForm):
+class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password.
 
@@ -202,7 +200,7 @@ class ServiceUserCreationForm(forms.ModelForm):
         return user
 
 
-class UserChangeForm(forms.ModelForm):
+class UserChangeForm(FormRevMixin, forms.ModelForm):
     """A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
@@ -238,7 +236,7 @@ class UserChangeForm(forms.ModelForm):
         return user
 
 
-class ServiceUserChangeForm(forms.ModelForm):
+class ServiceUserChangeForm(FormRevMixin, forms.ModelForm):
     """A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
@@ -281,12 +279,12 @@ class MassArchiveForm(forms.Form):
         cleaned_data = super(MassArchiveForm, self).clean()
         date = cleaned_data.get("date")
         if date:
-            if date > NOW:
+            if date > timezone.now():
                 raise forms.ValidationError("Impossible d'archiver des\
                 utilisateurs dont la fin d'accès se situe dans le futur !")
 
 
-class AdherentForm(FieldPermissionFormMixin, ModelForm):
+class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -339,7 +337,7 @@ class AdherentForm(FieldPermissionFormMixin, ModelForm):
         return
 
 
-class ClubForm(FieldPermissionFormMixin, ModelForm):
+class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
@@ -379,7 +377,7 @@ class ClubForm(FieldPermissionFormMixin, ModelForm):
         return telephone
 
 
-class ClubAdminandMembersForm(ModelForm):
+class ClubAdminandMembersForm(FormRevMixin, ModelForm):
     """Permet d'éditer la liste des membres et des administrateurs
     d'un club"""
     class Meta:
@@ -391,7 +389,7 @@ class ClubAdminandMembersForm(ModelForm):
         super(ClubAdminandMembersForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class PasswordForm(ModelForm):
+class PasswordForm(FormRevMixin, ModelForm):
     """ Formulaire de changement brut de mot de passe.
     Ne pas utiliser sans traitement"""
     class Meta:
@@ -403,7 +401,7 @@ class PasswordForm(ModelForm):
         super(PasswordForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class ServiceUserForm(ModelForm):
+class ServiceUserForm(FormRevMixin, ModelForm):
     """ Modification d'un service user"""
     password = forms.CharField(
         label=u'Nouveau mot de passe',
@@ -429,7 +427,7 @@ class EditServiceUserForm(ServiceUserForm):
         fields = ['access_group', 'comment']
 
 
-class StateForm(ModelForm):
+class StateForm(FormRevMixin, ModelForm):
     """ Changement de l'état d'un user"""
     class Meta:
         model = User
@@ -440,7 +438,7 @@ class StateForm(ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class GroupForm(ModelForm):
+class GroupForm(FormRevMixin, ModelForm):
     """ Gestion des groupes d'un user"""
     groups = forms.ModelMultipleChoiceField(
         Group.objects.all(),
@@ -457,7 +455,7 @@ class GroupForm(ModelForm):
         super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class SchoolForm(ModelForm):
+class SchoolForm(FormRevMixin, ModelForm):
     """Edition, creation d'un école"""
     class Meta:
         model = School
@@ -469,7 +467,7 @@ class SchoolForm(ModelForm):
         self.fields['name'].label = 'Établissement'
 
 
-class ShellForm(ModelForm):
+class ShellForm(FormRevMixin, ModelForm):
     """Edition, creation d'un école"""
     class Meta:
         model = ListShell
@@ -481,7 +479,7 @@ class ShellForm(ModelForm):
         self.fields['shell'].label = 'Nom du shell'
 
 
-class ListRightForm(ModelForm):
+class ListRightForm(FormRevMixin, ModelForm):
     """Edition, d'un groupe , équivalent à un droit
     Ne peremet pas d'editer le gid, car il sert de primary key"""
     permissions = forms.ModelMultipleChoiceField(
@@ -545,7 +543,7 @@ class DelSchoolForm(Form):
             self.fields['schools'].queryset = School.objects.all()
 
 
-class BanForm(ModelForm):
+class BanForm(FormRevMixin, ModelForm):
     """Creation, edition d'un objet bannissement"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -557,7 +555,7 @@ class BanForm(ModelForm):
         exclude = ['user']
 
 
-class WhitelistForm(ModelForm):
+class WhitelistForm(FormRevMixin, ModelForm):
     """Creation, edition d'un objet whitelist"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)

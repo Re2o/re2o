@@ -39,7 +39,6 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Max
@@ -100,6 +99,7 @@ from re2o.utils import (
     all_baned,
     all_has_access,
     all_adherent,
+    re2o_paginator,
 )
 from re2o.acl import (
     can_view_all,
@@ -139,17 +139,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.LOGS_INDEX
     )
-    paginator = Paginator(versions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        versions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        versions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        versions = paginator.page(paginator.num_pages)
-
+    versions = re2o_paginator(request, versions, pagination_number)
     # Force to have a list instead of QuerySet
     versions.count(0)
     # Items to remove later because invalid
@@ -191,16 +181,7 @@ def stats_logs(request):
         request.GET.get('order'),
         SortTable.LOGS_STATS_LOGS
     )
-    paginator = Paginator(revisions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        revisions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        revisions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        revisions = paginator.page(paginator.num_pages)
+    revisions = re2o_paginator(request, revisions, pagination_number)
     return render(request, 'logs/stats_logs.html', {
         'revisions_list': revisions
         })

@@ -50,9 +50,9 @@ from .models import (
     ConstructorSwitch,
     AccessPoint
 )
+from re2o.mixins import FormRevMixin
 
-
-class PortForm(ModelForm):
+class PortForm(FormRevMixin, ModelForm):
     """Formulaire pour la création d'un port d'un switch
     Relié directement au modèle port"""
     class Meta:
@@ -64,7 +64,7 @@ class PortForm(ModelForm):
         super(PortForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class EditPortForm(ModelForm):
+class EditPortForm(FormRevMixin, ModelForm):
     """Form pour l'édition d'un port de switche : changement des reglages
     radius ou vlan, ou attribution d'une chambre, autre port ou machine
 
@@ -89,7 +89,7 @@ class EditPortForm(ModelForm):
             ))
 
 
-class AddPortForm(ModelForm):
+class AddPortForm(FormRevMixin, ModelForm):
     """Permet d'ajouter un port de switch. Voir EditPortForm pour plus
     d'informations"""
     class Meta(PortForm.Meta):
@@ -108,7 +108,7 @@ class AddPortForm(ModelForm):
             ))
 
 
-class StackForm(ModelForm):
+class StackForm(FormRevMixin, ModelForm):
     """Permet d'edition d'une stack : stack_id, et switches membres
     de la stack"""
     class Meta:
@@ -149,7 +149,7 @@ class NewSwitchForm(NewMachineForm):
         fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
 
 
-class EditRoomForm(ModelForm):
+class EditRoomForm(FormRevMixin, ModelForm):
     """Permet d'éediter le nom et commentaire d'une prise murale"""
     class Meta:
         model = Room
@@ -166,7 +166,7 @@ class CreatePortsForm(forms.Form):
     end = forms.IntegerField(label="Fin :", min_value=0)
 
 
-class EditModelSwitchForm(ModelForm):
+class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter un modèle de switch : nom et constructeur"""
     class Meta:
         model = ModelSwitch
@@ -177,7 +177,7 @@ class EditModelSwitchForm(ModelForm):
         super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class EditConstructorSwitchForm(ModelForm):
+class EditConstructorSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter le nom d'un constructeur"""
     class Meta:
         model = ConstructorSwitch

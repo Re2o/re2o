@@ -43,9 +43,6 @@ from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from reversion import revisions as reversion
-from reversion.models import Version
 
 from topologie.models import (
     Switch,
@@ -68,7 +65,7 @@ from topologie.forms import (
     EditAccessPointForm
 )
 from users.views import form
-from re2o.utils import SortTable
+from re2o.utils import re2o_paginator, SortTable
 from re2o.acl import (
     can_create,
     can_edit,
@@ -105,16 +102,7 @@ def index(request):
         SortTable.TOPOLOGIE_INDEX
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(switch_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        switch_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        switch_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        switch_list = paginator.page(paginator.num_pages)
+    switch_list = re2o_paginator(request, switch_list, pagination_number)
     return render(request, 'topologie/index.html', {
         'switch_list': switch_list
         })
@@ -160,16 +148,7 @@ def index_room(request):
         SortTable.TOPOLOGIE_INDEX_ROOM
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(room_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        room_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        room_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        room_list = paginator.page(paginator.num_pages)
+    room_list = re2o_paginator(request, room_list, pagination_number)
     return render(request, 'topologie/index_room.html', {
         'room_list': room_list
         })
@@ -191,16 +170,7 @@ def index_ap(request):
         SortTable.TOPOLOGIE_INDEX_BORNE
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(ap_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        ap_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        ap_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        ap_list = paginator.page(paginator.num_pages)
+    ap_list = re2o_paginator(request, ap_list, pagination_number)
     return render(request, 'topologie/index_ap.html', {
         'ap_list': ap_list
         })
@@ -262,10 +232,7 @@ def new_port(request, switchid):
         port = port.save(commit=False)
         port.switch = switch
         try:
-            with transaction.atomic(), reversion.create_revision():
-                port.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            port.save()
             messages.success(request, "Port ajouté")
         except IntegrityError:
             messages.error(request, "Ce port existe déjà")
@@ -284,13 +251,9 @@ def edit_port(request, port_object, portid):
 
     port = EditPortForm(request.POST or None, instance=port_object)
     if port.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if port.changed_data:
             port.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in port.changed_data
-                ))
-        messages.success(request, "Le port a bien été modifié")
+            messages.success(request, "Le port a bien été modifié")
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': str(port_object.switch.id)}
@@ -304,11 +267,8 @@ def del_port(request, port, portid):
     """ Supprime le port"""
     if request.method == "POST":
         try:
-            with transaction.atomic(), reversion.create_revision():
-                port.delete()
-                reversion.set_user(request.user)
-                reversion.set_comment("Destruction")
-                messages.success(request, "Le port a été détruit")
+            port.delete()
+            messages.success(request, "Le port a été détruit")
         except ProtectedError:
             messages.error(request, "Le port %s est affecté à un autre objet,\
                 impossible de le supprimer" % port)
@@ -325,10 +285,7 @@ def new_stack(request):
     """Ajoute un nouveau stack : stackid_min, max, et nombre de switches"""
     stack = StackForm(request.POST or None)
     if stack.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            stack.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        stack.save()
         messages.success(request, "Stack crée")
     return form({'topoform': stack, 'action_name' : 'Créer'}, 'topologie/topo.html', request)
 
@@ -337,17 +294,10 @@ def new_stack(request):
 @can_edit(Stack)
 def edit_stack(request, stack, stackid):
     """Edition d'un stack (nombre de switches, nom...)"""
-
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if stack.changed_data:
             stack.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in stack.changed_data
-                    )
-                )
             return redirect(reverse('topologie:index-stack'))
     return form({'topoform': stack, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -358,11 +308,8 @@ def del_stack(request, stack, stackid):
     """Supprime un stack"""
     if request.method == "POST":
         try:
-            with transaction.atomic(), reversion.create_revision():
-                stack.delete()
-                reversion.set_user(request.user)
-                reversion.set_comment("Destruction")
-                messages.success(request, "La stack a eté détruite")
+            stack.delete()
+            messages.success(request, "La stack a eté détruite")
         except ProtectedError:
             messages.error(request, "La stack %s est affectée à un autre\
                 objet, impossible de la supprimer" % stack)
@@ -412,20 +359,11 @@ def new_switch(request):
         domain.instance.interface_parent = new_interface_instance
         if domain.is_valid():
             new_domain_instance = domain.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_switch.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_switch.save()
             new_interface_instance.machine = new_switch
-            with transaction.atomic(), reversion.create_revision():
-                new_interface_instance.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_interface_instance.save()
             new_domain_instance.interface_parent = new_interface_instance
-            with transaction.atomic(), reversion.create_revision():
-                new_domain_instance.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_domain_instance.save()
             messages.success(request, "Le switch a été créé")
             return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
@@ -468,7 +406,6 @@ def create_ports(request, switchid):
             messages.success(request, "Ports créés.")
         except ValidationError as e:
             messages.error(request, ''.join(e))
-
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid':switchid}
@@ -500,26 +437,12 @@ def edit_switch(request, switch, switchid):
         new_switch = switch_form.save(commit=False)
         new_interface_instance = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
+        if switch_form.changed_data:
             new_switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in switch_form.changed_data
-                    )
-                )
-        with transaction.atomic(), reversion.create_revision():
+        if interface_form.changed_data:
             new_interface_instance.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in interface_form.changed_data)
-                                 )
-        with transaction.atomic(), reversion.create_revision():
+        if domain_form.changed_data:
             new_domain.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in domain_form.changed_data)
-                                 )
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
@@ -562,20 +485,11 @@ def new_ap(request):
         domain.instance.interface_parent = new_interface
         if domain.is_valid():
             new_domain_instance = domain.save(commit=False)
-            with transaction.atomic(), reversion.create_revision():
-                new_ap.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_ap.save()
             new_interface.machine = new_ap
-            with transaction.atomic(), reversion.create_revision():
-                new_interface.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_interface.save()
             new_domain_instance.interface_parent = new_interface
-            with transaction.atomic(), reversion.create_revision():
-                new_domain_instance.save()
-                reversion.set_user(request.user)
-                reversion.set_comment("Création")
+            new_domain_instance.save()
             messages.success(request, "La borne a été créé")
             return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
@@ -616,26 +530,12 @@ def edit_ap(request, ap, accesspointid):
         new_ap = ap_form.save(commit=False)
         new_interface = interface_form.save(commit=False)
         new_domain = domain_form.save(commit=False)
-        with transaction.atomic(), reversion.create_revision():
+        if ap_form.changed_data:
             new_ap.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in ap_form.changed_data)
-            )
-        with transaction.atomic(), reversion.create_revision():
+        if interface_form.changed_data:
             new_interface.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in interface_form.changed_data)
-            )
-            reversion.set_comment("Création")
-        with transaction.atomic(), reversion.create_revision():
+        if domain_form.changed_data:
             new_domain.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in domain_form.changed_data)
-            )
         messages.success(request, "La borne a été modifiée")
         return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
@@ -654,10 +554,7 @@ def new_room(request):
     """Nouvelle chambre """
     room = EditRoomForm(request.POST or None)
     if room.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            room.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        room.save()
         messages.success(request, "La chambre a été créé")
         return redirect(reverse('topologie:index-room'))
     return form({'topoform': room, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
@@ -667,16 +564,11 @@ def new_room(request):
 @can_edit(Room)
 def edit_room(request, room, roomid):
     """ Edition numero et details de la chambre"""
-
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if room.changed_data:
             room.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in room.changed_data)
-                                 )
-        messages.success(request, "La chambre a bien été modifiée")
+            messages.success(request, "La chambre a bien été modifiée")
         return redirect(reverse('topologie:index-room'))
     return form({'topoform': room, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -687,11 +579,8 @@ def del_room(request, room, roomid):
     """ Suppression d'un chambre"""
     if request.method == "POST":
         try:
-            with transaction.atomic(), reversion.create_revision():
-                room.delete()
-                reversion.set_user(request.user)
-                reversion.set_comment("Destruction")
-                messages.success(request, "La chambre/prise a été détruite")
+            room.delete()
+            messages.success(request, "La chambre/prise a été détruite")
         except ProtectedError:
             messages.error(request, "La chambre %s est affectée à un autre objet,\
                 impossible de la supprimer (switch ou user)" % room)
@@ -708,10 +597,7 @@ def new_model_switch(request):
     """Nouveau modèle de switch"""
     model_switch = EditModelSwitchForm(request.POST or None)
     if model_switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            model_switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        model_switch.save()
         messages.success(request, "Le modèle a été créé")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': model_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
@@ -724,13 +610,9 @@ def edit_model_switch(request, model_switch, modelswitchid):
 
     model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
     if model_switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if model_switch.changed_data:
             model_switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in model_switch.changed_data)
-            )
-        messages.success(request, "Le modèle a bien été modifié")
+            messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': model_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -741,11 +623,8 @@ def del_model_switch(request, model_switch, modelswitchid):
     """ Suppression d'un modèle de switch"""
     if request.method == "POST":
         try:
-            with transaction.atomic(), reversion.create_revision():
-                model_switch.delete()
-                reversion.set_user(request.user)
-                reversion.set_comment("Destruction")
-                messages.success(request, "Le modèle a été détruit")
+            model_switch.delete()
+            messages.success(request, "Le modèle a été détruit")
         except ProtectedError:
             messages.error(request, "Le modèle %s est affectée à un autre objet,\
                 impossible de la supprimer (switch ou user)" % model_switch)
@@ -762,10 +641,7 @@ def new_constructor_switch(request):
     """Nouveau constructeur de switch"""
     constructor_switch = EditConstructorSwitchForm(request.POST or None)
     if constructor_switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            constructor_switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        constructor_switch.save()
         messages.success(request, "Le constructeur a été créé")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': constructor_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
@@ -778,13 +654,9 @@ def edit_constructor_switch(request, constructor_switch, constructorswitchid):
 
     constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
     if constructor_switch.is_valid():
-        with transaction.atomic(), reversion.create_revision():
+        if constructor_switch.changed_data:
             constructor_switch.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Champs modifié(s) : %s" % ', '.join(
-                field for field in constructor_switch.changed_data)
-            )
-        messages.success(request, "Le modèle a bien été modifié")
+            messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
     return form({'topoform': constructor_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
@@ -795,11 +667,8 @@ def del_constructor_switch(request, constructor_switch, constructorswitchid):
     """ Suppression d'un constructeur de switch"""
     if request.method == "POST":
         try:
-            with transaction.atomic(), reversion.create_revision():
-                constructor_switch.delete()
-                reversion.set_user(request.user)
-                reversion.set_comment("Destruction")
-                messages.success(request, "Le constructeur a été détruit")
+            constructor_switch.delete()
+            messages.success(request, "Le constructeur a été détruit")
         except ProtectedError:
             messages.error(request, "Le constructeur %s est affecté à un autre objet,\
                 impossible de la supprimer (switch ou user)" % constructor_switch)

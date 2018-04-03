@@ -45,9 +45,9 @@ from preferences.models import OptionalUser
 from users.models import User
 
 from re2o.field_permissions import FieldPermissionFormMixin
+from re2o.mixins import FormRevMixin 
 
-
-class NewFactureForm(ModelForm):
+class NewFactureForm(FormRevMixin, ModelForm):
     """Creation d'une facture, moyen de paiement, banque et numero
     de cheque"""
     def __init__(self, *args, **kwargs):
@@ -96,7 +96,7 @@ class CreditSoldeForm(NewFactureForm):
     montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 
-class SelectUserArticleForm(Form):
+class SelectUserArticleForm(FormRevMixin, Form):
     """Selection d'un article lors de la creation d'une facture"""
     article = forms.ModelChoiceField(
         queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Adherent')),
@@ -158,7 +158,7 @@ class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
         self.fields['valid'].label = 'Validité de la facture'
 
 
-class ArticleForm(ModelForm):
+class ArticleForm(FormRevMixin, ModelForm):
     """Creation d'un article. Champs : nom, cotisation, durée"""
     class Meta:
         model = Article
@@ -170,7 +170,7 @@ class ArticleForm(ModelForm):
         self.fields['name'].label = "Désignation de l'article"
 
 
-class DelArticleForm(Form):
+class DelArticleForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs articles en vente. Choix
     parmis les modèles"""
     articles = forms.ModelMultipleChoiceField(
@@ -188,7 +188,7 @@ class DelArticleForm(Form):
             self.fields['articles'].queryset = Article.objects.all()
 
 
-class PaiementForm(ModelForm):
+class PaiementForm(FormRevMixin, ModelForm):
     """Creation d'un moyen de paiement, champ text moyen et type
     permettant d'indiquer si il s'agit d'un chèque ou non pour le form"""
     class Meta:
@@ -202,7 +202,7 @@ class PaiementForm(ModelForm):
         self.fields['type_paiement'].label = 'Type de paiement à ajouter'
 
 
-class DelPaiementForm(Form):
+class DelPaiementForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs moyens de paiements, selection
     parmis les models"""
     paiements = forms.ModelMultipleChoiceField(
@@ -220,7 +220,7 @@ class DelPaiementForm(Form):
             self.fields['paiements'].queryset = Paiement.objects.all()
 
 
-class BanqueForm(ModelForm):
+class BanqueForm(FormRevMixin, ModelForm):
     """Creation d'une banque, field name"""
     class Meta:
         model = Banque
@@ -232,7 +232,7 @@ class BanqueForm(ModelForm):
         self.fields['name'].label = 'Banque à ajouter'
 
 
-class DelBanqueForm(Form):
+class DelBanqueForm(FormRevMixin, Form):
     """Selection d'une ou plusieurs banques, pour suppression"""
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
@@ -283,7 +283,7 @@ class NewFactureSoldeForm(NewFactureForm):
         return cleaned_data
 
 
-class RechargeForm(Form):
+class RechargeForm(FormRevMixin, Form):
     value = forms.FloatField(
         label='Valeur',
         min_value=0.01,

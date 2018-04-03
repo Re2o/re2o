@@ -32,11 +32,28 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from .models import User, ServiceUser, School, ListRight, ListShell
-from .models import Ban, Whitelist, Request, LdapUser, LdapServiceUser
-from .models import LdapServiceUserGroup, LdapUserGroup
-from .forms import UserChangeForm, UserCreationForm
-from .forms import ServiceUserChangeForm, ServiceUserCreationForm
+from .models import (
+    User,
+    ServiceUser,
+    School,
+    ListRight,
+    ListShell,
+    Adherent,
+    Club,
+    Ban,
+    Whitelist,
+    Request,
+    LdapUser,
+    LdapServiceUser,
+    LdapServiceUserGroup,
+    LdapUserGroup
+)
+from .forms import (
+    UserChangeForm,
+    UserCreationForm,
+    ServiceUserChangeForm,
+    ServiceUserCreationForm
+)
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -195,6 +212,8 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Adherent, UserAdmin)
+admin.site.register(Club, UserAdmin)
 admin.site.register(ServiceUser, ServiceUserAdmin)
 admin.site.register(LdapUser, LdapUserAdmin)
 admin.site.register(LdapUserGroup, LdapUserGroupAdmin)

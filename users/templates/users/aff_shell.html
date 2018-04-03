@@ -39,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_edit shell %}
                 {% include 'buttons/edit.html' with href='users:edit-shell' id=shell.id %}
                 {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='shell' id=shell.id %}
+                {% include 'buttons/history.html' with href='users:history' name='listshell' id=shell.id %}
             </td>
         </tr>
         {% endfor %}

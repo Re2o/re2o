@@ -42,6 +42,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine
@@ -280,6 +281,22 @@ class SortTable:
         else:
             return request
 
+def re2o_paginator(request, query_set, pagination_number):
+    """Paginator script for list display in re2o.
+    :request:
+    :query_set: Query_set to paginate
+    :pagination_number: Number of entries to display"""
+    paginator = Paginator(query_set, pagination_number)
+    page = request.GET.get('page')
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        results = paginator.page(paginator.num_pages)
+    return results
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """
