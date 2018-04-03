@@ -28,7 +28,6 @@ import os
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.validators import MaxValueValidator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
@@ -45,7 +44,7 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import SortTable
+from re2o.utils import SortTable, re2o_paginator
 from re2o.acl import (
     can_create,
     can_edit,
@@ -455,14 +454,7 @@ def control(request):
         fields=('control', 'valid'),
         extra=0
         )
-    paginator = Paginator(facture_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        facture_list = paginator.page(page)
-    except PageNotAnInteger:
-        facture_list = paginator.page(1)
-    except EmptyPage:
-        facture_list = paginator.page(paginator.num.pages)
+    facture_list = re2o_paginator(request, facture_list, pagination_number)
     controlform = controlform_set(request.POST or None, queryset=facture_list.object_list)
     if controlform.is_valid():
         controlform.save()
@@ -517,16 +509,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.COTISATIONS_INDEX
     )
-    paginator = Paginator(facture_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        facture_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        facture_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        facture_list = paginator.page(paginator.num_pages)
+    facture_list = re2o_paginator(request, facture_list, pagination_number)
     return render(request, 'cotisations/index.html', {
         'facture_list': facture_list
         })

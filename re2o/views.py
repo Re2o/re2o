@@ -31,7 +31,6 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from reversion.models import Version
 from django.contrib import messages
 from preferences.models import Service
@@ -42,6 +41,7 @@ import os
 import time
 from itertools import chain
 import users, preferences, cotisations, topologie, machines
+from .utils import re2o_paginator
 
 def form(ctx, template, request):
     """Form générique, raccourci importé par les fonctions views du site"""
@@ -150,16 +150,7 @@ def history(request, application, object_name, object_id):
     if hasattr(instance, 'linked_objects'):
         for related_object in chain(instance.linked_objects()):
             reversions = reversions | Version.objects.get_for_object(related_object)
-    paginator = Paginator(reversions, pagination_number)
-    page = request.GET.get('page')
-    try:
-        reversions = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        reversions = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of result
-        reversions = paginator.page(paginator.num_pages)
+    reversions = re2o_paginator(request, reversions, pagination_number)
     return render(
         request,
         're2o/history.html',

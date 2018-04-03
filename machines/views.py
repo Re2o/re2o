@@ -33,7 +33,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.template.context_processors import csrf
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import Context, RequestContext, loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -123,6 +122,7 @@ from re2o.utils import (
     all_has_access,
     filter_active_interfaces,
     SortTable,
+    re2o_paginator,
 )
 from re2o.acl import (
     can_create,
@@ -863,16 +863,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
-    paginator = Paginator(machines_list, pagination_large_number)
-    page = request.GET.get('page')
-    try:
-        machines_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        machines_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        machines_list = paginator.page(paginator.num_pages)
+    machines_list = re2o_paginator(request, machines_list, pagination_large_number)
     return render(request, 'machines/index.html', {'machines_list': machines_list})
 
 @login_required

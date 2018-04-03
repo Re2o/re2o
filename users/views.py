@@ -37,7 +37,6 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, Q
@@ -95,6 +94,7 @@ from re2o.views import form
 from re2o.utils import (
     all_has_access,
     SortTable,
+    re2o_paginator
 )
 from re2o.acl import (
     can_create,
@@ -572,16 +572,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX
     )
-    paginator = Paginator(users_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        users_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        users_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        users_list = paginator.page(paginator.num_pages)
+    users_list = re2o_paginator(request, users_list, pagination_number)
     return render(request, 'users/index.html', {'users_list': users_list})
 
 
@@ -597,16 +588,7 @@ def index_clubs(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX
     )
-    paginator = Paginator(clubs_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        clubs_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        clubs_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        clubs_list = paginator.page(paginator.num_pages)
+    clubs_list = re2o_paginator(request, clubs_list, pagination_number)
     return render(request, 'users/index_clubs.html', {'clubs_list': clubs_list})
 
 
@@ -622,16 +604,7 @@ def index_ban(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_BAN
     )
-    paginator = Paginator(ban_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        ban_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        ban_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        ban_list = paginator.page(paginator.num_pages)
+    ban_list = re2o_paginator(request, ban_list, pagination_number)
     return render(request, 'users/index_ban.html', {'ban_list': ban_list})
 
 
@@ -647,16 +620,7 @@ def index_white(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_BAN
     )
-    paginator = Paginator(white_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        white_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        white_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        white_list = paginator.page(paginator.num_pages)
+    white_list = re2o_paginator(request, white_list, pagination_number)
     return render(
         request,
         'users/index_whitelist.html',
@@ -676,16 +640,7 @@ def index_school(request):
         request.GET.get('order'),
         SortTable.USERS_INDEX_SCHOOL
     )
-    paginator = Paginator(school_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        school_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page isn't an integer, deliver first page
-        school_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        school_list = paginator.page(paginator.num_pages)
+    school_list = re2o_paginator(request, school_list, pagination_number)
     return render(
         request,
         'users/index_schools.html',
@@ -754,6 +709,8 @@ def profil(request, users, userid):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
+    pagination_large_number = GeneralOption.get_cached_value('pagination_large_number')
+    machines = re2o_paginator(request, machines, pagination_large_number)
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
         factures,
