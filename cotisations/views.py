@@ -40,6 +40,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_variables
 # Import des models, forms et fonctions re2o
+from reversion import revisions as reversion
 from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
@@ -465,6 +466,7 @@ def control(request):
     controlform = controlform_set(request.POST or None, queryset=facture_list.object_list)
     if controlform.is_valid():
         controlform.save()
+        reversion.set_comment("Controle")
         return redirect(reverse('cotisations:control'))
     return render(request, 'cotisations/control.html', {
         'facture_list': facture_list,
