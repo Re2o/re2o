@@ -237,7 +237,7 @@ def detach(_=None):
     return radiusd.RLM_MODULE_OK
 
 def find_nas_from_request(nas_id):
-    nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id))).select_related('type').select_related('switch__stack')
+    nas = Interface.objects.filter(Q(domain=Domain.objects.filter(name=nas_id)) | Q(ipv4=IpList.objects.filter(ipv4=nas_id))).select_related('type').select_related('machine__switch__stack')
     return nas.first()
 
 def check_user_machine_and_register(nas_type, username, mac_address):
