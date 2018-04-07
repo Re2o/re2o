@@ -198,14 +198,12 @@ def state(request, user, userid):
     need droit bureau """
     state = StateForm(request.POST or None, instance=user)
     if state.is_valid():
-        if state.cleaned_data['state'] == User.STATE_ARCHIVE:
-            user.archive()
-        elif state.cleaned_data['state'] == User.STATE_ACTIVE:
-            user.unarchive()
-        elif state.cleaned_data['state'] == User.STATE_DISABLED:
-            user.state = User.STATE_DISABLED
-        if user.changed_data:
-            user.save()
+        if state.changed_data:
+            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
+                user.archive()
+            elif state.cleaned_data['state'] == User.STATE_ACTIVE:
+                user.unarchive()
+            state.save()
             messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
             'users:profil',
