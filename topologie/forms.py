@@ -48,7 +48,9 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    AccessPoint
+    AccessPoint,
+    SwitchBay,
+    Building,
 )
 from re2o.mixins import FormRevMixin
 
@@ -186,3 +188,25 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditConstructorSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditSwitchBayForm(FormRevMixin, ModelForm):
+    """Permet d'éditer une baie de brassage"""
+    class Meta:
+        model = SwitchBay
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditSwitchBayForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditBuildingForm(FormRevMixin, ModelForm):
+    """Permet d'éditer le batiment"""
+    class Meta:
+        model = Building
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)

@@ -1,0 +1,68 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+
+{% if switch_bay_list.paginator %}
+{% include "pagination.html" with list=switch_bay_list %}
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='name' text='Baie' %}</th>
+	    <th>Bâtiment</th>
+	    <th>Info particulières</th>
+	    <th>Switchs du batiment</th>
+            <th></th>
+        </tr>
+   </thead>
+   {% for switch_bay in switch_bay_list %}
+   <tr>
+       <td>{{switch_bay.name}}</td>
+       <td>{{switch_bay.building}}</td>
+       <td>{{switch_bay.info}}</td>
+       <td>{{switch_bay.members}}</td>
+       <td class="text-right">
+            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'switch-bay' switch_bay.pk %}">
+                <i class="fa fa-history"></i>
+            </a>
+        {% can_edit switch_bay %}
+            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-switch-bay' switch_bay.id %}">
+                <i class="fa fa-edit"></i>
+            </a>
+	{% acl_end %}
+	{% can_delete switch_bay %}
+            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-switch-bay' switch_bay.id %}">
+                <i class="fa fa-trash"></i>
+            </a>
+        {% acl_end %}
+        </td>
+   </tr>
+   {% endfor %}
+</table>
+
+{% if switch_bay_list.paginator %}
+{% include "pagination.html" with list=switch_bay_list %}
+{% endif %}

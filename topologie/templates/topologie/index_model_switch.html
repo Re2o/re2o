@@ -41,6 +41,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <hr>
 {% acl_end %}
 {% include "topologie/aff_constructor_switch.html" with constructor_switch_list=constructor_switch_list %}
+<h2>Baie de brassage</h2>
+{% can_create SwitchBay %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch-bay' %}"><i class="fa fa-plus"></i> Ajouter une baie de brassage</a>
+<hr>
+{% acl_end %}
+{% include "topologie/aff_switch_bay.html" with switch_bay_list=switch_bay_list %}
     <br />
     <br />
     <br />

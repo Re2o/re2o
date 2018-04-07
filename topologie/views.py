@@ -51,7 +51,9 @@ from topologie.models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    AccessPoint
+    AccessPoint,
+    SwitchBay,
+    Building
 )
 from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
 from topologie.forms import (
@@ -62,7 +64,9 @@ from topologie.forms import (
     EditConstructorSwitchForm,
     CreatePortsForm,
     AddAccessPointForm,
-    EditAccessPointForm
+    EditAccessPointForm,
+    EditSwitchBayForm,
+    EditBuildingForm
 )
 from users.views import form
 from re2o.utils import re2o_paginator, SortTable
@@ -200,6 +204,7 @@ def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
     model_switch_list = ModelSwitch.objects.select_related('constructor')
     constructor_switch_list = ConstructorSwitch.objects
+    switch_bay_list = SwitchBay.objects.select_related('building')
     model_switch_list = SortTable.sort(
         model_switch_list,
         request.GET.get('col'),
@@ -215,6 +220,7 @@ def index_model_switch(request):
     return render(request, 'topologie/index_model_switch.html', {
         'model_switch_list': model_switch_list,
         'constructor_switch_list': constructor_switch_list,
+        'switch_bay_list': switch_bay_list,
         })
 
 
@@ -632,6 +638,49 @@ def del_model_switch(request, model_switch, modelswitchid):
     return form({
         'objet': model_switch,
         'objet_name': 'Modèle de switch'
+        }, 'topologie/delete.html', request)
+
+
+@login_required
+@can_create(SwitchBay)
+def new_switch_bay(request):
+    """Nouvelle baie de switch"""
+    switch_bay = EditSwitchBayForm(request.POST or None)
+    if switch_bay.is_valid():
+        switch_bay.save()
+        messages.success(request, "La baie a été créé")
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({'topoform': switch_bay, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+
+
+@login_required
+@can_edit(SwitchBay)
+def edit_switch_bay(request, switch_bay, switchbayid):
+    """ Edition d'une baie de switch"""
+    switch_bay = EditSwitchBayForm(request.POST or None, instance=switch_bay)
+    if switch_bay.is_valid():
+        if switch_bay.changed_data:
+            switch_bay.save()
+            messages.success(request, "Le switch a bien été modifié")
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({'topoform': switch_bay, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+
+
+@login_required
+@can_delete(SwitchBay)
+def del_switch_bay(request, switch_bay, switchbayid):
+    """ Suppression d'une baie de switch"""
+    if request.method == "POST":
+        try:
+            switch_bay.delete()
+            messages.success(request, "La baie a été détruite")
+        except ProtectedError:
+            messages.error(request, "La baie %s est affecté à un autre objet,\
+                impossible de la supprimer (switch ou user)" % switch_bay)
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({
+        'objet': switch_bay,
+        'objet_name': 'Baie de switch'
         }, 'topologie/delete.html', request)
 
 
