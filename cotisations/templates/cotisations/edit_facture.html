@@ -26,27 +26,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load staticfiles%}
 {% load massive_bootstrap_form %}
+{% load i18n %}
 
-{% block title %}Création et modification de factures{% endblock %}
+{% block title %}{% trans "Invoices creation and edition" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors factureform %}
 
 <form class="form" method="post">
     {% csrf_token %}
-    <h3>Editer la facture</h3>
+    <h3>{% trans "Edit the invoice" %}</h3>
     {% massive_bootstrap_form factureform 'user' %}
     {{ venteform.management_form }}
-    <h3>Articles de la facture</h3>
+    <h3>{% trans "Invoice's articles" %}</h3>
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Désignation</th>
-                <th>Quantité</th>
+                <th>{% trans "Designation" %}</th>
+                <th>{% trans "Quantity" %}</th>
             </tr>
         </thead>
-            {% for form in venteform.forms %}
-            {% bootstrap_form_errors form %}
+        {% for form in venteform.forms %}
+        {% bootstrap_form_errors form %}
         <tr>
             <td>{{ form.name }}</td>
             <td>{{ form.number }}</td>
@@ -56,7 +57,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
          </tr>
          {% endfor %}
     </table>
-    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+    {% trans "Confirm" as tr_confirm %}
+    {% bootstrap_button tr_confirm button_type='submit' icon='star' %}
 </form>
 
 {% endblock %}

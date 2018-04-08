@@ -25,18 +25,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Articles{% endblock %}
+{% block title %}{% trans "Articles" %}{% endblock %}
 
 {% block content %}
-  <h2>Liste des types d'articles</h2>
-  {% can_create Article %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article'  %}"><i class="fa fa-cart-plus"></i> Ajouter un type d'articles</a>
-  {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs types d'articles</a>
-  {%  include "cotisations/aff_article.html" with  article_list=article_list %}
-  <br />
-  <br />
-  <br />
+    <h2>{% trans "Article type list" %}</h2>
+    {% can_create Article %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article' %}">
+        <i class="fa fa-cart-plus"></i> {% trans "Add an article type" %}
+    </a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article' %}">
+        <i class="fa fa-trash"></i> {% trans "Delete article types" %}
+    </a>
+    {% include 'cotisations/aff_article.html' with  article_list=article_list %}
 {% endblock %}
 

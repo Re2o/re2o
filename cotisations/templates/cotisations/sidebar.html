@@ -24,40 +24,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 
 {% block sidebar %}
     {% can_change Facture pdf %}
     <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-facture-pdf" %}">
-        <i class="fa fa-plus"></i>
-        Créer une facture
+        <i class="fa fa-plus"></i> {% trans "Create an invoice" %}
     </a>
     <a class="list-group-item list-group-item-warning" href="{% url "cotisations:control" %}">
-        <i class="fa fa-eye"></i>
-        Contrôler les factures
+        <i class="fa fa-eye"></i> {% trans "Control the invoices" %}
     </a>
     {% acl_end %}
     {% can_view_all Facture %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index" %}">
-        <i class="fa fa-list-ul"></i>
-        Factures
+        <i class="fa fa-list-ul"></i> {% trans "Invoices" %}
     </a>
     {% acl_end %}
     {% can_view_all Article %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-article" %}">
-        <i class="fa fa-list-ul"></i>
-        Articles en vente
+        <i class="fa fa-list-ul"></i> {% trans "Available articles" %}
     </a>
     {% acl_end %}
     {% can_view_all Banque %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-banque" %}">
-        <i class="fa fa-list-ul"></i>
-        Banques
+        <i class="fa fa-list-ul"></i> {% trans "Banks" %}
     </a>
     {% acl_end %}
     {% can_view_all Paiement %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-paiement" %}">
-        <i class="fa fa-list-ul"></i>
-        Moyens de paiement
+        <i class="fa fa-list-ul"></i> {% trans "Payment methods" %}
     </a>
     {% acl_end %}
 {% endblock %}

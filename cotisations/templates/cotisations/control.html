@@ -25,13 +25,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
+{% load i18n %}
 
-{% block title %}Controle des factures{% endblock %}
+{% block title %}{% trans "Invoice control" %}{% endblock %}
 
 {% block content %}
-<h2>Controle et validité des factures</h2>
+<h2>{% trans "Invoice control and validation" %}</h2>
 {% if facture_list.paginator %}
-{% include "pagination.html" with list=facture_list %}
+{% include 'pagination.html' with list=facture_list %}
 {% endif %}
 <form class="form" method="post">
     {% csrf_token %}
@@ -39,24 +40,50 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Profil</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='name' text='Nom' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='surname' text='Prénom' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='id' text='Id facture' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='user-id' text='Id user' %}</th>
-		<th>Designation</th>
-                <th>Prix total</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='paiement' text='Moyen de paiement' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='date' text='Date' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='valid' text='Valide' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='control' col='control' text='Contrôlée' %}</th>
+                <th>{% trans "Profil" %}</th>
+                <th>
+                    {% trans "Last name" as tr_last_name %}
+                    {% include 'buttons/sort.html' with prefix='control' col='name' text=tr_last_name %}
+                </th>
+                <th>
+                    {% trans "First name" as tr_first_name %}
+                    {% include 'buttons/sort.html' with prefix='control' col='surname' text=tr_first_name %}
+                </th>
+                <th>
+                    {% trans "Invoice id" as tr_invoice_id %}
+                    {% include 'buttons/sort.html' with prefix='control' col='id' text=tr_invoice_id %}
+                </th>
+                <th>
+                    {% trans "User id" as tr_user_id %}
+                    {% include 'buttons/sort.html' with prefix='control' col='user-id' text=tr_user_id %}
+                </th>
+                <th>{% trans "Designation" %}</th>
+                <th>{% trans "Total price" %}</th>
+                <th>
+                    {% trans "Payment method" as tr_payment_method %}
+                    {% include 'buttons/sort.html' with prefix='control' col='paiement' text=tr_payment_method %}
+                </th>
+                <th>
+                    {% trans "Date" as tr_date %}
+                    {% include 'buttons/sort.html' with prefix='control' col='date' text=tr_date %}<
+                    /th>
+                <th>
+                    {% trans "Validated" as tr_validated %}
+                    {% include 'buttons/sort.html' with prefix='control' col='valid' text=tr_validated %}<
+                    /th>
+                <th>
+                    {% trans "Controlled" as tr_controlled %}
+                    {% include 'buttons/sort.html' with prefix='control' col='control' text=tr_controlled %}
+                </th>
             </tr>
         </thead>
         {% for form in controlform.forms %}
         {% bootstrap_form_errors form %}
         <tr>
-
-            <td><a href="{% url "users:profil" form.instance.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
+            <td>
+                <a href="{% url 'users:profil' form.instance.user.id%}" class="btn btn-primary btn-sm" role="button">
+                    <i class="fa fa-user"></i>
+                </a>
             </td>
             <td>{{ form.instance.user.name }}</td>
             <td>{{ form.instance.user.surname }}</td>
@@ -74,10 +101,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
-    {% bootstrap_button "Modifier" button_type="submit" icon="star" %}
+    {% trans "Edit" as tr_edit %}
+    {% bootstrap_button tr_edit button_type='submit' icon='star' %}
 </form>
 
 {% endblock %}
 {% if facture_list.paginator %}
-{% include "pagination.html" with list=facture_list %}
+{% include 'pagination.html' with list=facture_list %}
 {% endif %}

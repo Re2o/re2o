@@ -25,13 +25,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
+{% load i18n %}
 
-{% block title %}Rechargement du solde{% endblock %}
+{% block title %}{% trans "Balance refill" %}{% endblock %}
 
 {% block content %}
-<h3>Recharger de {{ amount }} €</h3>
-<form class="form" method="{{ method }}" action="{{action}}">
-    {{ content | safe }}
-    {% bootstrap_button "Payer" button_type="submit" icon="piggy-bank" %}
-</form>
+    <h3>
+        {% blocktrans %}
+        Refill of {{ amount }} €
+        {% endblocktrans %}
+    </h3>
+    <form class="form" method="{{ method }}" action="{{ action }}">
+        {{ content | safe }}
+        {% trans "Pay" as tr_pay %}
+        {% bootstrap_button tr_pay button_type='submit' icon='piggy-bank' %}
+    </form>
 {% endblock %}

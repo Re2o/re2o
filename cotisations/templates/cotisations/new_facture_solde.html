@@ -1,4 +1,3 @@
-
 {% extends "cotisations/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
@@ -26,36 +25,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
+{% load i18n %}
 
-{% block title %}Création et modification de factures{% endblock %}
+{% block title %}{% trans "Invoices creation and edition" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors venteform.management_form %}
 
 <form class="form" method="post">
     {% csrf_token %}
-    <h3>Nouvelle facture</h3>
+    <h3>{% trans "New invoice" %}</h3>
     {{ venteform.management_form }}
     <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
-    <h3>Articles de la facture</h3>
+    <h3>{% trans "Invoice's articles" %}</h3>
     <div id="form_set" class="form-group">
-    {% for form in venteform.forms %}
+        {% for form in venteform.forms %}
         <div class='product_to_sell form-inline'>
-		Article : &nbsp;
-		{% bootstrap_form form label_class='sr-only' %}
-		&nbsp;
-                <button class="btn btn-danger btn-sm"
-			id="id_form-0-article-remove" type="button">
-                    <span class="fa fa-times"></span>
-                </button>
+            {% trans "Article" %} : &nbsp;
+            {% bootstrap_form form label_class='sr-only' %}
+            &nbsp;
+            <button class="btn btn-danger btn-sm" id="id_form-0-article-remove" type="button">
+                <span class="fa fa-times"></span>
+            </button>
         </div>
-    {% endfor %}
+        {% endfor %}
     </div>
-    <input class="btn btn-primary btn-sm" role="button" value="Ajouter un article" id="add_one">
+    <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add an article"%}" id="add_one">
     <p>
-        Prix total : <span id="total_price">0,00</span> €
+        {% blocktrans %}
+        Total price : <span id="total_price">0,00</span> €
+        {% endblocktrans %}
     </p>
-    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+    {% trans "Confirm" as tr_confirm %}
+    {% bootstrap_button tr_confirm button_type='submit' icon='star' %}
 </form>
 
 <script type="text/javascript">
@@ -68,10 +70,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     var template = `Article : &nbsp;
         {% bootstrap_form venteform.empty_form label_class='sr-only' %}
         &nbsp;
-        <button class="btn btn-danger btn-sm"
-	    id="id_form-__prefix__-article-remove" type="button">
-	    <span class="fa fa-times"></span>
-	</button>`
+        <button class="btn btn-danger btn-sm" id="id_form-__prefix__-article-remove" type="button">
+            <span class="fa fa-times"></span>
+        </button>`
 
     function add_article(){
         // Index start at 0 => new_index = number of items
@@ -113,13 +114,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         document.getElementById('id_form-' + i.toString() + '-quantity')
             .addEventListener("change", update_price, true);
         document.getElementById('id_form-' + i.toString() + '-article-remove')
-	    .addEventListener("click", function(event) {
-		    var article = event.target.parentNode;
-		    article.parentNode.removeChild(article);
+            .addEventListener("click", function(event) {
+                    var article = event.target.parentNode;
+                    article.parentNode.removeChild(article);
                     document.getElementById('id_form-TOTAL_FORMS').value --;
-		    update_price();
-		}
-	    )
+                    update_price();
+                }
+            )
     }
 
     function set_cheque_info_visibility() {
@@ -131,9 +132,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             display = 'block';
         }
         document.getElementById("id_Facture-cheque")
-		.parentNode.style.display = display;
+            .parentNode.style.display = display;
         document.getElementById("id_Facture-banque")
-		.parentNode.style.display = display;
+            .parentNode.style.display = display;
     }
 
     // Add events manager when DOM is fully loaded

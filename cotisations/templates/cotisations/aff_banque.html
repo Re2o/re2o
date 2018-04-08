@@ -23,11 +23,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Banque</th>
+                <th>{% trans "Bank" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -36,11 +37,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ banque.name }}</td>
             <td class="text-right">
 		{% can_edit banque %}
-                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'cotisations:edit-banque' banque.id %}">
+		<a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-banque' banque.id %}">
                     <i class="fa fa-edit"></i>
                 </a>
 		{% acl_end %}
-                <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'cotisations:history' 'banque' banque.id %}">
+		<a class="btn btn-info btn-sm" role="button" title="{% trans "Historique" %}" href="{% url 'cotisations:history' 'banque' banque.id %}">
                     <i class="fa fa-history"></i>
                 </a>
             </td>

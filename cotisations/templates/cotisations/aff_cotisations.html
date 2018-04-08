@@ -23,20 +23,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
+
 <div class="table-responsive">
 {% if facture_list.paginator %}
-{% include "pagination.html" with list=facture_list %}
+{% include 'pagination.html' with list=facture_list %}
 {% endif %}
 
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% include "buttons/sort.html" with prefix='cotis' col='user' text='Utilisateur' %}</th>
-                <th>Designation</th>
-                <th>Prix total</th>
-                <th>{% include "buttons/sort.html" with prefix='cotis' col='paiement' text='Moyen de paiement' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='cotis' col='date' text='Date' %}</th>
-		<th>{% include "buttons/sort.html" with prefix='cotis' col='id' text='Id facture' %}</th>
+                <th>
+                    {% trans "User" as tr_user %}
+                    {% include 'buttons/sort.html' with prefix='cotis' col='user' text=tr_user %}
+                </th>
+                <th>{% trans "Designation" %}</th>
+                <th>{% trans "Total price" %}</th>
+                <th>
+                    {% trans "Payment method" as tr_payment_method %}
+                    {% include 'buttons/sort.html' with prefix='cotis' col='paiement' text=tr_payment_method %}
+                </th>
+                <th>
+                    {% trans "Date" as tr_date %}
+                    {% include 'buttons/sort.html' with prefix='cotis' col='date' text=tr_date %}
+                </th>
+		<th>
+                    {% trans "Invoice id" as tr_invoice_id %}
+                    {% include 'buttons/sort.html' with prefix='cotis' col='id' text=tr_invoice_id %}
+                </th>
                 <th></th>
                 <th></th>
             </tr>
@@ -50,39 +64,49 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ facture.date }}</td>
 	    <td>{{ facture.id }}</td>
             <td>
-            <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Edition
-            <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="editionfacture">
-            {% can_edit facture %}
-                <li><a href="{% url 'cotisations:edit-facture' facture.id %}"><i class="fa fa-dollar-sign"></i> Modifier</a></li>
-            {% acl_else %}
-                <li>Facture controlée</li>
-            {% acl_end %}
-            {% can_delete facture %}
-                <li><a href="{% url 'cotisations:del-facture' facture.id %}"><i class="fa fa-trash"></i> Supprimer</a></li>
-            {% acl_end %}
-                <li><a href="{% url 'cotisations:history' 'facture' facture.id %}"><i class="fa fa-history"></i> Historique</a></li>
-            </ul>
-            </div>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="editinvoice" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {% trans "Edit" %}<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="editinvoice">
+                        {% can_edit facture %}
+                        <li>
+                            <a href="{% url 'cotisations:edit-facture' facture.id %}">
+                                <i class="fa fa-dollar-sign"></i> {% trans "Edit" %}
+                            </a>
+                        </li>
+                        {% acl_else %}
+                        <li>{% trans "Controlled invoice" %}</li>
+                        {% acl_end %}
+                        {% can_delete facture %}
+                        <li>
+                            <a href="{% url 'cotisations:del-facture' facture.id %}">
+                                <i class="fa fa-trash"></i> {% trans "Delete" %}
+                            </a>
+                        </li>
+                        {% acl_end %}
+                        <li>
+                            <a href="{% url 'cotisations:history' 'facture' facture.id %}">
+                                <i class="fa fa-history"></i> {% trans "Historique" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </td>
             <td>
-            {% if facture.valid %}
+                {% if facture.valid %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}">
-                    <i class="fa fa-file-pdf"></i>
-                    PDF
+                    <i class="fa fa-file-pdf"></i> {% trans "PDF" %}
                 </a>
-            {% else %}
-                <i class="text-danger">Facture invalide</i>
-            {% endif %}
+                {% else %}
+                <i class="text-danger">{% trans "Invalidated invoice" %}</i>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </table>
 
 {% if facture_list.paginator %}
-{% include "pagination.html" with list=facture_list %}
+{% include 'pagination.html' with list=facture_list %}
 {% endif %}
 </div>
