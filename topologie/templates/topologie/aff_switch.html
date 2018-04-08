@@ -28,12 +28,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=switch_list %}
 {% endif %}
 
+<div class="table-responsive">
 <table class="table table-striped">
     <thead>
         <tr>
             <th>{% include "buttons/sort.html" with prefix='switch' col='dns' text='Dns' %}</th>
             <th>{% include "buttons/sort.html" with prefix='switch' col='ip' text='Ipv4' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='switch' col='loc' text='Localisation' %}</th>
+            <th>{% include "buttons/sort.html" with prefix='switch' col='loc' text='Emplacement' %}</th>
             <th>{% include "buttons/sort.html" with prefix='switch' col='ports' text='Ports' %}</th>
             <th>{% include "buttons/sort.html" with prefix='switch' col='stack' text='Stack' %}</th>
 	    <th>Id stack</th>
@@ -50,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
            </a>
        </td>
        <td>{{switch.interface_set.first.ipv4}}</td>
-       <td>{{switch.location}}</td>
+       <td>{{switch.switchbay}}</td>
        <td>{{switch.number}}</td>
        <td>{{switch.stack.name}}</td>
        <td>{{switch.stack_member_id}}</td>
@@ -71,6 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    </tr>
    {% endfor %}
 </table>
+</div>
 
 {% if switch_list.paginator %}
 {% include "pagination.html" with list=switch_list %}

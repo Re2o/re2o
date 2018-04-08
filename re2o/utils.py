@@ -220,10 +220,10 @@ class SortTable:
     TOPOLOGIE_INDEX = {
         'switch_dns': ['interface__domain__name'],
         'switch_ip': ['interface__ipv4__ipv4'],
-        'switch_loc': ['location'],
+        'switch_loc': ['switchbay__name'],
         'switch_ports': ['number'],
         'switch_stack': ['stack__name'],
-        'default': ['location', 'stack', 'stack_member_id']
+        'default': ['switchbay', 'stack', 'stack_member_id']
     }
     TOPOLOGIE_INDEX_PORT = {
         'port_port': ['port'],

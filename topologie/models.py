@@ -121,7 +121,6 @@ class Switch(AclMixin, Machine):
     PRETTY_NAME = "Switch / Commutateur"
 
 
-    location = models.CharField(max_length=255)
     number = models.PositiveIntegerField()
     stack = models.ForeignKey(
         'topologie.Stack',

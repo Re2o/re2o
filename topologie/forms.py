@@ -148,7 +148,7 @@ class NewSwitchForm(NewMachineForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
+        fields = ['name', 'switchbay', 'number', 'stack', 'stack_member_id']
 
 
 class EditRoomForm(FormRevMixin, ModelForm):
