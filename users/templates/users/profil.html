@@ -49,50 +49,36 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left" >
                 <i class="fa fa-user"></i> Informations détaillées
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionuser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionuser">
-                    <li>
-                        <a href="{% url 'users:edit-info' users.id %}">
-                            <i class="fa fa-edit"></i>
-                            Editer
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'users:password' users.id %}">
-                            <i class="fa fa-lock"></i>
-                            Changer le mot de passe
-                        </a>
-                    </li>
-                    {% can_change User state %}
-                    <li>
-                        <a href="{% url 'users:state' users.id %}">
-                            <i class="fa fa-id-badge"></i>
-                            Changer le statut
-                        </a>
-                    </li>
-                    {% acl_end %}
-                    {% can_change User groups %}
-                    <li>
-                        <a href="{% url 'users:groups' users.id %}">
-                            <i class="fa fa-check"></i>
-                            Gérer les groupes
-                        </a>
-                    </li>
-                    {% acl_end %}
-                    <li>
-                        <a href="{% url 'users:history' 'user' users.id %}">
-                            <i class="fa fa-history"></i>
-                            Historique
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
         <div class="panel-collapse collapse in" id="collapse1">
-            <div class="panel-body">
+             <div class="panel-body">
+		    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
+		        <i class="fa fa-edit"></i>
+		        Editer
+		    </a>
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
+                        <i class="fa fa-lock"></i>
+                        Changer le mot de passe
+                    </a>
+                    {% can_change User state %}
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
+                        <i class="fa fa-id-badge"></i>
+                        Changer le statut
+                    </a>
+                    {% acl_end %}
+                    {% can_change User groups %}
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
+                        <i class="fa fa-check"></i>
+                        Gérer les groupes
+                    </a>
+                    {% acl_end %}
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:history' 'user' users.id %}">
+                        <i class="fa fa-history"></i>
+                        Historique
+                    </a>
+                </ul>
+            </div>
+	    <div class="panel-body">
                 <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
@@ -194,23 +180,16 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
             <h3 class="panel-title pull-left">
                 <i class="fa fa-users"></i> Gérer le club
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionclub" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionclub">
-                    <li>
-                        <a href="{% url 'users:edit-club-admin-members' users.club.id %}">
-                        <i class="fa fa-lock"></i>
-                        Gérer admin et membres
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
         <div class="panel-collapse collapse" id="collapse2">
             <div class="panel-body">
-                                <h4>Administrateurs du club</h4>
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                    <i class="fa fa-lock"></i>
+                    Gérer admin et membres
+                    </a>
+            </div>
+	    <div class="panel-body">
+                <h4>Administrateurs du club</h4>
                 <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
@@ -259,21 +238,14 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 Machines
                 <span class="badge">{{machines_list.count}}</span>
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionmachines" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionmachines">
-                    <li>
-                       <a href="{% url 'machines:new-machine' users.id %}">
-                           <i class="fa fa-desktop"></i>
-                           Ajouter une machine
-                       </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+                    </div>
         <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">
+               <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
+                   <i class="fa fa-desktop"></i>
+                   Ajouter une machine
+                </a>
+            </div>
             <div class="panel-body">
                 {% if machines_list %}
                 {% include "machines/aff_machines.html" with machines_list=machines_list %}
@@ -289,37 +261,26 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 <i class="fa fa-euro-sign"></i>
                 Cotisations
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionfacture" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionfacture">
-                    {% can_create Facture %}
-                    <li>
-                        <a href="{% url 'cotisations:new-facture' users.id %}">
-                            <i class="fa fa-euro-sign"></i>
-                            Ajouter une cotisation
-                        </a>
-                    </li>
-                {% if user_solde %}
-                    <li>
-                        <a href="{% url 'cotisations:credit-solde' users.id %}">
-                            <i class="fa fa-euro-sign"></i>
-                            Modifier le solde
-                        </a>
-                    </li>
-                {% endif%}{% acl_else %}
-                {% if user_solde %}
-                    <li>
-                        <a href="{% url 'cotisations:new_facture_solde' user.id %}">
-                            <i class="fa fa-euro-sign"></i>
-                            Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
         <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% can_create Facture %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                    <i class="fa fa-euro-sign"></i>
+                    Ajouter une cotisation
+                </a>
+                {% if user_solde %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+                    <i class="fa fa-euro-sign"></i>
+                    Modifier le solde
+                </a>
+                {% endif%}{% acl_else %}
+                {% if user_solde %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
+                    <i class="fa fa-euro-sign"></i>
+                    Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
+                </a>
+            </div>
             <div class="panel-body">
                 {% if facture_list %}
                 {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
@@ -335,23 +296,16 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 <i class="fa fa-ban"></i>
                 Bannissements
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionban" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionban">
-                    {% can_create Ban %}
-                    <li>
-                        <a href="{% url 'users:add-ban' users.id %}">
-                            <i class="fa fa-ban"></i>
-                            Ajouter un bannissement
-                        </a>
-                    </li>
-                    {% acl_end %}
-                </ul>
-            </div>
-        </div>
+       	</div>
         <div id="collapse5" class="panel-collapse collapse">
+             <div class="panel-body">
+             	{% can_create Ban %}
+              	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}">
+                 	<i class="fa fa-ban"></i>
+                    Ajouter un bannissement
+                </a>
+                {% acl_end %}
+            </div>
             <div class="panel-body">
                 {% if ban_list %}
                 {% include "users/aff_bans.html" with ban_list=ban_list %}
@@ -367,23 +321,16 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 <i class="fa fa-check-circle"></i>
                 Accès à titre gracieux
             </h3>
-            <div class="dropdown pull-right">
-                <a class="btn btn-default btn-sm" id="editionwhitelist" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="fa fa-edit"></i> <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" arialabelledby="editionwhitelist">
-                {% can_create Whitelist %}
-                    <li>
-                    <a href="{% url 'users:add-whitelist' users.id %}">
-                        <i class="fa fa-check-circle"></i>
-                        Accorder un accès à titre gracieux
-                    </a>
-                    </li>
-                {% acl_end %}
-                </ul>
-            </div>
         </div>
         <div id="collapse6" class="panel-collapse collapse">
+             <div class="panel-body">
+                {% can_create Whitelist %}
+				<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}">
+					<i class="fa fa-check-circle"></i>
+					Accorder un accès à titre gracieux
+				</a>
+                {% acl_end %}
+            </div>
             <div class="panel-body">
                 {% if white_list %}
                 {% include "users/aff_whitelists.html" with white_list=white_list %}

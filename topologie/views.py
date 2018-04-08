@@ -43,7 +43,6 @@ from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from topologie.models import (
     Switch,
@@ -66,7 +65,7 @@ from topologie.forms import (
     EditAccessPointForm
 )
 from users.views import form
-from re2o.utils import SortTable
+from re2o.utils import re2o_paginator, SortTable
 from re2o.acl import (
     can_create,
     can_edit,
@@ -103,16 +102,7 @@ def index(request):
         SortTable.TOPOLOGIE_INDEX
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(switch_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        switch_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        switch_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        switch_list = paginator.page(paginator.num_pages)
+    switch_list = re2o_paginator(request, switch_list, pagination_number)
     return render(request, 'topologie/index.html', {
         'switch_list': switch_list
         })
@@ -158,16 +148,7 @@ def index_room(request):
         SortTable.TOPOLOGIE_INDEX_ROOM
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(room_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        room_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        room_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        room_list = paginator.page(paginator.num_pages)
+    room_list = re2o_paginator(request, room_list, pagination_number)
     return render(request, 'topologie/index_room.html', {
         'room_list': room_list
         })
@@ -189,16 +170,7 @@ def index_ap(request):
         SortTable.TOPOLOGIE_INDEX_BORNE
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    paginator = Paginator(ap_list, pagination_number)
-    page = request.GET.get('page')
-    try:
-        ap_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        ap_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        ap_list = paginator.page(paginator.num_pages)
+    ap_list = re2o_paginator(request, ap_list, pagination_number)
     return render(request, 'topologie/index_ap.html', {
         'ap_list': ap_list
         })
@@ -209,7 +181,7 @@ def index_ap(request):
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
-        .prefetch_related('switch_set__domain__extension')
+        .prefetch_related('switch_set__interface_set__domain__extension')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
