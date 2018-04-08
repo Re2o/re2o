@@ -205,6 +205,7 @@ def index_model_switch(request):
     model_switch_list = ModelSwitch.objects.select_related('constructor')
     constructor_switch_list = ConstructorSwitch.objects
     switch_bay_list = SwitchBay.objects.select_related('building')
+    building_list = Building.objects.all()
     model_switch_list = SortTable.sort(
         model_switch_list,
         request.GET.get('col'),
@@ -217,10 +218,23 @@ def index_model_switch(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH
     )
+    building_list = SortTable.sort(
+        building_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_BUILDING
+    )
+    switch_bay_list = SortTable.sort(
+        switch_bay_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_SWITCH_BAY
+    )
     return render(request, 'topologie/index_model_switch.html', {
         'model_switch_list': model_switch_list,
         'constructor_switch_list': constructor_switch_list,
         'switch_bay_list': switch_bay_list,
+        'building_list' : building_list,
         })
 
 
@@ -681,6 +695,49 @@ def del_switch_bay(request, switch_bay, switchbayid):
     return form({
         'objet': switch_bay,
         'objet_name': 'Baie de switch'
+        }, 'topologie/delete.html', request)
+
+
+@login_required
+@can_create(Building)
+def new_building(request):
+    """Nouveau batiment"""
+    building = EditBuildingForm(request.POST or None)
+    if building.is_valid():
+        building.save()
+        messages.success(request, "Le batiment a été créé")
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({'topoform': building, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+
+
+@login_required
+@can_edit(Building)
+def edit_building(request, building, buildingid):
+    """ Edition d'un batiment"""
+    building = EditBuildingForm(request.POST or None, instance=building)
+    if building.is_valid():
+        if building.changed_data:
+            building.save()
+            messages.success(request, "Le batiment a bien été modifié")
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({'topoform': building, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+
+
+@login_required
+@can_delete(Building)
+def del_building(request, building, buildingid):
+    """ Suppression d'un batiment"""
+    if request.method == "POST":
+        try:
+            building.delete()
+            messages.success(request, "La batiment a été détruit")
+        except ProtectedError:
+            messages.error(request, "Le batiment %s est affecté à un autre objet,\
+                impossible de la supprimer (switch ou user)" % building)
+        return redirect(reverse('topologie:index-model-switch'))
+    return form({
+        'objet': building,
+        'objet_name': 'Bâtiment'
         }, 'topologie/delete.html', request)
 
 

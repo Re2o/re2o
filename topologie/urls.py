@@ -109,4 +109,14 @@ urlpatterns = [
     url(r'^del_switch_bay/(?P<switchbayid>[0-9]+)$',
         views.del_switch_bay,
         name='del-switch-bay'),
+    url(r'^new_building/$',
+        views.new_building,
+        name='new-building'
+    ),
+    url(r'^edit_building/(?P<buildingid>[0-9]+)$',
+        views.edit_building,
+        name='edit-building'),
+    url(r'^del_building/(?P<buildingid>[0-9]+)$',
+        views.del_building,
+        name='del-building'),
 ]

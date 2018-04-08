@@ -170,6 +170,8 @@ class CreatePortsForm(forms.Form):
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter un modèle de switch : nom et constructeur"""
+    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+ 
     class Meta:
         model = ModelSwitch
         fields = '__all__'
@@ -177,6 +179,14 @@ class EditModelSwitchForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(model=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
 
 
 class EditConstructorSwitchForm(FormRevMixin, ModelForm):
@@ -192,6 +202,8 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
 
 class EditSwitchBayForm(FormRevMixin, ModelForm):
     """Permet d'éditer une baie de brassage"""
+    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+ 
     class Meta:
         model = SwitchBay
         fields = '__all__'
@@ -199,6 +211,14 @@ class EditSwitchBayForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditSwitchBayForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(switchbay=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
 
 
 class EditBuildingForm(FormRevMixin, ModelForm):

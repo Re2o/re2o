@@ -136,6 +136,12 @@ class Switch(AclMixin, Machine):
         null=True,
         on_delete=models.SET_NULL
     )
+    switchbay = models.ForeignKey(
+        'topologie.SwitchBay',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -232,11 +238,6 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
     building = models.ForeignKey(
         'Building',
         on_delete=models.PROTECT
-    )
-    members = models.ManyToManyField(
-        blank=True,
-        to='Switch',
-        related_name='bay_switches'
     )
     info = models.CharField(
         max_length=255,
