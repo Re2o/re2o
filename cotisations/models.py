@@ -21,28 +21,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des models bdd pour les factures et cotisation.
-Pièce maitresse : l'ensemble du code intelligent se trouve ici,
-dans les clean et save des models ainsi que de leur methodes supplémentaires.
+The database models for the 'cotisation' app of re2o.
+The goal is to keep the main actions here, i.e. the 'clean' and 'save'
+function are higly reposnsible for the changes, checking the coherence of the
+data and the good behaviour in general for not breaking the database.
 
-Facture : reliée à un user, elle a un moyen de paiement, une banque (option),
-une ou plusieurs ventes
-
-Article : liste des articles en vente, leur prix, etc
-
-Vente : ensemble des ventes effectuées, reliées à une facture (foreignkey)
-
-Banque : liste des banques existantes
-
-Cotisation : objets de cotisation, contenant un début et une fin. Reliées
-aux ventes, en onetoone entre une vente et une cotisation.
-Crées automatiquement au save des ventes.
-
-Post_save et Post_delete : sychronisation des services et régénération
-des services d'accès réseau (ex dhcp) lors de la vente d'une cotisation
-par exemple
+For further details on each of those models, see the documentation details for
+each.
 """
-# TODO : translate docstring to English
 
 from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
@@ -65,11 +51,24 @@ from re2o.mixins import AclMixin, RevMixin
 
 # TODO : change facture to invoice
 class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
-    """ Définition du modèle des factures. Une facture regroupe une ou
-    plusieurs ventes, rattachée à un user, et reliée à un moyen de paiement
-    et si il y a lieu un numero pour les chèques. Possède les valeurs
-    valides et controle (trésorerie)"""
-    # TODO : translate docstrign to English
+    """
+    The model for an invoice. It reprensents the fact that a user paid for
+    something (it can be multiple article paid at once).
+    
+    An invoice is linked to :
+        * one or more purchases (one for each article sold that time)
+        * a user (the one who bought those articles)
+        * a payment method (the one used by the user)
+        * (if applicable) a bank
+        * (if applicable) a cheque number.
+    Every invoice is dated throught the 'date' value.
+    An invoice has a 'controlled' value (default : False) which means that
+    someone with high enough rights has controlled that invoice and taken it
+    into account. It also has a 'valid' value (default : True) which means
+    that someone with high enough rights has decided that this invoice was not
+    valid (thus it's like the user never paid for his articles). It may be
+    necessary in case of non-payment.
+    """
 
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     # TODO : change paiement to payment
@@ -122,20 +121,21 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     # TODO : change prix to price
     def prix(self):
-        """Renvoie le prix brut sans les quantités. Méthode
-        dépréciée"""
-        # TODO : translate docstring to English
-        # TODO : change prix to price
-        prix = Vente.objects.filter(
+        """
+        Returns: the raw price without the quantities.
+        Deprecated, use :total_price instead.
+        """
+        price = Vente.objects.filter(
             facture=self
             ).aggregate(models.Sum('prix'))['prix__sum']
-        return prix
+        return price
 
     # TODO : change prix to price
     def prix_total(self):
-        """Prix total : somme des produits prix_unitaire et quantité des
-        ventes de l'objet"""
-        # TODO : translate docstrign to English
+        """
+        Returns: the total price for an invoice. Sum all the articles' prices
+        and take the quantities into account.
+        """
         # TODO : change Vente to somethingelse
         return Vente.objects.filter(
             facture=self
@@ -147,8 +147,10 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             )['total']
 
     def name(self):
-        """String, somme des name des ventes de self"""
-        # TODO : translate docstring to English
+        """
+        Returns : a string with the name of all the articles in the invoice.
+        Used for reprensenting the invoice with a string.
+        """
         name = ' - '.join(Vente.objects.filter(
             facture=self
             ).values_list('name', flat=True))
@@ -204,8 +206,9 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
 @receiver(post_save, sender=Facture)
 def facture_post_save(sender, **kwargs):
-    """Post save d'une facture, synchronise l'user ldap"""
-    # TODO : translate docstrign into English
+    """
+    Synchronise the LDAP user after an invoice has been saved.
+    """
     facture = kwargs['instance']
     user = facture.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -213,18 +216,26 @@ def facture_post_save(sender, **kwargs):
 
 @receiver(post_delete, sender=Facture)
 def facture_post_delete(sender, **kwargs):
-    """Après la suppression d'une facture, on synchronise l'user ldap"""
-    # TODO : translate docstring into English
+    """
+    Synchronise the LDAP user after an invoice has been deleted.
+    """
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change Vente to Purchase
 class Vente(RevMixin, AclMixin, models.Model):
-    """Objet vente, contient une quantité, une facture parente, un nom,
-    un prix. Peut-être relié à un objet cotisation, via le boolean
-    iscotisation"""
-    # TODO : translate docstring into English
+    """
+    The model defining a purchase. It consist of one type of article being
+    sold. In particular there may be multiple purchases in a single invoice.
+    
+    It's reprensentated by:
+        * an amount (the number of items sold)
+        * an invoice (whose the purchase is part of)
+        * an article
+        * (if applicable) a cotisation (which holds some informations about
+            the effect of the purchase on the time agreed for this user)
+    """
 
     # TODO : change this to English
     COTISATION_TYPE = (
@@ -281,15 +292,16 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     # TODO : change prix_total to total_price
     def prix_total(self):
-        """Renvoie le prix_total de self (nombre*prix)"""
-        # TODO : translate docstring to english
+        """
+        Returns: the total of price for this amount of items.
+        """
         return self.prix*self.number
 
     def update_cotisation(self):
-        """Mets à jour l'objet related cotisation de la vente, si
-        il existe : update la date de fin à partir de la durée de
-        la vente"""
-        # TODO : translate docstring to English
+        """
+        Update the related object 'cotisation' if there is one. Based on the
+        duration of the purchase.
+        """
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
@@ -297,10 +309,11 @@ class Vente(RevMixin, AclMixin, models.Model):
         return
 
     def create_cotis(self, date_start=False):
-        """Update et crée l'objet cotisation associé à une facture, prend
-        en argument l'user, la facture pour la quantitéi, et l'article pour
-        la durée"""
-        # TODO : translate docstring to English
+        """
+        Update and create a 'cotisation' related object if there is a
+        cotisation_type defined (which means the article sold represents
+        a cotisation)
+        """
         if not hasattr(self, 'cotisation') and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
@@ -328,8 +341,12 @@ class Vente(RevMixin, AclMixin, models.Model):
         return
 
     def save(self, *args, **kwargs):
-        # TODO : ecrire une docstring
-        # On verifie que si iscotisation, duration est présent
+        """
+        Save a purchase object and check if all the fields are coherents
+        It also update the associated cotisation in the changes have some
+        effect on the user's cotisation
+        """
+        # Checking that if a cotisation is specified, there is also a duration
         if self.type_cotisation and not self.duration:
             raise ValidationError(
                 _("A cotisation should always have a duration.")
@@ -372,38 +389,44 @@ class Vente(RevMixin, AclMixin, models.Model):
 # TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
 def vente_post_save(sender, **kwargs):
-    """Post save d'une vente, déclencge la création de l'objet cotisation
-    si il y a lieu(si iscotisation) """
-    # TODO : translate docstring to English
-    # TODO : change vente to purchase
-    vente = kwargs['instance']
+    """
+    Creates a 'cotisation' related object if needed and synchronise the
+    LDAP user when a purchase has been saved.
+    """
+    purchase = kwargs['instance']
     if hasattr(vente, 'cotisation'):
-        vente.cotisation.vente = vente
-        vente.cotisation.save()
-    if vente.type_cotisation:
-        vente.create_cotis()
-        vente.cotisation.save()
-        user = vente.facture.user
+        purchase.cotisation.vente = purchase
+        purchase.cotisation.save()
+    if purchase.type_cotisation:
+        purchase.create_cotis()
+        purchase.cotisation.save()
+        user = purchase.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change vente to purchase
 @receiver(post_delete, sender=Vente)
 def vente_post_delete(sender, **kwargs):
-    """Après suppression d'une vente, on synchronise l'user ldap (ex
-    suppression d'une cotisation"""
-    # TODO : translate docstring to English
-    # TODO : change vente to purchase
-    vente = kwargs['instance']
-    if vente.type_cotisation:
-        user = vente.facture.user
+    """
+    Synchronise the LDAP user after a purchase has been deleted.
+    """
+    purchase = kwargs['instance']
+    if purchase.type_cotisation:
+        user = purchase.facture.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 class Article(RevMixin, AclMixin, models.Model):
-    """Liste des articles en vente : prix, nom, et attribut iscotisation
-    et duree si c'est une cotisation"""
-    # TODO : translate docstring to English
+    """
+    The definition of an article model. It represents an type of object that can be sold to the user.
+    
+    It's represented by:
+        * a name
+        * a price
+        * a cotisation type (indicating if this article reprensents a cotisation or not)
+        * a duration (if it is a cotisation)
+        * a type of user (indicating what kind of user can buy this article)
+    """
 
     # TODO : Either use TYPE or TYPES in both choices but not both
     USER_TYPES = (
@@ -473,8 +496,13 @@ class Article(RevMixin, AclMixin, models.Model):
 
 
 class Banque(RevMixin, AclMixin, models.Model):
-    """Liste des banques"""
-    # TODO : translate docstring to English
+    """
+    The model defining a bank. It represents a user's bank. It's mainly used
+    for statistics by regrouping the user under their bank's name and avoid
+    the use of a simple name which leads (by experience) to duplicates that
+    only differs by a capital letter, a space, a misspelling, ... That's why
+    it's easier to use simple object for the banks.
+    """
 
     name = models.CharField(
         max_length=255,
@@ -494,8 +522,14 @@ class Banque(RevMixin, AclMixin, models.Model):
 
 # TODO : change Paiement to Payment
 class Paiement(RevMixin, AclMixin, models.Model):
-    """Moyens de paiement"""
-    # TODO : translate docstring to English
+    """
+    The model defining a payment method. It is how the user is paying for the
+    invoice. It's easier to know this information when doing the accouts.
+    It is represented by:
+        * a name
+        * a type (used for the type 'cheque' which implies the use of a bank
+            and an account number in related models)
+    """
     
     PAYMENT_TYPES = (
         (0, _l("Standard")),
@@ -524,11 +558,16 @@ class Paiement(RevMixin, AclMixin, models.Model):
         return self.moyen
 
     def clean(self):
+        """
+        Override of the herited clean function to get a correct name
+        """
         self.moyen = self.moyen.title()
 
     def save(self, *args, **kwargs):
-        """Un seul type de paiement peut-etre cheque..."""
-        # TODO : translate docstring to English
+        """
+        Override of the herited save function to be sure only one payment
+        method of type 'cheque' exists.
+        """
         if Paiement.objects.filter(type_paiement=1).count() > 1:
             raise ValidationError(
                 _("You cannot have multiple payment method of type cheque")
@@ -537,8 +576,16 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):
-    """Objet cotisation, debut et fin, relié en onetoone à une vente"""
-    # TODO : translate docstring to English
+    """
+    The model defining a cotisation. It holds information about the time a user
+    is allowed when he has paid something.
+    It characterised by :
+        * a date_start (the date when the cotisaiton begins/began
+        * a date_end (the date when the cotisation ends/ended
+        * a type of cotisation (which indicates the implication of such
+            cotisation)
+        * a purchase (the related objects this cotisation is linked to)
+    """
 
     COTISATION_TYPE = (
         ('Connexion', _l("Connexion")),
@@ -602,8 +649,10 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
 @receiver(post_save, sender=Cotisation)
 def cotisation_post_save(sender, **kwargs):
-    """Après modification d'une cotisation, regeneration des services"""
-    # TODO : translate docstring to English
+    """
+    Mark some services as needing a regeneration after the edition of a
+    cotisation. Indeed the membership status may have changed.
+    """
     regen('dns')
     regen('dhcp')
     regen('mac_ip_list')
@@ -613,8 +662,10 @@ def cotisation_post_save(sender, **kwargs):
 # TODO : should be name cotisation_post_delete
 @receiver(post_delete, sender=Cotisation)
 def vente_post_delete(sender, **kwargs):
-    """Après suppression d'une vente, régénération des services"""
-    # TODO : translate docstring to English
+    """
+    Mark some services as needing a regeneration after the deletion of a
+    cotisation. Indeed the membership status may have changed.
+    """
     cotisation = kwargs['instance']
     regen('mac_ip_list')
     regen('mailing')

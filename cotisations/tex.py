@@ -19,6 +19,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""tex.py
+Module in charge of rendering some LaTex templates.
+Used to generated PDF invoice.
+"""
 
 from django.template.loader import get_template
 from django.template import Context
@@ -37,6 +41,10 @@ CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
 
 
 def render_invoice(request, ctx={}):
+    """
+    Render an invoice using some available information such as the current
+    date, the user, the articles, the prices, ...
+    """
     filename = '_'.join([
         'invoice', 
         slugify(ctx['asso_name']),
@@ -50,6 +58,11 @@ def render_invoice(request, ctx={}):
     return r
 
 def render_tex(request, template, ctx={}):
+    """
+    Creates a PDF from a LaTex templates using pdflatex.
+    Writes it in a temporary directory and send back an HTTP response for
+    accessing this file.
+    """
     context = Context(ctx)
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')

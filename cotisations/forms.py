@@ -20,19 +20,18 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Forms de l'application cotisation de re2o. Dépendance avec les models,
-importé par les views.
+Forms for the 'cotisation' app of re2o. It highly depends on 
+:cotisations:models and is mainly used by :cotisations:views.
 
-Permet de créer une nouvelle facture pour un user (NewFactureForm),
-et de l'editer (soit l'user avec EditFactureForm,
-soit le trésorier avec TrezEdit qui a plus de possibilités que self
-notamment sur le controle trésorier SelectArticleForm est utilisée
-lors de la creation d'une facture en
-parrallèle de NewFacture pour le choix des articles désirés.
-(la vue correspondante est unique)
+The following forms are mainly used to create, edit or delete
+anything related to 'cotisations' :
+    * Payments Methods
+    * Banks
+    * Invoices
+    * Articles
 
-ArticleForm, BanqueForm, PaiementForm permettent aux admin d'ajouter,
-éditer ou supprimer une banque/moyen de paiement ou un article
+See the details for each of these operations in the documentation
+of each of the method.
 """
 from __future__ import unicode_literals
 
@@ -51,9 +50,10 @@ from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin 
 
 class NewFactureForm(FormRevMixin, ModelForm):
-    """Creation d'une facture, moyen de paiement, banque et numero
-    de cheque"""
-    # TODO : translate doc string in English
+    """
+    Form used to create a new invoice by using a payment method, a bank and a
+    cheque number.
+    """
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -91,8 +91,10 @@ class NewFactureForm(FormRevMixin, ModelForm):
 
 
 class CreditSoldeForm(NewFactureForm):
-    """Permet de faire des opérations sur le solde si il est activé"""
-    # TODO : translate docstring to English
+    """
+    Form used to make some operations on the user's balance if the option is
+    activated.
+    """
     class Meta(NewFactureForm.Meta):
         model = Facture
         fields = ['paiement', 'banque', 'cheque']
@@ -108,8 +110,9 @@ class CreditSoldeForm(NewFactureForm):
 
 
 class SelectUserArticleForm(FormRevMixin, Form):
-    """Selection d'un article lors de la creation d'une facture"""
-    # TODO : translate docstring to English
+    """
+    Form used to select an article during the creation of an invoice for a member.
+    """
     article = forms.ModelChoiceField(
         queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Adherent')),
         label=_l("Article"),
@@ -123,8 +126,9 @@ class SelectUserArticleForm(FormRevMixin, Form):
 
 
 class SelectClubArticleForm(Form):
-    """Selection d'un article lors de la creation d'une facture"""
-    # TODO : translate docstring to English
+    """
+    Form used to select an article during the creation of an invoice for a club.
+    """
     article = forms.ModelChoiceField(
         queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Club')),
         label=_l("Article"),
@@ -138,8 +142,9 @@ class SelectClubArticleForm(Form):
 
 # TODO : change Facture to Invoice
 class NewFactureFormPdf(Form):
-    """Creation d'un pdf facture par le trésorier"""
-    # TODO : translate docstring to English
+    """
+    Form used to create a custom PDF invoice.
+    """
     article = forms.ModelMultipleChoiceField(
         queryset=Article.objects.all(),
         label=_l("Article")
@@ -162,8 +167,10 @@ class NewFactureFormPdf(Form):
 
 # TODO : change Facture to Invoice
 class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
-    """Edition d'une facture : moyen de paiement, banque, user parent"""
-    # TODO : translate docstring to English
+    """
+    Form used to edit an invoice and its fields : payment method, bank,
+    user associated, ...
+    """
     class Meta(NewFactureForm.Meta):
         # TODO : change Facture to Invoice
         model = Facture
@@ -179,8 +186,9 @@ class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
 
 
 class ArticleForm(FormRevMixin, ModelForm):
-    """Creation d'un article. Champs : nom, cotisation, durée"""
-    # TODO : translate docstring to English
+    """
+    Form used to create an article.
+    """
     class Meta:
         model = Article
         fields = '__all__'
@@ -192,9 +200,10 @@ class ArticleForm(FormRevMixin, ModelForm):
 
 
 class DelArticleForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs articles en vente. Choix
-    parmis les modèles"""
-    # TODO : translate docstring to English
+    """
+    Form used to delete one or more of the currently available articles.
+    The user must choose the one to delete by checking the boxes.
+    """
     articles = forms.ModelMultipleChoiceField(
         queryset=Article.objects.none(),
         label=_l("Existing articles"),
@@ -212,9 +221,11 @@ class DelArticleForm(FormRevMixin, Form):
 
 # TODO : change Paiement to Payment
 class PaiementForm(FormRevMixin, ModelForm):
-    """Creation d'un moyen de paiement, champ text moyen et type
-    permettant d'indiquer si il s'agit d'un chèque ou non pour le form"""
-    # TODO : translate docstring to English
+    """
+    Form used to create a new payment method.
+    The 'cheque' type is used to associate a specific behaviour requiring
+    a cheque number and a bank.
+    """
     class Meta:
         model = Paiement
         # TODO : change moyen to method and type_paiement to payment_type
@@ -233,9 +244,10 @@ class PaiementForm(FormRevMixin, ModelForm):
 
 # TODO : change paiement to payment
 class DelPaiementForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs moyens de paiements, selection
-    parmis les models"""
-    # TODO : translate docstring to English
+    """
+    Form used to delete one or more payment methods.
+    The user must choose the one to delete by checking the boxes.
+    """
     # TODO : change paiement to payment
     paiements = forms.ModelMultipleChoiceField(
         queryset=Paiement.objects.none(),
@@ -254,8 +266,9 @@ class DelPaiementForm(FormRevMixin, Form):
 
 # TODO : change banque to bank
 class BanqueForm(FormRevMixin, ModelForm):
-    """Creation d'une banque, field name"""
-    # TODO : translate docstring to Englishh
+    """
+    Form used to create a bank.
+    """
     class Meta:
         # TODO : change banque to bank
         model = Banque
@@ -269,8 +282,10 @@ class BanqueForm(FormRevMixin, ModelForm):
 
 # TODO : change banque to bank
 class DelBanqueForm(FormRevMixin, Form):
-    """Selection d'une ou plusieurs banques, pour suppression"""
-    # TODO : translate docstrign to English
+    """
+    Form used to delete one or more banks.
+    The use must choose the one to delete by checking the boxes.
+    """
     # TODO : change banque to bank
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
@@ -289,9 +304,9 @@ class DelBanqueForm(FormRevMixin, Form):
 
 # TODO : change facture to Invoice
 class NewFactureSoldeForm(NewFactureForm):
-    """Creation d'une facture, moyen de paiement, banque et numero
-    de cheque"""
-    # TODO : translate docstring to English
+    """
+    Form used to create an invoice
+    """
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         self.fields['cheque'].required = False
@@ -335,6 +350,9 @@ class NewFactureSoldeForm(NewFactureForm):
 
 # TODO : Better name and docstring
 class RechargeForm(FormRevMixin, Form):
+    """
+    Form used to refill a user's balance
+    """
     value = forms.FloatField(
         label=_l("Amount"),
         min_value=0.01,
