@@ -25,18 +25,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Banques{% endblock %}
+{% block title %}{% trans "Banks" %}{% endblock %}
 
 {% block content %}
-  <h2>Liste des banques</h2>
-  {% can_create Banque %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-banque'  %}"><i class="fa fa-cart-plus"></i> Ajouter une banque</a>
-  {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-banque'  %}"><i class="fa fa-trash"></i> Supprimer une ou plusieurs banques</a>
-  {%  include "cotisations/aff_banque.html" with  banque_list=banque_list %}
-  <br />
-  <br />
-  <br />
+    <h2>{% trans "Banks list" %}</h2>
+    {% can_create Banque %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-banque' %}">
+        <i class="fa fa-cart-plus"></i> {% trans "Add a bank" %}
+    </a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-banque' %}">
+        <i class="fa fa-trash"></i> {% trans "Delete banks" %}
+    </a>
+    {% include 'cotisations/aff_banque.html' with  banque_list=banque_list %}
 {% endblock %}
 

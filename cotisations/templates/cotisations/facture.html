@@ -25,8 +25,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
+{% load i18n %}
 
-{% block title %}Création et modification de factures{% endblock %}
+{% block title %}{% trans "Invoices creation and edition" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors factureform %}
@@ -34,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form factureform %}
-    {% bootstrap_button action_name button_type="submit" icon="star" %}
+    {% bootstrap_button action_name button_type='submit' icon='star' %}
 </form>
 
 {% endblock %}

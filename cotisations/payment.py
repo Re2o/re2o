@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from collections import OrderedDict
@@ -19,10 +20,15 @@ from .payment_utils.comnpay import Payment as ComnpayPayment
 @csrf_exempt
 @login_required
 def accept_payment(request, factureid):
+    """
+    The view called when an online payment has been accepted.
+    """
     facture = get_object_or_404(Facture, id=factureid)
     messages.success(
         request,
-        "Le paiement de {} € a été accepté.".format(facture.prix())
+        _("The payment of %(amount)s € has been accepted.") % {
+            amount: facture.prix()
+        }
     )
     return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
 
@@ -30,14 +36,22 @@ def accept_payment(request, factureid):
 @csrf_exempt
 @login_required
 def refuse_payment(request):
+    """
+    The view called when an online payment has been refused.
+    """
     messages.error(
         request,
-        "Le paiement a été refusé."
+        _("The payment has been refused.")
     )
     return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
 
 @csrf_exempt
 def ipn(request):
+    """
+    The view called by Comnpay server to validate the transaction.
+    Verify that we can firmly save the user's action and notify
+    Comnpay with 400 response if not or with a 200 response if yes
+    """
     p = ComnpayPayment()
     order = ('idTpe', 'idTransaction', 'montant', 'result', 'sec', )
     try:
@@ -52,7 +66,7 @@ def ipn(request):
     idTpe = request.POST['idTpe']
     idTransaction = request.POST['idTransaction']
 
-    # On vérifie que le paiement nous est destiné
+    # Checking that the payment is actually for us.
     if not idTpe == AssoOption.get_cached_value('payment_id'):
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
@@ -63,22 +77,28 @@ def ipn(request):
 
     facture = get_object_or_404(Facture, id=factureid)
 
-    # On vérifie que le paiement est valide
+    # Checking that the payment is valid
     if not result:
-        # Le paiement a échoué : on effectue les actions nécessaires (On indique qu'elle a échoué)
+        # Payment failed: Cancelling the invoice operation
         facture.delete()
-
-        # On notifie au serveur ComNPay qu'on a reçu les données pour traitement
+        # And send the response to Comnpay indicating we have well
+        # received the failure information.
         return HttpResponse("HTTP/1.1 200 OK")
 
     facture.valid = True
     facture.save()
 
-    # A nouveau, on notifie au serveur qu'on a bien traité les données
+    # Everything worked we send a reponse to Comnpay indicating that
+    # it's ok for them to proceed
     return HttpResponse("HTTP/1.0 200 OK")
 
 
 def comnpay(facture, request):
+    """
+    Build a request to start the negociation with Comnpay by using
+    a facture id, the price and the secret transaction data stored in
+    the preferences.
+    """
     host = request.get_host()
     p = ComnpayPayment(
         str(AssoOption.get_cached_value('payment_id')),
@@ -105,6 +125,7 @@ def comnpay(facture, request):
     return r
 
 
+# The payment systems supported by re2o
 PAYMENT_SYSTEM = {
     'COMNPAY' : comnpay,
     'NONE' : None
