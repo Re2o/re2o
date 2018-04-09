@@ -36,7 +36,9 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    AccessPoint
+    AccessPoint,
+    SwitchBay,
+    Building
 )
 
 
@@ -75,6 +77,16 @@ class ConstructorSwitchAdmin(VersionAdmin):
     pass
 
 
+class SwitchBayAdmin(VersionAdmin):
+    """Administration d'une baie de brassage"""
+    pass
+
+
+class BuildingAdmin(VersionAdmin):
+    """Administration d'un batiment"""
+    pass
+
+
 admin.site.register(Port, PortAdmin)
 admin.site.register(AccessPoint, AccessPointAdmin)
 admin.site.register(Room, RoomAdmin)
@@ -82,3 +94,5 @@ admin.site.register(Switch, SwitchAdmin)
 admin.site.register(Stack, StackAdmin)
 admin.site.register(ModelSwitch, ModelSwitchAdmin)
 admin.site.register(ConstructorSwitch, ConstructorSwitchAdmin)
+admin.site.register(Building, BuildingAdmin)
+admin.site.register(SwitchBay, SwitchBayAdmin)

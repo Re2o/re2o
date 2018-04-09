@@ -127,6 +127,8 @@ MODEL_NAME = {
     'ConstructorSwitch' : topologie.models.ConstructorSwitch,
     'Port' : topologie.models.Port,
     'Room' : topologie.models.Room,
+    'Building' : topologie.models.Building,
+    'SwitchBay' : topologie.models.SwitchBay,
     # users
     'User' : users.models.User,
     'Adherent' : users.models.Adherent,

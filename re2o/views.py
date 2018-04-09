@@ -85,6 +85,8 @@ HISTORY_BIND = {
         'modelswitch' : topologie.models.ModelSwitch,
         'constructorswitch' : topologie.models.ConstructorSwitch,
         'accesspoint' : topologie.models.AccessPoint,
+        'switchbay' : topologie.models.SwitchBay,
+        'building' : topologie.models.Building,
     },
     'machines' : {
         'machine' : machines.models.Machine,
