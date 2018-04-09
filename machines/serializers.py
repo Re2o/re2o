@@ -175,7 +175,7 @@ class ExtensionSerializer(serializers.ModelSerializer):
         fields = ('name', 'origin', 'origin_v6', 'zone_entry', 'soa')
 
     def get_origin_ip(self, obj):
-        return obj.origin.ipv4
+        return getattr(obj.origin, 'ipv4', None)
 
     def get_zone_name(self, obj):
         return str(obj.dns_entry)
