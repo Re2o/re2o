@@ -220,10 +220,10 @@ class SortTable:
     TOPOLOGIE_INDEX = {
         'switch_dns': ['interface__domain__name'],
         'switch_ip': ['interface__ipv4__ipv4'],
-        'switch_loc': ['location'],
+        'switch_loc': ['switchbay__name'],
         'switch_ports': ['number'],
         'switch_stack': ['stack__name'],
-        'default': ['location', 'stack', 'stack_member_id']
+        'default': ['switchbay', 'stack', 'stack_member_id']
     }
     TOPOLOGIE_INDEX_PORT = {
         'port_port': ['port'],
@@ -238,6 +238,10 @@ class SortTable:
         'room_name': ['name'],
         'default': ['name']
     }
+    TOPOLOGIE_INDEX_BUILDING = {
+        'building_name': ['name'],
+        'default': ['name']
+    }
     TOPOLOGIE_INDEX_BORNE = {
         'ap_name': ['interface__domain__name'],
         'ap_ip': ['interface__ipv4__ipv4'],
@@ -250,12 +254,17 @@ class SortTable:
         'default': ['stack_id'],
     }
     TOPOLOGIE_INDEX_MODEL_SWITCH = {
-        'model_switch_name': ['reference'],
-        'model_switch__contructor' : ['constructor__name'],
+        'model-switch_name': ['reference'],
+        'model-switch_contructor' : ['constructor__name'],
         'default': ['reference'],
     }
+    TOPOLOGIE_INDEX_SWITCH_BAY = {
+        'switch-bay_name': ['name'],
+        'switch-bay_building': ['building__name'],
+        'default': ['name'],
+    }
     TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH = {
-        'room_name': ['name'],
+        'constructor-switch_name': ['name'],
         'default': ['name'],
     }
     LOGS_INDEX = {

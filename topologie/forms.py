@@ -48,7 +48,9 @@ from .models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    AccessPoint
+    AccessPoint,
+    SwitchBay,
+    Building,
 )
 from re2o.mixins import FormRevMixin
 
@@ -146,7 +148,7 @@ class NewSwitchForm(NewMachineForm):
     """Permet de créer un switch : emplacement, paramètres machine,
     membre d'un stack (option), nombre de ports (number)"""
     class Meta(EditSwitchForm.Meta):
-        fields = ['name', 'location', 'number', 'stack', 'stack_member_id']
+        fields = ['name', 'switchbay', 'number', 'stack', 'stack_member_id']
 
 
 class EditRoomForm(FormRevMixin, ModelForm):
@@ -168,6 +170,8 @@ class CreatePortsForm(forms.Form):
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter un modèle de switch : nom et constructeur"""
+    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+ 
     class Meta:
         model = ModelSwitch
         fields = '__all__'
@@ -175,6 +179,14 @@ class EditModelSwitchForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(model=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
 
 
 class EditConstructorSwitchForm(FormRevMixin, ModelForm):
@@ -186,3 +198,35 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditConstructorSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditSwitchBayForm(FormRevMixin, ModelForm):
+    """Permet d'éditer une baie de brassage"""
+    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+ 
+    class Meta:
+        model = SwitchBay
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditSwitchBayForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(switchbay=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class EditBuildingForm(FormRevMixin, ModelForm):
+    """Permet d'éditer le batiment"""
+    class Meta:
+        model = Building
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)

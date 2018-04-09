@@ -121,7 +121,6 @@ class Switch(AclMixin, Machine):
     PRETTY_NAME = "Switch / Commutateur"
 
 
-    location = models.CharField(max_length=255)
     number = models.PositiveIntegerField()
     stack = models.ForeignKey(
         'topologie.Stack',
@@ -132,6 +131,12 @@ class Switch(AclMixin, Machine):
     stack_member_id = models.PositiveIntegerField(blank=True, null=True)
     model = models.ForeignKey(
         'topologie.ModelSwitch',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    switchbay = models.ForeignKey(
+        'topologie.SwitchBay',
         blank=True,
         null=True,
         on_delete=models.SET_NULL
@@ -186,8 +191,11 @@ class Switch(AclMixin, Machine):
             except IntegrityError:
                 ValidationError("Création d'un port existant.")
 
+    def main_interface(self):
+        return self.interface_set.first()
+
     def __str__(self):
-        return str(self.interface_set.first())
+        return str(self.main_interface())
 
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):
@@ -216,6 +224,44 @@ class ConstructorSwitch(AclMixin, RevMixin, models.Model):
     class Meta:
         permissions = (
             ("view_constructorswitch", "Peut voir un objet constructorswitch"),
+        )
+
+    def __str__(self):
+        return self.name
+
+
+class SwitchBay(AclMixin, RevMixin, models.Model):
+    """Une baie de brassage"""
+    PRETTY_NAME = "Baie de brassage"
+    name = models.CharField(max_length=255)
+    building = models.ForeignKey(
+        'Building',
+        on_delete=models.PROTECT
+    )
+    info = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Informations particulières"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_switchbay", "Peut voir un objet baie de brassage"),
+        )
+
+    def __str__(self):
+        return self.name
+
+
+class Building(AclMixin, RevMixin, models.Model):
+    """Un batiment"""
+    PRETTY_NAME = "Batiment"
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ("view_building", "Peut voir un objet batiment"),
         )
 
     def __str__(self):

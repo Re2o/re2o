@@ -484,7 +484,7 @@ class Extension(RevMixin, AclMixin, models.Model):
         help_text="Nom de la zone, doit commencer par un point (.example.org)"
     )
     need_infra = models.BooleanField(default=False)
-    origin = models.OneToOneField(
+    origin = models.ForeignKey(
         'IpList',
         on_delete=models.PROTECT,
         blank=True,
