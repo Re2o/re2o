@@ -281,7 +281,7 @@ def search_single_word(word, filters, user,
         ) | Q(
             interface__ipv4__ipv4__icontains=word
         ) | Q(
-            location__icontains=word
+            switchbay__building__name__icontains=word
         ) | Q(
             stack__name__icontains=word
         ) | Q(
