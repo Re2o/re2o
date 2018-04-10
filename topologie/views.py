@@ -184,7 +184,7 @@ def index_ap(request):
 @can_view_all(Stack)
 @can_view_all(Building)
 @can_view_all(SwitchBay)
-def index_stack(request):
+def index_physical_grouping(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
         .prefetch_related('switch_set__interface_set__domain__extension')
@@ -208,7 +208,7 @@ def index_stack(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_SWITCH_BAY
     )
-    return render(request, 'topologie/index_stack.html', {
+    return render(request, 'topologie/index_physical_grouping.html', {
         'stack_list': stack_list,
         'switch_bay_list': switch_bay_list,
         'building_list' : building_list,
@@ -320,7 +320,7 @@ def edit_stack(request, stack, stackid):
     if stack.is_valid():
         if stack.changed_data:
             stack.save()
-            return redirect(reverse('topologie:index-stack'))
+            return redirect(reverse('topologie:index-physical-grouping'))
     return form({'topoform': stack, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
@@ -335,7 +335,7 @@ def del_stack(request, stack, stackid):
         except ProtectedError:
             messages.error(request, "La stack %s est affectée à un autre\
                 objet, impossible de la supprimer" % stack)
-        return redirect(reverse('topologie:index-stack'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({'objet': stack}, 'topologie/delete.html', request)
 
 
@@ -665,7 +665,7 @@ def new_switch_bay(request):
     if switch_bay.is_valid():
         switch_bay.save()
         messages.success(request, "La baie a été créé")
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({'topoform': switch_bay, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
@@ -678,7 +678,7 @@ def edit_switch_bay(request, switch_bay, switchbayid):
         if switch_bay.changed_data:
             switch_bay.save()
             messages.success(request, "Le switch a bien été modifié")
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({'topoform': switch_bay, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
@@ -693,7 +693,7 @@ def del_switch_bay(request, switch_bay, switchbayid):
         except ProtectedError:
             messages.error(request, "La baie %s est affecté à un autre objet,\
                 impossible de la supprimer (switch ou user)" % switch_bay)
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({
         'objet': switch_bay,
         'objet_name': 'Baie de switch'
@@ -708,7 +708,7 @@ def new_building(request):
     if building.is_valid():
         building.save()
         messages.success(request, "Le batiment a été créé")
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({'topoform': building, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
 
 
@@ -721,7 +721,7 @@ def edit_building(request, building, buildingid):
         if building.changed_data:
             building.save()
             messages.success(request, "Le batiment a bien été modifié")
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({'topoform': building, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
 
 
@@ -736,7 +736,7 @@ def del_building(request, building, buildingid):
         except ProtectedError:
             messages.error(request, "Le batiment %s est affecté à un autre objet,\
                 impossible de la supprimer (switch ou user)" % building)
-        return redirect(reverse('topologie:index-model-switch'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form({
         'objet': building,
         'objet_name': 'Bâtiment'

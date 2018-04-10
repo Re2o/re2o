@@ -64,7 +64,7 @@ urlpatterns = [
         views.edit_switch,
         name='edit-switch'),
     url(r'^new_stack/$', views.new_stack, name='new-stack'),
-    url(r'^index_stack/$', views.index_stack, name='index-stack'),
+    url(r'^index_physical_grouping/$', views.index_physical_grouping, name='index-physical-grouping'),
     url(r'^edit_stack/(?P<stackid>[0-9]+)$',
         views.edit_stack,
         name='edit-stack'),
