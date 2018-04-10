@@ -27,6 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 {% load self_adhesion %}
+{% load i18n %}
+
 {% self_adhesion as var_sa %}
 <!DOCTYPE html>
 <html lang="fr">
@@ -39,17 +41,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
-	<link href="/static/css/typeaheadjs.css" rel="stylesheet">
-	<link href="/static/css/bootstrap-tokenfield.css" rel="stylesheet">
-	{% comment %}<link href="/static/css/jquery-ui.css" rel="stylesheet">{% endcomment %}
+        <link href="/static/css/typeaheadjs.css" rel="stylesheet">
+        <link href="/static/css/bootstrap-tokenfield.css" rel="stylesheet">
 
         {% bootstrap_javascript %}
-	<script src="/static/js/typeahead/typeahead.js"></script>
-	<script src="/static/js/handlebars/handlebars.js"></script>
-	<script src="/static/js/konami/konami.js"></script>
-	<script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
-	<script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
-	{% comment %}<script src="/static/js/jquery-ui.js"></script>{% endcomment %}
+        <script src="/static/js/typeahead/typeahead.js"></script>
+        <script src="/static/js/handlebars/handlebars.js"></script>
+        <script src="/static/js/konami/konami.js"></script>
+        <script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
+        <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
         <link rel="stylesheet" href="{% static "/css/base.css" %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
@@ -86,7 +86,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> Gérer les adhérents</a></li>
                                     <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> Gérer les clubs</a></li>
                                     {% acl_end %}                              
-			       	    {% can_view_app machines %}
+                                    {% can_view_app machines %}
                                     <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> Gérer les machines</a></li>
                                     {% acl_end %}
                                     {% can_view_app cotisations %}
@@ -99,17 +99,57 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sitemap"></i> Topologie<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-				<li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> Switchs</a></li>
-				<li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> Bornes WiFi</a></li>
-				<li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> Chambres et locaux</a></li>
-				</ul>
-			    </li>
+                                    <li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> Switchs</a></li>
+                                    <li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> Bornes WiFi</a></li>
+                                    <li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> Chambres et locaux</a></li>
+                                </ul>
+                            </li>
                             {% acl_end %}
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> Statistiques</a></li>
                             {% acl_end %}
                         </ul>
-                        <div class="col-sm-3 col-md-3 navbar-right">
+                        <ul class="nav navbar-nav navbar-right">
+                            {% can_view_app preferences %}
+                            <li>
+                                <a href="{% url 'preferences:display-options' %}">
+                                    <i class="fa fa-cogs"></i> Preferences
+                                </a>
+                            </li>
+                            {% acl_end %}
+                            <li>
+				    <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a>
+                            </li>
+                            {% if not request.user.is_authenticated %}
+                            {% if var_sa %}
+                            <li>
+                                <a href="{% url 'users:new-user' %}">
+                                <i class="fa fa-user-plus"></i> Créer un compte
+                            </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                            <a href="{% url 'login' %}">
+                                <i class="fa fa-sign-in-alt"></i> Login
+                            </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <form action="{% url "search:search"%}" class="navbar-form" role="search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                            <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </li>
+			    {% endif %}
+                        </ul>
+                        </ul>
+			{% comment %}
+                        <div class="navbar-right">
                             <form action="{% url "search:search"%}" class="navbar-form" role="search">
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
@@ -135,20 +175,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </a>
                                 </li>
                                 {% endif %}
-			</ul>
-                        {% can_view_app preferences %}
-                        <ul class="nav navbar-nav navbar-right">
+                            {% can_view_app preferences %}
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
                                     <i class="fa fa-cogs"></i> Preferences
                                 </a>
-			    </li>
-                <li>
-                    <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> A propos</a>
-                </li>
-			</ul>
-                        {% acl_end %}
-		    </div>
+                            </li>
+                            {% acl_end %}
+                            <li>
+                                <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> A propos</a>
+                            </li>
+                        </ul>
+			{% endcomment %}
+                    </div>
                 </div>
             </nav>
 
@@ -239,7 +278,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <footer class="navbar">
             <div class="containerfluid text-center">
-		    <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella, Hugo Levy-Falk</p>
+                <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella, Hugo Levy-Falk</p>
             </div>
         </footer>
         {# Read the documentation for more information #}

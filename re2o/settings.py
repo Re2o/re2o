@@ -123,6 +123,12 @@ WSGI_APPLICATION = 're2o.wsgi.application'
 
 LANGUAGE_CODE = 'en'
 
+# Proritary location search for translations
+# then searches in {app}/locale/ for app in INSTALLED_APPS
+LOCALE_PATHS = [
+    BASE_DIR + '/templates/locale/' # to define translations outside of apps
+]
+
 TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True

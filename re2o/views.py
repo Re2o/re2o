@@ -33,15 +33,18 @@ from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
 from reversion.models import Version
 from django.contrib import messages
-from preferences.models import Service
-from preferences.models import OptionalUser, GeneralOption, AssoOption
 from django.conf import settings
-from contributors import contributeurs
+from django.utils.translation import ugettext as _
+import git
 import os
 import time
 from itertools import chain
+from preferences.models import Service
+from preferences.models import OptionalUser, GeneralOption, AssoOption
 import users, preferences, cotisations, topologie, machines
 from .utils import re2o_paginator
+from .settings import BASE_DIR, INSTALLED_APPS, MIDDLEWARE_CLASSES
+from .contributors import CONTRIBUTORS
 
 def form(ctx, template, request):
     """Form générique, raccourci importé par les fonctions views du site"""
@@ -162,12 +165,57 @@ def history(request, application, object_name, object_id):
 
 def about_page(request):
     option = AssoOption.objects.get()
-    n = len(contributeurs)
-    contrib_1 = contributeurs[:n//2]
-    contrib_2 = contributeurs[n//2:]
+    git_info_contributors = CONTRIBUTORS
+    try:
+        git_repo = git.Repo(BASE_DIR)
+    except git.InvalidGitRepositoryError:
+        NO_GIT_MSG = _("No Git repository configured")
+        git_info_remote = NO_GIT_MSG
+        git_info_branch = NO_GIT_MSG
+        git_info_commit = NO_GIT_MSG
+        git_info_commit_date = NO_GIT_MSG
+    else:
+        UNABLE_GIT_MSG = _("Unable to get the information")
+
+        try:
+            git_info_remote = ", ".join(git_repo.remote().urls)
+        except:
+            git_info_remote = UNABLE_GIT_MSG
+
+        try:
+            git_info_branch = git_repo.active_branch.name
+        except:
+            git_info_branch = UNABLE_GIT_MSG
+
+        try:
+            last_commit = git_repo.commit()
+        except:
+            git_info_commit = UNABLE_GIT_MSG
+        else:
+            try:
+                git_info_commit = last_commit.hexsha
+            except:
+                git_info_commit = UNABLE_GIT_MSG
+
+            try:
+                git_info_commit_date = last_commit.committed_datetime
+            except:
+                git_info_commit_date = UNABLE_GIT_MSG
+
+    dependencies = INSTALLED_APPS + MIDDLEWARE_CLASSES
+
     return render(
         request,
         "re2o/about.html",
-        {'description': option.description , 'AssoName' : option.name , 'contrib_1' : contrib_1 , 'contrib_2' : contrib_2}
+        {
+            'description': option.description ,
+            'AssoName' : option.name ,
+            'git_info_contributors': git_info_contributors,
+            'git_info_remote': git_info_remote,
+            'git_info_branch': git_info_branch,
+            'git_info_commit': git_info_commit,
+            'git_info_commit_date': git_info_commit_date,
+            'dependencies': dependencies
+        }
     )
 

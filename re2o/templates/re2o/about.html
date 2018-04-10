@@ -24,39 +24,69 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Historique{% endblock %}
+{% block title %}{% trans "About Re2o" %}{% endblock %}
 
 {% block content %}
-<h2>À propos de {{AssoName}}</h2>
+    <h2>{% blocktrans %}About {{AssoName}}{% endblocktrans %}</h2>
     {{ description }}
-<h2>À propos de Re2o</h2>
-<p>Re2o est un logiciel d'administration développé initialement au RézoMetz. Il
-se veut indépendant de l'architecture du réseau considéré, de manière à être installable en
-quelques clics.
-C'est un logiciel totallement libre disponible sur le <a href="https://gitlab.federez.net/federez/re2o/">gitlab de FedeRez</a>.
-</p>
 
-<h3>Liste des contributeurs</h3>
-<div class="row">
-<div class="col-md-6">
-	
-<ul>
-  {% for i in contrib_1 %}
-    <li> {{i}} </li>
-  {% endfor %}
-</ul>
-</div>
-<div class="col-md-6">
-<ul>
-  {% for i in contrib_2 %}
-    <li> {{i}} </li>
-  {%endfor%}
-</ul>
-</div>
-</div>
-    <br />
-    <br />
-    <br />
+    <h2>{% trans "About Re2o" %}</h2>
+    <p>{% blocktrans %}
+        Re2o is an administration tool initiated by
+        <a href="https://rezometz.org/">Rezo Supelec Metz</a> and a few
+        members of other <a href="https://federez.net">FedeRez</a> associations
+        around the summer 2016.<br />
+        It is intended to be a tool independant from any network infrastructure
+        so it can be setup in "a few steps". This tool is entirely free and
+        available under a GNU Public License v2 (GPLv2) license on
+        <a href="https://gitlab.federez.net/federez/re2o/">FedeRez gitlab</a>.<br />
+        Re2o's mainteners are proud volunteers mainly from French engineering
+        schools (but not limited to) who have given a lot of their time to make
+        this project possible. So please be kind with them.<br />
+        If you want to get involved in the development process, we will be glad to
+        welcome you so do not hesitate to contact us and come help us build the
+        future of Re2o.
+        {% endblocktrans %}
+    </p>
+    
+    <div class="row">
+
+        <div class="col-md-6">
+            <h3>{% trans "Contributors list" %}</h3>
+            <ul>
+                {% for contributor in git_info_contributors %}
+                <li>{{ contributor }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-md-6">
+            <h3>{% trans "Version informations" %}</h3>
+            <ul>
+                <li>{% blocktrans %}
+                    <b>Remote URL</b>: {{ git_info_remote }}
+                {% endblocktrans %}</li>
+                <li>{% blocktrans %}
+                    <b>Branch</b>: {{ git_info_branch }}
+                {% endblocktrans %}</li>
+                <li>{% blocktrans %}
+                    <b>Commit</b>: {{ git_info_commit }}
+                {% endblocktrans %}</li>
+                <li>{% blocktrans %}
+                    <b>Commit date</b>: {{ git_info_commit_date }}
+                {% endblocktrans %}</li>
+            </ul>
+
+            <h3>{% trans "Dependencies" %}</h3>
+            <ul>
+                {% for dependency in dependencies %}
+                <li>{{ dependency }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
 {% endblock %}
 
