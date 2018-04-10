@@ -313,11 +313,11 @@ def stats_models(request):
             'whitelist': [Whitelist.PRETTY_NAME, Whitelist.objects.count()]
         },
         'Cotisations': {
-            'factures': [Facture.PRETTY_NAME, Facture.objects.count()],
-            'vente': [Vente.PRETTY_NAME, Vente.objects.count()],
-            'cotisation': [Cotisation.PRETTY_NAME, Cotisation.objects.count()],
-            'article': [Article.PRETTY_NAME, Article.objects.count()],
-            'banque': [Banque.PRETTY_NAME, Banque.objects.count()],
+            'factures': [Facture._meta.verbose_name.title(), Facture.objects.count()],
+            'vente': [Vente._meta.verbose_name.title(), Vente.objects.count()],
+            'cotisation': [Cotisation._meta.verbose_name.title(), Cotisation.objects.count()],
+            'article': [Article._meta.verbose_name.title(), Article.objects.count()],
+            'banque': [Banque._meta.verbose_name.title(), Banque.objects.count()],
         },
         'Machines': {
             'machine': [Machine.PRETTY_NAME, Machine.objects.count()],
