@@ -275,12 +275,12 @@ def new_serviceuser(request):
 @can_edit(ServiceUser)
 def edit_serviceuser(request, serviceuser, serviceuserid):
     """ Edit a ServiceUser """
-    user = EditServiceUserForm(request.POST or None, instance=user)
-    if user.is_valid():
-        user_object = user.save(commit=False)
-        if user.cleaned_data['password']:
-            user_object.set_password(user.cleaned_data['password'])
-        if user.changed_data:
+    serviceuser = EditServiceUserForm(request.POST or None, instance=serviceuser)
+    if serviceuser.is_valid():
+        user_object = serviceuser.save(commit=False)
+        if serviceuser.cleaned_data['password']:
+            user_object.set_password(serviceuser.cleaned_data['password'])
+        if serviceuser.changed_data:
             user_object.save()
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
@@ -292,7 +292,7 @@ def edit_serviceuser(request, serviceuser, serviceuserid):
 def del_serviceuser(request, serviceuser, serviceuserid):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
-        user.delete()
+        serviceuser.delete()
         messages.success(request, "L'user a été détruite")
         return redirect(reverse('users:index-serviceusers'))
     return form(
