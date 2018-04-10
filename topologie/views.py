@@ -182,41 +182,19 @@ def index_ap(request):
 
 @login_required
 @can_view_all(Stack)
+@can_view_all(Building)
+@can_view_all(SwitchBay)
 def index_stack(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = Stack.objects\
         .prefetch_related('switch_set__interface_set__domain__extension')
+    building_list = Building.objects.all()
+    switch_bay_list = SwitchBay.objects.select_related('building')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_STACK
-    )
-    return render(request, 'topologie/index_stack.html', {
-        'stack_list': stack_list
-        })
-
-
-@login_required
-@can_view_all(ModelSwitch)
-@can_view_all(ConstructorSwitch)
-def index_model_switch(request):
-    """ Affichage de l'ensemble des modèles de switches"""
-    model_switch_list = ModelSwitch.objects.select_related('constructor')
-    constructor_switch_list = ConstructorSwitch.objects
-    switch_bay_list = SwitchBay.objects.select_related('building')
-    building_list = Building.objects.all()
-    model_switch_list = SortTable.sort(
-        model_switch_list,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.TOPOLOGIE_INDEX_MODEL_SWITCH
-    )
-    constructor_switch_list = SortTable.sort(
-        constructor_switch_list,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH
     )
     building_list = SortTable.sort(
         building_list,
@@ -230,11 +208,35 @@ def index_model_switch(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_SWITCH_BAY
     )
+    return render(request, 'topologie/index_stack.html', {
+        'stack_list': stack_list,
+        'switch_bay_list': switch_bay_list,
+        'building_list' : building_list,
+        })
+
+
+@login_required
+@can_view_all(ModelSwitch)
+@can_view_all(ConstructorSwitch)
+def index_model_switch(request):
+    """ Affichage de l'ensemble des modèles de switches"""
+    model_switch_list = ModelSwitch.objects.select_related('constructor')
+    constructor_switch_list = ConstructorSwitch.objects
+    model_switch_list = SortTable.sort(
+        model_switch_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_MODEL_SWITCH
+    )
+    constructor_switch_list = SortTable.sort(
+        constructor_switch_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH
+    )
     return render(request, 'topologie/index_model_switch.html', {
         'model_switch_list': model_switch_list,
         'constructor_switch_list': constructor_switch_list,
-        'switch_bay_list': switch_bay_list,
-        'building_list' : building_list,
         })
 
 

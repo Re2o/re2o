@@ -29,12 +29,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Stacks{% endblock %}
 
 {% block content %}
-  <h2>Stacks</h2>
-{% can_create Stack %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}"><i class="fa fa-plus"></i> Ajouter une stack</a>
-{% acl_end %}
+    <h2>Stacks</h2>
+    {% can_create Stack %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-stack' %}">
+        <i class="fa fa-plus"></i> Ajouter une stack
+    </a>
+    {% acl_end %}
     {% include "topologie/aff_stacks.html" with stack_list=stack_list %}
-    <br />
-    <br />
-    <br />
+    
+    <h2>Baie de brassage</h2>
+    {% can_create SwitchBay %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch-bay' %}">
+        <i class="fa fa-plus"></i> Ajouter une baie de brassage
+    </a>
+    <hr>
+    {% acl_end %}
+    {% include "topologie/aff_switch_bay.html" with switch_bay_list=switch_bay_list %}
+    
+    <h2>Batiment</h2>
+    {% can_create Building %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-building' %}">
+        <i class="fa fa-plus"></i> Ajouter un bâtiment
+    </a>
+    <hr>
+    {% acl_end %}
+    {% include "topologie/aff_building.html" with building_list=building_list %}
 {% endblock %}
