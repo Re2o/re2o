@@ -1,0 +1,156 @@
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2018 Maël Kervella
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+msgid ""
+msgstr ""
+"Project-Id-Version: 2.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-31 14:05+0000\n"
+"PO-Revision-Date: 2018-03-31 16:09+0002\n"
+"Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/re2o/about.html:29 templates/re2o/about.html:35
+msgid "About Re2o"
+msgstr "A propos de Re2o"
+
+#: templates/re2o/about.html:32
+#, python-format
+msgid "About %(AssoName)s"
+msgstr "A propos de %(AssoName)s"
+
+#: templates/re2o/about.html:36
+msgid ""
+"\n"
+"        Re2o is an administration tool initiated by\n"
+"        <a href=\"https://rezometz.org/\">Rezo Supelec Metz</a> and a few\n"
+"        members of other <a href=\"https://federez.net\">FedeRez</a> "
+"associations\n"
+"        around the summer 2016.<br />\n"
+"        It is intended to be a tool independant from any network "
+"infrastructure\n"
+"        so it can be setup in \"a few steps\". This tool is entirely free "
+"and\n"
+"        available under a GNU Public License v2 (GPLv2) license on\n"
+"        <a href=\"https://gitlab.federez.net/federez/re2o/\">FedeRez gitlab</"
+"a>.<br />\n"
+"        Re2o's mainteners are proud volunteers mainly from French "
+"engineering\n"
+"        schools (but not limited to) who have given a lot of their time to "
+"make\n"
+"        this project possible. So please be kind with them.<br />\n"
+"        If you want to get involved in the development process, we will be "
+"glad to\n"
+"        welcome you so do not hesitate to contact us and come help us build "
+"the\n"
+"        future of Re2o.\n"
+"        "
+msgstr ""
+"\n"
+"        Re2o est un outil d'administration initié par\n"
+"        <a href=\"https://rezometz.org/\">Rezo Supelec Metz</a> et quelques\n"
+"        membres d'autres assocations de "
+"<a href=\"https://federez.net\">FedeRez</a>\n"
+"        autour de l'été 2016.<br />\n"
+"        Il se veut être un outil idépendant de toute infrastructure réseau\n"
+"        pour pouvoir être installé en \"quelques étapes\". Cet outil est "
+"entièrement gratuit et\n"
+"        est disponible sous license GNU Public License v2 (GPLv2) sur le\n"
+"        <a href=\"https://gitlab.federez.net/federez/re2o/\">gitlab de FedeRez"
+"</a>.<br />\n"
+"        Les mainteneurs de Re2o sont de fiers bénévoles venant principalement "
+"d'écoles d'ingénieurs françaises\n"
+"        (mais pas seulement) qui ont donné beaucoup de leur temps pour faire "
+"en sorte que\n"
+"        ce projet soit possible. Donc s'il vous plait soyez gentils avez eux."
+"<br />\n"
+"        Si vous voulez prendre part au développement, nous serons heureux "
+"de\n"
+"        vous accueillir donc n'hésitez pas à nous contacter et à venir nous "
+"aider à construire le\n"
+"        futur de Re2o.\n"
+"        "
+
+#: templates/re2o/about.html:57
+msgid "Contributors list"
+msgstr "Liste des contributeurs"
+
+#: templates/re2o/about.html:66
+msgid "Version informations"
+msgstr "Informations de versions"
+
+#: templates/re2o/about.html:68
+#, python-format
+msgid ""
+"\n"
+"                    <b>Remote URL</b>: %(git_info_remote)s\n"
+"                "
+msgstr ""
+"\n"
+"                    <b>URL distante</b> : %(git_info_remote)s\n"
+"                "
+
+#: templates/re2o/about.html:71
+#, python-format
+msgid ""
+"\n"
+"                    <b>Branch</b>: %(git_info_branch)s\n"
+"                "
+msgstr ""
+"\n"
+"                    <b>Branche</b> : %(git_info_branch)s\n"
+"                "
+
+#: templates/re2o/about.html:74
+#, python-format
+msgid ""
+"\n"
+"                    <b>Commit</b>: %(git_info_commit)s\n"
+"                "
+msgstr ""
+"\n"
+"                    <b>Commit</b> : %(git_info_commit)s\n"
+"                "
+
+#: templates/re2o/about.html:77
+#, python-format
+msgid ""
+"\n"
+"                    <b>Commit date</b>: %(git_info_commit_date)s\n"
+"                "
+msgstr ""
+"\n"
+"                    <b>Date du commit</b> : %(git_info_commit_date)s\n"
+"                "
+
+#: templates/re2o/about.html:82
+msgid "Dependencies"
+msgstr "Dépendances"
+
+#: views.py:172
+msgid "No Git repository configured"
+msgstr "Aucun repository git configuré"
+
+#: views.py:178
+msgid "Unable to get the information"
+msgstr "Impossible d'obtenir l'information"
