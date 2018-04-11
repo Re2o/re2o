@@ -145,14 +145,6 @@ class NewFactureFormPdf(Form):
     """
     Form used to create a custom PDF invoice.
     """
-    article = forms.ModelMultipleChoiceField(
-        queryset=Article.objects.all(),
-        label=_l("Article")
-    )
-    number = forms.IntegerField(
-        label=_l("Quantity"),
-        validators=[MinValueValidator(1)]
-    )
     paid = forms.BooleanField(label=_l("Paid"), required=False)
     # TODO : change dest field to recipient
     dest = forms.CharField(required=True, max_length=255, label=_l("Recipient"))

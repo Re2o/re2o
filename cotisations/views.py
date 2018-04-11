@@ -198,22 +198,40 @@ def new_facture_pdf(request):
     get invoices that are not taken into account, for the administrative
     point of view.
     """
+    # The template needs the list of articles (for the JS part)
+    articles = Article.objects.filter(
+        Q(type_user='All') | Q(type_user=request.user.class_name)
+    )
+    # Building the invocie form and the article formset
     invoice_form = NewFactureFormPdf(request.POST or None)
-    if invoice_form.is_valid():
-        tbl = []
-        article = invoice_form.cleaned_data['article']
-        quantity = invoice_form.cleaned_data['number']
+    if request.user.is_class_club:
+        articles_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+    else:
+        articles_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+    if invoice_form.is_valid() and articles_formset.is_valid():
+        # Get the article list and build an list out of it
+        # contiaining (article_name, article_price, quantity, total_price)
+        articles_info = []
+        for articles_form in articles_formset:
+            if articles_form.cleaned_data:
+                article = articles_form.cleaned_data['article']
+                quantity = articles_form.cleaned_data['quantity']
+                articles_info.append({
+                    'name': article.name,
+                    'price': article.prix,
+                    'quantity': quantity,
+                    'total_price': article.prix * quantity
+                })
         paid = invoice_form.cleaned_data['paid']
         recipient = invoice_form.cleaned_data['dest']
         address = invoice_form.cleaned_data['chambre']
-        for art in article:
-            tbl.append([art, quantity, art.prix * quantity])
-        total_price = sum(a[2] for a in tbl)
+        total_price = sum(a['total_price'] for a in articles_info)
+
         return render_invoice(request, {
             'DATE': timezone.now(),
             'recipient_name': recipient,
             'address': address,
-            'article': tbl,
+            'article': articles_info,
             'total': total_price,
             'paid': paid,
             'asso_name': AssoOption.get_cached_value('name'),
@@ -226,7 +244,9 @@ def new_facture_pdf(request):
             })
     return form({
         'factureform': invoice_form,
-        'action_name': _("Edit")
+        'action_name': _("Create"),
+        'articlesformset': articles_formset,
+        'articles': articles
         }, 'cotisations/facture.html', request)
 
 
@@ -242,9 +262,16 @@ def facture_pdf(request, facture, factureid):
     """
     # TODO : change vente to purchase
     purchases_objects = Vente.objects.all().filter(facture=facture)
-    purchases = []
+    # Get the article list and build an list out of it
+    # contiaining (article_name, article_price, quantity, total_price)
+    purchases_info = []
     for purchase in purchases_objects:
-        purchases.append([purchase, purchase.number, purchase.prix_total])
+        purchases_info.append({
+            'name': purchase.name,
+            'price': purchase.prix,
+            'quantity': purchase.number,
+            'total_price': purchase.prix_total
+        })
     return render_invoice(request, {
         'paid': True,
         'fid': facture.id,
@@ -254,7 +281,7 @@ def facture_pdf(request, facture, factureid):
             facture.user.surname
         ),
         'address': facture.user.room,
-        'article': purchases,
+        'article': purchases_info,
         'total': facture.prix_total(),
         'asso_name': AssoOption.get_cached_value('name'),
         'line1': AssoOption.get_cached_value('adresse1'),
