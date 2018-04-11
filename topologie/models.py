@@ -371,8 +371,9 @@ class Port(AclMixin, RevMixin, models.Model):
                 mutuellement exclusifs")
         if self.related == self:
             raise ValidationError("On ne peut relier un port à lui même")
-        if self.related and not self.related.related:
-            if self.related.machine_interface or self.related.room:
+        if self.related:
+            if self.related.machine_interface or self.related.room or\
+                    (self.related.related and self.related.related != self):
                 raise ValidationError("Le port relié est déjà occupé, veuillez\
                     le libérer avant de créer une relation")
             else:
