@@ -201,20 +201,18 @@ def new_facture_pdf(request):
     invoice_form = NewFactureFormPdf(request.POST or None)
     if invoice_form.is_valid():
         tbl = []
-        article = facture_form.cleaned_data['article']
-        quantity = facture_form.cleaned_data['number']
-        paid = facture_form.cleaned_data['paid']
-        recipient = facture_form.cleaned_data['dest']
-        room = facture_form.cleaned_data['chambre']
-        invoice_id = facture_form.cleaned_data['fid']
+        article = invoice_form.cleaned_data['article']
+        quantity = invoice_form.cleaned_data['number']
+        paid = invoice_form.cleaned_data['paid']
+        recipient = invoice_form.cleaned_data['dest']
+        address = invoice_form.cleaned_data['chambre']
         for art in article:
             tbl.append([art, quantity, art.prix * quantity])
         total_price = sum(a[2] for a in tbl)
-        user = {'name': recipient, 'room': room}
         return render_invoice(request, {
             'DATE': timezone.now(),
-            'dest': user,
-            'fid': invoice_id,
+            'recipient_name': recipient,
+            'address': address,
             'article': tbl,
             'total': total_price,
             'paid': paid,
@@ -251,7 +249,11 @@ def facture_pdf(request, facture, factureid):
         'paid': True,
         'fid': facture.id,
         'DATE': facture.date,
-        'dest': facture.user,
+        'recipient_name': "{} {}".format(
+            facture.user.name,
+            facture.user.surname
+        ),
+        'addresse': facture.user.room,
         'article': purchases,
         'total': facture.prix_total(),
         'asso_name': AssoOption.get_cached_value('name'),

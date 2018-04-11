@@ -158,12 +158,6 @@ class NewFactureFormPdf(Form):
     dest = forms.CharField(required=True, max_length=255, label=_l("Recipient"))
     # TODO : change chambre field to address
     chambre = forms.CharField(required=False, max_length=10, label=_l("Address"))
-    # TODO : change fid field to invoice_id
-    fid = forms.CharField(
-        required=True,
-        max_length=10,
-        label=_l("Invoice number")
-    )
 
 # TODO : change Facture to Invoice
 class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
