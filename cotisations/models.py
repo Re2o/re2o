@@ -394,7 +394,7 @@ def vente_post_save(sender, **kwargs):
     LDAP user when a purchase has been saved.
     """
     purchase = kwargs['instance']
-    if hasattr(vente, 'cotisation'):
+    if hasattr(purchase, 'cotisation'):
         purchase.cotisation.vente = purchase
         purchase.cotisation.save()
     if purchase.type_cotisation:
