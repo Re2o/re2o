@@ -253,7 +253,7 @@ def facture_pdf(request, facture, factureid):
             facture.user.name,
             facture.user.surname
         ),
-        'addresse': facture.user.room,
+        'address': facture.user.room,
         'article': purchases,
         'total': facture.prix_total(),
         'asso_name': AssoOption.get_cached_value('name'),
