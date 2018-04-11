@@ -173,39 +173,17 @@ def about_page(request):
     git_info_contributors = CONTRIBUTORS
     try:
         git_repo = git.Repo(BASE_DIR)
-    except git.InvalidGitRepositoryError:
-        NO_GIT_MSG = _("No Git repository configured")
+        git_info_remote = ", ".join(git_repo.remote().urls)
+        git_info_branch = git_repo.active_branch.name
+        last_commit = git_repo.commit()
+        git_info_commit = last_commit.hexsha
+        git_info_commit_date = last_commit.committed_datetime
+    except:
+        NO_GIT_MSG = _("Unable to get the information")
         git_info_remote = NO_GIT_MSG
         git_info_branch = NO_GIT_MSG
         git_info_commit = NO_GIT_MSG
         git_info_commit_date = NO_GIT_MSG
-    else:
-        UNABLE_GIT_MSG = _("Unable to get the information")
-
-        try:
-            git_info_remote = ", ".join(git_repo.remote().urls)
-        except:
-            git_info_remote = UNABLE_GIT_MSG
-
-        try:
-            git_info_branch = git_repo.active_branch.name
-        except:
-            git_info_branch = UNABLE_GIT_MSG
-
-        try:
-            last_commit = git_repo.commit()
-        except:
-            git_info_commit = UNABLE_GIT_MSG
-        else:
-            try:
-                git_info_commit = last_commit.hexsha
-            except:
-                git_info_commit = UNABLE_GIT_MSG
-
-            try:
-                git_info_commit_date = last_commit.committed_datetime
-            except:
-                git_info_commit_date = UNABLE_GIT_MSG
 
     dependencies = INSTALLED_APPS + MIDDLEWARE_CLASSES
 
