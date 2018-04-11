@@ -145,25 +145,11 @@ class NewFactureFormPdf(Form):
     """
     Form used to create a custom PDF invoice.
     """
-    article = forms.ModelMultipleChoiceField(
-        queryset=Article.objects.all(),
-        label=_l("Article")
-    )
-    number = forms.IntegerField(
-        label=_l("Quantity"),
-        validators=[MinValueValidator(1)]
-    )
     paid = forms.BooleanField(label=_l("Paid"), required=False)
     # TODO : change dest field to recipient
     dest = forms.CharField(required=True, max_length=255, label=_l("Recipient"))
     # TODO : change chambre field to address
     chambre = forms.CharField(required=False, max_length=10, label=_l("Address"))
-    # TODO : change fid field to invoice_id
-    fid = forms.CharField(
-        required=True,
-        max_length=10,
-        label=_l("Invoice number")
-    )
 
 # TODO : change Facture to Invoice
 class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):

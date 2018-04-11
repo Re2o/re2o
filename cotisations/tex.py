@@ -48,7 +48,7 @@ def render_invoice(request, ctx={}):
     filename = '_'.join([
         'invoice', 
         slugify(ctx['asso_name']),
-        slugify(ctx['dest'].pseudo),
+        slugify(ctx['recipient_name']),
         str(ctx['DATE'].year),
         str(ctx['DATE'].month),
         str(ctx['DATE'].day),

@@ -65,12 +65,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </th>
                 <th>
                     {% trans "Date" as tr_date %}
-                    {% include 'buttons/sort.html' with prefix='control' col='date' text=tr_date %}<
-                    /th>
+                    {% include 'buttons/sort.html' with prefix='control' col='date' text=tr_date %}i
+		    </th>
                 <th>
                     {% trans "Validated" as tr_validated %}
-                    {% include 'buttons/sort.html' with prefix='control' col='valid' text=tr_validated %}<
-                    /th>
+                    {% include 'buttons/sort.html' with prefix='control' col='valid' text=tr_validated %}
+		    </th>
                 <th>
                     {% trans "Controlled" as tr_controlled %}
                     {% include 'buttons/sort.html' with prefix='control' col='control' text=tr_controlled %}

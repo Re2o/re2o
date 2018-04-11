@@ -32,76 +32,97 @@
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{eurosym}
+\usepackage{multicol}
 
 \pagestyle{empty} % No page numbers
 \linespread{1.5} % Line spacing
 
-\setlength{\doublerulesep}{\arrayrulewidth} % Double rules look like one thick one
-\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+\newcommand{\doublehline}{\noalign{\hrule height 1pt}}
 \setlength{\parindent}{0cm}
 
 
 
 \begin{document}
-%\newcommand{\product}[5][0][0][0][0][0]{
-%\setlength{ptotal}{#3*\real{#4}}
-%\addtolength{total}{#3*\real{#4}}
+    
+    %----------------------------------------------------------------------------------------
+    %   HEADING SECTION
+    %----------------------------------------------------------------------------------------
+    \begin{center}
+        {\Huge\bf {{asso_name|safe}}  } % Company providing the invoice
+    \end{center}
 
-%----------------------------------------------------------------------------------------
-%	HEADING SECTION
-%----------------------------------------------------------------------------------------
-%\includegraphics[width=3.5cm]{% templatetag openbrace %}{{ tpl_path }}} 
-\tab \tab \tab \tab \tab {\Huge\bf {{asso_name|safe}}  }\hfil % Company providing the invoice
-\bigskip\break % Whitespace
-\hrule % Horizontal line \\
-\vspace{0.5cm}
-{\bf Adresse :} \tab \parbox [t] {0.5\textwidth}{ {{line1|safe}} \\  {{line2|safe}} }  \hfill \parbox [t] {0.3\textwidth}{ {\bf Téléphone :}  {{phone}} \\ {\bf Mail :} {{email|safe}} }   \\ % Your address and contact information
-\\
-{\bf Siret :} \tab{{siret}}
-\\ \\ \\
-\\ 
-\parbox [t] {0.5\textwidth}{ {\bf Pour :}  {{dest.name|safe}} {{dest.surname|safe}} \\ {\bf Adresse :} \tab {% if dest.room == None %} Aucune adresse renseignée {% else %}{{dest.room}}{% endif %} }  \hfill \parbox [t] {0.3\textwidth}{ {\bf Date :}  {{DATE}} }
-\\ \\
+    \bigskip
+    \hrule
+    \smallskip
 
-{\bf Facture \no :} \tab {{ fid }} \\\\
-%----------------------------------------------------------------------------------------
-%	TABLE OF EXPENSES
-%----------------------------------------------------------------------------------------
+    {\setlength{\tabcolsep}{0pt} % Make table columns tighter, usefull for postionning
+        \begin{tabular}{l l}
+            {\bf Adresse :}~ & {{line1|safe}} \\
+                             & {{line2|safe}} \\
+        \end{tabular}
+        \hfill
+        \begin{tabular}{r}
+            {\bf Téléphone :} {{phone}} \\
+            {\bf Mail :} {{email|safe}} \\
+        \end{tabular}
+    }
+    \\
+    {\bf Siret :} {{siret|safe}}
 
-\begin{tabularx}{\textwidth}{|X|r|r|r|}
-\hline
-   \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
-\hline
+    \vspace{2cm}
+     
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l r}
+        {\bf Pour :} {{recipient_name|safe}} & {\bf Date :} {{DATE}} \\
+        {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %} & \\
+        {% if fid is not None %}
+        {\bf Facture n\textsuperscript{o} :} {{ fid }} & \\
+        {% endif %}
+    \end{tabular*}
+    \\
 
 
-{% for a in article %}
-\hline
-    {{a.0.name}} & {{a.0.prix}} \euro & {{a.1}} & {{a.2}} \euro\\
-\hline
-{% endfor %}
+    %----------------------------------------------------------------------------------------
+    %   TABLE OF EXPENSES
+    %----------------------------------------------------------------------------------------
+    
+    \begin{tabularx}{\textwidth}{|X|r|r|r|}
 
-	\hline
-\end{tabularx}
+        \hline
+        \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
+        \doublehline
+        
+        {% for a in article %}
+        {{a.name}} & {{a.price}} \euro & {{a.quantity}} & {{a.total_price}} \euro\\
+        \hline
+        {% endfor %}
+        
+    \end{tabularx}
+    
+    \vspace{1cm}
 
-\vspace{1cm}
-\hfill
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Total} & {{total|floatformat:2}} \euro \\
-\textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro \\
-\hline
-\textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
-\hline
-\hline
+    \hfill
+        \begin{tabular}{|l|r|}
+            \hline
+            \textbf{Total} & {{total|floatformat:2}} \euro \\
+            \textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro \\
+            \doublehline
+            \textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
+            \hline
+        \end{tabular}
+    
+    \vfill
 
-\end{tabular}
 
-\vspace{1.5cm} % Whitespace
-\hrule % Horizontal line
-\vspace{0.25cm}
-\footnotesize{TVA non applicable, art. 293 B du CGI}
-	
-{% endlanguage %}
-%----------------------------------------------------------------------------------------
+    %----------------------------------------------------------------------------------------
+    %   FOOTNOTE
+    %----------------------------------------------------------------------------------------
+    
+    \hrule
+    \smallskip
+    \footnotesize{TVA non applicable, art. 293 B du CGI}
+
+    %----------------------------------------------------------------------------------------
 
 \end{document}
+
+{% endlanguage %}
