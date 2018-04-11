@@ -35,13 +35,17 @@ from reversion.models import Version
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.views.decorators.cache import cache_page
+
 import git
 import os
 import time
 from itertools import chain
+
 from preferences.models import Service
 from preferences.models import OptionalUser, GeneralOption, AssoOption
 import users, preferences, cotisations, topologie, machines
+
 from .utils import re2o_paginator
 from .settings import BASE_DIR, INSTALLED_APPS, MIDDLEWARE_CLASSES
 from .contributors import CONTRIBUTORS
@@ -163,6 +167,7 @@ def history(request, application, object_name, object_id):
     )
 
 
+@cache_page(7 * 24 * 60 * 60)
 def about_page(request):
     option = AssoOption.objects.get()
     git_info_contributors = CONTRIBUTORS
