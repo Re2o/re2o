@@ -38,16 +38,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
 
         {% for port in port_list|slice:"::2" %}
+            {% if port.room %}
             <td class="p-3 mb-2 bg-success text-dark">
-                {% if port.room %}
-                {{ port.room }}
-                {% elif port.machine_interface %}
-                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
-                {% elif port.related%}
-                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
-                {% else %}
-                Vide
-                {% endif %}
+            {{ port.room }}
+            {% elif port.machine_interface %}
+	    <td class="p-3 mb-2 bg-warning text-dark">
+	    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
+            {% elif port.related%}
+	    <td class="p-3 mb-2 bg-danger text-dark">
+	    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
+            {% else %}
+	    <td class="p-3 mb-2 bg-info text-dark">
+            Vide
+            {% endif %}
             </td>
         {% endfor %}
         
@@ -63,16 +66,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
 
         {% for port in port_list|slice:"1::2" %}
+            {% if port.room %}
             <td class="p-3 mb-2 bg-success text-dark">
-                {% if port.room %}
-                {{ port.room }}
-                {% elif port.machine_interface %}
-                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
-                {% elif port.related%}
-                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
-                {% else %}
-                Vide
-                {% endif %}
+            {{ port.room }}
+            {% elif port.machine_interface %}
+	    <td class="p-3 mb-2 bg-warning text-dark">
+	    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
+            {% elif port.related%}
+	    <td class="p-3 mb-2 bg-danger text-dark">
+	    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
+            {% else %}
+	    <td class="p-3 mb-2 bg-info text-dark">
+            Vide
+            {% endif %}
             </td>
         {% endfor %}
         
