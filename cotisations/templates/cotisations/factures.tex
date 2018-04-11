@@ -37,7 +37,7 @@
 \pagestyle{empty} % No page numbers
 \linespread{1.5} % Line spacing
 
-\setlength{\doublerulesep}{\arrayrulewidth} % Double rules look like one thick one
+\newcommand{\doublehline}{\noalign{\hrule height 1pt}}
 \setlength{\parindent}{0cm}
 
 
@@ -55,28 +55,30 @@
     \hrule
     \smallskip
 
-    \begin{multicols}{2}
-        \begin{tabular}{@{\extracolsep{\fill}}l r}
-        {\bf Adresse :} & {{line1|safe}} \\
-                        & {{line2|safe}} \\
+    {\setlength{\tabcolsep}{0pt} % Make table columns tighter, usefull for postionning
+        \begin{tabular}{l l}
+            {\bf Adresse :}~ & {{line1|safe}} \\
+                             & {{line2|safe}} \\
         \end{tabular}
-    \columnbreak
-        \\
-        {\bf Téléphone :} {{phone}} \\
-        {\bf Mail :} {{email|safe}}
-    \end{multicols}
-
+        \hfill
+        \begin{tabular}{r}
+            {\bf Téléphone :} {{phone}} \\
+            {\bf Mail :} {{email|safe}} \\
+        \end{tabular}
+    }
+    \\
     {\bf Siret :} {{siret|safe}}
-    
-    \vspace{2cm}
 
+    \vspace{2cm}
+     
     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l r}
         {\bf Pour :} {{recipient_name|safe}} & {\bf Date :} {{DATE}} \\
         {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %} & \\
+        {% if fid is not None %}
+        {\bf Facture n\textsuperscript{o} :} {{ fid }} & \\
+        {% endif %}
     \end{tabular*}
-    {% if fid is not None %}
-    {\bf Facture n\textsuperscript{o} :} {{ fid }} \\
-    {% endif %}
+    \\
 
 
     %----------------------------------------------------------------------------------------
@@ -87,15 +89,13 @@
 
         \hline
         \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
-        \hline
-        \hline
+        \doublehline
         
         {% for a in article %}
         {{a.0.name}} & {{a.0.prix}} \euro & {{a.1}} & {{a.2}} \euro\\
         \hline
         {% endfor %}
         
-        \hline
     \end{tabularx}
     
     \vspace{1cm}
@@ -105,9 +105,8 @@
             \hline
             \textbf{Total} & {{total|floatformat:2}} \euro \\
             \textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro \\
-            \hline
+            \doublehline
             \textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
-            \hline
             \hline
         \end{tabular}
     
