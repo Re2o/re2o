@@ -659,9 +659,8 @@ def cotisation_post_save(sender, **kwargs):
     regen('mailing')
 
 
-# TODO : should be name cotisation_post_delete
 @receiver(post_delete, sender=Cotisation)
-def vente_post_delete(sender, **kwargs):
+def cotisation_post_delete(sender, **kwargs):
     """
     Mark some services as needing a regeneration after the deletion of a
     cotisation. Indeed the membership status may have changed.
