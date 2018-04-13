@@ -104,7 +104,7 @@ class OuverturePortListAdmin(VersionAdmin):
 
 
 class InterfaceAdmin(VersionAdmin):
-    list_display = ('machine','type','mac_address','ipv4','details')
+    list_display = ('machine', 'type', 'mac_address', 'ipv4', 'details')
 
 
 class DomainAdmin(VersionAdmin):
@@ -133,5 +133,3 @@ admin.site.register(Ipv6List, Ipv6ListAdmin)
 admin.site.register(Nas, NasAdmin)
 admin.site.register(OuverturePort, OuverturePortAdmin)
 admin.site.register(OuverturePortList, OuverturePortListAdmin)
-
-

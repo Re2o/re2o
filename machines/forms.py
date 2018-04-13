@@ -94,7 +94,8 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
         if "ipv4" in self.fields:
-            self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+            self.fields['ipv4'].empty_label = ("Assignation automatique de "
+                                               "l'ipv4")
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
@@ -328,6 +329,7 @@ class MxForm(FormRevMixin, ModelForm):
             interface_parent=None
         ).select_related('extension')
 
+
 class DelMxForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs MX"""
     mx = forms.ModelMultipleChoiceField(
@@ -472,8 +474,10 @@ class ServiceForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['servers'].queryset = Interface.objects.all()\
-        .select_related('domain__extension')
+        self.fields['servers'].queryset = (Interface.objects.all()
+                                           .select_related(
+                                               'domain__extension'
+                                           ))
 
     def save(self, commit=True):
         instance = super(ServiceForm, self).save(commit=False)

@@ -40,7 +40,7 @@ from django.core.validators import MaxValueValidator
 from macaddress.fields import MACAddressField
 
 from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin, RevMixin 
+from re2o.mixins import AclMixin, RevMixin
 
 import users.models
 import preferences.models
@@ -63,7 +63,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     class Meta:
         permissions = (
             ("view_machine", "Peut voir un objet machine quelquonque"),
-            ("change_machine_user", "Peut changer le propriétaire d'une machine"),
+            ("change_machine_user",
+             "Peut changer le propriétaire d'une machine"),
         )
 
     def get_instance(machineid, *args, **kwargs):
@@ -76,7 +77,12 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     def linked_objects(self):
         """Return linked objects : machine and domain.
         Usefull in history display"""
-        return chain(self.interface_set.all(), Domain.objects.filter(interface_parent__in=self.interface_set.all()))
+        return chain(
+            self.interface_set.all(),
+            Domain.objects.filter(
+                interface_parent__in=self.interface_set.all()
+            )
+        )
 
     @staticmethod
     def can_change_user(user_request, *args, **kwargs):
@@ -90,7 +96,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             A tuple with a boolean stating if edition is allowed and an
             explanation message.
         """
-        return user_request.has_perm('machines.change_machine_user'), "Vous ne pouvez pas modifier l'utilisateur de la machine."
+        return (user_request.has_perm('machines.change_machine_user'),
+                "Vous ne pouvez pas modifier l'utilisateur de la machine.")
 
     def can_view_all(user_request, *args, **kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des machines,
@@ -98,7 +105,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_machine'):
-            return False, u"Vous ne pouvez pas afficher l'ensemble des machines sans permission"
+            return False, (u"Vous ne pouvez pas afficher l'ensemble des "
+                           "machines sans permission")
         return True, None
 
     def can_create(user_request, userid, *args, **kwargs):
@@ -111,17 +119,21 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             user = users.models.User.objects.get(pk=userid)
         except users.models.User.DoesNotExist:
             return False, u"Utilisateur inexistant"
-        max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
+        max_lambdauser_interfaces = (preferences.models.OptionalMachine
+                                     .get_cached_value(
+                                         'max_lambdauser_interfaces'
+                                     ))
         if not user_request.has_perm('machines.add_machine'):
-            if not preferences.models.OptionalMachine.get_cached_value('create_machine'):
+            if not (preferences.models.OptionalMachine
+                    .get_cached_value('create_machine')):
                 return False, u"Vous ne pouvez pas ajouter une machine"
             if user != user_request:
-                return False, u"Vous ne pouvez pas ajouter une machine à un\
-                        autre user que vous sans droit"
+                return False, (u"Vous ne pouvez pas ajouter une machine à un "
+                               "autre user que vous sans droit")
             if user.user_interfaces().count() >= max_lambdauser_interfaces:
-                return False, u"Vous avez atteint le maximum d'interfaces\
-                        autorisées que vous pouvez créer vous même (%s) "\
-                        % max_lambdauser_interfaces
+                return False, (u"Vous avez atteint le maximum d'interfaces "
+                               "autorisées que vous pouvez créer vous même "
+                               "(%s) " % max_lambdauser_interfaces)
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -131,9 +143,15 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison le cas échéant"""
         if self.user != user_request:
-            if not user_request.has_perm('machines.change_interface') or not self.user.can_edit(self.user, user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                        d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_interface') or
+                    not self.user.can_edit(
+                        self.user,
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -143,9 +161,15 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if self.user != user_request:
-            if not user_request.has_perm('machines.change_interface') or not self.user.can_edit(self.user, user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                        d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_interface') or
+                    not self.user.can_edit(
+                        self.user,
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -154,15 +178,16 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param self: instance machine à éditer
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_machine') and self.user != user_request:
-            return False, u"Vous n'avez pas droit de voir les machines autre\
-                que les vôtres"
+        if (not user_request.has_perm('machines.view_machine') and
+                self.user != user_request):
+            return False, (u"Vous n'avez pas droit de voir les machines autre "
+                           "que les vôtres")
         return True, None
 
     def __init__(self, *args, **kwargs):
         super(Machine, self).__init__(*args, **kwargs)
         self.field_permissions = {
-            'user' : self.can_change_user,
+            'user': self.can_change_user,
         }
 
     def __str__(self):
@@ -184,7 +209,8 @@ class MachineType(RevMixin, AclMixin, models.Model):
     class Meta:
         permissions = (
             ("view_machinetype", "Peut voir un objet machinetype"),
-            ("use_all_machinetype", "Peut utiliser n'importe quel type de machine"),
+            ("use_all_machinetype",
+             "Peut utiliser n'importe quel type de machine"),
         )
 
     def all_interfaces(self):
@@ -202,7 +228,8 @@ class MachineType(RevMixin, AclMixin, models.Model):
             message is acces is not allowed.
         """
         if not user_request.has_perm('machines.use_all_machinetype'):
-            return False, u"Vous n'avez pas le droit d'utiliser tout types de machines"
+            return False, (u"Vous n'avez pas le droit d'utiliser tout types "
+                           "de machines")
         return True, None
 
     def __str__(self):
@@ -300,7 +327,11 @@ class IpType(RevMixin, AclMixin, models.Model):
         if not self.prefix_v6:
             return
         else:
-            for ipv6 in Ipv6List.objects.filter(interface__in=Interface.objects.filter(type__in=MachineType.objects.filter(ip_type=self))):
+            for ipv6 in Ipv6List.objects.filter(
+                interface__in=Interface.objects.filter(
+                    type__in=MachineType.objects.filter(ip_type=self)
+                )
+            ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
     def clean(self):
@@ -330,7 +361,8 @@ class IpType(RevMixin, AclMixin, models.Model):
         super(IpType, self).save(*args, **kwargs)
 
     def can_use_all(user_request, *args, **kwargs):
-        """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
+        """Superdroit qui permet d'utiliser toutes les extensions sans
+        restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.use_all_iptype'), None
@@ -409,17 +441,17 @@ class SOA(RevMixin, AclMixin, models.Model):
         help_text='Email du contact pour la zone'
     )
     refresh = models.PositiveIntegerField(
-        default=86400,    # 24 hours
+        default=86400,  # 24 hours
         help_text='Secondes avant que les DNS secondaires doivent demander le\
                    serial du DNS primaire pour détecter une modification'
     )
     retry = models.PositiveIntegerField(
-        default=7200,    # 2 hours
+        default=7200,  # 2 hours
         help_text='Secondes avant que les DNS secondaires fassent une nouvelle\
                    demande de serial en cas de timeout du DNS primaire'
     )
     expire = models.PositiveIntegerField(
-        default=3600000, # 1000 hours
+        default=3600000,  # 1000 hours
         help_text='Secondes après lesquelles les DNS secondaires arrêtent de\
                    de répondre aux requêtes en cas de timeout du DNS primaire'
     )
@@ -469,8 +501,10 @@ class SOA(RevMixin, AclMixin, models.Model):
         extensions .
         /!\ Ne jamais supprimer ou renommer cette fonction car elle est
         utilisée dans les migrations de la BDD. """
-        return cls.objects.get_or_create(name="SOA to edit", mail="postmaser@example.com")[0].pk
-
+        return cls.objects.get_or_create(
+            name="SOA to edit",
+            mail="postmaser@example.com"
+        )[0].pk
 
 
 class Extension(RevMixin, AclMixin, models.Model):
@@ -522,7 +556,8 @@ class Extension(RevMixin, AclMixin, models.Model):
         return entry
 
     def can_use_all(user_request, *args, **kwargs):
-        """Superdroit qui permet d'utiliser toutes les extensions sans restrictions
+        """Superdroit qui permet d'utiliser toutes les extensions sans
+        restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         return user_request.has_perm('machines.use_all_extension'), None
@@ -555,7 +590,10 @@ class Mx(RevMixin, AclMixin, models.Model):
     def dns_entry(self):
         """Renvoie l'entrée DNS complète pour un MX à mettre dans les
         fichiers de zones"""
-        return "@               IN  MX  " + str(self.priority).ljust(3) + " " + str(self.name)
+        return "@               IN  MX  {prior} {name}".format(
+            prior=str(self.priority).ljust(3),
+            name=str(name)
+        )
 
     def __str__(self):
         return str(self.zone) + ' ' + str(self.priority) + ' ' + str(self.name)
@@ -611,7 +649,7 @@ class Srv(RevMixin, AclMixin, models.Model):
     TCP = 'TCP'
     UDP = 'UDP'
 
-    service =  models.CharField(max_length=31)
+    service = models.CharField(max_length=31)
     protocole = models.CharField(
         max_length=3,
         choices=(
@@ -628,9 +666,9 @@ class Srv(RevMixin, AclMixin, models.Model):
     priority = models.PositiveIntegerField(
         default=0,
         validators=[MaxValueValidator(65535)],
-        help_text="La priorité du serveur cible (valeur entière non négative,\
-            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)"
-
+        help_text=("La priorité du serveur cible (valeur entière non "
+                   "négative, plus elle est faible, plus ce serveur sera "
+                   "utilisé s'il est disponible)")
     )
     weight = models.PositiveIntegerField(
         default=0,
@@ -667,7 +705,7 @@ class Srv(RevMixin, AclMixin, models.Model):
             str(self.port) + ' ' + str(self.target) + '.'
 
 
-class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
+class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ Une interface. Objet clef de l'application machine :
     - une address mac unique. Possibilité de la rendre unique avec le
     typemachine
@@ -692,7 +730,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
     class Meta:
         permissions = (
             ("view_interface", "Peut voir un objet interface"),
-            ("change_interface_machine", "Peut changer le propriétaire d'une interface"),
+            ("change_interface_machine",
+             "Peut changer le propriétaire d'une interface"),
         )
 
     @cached_property
@@ -719,7 +758,10 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         prefix_v6 = self.type.ip_type.prefix_v6
         if not prefix_v6:
             return None
-        return IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.id).exploded[20:])
+        return IPv6Address(
+            IPv6Address(prefix_v6).exploded[:20] +
+            IPv6Address(self.id).exploded[20:]
+        )
 
     def sync_ipv6_dhcpv6(self):
         """Affecte une ipv6 dhcpv6 calculée à partir de l'id de la machine"""
@@ -741,7 +783,9 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         ipv6_slaac = self.ipv6_slaac
         if not ipv6_slaac:
             return
-        ipv6_object = Ipv6List.objects.filter(interface=self, slaac_ip=True).first()
+        ipv6_object = (Ipv6List.objects
+                       .filter(interface=self, slaac_ip=True)
+                       .first())
         if not ipv6_object:
             ipv6_object = Ipv6List(interface=self, slaac_ip=True)
         if ipv6_object.ipv6 != str(ipv6_slaac):
@@ -750,19 +794,24 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
 
     def sync_ipv6(self):
         """Cree et met à jour l'ensemble des ipv6 en fonction du mode choisi"""
-        if preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'SLAAC':
+        if (preferences.models.OptionalMachine
+                .get_cached_value('ipv6_mode') == 'SLAAC'):
             self.sync_ipv6_slaac()
-        elif preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'DHCPV6':
+        elif (preferences.models.OptionalMachine
+              .get_cached_value('ipv6_mode') == 'DHCPV6'):
             self.sync_ipv6_dhcpv6()
         else:
             return
 
     def ipv6(self):
         """ Renvoie le queryset de la liste des ipv6
-        On renvoie l'ipv6 slaac que si le mode slaac est activé (et non dhcpv6)"""
-        if preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'SLAAC':
+        On renvoie l'ipv6 slaac que si le mode slaac est activé
+        (et non dhcpv6)"""
+        if (preferences.models.OptionalMachine
+                .get_cached_value('ipv6_mode') == 'SLAAC'):
             return self.ipv6list.all()
-        elif preferences.models.OptionalMachine.get_cached_value('ipv6_mode') == 'DHCPV6':
+        elif (preferences.models.OptionalMachine
+              .get_cached_value('ipv6_mode') == 'DHCPV6'):
             return self.ipv6list.filter(slaac_ip=False)
         else:
             return None
@@ -789,7 +838,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         # instance.
         # But in our case, it's impossible to create a type value so we raise
         # the error.
-        if not hasattr(self, 'type') :
+        if not hasattr(self, 'type'):
             raise ValidationError("Le type d'ip choisi n'est pas valide")
         self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
@@ -836,13 +885,18 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         except Machine.DoesNotExist:
             return False, u"Machine inexistante"
         if not user_request.has_perm('machines.add_interface'):
-            if not preferences.models.OptionalMachine.get_cached_value('create_machine'):
+            if not (preferences.models.OptionalMachine
+                    .get_cached_value('create_machine')):
                 return False, u"Vous ne pouvez pas ajouter une machine"
-            max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_interfaces')
+            max_lambdauser_interfaces = (preferences.models.OptionalMachine
+                                         .get_cached_value(
+                                             'max_lambdauser_interfaces'
+                                         ))
             if machine.user != user_request:
                 return False, u"Vous ne pouvez pas ajouter une interface à une\
                         machine d'un autre user que vous sans droit"
-            if machine.user.user_interfaces().count() >= max_lambdauser_interfaces:
+            if (machine.user.user_interfaces().count() >=
+                    max_lambdauser_interfaces):
                 return False, u"Vous avez atteint le maximum d'interfaces\
                         autorisées que vous pouvez créer vous même (%s) "\
                         % max_lambdauser_interfaces
@@ -850,7 +904,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
 
     @staticmethod
     def can_change_machine(user_request, *args, **kwargs):
-        return user_request.has_perm('machines.change_interface_machine'), "Droit requis pour changer la machine"
+        return (user_request.has_perm('machines.change_interface_machine'),
+                "Droit requis pour changer la machine")
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -859,9 +914,14 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            if not user_request.has_perm('machines.change_interface') or not self.machine.user.can_edit(user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                    d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_interface') or
+                    not self.machine.user.can_edit(
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -871,9 +931,14 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            if not user_request.has_perm('machines.change_interface') or not self.machine.user.can_edit(user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                        d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_interface') or
+                    not self.machine.user.can_edit(
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -882,15 +947,16 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin,models.Model):
         :param self: instance interface à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_interface') and self.machine.user != user_request:
-            return False, u"Vous n'avez pas le droit de voir des machines autre\
-                que les vôtres"
+        if (not user_request.has_perm('machines.view_interface') and
+                self.machine.user != user_request):
+            return False, (u"Vous n'avez pas le droit de voir des machines "
+                           "autre que les vôtres")
         return True, None
 
     def __init__(self, *args, **kwargs):
         super(Interface, self).__init__(*args, **kwargs)
         self.field_permissions = {
-            'machine' : self.can_change_machine,
+            'machine': self.can_change_machine,
         }
 
     def __str__(self):
@@ -921,13 +987,18 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         protocol='IPv6',
         unique=True
     )
-    interface = models.ForeignKey('Interface', on_delete=models.CASCADE, related_name='ipv6list')
+    interface = models.ForeignKey(
+        'Interface',
+        on_delete=models.CASCADE,
+        related_name='ipv6list'
+    )
     slaac_ip = models.BooleanField(default=False)
 
     class Meta:
         permissions = (
             ("view_ipv6list", "Peut voir un objet ipv6"),
-            ("change_ipv6list_slaac_ip", "Peut changer la valeur slaac sur une ipv6"),
+            ("change_ipv6list_slaac_ip",
+             "Peut changer la valeur slaac sur une ipv6"),
         )
 
     def can_create(user_request, interfaceid, *args, **kwargs):
@@ -948,7 +1019,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     @staticmethod
     def can_change_slaac_ip(user_request, *args, **kwargs):
-        return user_request.has_perm('machines.change_ipv6list_slaac_ip'), "Droit requis pour changer la valeur slaac ip"
+        return (user_request.has_perm('machines.change_ipv6list_slaac_ip'),
+                "Droit requis pour changer la valeur slaac ip")
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -957,9 +1029,14 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                    d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_ipv6list') or
+                    not self.interface.machine.user.can_edit(
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -969,9 +1046,14 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            if not user_request.has_perm('machines.change_ipv6list') or not self.interface.machine.user.can_edit(user_request, *args, **kwargs)[0]:
-                return False, u"Vous ne pouvez pas éditer une machine\
-                        d'un autre user que vous sans droit"
+            if (not user_request.has_perm('machines.change_ipv6list') or
+                    not self.interface.machine.user.can_edit(
+                        user_request,
+                        *args,
+                        **kwargs
+                    )[0]):
+                return False, (u"Vous ne pouvez pas éditer une machine "
+                               "d'un autre user que vous sans droit")
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -980,15 +1062,16 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param self: instance interface à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_ipv6list') and self.interface.machine.user != user_request:
-            return False, u"Vous n'avez pas le droit de voir des machines autre\
-                que les vôtres"
+        if (not user_request.has_perm('machines.view_ipv6list') and
+                self.interface.machine.user != user_request):
+            return False, (u"Vous n'avez pas le droit de voir des machines "
+                           "autre que les vôtres")
         return True, None
 
     def __init__(self, *args, **kwargs):
         super(Ipv6List, self).__init__(*args, **kwargs)
         self.field_permissions = {
-            'slaac_ip' : self.can_change_slaac_ip,
+            'slaac_ip': self.can_change_slaac_ip,
         }
 
     def check_and_replace_prefix(self, prefix=None):
@@ -996,17 +1079,27 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6
         if not prefix_v6:
             return
-        if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
-            self.ipv6 = IPv6Address(IPv6Address(prefix_v6).exploded[:20] + IPv6Address(self.ipv6).exploded[20:])
+        if (IPv6Address(self.ipv6).exploded[:20] !=
+                IPv6Address(prefix_v6).exploded[:20]):
+            self.ipv6 = IPv6Address(
+                IPv6Address(prefix_v6).exploded[:20] +
+                IPv6Address(self.ipv6).exploded[20:]
+            )
             self.save()
 
     def clean(self, *args, **kwargs):
-        if self.slaac_ip and Ipv6List.objects.filter(interface=self.interface, slaac_ip=True).exclude(id=self.id):
+        if self.slaac_ip and (Ipv6List.objects
+                              .filter(interface=self.interface, slaac_ip=True)
+                              .exclude(id=self.id)):
             raise ValidationError("Une ip slaac est déjà enregistrée")
         prefix_v6 = self.interface.type.ip_type.prefix_v6
         if prefix_v6:
-            if IPv6Address(self.ipv6).exploded[:20] != IPv6Address(prefix_v6).exploded[:20]:
-                raise ValidationError("Le prefixv6 est incorrect et ne correspond pas au type associé à la machine")
+            if (IPv6Address(self.ipv6).exploded[:20] !=
+                    IPv6Address(prefix_v6).exploded[:20]):
+                raise ValidationError(
+                    "Le prefixv6 est incorrect et ne correspond pas au type "
+                    "associé à la machine"
+                )
         super(Ipv6List, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -1089,7 +1182,10 @@ class Domain(RevMixin, AclMixin, models.Model):
     def dns_entry(self):
         """ Une entrée DNS"""
         if self.cname:
-            return str(self.name).ljust(15) + " IN CNAME   " + str(self.cname) + "."
+            return "{name} IN CNAME   {cname}.".format(
+                name=str(self.name).ljust(15),
+                cname=str(self.cname)
+            )
 
     def save(self, *args, **kwargs):
         """ Empèche le save sans extension valide.
@@ -1122,18 +1218,22 @@ class Domain(RevMixin, AclMixin, models.Model):
         except Interface.DoesNotExist:
             return False, u"Interface inexistante"
         if not user_request.has_perm('machines.add_domain'):
-            max_lambdauser_aliases = preferences.models.OptionalMachine.get_cached_value('max_lambdauser_aliases')
+            max_lambdauser_aliases = (preferences.models.OptionalMachine
+                                      .get_cached_value(
+                                          'max_lambdauser_aliases'
+                                      ))
             if interface.machine.user != user_request:
-                return False, u"Vous ne pouvez pas ajouter un alias à une\
-                        machine d'un autre user que vous sans droit"
+                return False, (u"Vous ne pouvez pas ajouter un alias à une "
+                               "machine d'un autre user que vous sans droit")
             if Domain.objects.filter(
-                    cname__in=Domain.objects.filter(
-                        interface_parent__in=interface.machine.user.user_interfaces()
-                    )
-                ).count() >= max_lambdauser_aliases:
-                return False, u"Vous avez atteint le maximum d'alias\
-                        autorisés que vous pouvez créer vous même (%s) "\
-                        % max_lambdauser_aliases
+                        cname__in=Domain.objects.filter(
+                            interface_parent__in=(interface.machine.user
+                                                  .user_interfaces())
+                        )
+                    ).count() >= max_lambdauser_aliases:
+                return False, (u"Vous avez atteint le maximum d'alias "
+                               "autorisés que vous pouvez créer vous même "
+                               "(%s) " % max_lambdauser_aliases)
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -1142,10 +1242,10 @@ class Domain(RevMixin, AclMixin, models.Model):
         :param self: Instance domain à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.change_domain') and\
-            self.get_source_interface.machine.user != user_request:
-            return False, u"Vous ne pouvez pas editer un alias à une machine\
-                    d'un autre user que vous sans droit"
+        if (not user_request.has_perm('machines.change_domain') and
+                self.get_source_interface.machine.user != user_request):
+            return False, (u"Vous ne pouvez pas editer un alias à une machine "
+                           "d'un autre user que vous sans droit")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1154,10 +1254,10 @@ class Domain(RevMixin, AclMixin, models.Model):
         :param self: Instance domain à del
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        if not user_request.has_perm('machines.delete_domain') and\
-            self.get_source_interface.machine.user != user_request:
-            return False, u"Vous ne pouvez pas supprimer un alias à une machine\
-                d'un autre user que vous sans droit"
+        if (not user_request.has_perm('machines.delete_domain') and
+                self.get_source_interface.machine.user != user_request):
+            return False, (u"Vous ne pouvez pas supprimer un alias à une "
+                           "machine d'un autre user que vous sans droit")
         return True, None
 
     def can_view(self, user_request, *args, **kwargs):
@@ -1166,10 +1266,10 @@ class Domain(RevMixin, AclMixin, models.Model):
         :param self: instance domain à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        if not user_request.has_perm('machines.view_domain') and\
-            self.get_source_interface.machine.user != user_request:
-            return False, u"Vous n'avez pas le droit de voir des machines autre\
-                que les vôtres"
+        if (not user_request.has_perm('machines.view_domain') and
+                self.get_source_interface.machine.user != user_request):
+            return False, (u"Vous n'avez pas le droit de voir des machines "
+                           "autre que les vôtres")
         return True, None
 
     def __str__(self):
@@ -1238,8 +1338,8 @@ class Service(RevMixin, AclMixin, models.Model):
         """ Django ne peut créer lui meme les relations manytomany avec table
         intermediaire explicite"""
         for serv in servers.exclude(
-                pk__in=Interface.objects.filter(service=self)
-            ):
+                    pk__in=Interface.objects.filter(service=self)
+                ):
             link = Service_link(service=self, server=serv)
             link.save()
         Service_link.objects.filter(service=self).exclude(server__in=servers)\
@@ -1314,8 +1414,8 @@ class OuverturePortList(RevMixin, AclMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if not user_request.has_perm('machines.delete_ouvertureportlist'):
-            return False, u"Vous n'avez pas le droit de supprimer une ouverture\
-                de port"
+            return False, (u"Vous n'avez pas le droit de supprimer une "
+                           "ouverture de port")
         if self.interface_set.all():
             return False, u"Cette liste de ports est utilisée"
         return True, None
@@ -1542,4 +1642,3 @@ def srv_post_save(sender, **kwargs):
 def srv_post_delete(sender, **kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
-
