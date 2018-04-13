@@ -719,7 +719,7 @@ def new_facture_solde(request, userid):
     user = request.user
     invoice = Facture(user=user)
     payment, _created = Paiement.objects.get_or_create(moyen='Solde')
-    facture.paiement = payment
+    invoice.paiement = payment
     # The template needs the list of articles (for the JS part)
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
@@ -827,9 +827,9 @@ def recharge(request):
     if refill_form.is_valid():
         invoice = Facture(user=request.user)
         payment, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
-        facture.paiement = payment
-        facture.valid = False
-        facture.save()
+        invoice.paiement = payment
+        invoice.valid = False
+        invoice.save()
         purchase = Vente.objects.create(
             facture=invoice,
             name='solde',
