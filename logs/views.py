@@ -227,66 +227,99 @@ def stats_general(request):
     _all_baned = all_baned()
     _all_whitelisted = all_whitelisted()
     _all_active_interfaces_count = all_active_interfaces_count()
-    _all_active_assigned_interfaces_count = all_active_assigned_interfaces_count()
+    _all_active_assigned_interfaces_count = \
+        all_active_assigned_interfaces_count()
     stats = [
-        [["Categorie", "Nombre d'utilisateurs (total club et adhérents)", "Nombre d'adhérents", "Nombre de clubs"], {
-            'active_users': [
-                "Users actifs",
-                User.objects.filter(state=User.STATE_ACTIVE).count(),
-                Adherent.objects.filter(state=Adherent.STATE_ACTIVE).count(),
-                Club.objects.filter(state=Club.STATE_ACTIVE).count()],
-             'inactive_users': [
-                "Users désactivés",
-                User.objects.filter(state=User.STATE_DISABLED).count(),
-                Adherent.objects.filter(state=Adherent.STATE_DISABLED).count(),
-                Club.objects.filter(state=Club.STATE_DISABLED).count()],
-            'archive_users': [
-                "Users archivés",
-                User.objects.filter(state=User.STATE_ARCHIVE).count(),
-                Adherent.objects.filter(state=Adherent.STATE_ARCHIVE).count(),
-                Club.objects.filter(state=Club.STATE_ARCHIVE).count()],
-            'adherent_users': [
-                "Cotisant à l'association",
-                _all_adherent.count(),
-                _all_adherent.exclude(adherent__isnull=True).count(),
-                _all_adherent.exclude(club__isnull=True).count()],
-            'connexion_users': [
-                "Utilisateurs bénéficiant d'une connexion",
-                _all_has_access.count(),
-                _all_has_access.exclude(adherent__isnull=True).count(),
-                _all_has_access.exclude(club__isnull=True).count()],
-            'ban_users': [
-                "Utilisateurs bannis",
-                _all_baned.count(),
-                _all_baned.exclude(adherent__isnull=True).count(),
-                _all_baned.exclude(club__isnull=True).count()],
-            'whitelisted_user': [
-                "Utilisateurs bénéficiant d'une connexion gracieuse",
-                _all_whitelisted.count(),
-                _all_whitelisted.exclude(adherent__isnull=True).count(),
-                _all_whitelisted.exclude(club__isnull=True).count()],
-            'actives_interfaces': [
-                "Interfaces actives (ayant accès au reseau)",
-                _all_active_interfaces_count.count(),
-                _all_active_interfaces_count.exclude(
-                    machine__user__adherent__isnull=True
-                ).count(),
-                _all_active_interfaces_count.exclude(
-                    machine__user__club__isnull=True
-                ).count()],
-            'actives_assigned_interfaces': [
-                "Interfaces actives et assignées ipv4",
-                _all_active_assigned_interfaces_count.count(),
-                _all_active_assigned_interfaces_count.exclude(
-                    machine__user__adherent__isnull=True
-                ).count(),
-                _all_active_assigned_interfaces_count.exclude(
-                    machine__user__club__isnull=True
-                ).count()]
-        }],
-        [["Range d'ip", "Vlan", "Nombre d'ip totales", "Ip assignées",
-          "Ip assignées à une machine active", "Ip non assignées"], ip_dict]
+        [   # First set of data (about users)
+            [   # Headers
+                "Categorie",
+                "Nombre d'utilisateurs (total club et adhérents)",
+                "Nombre d'adhérents",
+                "Nombre de clubs"
+            ],
+            {   # Data
+                'active_users': [
+                    "Users actifs",
+                    User.objects.filter(state=User.STATE_ACTIVE).count(),
+                    (Adherent.objects
+                     .filter(state=Adherent.STATE_ACTIVE)
+                     .count()),
+                    Club.objects.filter(state=Club.STATE_ACTIVE).count()
+                ],
+                'inactive_users': [
+                    "Users désactivés",
+                    User.objects.filter(state=User.STATE_DISABLED).count(),
+                    (Adherent.objects
+                     .filter(state=Adherent.STATE_DISABLED)
+                     .count()),
+                    Club.objects.filter(state=Club.STATE_DISABLED).count()
+                ],
+                'archive_users': [
+                    "Users archivés",
+                    User.objects.filter(state=User.STATE_ARCHIVE).count(),
+                    (Adherent.objects
+                     .filter(state=Adherent.STATE_ARCHIVE)
+                     .count()),
+                    Club.objects.filter(state=Club.STATE_ARCHIVE).count()
+                ],
+                'adherent_users': [
+                    "Cotisant à l'association",
+                    _all_adherent.count(),
+                    _all_adherent.exclude(adherent__isnull=True).count(),
+                    _all_adherent.exclude(club__isnull=True).count()
+                ],
+                'connexion_users': [
+                    "Utilisateurs bénéficiant d'une connexion",
+                    _all_has_access.count(),
+                    _all_has_access.exclude(adherent__isnull=True).count(),
+                    _all_has_access.exclude(club__isnull=True).count()
+                ],
+                'ban_users': [
+                    "Utilisateurs bannis",
+                    _all_baned.count(),
+                    _all_baned.exclude(adherent__isnull=True).count(),
+                    _all_baned.exclude(club__isnull=True).count()
+                ],
+                'whitelisted_user': [
+                    "Utilisateurs bénéficiant d'une connexion gracieuse",
+                    _all_whitelisted.count(),
+                    _all_whitelisted.exclude(adherent__isnull=True).count(),
+                    _all_whitelisted.exclude(club__isnull=True).count()
+                ],
+                'actives_interfaces': [
+                    "Interfaces actives (ayant accès au reseau)",
+                    _all_active_interfaces_count.count(),
+                    (_all_active_interfaces_count
+                     .exclude(machine__user__adherent__isnull=True)
+                     .count()),
+                    (_all_active_interfaces_count
+                     .exclude(machine__user__club__isnull=True)
+                     .count())
+                ],
+                'actives_assigned_interfaces': [
+                    "Interfaces actives et assignées ipv4",
+                    _all_active_assigned_interfaces_count.count(),
+                    (_all_active_assigned_interfaces_count
+                     .exclude(machine__user__adherent__isnull=True)
+                     .count()),
+                    (_all_active_assigned_interfaces_count
+                     .exclude(machine__user__club__isnull=True)
+                     .count())
+                ]
+            }
+        ],
+        [   # Second set of data (about ip adresses)
+            [   # Headers
+                "Range d'ip",
+                "Vlan",
+                "Nombre d'ip totales",
+                "Ip assignées",
+                "Ip assignées à une machine active",
+                "Ip non assignées"
+            ],
+            ip_dict  # Data already prepared
         ]
+    ]
     return render(request, 'logs/stats_general.html', {'stats_list': stats})
 
 
@@ -313,11 +346,26 @@ def stats_models(request):
             'whitelist': [Whitelist.PRETTY_NAME, Whitelist.objects.count()]
         },
         'Cotisations': {
-            'factures': [Facture._meta.verbose_name.title(), Facture.objects.count()],
-            'vente': [Vente._meta.verbose_name.title(), Vente.objects.count()],
-            'cotisation': [Cotisation._meta.verbose_name.title(), Cotisation.objects.count()],
-            'article': [Article._meta.verbose_name.title(), Article.objects.count()],
-            'banque': [Banque._meta.verbose_name.title(), Banque.objects.count()],
+            'factures': [
+                Facture._meta.verbose_name.title(),
+                Facture.objects.count()
+            ],
+            'vente': [
+                Vente._meta.verbose_name.title(),
+                Vente.objects.count()
+            ],
+            'cotisation': [
+                Cotisation._meta.verbose_name.title(),
+                Cotisation.objects.count()
+            ],
+            'article': [
+                Article._meta.verbose_name.title(),
+                Article.objects.count()
+            ],
+            'banque': [
+                Banque._meta.verbose_name.title(),
+                Banque.objects.count()
+            ],
         },
         'Machines': {
             'machine': [Machine.PRETTY_NAME, Machine.objects.count()],
@@ -432,14 +480,22 @@ def stats_actions(request):
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
 
+
 @login_required
 @can_view_app('users')
 def stats_droits(request):
     """Affiche la liste des droits et les users ayant chaque droit"""
-    depart=time()
-    stats_list={}
-    
-    for droit in ListRight.objects.all().select_related('group_ptr'):
-        stats_list[droit]=droit.user_set.all().annotate(num=Count('revision'),last=Max('revision__date_created'))
+    depart = time()
+    stats_list = {}
 
-    return render(request, 'logs/stats_droits.html', {'stats_list': stats_list})
+    for droit in ListRight.objects.all().select_related('group_ptr'):
+        stats_list[droit] = droit.user_set.all().annotate(
+            num=Count('revision'),
+            last=Max('revision__date_created')
+        )
+
+    return render(
+        request,
+        'logs/stats_droits.html',
+        {'stats_list': stats_list}
+    )
