@@ -203,7 +203,7 @@ class ExtensionSerializer(serializers.ModelSerializer):
         return str(obj.dns_entry)
 
     def get_soa_data(self, obj):
-        return { 'mail': obj.soa.dns_soa_mail, 'param': obj.soa.dns_soa_param }
+        return {'mail': obj.soa.dns_soa_mail, 'param': obj.soa.dns_soa_param}
 
 
 class MxSerializer(serializers.ModelSerializer):
@@ -338,23 +338,23 @@ class OuverturePortsSerializer(serializers.Serializer):
     ipv6 = serializers.SerializerMethodField()
 
     def get_ipv4():
-        return {i.ipv4.ipv4:
-            {
-                "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
-                "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
-                "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+        return {
+            i.ipv4.ipv4: {
+                "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
+                "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
-                for i in Interface.objects.all() if i.ipv4
+            for i in Interface.objects.all() if i.ipv4
         }
 
     def get_ipv6():
-        return {i.ipv6:
-            {
-                "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
-                "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
-                "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+        return {
+            i.ipv6: {
+                "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
+                "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
-                for i in Interface.objects.all() if i.ipv6
+            for i in Interface.objects.all() if i.ipv6
         }

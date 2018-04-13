@@ -30,8 +30,13 @@ from django.views.decorators.csrf import csrf_exempt
 from re2o.utils import all_has_access, all_active_assigned_interfaces
 
 from users.models import Club
-from machines.models import (Service_link, Service, Interface, Domain,
-    OuverturePortList)
+from machines.models import (
+    Service_link,
+    Service,
+    Interface,
+    Domain,
+    OuverturePortList
+)
 
 from .serializers import *
 from .utils import JSONError, JSONSuccess, accept_method
@@ -47,14 +52,19 @@ def services(request):
     Return:
         GET:
             A JSONSuccess response with a field `data` containing:
-            * a list of dictionnaries (one for each service-server couple) containing:
+            * a list of dictionnaries (one for each service-server couple)
+              containing:
               * a field `server`: the server name
               * a field `service`: the service name
               * a field `need_regen`: does the service need a regeneration ?
     """
-    service_link = Service_link.objects.all().select_related('server__domain').select_related('service')
+
+    service_link = (Service_link.objects.all()
+                    .select_related('server__domain')
+                    .select_related('service'))
     seria = ServicesSerializer(service_link, many=True)
     return JSONSuccess(seria.data)
+
 
 @csrf_exempt
 @login_required
@@ -72,6 +82,7 @@ def services_server_service_regen(request, server_name, service_name):
         POST:
             An empty JSONSuccess response.
     """
+
     query = Service_link.objects.filter(
         service__in=Service.objects.filter(service_type=service_name),
         server__in=Interface.objects.filter(
@@ -80,7 +91,7 @@ def services_server_service_regen(request, server_name, service_name):
     )
     if not query:
         return JSONError("This service is not active for this server")
-    
+
     service = query.first()
     if request.method == 'GET':
         return JSONSuccess({'need_regen': service.need_regen()})
@@ -102,6 +113,7 @@ def services_server(request, server_name):
             * a list of dictionnaries (one for each service) containing:
               * a field `name`: the name of a service
     """
+
     query = Service_link.objects.filter(
         server__in=Interface.objects.filter(
             domain__in=Domain.objects.filter(name=server_name)
@@ -109,7 +121,7 @@ def services_server(request, server_name):
     )
     if not query:
         return JSONError("This service is not active for this server")
-    
+
     services = query.all()
     seria = ServiceLinkSerializer(services, many=True)
     return JSONSuccess(seria.data)
@@ -135,8 +147,10 @@ def dns_mac_ip_dns(request):
                 * a field `ip_type`: the name of the IpType of this interface
               * a field `mac_address`: the MAC of this interface
               * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this interface
+              * a field `extension`: the extension for the DNS zone of this
+                interface
     """
+
     interfaces = all_active_assigned_interfaces(full=True)
     seria = FullInterfaceSerializer(interfaces, many=True)
     return JSONSuccess(seria.data)
@@ -154,11 +168,23 @@ def dns_alias(request):
             A JSON Success response with a field `data` containing:
             * a list of dictionnaries (one for each alias) containing:
               * a field `name`: the alias used
-              * a field `cname`: the target of the alias (real name of the interface)
-              * a field `cname_entry`: the entry to write in the DNS to have the alias
-              * a field `extension`: the extension for the DNS zone of this interface
+              * a field `cname`: the target of the alias (real name of the
+                interface)
+              * a field `cname_entry`: the entry to write in the DNS to have
+                the alias
+              * a field `extension`: the extension for the DNS zone of this
+                interface
     """
-    alias = Domain.objects.filter(interface_parent=None).filter(cname__in=Domain.objects.filter(interface_parent__in=Interface.objects.exclude(ipv4=None))).select_related('extension').select_related('cname__extension')
+
+    alias = (Domain.objects
+             .filter(interface_parent=None)
+             .filter(
+                 cname__in=Domain.objects.filter(
+                     interface_parent__in=Interface.objects.exclude(ipv4=None)
+                 )
+             )
+             .select_related('extension')
+             .select_related('cname__extension'))
     seria = DomainSerializer(alias, many=True)
     return JSONSuccess(seria.data)
 
@@ -185,10 +211,12 @@ def accesspoint_ip_dns(request):
                 * a field `ip_type`: the name of the IpType of this interface
               * a field `mac_address`: the MAC of this interface
               * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this interface
+              * a field `extension`: the extension for the DNS zone of this
+                interface
     """
-    interfaces = all_active_assigned_interfaces(full=True)\
-    .filter(machine__accesspoint__isnull=False)
+
+    interfaces = (all_active_assigned_interfaces(full=True)
+                  .filter(machine__accesspoint__isnull=False))
     seria = FullInterfaceSerializer(interfaces, many=True)
     return JSONSuccess(seria.data)
 
@@ -208,12 +236,14 @@ def dns_corresp(request):
               * a field `extension`: the DNS extension associated
               * a field `domain_ip_start`: the first ip to use for this type
               * a field `domain_ip_stop`: the last ip to use for this type
-              * a field `prefix_v6`: `null` if IPv6 is deactivated else the prefix to use
+              * a field `prefix_v6`: `null` if IPv6 is deactivated else the
+                prefix to use
               * a field `ouverture_ports_tcp_in`: the policy for TCP IN ports
               * a field `ouverture_ports_tcp_out`: the policy for TCP OUT ports
               * a field `ouverture_ports_udp_in`: the policy for UDP IN ports
               * a field `ouverture_ports_udp_out`: the policy for UDP OUT ports
     """
+
     ip_type = IpType.objects.all().select_related('extension')
     seria = TypeSerializer(ip_type, many=True)
     return JSONSuccess(seria.data)
@@ -233,9 +263,13 @@ def dns_mx(request):
               * a field `zone`: the extension for the concerned zone
               * a field `priority`: the priority to use
               * a field `name`: the name of the target
-              * a field `mx_entry`: the full entry to add in the DNS for this MX record
+              * a field `mx_entry`: the full entry to add in the DNS for this
+                MX record
     """
-    mx = Mx.objects.all().select_related('zone').select_related('name__extension')
+
+    mx = (Mx.objects.all()
+          .select_related('zone')
+          .select_related('name__extension'))
     seria = MxSerializer(mx, many=True)
     return JSONSuccess(seria.data)
 
@@ -253,9 +287,18 @@ def dns_ns(request):
             * a list of dictionnaries (one for each NS record) containing:
               * a field `zone`: the extension for the concerned zone
               * a field `ns`: the DNS name for the NS server targeted
-              * a field `ns_entry`: the full entry to add in the DNS for this NS record
+              * a field `ns_entry`: the full entry to add in the DNS for this
+                NS record
     """
-    ns = Ns.objects.exclude(ns__in=Domain.objects.filter(interface_parent__in=Interface.objects.filter(ipv4=None))).select_related('zone').select_related('ns__extension')
+
+    ns = (Ns.objects
+          .exclude(
+              ns__in=Domain.objects.filter(
+                  interface_parent__in=Interface.objects.filter(ipv4=None)
+              )
+          )
+          .select_related('zone')
+          .select_related('ns__extension'))
     seria = NsSerializer(ns, many=True)
     return JSONSuccess(seria.data)
 
@@ -274,8 +317,10 @@ def dns_txt(request):
               * a field `zone`: the extension for the concerned zone
               * a field `field1`: the first field in the record (target)
               * a field `field2`: the second field in the record (value)
-              * a field `txt_entry`: the full entry to add in the DNS for this TXT record
+              * a field `txt_entry`: the full entry to add in the DNS for this
+                TXT record
     """
+
     txt = Txt.objects.all().select_related('zone')
     seria = TxtSerializer(txt, many=True)
     return JSONSuccess(seria.data)
@@ -300,9 +345,13 @@ def dns_srv(request):
               * a field `weight`: the weight for same priority entries
               * a field `port`: the port targeted
               * a field `target`: the interface targeted by this service
-              * a field `srv_entry`: the full entry to add in the DNS for this SRV record
+              * a field `srv_entry`: the full entry to add in the DNS for this
+                SRV record
     """
-    srv = Srv.objects.all().select_related('extension').select_related('target__extension')
+
+    srv = (Srv.objects.all()
+           .select_related('extension')
+           .select_related('target__extension'))
     seria = SrvSerializer(srv, many=True)
     return JSONSuccess(seria.data)
 
@@ -312,7 +361,7 @@ def dns_srv(request):
 @permission_required('machines.serveur')
 @accept_method(['GET'])
 def dns_zones(request):
-    """The list of the zones managed 
+    """The list of the zones managed
 
     Returns:
         GET:
@@ -320,15 +369,21 @@ def dns_zones(request):
             * a list of dictionnaries (one for each zone) containing:
               * a field `name`: the extension for the zone
               * a field `origin`: the server IPv4 for the orgin of the zone
-              * a field `origin_v6`: `null` if ipv6 is deactivated else the server IPv6 for the origin of the zone
+              * a field `origin_v6`: `null` if ipv6 is deactivated else the
+                server IPv6 for the origin of the zone
               * a field `soa` containing:
-                * a field `mail` containing the mail to contact in case of problem with the zone
-                * a field `param` containing the full soa paramters to use in the DNS for this zone
-              * a field `zone_entry`: the full entry to add in the DNS for the origin of the zone
+                * a field `mail` containing the mail to contact in case of
+                  problem with the zone
+                * a field `param` containing the full soa paramters to use
+                  in the DNS for this zone
+              * a field `zone_entry`: the full entry to add in the DNS for the
+                origin of the zone
     """
+
     zones = Extension.objects.all().select_related('origin')
     seria = ExtensionSerializer(zones, many=True)
     return JSONSuccess(seria.data)
+
 
 @csrf_exempt
 @login_required
@@ -359,31 +414,67 @@ def firewall_ouverture_ports(request):
               * a field `udp_out` containing:
                 * a list of port number where ipv6 udp out should be ok
     """
-    r = {'ipv4':{}, 'ipv6':{}}
-    for o in OuverturePortList.objects.all().prefetch_related('ouvertureport_set').prefetch_related('interface_set', 'interface_set__ipv4'):
+
+    r = {'ipv4': {}, 'ipv6': {}}
+    for o in (OuverturePortList.objects.all()
+              .prefetch_related('ouvertureport_set')
+              .prefetch_related('interface_set', 'interface_set__ipv4')):
         pl = {
-            "tcp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.IN))),
-            "tcp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.TCP, io=OuverturePort.OUT))),
-            "udp_in":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.IN))),
-            "udp_out":set(map(str,o.ouvertureport_set.filter(protocole=OuverturePort.UDP, io=OuverturePort.OUT))),
+            "tcp_in": set(map(
+                str,
+                o.ouvertureport_set.filter(
+                    protocole=OuverturePort.TCP,
+                    io=OuverturePort.IN
+                )
+            )),
+            "tcp_out": set(map(
+                str,
+                o.ouvertureport_set.filter(
+                    protocole=OuverturePort.TCP,
+                    io=OuverturePort.OUT
+                )
+            )),
+            "udp_in": set(map(
+                str,
+                o.ouvertureport_set.filter(
+                    protocole=OuverturePort.UDP,
+                    io=OuverturePort.IN
+                )
+            )),
+            "udp_out": set(map(
+                str,
+                o.ouvertureport_set.filter(
+                    protocole=OuverturePort.UDP,
+                    io=OuverturePort.OUT
+                )
+            )),
         }
         for i in filter_active_interfaces(o.interface_set):
             if i.may_have_port_open():
                 d = r['ipv4'].get(i.ipv4.ipv4, {})
-                d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
-                d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
-                d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
-                d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                d["tcp_in"] = (d.get("tcp_in", set())
+                               .union(pl["tcp_in"]))
+                d["tcp_out"] = (d.get("tcp_out", set())
+                                .union(pl["tcp_out"]))
+                d["udp_in"] = (d.get("udp_in", set())
+                               .union(pl["udp_in"]))
+                d["udp_out"] = (d.get("udp_out", set())
+                                .union(pl["udp_out"]))
                 r['ipv4'][i.ipv4.ipv4] = d
             if i.ipv6():
                 for ipv6 in i.ipv6():
                     d = r['ipv6'].get(ipv6.ipv6, {})
-                    d["tcp_in"] = d.get("tcp_in",set()).union(pl["tcp_in"])
-                    d["tcp_out"] = d.get("tcp_out",set()).union(pl["tcp_out"])
-                    d["udp_in"] = d.get("udp_in",set()).union(pl["udp_in"])
-                    d["udp_out"] = d.get("udp_out",set()).union(pl["udp_out"])
+                    d["tcp_in"] = (d.get("tcp_in", set())
+                                   .union(pl["tcp_in"]))
+                    d["tcp_out"] = (d.get("tcp_out", set())
+                                    .union(pl["tcp_out"]))
+                    d["udp_in"] = (d.get("udp_in", set())
+                                   .union(pl["udp_in"]))
+                    d["udp_out"] = (d.get("udp_out", set())
+                                    .union(pl["udp_out"]))
                     r['ipv6'][ipv6.ipv6] = d
     return JSONSuccess(r)
+
 
 @csrf_exempt
 @login_required
@@ -402,8 +493,10 @@ def dhcp_mac_ip(request):
                 * a field `ip_type`: the name of the IpType of this interface
               * a field `mac_address`: the MAC of this interface
               * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this interface
+              * a field `extension`: the extension for the DNS zone of this
+                interface
     """
+
     interfaces = all_active_assigned_interfaces()
     seria = InterfaceSerializer(interfaces, many=True)
     return JSONSuccess(seria.data)
@@ -422,9 +515,11 @@ def mailing_standard(request):
             * a list of dictionnaries (one for each mailing) containing:
               * a field `name`: the name of a mailing
     """
+
     return JSONSuccess([
         {'name': 'adherents'}
     ])
+
 
 @csrf_exempt
 @login_required
@@ -442,6 +537,7 @@ def mailing_standard_ml_members(request):
               * a field `surname`: the surname of the member
               * a field `pseudo`:  the pseudo of the member
     """
+
     # All with active connextion
     if ml_name == 'adherents':
         members = all_has_access().values('email').distinct()
@@ -465,9 +561,11 @@ def mailing_club(request):
             * a list of dictionnaries (one for each mailing) containing:
               * a field `name` indicating the name of a mailing
     """
+
     clubs = Club.objects.filter(mailing=True).values('pseudo')
     seria = MailingSerializer(clubs, many=True)
     return JSONSuccess(seria.data)
+
 
 @csrf_exempt
 @login_required
@@ -485,6 +583,7 @@ def mailing_club_ml_members(request):
               * a field `surname`: the surname of the member
               * a field `pseudo`:  the pseudo of the member
     """
+
     try:
         club = Club.objects.get(mailing=True, pseudo=ml_name)
     except Club.DoesNotExist:
