@@ -43,12 +43,14 @@ class FieldPermissionModelMixin:
                 if result is not None:
                     return result
             else:
-                result = user.has_perm(perm)  # Don't supply 'obj', or else infinite recursion.
+                # Don't supply 'obj', or else infinite recursion.
+                result = user.has_perm(perm)
                 if result:
                     return True
 
         # If no requirement can be met, then permission is denied.
         return False
+
 
 class FieldPermissionModel(FieldPermissionModelMixin, models.Model):
     class Meta:
@@ -76,4 +78,3 @@ class FieldPermissionFormMixin:
 
 class FieldPermissionForm(FieldPermissionFormMixin, forms.ModelForm):
     pass
-

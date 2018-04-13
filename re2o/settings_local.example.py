@@ -73,23 +73,22 @@ EMAIL_PORT = MY_EMAIL_PORT
 
 # Reglages pour la bdd ldap
 LDAP = {
-    'base_user_dn' : 'cn=Utilisateurs,dc=example,dc=org',
-    'base_userservice_dn' : 'ou=service-users,dc=example,dc=org',
-    'base_usergroup_dn' : 'ou=posix,ou=groups,dc=example,dc=org',
-    'base_userservicegroup_dn' : 'ou=services,ou=groups,dc=example,dc=org',
-    'user_gid' : 500,
+    'base_user_dn': 'cn=Utilisateurs,dc=example,dc=org',
+    'base_userservice_dn': 'ou=service-users,dc=example,dc=org',
+    'base_usergroup_dn': 'ou=posix,ou=groups,dc=example,dc=org',
+    'base_userservicegroup_dn': 'ou=services,ou=groups,dc=example,dc=org',
+    'user_gid': 500,
     }
 
 
 UID_RANGES = {
-    'users' : [21001,30000],
-    'service-users' : [20000,21000],
+    'users': [21001, 30000],
+    'service-users': [20000, 21000],
 }
 
 # Chaque groupe a un gid assigné, voici la place libre pour assignation
 GID_RANGES = {
-    'posix' : [501, 600],
+    'posix': [501, 600],
 }
 
 OPTIONNAL_APPS = ()
-

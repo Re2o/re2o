@@ -44,11 +44,16 @@ from itertools import chain
 
 from preferences.models import Service
 from preferences.models import OptionalUser, GeneralOption, AssoOption
-import users, preferences, cotisations, topologie, machines
+import users
+import preferences
+import cotisations
+import topologie
+import machines
 
 from .utils import re2o_paginator
 from .settings import BASE_DIR, INSTALLED_APPS, MIDDLEWARE_CLASSES
 from .contributors import CONTRIBUTORS
+
 
 def form(ctx, template, request):
     """Form générique, raccourci importé par les fonctions views du site"""
@@ -64,55 +69,57 @@ def index(request):
         services[indice % 3].append(serv)
     return form({'services_urls': services}, 're2o/index.html', request)
 
+
 #: Binding the corresponding char sequence of history url to re2o models.
 HISTORY_BIND = {
-    'users' : {
-        'user' : users.models.User,
-        'ban' : users.models.Ban,
-        'whitelist' : users.models.Whitelist,
-        'school' : users.models.School,
-        'listright' : users.models.ListRight,
-        'serviceuser' : users.models.ServiceUser,
-        'listshell' : users.models.ListShell,
+    'users': {
+        'user': users.models.User,
+        'ban': users.models.Ban,
+        'whitelist': users.models.Whitelist,
+        'school': users.models.School,
+        'listright': users.models.ListRight,
+        'serviceuser': users.models.ServiceUser,
+        'listshell': users.models.ListShell,
     },
-    'preferences' : {
-        'service' : preferences.models.Service,
+    'preferences': {
+        'service': preferences.models.Service,
     },
-    'cotisations' : {
-        'facture' : cotisations.models.Facture,
-        'article' : cotisations.models.Article,
-        'paiement' : cotisations.models.Paiement,
-        'banque' : cotisations.models.Banque,
+    'cotisations': {
+        'facture': cotisations.models.Facture,
+        'article': cotisations.models.Article,
+        'paiement': cotisations.models.Paiement,
+        'banque': cotisations.models.Banque,
     },
-    'topologie' : {
-        'switch' : topologie.models.Switch,
-        'port' : topologie.models.Port,
-        'room' : topologie.models.Room,
-        'stack' : topologie.models.Stack,
-        'modelswitch' : topologie.models.ModelSwitch,
-        'constructorswitch' : topologie.models.ConstructorSwitch,
-        'accesspoint' : topologie.models.AccessPoint,
-        'switchbay' : topologie.models.SwitchBay,
-        'building' : topologie.models.Building,
+    'topologie': {
+        'switch': topologie.models.Switch,
+        'port': topologie.models.Port,
+        'room': topologie.models.Room,
+        'stack': topologie.models.Stack,
+        'modelswitch': topologie.models.ModelSwitch,
+        'constructorswitch': topologie.models.ConstructorSwitch,
+        'accesspoint': topologie.models.AccessPoint,
+        'switchbay': topologie.models.SwitchBay,
+        'building': topologie.models.Building,
     },
-    'machines' : {
-        'machine' : machines.models.Machine,
-        'interface' : machines.models.Interface,
-        'domain' : machines.models.Domain,
-        'machinetype' : machines.models.MachineType,
-        'iptype' : machines.models.IpType,
-        'extension' : machines.models.Extension,
-        'soa' : machines.models.SOA,
-        'mx' : machines.models.Mx,
-        'txt' : machines.models.Txt,
-        'srv' : machines.models.Srv,
-        'ns' : machines.models.Ns,
-        'service' : machines.models.Service,
-        'vlan' : machines.models.Vlan,
-        'nas' : machines.models.Nas,
-        'ipv6list' : machines.models.Ipv6List,
+    'machines': {
+        'machine': machines.models.Machine,
+        'interface': machines.models.Interface,
+        'domain': machines.models.Domain,
+        'machinetype': machines.models.MachineType,
+        'iptype': machines.models.IpType,
+        'extension': machines.models.Extension,
+        'soa': machines.models.SOA,
+        'mx': machines.models.Mx,
+        'txt': machines.models.Txt,
+        'srv': machines.models.Srv,
+        'ns': machines.models.Ns,
+        'service': machines.models.Service,
+        'vlan': machines.models.Vlan,
+        'nas': machines.models.Nas,
+        'ipv6list': machines.models.Ipv6List,
     },
 }
+
 
 @login_required
 def history(request, application, object_name, object_id):
@@ -144,21 +151,23 @@ def history(request, application, object_name, object_id):
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
         messages.error(request, u"Entrée inexistante")
-        return redirect(reverse('users:profil',
-            kwargs={'userid':str(request.user.id)}
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
         ))
     can, msg = instance.can_view(request.user)
     if not can:
         messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(request.user.id)}
+            kwargs={'userid': str(request.user.id)}
         ))
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     reversions = Version.objects.get_for_object(instance)
     if hasattr(instance, 'linked_objects'):
         for related_object in chain(instance.linked_objects()):
-            reversions = reversions | Version.objects.get_for_object(related_object)
+            reversions = (reversions |
+                          Version.objects.get_for_object(related_object))
     reversions = re2o_paginator(request, reversions, pagination_number)
     return render(
         request,
@@ -191,8 +200,8 @@ def about_page(request):
         request,
         "re2o/about.html",
         {
-            'description': option.description ,
-            'AssoName' : option.name ,
+            'description': option.description,
+            'AssoName': option.name,
             'git_info_contributors': git_info_contributors,
             'git_info_remote': git_info_remote,
             'git_info_branch': git_info_branch,
@@ -201,4 +210,3 @@ def about_page(request):
             'dependencies': dependencies
         }
     )
-

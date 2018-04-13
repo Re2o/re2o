@@ -85,32 +85,32 @@ register = template.Library()
 
 MODEL_NAME = {
     # cotisations
-    'Facture' : cotisations.models.Facture,
-    'Vente' : cotisations.models.Vente,
-    'Article' : cotisations.models.Article,
-    'Banque' : cotisations.models.Banque,
-    'Paiement' : cotisations.models.Paiement,
-    'Cotisation' : cotisations.models.Cotisation,
+    'Facture': cotisations.models.Facture,
+    'Vente': cotisations.models.Vente,
+    'Article': cotisations.models.Article,
+    'Banque': cotisations.models.Banque,
+    'Paiement': cotisations.models.Paiement,
+    'Cotisation': cotisations.models.Cotisation,
     # machines
-    'Machine' : machines.models.Machine,
-    'MachineType' : machines.models.MachineType,
-    'IpType' : machines.models.IpType,
-    'Vlan' : machines.models.Vlan,
-    'Nas' : machines.models.Nas,
-    'SOA' : machines.models.SOA,
-    'Extension' : machines.models.Extension,
-    'Mx' : machines.models.Mx,
-    'Ns' : machines.models.Ns,
-    'Txt' : machines.models.Txt,
-    'Srv' : machines.models.Srv,
-    'Interface' : machines.models.Interface,
-    'Domain' : machines.models.Domain,
-    'IpList' : machines.models.IpList,
-    'Ipv6List' : machines.models.Ipv6List,
-    'machines.Service' : machines.models.Service,
-    'Service_link' : machines.models.Service_link,
-    'OuverturePortList' : machines.models.OuverturePortList,
-    'OuverturePort' : machines.models.OuverturePort,
+    'Machine': machines.models.Machine,
+    'MachineType': machines.models.MachineType,
+    'IpType': machines.models.IpType,
+    'Vlan': machines.models.Vlan,
+    'Nas': machines.models.Nas,
+    'SOA': machines.models.SOA,
+    'Extension': machines.models.Extension,
+    'Mx': machines.models.Mx,
+    'Ns': machines.models.Ns,
+    'Txt': machines.models.Txt,
+    'Srv': machines.models.Srv,
+    'Interface': machines.models.Interface,
+    'Domain': machines.models.Domain,
+    'IpList': machines.models.IpList,
+    'Ipv6List': machines.models.Ipv6List,
+    'machines.Service': machines.models.Service,
+    'Service_link': machines.models.Service_link,
+    'OuverturePortList': machines.models.OuverturePortList,
+    'OuverturePort': machines.models.OuverturePort,
     # preferences
     'OptionalUser': preferences.models.OptionalUser,
     'OptionalMachine': preferences.models.OptionalMachine,
@@ -120,25 +120,25 @@ MODEL_NAME = {
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
     # topologie
-    'Stack' : topologie.models.Stack,
-    'Switch' : topologie.models.Switch,
-    'AccessPoint' : topologie.models.AccessPoint,
-    'ModelSwitch' : topologie.models.ModelSwitch,
-    'ConstructorSwitch' : topologie.models.ConstructorSwitch,
-    'Port' : topologie.models.Port,
-    'Room' : topologie.models.Room,
-    'Building' : topologie.models.Building,
-    'SwitchBay' : topologie.models.SwitchBay,
+    'Stack': topologie.models.Stack,
+    'Switch': topologie.models.Switch,
+    'AccessPoint': topologie.models.AccessPoint,
+    'ModelSwitch': topologie.models.ModelSwitch,
+    'ConstructorSwitch': topologie.models.ConstructorSwitch,
+    'Port': topologie.models.Port,
+    'Room': topologie.models.Room,
+    'Building': topologie.models.Building,
+    'SwitchBay': topologie.models.SwitchBay,
     # users
-    'User' : users.models.User,
-    'Adherent' : users.models.Adherent,
-    'Club' : users.models.Club,
-    'ServiceUser' : users.models.ServiceUser,
-    'School' : users.models.School,
-    'ListRight' : users.models.ListRight,
-    'ListShell' : users.models.ListShell,
-    'Ban' : users.models.Ban,
-    'Whitelist' : users.models.Whitelist,
+    'User': users.models.User,
+    'Adherent': users.models.Adherent,
+    'Club': users.models.Club,
+    'ServiceUser': users.models.ServiceUser,
+    'School': users.models.School,
+    'ListRight': users.models.ListRight,
+    'ListShell': users.models.ListShell,
+    'Ban': users.models.Ban,
+    'Whitelist': users.models.Whitelist,
 }
 
 
@@ -184,17 +184,41 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_all':
         return acl_fct(obj.can_view_all, True)
     if tag_name == 'can_view_app':
-        return acl_fct(lambda x : (not any(not sys.modules[o].can_view(x) for o in obj), None), False)
+        return acl_fct(
+            lambda x: (
+                not any(not sys.modules[o].can_view(x) for o in obj),
+                None
+            ),
+            False
+        )
     if tag_name == 'cannot_view_app':
-        return acl_fct(lambda x : (not any(not sys.modules[o].can_view(x) for o in obj), None), True)
+        return acl_fct(
+            lambda x: (
+                not any(not sys.modules[o].can_view(x) for o in obj),
+                None
+            ),
+            True
+        )
     if tag_name == 'can_edit_history':
-        return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),False)
+        return acl_fct(
+            lambda user: (user.has_perm('admin.change_logentry'), None),
+            False
+        )
     if tag_name == 'cannot_edit_history':
-        return acl_fct(lambda user:(user.has_perm('admin.change_logentry'),None),True)
+        return acl_fct(
+            lambda user: (user.has_perm('admin.change_logentry'), None),
+            True
+        )
     if tag_name == 'can_view_any_app':
-        return acl_fct(lambda x : (any(sys.modules[o].can_view(x) for o in obj), None), False)
+        return acl_fct(
+            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            False
+        )
     if tag_name == 'cannot_view_any_app':
-        return acl_fct(lambda x : (any(sys.modules[o].can_view(x) for o in obj), None), True)
+        return acl_fct(
+            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            True
+        )
 
     raise template.TemplateSyntaxError(
         "%r tag is not a valid can_xxx tag" % tag_name
@@ -246,11 +270,11 @@ def acl_app_filter(parser, token):
         tag_name, *app_name = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require 1 argument : an application"
+            "%r tag require 1 argument: an application"
             % token.contents.split()[0]
         )
     for name in app_name:
-        if not name in sys.modules.keys():
+        if name not in sys.modules.keys():
             raise template.TemplateSyntaxError(
                 "%r is not a registered application for acl."
                 % name
@@ -270,6 +294,7 @@ def acl_app_filter(parser, token):
 
     return AclNode(callback, oknodes, konodes)
 
+
 @register.tag('can_change')
 @register.tag('cannot_change')
 def acl_change_filter(parser, token):
@@ -283,7 +308,7 @@ def acl_change_filter(parser, token):
         args = tag_content[3:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 2 argument : the model and the field"
+            "%r tag require at least 2 argument: the model and the field"
             % token.contents.split()[0]
         )
 
@@ -306,6 +331,7 @@ def acl_change_filter(parser, token):
 
     return AclNode(callback, oknodes, konodes, *args)
 
+
 @register.tag('can_create')
 @register.tag('cannot_create')
 @register.tag('can_edit_all')
@@ -324,7 +350,7 @@ def acl_model_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument : the model"
+            "%r tag require at least 1 argument: the model"
             % token.contents.split()[0]
         )
 
@@ -364,7 +390,7 @@ def acl_instance_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument : the instance"
+            "%r tag require at least 1 argument: the instance"
             % token.contents.split()[0]
         )
 

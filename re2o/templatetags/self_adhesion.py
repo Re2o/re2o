@@ -24,6 +24,7 @@ from preferences.models import OptionalUser, GeneralOption
 
 register = template.Library()
 
+
 @register.simple_tag
 def self_adhesion():
     options, _created = OptionalUser.objects.get_or_create()

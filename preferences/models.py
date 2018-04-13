@@ -36,6 +36,7 @@ from django.core.cache import cache
 from .aes_field import AESEncryptedField
 from re2o.mixins import AclMixin
 
+
 class PreferencesModel(models.Model):
     @classmethod
     def set_in_cache(cls):
@@ -46,7 +47,7 @@ class PreferencesModel(models.Model):
     @classmethod
     def get_cached_value(cls, key):
         instance = cache.get(cls().__class__.__name__.lower())
-        if instance == None:
+        if instance is None:
             instance = cls.set_in_cache()
         return getattr(instance, key)
 
@@ -146,7 +147,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
     @cached_property
     def ipv6(self):
-         return not self.get_cached_value('ipv6_mode') == 'DISABLED'
+        return not self.get_cached_value('ipv6_mode') == 'DISABLED'
 
     class Meta:
         permissions = (
@@ -230,7 +231,7 @@ class GeneralOption(AclMixin, PreferencesModel):
         blank=True,
     )
     GTU = models.FileField(
-        upload_to = '',
+        upload_to='',
         default="",
         null=True,
         blank=True,

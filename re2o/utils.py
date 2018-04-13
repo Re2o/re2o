@@ -118,14 +118,18 @@ def all_has_access(search_time=None):
 
 def filter_active_interfaces(interface_set):
     """Filtre les machines autorisées à sortir sur internet dans une requête"""
-    return interface_set.filter(
-        machine__in=Machine.objects.filter(
-            user__in=all_has_access()
-        ).filter(active=True)
-    ).select_related('domain').select_related('machine')\
-    .select_related('type').select_related('ipv4')\
-    .select_related('domain__extension').select_related('ipv4__ip_type')\
-    .distinct()
+    return (interface_set
+            .filter(
+                machine__in=Machine.objects.filter(
+                    user__in=all_has_access()
+                ).filter(active=True)
+            ).select_related('domain')
+            .select_related('machine')
+            .select_related('type')
+            .select_related('ipv4')
+            .select_related('domain__extension')
+            .select_related('ipv4__ip_type')
+            .distinct())
 
 
 def filter_complete_interfaces(interface_set):
@@ -160,6 +164,7 @@ def all_active_assigned_interfaces_count():
     """ Version light seulement pour compter"""
     return all_active_interfaces_count().filter(ipv4__isnull=False)
 
+
 class SortTable:
     """ Class gathering uselful stuff to sort the colums of a table, according
     to the column and order requested. It's used with a dict of possible
@@ -171,7 +176,8 @@ class SortTable:
     # the url value and the values are a list of model field name to use to
     # order the request. They are applied in the order they are given.
     # A 'default' might be provided to specify what to do if the requested col
-    # doesn't match any keys.
+    # doesn't match any keys.
+
     USERS_INDEX = {
         'user_name': ['name'],
         'user_surname': ['surname'],
@@ -255,7 +261,7 @@ class SortTable:
     }
     TOPOLOGIE_INDEX_MODEL_SWITCH = {
         'model-switch_name': ['reference'],
-        'model-switch_contructor' : ['constructor__name'],
+        'model-switch_contructor': ['constructor__name'],
         'default': ['reference'],
     }
     TOPOLOGIE_INDEX_SWITCH_BAY = {
@@ -290,6 +296,7 @@ class SortTable:
         else:
             return request
 
+
 def re2o_paginator(request, query_set, pagination_number):
     """Paginator script for list display in re2o.
     :request:
@@ -306,6 +313,7 @@ def re2o_paginator(request, query_set, pagination_number):
         # If page is out of range (e.g. 9999), deliver last page of results.
         results = paginator.page(paginator.num_pages)
     return results
+
 
 def remove_user_room(room):
     """ Déménage de force l'ancien locataire de la chambre """

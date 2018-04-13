@@ -20,18 +20,23 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Write in a python file the list of all contributors sorted by number of commits.
-This list is extracted from the FedeRez gitlab repository.
+Write in a python file the list of all contributors sorted by number of
+commits. This list is extracted from the current gitlab repository.
 """
 
 from django.core.management.base import BaseCommand, CommandError
 import os
 
+
 class Command(BaseCommand):
-    help = 'Update contributors list' 
+    help = 'Update contributors list'
 
     def handle(self, *args, **options):
-        contributeurs = [item.split('\t')[1] for item in os.popen("git shortlog -s -n").read().split("\n") if '\t' in item]
+        contributeurs = [
+            item.split('\t')[1]
+            for item in os.popen("git shortlog -s -n").read().split("\n")
+            if '\t' in item
+        ]
         self.stdout.write(self.style.SUCCESS("Exportation Sucessfull"))
         with open("re2o/contributors.py", "w") as contrib_file:
             contrib_file.write("#!/usr/bin/env python3\n")
