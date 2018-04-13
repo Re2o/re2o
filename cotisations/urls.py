@@ -101,12 +101,11 @@ urlpatterns = [
         views.index_paiement,
         name='index-paiement'
         ),
-    url(
-        r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
+    url(r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,
         name='history',
-        kwargs={'application':'cotisations'},
-    ),
+        kwargs={'application': 'cotisations'},
+        ),
     url(r'^control/$',
         views.control,
         name='control'
@@ -122,14 +121,14 @@ urlpatterns = [
     url(r'^payment/accept/(?P<factureid>[0-9]+)$',
         payment.accept_payment,
         name='accept_payment'
-       ),
+        ),
     url(r'^payment/refuse/$',
         payment.refuse_payment,
         name='refuse_payment'
-       ),
+        ),
     url(r'^payment/ipn/$',
         payment.ipn,
         name='ipn'
-       ),
+        ),
     url(r'^$', views.index, name='index'),
 ]

@@ -20,7 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Forms for the 'cotisation' app of re2o. It highly depends on 
+Forms for the 'cotisation' app of re2o. It highly depends on
 :cotisations:models and is mainly used by :cotisations:views.
 
 The following forms are mainly used to create, edit or delete
@@ -38,7 +38,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
-from django.core.validators import MinValueValidator,MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 
@@ -47,7 +47,8 @@ from preferences.models import OptionalUser
 from users.models import User
 
 from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import FormRevMixin 
+from re2o.mixins import FormRevMixin
+
 
 class NewFactureForm(FormRevMixin, ModelForm):
     """
@@ -109,12 +110,16 @@ class CreditSoldeForm(NewFactureForm):
     montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 
-class SelectUserArticleForm(FormRevMixin, Form):
+class SelectUserArticleForm(
+        FormRevMixin, Form):
     """
-    Form used to select an article during the creation of an invoice for a member.
+    Form used to select an article during the creation of an invoice for a
+    member.
     """
     article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Adherent')),
+        queryset=Article.objects.filter(
+            Q(type_user='All') | Q(type_user='Adherent')
+        ),
         label=_l("Article"),
         required=True
     )
@@ -127,10 +132,13 @@ class SelectUserArticleForm(FormRevMixin, Form):
 
 class SelectClubArticleForm(Form):
     """
-    Form used to select an article during the creation of an invoice for a club.
+    Form used to select an article during the creation of an invoice for a
+    club.
     """
     article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(Q(type_user='All') | Q(type_user='Club')),
+        queryset=Article.objects.filter(
+            Q(type_user='All') | Q(type_user='Club')
+        ),
         label=_l("Article"),
         required=True
     )
@@ -140,6 +148,7 @@ class SelectClubArticleForm(Form):
         required=True
     )
 
+
 # TODO : change Facture to Invoice
 class NewFactureFormPdf(Form):
     """
@@ -147,9 +156,18 @@ class NewFactureFormPdf(Form):
     """
     paid = forms.BooleanField(label=_l("Paid"), required=False)
     # TODO : change dest field to recipient
-    dest = forms.CharField(required=True, max_length=255, label=_l("Recipient"))
+    dest = forms.CharField(
+        required=True,
+        max_length=255,
+        label=_l("Recipient")
+    )
     # TODO : change chambre field to address
-    chambre = forms.CharField(required=False, max_length=10, label=_l("Address"))
+    chambre = forms.CharField(
+        required=False,
+        max_length=10,
+        label=_l("Address")
+    )
+
 
 # TODO : change Facture to Invoice
 class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
@@ -313,7 +331,6 @@ class NewFactureSoldeForm(NewFactureForm):
         # TODO : change paiement to payment and baque to bank
         fields = ['paiement', 'banque']
 
-
     def clean(self):
         cleaned_data = super(NewFactureSoldeForm, self).clean()
         # TODO : change paiement to payment
@@ -342,7 +359,7 @@ class RechargeForm(FormRevMixin, Form):
     value = forms.FloatField(
         label=_l("Amount"),
         min_value=0.01,
-        validators = []
+        validators=[]
     )
 
     def __init__(self, *args, **kwargs):
@@ -360,7 +377,8 @@ class RechargeForm(FormRevMixin, Form):
                     )
                 }
             )
-        if value + self.user.solde > OptionalUser.get_cached_value('max_solde'):
+        if value + self.user.solde > \
+                OptionalUser.get_cached_value('max_solde'):
             raise forms.ValidationError(
                 _("Requested amount is too high. Your balance can't exceed \
                 %(max_online_balance)s €.") % {

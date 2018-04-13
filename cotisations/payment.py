@@ -17,6 +17,7 @@ from preferences.models import AssoOption
 from .models import Facture
 from .payment_utils.comnpay import Payment as ComnpayPayment
 
+
 @csrf_exempt
 @login_required
 def accept_payment(request, factureid):
@@ -30,7 +31,10 @@ def accept_payment(request, factureid):
             'amount': facture.prix()
         }
     )
-    return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
+    return redirect(reverse(
+        'users:profil',
+        kwargs={'userid': request.user.id}
+    ))
 
 
 @csrf_exempt
@@ -43,7 +47,11 @@ def refuse_payment(request):
         request,
         _("The payment has been refused.")
     )
-    return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
+    return redirect(reverse(
+        'users:profil',
+        kwargs={'userid': request.user.id}
+    ))
+
 
 @csrf_exempt
 def ipn(request):
@@ -105,7 +113,7 @@ def comnpay(facture, request):
         str(AssoOption.get_cached_value('payment_pass')),
         'https://' + host + reverse(
             'cotisations:accept_payment',
-            kwargs={'factureid':facture.id}
+            kwargs={'factureid': facture.id}
         ),
         'https://' + host + reverse('cotisations:refuse_payment'),
         'https://' + host + reverse('cotisations:ipn'),
@@ -113,20 +121,20 @@ def comnpay(facture, request):
         "D"
     )
     r = {
-        'action' : 'https://secure.homologation.comnpay.com',
-        'method' : 'POST',
-        'content' : p.buildSecretHTML(
+        'action': 'https://secure.homologation.comnpay.com',
+        'method': 'POST',
+        'content': p.buildSecretHTML(
             "Rechargement du solde",
             facture.prix(),
             idTransaction=str(facture.id)
         ),
-        'amount' : facture.prix,
+        'amount': facture.prix,
     }
     return r
 
 
 # The payment systems supported by re2o
 PAYMENT_SYSTEM = {
-    'COMNPAY' : comnpay,
-    'NONE' : None
+    'COMNPAY': comnpay,
+    'NONE': None
 }

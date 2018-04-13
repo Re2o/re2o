@@ -46,7 +46,7 @@ def render_invoice(request, ctx={}):
     date, the user, the articles, the prices, ...
     """
     filename = '_'.join([
-        'invoice', 
+        'invoice',
         slugify(ctx['asso_name']),
         slugify(ctx['recipient_name']),
         str(ctx['DATE'].year),
@@ -54,8 +54,11 @@ def render_invoice(request, ctx={}):
         str(ctx['DATE'].day),
     ])
     r = render_tex(request, 'cotisations/factures.tex', ctx)
-    r['Content-Disposition'] = ''.join(['attachment; filename="',filename,'.pdf"']) 
+    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
+        name=filename
+    )
     return r
+
 
 def render_tex(request, template, ctx={}):
     """
@@ -66,13 +69,13 @@ def render_tex(request, template, ctx={}):
     context = Context(ctx)
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
-    
+
     with tempfile.TemporaryDirectory() as tempdir:
         for i in range(2):
             process = Popen(
                 ['pdflatex', '-output-directory', tempdir],
-                stdin = PIPE,
-                stdout = PIPE,
+                stdin=PIPE,
+                stdout=PIPE,
             )
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
