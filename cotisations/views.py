@@ -161,8 +161,8 @@ def new_facture(request, user, userid):
                     request,
                     _("The cotisation of %(member_name)s has been \
                     extended to %(end_date)s.") % {
-                        member_name: user.pseudo,
-                        end_date: user.end_adhesion()
+                        'member_name': user.pseudo,
+                        'end_date': user.end_adhesion()
                     }
                 )
             # Else, only tell the invoice was created
@@ -508,7 +508,7 @@ def del_paiement(request, instances):
                     request,
                     _("The payment method %(method_name)s has been \
                     successfully deleted.") % {
-                        method_name: payment_del
+                        'method_name': payment_del
                     }
                 )
             except ProtectedError:
@@ -516,7 +516,7 @@ def del_paiement(request, instances):
                     request,
                     _("The payment method %(method_name)s can't be deleted \
                     because there are invoices using it.") % {
-                        method_name: payment_del
+                        'method_name': payment_del
                     }
                 )
         return redirect(reverse('cotisations:index-paiement'))
@@ -586,7 +586,7 @@ def del_banque(request, instances):
                     request,
                     _("The bank %(bank_name)s has been successfully \
                     deleted.") % {
-                        bank_name: bank_del
+                        'bank_name': bank_del
                     }
                 )
             except ProtectedError:
@@ -594,7 +594,7 @@ def del_banque(request, instances):
                     request,
                     _("The bank %(bank_name)s can't be deleted \
                     because there are invoices using it.") % {
-                        bank_name: bank_del
+                        'bank_name': bank_del
                     }
                 )
         return redirect(reverse('cotisations:index-banque'))
@@ -719,7 +719,7 @@ def new_facture_solde(request, userid):
     user = request.user
     invoice = Facture(user=user)
     payment, _created = Paiement.objects.get_or_create(moyen='Solde')
-    facture.paiement = payment
+    invoice.paiement = payment
     # The template needs the list of articles (for the JS part)
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
@@ -779,8 +779,8 @@ def new_facture_solde(request, userid):
                     request,
                     _("The cotisation of %(member_name)s has been successfully \
                     extended to %(end_date)s.") % {
-                        member_name: user.pseudo,
-                        end_date: user.end_adhesion()
+                        'member_name': user.pseudo,
+                        'end_date': user.end_adhesion()
                     }
                 )
             # Else, only tell the invoice was created
@@ -827,9 +827,9 @@ def recharge(request):
     if refill_form.is_valid():
         invoice = Facture(user=request.user)
         payment, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
-        facture.paiement = payment
-        facture.valid = False
-        facture.save()
+        invoice.paiement = payment
+        invoice.valid = False
+        invoice.save()
         purchase = Vente.objects.create(
             facture=invoice,
             name='solde',
