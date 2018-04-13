@@ -355,7 +355,7 @@ class RechargeForm(FormRevMixin, Form):
             raise forms.ValidationError(
                 _("Requested amount is too small. Minimum amount possible : \
                 %(min_online_amount)s €.") % {
-                    min_online_amount: OptionalUser.get_cached_value(
+                    'min_online_amount': OptionalUser.get_cached_value(
                         'min_online_payment'
                     )
                 }
@@ -364,7 +364,7 @@ class RechargeForm(FormRevMixin, Form):
             raise forms.ValidationError(
                 _("Requested amount is too high. Your balance can't exceed \
                 %(max_online_balance)s €.") % {
-                    max_online_balance: OptionalUser.get_cached_value(
+                    'max_online_balance': OptionalUser.get_cached_value(
                         'max_solde'
                     )
                 }

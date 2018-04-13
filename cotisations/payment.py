@@ -27,7 +27,7 @@ def accept_payment(request, factureid):
     messages.success(
         request,
         _("The payment of %(amount)s € has been accepted.") % {
-            amount: facture.prix()
+            'amount': facture.prix()
         }
     )
     return redirect(reverse('users:profil', kwargs={'userid':request.user.id}))
