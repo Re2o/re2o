@@ -20,10 +20,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#Maël Kervella
+# Maël Kervella
 
 from rest_framework import serializers
 from users.models import Club, Adherent
+
 
 class MailingSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='pseudo')
@@ -31,6 +32,7 @@ class MailingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
         fields = ('name',)
+
 
 class MailingMemberSerializer(serializers.ModelSerializer):
     class Meta:

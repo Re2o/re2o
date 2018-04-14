@@ -106,6 +106,7 @@ from re2o.acl import (
     can_change
 )
 
+
 @can_create(Adherent)
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
@@ -121,9 +122,19 @@ def new_user(request):
         pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(user.id)}
-            ))
-    return form({'userform': user,'GTU_sum_up':GTU_sum_up,'GTU':GTU,'showCGU':True, 'action_name':'Créer un utilisateur'}, 'users/user.html', request)
+            kwargs={'userid': str(user.id)}
+        ))
+    return form(
+        {
+            'userform': user,
+            'GTU_sum_up': GTU_sum_up,
+            'GTU': GTU,
+            'showCGU': True,
+            'action_name': 'Créer un utilisateur'
+        },
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -140,9 +151,13 @@ def new_club(request):
         pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(club.id)}
-            ))
-    return form({'userform': club, 'showCGU':False, 'action_name':'Créer un club'}, 'users/user.html', request)
+            kwargs={'userid': str(club.id)}
+        ))
+    return form(
+        {'userform': club, 'showCGU': False, 'action_name': 'Créer un club'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -150,16 +165,27 @@ def new_club(request):
 def edit_club_admin_members(request, club_instance, clubid):
     """Vue d'edition de la liste des users administrateurs et
     membres d'un club"""
-    club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
+    club = ClubAdminandMembersForm(
+        request.POST or None,
+        instance=club_instance
+    )
     if club.is_valid():
         if club.changed_data:
             club.save()
             messages.success(request, "Le club a bien été modifié")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(club_instance.id)}
-            ))
-    return form({'userform': club, 'showCGU':False, 'action_name':'Editer les admin et membres'}, 'users/user.html', request)
+            kwargs={'userid': str(club_instance.id)}
+        ))
+    return form(
+        {
+            'userform': club,
+            'showCGU': False,
+            'action_name': 'Editer les admin et membres'
+        },
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -186,9 +212,13 @@ def edit_info(request, user, userid):
             messages.success(request, "L'user a bien été modifié")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(userid)}
-            ))
-    return form({'userform': user, 'action_name': "Editer l'utilisateur"}, 'users/user.html', request)
+            kwargs={'userid': str(userid)}
+        ))
+    return form(
+        {'userform': user, 'action_name': "Editer l'utilisateur"},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -207,9 +237,13 @@ def state(request, user, userid):
             messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(userid)}
-            ))
-    return form({'userform': state, 'action_name': "Editer l'état"}, 'users/user.html', request)
+            kwargs={'userid': str(userid)}
+        ))
+    return form(
+        {'userform': state, 'action_name': "Editer l'état"},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -222,9 +256,13 @@ def groups(request, user, userid):
             messages.success(request, "Groupes changés avec succès")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(userid)}
+            kwargs={'userid': str(userid)}
         ))
-    return form({'userform': group, 'action_name':'Editer les groupes'}, 'users/user.html', request)
+    return form(
+        {'userform': group, 'action_name': 'Editer les groupes'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -239,10 +277,14 @@ def password(request, user, userid):
             u_form.save()
             messages.success(request, "Le mot de passe a changé")
         return redirect(reverse(
-        'users:profil',
-        kwargs={'userid':str(user.id)}
+            'users:profil',
+            kwargs={'userid': str(user.id)}
         ))
-    return form({'userform': u_form, 'action_name':'Changer le mot de passe'}, 'users/user.html', request)
+    return form(
+        {'userform': u_form, 'action_name': 'Changer le mot de passe'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -268,14 +310,21 @@ def new_serviceuser(request):
             "L'utilisateur %s a été crée" % user_object.pseudo
         )
         return redirect(reverse('users:index-serviceusers'))
-    return form({'userform': user, 'action_name':'Créer un serviceuser'}, 'users/user.html', request)
+    return form(
+        {'userform': user, 'action_name': 'Créer un serviceuser'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
 @can_edit(ServiceUser)
 def edit_serviceuser(request, serviceuser, serviceuserid):
     """ Edit a ServiceUser """
-    serviceuser = EditServiceUserForm(request.POST or None, instance=serviceuser)
+    serviceuser = EditServiceUserForm(
+        request.POST or None,
+        instance=serviceuser
+    )
     if serviceuser.is_valid():
         user_object = serviceuser.save(commit=False)
         if serviceuser.cleaned_data['password']:
@@ -284,7 +333,11 @@ def edit_serviceuser(request, serviceuser, serviceuserid):
             user_object.save()
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
-    return form({'userform': serviceuser, 'action_name':'Editer un serviceuser'}, 'users/user.html', request)
+    return form(
+        {'userform': serviceuser, 'action_name': 'Editer un serviceuser'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -316,14 +369,19 @@ def add_ban(request, user, userid):
         messages.success(request, "Bannissement ajouté")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(userid)}
+            kwargs={'userid': str(userid)}
         ))
     if user.is_ban():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un bannissement actif"
         )
-    return form({'userform': ban, 'action_name': 'Ajouter un ban'}, 'users/user.html', request)
+    return form(
+        {'userform': ban, 'action_name': 'Ajouter un ban'},
+        'users/user.html',
+        request
+    )
+
 
 @login_required
 @can_edit(Ban)
@@ -337,7 +395,11 @@ def edit_ban(request, ban_instance, banid):
             ban.save()
             messages.success(request, "Bannissement modifié")
         return redirect(reverse('users:index'))
-    return form({'userform': ban, 'action_name': 'Editer un ban'}, 'users/user.html', request)
+    return form(
+        {'userform': ban, 'action_name': 'Editer un ban'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -358,14 +420,18 @@ def add_whitelist(request, user, userid):
         messages.success(request, "Accès à titre gracieux accordé")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid':str(userid)}
-            ))
+            kwargs={'userid': str(userid)}
+        ))
     if user.is_whitelisted():
         messages.error(
             request,
             "Attention, cet utilisateur a deja un accès gracieux actif"
         )
-    return form({'userform': whitelist, 'action_name': 'Ajouter une whitelist'}, 'users/user.html', request)
+    return form(
+        {'userform': whitelist, 'action_name': 'Ajouter une whitelist'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -384,7 +450,11 @@ def edit_whitelist(request, whitelist_instance, whitelistid):
             whitelist.save()
             messages.success(request, "Whitelist modifiée")
         return redirect(reverse('users:index'))
-    return form({'userform': whitelist, 'action_name': 'Editer une whitelist'}, 'users/user.html', request)
+    return form(
+        {'userform': whitelist, 'action_name': 'Editer une whitelist'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -397,7 +467,11 @@ def add_school(request):
         school.save()
         messages.success(request, "L'établissement a été ajouté")
         return redirect(reverse('users:index-school'))
-    return form({'userform': school, 'action_name':'Ajouter'}, 'users/user.html', request)
+    return form(
+        {'userform': school, 'action_name': 'Ajouter'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -411,7 +485,11 @@ def edit_school(request, school_instance, schoolid):
             school.save()
             messages.success(request, "Établissement modifié")
         return redirect(reverse('users:index-school'))
-    return form({'userform': school, 'action_name':'Editer'}, 'users/user.html', request)
+    return form(
+        {'userform': school, 'action_name': 'Editer'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -434,7 +512,11 @@ def del_school(request, instances):
                     "L'établissement %s est affecté à au moins un user, \
                         vous ne pouvez pas le supprimer" % school_del)
         return redirect(reverse('users:index-school'))
-    return form({'userform': school, 'action_name': 'Supprimer'}, 'users/user.html', request)
+    return form(
+        {'userform': school, 'action_name': 'Supprimer'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -446,7 +528,11 @@ def add_shell(request):
         shell.save()
         messages.success(request, "Le shell a été ajouté")
         return redirect(reverse('users:index-shell'))
-    return form({'userform': shell, 'action_name':'Ajouter'}, 'users/user.html', request)
+    return form(
+        {'userform': shell, 'action_name': 'Ajouter'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -459,7 +545,11 @@ def edit_shell(request, shell_instance, listshellid):
             shell.save()
             messages.success(request, "Le shell a été modifié")
         return redirect(reverse('users:index-shell'))
-    return form({'userform': shell, 'action_name':'Editer'}, 'users/user.html', request)
+    return form(
+        {'userform': shell, 'action_name': 'Editer'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -487,7 +577,11 @@ def add_listright(request):
         listright.save()
         messages.success(request, "Le droit/groupe a été ajouté")
         return redirect(reverse('users:index-listright'))
-    return form({'userform': listright, 'action_name': 'Ajouter'}, 'users/user.html', request)
+    return form(
+        {'userform': listright, 'action_name': 'Ajouter'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -504,7 +598,11 @@ def edit_listright(request, listright_instance, listrightid):
             listright.save()
             messages.success(request, "Droit modifié")
         return redirect(reverse('users:index-listright'))
-    return form({'userform': listright, 'action_name': 'Editer'}, 'users/user.html', request)
+    return form(
+        {'userform': listright, 'action_name': 'Editer'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -525,7 +623,11 @@ def del_listright(request, instances):
                     "Le groupe %s est affecté à au moins un user, \
                         vous ne pouvez pas le supprimer" % listright_del)
         return redirect(reverse('users:index-listright'))
-    return form({'userform': listright, 'action_name': 'Supprimer'}, 'users/user.html', request)
+    return form(
+        {'userform': listright, 'action_name': 'Supprimer'},
+        'users/user.html',
+        request
+    )
 
 
 @login_required
@@ -587,7 +689,11 @@ def index_clubs(request):
         SortTable.USERS_INDEX
     )
     clubs_list = re2o_paginator(request, clubs_list, pagination_number)
-    return render(request, 'users/index_clubs.html', {'clubs_list': clubs_list})
+    return render(
+        request,
+        'users/index_clubs.html',
+        {'clubs_list': clubs_list}
+    )
 
 
 @login_required
@@ -688,7 +794,7 @@ def mon_profil(request):
     """ Lien vers profil, renvoie request.id à la fonction """
     return redirect(reverse(
         'users:profil',
-        kwargs={'userid':str(request.user.id)}
+        kwargs={'userid': str(request.user.id)}
         ))
 
 
@@ -707,7 +813,9 @@ def profil(request, users, userid):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
-    pagination_large_number = GeneralOption.get_cached_value('pagination_large_number')
+    pagination_large_number = GeneralOption.get_cached_value(
+        'pagination_large_number'
+    )
     machines = re2o_paginator(request, machines, pagination_large_number)
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
@@ -742,7 +850,7 @@ def profil(request, users, userid):
             'ban_list': bans,
             'white_list': whitelists,
             'user_solde': user_solde,
-            'allow_online_payment' : allow_online_payment,
+            'allow_online_payment': allow_online_payment,
         }
     )
 
@@ -758,12 +866,20 @@ def reset_password(request):
             )
         except User.DoesNotExist:
             messages.error(request, "Cet utilisateur n'existe pas")
-            return form({'userform': userform, 'action_name': 'Réinitialiser'}, 'users/user.html', request)
+            return form(
+                {'userform': userform, 'action_name': 'Réinitialiser'},
+                'users/user.html',
+                request
+            )
         user.reset_passwd_mail(request)
         messages.success(request, "Un mail pour l'initialisation du mot\
         de passe a été envoyé")
         redirect(reverse('index'))
-    return form({'userform': userform, 'action_name': 'Réinitialiser'}, 'users/user.html', request)
+    return form(
+        {'userform': userform, 'action_name': 'Réinitialiser'},
+        'users/user.html',
+        request
+    )
 
 
 def process(request, token):
@@ -790,7 +906,11 @@ def process_passwd(request, req):
         req.delete()
         messages.success(request, "Le mot de passe a changé")
         return redirect(reverse('index'))
-    return form({'userform': u_form, 'action_name': 'Changer le mot de passe'}, 'users/user.html', request)
+    return form(
+        {'userform': u_form, 'action_name': 'Changer le mot de passe'},
+        'users/user.html',
+        request
+    )
 
 
 class JSONResponse(HttpResponse):
@@ -862,6 +982,9 @@ def ml_club_members(request, ml_name):
     except Club.DoesNotExist:
         messages.error(request, "Cette mailing n'existe pas")
         return redirect(reverse('index'))
-    members = club.administrators.all().values('email').distinct() | club.members.all().values('email').distinct()
+    members = (
+        club.administrators.all().values('email').distinct() |
+        club.members.all().values('email').distinct()
+    )
     seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)

@@ -4,7 +4,6 @@
 # quelques clics.
 #
 # Copyright © 2018  Benjamin Graillot
-# 
 # Copyright © 2013-2015 Raphaël-David Lasseri <lasseri@crans.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -32,7 +31,8 @@ from users.models import User
 
 # Une liste d'expressions régulières à chercher dans les logs.
 # Elles doivent contenir un groupe 'date' et un groupe 'user'.
-# Pour le CAS on prend comme entrée cat ~/cas.log | grep -B 2 -A 2 "ACTION: AUTHENTICATION_SUCCESS"| grep 'WHEN\|WHO'|sed 'N;s/\n/ /'
+# Pour le CAS on prend comme entrée
+# cat ~/cas.log | grep -B 2 -A 2 "ACTION: AUTHENTICATION_SUCCESS"| grep 'WHEN\|WHO'|sed 'N;s/\n/ /'
 COMPILED_REGEX = map(re.compile, [
     r'^(?P<date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*(?:'r'dovecot.*Login: user=<|'r'sshd.*Accepted.*for 'r')(?P<user>[^ >]+).*$',
     r'^(?P<date>.*) LOGIN INFO User logged in : (?P<user>.*)',
@@ -48,8 +48,10 @@ DATE_FORMATS = [
     "%a %b %d CEST %H:%M:%S%Y"
 ]
 
+
 class Command(BaseCommand):
-    help = 'Update the time of the latest connection for users by matching stdin against a set of regular expressions'
+    help = ('Update the time of the latest connection for users by matching '
+            'stdin against a set of regular expressions')
 
     def handle(self, *args, **options):
 
@@ -65,7 +67,9 @@ class Command(BaseCommand):
                 for i, regex in enumerate(COMPILED_REGEX):
                     m = regex.match(line)
                     if m:
-                        parsed_log[m.group('user')] = make_aware(datetime.strptime(m.group('date'), DATE_FORMATS[i]))
+                        parsed_log[m.group('user')] = make_aware(
+                            datetime.strptime(m.group('date'), DATE_FORMATS[i])
+                        )
             return parsed_log
 
         parsed_log = parse_logs(sys.stdin)
