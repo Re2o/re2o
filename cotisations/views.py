@@ -23,22 +23,23 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz
 # Gplv2
+"""cotisations.views
+The different views used in the Cotisations module
+"""
+
 from __future__ import unicode_literals
 import os
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.core.validators import MaxValueValidator
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import ProtectedError
-from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.debug import sensitive_variables
+
 # Import des models, forms et fonctions re2o
 from reversion import revisions as reversion
 from users.models import User
@@ -70,7 +71,6 @@ from .forms import (
     SelectUserArticleForm,
     SelectClubArticleForm,
     CreditSoldeForm,
-    NewFactureSoldeForm,
     RechargeForm
 )
 from . import payment as online_payment
@@ -122,7 +122,7 @@ def new_facture(request, user, userid):
             if user_balance:
                 # TODO : change Paiement to Payment
                 if new_invoice_instance.paiement == (
-                    Paiement.objects.get_or_create(moyen='solde')[0]
+                        Paiement.objects.get_or_create(moyen='solde')[0]
                 ):
                     total_price = 0
                     for art_item in articles:
@@ -263,7 +263,7 @@ def new_facture_pdf(request):
 # TODO : change facture to invoice
 @login_required
 @can_view(Facture)
-def facture_pdf(request, facture, factureid):
+def facture_pdf(request, facture, _factureid):
     """
     View used to generate a PDF file from  an existing invoice in database
     Creates a line for each Purchase (thus article sold) and generate the
@@ -306,7 +306,7 @@ def facture_pdf(request, facture, factureid):
 # TODO : change facture to invoice
 @login_required
 @can_edit(Facture)
-def edit_facture(request, facture, factureid):
+def edit_facture(request, facture, _factureid):
     """
     View used to edit an existing invoice.
     Articles can be added or remove to the invoice and quantity
@@ -347,7 +347,7 @@ def edit_facture(request, facture, factureid):
 # TODO : change facture to invoice
 @login_required
 @can_delete(Facture)
-def del_facture(request, facture, factureid):
+def del_facture(request, facture, _factureid):
     """
     View used to delete an existing invocie.
     """
@@ -368,7 +368,7 @@ def del_facture(request, facture, factureid):
 @login_required
 @can_create(Facture)
 @can_edit(User)
-def credit_solde(request, user, userid):
+def credit_solde(request, user, _userid):
     """
     View used to edit the balance of a user.
     Can be use either to increase or decrease a user's balance.
@@ -425,7 +425,7 @@ def add_article(request):
 
 @login_required
 @can_edit(Article)
-def edit_article(request, article_instance, articleid):
+def edit_article(request, article_instance, _articleid):
     """
     View used to edit an article.
     """
@@ -489,7 +489,7 @@ def add_paiement(request):
 # TODO : chnage paiement to Payment
 @login_required
 @can_edit(Paiement)
-def edit_paiement(request, paiement_instance, paiementid):
+def edit_paiement(request, paiement_instance, _paiementid):
     """
     View used to edit a payment method.
     """
@@ -567,7 +567,7 @@ def add_banque(request):
 # TODO : change banque to bank
 @login_required
 @can_edit(Banque)
-def edit_banque(request, banque_instance, banqueid):
+def edit_banque(request, banque_instance, _bbanqueid):
     """
     View used to edit a bank.
     """

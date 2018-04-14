@@ -34,17 +34,16 @@ from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Max
 from django.utils import timezone
-from machines.models import regen
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 
+from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
@@ -106,15 +105,15 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         permissions = (
             # TODO : change facture to invoice
             ('change_facture_control',
-                _l("Can change the \"controlled\" state")),
+             _l("Can change the \"controlled\" state")),
             # TODO : seems more likely to be call create_facture_pdf
             # or create_invoice_pdf
             ('change_facture_pdf',
-                _l("Can create a custom PDF invoice")),
+             _l("Can create a custom PDF invoice")),
             ('view_facture',
-                _l("Can see an invoice's details")),
+             _l("Can see an invoice's details")),
             ('change_all_facture',
-                _l("Can edit all the previous invoices")),
+             _l("Can edit all the previous invoices")),
         )
         verbose_name = _l("Invoice")
         verbose_name_plural = _l("Invoices")
@@ -187,7 +186,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         else:
             return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_facture') and \
                 self.user != user_request:
             return False, _("You don't have the right to see someone else's "
@@ -198,14 +197,17 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             return True, None
 
     @staticmethod
-    def can_change_control(user_request, *args, **kwargs):
+    def can_change_control(user_request, *_args, **_kwargs):
+        """ Returns True if the user can change the 'controlled' status of
+        this invoice """
         return (
             user_request.has_perm('cotisations.change_facture_control'),
             _("You don't have the right to edit the \"controlled\" state.")
         )
 
     @staticmethod
-    def can_change_pdf(user_request, *args, **kwargs):
+    def can_change_pdf(user_request, *_args, **_kwargs):
+        """ Returns True if the user can change this invoice """
         return (
             user_request.has_perm('cotisations.change_facture_pdf'),
             _("You don't have the right to edit an invoice.")
@@ -222,7 +224,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
 
 @receiver(post_save, sender=Facture)
-def facture_post_save(sender, **kwargs):
+def facture_post_save(_sender, **kwargs):
     """
     Synchronise the LDAP user after an invoice has been saved.
     """
@@ -232,7 +234,7 @@ def facture_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Facture)
-def facture_post_delete(sender, **kwargs):
+def facture_post_delete(_sender, **kwargs):
     """
     Synchronise the LDAP user after an invoice has been deleted.
     """
@@ -375,13 +377,14 @@ class Vente(RevMixin, AclMixin, models.Model):
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_vente'):
             return False, _("You don't have the right to edit the purchases.")
-        elif not user_request.has_perm('cotisations.change_all_facture') and \
-                not self.facture.user.can_edit(
-                    user_request, *args, **kwargs)[0]:
+        elif (not user_request.has_perm('cotisations.change_all_facture') and
+              not self.facture.user.can_edit(
+                  user_request, *args, **kwargs
+              )[0]):
             return False, _("You don't have the right to edit this user's "
                             "purchases.")
-        elif not user_request.has_perm('cotisations.change_all_vente') and \
-                (self.facture.control or not self.facture.valid):
+        elif (not user_request.has_perm('cotisations.change_all_vente') and
+              (self.facture.control or not self.facture.valid)):
             return False, _("You don't have the right to edit a purchase "
                             "already controlled or invalidated.")
         else:
@@ -399,9 +402,9 @@ class Vente(RevMixin, AclMixin, models.Model):
         else:
             return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('cotisations.view_vente') and \
-                self.facture.user != user_request:
+    def can_view(self, user_request, *_args, **_kwargs):
+        if (not user_request.has_perm('cotisations.view_vente') and
+                self.facture.user != user_request):
             return False, _("You don't have the right to see someone "
                             "else's purchase history.")
         else:
@@ -413,7 +416,7 @@ class Vente(RevMixin, AclMixin, models.Model):
 
 # TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
-def vente_post_save(sender, **kwargs):
+def vente_post_save(_sender, **kwargs):
     """
     Creates a 'cotisation' related object if needed and synchronise the
     LDAP user when a purchase has been saved.
@@ -431,7 +434,7 @@ def vente_post_save(sender, **kwargs):
 
 # TODO : change vente to purchase
 @receiver(post_delete, sender=Vente)
-def vente_post_delete(sender, **kwargs):
+def vente_post_delete(_sender, **kwargs):
     """
     Synchronise the LDAP user after a purchase has been deleted.
     """
@@ -646,7 +649,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             ('change_all_cotisation', _l("Can edit the previous cotisations")),
         )
 
-    def can_edit(self, user_request, *args, **kwargs):
+    def can_edit(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.change_cotisation'):
             return False, _("You don't have the right to edit a cotisation.")
         elif not user_request.has_perm('cotisations.change_all_cotisation') \
@@ -657,7 +660,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         else:
             return True, None
 
-    def can_delete(self, user_request, *args, **kwargs):
+    def can_delete(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.delete_cotisation'):
             return False, _("You don't have the right to delete a "
                             "cotisation.")
@@ -667,7 +670,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         else:
             return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
                 self.vente.facture.user != user_request:
             return False, _("You don't have the right to see someone else's "
@@ -680,7 +683,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Cotisation)
-def cotisation_post_save(sender, **kwargs):
+def cotisation_post_save(_sender, **_kwargs):
     """
     Mark some services as needing a regeneration after the edition of a
     cotisation. Indeed the membership status may have changed.
@@ -692,11 +695,10 @@ def cotisation_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Cotisation)
-def cotisation_post_delete(sender, **kwargs):
+def cotisation_post_delete(_sender, **_kwargs):
     """
     Mark some services as needing a regeneration after the deletion of a
     cotisation. Indeed the membership status may have changed.
     """
-    cotisation = kwargs['instance']
     regen('mac_ip_list')
     regen('mailing')

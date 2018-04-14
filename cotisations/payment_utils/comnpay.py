@@ -1,20 +1,19 @@
+"""cotisations.payment_utils.comnpay
+The module in charge of handling the negociation with Comnpay
+for online payment
+"""
+
 import time
 from random import randrange
 import base64
 import hashlib
 from collections import OrderedDict
-from itertools import chain
 
 
 class Payment():
-
-    vad_number = ""
-    secret_key = ""
-    urlRetourOK = ""
-    urlRetourNOK = ""
-    urlIPN = ""
-    source = ""
-    typeTr = "D"
+    """ The class representing a transaction with all the functions
+    used during the negociation
+    """
 
     def __init__(self, vad_number="", secret_key="", urlRetourOK="",
                  urlRetourNOK="", urlIPN="", source="", typeTr="D"):
@@ -25,9 +24,13 @@ class Payment():
         self.urlIPN = urlIPN
         self.source = source
         self.typeTr = typeTr
+        self.idTransaction = ""
 
     def buildSecretHTML(self, produit="Produit", montant="0.00",
                         idTransaction=""):
+        """ Build an HTML hidden form with the different parameters for the
+        transaction
+        """
         if idTransaction == "":
             self.idTransaction = str(time.time())
             self.idTransaction += self.vad_number
@@ -36,16 +39,16 @@ class Payment():
             self.idTransaction = idTransaction
 
         array_tpe = OrderedDict(
-                montant=str(montant),
-                idTPE=self.vad_number,
-                idTransaction=self.idTransaction,
-                devise="EUR",
-                lang='fr',
-                nom_produit=produit,
-                source=self.source,
-                urlRetourOK=self.urlRetourOK,
-                urlRetourNOK=self.urlRetourNOK,
-                typeTr=str(self.typeTr)
+            montant=str(montant),
+            idTPE=self.vad_number,
+            idTransaction=self.idTransaction,
+            devise="EUR",
+            lang='fr',
+            nom_produit=produit,
+            source=self.source,
+            urlRetourOK=self.urlRetourOK,
+            urlRetourNOK=self.urlRetourNOK,
+            typeTr=str(self.typeTr)
         )
 
         if self.urlIPN != "":
@@ -63,12 +66,14 @@ class Payment():
         for key in array_tpe:
             ret += '<input type="hidden" name="{k}" value="{v}"/>'.format(
                 k=key,
-                v=array_type[key]
+                v=array_tpe[key]
             )
 
         return ret
 
-    def validSec(self, values, secret_key):
+    @staticmethod
+    def validSec(values, secret_key):
+        """ Check if the secret value is correct """
         if "sec" in values:
             sec = values['sec']
             del values["sec"]

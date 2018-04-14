@@ -38,16 +38,14 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 
-from .models import Article, Paiement, Facture, Banque
 from preferences.models import OptionalUser
-from users.models import User
-
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
+from .models import Article, Paiement, Facture, Banque
 
 
 class NewFactureForm(FormRevMixin, ModelForm):
@@ -313,6 +311,11 @@ class NewFactureSoldeForm(NewFactureForm):
     """
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(NewFactureSoldeForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
         self.fields['cheque'].label = _('Cheque number')
@@ -367,6 +370,10 @@ class RechargeForm(FormRevMixin, Form):
         super(RechargeForm, self).__init__(*args, **kwargs)
 
     def clean_value(self):
+        """
+        Returns a cleaned vlaue from the received form by validating
+        the value is well inside the possible limits
+        """
         value = self.cleaned_data['value']
         if value < OptionalUser.get_cached_value('min_online_payment'):
             raise forms.ValidationError(

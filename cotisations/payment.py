@@ -2,6 +2,9 @@
 
 Here are defined some views dedicated to online payement.
 """
+
+from collections import OrderedDict
+
 from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -10,8 +13,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest
-
-from collections import OrderedDict
 
 from preferences.models import AssoOption
 from .models import Facture
