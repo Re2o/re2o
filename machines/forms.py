@@ -137,10 +137,10 @@ class AliasForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         user = kwargs.pop('user')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        can_use_all, reason = Extension.can_use_all(user)
+        can_use_all, _reason = Extension.can_use_all(user)
         if not can_use_all:
             self.fields['extension'].queryset = Extension.objects.filter(
-                 need_infra=False
+                need_infra=False
             )
 
 
@@ -480,6 +480,8 @@ class ServiceForm(FormRevMixin, ModelForm):
                                            ))
 
     def save(self, commit=True):
+        # TODO : None of the parents of ServiceForm use the commit
+        # parameter in .save()
         instance = super(ServiceForm, self).save(commit=False)
         if commit:
             instance.save()

@@ -20,14 +20,17 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""machines.models
+The models definitions for the Machines app
+"""
 
 from __future__ import unicode_literals
 
 from datetime import timedelta
 import re
-from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
 from ipaddress import IPv6Address
 from itertools import chain
+from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -67,12 +70,13 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
              "Peut changer le propriétaire d'une machine"),
         )
 
-    def get_instance(machineid, *args, **kwargs):
+    @classmethod
+    def get_instance(cls, machineid, *_args, **_kwargs):
         """Get the Machine instance with machineid.
         :param userid: The id
         :return: The user
         """
-        return Machine.objects.get(pk=machineid)
+        return cls.objects.get(pk=machineid)
 
     def linked_objects(self):
         """Return linked objects : machine and domain.
@@ -85,7 +89,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         )
 
     @staticmethod
-    def can_change_user(user_request, *args, **kwargs):
+    def can_change_user(user_request, *_args, **_kwargs):
         """Checks if an user is allowed to change the user who owns a
         Machine.
 
@@ -99,7 +103,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         return (user_request.has_perm('machines.change_machine_user'),
                 "Vous ne pouvez pas modifier l'utilisateur de la machine.")
 
-    def can_view_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_view_all(user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des machines,
         droit particulier correspondant
         :param user_request: instance user qui fait l'edition
@@ -109,7 +114,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                            "machines sans permission")
         return True, None
 
-    def can_create(user_request, userid, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, userid, *_args, **_kwargs):
         """Vérifie qu'un user qui fait la requète peut bien créer la machine
         et n'a pas atteint son quota, et crée bien une machine à lui
         :param user_request: Utilisateur qui fait la requête
@@ -172,7 +178,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                                "d'un autre user que vous sans droit")
         return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière (soit
         machine de soi, soit droit particulier
         :param self: instance machine à éditer
@@ -218,7 +224,8 @@ class MachineType(RevMixin, AclMixin, models.Model):
         machinetype"""
         return Interface.objects.filter(type=self)
 
-    def can_use_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_use_all(user_request, *_args, **_kwargs):
         """Check if an user can use every MachineType.
 
         Args:
@@ -328,10 +335,10 @@ class IpType(RevMixin, AclMixin, models.Model):
             return
         else:
             for ipv6 in Ipv6List.objects.filter(
-                interface__in=Interface.objects.filter(
-                    type__in=MachineType.objects.filter(ip_type=self)
-                )
-            ):
+                    interface__in=Interface.objects.filter(
+                        type__in=MachineType.objects.filter(ip_type=self)
+                    )
+                ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
     def clean(self):
@@ -360,7 +367,8 @@ class IpType(RevMixin, AclMixin, models.Model):
         self.clean()
         super(IpType, self).save(*args, **kwargs)
 
-    def can_use_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans
         restrictions
         :param user_request: instance user qui fait l'edition
@@ -555,7 +563,8 @@ class Extension(RevMixin, AclMixin, models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
-    def can_use_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans
         restrictions
         :param user_request: instance user qui fait l'edition
@@ -644,6 +653,7 @@ class Txt(RevMixin, AclMixin, models.Model):
 
 
 class Srv(RevMixin, AclMixin, models.Model):
+    """ A SRV record """
     PRETTY_NAME = "Enregistrement Srv"
 
     TCP = 'TCP'
@@ -874,7 +884,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 correspondent pas")
         super(Interface, self).save(*args, **kwargs)
 
-    def can_create(user_request, machineid, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, machineid, *_args, **_kwargs):
         """Verifie que l'user a les bons droits infra pour créer
         une interface, ou bien que la machine appartient bien à l'user
         :param macineid: Id de la machine parente de l'interface
@@ -903,7 +914,9 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return True, None
 
     @staticmethod
-    def can_change_machine(user_request, *args, **kwargs):
+    def can_change_machine(user_request, *_args, **_kwargs):
+        """Check if a user can change the machine associated with an
+        Interface object """
         return (user_request.has_perm('machines.change_interface_machine'),
                 "Droit requis pour changer la machine")
 
@@ -941,7 +954,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                                "d'un autre user que vous sans droit")
         return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet ou qu'elle appartient à l'user
         :param self: instance interface à voir
@@ -981,6 +994,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
 
 class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
+    """ A list of IPv6 """
     PRETTY_NAME = 'Enregistrements Ipv6 des machines'
 
     ipv6 = models.GenericIPAddressField(
@@ -1001,7 +1015,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
              "Peut changer la valeur slaac sur une ipv6"),
         )
 
-    def can_create(user_request, interfaceid, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, interfaceid, *_args, **_kwargs):
         """Verifie que l'user a les bons droits infra pour créer
         une ipv6, ou possède l'interface associée
         :param interfaceid: Id de l'interface associée à cet objet domain
@@ -1018,7 +1033,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return True, None
 
     @staticmethod
-    def can_change_slaac_ip(user_request, *args, **kwargs):
+    def can_change_slaac_ip(user_request, *_args, **_kwargs):
+        """ Check if a user can change the slaac value """
         return (user_request.has_perm('machines.change_ipv6list_slaac_ip'),
                 "Droit requis pour changer la valeur slaac ip")
 
@@ -1056,7 +1072,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                                "d'un autre user que vous sans droit")
         return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet ou qu'elle appartient à l'user
         :param self: instance interface à voir
@@ -1165,7 +1181,7 @@ class Domain(RevMixin, AclMixin, models.Model):
         if self.cname == self:
             raise ValidationError("On ne peut créer un cname sur lui même")
         HOSTNAME_LABEL_PATTERN = re.compile(
-            "(?!-)[A-Z\d-]+(?<!-)$",
+            r"(?!-)[A-Z\d-]+(?<!-)$",
             re.IGNORECASE
         )
         dns = self.name.lower()
@@ -1207,7 +1223,8 @@ class Domain(RevMixin, AclMixin, models.Model):
         else:
             return self.cname.get_parent_interface()
 
-    def can_create(user_request, interfaceid, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, interfaceid, *_args, **_kwargs):
         """Verifie que l'user a les bons droits infra pour créer
         un domain, ou possède l'interface associée
         :param interfaceid: Id de l'interface associée à cet objet domain
@@ -1226,17 +1243,17 @@ class Domain(RevMixin, AclMixin, models.Model):
                 return False, (u"Vous ne pouvez pas ajouter un alias à une "
                                "machine d'un autre user que vous sans droit")
             if Domain.objects.filter(
-                        cname__in=Domain.objects.filter(
-                            interface_parent__in=(interface.machine.user
-                                                  .user_interfaces())
-                        )
-                    ).count() >= max_lambdauser_aliases:
+                    cname__in=Domain.objects.filter(
+                        interface_parent__in=(interface.machine.user
+                                              .user_interfaces())
+                    )
+                ).count() >= max_lambdauser_aliases:
                 return False, (u"Vous avez atteint le maximum d'alias "
                                "autorisés que vous pouvez créer vous même "
                                "(%s) " % max_lambdauser_aliases)
         return True, None
 
-    def can_edit(self, user_request, *args, **kwargs):
+    def can_edit(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour editer
         cette instance domain
         :param self: Instance domain à editer
@@ -1248,7 +1265,7 @@ class Domain(RevMixin, AclMixin, models.Model):
                            "d'un autre user que vous sans droit")
         return True, None
 
-    def can_delete(self, user_request, *args, **kwargs):
+    def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits delete object pour del
         cette instance domain, ou qu'elle lui appartient
         :param self: Instance domain à del
@@ -1260,7 +1277,7 @@ class Domain(RevMixin, AclMixin, models.Model):
                            "machine d'un autre user que vous sans droit")
         return True, None
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet ou qu'elle appartient à l'user
         :param self: instance domain à voir
@@ -1277,6 +1294,7 @@ class Domain(RevMixin, AclMixin, models.Model):
 
 
 class IpList(RevMixin, AclMixin, models.Model):
+    """ A list of IPv4 """
     PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
@@ -1338,8 +1356,8 @@ class Service(RevMixin, AclMixin, models.Model):
         """ Django ne peut créer lui meme les relations manytomany avec table
         intermediaire explicite"""
         for serv in servers.exclude(
-                    pk__in=Interface.objects.filter(service=self)
-                ):
+                pk__in=Interface.objects.filter(service=self)
+            ):
             link = Service_link(service=self, server=serv)
             link.save()
         Service_link.objects.filter(service=self).exclude(server__in=servers)\
@@ -1407,7 +1425,7 @@ class OuverturePortList(RevMixin, AclMixin, models.Model):
             ("view_ouvertureportlist", "Peut voir un objet ouvertureport"),
         )
 
-    def can_delete(self, user_request, *args, **kwargs):
+    def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits bureau pour delete
         cette instance ouvertureportlist
         :param self: Instance ouvertureportlist à delete
@@ -1501,7 +1519,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Machine)
-def machine_post_save(sender, **kwargs):
+def machine_post_save(_sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une machine"""
     user = kwargs['instance'].user
@@ -1511,7 +1529,7 @@ def machine_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Machine)
-def machine_post_delete(sender, **kwargs):
+def machine_post_delete(_sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la suppression
     d'une machine"""
     machine = kwargs['instance']
@@ -1522,7 +1540,7 @@ def machine_post_delete(sender, **kwargs):
 
 
 @receiver(post_save, sender=Interface)
-def interface_post_save(sender, **kwargs):
+def interface_post_save(_sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs['instance']
@@ -1535,7 +1553,7 @@ def interface_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Interface)
-def interface_post_delete(sender, **kwargs):
+def interface_post_delete(_sender, **kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la suppression
     d'une interface"""
     interface = kwargs['instance']
@@ -1544,7 +1562,7 @@ def interface_post_delete(sender, **kwargs):
 
 
 @receiver(post_save, sender=IpType)
-def iptype_post_save(sender, **kwargs):
+def iptype_post_save(_sender, **kwargs):
     """Generation des objets ip après modification d'un range ip"""
     iptype = kwargs['instance']
     iptype.gen_ip_range()
@@ -1552,7 +1570,7 @@ def iptype_post_save(sender, **kwargs):
 
 
 @receiver(post_save, sender=MachineType)
-def machinetype_post_save(sender, **kwargs):
+def machinetype_post_save(_sender, **kwargs):
     """Mise à jour des interfaces lorsque changement d'attribution
     d'une machinetype (changement iptype parent)"""
     machinetype = kwargs['instance']
@@ -1561,84 +1579,84 @@ def machinetype_post_save(sender, **kwargs):
 
 
 @receiver(post_save, sender=Domain)
-def domain_post_save(sender, **kwargs):
+def domain_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un domain object"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Domain)
-def domain_post_delete(sender, **kwargs):
+def domain_post_delete(_sender, **_kwargs):
     """Regeneration dns après suppression d'un domain object"""
     regen('dns')
 
 
 @receiver(post_save, sender=Extension)
-def extension_post_save(sender, **kwargs):
+def extension_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'une extension"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Extension)
-def extension_post_selete(sender, **kwargs):
+def extension_post_selete(_sender, **_kwargs):
     """Regeneration dns après suppression d'une extension"""
     regen('dns')
 
 
 @receiver(post_save, sender=SOA)
-def soa_post_save(sender, **kwargs):
+def soa_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un SOA"""
     regen('dns')
 
 
 @receiver(post_delete, sender=SOA)
-def soa_post_delete(sender, **kwargs):
+def soa_post_delete(_sender, **_kwargs):
     """Regeneration dns après suppresson d'un SOA"""
     regen('dns')
 
 
 @receiver(post_save, sender=Mx)
-def mx_post_save(sender, **kwargs):
+def mx_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un MX"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Mx)
-def mx_post_delete(sender, **kwargs):
+def mx_post_delete(_sender, **_kwargs):
     """Regeneration dns après suppresson d'un MX"""
     regen('dns')
 
 
 @receiver(post_save, sender=Ns)
-def ns_post_save(sender, **kwargs):
+def ns_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un NS"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Ns)
-def ns_post_delete(sender, **kwargs):
+def ns_post_delete(_sender, **_kwargs):
     """Regeneration dns après modification d'un NS"""
     regen('dns')
 
 
 @receiver(post_save, sender=Txt)
-def text_post_save(sender, **kwargs):
+def text_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un TXT"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Txt)
-def text_post_delete(sender, **kwargs):
+def text_post_delete(_sender, **_kwargs):
     """Regeneration dns après modification d'un TX"""
     regen('dns')
 
 
 @receiver(post_save, sender=Srv)
-def srv_post_save(sender, **kwargs):
+def srv_post_save(_sender, **_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Srv)
-def srv_post_delete(sender, **kwargs):
+def srv_post_delete(_sender, **_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
