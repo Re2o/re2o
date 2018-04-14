@@ -46,8 +46,6 @@ from django.db.models import Count, Max
 from reversion.models import Revision
 from reversion.models import Version, ContentType
 
-from time import time
-
 from users.models import (
     User,
     ServiceUser,
@@ -108,15 +106,6 @@ from re2o.acl import (
 )
 from re2o.utils import all_active_assigned_interfaces_count
 from re2o.utils import all_active_interfaces_count, SortTable
-
-STATS_DICT = {
-    0: ["Tout", 36],
-    1: ["1 mois", 1],
-    2: ["2 mois", 2],
-    3: ["6 mois", 6],
-    4: ["1 an", 12],
-    5: ["2 an", 24],
-}
 
 
 @login_required
@@ -418,12 +407,6 @@ def stats_users(request):
     nombre de machines par user, d'etablissements par user,
     de moyens de paiements par user, de banque par user,
     de bannissement par user, etc"""
-    onglet = request.GET.get('onglet')
-    try:
-        _search_field = STATS_DICT[onglet]
-    except KeyError:
-        _search_field = STATS_DICT[0]
-        onglet = 0
     stats = {
         'Utilisateur': {
             'Machines': User.objects.annotate(
@@ -458,11 +441,7 @@ def stats_users(request):
             ).order_by('-num')[:10],
         },
     }
-    return render(request, 'logs/stats_users.html', {
-        'stats_list': stats,
-        'stats_dict': STATS_DICT,
-        'active_field': onglet
-        })
+    return render(request, 'logs/stats_users.html', {'stats_list': stats})
 
 
 @login_required
@@ -485,7 +464,6 @@ def stats_actions(request):
 @can_view_app('users')
 def stats_droits(request):
     """Affiche la liste des droits et les users ayant chaque droit"""
-    depart = time()
     stats_list = {}
 
     for droit in ListRight.objects.all().select_related('group_ptr'):

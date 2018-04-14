@@ -35,20 +35,16 @@ https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_pyth
 Inspiré du travail de Daniel Stan au Crans
 """
 
-import logging
-import netaddr
-import radiusd  # Module magique freeradius (radiusd.py is dummy)
-import binascii
-import hashlib
 import os
 import sys
+import logging
+import radiusd  # Module magique freeradius (radiusd.py is dummy)
+
 from django.core.wsgi import get_wsgi_application
-
-import argparse
-
 from django.db.models import Q
+
 from machines.models import Interface, IpList, Nas, Domain
-from topologie.models import Room, Port, Switch
+from topologie.models import Port, Switch
 from users.models import User
 from preferences.models import OptionalTopologie
 
@@ -109,7 +105,8 @@ def radius_event(fun):
     tuples en entrée en un dictionnaire."""
 
     def new_f(auth_data):
-        if type(auth_data) == dict:
+        """ The function transforming the tuples as dict """
+        if isinstance(auth_data, dict):
             data = auth_data
         else:
             data = dict()
@@ -188,6 +185,9 @@ def authorize(data):
 
 @radius_event
 def post_auth(data):
+    """ Function called after the user is authenticated
+    """
+
     nas = data.get('NAS-IP-Address', data.get('NAS-Identifier', None))
     nas_instance = find_nas_from_request(nas)
     # Toutes les reuquètes non proxifiées
@@ -220,7 +220,7 @@ def post_auth(data):
                            .filter(stack_member_id=id_stack_member)
                            .prefetch_related(
                                'interface_set__domain__extension'
-                            )
+                           )
                            .first())
         # On récupère le numéro du port sur l'output de freeradius.
         # La ligne suivante fonctionne pour cisco, HP et Juniper
@@ -229,7 +229,7 @@ def post_auth(data):
         sw_name, room, reason, vlan_id = out
 
         log_message = '(fil) %s -> %s [%s%s]' % (
-            sw_name + u":" + port + u"/" + unicode(room),
+            sw_name + u":" + port + u"/" + str(room),
             mac,
             vlan_id,
             (reason and u': ' + reason).encode('utf-8')
@@ -251,6 +251,7 @@ def post_auth(data):
         return radiusd.RLM_MODULE_OK
 
 
+# TODO : remove this function
 @radius_event
 def dummy_fun(_):
     """Do nothing, successfully. (C'est pour avoir un truc à mettre)"""
@@ -259,11 +260,12 @@ def dummy_fun(_):
 
 def detach(_=None):
     """Appelé lors du déchargement du module (enfin, normalement)"""
-    print "*** goodbye from auth.py ***"
+    print("*** goodbye from auth.py ***")
     return radiusd.RLM_MODULE_OK
 
 
 def find_nas_from_request(nas_id):
+    """ Get the nas object from its ID """
     nas = (Interface.objects
            .filter(
                Q(domain=Domain.objects.filter(name=nas_id)) |
@@ -443,7 +445,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
                         return (sw_name,
                                 room,
                                 u'Erreur dans le register mac %s' % (
-                                    reason + unicode(mac_address)
+                                    reason + str(mac_address)
                                 ),
                                 VLAN_NOK)
         else:
