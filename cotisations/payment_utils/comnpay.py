@@ -62,8 +62,8 @@ class Payment():
         ret = ""
         for key in array_tpe:
             ret += '<input type="hidden" name="{k}" value="{v}"/>'.format(
-                'k'=key,
-                'v'=array_type[key]
+                k=key,
+                v=array_type[key]
             )
 
         return ret

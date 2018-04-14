@@ -592,7 +592,7 @@ class Mx(RevMixin, AclMixin, models.Model):
         fichiers de zones"""
         return "@               IN  MX  {prior} {name}".format(
             prior=str(self.priority).ljust(3),
-            name=str(name)
+            name=str(self.name)
         )
 
     def __str__(self):
