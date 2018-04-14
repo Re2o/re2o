@@ -73,7 +73,7 @@ from reversion import revisions as reversion
 import ldapdb.models
 import ldapdb.models.fields
 
-from re2o.settings import RIGHTS_LINK, LDAP, GID_RANGES, UID_RANGES
+from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
