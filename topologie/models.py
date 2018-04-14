@@ -47,7 +47,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from reversion import revisions as reversion
 
-from machines.models import Machine, Interface, regen
+from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
 
@@ -193,6 +193,7 @@ class Switch(AclMixin, Machine):
                 ValidationError("Création d'un port existant.")
 
     def main_interface(self):
+        """ Returns the 'main' interface of the switch """
         return self.interface_set.first()
 
     def __str__(self):
@@ -332,14 +333,15 @@ class Port(AclMixin, RevMixin, models.Model):
             ("view_port", "Peut voir un objet port"),
         )
 
-    def get_instance(portid, *args, **kwargs):
-        return Port.objects\
-            .select_related('machine_interface__domain__extension')\
-            .select_related('machine_interface__machine__switch')\
-            .select_related('room')\
-            .select_related('related')\
-            .prefetch_related('switch__interface_set__domain__extension')\
-            .get(pk=portid)
+    @classmethod
+    def get_instance(cls, portid, *_args, **kwargs):
+        return (cls.objects
+                .select_related('machine_interface__domain__extension')
+                .select_related('machine_interface__machine__switch')
+                .select_related('room')
+                .select_related('related')
+                .prefetch_related('switch__interface_set__domain__extension')
+                .get(pk=portid))
 
     def make_port_related(self):
         """ Synchronise le port distant sur self"""
@@ -364,18 +366,24 @@ class Port(AclMixin, RevMixin, models.Model):
         cohérence"""
         if hasattr(self, 'switch'):
             if self.port > self.switch.number:
-                raise ValidationError("Ce port ne peut exister,\
-                    numero trop élevé")
-        if self.room and self.machine_interface or self.room and\
-                self.related or self.machine_interface and self.related:
-            raise ValidationError("Chambre, interface et related_port sont\
-                mutuellement exclusifs")
+                raise ValidationError(
+                    "Ce port ne peut exister, numero trop élevé"
+                )
+        if (self.room and self.machine_interface or
+                self.room and self.related or
+                self.machine_interface and self.related):
+            raise ValidationError(
+                "Chambre, interface et related_port sont mutuellement "
+                "exclusifs"
+            )
         if self.related == self:
             raise ValidationError("On ne peut relier un port à lui même")
         if self.related and not self.related.related:
             if self.related.machine_interface or self.related.room:
-                raise ValidationError("Le port relié est déjà occupé, veuillez\
-                    le libérer avant de créer une relation")
+                raise ValidationError(
+                    "Le port relié est déjà occupé, veuillez le libérer "
+                    "avant de créer une relation"
+                )
             else:
                 self.make_port_related()
         elif hasattr(self, 'related_port'):
@@ -403,18 +411,18 @@ class Room(AclMixin, RevMixin, models.Model):
 
 
 @receiver(post_save, sender=AccessPoint)
-def ap_post_save(sender, **kwargs):
+def ap_post_save(_sender, **_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
 
 
 @receiver(post_delete, sender=AccessPoint)
-def ap_post_delete(sender, **kwargs):
+def ap_post_delete(_sender, **_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
 
 
 @receiver(post_delete, sender=Stack)
-def stack_post_delete(sender, **kwargs):
+def stack_post_delete(_sender, **_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)

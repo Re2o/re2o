@@ -32,15 +32,17 @@ NewSwitchForm)
 
 from __future__ import unicode_literals
 
+from django import forms
+from django.forms import ModelForm
+from django.db.models import Prefetch
+
 from machines.models import Interface
 from machines.forms import (
-    EditInterfaceForm,
     EditMachineForm,
     NewMachineForm
 )
-from django import forms
-from django.forms import ModelForm, Form
-from django.db.models import Prefetch
+from re2o.mixins import FormRevMixin
+
 from .models import (
     Port,
     Switch,
@@ -52,7 +54,6 @@ from .models import (
     SwitchBay,
     Building,
 )
-from re2o.mixins import FormRevMixin
 
 
 class PortForm(FormRevMixin, ModelForm):

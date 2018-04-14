@@ -38,36 +38,11 @@ from __future__ import unicode_literals
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db import transaction
 from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
 
-from topologie.models import (
-    Switch,
-    Port,
-    Room,
-    Stack,
-    ModelSwitch,
-    ConstructorSwitch,
-    AccessPoint,
-    SwitchBay,
-    Building
-)
-from topologie.forms import EditPortForm, NewSwitchForm, EditSwitchForm
-from topologie.forms import (
-    AddPortForm,
-    EditRoomForm,
-    StackForm,
-    EditModelSwitchForm,
-    EditConstructorSwitchForm,
-    CreatePortsForm,
-    AddAccessPointForm,
-    EditAccessPointForm,
-    EditSwitchBayForm,
-    EditBuildingForm
-)
 from users.views import form
 from re2o.utils import re2o_paginator, SortTable
 from re2o.acl import (
@@ -79,14 +54,39 @@ from re2o.acl import (
 )
 from machines.forms import (
     DomainForm,
-    NewMachineForm,
-    EditMachineForm,
     EditInterfaceForm,
     AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
 from machines.models import Interface
 from preferences.models import AssoOption, GeneralOption
+
+from .models import (
+    Switch,
+    Port,
+    Room,
+    Stack,
+    ModelSwitch,
+    ConstructorSwitch,
+    AccessPoint,
+    SwitchBay,
+    Building
+)
+from .forms import (
+    EditPortForm,
+    NewSwitchForm,
+    EditSwitchForm,
+    AddPortForm,
+    EditRoomForm,
+    StackForm,
+    EditModelSwitchForm,
+    EditConstructorSwitchForm,
+    CreatePortsForm,
+    AddAccessPointForm,
+    EditAccessPointForm,
+    EditSwitchBayForm,
+    EditBuildingForm
+)
 
 
 @login_required
@@ -296,7 +296,7 @@ def new_port(request, switchid):
 
 @login_required
 @can_edit(Port)
-def edit_port(request, port_object, portid):
+def edit_port(request, port_object, _portid):
     """ Edition d'un port. Permet de changer le switch parent et
     l'affectation du port"""
 
@@ -322,7 +322,7 @@ def edit_port(request, port_object, portid):
 
 @login_required
 @can_delete(Port)
-def del_port(request, port, portid):
+def del_port(request, port, _portid):
     """ Supprime le port"""
     if request.method == "POST":
         try:
@@ -358,7 +358,7 @@ def new_stack(request):
 
 @login_required
 @can_edit(Stack)
-def edit_stack(request, stack, stackid):
+def edit_stack(request, stack, _stackid):
     """Edition d'un stack (nombre de switches, nom...)"""
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
@@ -374,7 +374,7 @@ def edit_stack(request, stack, stackid):
 
 @login_required
 @can_delete(Stack)
-def del_stack(request, stack, stackid):
+def del_stack(request, stack, _stackid):
     """Supprime un stack"""
     if request.method == "POST":
         try:
@@ -392,7 +392,7 @@ def del_stack(request, stack, stackid):
 
 @login_required
 @can_edit(Stack)
-def edit_switchs_stack(request, stack, stackid):
+def edit_switchs_stack(request, stack, _stackid):
     """Permet d'éditer la liste des switches dans une stack et l'ajouter"""
 
     if request.method == "POST":
@@ -429,17 +429,17 @@ def new_switch(request):
                  "créer ou le linker dans preferences")
             )
             return redirect(reverse('topologie:index'))
-        new_switch = switch.save(commit=False)
-        new_switch.user = user
-        new_interface_instance = interface.save(commit=False)
-        domain.instance.interface_parent = new_interface_instance
+        new_switch_obj = switch.save(commit=False)
+        new_switch_obj.user = user
+        new_interface_obj = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface_obj
         if domain.is_valid():
-            new_domain_instance = domain.save(commit=False)
-            new_switch.save()
-            new_interface_instance.machine = new_switch
-            new_interface_instance.save()
-            new_domain_instance.interface_parent = new_interface_instance
-            new_domain_instance.save()
+            new_domain_obj = domain.save(commit=False)
+            new_switch_obj.save()
+            new_interface_obj.machine = new_switch_obj
+            new_interface_obj.save()
+            new_domain_obj.interface_parent = new_interface_obj
+            new_domain_obj.save()
             messages.success(request, "Le switch a été créé")
             return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
@@ -518,15 +518,15 @@ def edit_switch(request, switch, switchid):
         instance=switch.interface_set.first().domain
         )
     if switch_form.is_valid() and interface_form.is_valid():
-        new_switch = switch_form.save(commit=False)
-        new_interface_instance = interface_form.save(commit=False)
-        new_domain = domain_form.save(commit=False)
+        new_switch_obj = switch_form.save(commit=False)
+        new_interface_obj = interface_form.save(commit=False)
+        new_domain_obj = domain_form.save(commit=False)
         if switch_form.changed_data:
-            new_switch.save()
+            new_switch_obj.save()
         if interface_form.changed_data:
-            new_interface_instance.save()
+            new_interface_obj.save()
         if domain_form.changed_data:
-            new_domain.save()
+            new_domain_obj.save()
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
@@ -570,17 +570,17 @@ def new_ap(request):
                  "créer ou le linker dans preferences")
             )
             return redirect(reverse('topologie:index'))
-        new_ap = ap.save(commit=False)
-        new_ap.user = user
-        new_interface = interface.save(commit=False)
-        domain.instance.interface_parent = new_interface
+        new_ap_obj = ap.save(commit=False)
+        new_ap_obj.user = user
+        new_interface_obj = interface.save(commit=False)
+        domain.instance.interface_parent = new_interface_obj
         if domain.is_valid():
-            new_domain_instance = domain.save(commit=False)
-            new_ap.save()
-            new_interface.machine = new_ap
-            new_interface.save()
-            new_domain_instance.interface_parent = new_interface
-            new_domain_instance.save()
+            new_domain_obj = domain.save(commit=False)
+            new_ap_obj.save()
+            new_interface_obj.machine = new_ap_obj
+            new_interface_obj.save()
+            new_domain_obj.interface_parent = new_interface_obj
+            new_domain_obj.save()
             messages.success(request, "La borne a été créé")
             return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
@@ -599,7 +599,7 @@ def new_ap(request):
 
 @login_required
 @can_edit(AccessPoint)
-def edit_ap(request, ap, accesspointid):
+def edit_ap(request, ap, _accesspointid):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
     interface_form = EditInterfaceForm(
@@ -625,15 +625,15 @@ def edit_ap(request, ap, accesspointid):
                  "créer ou le linker dans preferences")
             )
             return redirect(reverse('topologie:index-ap'))
-        new_ap = ap_form.save(commit=False)
-        new_interface = interface_form.save(commit=False)
-        new_domain = domain_form.save(commit=False)
+        new_ap_obj = ap_form.save(commit=False)
+        new_interface_obj = interface_form.save(commit=False)
+        new_domain_obj = domain_form.save(commit=False)
         if ap_form.changed_data:
-            new_ap.save()
+            new_ap_obj.save()
         if interface_form.changed_data:
-            new_interface.save()
+            new_interface_obj.save()
         if domain_form.changed_data:
-            new_domain.save()
+            new_domain_obj.save()
         messages.success(request, "La borne a été modifiée")
         return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
@@ -668,7 +668,7 @@ def new_room(request):
 
 @login_required
 @can_edit(Room)
-def edit_room(request, room, roomid):
+def edit_room(request, room, _roomid):
     """ Edition numero et details de la chambre"""
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
@@ -685,7 +685,7 @@ def edit_room(request, room, roomid):
 
 @login_required
 @can_delete(Room)
-def del_room(request, room, roomid):
+def del_room(request, room, _roomid):
     """ Suppression d'un chambre"""
     if request.method == "POST":
         try:
@@ -723,7 +723,7 @@ def new_model_switch(request):
 
 @login_required
 @can_edit(ModelSwitch)
-def edit_model_switch(request, model_switch, modelswitchid):
+def edit_model_switch(request, model_switch, _modelswitchid):
     """ Edition d'un modèle de switch"""
 
     model_switch = EditModelSwitchForm(
@@ -744,7 +744,7 @@ def edit_model_switch(request, model_switch, modelswitchid):
 
 @login_required
 @can_delete(ModelSwitch)
-def del_model_switch(request, model_switch, modelswitchid):
+def del_model_switch(request, model_switch, _modelswitchid):
     """ Suppression d'un modèle de switch"""
     if request.method == "POST":
         try:
@@ -782,7 +782,7 @@ def new_switch_bay(request):
 
 @login_required
 @can_edit(SwitchBay)
-def edit_switch_bay(request, switch_bay, switchbayid):
+def edit_switch_bay(request, switch_bay, _switchbayid):
     """ Edition d'une baie de switch"""
     switch_bay = EditSwitchBayForm(request.POST or None, instance=switch_bay)
     if switch_bay.is_valid():
@@ -799,7 +799,7 @@ def edit_switch_bay(request, switch_bay, switchbayid):
 
 @login_required
 @can_delete(SwitchBay)
-def del_switch_bay(request, switch_bay, switchbayid):
+def del_switch_bay(request, switch_bay, _switchbayid):
     """ Suppression d'une baie de switch"""
     if request.method == "POST":
         try:
@@ -837,7 +837,7 @@ def new_building(request):
 
 @login_required
 @can_edit(Building)
-def edit_building(request, building, buildingid):
+def edit_building(request, building, _buildingid):
     """ Edition d'un batiment"""
     building = EditBuildingForm(request.POST or None, instance=building)
     if building.is_valid():
@@ -854,7 +854,7 @@ def edit_building(request, building, buildingid):
 
 @login_required
 @can_delete(Building)
-def del_building(request, building, buildingid):
+def del_building(request, building, _buildingid):
     """ Suppression d'un batiment"""
     if request.method == "POST":
         try:
@@ -892,7 +892,7 @@ def new_constructor_switch(request):
 
 @login_required
 @can_edit(ConstructorSwitch)
-def edit_constructor_switch(request, constructor_switch, constructorswitchid):
+def edit_constructor_switch(request, constructor_switch, _constructorswitchid):
     """ Edition d'un constructeur de switch"""
 
     constructor_switch = EditConstructorSwitchForm(
@@ -913,7 +913,7 @@ def edit_constructor_switch(request, constructor_switch, constructorswitchid):
 
 @login_required
 @can_delete(ConstructorSwitch)
-def del_constructor_switch(request, constructor_switch, constructorswitchid):
+def del_constructor_switch(request, constructor_switch, _constructorswitchid):
     """ Suppression d'un constructeur de switch"""
     if request.method == "POST":
         try:
