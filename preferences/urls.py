@@ -27,8 +27,8 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from . import views
 import re2o
+from . import views
 
 
 urlpatterns = [
