@@ -82,8 +82,17 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                 <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
-                        <th>Prénom</th>
+                        {% if users.is_class_club %}
+			<th>Mailing</th>
+			{% if users.club.mailing %}
+			<td>{{ users.pseudo }}(-admin)</td>
+			{% else %}
+			<td>Mailing désactivée</td>
+			{% endif %}
+			{% else %}
+			<th>Prénom</th>
                         <td>{{ users.name }}</td>
+			{% endif %}
                         <th>Nom</th>
                         <td>{{ users.surname }}</td>
                     </tr>
