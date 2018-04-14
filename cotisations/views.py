@@ -375,7 +375,7 @@ def credit_solde(request, user, userid):
         )
         return redirect(reverse('cotisations:index'))
     return form({
-        'factureform': facture,
+        'factureform': invoice,
         'action_name': _("Edit")
         }, 'cotisations/facture.html', request)
 

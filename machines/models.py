@@ -1452,7 +1452,7 @@ def iptype_post_save(sender, **kwargs):
 
 
 @receiver(post_save, sender=MachineType)
-def machine_post_save(sender, **kwargs):
+def machinetype_post_save(sender, **kwargs):
     """Mise à jour des interfaces lorsque changement d'attribution
     d'une machinetype (changement iptype parent)"""
     machinetype = kwargs['instance']
@@ -1539,7 +1539,7 @@ def srv_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Srv)
-def text_post_delete(sender, **kwargs):
+def srv_post_delete(sender, **kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
 
