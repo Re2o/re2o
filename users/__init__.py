@@ -20,5 +20,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""users
+The app managing everything related to the users such as personal
+informations or the right groups.
+This is probably the most central app. It is strongly linked with
+all the other because a user has devices (machines), a cotisation
+(cotisations), a room (topologie)
+"""
 
 from .acl import *

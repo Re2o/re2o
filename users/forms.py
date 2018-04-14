@@ -41,6 +41,10 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
+from re2o.utils import remove_user_room
+from re2o.mixins import FormRevMixin
+from re2o.field_permissions import FieldPermissionFormMixin
+
 from .models import (
     User,
     ServiceUser,
@@ -52,9 +56,6 @@ from .models import (
     Adherent,
     Club
 )
-from re2o.utils import remove_user_room
-from re2o.mixins import FormRevMixin
-from re2o.field_permissions import FieldPermissionFormMixin
 
 
 class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
@@ -97,8 +98,8 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
     def clean_selfpasswd(self):
         """Verifie si il y a lieu que le mdp self est correct"""
         if not self.instance.check_password(
-                    self.cleaned_data.get("selfpasswd")
-                ):
+                self.cleaned_data.get("selfpasswd")
+            ):
             raise forms.ValidationError("Le mot de passe actuel est incorrect")
         return
 

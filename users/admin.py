@@ -132,7 +132,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     )
     # Need to reset the settings from BaseUserAdmin
     # They are using fields we don't use like 'is_staff'
-    list_filter=()
+    list_filter = ()
     fieldsets = (
         (None, {'fields': ('pseudo', 'password')}),
         (

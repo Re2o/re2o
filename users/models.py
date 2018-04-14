@@ -187,6 +187,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         (2, 'STATE_ARCHIVE'),
     )
 
+    # TODO : Use only one of auto_uid and get_fresh_user_uid
+    @staticmethod
     def auto_uid():
         """Renvoie un uid libre"""
         return get_fresh_user_uid()
@@ -278,10 +280,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     @cached_property
     def is_class_club(self):
+        """ Returns True if the object is a Club (subclassing User) """
+        # TODO : change to isinstance (cleaner)
         return hasattr(self, 'club')
 
     @cached_property
     def is_class_adherent(self):
+        """ Returns True if the object is a Adherent (subclassing User) """
+        # TODO : change to isinstance (cleaner)
         return hasattr(self, 'adherent')
 
     @property
@@ -607,8 +613,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
         if all_interfaces.count() > OptionalMachine.get_cached_value(
-                    'max_lambdauser_interfaces'
-                ):
+                'max_lambdauser_interfaces'
+            ):
             return False, "Maximum de machines enregistrees atteinte"
         if not nas_type:
             return False, "Re2o ne sait pas à quel machinetype affecter cette\
@@ -686,8 +692,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             num += 1
         return composed_pseudo(num)
 
-    def can_edit(self, user_request, *args, **kwargs):
-        """Check if an user can edit an user object.
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """Check if a user can edit a user object.
 
         :param self: The user which is to be edited.
         :param user_request: The user who requests to edit self.
@@ -722,7 +728,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 return False, (u"Vous ne pouvez éditer un autre utilisateur "
                                "que vous même")
 
-    def can_change_password(self, user_request, *args, **kwargs):
+    def can_change_password(self, user_request, *_args, **_kwargs):
+        """Check if a user can change a user's password
+
+        :param self: The user which is to be edited
+        :param user_request: The user who request to edit self
+        :returns: a message and a boolean which is True if self is a club
+            and user_request one of it's admins, or if user_request is self,
+            or if user_request has the right to change other's password
+        """
         if self.is_class_club and user_request.is_class_adherent:
             if (self == user_request or
                     user_request.has_perm('users.change_user_password') or
@@ -743,38 +757,65 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 return False, (u"Vous ne pouvez éditer un autre utilisateur "
                                "que vous même")
 
-    def check_selfpasswd(self, user_request, *args, **kwargs):
+    def check_selfpasswd(self, user_request, *_args, **_kwargs):
+        """ Returns (True, None) if user_request is self, else returns
+        (False, None)
+        """
         return user_request == self, None
 
     @staticmethod
-    def can_change_state(user_request, *args, **kwargs):
+    def can_change_state(user_request, *_args, **_kwargs):
+        """ Check if a user can change a state
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a state
+        """
         return (
             user_request.has_perm('users.change_user_state'),
             "Droit requis pour changer l'état"
         )
 
     @staticmethod
-    def can_change_shell(user_request, *args, **kwargs):
+    def can_change_shell(user_request, *_args, **_kwargs):
+        """ Check if a user can change a shell
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a shell
+        """
         return (
             user_request.has_perm('users.change_user_shell'),
             "Droit requis pour changer le shell"
         )
 
     @staticmethod
-    def can_change_force(user_request, *args, **kwargs):
+    def can_change_force(user_request, *_args, **_kwargs):
+        """ Check if a user can change a force
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a force
+        """
         return (
             user_request.has_perm('users.change_user_force'),
             "Droit requis pour forcer le déménagement"
         )
 
     @staticmethod
-    def can_change_groups(user_request, *args, **kwargs):
+    def can_change_groups(user_request, *_args, **_kwargs):
+        """ Check if a user can change a group
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a group
+        """
         return (
             user_request.has_perm('users.change_user_groups'),
             "Droit requis pour éditer les groupes de l'user"
         )
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view an user object.
 
         :param self: The targeted user.
@@ -798,7 +839,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 return False, (u"Vous ne pouvez voir un autre utilisateur "
                                "que vous même")
 
-    def can_view_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_view_all(user_request, *_args, **_kwargs):
         """Check if an user can access to the list of every user objects
 
         :param user_request: The user who wants to view the list.
@@ -810,7 +852,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             u"Vous n'avez pas accès à la liste des utilisateurs."
         )
 
-    def can_delete(self, user_request, *args, **kwargs):
+    def can_delete(self, user_request, *_args, **_kwargs):
         """Check if an user can delete an user object.
 
         :param self: The user who is to be deleted.
@@ -836,6 +878,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
 
 class Adherent(User):
+    """ A class representing a member (it's a user with special
+    informations) """
     PRETTY_NAME = "Adhérents"
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
@@ -845,15 +889,17 @@ class Adherent(User):
         null=True
     )
 
-    def get_instance(adherentid, *args, **kwargs):
+    @classmethod
+    def get_instance(cls, adherentid, *_args, **_kwargs):
         """Try to find an instance of `Adherent` with the given id.
 
         :param adherentid: The id of the adherent we are looking for.
         :return: An adherent.
         """
-        return Adherent.objects.get(pk=adherentid)
+        return cls.objects.get(pk=adherentid)
 
-    def can_create(user_request, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, *_args, **_kwargs):
         """Check if an user can create an user object.
 
         :param user_request: The user who wants to create a user object.
@@ -875,6 +921,8 @@ class Adherent(User):
 
 
 class Club(User):
+    """ A class representing a club (it is considered as a user
+    with special informations) """
     PRETTY_NAME = "Clubs"
     room = models.ForeignKey(
         'topologie.Room',
@@ -896,7 +944,8 @@ class Club(User):
         default=False
     )
 
-    def can_create(user_request, *args, **kwargs):
+    @staticmethod
+    def can_create(user_request, *_args, **_kwargs):
         """Check if an user can create an user object.
 
         :param user_request: The user who wants to create a user object.
@@ -914,7 +963,8 @@ class Club(User):
                     u"Vous n'avez pas le droit de créer un club"
                 )
 
-    def can_view_all(user_request, *args, **kwargs):
+    @staticmethod
+    def can_view_all(user_request, *_args, **_kwargs):
         """Check if an user can access to the list of every user objects
 
         :param user_request: The user who wants to view the list.
@@ -930,22 +980,23 @@ class Club(User):
                 return True, None
         return False, u"Vous n'avez pas accès à la liste des utilisateurs."
 
-    def get_instance(clubid, *args, **kwargs):
+    @classmethod
+    def get_instance(cls, clubid, *_args, **_kwargs):
         """Try to find an instance of `Club` with the given id.
 
         :param clubid: The id of the adherent we are looking for.
         :return: A club.
         """
-        return Club.objects.get(pk=clubid)
+        return cls.objects.get(pk=clubid)
 
 
 @receiver(post_save, sender=Adherent)
 @receiver(post_save, sender=Club)
 @receiver(post_save, sender=User)
-def user_post_save(sender, **kwargs):
+def user_post_save(_sender, **kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
     Synchronise le ldap"""
-    is_created = kwargs['created']
+    # is_created = kwargs['created']
     user = kwargs['instance']
     # TODO : remove if unnecessary
     # if is_created:
@@ -962,7 +1013,7 @@ def user_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
 @receiver(post_delete, sender=User)
-def user_post_delete(sender, **kwargs):
+def user_post_delete(_sender, **kwargs):
     """Post delete d'un user, on supprime son instance ldap"""
     user = kwargs['instance']
     user.ldap_del()
@@ -1005,6 +1056,14 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
             ("view_serviceuser", "Peut voir un objet serviceuser"),
         )
 
+    def get_full_name(self):
+        """ Renvoie le nom complet du serviceUser formaté nom/prénom"""
+        return "ServiceUser <{name}>".format(name=self.pseudo)
+
+    def get_short_name(self):
+        """ Renvoie seulement le nom"""
+        return self.pseudo
+
     def ldap_sync(self):
         """ Synchronisation du ServiceUser dans sa version ldap"""
         try:
@@ -1041,14 +1100,14 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
 
 
 @receiver(post_save, sender=ServiceUser)
-def service_user_post_save(sender, **kwargs):
+def service_user_post_save(_sender, **kwargs):
     """ Synchronise un service user ldap après modification django"""
     service_user = kwargs['instance']
     service_user.ldap_sync()
 
 
 @receiver(post_delete, sender=ServiceUser)
-def service_user_post_delete(sender, **kwargs):
+def service_user_post_delete(_sender, **kwargs):
     """ Supprime un service user ldap après suppression django"""
     service_user = kwargs['instance']
     service_user.ldap_del()
@@ -1123,14 +1182,14 @@ class ListRight(RevMixin, AclMixin, Group):
 
 
 @receiver(post_save, sender=ListRight)
-def listright_post_save(sender, **kwargs):
+def listright_post_save(_sender, **kwargs):
     """ Synchronise le droit ldap quand il est modifié"""
     right = kwargs['instance']
     right.ldap_sync()
 
 
 @receiver(post_delete, sender=ListRight)
-def listright_post_delete(sender, **kwargs):
+def listright_post_delete(_sender, **kwargs):
     """Suppression d'un groupe ldap après suppression coté django"""
     right = kwargs['instance']
     right.ldap_del()
@@ -1203,7 +1262,7 @@ class Ban(RevMixin, AclMixin, models.Model):
         """Ce ban est-il actif?"""
         return self.date_end > timezone.now()
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view a Ban object.
 
         :param self: The targeted object.
@@ -1223,7 +1282,7 @@ class Ban(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Ban)
-def ban_post_save(sender, **kwargs):
+def ban_post_save(_sender, **kwargs):
     """ Regeneration de tous les services après modification d'un ban"""
     ban = kwargs['instance']
     is_created = kwargs['created']
@@ -1240,7 +1299,7 @@ def ban_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Ban)
-def ban_post_delete(sender, **kwargs):
+def ban_post_delete(_sender, **kwargs):
     """ Regen de tous les services après suppression d'un ban"""
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -1266,9 +1325,10 @@ class Whitelist(RevMixin, AclMixin, models.Model):
         )
 
     def is_active(self):
+        """ Is this whitelisting active ? """
         return self.date_end > timezone.now()
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view a Whitelist object.
 
         :param self: The targeted object.
@@ -1288,7 +1348,7 @@ class Whitelist(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Whitelist)
-def whitelist_post_save(sender, **kwargs):
+def whitelist_post_save(_sender, **kwargs):
     """Après modification d'une whitelist, on synchronise les services
     et on lui permet d'avoir internet"""
     whitelist = kwargs['instance']
@@ -1305,7 +1365,7 @@ def whitelist_post_save(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Whitelist)
-def whitelist_post_delete(sender, **kwargs):
+def whitelist_post_delete(_sender, **kwargs):
     """Après suppression d'une whitelist, on supprime l'accès internet
     en forçant la régénration"""
     user = kwargs['instance'].user

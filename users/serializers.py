@@ -22,11 +22,17 @@
 
 # Maël Kervella
 
+"""users.serializers
+Serializers for the User app
+"""
+
 from rest_framework import serializers
 from users.models import Club, Adherent
 
 
 class MailingSerializer(serializers.ModelSerializer):
+    """ Serializer to build Mailing objects """
+
     name = serializers.CharField(source='pseudo')
 
     class Meta:
@@ -35,6 +41,9 @@ class MailingSerializer(serializers.ModelSerializer):
 
 
 class MailingMemberSerializer(serializers.ModelSerializer):
+    """ Serializer fot the Adherent objects (who belong to a
+    Mailing) """
+
     class Meta:
         model = Adherent
         fields = ('email',)

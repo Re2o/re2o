@@ -39,22 +39,37 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError, Q
-from django.db import IntegrityError
+from django.db.models import ProtectedError
 from django.utils import timezone
 from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
-
 from rest_framework.renderers import JSONRenderer
-
-
-from reversion.models import Version
 from reversion import revisions as reversion
-from users.serializers import MailingSerializer, MailingMemberSerializer
-from users.models import (
+
+from cotisations.models import Facture
+from machines.models import Machine
+from preferences.models import OptionalUser, GeneralOption, AssoOption
+from re2o.views import form
+from re2o.utils import (
+    all_has_access,
+    SortTable,
+    re2o_paginator
+)
+from re2o.acl import (
+    can_create,
+    can_edit,
+    can_delete_set,
+    can_delete,
+    can_view,
+    can_view_all,
+    can_change
+)
+
+from .serializers import MailingSerializer, MailingMemberSerializer
+from .models import (
     User,
     Ban,
     Whitelist,
@@ -66,7 +81,7 @@ from users.models import (
     Club,
     ListShell,
 )
-from users.forms import (
+from .forms import (
     BanForm,
     WhitelistForm,
     DelSchoolForm,
@@ -85,25 +100,6 @@ from users.forms import (
     ResetPasswordForm,
     ClubAdminandMembersForm,
     GroupForm
-)
-from cotisations.models import Facture
-from machines.models import Machine
-from preferences.models import OptionalUser, GeneralOption, AssoOption
-
-from re2o.views import form
-from re2o.utils import (
-    all_has_access,
-    SortTable,
-    re2o_paginator
-)
-from re2o.acl import (
-    can_create,
-    can_edit,
-    can_delete_set,
-    can_delete,
-    can_view,
-    can_view_all,
-    can_change
 )
 
 
@@ -162,7 +158,7 @@ def new_club(request):
 
 @login_required
 @can_edit(Club)
-def edit_club_admin_members(request, club_instance, clubid):
+def edit_club_admin_members(request, club_instance, _clubid):
     """Vue d'edition de la liste des users administrateurs et
     membres d'un club"""
     club = ClubAdminandMembersForm(
@@ -195,27 +191,27 @@ def edit_info(request, user, userid):
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """
     if user.is_class_adherent:
-        user = AdherentForm(
+        user_form = AdherentForm(
             request.POST or None,
             instance=user.adherent,
             user=request.user
         )
-    elif user.is_class_club:
-        user = ClubForm(
+    else:
+        user_form = ClubForm(
             request.POST or None,
             instance=user.club,
             user=request.user
         )
-    if user.is_valid():
-        if user.changed_data:
-            user.save()
+    if user_form.is_valid():
+        if user_form.changed_data:
+            user_form.save()
             messages.success(request, "L'user a bien été modifié")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': user, 'action_name': "Editer l'utilisateur"},
+        {'userform': user_form, 'action_name': "Editer l'utilisateur"},
         'users/user.html',
         request
     )
@@ -226,21 +222,21 @@ def edit_info(request, user, userid):
 def state(request, user, userid):
     """ Changer l'etat actif/desactivé/archivé d'un user,
     need droit bureau """
-    state = StateForm(request.POST or None, instance=user)
-    if state.is_valid():
-        if state.changed_data:
-            if state.cleaned_data['state'] == User.STATE_ARCHIVE:
+    state_form = StateForm(request.POST or None, instance=user)
+    if state_form.is_valid():
+        if state_form.changed_data:
+            if state_form.cleaned_data['state'] == User.STATE_ARCHIVE:
                 user.archive()
-            elif state.cleaned_data['state'] == User.STATE_ACTIVE:
+            elif state_form.cleaned_data['state'] == User.STATE_ACTIVE:
                 user.unarchive()
-            state.save()
+            state_form.save()
             messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': state, 'action_name': "Editer l'état"},
+        {'userform': state_form, 'action_name': "Editer l'état"},
         'users/user.html',
         request
     )
@@ -249,17 +245,18 @@ def state(request, user, userid):
 @login_required
 @can_edit(User, 'groups')
 def groups(request, user, userid):
-    group = GroupForm(request.POST or None, instance=user)
-    if group.is_valid():
-        if group.changed_data:
-            group.save()
+    """ View to edit the groups of a user """
+    group_form = GroupForm(request.POST or None, instance=user)
+    if group_form.is_valid():
+        if group_form.changed_data:
+            group_form.save()
             messages.success(request, "Groupes changés avec succès")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': group, 'action_name': 'Editer les groupes'},
+        {'userform': group_form, 'action_name': 'Editer les groupes'},
         'users/user.html',
         request
     )
@@ -278,7 +275,7 @@ def password(request, user, userid):
             messages.success(request, "Le mot de passe a changé")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid': str(user.id)}
+            kwargs={'userid': str(userid)}
         ))
     return form(
         {'userform': u_form, 'action_name': 'Changer le mot de passe'},
@@ -289,7 +286,8 @@ def password(request, user, userid):
 
 @login_required
 @can_edit(User, 'groups')
-def del_group(request, user, userid, listrightid):
+def del_group(request, user, _userid, listrightid):
+    """ View used to delete a group """
     user.groups.remove(ListRight.objects.get(id=listrightid))
     user.save()
     messages.success(request, "Droit supprimé à %s" % user)
@@ -319,7 +317,7 @@ def new_serviceuser(request):
 
 @login_required
 @can_edit(ServiceUser)
-def edit_serviceuser(request, serviceuser, serviceuserid):
+def edit_serviceuser(request, serviceuser, _serviceuserid):
     """ Edit a ServiceUser """
     serviceuser = EditServiceUserForm(
         request.POST or None,
@@ -342,7 +340,7 @@ def edit_serviceuser(request, serviceuser, serviceuserid):
 
 @login_required
 @can_delete(ServiceUser)
-def del_serviceuser(request, serviceuser, serviceuserid):
+def del_serviceuser(request, serviceuser, _serviceuserid):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         serviceuser.delete()
@@ -365,7 +363,7 @@ def add_ban(request, user, userid):
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
-        _ban_object = ban.save()
+        ban.save()
         messages.success(request, "Bannissement ajouté")
         return redirect(reverse(
             'users:profil',
@@ -385,7 +383,7 @@ def add_ban(request, user, userid):
 
 @login_required
 @can_edit(Ban)
-def edit_ban(request, ban_instance, banid):
+def edit_ban(request, ban_instance, _banid):
     """ Editer un bannissement, nécessite au moins le droit bofh
     (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
@@ -436,7 +434,7 @@ def add_whitelist(request, user, userid):
 
 @login_required
 @can_edit(Whitelist)
-def edit_whitelist(request, whitelist_instance, whitelistid):
+def edit_whitelist(request, whitelist_instance, _whitelistid):
     """ Editer un accès gracieux, temporaire ou permanent.
     Need droit cableur
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
@@ -476,7 +474,7 @@ def add_school(request):
 
 @login_required
 @can_edit(School)
-def edit_school(request, school_instance, schoolid):
+def edit_school(request, school_instance, _schoolid):
     """ Editer un établissement d'enseignement à partir du schoolid dans
     la base de donnée, need cableur"""
     school = SchoolForm(request.POST or None, instance=school_instance)
@@ -537,7 +535,7 @@ def add_shell(request):
 
 @login_required
 @can_edit(ListShell)
-def edit_shell(request, shell_instance, listshellid):
+def edit_shell(request, shell_instance, _listshellid):
     """ Editer un shell à partir du listshellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
@@ -554,7 +552,7 @@ def edit_shell(request, shell_instance, listshellid):
 
 @login_required
 @can_delete(ListShell)
-def del_shell(request, shell, listshellid):
+def del_shell(request, shell, _listshellid):
     """Destruction d'un shell"""
     if request.method == "POST":
         shell.delete()
@@ -586,7 +584,7 @@ def add_listright(request):
 
 @login_required
 @can_edit(ListRight)
-def edit_listright(request, listright_instance, listrightid):
+def edit_listright(request, listright_instance, _listrightid):
     """ Editer un groupe/droit, necessite droit bureau,
     à partir du listright id """
     listright = ListRightForm(
@@ -800,7 +798,7 @@ def mon_profil(request):
 
 @login_required
 @can_view(User)
-def profil(request, users, userid):
+def profil(request, users, _userid):
     """ Affiche un profil, self or cableur, prend un userid en argument """
     machines = Machine.objects.filter(user=users).select_related('user')\
         .prefetch_related('interface_set__domain__extension')\
@@ -924,7 +922,7 @@ class JSONResponse(HttpResponse):
 @csrf_exempt
 @login_required
 @permission_required('machines.serveur')
-def ml_std_list(request):
+def ml_std_list(_request):
     """ API view sending all the available standard mailings"""
     return JSONResponse([
         {'name': 'adherents'}
@@ -950,7 +948,7 @@ def ml_std_members(request, ml_name):
 @csrf_exempt
 @login_required
 @permission_required('machines.serveur')
-def ml_club_list(request):
+def ml_club_list(_request):
     """ API view sending all the available club mailings"""
     clubs = Club.objects.filter(mailing=True).values('pseudo')
     seria = MailingSerializer(clubs, many=True)
