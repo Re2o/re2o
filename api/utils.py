@@ -106,7 +106,11 @@ def accept_method(methods):
     """
 
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             if request.method in methods:
                 return view(request, *args, **kwargs)
             else:

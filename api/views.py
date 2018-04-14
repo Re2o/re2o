@@ -27,18 +27,42 @@ HTML pages such as the login and index pages for a better integration.
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 
-from re2o.utils import all_has_access, all_active_assigned_interfaces
-
+from re2o.utils import (
+    all_has_access,
+    all_active_assigned_interfaces,
+    filter_active_interfaces
+)
 from users.models import Club
 from machines.models import (
     Service_link,
     Service,
     Interface,
     Domain,
-    OuverturePortList
+    IpType,
+    Mx,
+    Ns,
+    Txt,
+    Srv,
+    Extension,
+    OuverturePortList,
+    OuverturePort
 )
 
-from .serializers import *
+from .serializers import (
+    ServicesSerializer,
+    ServiceLinkSerializer,
+    FullInterfaceSerializer,
+    DomainSerializer,
+    TypeSerializer,
+    MxSerializer,
+    NsSerializer,
+    TxtSerializer,
+    SrvSerializer,
+    ExtensionSerializer,
+    InterfaceSerializer,
+    MailingMemberSerializer,
+    MailingSerializer
+)
 from .utils import JSONError, JSONSuccess, accept_method
 
 
@@ -46,7 +70,7 @@ from .utils import JSONError, JSONSuccess, accept_method
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def services(request):
+def services(_request):
     """The list of the different services and servers couples
 
     Return:
@@ -104,7 +128,7 @@ def services_server_service_regen(request, server_name, service_name):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def services_server(request, server_name):
+def services_server(_request, server_name):
     """The list of services attached to a specific server
 
     Returns:
@@ -122,8 +146,8 @@ def services_server(request, server_name):
     if not query:
         return JSONError("This service is not active for this server")
 
-    services = query.all()
-    seria = ServiceLinkSerializer(services, many=True)
+    services_objects = query.all()
+    seria = ServiceLinkSerializer(services_objects, many=True)
     return JSONSuccess(seria.data)
 
 
@@ -131,7 +155,7 @@ def services_server(request, server_name):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_mac_ip_dns(request):
+def dns_mac_ip_dns(_request):
     """The list of all active interfaces with all the associated infos
     (MAC, IP, IpType, DNS name and associated zone extension)
 
@@ -160,7 +184,7 @@ def dns_mac_ip_dns(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_alias(request):
+def dns_alias(_request):
     """The list of all the alias used and the DNS info associated
 
     Returns:
@@ -193,7 +217,7 @@ def dns_alias(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def accesspoint_ip_dns(request):
+def accesspoint_ip_dns(_request):
     """The list of all active interfaces with all the associated infos
     (MAC, IP, IpType, DNS name and associated zone extension)
 
@@ -225,7 +249,7 @@ def accesspoint_ip_dns(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_corresp(request):
+def dns_corresp(_request):
     """The list of the IpTypes possible with the infos about each
 
     Returns:
@@ -253,7 +277,7 @@ def dns_corresp(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_mx(request):
+def dns_mx(_request):
     """The list of MX record to add to the DNS
 
     Returns:
@@ -278,7 +302,7 @@ def dns_mx(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_ns(request):
+def dns_ns(_request):
     """The list of NS record to add to the DNS
 
     Returns:
@@ -307,7 +331,7 @@ def dns_ns(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_txt(request):
+def dns_txt(_request):
     """The list of TXT record to add to the DNS
 
     Returns:
@@ -330,7 +354,7 @@ def dns_txt(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_srv(request):
+def dns_srv(_request):
     """The list of SRV record to add to the DNS
 
     Returns:
@@ -360,7 +384,7 @@ def dns_srv(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dns_zones(request):
+def dns_zones(_request):
     """The list of the zones managed
 
     Returns:
@@ -389,7 +413,7 @@ def dns_zones(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def firewall_ouverture_ports(request):
+def firewall_ouverture_ports(_request):
     """The list of the ports authorized to be openned by the firewall
 
     Returns:
@@ -480,7 +504,7 @@ def firewall_ouverture_ports(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def dhcp_mac_ip(request):
+def dhcp_mac_ip(_request):
     """The list of all active interfaces with all the associated infos
     (MAC, IP, IpType, DNS name and associated zone extension)
 
@@ -506,7 +530,7 @@ def dhcp_mac_ip(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def mailing_standard(request):
+def mailing_standard(_request):
     """All the available standard mailings.
 
     Returns:
@@ -525,7 +549,7 @@ def mailing_standard(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def mailing_standard_ml_members(request):
+def mailing_standard_ml_members(_request, ml_name):
     """All the members of a specific standard mailing
 
     Returns:
@@ -552,7 +576,7 @@ def mailing_standard_ml_members(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def mailing_club(request):
+def mailing_club(_request):
     """All the available club mailings.
 
     Returns:
@@ -571,7 +595,7 @@ def mailing_club(request):
 @login_required
 @permission_required('machines.serveur')
 @accept_method(['GET'])
-def mailing_club_ml_members(request):
+def mailing_club_ml_members(_request, ml_name):
     """All the members of a specific club mailing
 
     Returns:
