@@ -50,6 +50,7 @@ from reversion import revisions as reversion
 from machines.models import Machine, Interface, regen
 from re2o.mixins import AclMixin, RevMixin
 
+
 class Stack(AclMixin, RevMixin, models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
     ,contient une id de stack, un switch id min et max dans
@@ -85,12 +86,12 @@ class Stack(AclMixin, RevMixin, models.Model):
 
 class AccessPoint(AclMixin, Machine):
     """Define a wireless AP. Inherit from machines.interfaces
-    
+
     Definition pour une borne wifi , hérite de machines.interfaces
     """
     PRETTY_NAME = "Borne WiFi"
 
-    location = models.CharField(    
+    location = models.CharField(
         max_length=255,
         help_text="Détails sur la localisation de l'AP",
         blank=True,
@@ -119,7 +120,6 @@ class Switch(AclMixin, Machine):
     Validation au save que l'id du stack est bien dans le range id_min
     id_max de la stack parente"""
     PRETTY_NAME = "Switch / Commutateur"
-
 
     number = models.PositiveIntegerField()
     stack = models.ForeignKey(
@@ -165,7 +165,8 @@ class Switch(AclMixin, Machine):
                     ne peut être nul"})
 
     def create_ports(self, begin, end):
-        """ Crée les ports de begin à end si les valeurs données sont cohérentes. """
+        """ Crée les ports de begin à end si les valeurs données
+        sont cohérentes. """
 
         s_begin = s_end = 0
         nb_ports = self.ports.count()

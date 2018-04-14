@@ -93,12 +93,14 @@ from preferences.models import AssoOption, GeneralOption
 @can_view_all(Switch)
 def index(request):
     """ Vue d'affichage de tous les swicthes"""
-    switch_list = Switch.objects\
-        .prefetch_related(Prefetch(
-            'interface_set',
-        queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
-        ))\
-        .select_related('stack')
+    switch_list = (Switch.objects
+                   .prefetch_related(Prefetch(
+                       'interface_set',
+                       queryset=(Interface.objects
+                                 .select_related('ipv4__ip_type__extension')
+                                 .select_related('domain__extension'))
+                   ))
+                   .select_related('stack'))
     switch_list = SortTable.sort(
         switch_list,
         request.GET.get('col'),
@@ -107,9 +109,11 @@ def index(request):
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     switch_list = re2o_paginator(request, switch_list, pagination_number)
-    return render(request, 'topologie/index.html', {
-        'switch_list': switch_list
-        })
+    return render(
+        request,
+        'topologie/index.html',
+        {'switch_list': switch_list}
+    )
 
 
 @login_required
@@ -117,27 +121,33 @@ def index(request):
 @can_view(Switch)
 def index_port(request, switch, switchid):
     """ Affichage de l'ensemble des ports reliés à un switch particulier"""
-    port_list = Port.objects.filter(switch=switch)\
-        .select_related('room')\
-        .select_related('machine_interface__domain__extension')\
-        .select_related('machine_interface__machine__user')\
-        .select_related('related__switch')\
-        .prefetch_related(Prefetch(
-            'related__switch__interface_set',
-            queryset=Interface.objects.select_related('domain__extension')
-        ))\
-        .select_related('switch')
+    port_list = (Port.objects
+                 .filter(switch=switch)
+                 .select_related('room')
+                 .select_related('machine_interface__domain__extension')
+                 .select_related('machine_interface__machine__user')
+                 .select_related('related__switch')
+                 .prefetch_related(Prefetch(
+                     'related__switch__interface_set',
+                     queryset=(Interface.objects
+                               .select_related('domain__extension'))
+                 ))
+                 .select_related('switch'))
     port_list = SortTable.sort(
         port_list,
         request.GET.get('col'),
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_PORT
     )
-    return render(request, 'topologie/index_p.html', {
-        'port_list': port_list,
-        'id_switch': switchid,
-        'nom_switch': switch
-        })
+    return render(
+        request,
+        'topologie/index_p.html',
+        {
+            'port_list': port_list,
+            'id_switch': switchid,
+            'nom_switch': switch
+        }
+    )
 
 
 @login_required
@@ -153,20 +163,24 @@ def index_room(request):
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     room_list = re2o_paginator(request, room_list, pagination_number)
-    return render(request, 'topologie/index_room.html', {
-        'room_list': room_list
-        })
+    return render(
+        request,
+        'topologie/index_room.html',
+        {'room_list': room_list}
+    )
 
 
 @login_required
 @can_view_all(AccessPoint)
 def index_ap(request):
     """ Affichage de l'ensemble des bornes"""
-    ap_list = AccessPoint.objects\
-        .prefetch_related(Prefetch(
-            'interface_set',
-            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
-        ))
+    ap_list = (AccessPoint.objects
+               .prefetch_related(Prefetch(
+                   'interface_set',
+                   queryset=(Interface.objects
+                             .select_related('ipv4__ip_type__extension')
+                             .select_related('domain__extension'))
+               )))
     ap_list = SortTable.sort(
         ap_list,
         request.GET.get('col'),
@@ -175,9 +189,11 @@ def index_ap(request):
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     ap_list = re2o_paginator(request, ap_list, pagination_number)
-    return render(request, 'topologie/index_ap.html', {
-        'ap_list': ap_list
-        })
+    return render(
+        request,
+        'topologie/index_ap.html',
+        {'ap_list': ap_list}
+    )
 
 
 @login_required
@@ -186,8 +202,10 @@ def index_ap(request):
 @can_view_all(SwitchBay)
 def index_physical_grouping(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
-    stack_list = Stack.objects\
-        .prefetch_related('switch_set__interface_set__domain__extension')
+    stack_list = (Stack.objects
+                  .prefetch_related(
+                      'switch_set__interface_set__domain__extension'
+                  ))
     building_list = Building.objects.all()
     switch_bay_list = SwitchBay.objects.select_related('building')
     stack_list = SortTable.sort(
@@ -208,11 +226,15 @@ def index_physical_grouping(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_SWITCH_BAY
     )
-    return render(request, 'topologie/index_physical_grouping.html', {
-        'stack_list': stack_list,
-        'switch_bay_list': switch_bay_list,
-        'building_list' : building_list,
-        })
+    return render(
+        request,
+        'topologie/index_physical_grouping.html',
+        {
+            'stack_list': stack_list,
+            'switch_bay_list': switch_bay_list,
+            'building_list': building_list,
+        }
+    )
 
 
 @login_required
@@ -234,10 +256,14 @@ def index_model_switch(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_CONSTRUCTOR_SWITCH
     )
-    return render(request, 'topologie/index_model_switch.html', {
-        'model_switch_list': model_switch_list,
-        'constructor_switch_list': constructor_switch_list,
-        })
+    return render(
+        request,
+        'topologie/index_model_switch.html',
+        {
+            'model_switch_list': model_switch_list,
+            'constructor_switch_list': constructor_switch_list,
+        }
+    )
 
 
 @login_required
@@ -260,9 +286,12 @@ def new_port(request, switchid):
             messages.error(request, "Ce port existe déjà")
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switchid':switchid}
-            ))
-    return form({'id_switch': switchid,'topoform': port, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+            kwargs={'switchid': switchid}
+        ))
+    return form(
+        {'id_switch': switchid, 'topoform': port, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request)
 
 
 @login_required
@@ -279,8 +308,16 @@ def edit_port(request, port_object, portid):
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': str(port_object.switch.id)}
-            ))
-    return form({'id_switch': str(port_object.switch.id), 'topoform': port, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+        ))
+    return form(
+        {
+            'id_switch': str(port_object.switch.id),
+            'topoform': port,
+            'action_name': 'Editer'
+        },
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -292,12 +329,15 @@ def del_port(request, port, portid):
             port.delete()
             messages.success(request, "Le port a été détruit")
         except ProtectedError:
-            messages.error(request, "Le port %s est affecté à un autre objet,\
-                impossible de le supprimer" % port)
+            messages.error(
+                request,
+                ("Le port %s est affecté à un autre objet, impossible "
+                 "de le supprimer" % port)
+            )
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switchid':str(port.switch.id)}
-            ))
+            kwargs={'switchid': str(port.switch.id)}
+        ))
     return form({'objet': port}, 'topologie/delete.html', request)
 
 
@@ -309,7 +349,11 @@ def new_stack(request):
     if stack.is_valid():
         stack.save()
         messages.success(request, "Stack crée")
-    return form({'topoform': stack, 'action_name' : 'Créer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': stack, 'action_name': 'Créer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -321,7 +365,11 @@ def edit_stack(request, stack, stackid):
         if stack.changed_data:
             stack.save()
             return redirect(reverse('topologie:index-physical-grouping'))
-    return form({'topoform': stack, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': stack, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -333,8 +381,11 @@ def del_stack(request, stack, stackid):
             stack.delete()
             messages.success(request, "La stack a eté détruite")
         except ProtectedError:
-            messages.error(request, "La stack %s est affectée à un autre\
-                objet, impossible de la supprimer" % stack)
+            messages.error(
+                request,
+                ("La stack %s est affectée à un autre objet, impossible "
+                 "de la supprimer" % stack)
+            )
         return redirect(reverse('topologie:index-physical-grouping'))
     return form({'objet': stack}, 'topologie/delete.html', request)
 
@@ -372,8 +423,11 @@ def new_switch(request):
     if switch.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
-            messages.error(request, "L'user association n'existe pas encore,\
-            veuillez le créer ou le linker dans preferences")
+            messages.error(
+                request,
+                ("L'user association n'existe pas encore, veuillez le "
+                 "créer ou le linker dans preferences")
+            )
             return redirect(reverse('topologie:index'))
         new_switch = switch.save(commit=False)
         new_switch.user = user
@@ -389,13 +443,17 @@ def new_switch(request):
             messages.success(request, "Le switch a été créé")
             return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
-    return form({
-        'topoform': interface,
-        'machineform': switch,
-        'domainform': domain,
-        'i_mbf_param': i_mbf_param,
-        'device' : 'switch',
-        }, 'topologie/topo_more.html', request)
+    return form(
+        {
+            'topoform': interface,
+            'machineform': switch,
+            'domainform': domain,
+            'i_mbf_param': i_mbf_param,
+            'device': 'switch',
+        },
+        'topologie/topo_more.html',
+        request
+    )
 
 
 @login_required
@@ -430,9 +488,13 @@ def create_ports(request, switchid):
             messages.error(request, ''.join(e))
         return redirect(reverse(
             'topologie:index-port',
-            kwargs={'switchid':switchid}
+            kwargs={'switchid': switchid}
             ))
-    return form({'id_switch': switchid, 'topoform': port_form}, 'topologie/switch.html', request)
+    return form(
+        {'id_switch': switchid, 'topoform': port_form},
+        'topologie/switch.html',
+        request
+    )
 
 
 @login_required
@@ -467,15 +529,19 @@ def edit_switch(request, switch, switchid):
             new_domain.save()
         messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index'))
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
-    return form({
-        'id_switch': switchid,
-        'topoform': interface_form,
-        'machineform': switch_form,
-        'domainform': domain_form,
-        'i_mbf_param': i_mbf_param,
-        'device' : 'switch',
-        }, 'topologie/topo_more.html', request)
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
+    return form(
+        {
+            'id_switch': switchid,
+            'topoform': interface_form,
+            'machineform': switch_form,
+            'domainform': domain_form,
+            'i_mbf_param': i_mbf_param,
+            'device': 'switch',
+        },
+        'topologie/topo_more.html',
+        request
+    )
 
 
 @login_required
@@ -498,8 +564,11 @@ def new_ap(request):
     if ap.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
-            messages.error(request, "L'user association n'existe pas encore,\
-            veuillez le créer ou le linker dans preferences")
+            messages.error(
+                request,
+                ("L'user association n'existe pas encore, veuillez le "
+                 "créer ou le linker dans preferences")
+            )
             return redirect(reverse('topologie:index'))
         new_ap = ap.save(commit=False)
         new_ap.user = user
@@ -515,13 +584,17 @@ def new_ap(request):
             messages.success(request, "La borne a été créé")
             return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
-    return form({
-        'topoform': interface,
-        'machineform': ap,
-        'domainform': domain,
-        'i_mbf_param': i_mbf_param,
-        'device' : 'wifi ap',
-        }, 'topologie/topo_more.html', request)
+    return form(
+        {
+            'topoform': interface,
+            'machineform': ap,
+            'domainform': domain,
+            'i_mbf_param': i_mbf_param,
+            'device': 'wifi ap',
+        },
+        'topologie/topo_more.html',
+        request
+    )
 
 
 @login_required
@@ -546,8 +619,11 @@ def edit_ap(request, ap, accesspointid):
     if ap_form.is_valid() and interface_form.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
         if not user:
-            messages.error(request, "L'user association n'existe pas encore,\
-            veuillez le créer ou le linker dans preferences")
+            messages.error(
+                request,
+                ("L'user association n'existe pas encore, veuillez le "
+                 "créer ou le linker dans preferences")
+            )
             return redirect(reverse('topologie:index-ap'))
         new_ap = ap_form.save(commit=False)
         new_interface = interface_form.save(commit=False)
@@ -560,15 +636,19 @@ def edit_ap(request, ap, accesspointid):
             new_domain.save()
         messages.success(request, "La borne a été modifiée")
         return redirect(reverse('topologie:index-ap'))
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False )
-    return form({
-        'topoform': interface_form,
-        'machineform': ap_form,
-        'domainform': domain_form,
-        'i_mbf_param': i_mbf_param,
-        'device' : 'wifi ap',
-        }, 'topologie/topo_more.html', request)
-    
+    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
+    return form(
+        {
+            'topoform': interface_form,
+            'machineform': ap_form,
+            'domainform': domain_form,
+            'i_mbf_param': i_mbf_param,
+            'device': 'wifi ap',
+        },
+        'topologie/topo_more.html',
+        request
+    )
+
 
 @login_required
 @can_create(Room)
@@ -579,7 +659,11 @@ def new_room(request):
         room.save()
         messages.success(request, "La chambre a été créé")
         return redirect(reverse('topologie:index-room'))
-    return form({'topoform': room, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': room, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -592,7 +676,11 @@ def edit_room(request, room, roomid):
             room.save()
             messages.success(request, "La chambre a bien été modifiée")
         return redirect(reverse('topologie:index-room'))
-    return form({'topoform': room, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': room, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -604,13 +692,17 @@ def del_room(request, room, roomid):
             room.delete()
             messages.success(request, "La chambre/prise a été détruite")
         except ProtectedError:
-            messages.error(request, "La chambre %s est affectée à un autre objet,\
-                impossible de la supprimer (switch ou user)" % room)
+            messages.error(
+                request,
+                ("La chambre %s est affectée à un autre objet, impossible "
+                 "de la supprimer (switch ou user)" % room)
+            )
         return redirect(reverse('topologie:index-room'))
-    return form({
-        'objet': room,
-        'objet_name': 'Chambre'
-        }, 'topologie/delete.html', request)
+    return form(
+        {'objet': room, 'objet_name': 'Chambre'},
+        'topologie/delete.html',
+        request
+    )
 
 
 @login_required
@@ -622,7 +714,11 @@ def new_model_switch(request):
         model_switch.save()
         messages.success(request, "Le modèle a été créé")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': model_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': model_switch, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -630,13 +726,20 @@ def new_model_switch(request):
 def edit_model_switch(request, model_switch, modelswitchid):
     """ Edition d'un modèle de switch"""
 
-    model_switch = EditModelSwitchForm(request.POST or None, instance=model_switch)
+    model_switch = EditModelSwitchForm(
+        request.POST or None,
+        instance=model_switch
+    )
     if model_switch.is_valid():
         if model_switch.changed_data:
             model_switch.save()
             messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': model_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': model_switch, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -648,13 +751,17 @@ def del_model_switch(request, model_switch, modelswitchid):
             model_switch.delete()
             messages.success(request, "Le modèle a été détruit")
         except ProtectedError:
-            messages.error(request, "Le modèle %s est affectée à un autre objet,\
-                impossible de la supprimer (switch ou user)" % model_switch)
+            messages.error(
+                request,
+                ("Le modèle %s est affectée à un autre objet, impossible "
+                 "de la supprimer (switch ou user)" % model_switch)
+            )
         return redirect(reverse('topologie:index-model-switch'))
-    return form({
-        'objet': model_switch,
-        'objet_name': 'Modèle de switch'
-        }, 'topologie/delete.html', request)
+    return form(
+        {'objet': model_switch, 'objet_name': 'Modèle de switch'},
+        'topologie/delete.html',
+        request
+    )
 
 
 @login_required
@@ -666,7 +773,11 @@ def new_switch_bay(request):
         switch_bay.save()
         messages.success(request, "La baie a été créé")
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({'topoform': switch_bay, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': switch_bay, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -679,7 +790,11 @@ def edit_switch_bay(request, switch_bay, switchbayid):
             switch_bay.save()
             messages.success(request, "Le switch a bien été modifié")
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({'topoform': switch_bay, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': switch_bay, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -691,13 +806,17 @@ def del_switch_bay(request, switch_bay, switchbayid):
             switch_bay.delete()
             messages.success(request, "La baie a été détruite")
         except ProtectedError:
-            messages.error(request, "La baie %s est affecté à un autre objet,\
-                impossible de la supprimer (switch ou user)" % switch_bay)
+            messages.error(
+                request,
+                ("La baie %s est affecté à un autre objet, impossible "
+                 "de la supprimer (switch ou user)" % switch_bay)
+            )
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({
-        'objet': switch_bay,
-        'objet_name': 'Baie de switch'
-        }, 'topologie/delete.html', request)
+    return form(
+        {'objet': switch_bay, 'objet_name': 'Baie de switch'},
+        'topologie/delete.html',
+        request
+    )
 
 
 @login_required
@@ -709,7 +828,11 @@ def new_building(request):
         building.save()
         messages.success(request, "Le batiment a été créé")
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({'topoform': building, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': building, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -722,7 +845,11 @@ def edit_building(request, building, buildingid):
             building.save()
             messages.success(request, "Le batiment a bien été modifié")
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({'topoform': building, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': building, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -734,13 +861,17 @@ def del_building(request, building, buildingid):
             building.delete()
             messages.success(request, "La batiment a été détruit")
         except ProtectedError:
-            messages.error(request, "Le batiment %s est affecté à un autre objet,\
-                impossible de la supprimer (switch ou user)" % building)
+            messages.error(
+                request,
+                ("Le batiment %s est affecté à un autre objet, impossible "
+                 "de la supprimer (switch ou user)" % building)
+            )
         return redirect(reverse('topologie:index-physical-grouping'))
-    return form({
-        'objet': building,
-        'objet_name': 'Bâtiment'
-        }, 'topologie/delete.html', request)
+    return form(
+        {'objet': building, 'objet_name': 'Bâtiment'},
+        'topologie/delete.html',
+        request
+    )
 
 
 @login_required
@@ -752,7 +883,11 @@ def new_constructor_switch(request):
         constructor_switch.save()
         messages.success(request, "Le constructeur a été créé")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': constructor_switch, 'action_name' : 'Ajouter'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': constructor_switch, 'action_name': 'Ajouter'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -760,13 +895,20 @@ def new_constructor_switch(request):
 def edit_constructor_switch(request, constructor_switch, constructorswitchid):
     """ Edition d'un constructeur de switch"""
 
-    constructor_switch = EditConstructorSwitchForm(request.POST or None, instance=constructor_switch)
+    constructor_switch = EditConstructorSwitchForm(
+        request.POST or None,
+        instance=constructor_switch
+    )
     if constructor_switch.is_valid():
         if constructor_switch.changed_data:
             constructor_switch.save()
             messages.success(request, "Le modèle a bien été modifié")
         return redirect(reverse('topologie:index-model-switch'))
-    return form({'topoform': constructor_switch, 'action_name' : 'Editer'}, 'topologie/topo.html', request)
+    return form(
+        {'topoform': constructor_switch, 'action_name': 'Editer'},
+        'topologie/topo.html',
+        request
+    )
 
 
 @login_required
@@ -778,10 +920,14 @@ def del_constructor_switch(request, constructor_switch, constructorswitchid):
             constructor_switch.delete()
             messages.success(request, "Le constructeur a été détruit")
         except ProtectedError:
-            messages.error(request, "Le constructeur %s est affecté à un autre objet,\
-                impossible de la supprimer (switch ou user)" % constructor_switch)
+            messages.error(
+                request,
+                ("Le constructeur %s est affecté à un autre objet, impossible "
+                 "de la supprimer (switch ou user)" % constructor_switch)
+            )
         return redirect(reverse('topologie:index-model-switch'))
-    return form({
-        'objet': constructor_switch,
-        'objet_name': 'Constructeur de switch'
-        }, 'topologie/delete.html', request)
+    return form(
+        {'objet': constructor_switch, 'objet_name': 'Constructeur de switch'},
+        'topologie/delete.html',
+        request
+    )
