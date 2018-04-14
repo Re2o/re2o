@@ -19,23 +19,34 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""re2o.mixins
+A set of mixins used all over the project to avoid duplicating code
+"""
 
 from reversion import revisions as reversion
 
 
 class RevMixin(object):
+    """ A mixin to subclass the save and delete function of a model
+    to enforce the versioning of the object before those actions
+    really happen """
     def save(self, *args, **kwargs):
+        """ Creates a version of this object and save it to database """
         if self.pk is None:
             reversion.set_comment("Création")
         return super(RevMixin, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        """ Creates a version of this object and delete it from database """
         reversion.set_comment("Suppresion")
         return super(RevMixin, self).delete(*args, **kwargs)
 
 
 class FormRevMixin(object):
+    """ A mixin to subclass the save function of a form
+    to enforce the versionning of the object before it is really edited """
     def save(self, *args, **kwargs):
+        """ Create a version of this object and save it to database """
         if reversion.get_comment() != "" and self.changed_data != []:
             reversion.set_comment(
                 reversion.get_comment() + ",%s"
@@ -66,14 +77,16 @@ class AclMixin(object):
 
     @classmethod
     def get_classname(cls):
+        """ Returns the name of the class where this mixin is used """
         return str(cls.__name__).lower()
 
     @classmethod
     def get_modulename(cls):
+        """ Returns the name of the module where this mixin is used """
         return str(cls.__module__).split('.')[0].lower()
 
     @classmethod
-    def get_instance(cls, *args, **kwargs):
+    def get_instance(cls, *_args, **kwargs):
         """Récupère une instance
         :param objectid: Instance id à trouver
         :return: Une instance de la classe évidemment"""
@@ -81,7 +94,7 @@ class AclMixin(object):
         return cls.objects.get(pk=object_id)
 
     @classmethod
-    def can_create(cls, user_request, *args, **kwargs):
+    def can_create(cls, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour créer
         un object
         :param user_request: instance utilisateur qui fait la requête
@@ -93,7 +106,7 @@ class AclMixin(object):
             u"Vous n'avez pas le droit de créer un " + cls.get_classname()
         )
 
-    def can_edit(self, user_request, *args, **kwargs):
+    def can_edit(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour editer
         cette instance
         :param self: Instance à editer
@@ -106,7 +119,7 @@ class AclMixin(object):
             u"Vous n'avez pas le droit d'éditer des " + self.get_classname()
         )
 
-    def can_delete(self, user_request, *args, **kwargs):
+    def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour delete
         cette instance
         :param self: Instance à delete
@@ -120,7 +133,7 @@ class AclMixin(object):
         )
 
     @classmethod
-    def can_view_all(cls, user_request, *args, **kwargs):
+    def can_view_all(cls, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien afficher l'ensemble des objets,
         droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
@@ -132,7 +145,7 @@ class AclMixin(object):
             u"Vous n'avez pas le droit de voir des " + cls.get_classname()
         )
 
-    def can_view(self, user_request, *args, **kwargs):
+    def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
         droit view objet
         :param self: instance à voir

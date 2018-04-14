@@ -18,22 +18,27 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""re2o.script_utils
+A set of utility scripts that can be used as standalone to interact easily
+with Re2o throught the CLI
+"""
 
 import os
+from os.path import dirname
 import sys
 import pwd
 
-from django.core.wsgi import get_wsgi_application
+from getpass import getpass
+from reversion import revisions as reversion
 
+from django.core.wsgi import get_wsgi_application
 from django.core.management.base import CommandError
+from django.db import transaction
+from django.utils.html import strip_tags
+
 from users.models import User
 
-from django.utils.html import strip_tags
-from reversion import revisions as reversion
-from django.db import transaction
-from getpass import getpass
-
-proj_path = "/var/www/re2o"
+proj_path = dirname(dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "re2o.settings")
 sys.path.append(proj_path)
 os.chdir(proj_path)

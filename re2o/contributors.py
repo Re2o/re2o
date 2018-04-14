@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+"""re2o.contributors
+A list of the proud contributors to Re2o
+"""
 
 CONTRIBUTORS = [
     'Gabriel "Chirac" Détraz',

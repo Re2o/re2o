@@ -36,18 +36,13 @@ Fonction :
 
 from __future__ import unicode_literals
 
-
 from django.utils import timezone
 from django.db.models import Q
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, Machine
+from cotisations.models import Cotisation, Facture, Vente
+from machines.models import Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
-from preferences.models import Service
 
 
 def all_adherent(search_time=None):

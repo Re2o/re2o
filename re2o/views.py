@@ -26,32 +26,28 @@ les views
 
 from __future__ import unicode_literals
 
+from itertools import chain
+import git
+from reversion.models import Version
+
 from django.http import Http404
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.template.context_processors import csrf
-from django.contrib.auth.decorators import login_required, permission_required
-from reversion.models import Version
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 
-import git
-import os
-import time
-from itertools import chain
-
-from preferences.models import Service
-from preferences.models import OptionalUser, GeneralOption, AssoOption
-import users
 import preferences
+from preferences.models import Service, GeneralOption, AssoOption
+import users
 import cotisations
 import topologie
 import machines
 
 from .utils import re2o_paginator
-from .settings import BASE_DIR, INSTALLED_APPS, MIDDLEWARE_CLASSES
 from .contributors import CONTRIBUTORS
 
 
@@ -143,7 +139,7 @@ def history(request, application, object_name, object_id):
     """
     try:
         model = HISTORY_BIND[application][object_name]
-    except KeyError as e:
+    except KeyError:
         raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
     object_name_id = object_name + 'id'
     kwargs = {object_name_id: object_id}
@@ -178,10 +174,13 @@ def history(request, application, object_name, object_id):
 
 @cache_page(7 * 24 * 60 * 60)
 def about_page(request):
+    """ The view for the about page.
+    Fetch some info about the configuration of the project. If it can't
+    get the info from the Git repository, fallback to default string """
     option = AssoOption.objects.get()
     git_info_contributors = CONTRIBUTORS
     try:
-        git_repo = git.Repo(BASE_DIR)
+        git_repo = git.Repo(settings.BASE_DIR)
         git_info_remote = ", ".join(git_repo.remote().urls)
         git_info_branch = git_repo.active_branch.name
         last_commit = git_repo.commit()
@@ -194,7 +193,7 @@ def about_page(request):
         git_info_commit = NO_GIT_MSG
         git_info_commit_date = NO_GIT_MSG
 
-    dependencies = INSTALLED_APPS + MIDDLEWARE_CLASSES
+    dependencies = settings.INSTALLED_APPS + settings.MIDDLEWARE_CLASSES
 
     return render(
         request,

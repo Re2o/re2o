@@ -302,7 +302,7 @@ def acl_change_filter(parser, token):
 
     try:
         tag_content = token.split_contents()
-        tag_name = tag_content[0]
+        # tag_name = tag_content[0]
         model_name = tag_content[1]
         field_name = tag_content[2]
         args = tag_content[3:]
