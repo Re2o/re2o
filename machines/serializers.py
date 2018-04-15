@@ -21,7 +21,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#Augustin Lemesle
+# Augustin Lemesle
+"""machines.serializers
+Serializers for the Machines app
+"""
+
 
 from rest_framework import serializers
 from machines.models import (
@@ -29,28 +33,30 @@ from machines.models import (
     IpType,
     Extension,
     IpList,
-    MachineType,
     Domain,
     Txt,
     Mx,
     Srv,
     Service_link,
     Ns,
-    OuverturePortList,
     OuverturePort,
     Ipv6List
 )
 
 
 class IpTypeField(serializers.RelatedField):
-    """Serialisation d'une iptype, renvoie son evaluation str"""
+    """ Serializer for an IpType object field """
+
     def to_representation(self, value):
         return value.type
 
+    def to_internal_value(self, data):
+        pass
+
 
 class IpListSerializer(serializers.ModelSerializer):
-    """Serialisation d'une iplist, ip_type etant une foreign_key,
-    on evalue sa methode str"""
+    """ Serializer for an Ipv4List obejct using the IpType serialization """
+
     ip_type = IpTypeField(read_only=True)
 
     class Meta:
@@ -59,16 +65,19 @@ class IpListSerializer(serializers.ModelSerializer):
 
 
 class Ipv6ListSerializer(serializers.ModelSerializer):
+    """ Serializer for an Ipv6List object """
+
     class Meta:
         model = Ipv6List
         fields = ('ipv6', 'slaac_ip')
 
 
 class InterfaceSerializer(serializers.ModelSerializer):
-    """Serialisation d'une interface, ipv4, domain et extension sont
-    des foreign_key, on les override et on les evalue avec des fonctions
-    get_..."""
+    """ Serializer for an Interface object. Use SerializerMethodField
+    to get ForeignKey values """
+
     ipv4 = IpListSerializer(read_only=True)
+    # TODO : use serializer.RelatedField to avoid duplicate code
     mac_address = serializers.SerializerMethodField('get_macaddress')
     domain = serializers.SerializerMethodField('get_dns')
     extension = serializers.SerializerMethodField('get_interface_extension')
@@ -77,20 +86,29 @@ class InterfaceSerializer(serializers.ModelSerializer):
         model = Interface
         fields = ('ipv4', 'mac_address', 'domain', 'extension')
 
-    def get_dns(self, obj):
+    @staticmethod
+    def get_dns(obj):
+        """ The name of the associated  DNS object """
         return obj.domain.name
 
-    def get_interface_extension(self, obj):
+    @staticmethod
+    def get_interface_extension(obj):
+        """ The name of the associated Interface object """
         return obj.domain.extension.name
 
-    def get_macaddress(self, obj):
+    @staticmethod
+    def get_macaddress(obj):
+        """ The string representation of the associated MAC address """
         return str(obj.mac_address)
 
 
 class FullInterfaceSerializer(serializers.ModelSerializer):
-    """Serialisation complete d'une interface avec les ipv6 en plus"""
+    """ Serializer for an Interface obejct. Use SerializerMethodField
+    to get ForeignKey values """
+
     ipv4 = IpListSerializer(read_only=True)
     ipv6 = Ipv6ListSerializer(read_only=True, many=True)
+    # TODO : use serializer.RelatedField to avoid duplicate code
     mac_address = serializers.SerializerMethodField('get_macaddress')
     domain = serializers.SerializerMethodField('get_dns')
     extension = serializers.SerializerMethodField('get_interface_extension')
@@ -99,26 +117,36 @@ class FullInterfaceSerializer(serializers.ModelSerializer):
         model = Interface
         fields = ('ipv4', 'ipv6', 'mac_address', 'domain', 'extension')
 
-    def get_dns(self, obj):
+    @staticmethod
+    def get_dns(obj):
+        """ The name of the associated DNS object """
         return obj.domain.name
 
-    def get_interface_extension(self, obj):
+    @staticmethod
+    def get_interface_extension(obj):
+        """ The name of the associated Extension object """
         return obj.domain.extension.name
 
-    def get_macaddress(self, obj):
+    @staticmethod
+    def get_macaddress(obj):
+        """ The string representation of the associated MAC address """
         return str(obj.mac_address)
 
 
 class ExtensionNameField(serializers.RelatedField):
-    """Evaluation str d'un objet extension (.example.org)"""
+    """ Serializer for Extension object field """
+
     def to_representation(self, value):
         return value.name
 
+    def to_internal_value(self, data):
+        pass
+
 
 class TypeSerializer(serializers.ModelSerializer):
-    """Serialisation d'un iptype : extension et la liste des
-    ouvertures de port son evalués en get_... etant des
-    foreign_key ou des relations manytomany"""
+    """ Serializer for an IpType object. Use SerializerMethodField to
+    get ForeignKey values. Infos about the general port policy is added """
+
     extension = ExtensionNameField(read_only=True)
     ouverture_ports_tcp_in = serializers\
         .SerializerMethodField('get_port_policy_input_tcp')
@@ -136,7 +164,10 @@ class TypeSerializer(serializers.ModelSerializer):
                   'ouverture_ports_tcp_in', 'ouverture_ports_tcp_out',
                   'ouverture_ports_udp_in', 'ouverture_ports_udp_out',)
 
-    def get_port_policy(self, obj, protocole, io):
+    @staticmethod
+    def get_port_policy(obj, protocole, io):
+        """ Generic utility function to get the policy for a given
+        port, protocole and IN or OUT """
         if obj.ouverture_ports is None:
             return []
         return map(
@@ -174,14 +205,20 @@ class ExtensionSerializer(serializers.ModelSerializer):
         model = Extension
         fields = ('name', 'origin', 'origin_v6', 'zone_entry', 'soa')
 
-    def get_origin_ip(self, obj):
-        return getattr(obj.origin, 'ipv4', None)
+    @staticmethod
+    def get_origin_ip(obj):
+        """ The IP of the associated origin for the zone """
+        return obj.origin.ipv4
 
-    def get_zone_name(self, obj):
+    @staticmethod
+    def get_zone_name(obj):
+        """ The name of the associated zone """
         return str(obj.dns_entry)
 
-    def get_soa_data(self, obj):
-        return { 'mail': obj.soa.dns_soa_mail, 'param': obj.soa.dns_soa_param }
+    @staticmethod
+    def get_soa_data(obj):
+        """ The representation of the associated SOA """
+        return {'mail': obj.soa.dns_soa_mail, 'param': obj.soa.dns_soa_param}
 
 
 class MxSerializer(serializers.ModelSerializer):
@@ -195,13 +232,19 @@ class MxSerializer(serializers.ModelSerializer):
         model = Mx
         fields = ('zone', 'priority', 'name', 'mx_entry')
 
-    def get_entry_name(self, obj):
+    @staticmethod
+    def get_entry_name(obj):
+        """ The name of the DNS MX entry """
         return str(obj.name)
 
-    def get_zone_name(self, obj):
+    @staticmethod
+    def get_zone_name(obj):
+        """ The name of the associated zone of the MX record """
         return obj.zone.name
 
-    def get_mx_name(self, obj):
+    @staticmethod
+    def get_mx_name(obj):
+        """ The string representation of the entry to add to the DNS """
         return str(obj.dns_entry)
 
 
@@ -215,10 +258,14 @@ class TxtSerializer(serializers.ModelSerializer):
         model = Txt
         fields = ('zone', 'txt_entry', 'field1', 'field2')
 
-    def get_zone_name(self, obj):
+    @staticmethod
+    def get_zone_name(obj):
+        """ The name of the associated zone """
         return str(obj.zone.name)
 
-    def get_txt_name(self, obj):
+    @staticmethod
+    def get_txt_name(obj):
+        """ The string representation of the entry to add to the DNS """
         return str(obj.dns_entry)
 
 
@@ -241,10 +288,14 @@ class SrvSerializer(serializers.ModelSerializer):
             'srv_entry'
         )
 
-    def get_extension_name(self, obj):
+    @staticmethod
+    def get_extension_name(obj):
+        """ The name of the associated extension """
         return str(obj.extension.name)
 
-    def get_srv_name(self, obj):
+    @staticmethod
+    def get_srv_name(obj):
+        """ The string representation of the entry to add to the DNS """
         return str(obj.dns_entry)
 
 
@@ -259,13 +310,19 @@ class NsSerializer(serializers.ModelSerializer):
         model = Ns
         fields = ('zone', 'ns', 'ns_entry')
 
-    def get_zone_name(self, obj):
+    @staticmethod
+    def get_zone_name(obj):
+        """ The name of the associated zone """
         return obj.zone.name
 
-    def get_domain_name(self, obj):
+    @staticmethod
+    def get_domain_name(obj):
+        """ The name of the associated NS target """
         return str(obj.ns)
 
-    def get_text_name(self, obj):
+    @staticmethod
+    def get_text_name(obj):
+        """ The string representation of the entry to add to the DNS """
         return str(obj.dns_entry)
 
 
@@ -280,13 +337,19 @@ class DomainSerializer(serializers.ModelSerializer):
         model = Domain
         fields = ('name', 'extension', 'cname', 'cname_entry')
 
-    def get_zone_name(self, obj):
+    @staticmethod
+    def get_zone_name(obj):
+        """ The name of the associated zone """
         return obj.extension.name
 
-    def get_alias_name(self, obj):
+    @staticmethod
+    def get_alias_name(obj):
+        """ The name of the associated alias """
         return str(obj.cname)
 
-    def get_cname_name(self, obj):
+    @staticmethod
+    def get_cname_name(obj):
+        """ The name of the associated CNAME target """
         return str(obj.dns_entry)
 
 
@@ -300,13 +363,19 @@ class ServiceServersSerializer(serializers.ModelSerializer):
         model = Service_link
         fields = ('server', 'service', 'need_regen')
 
-    def get_server_name(self, obj):
+    @staticmethod
+    def get_server_name(obj):
+        """ The name of the associated server """
         return str(obj.server.domain.name)
 
-    def get_service_name(self, obj):
+    @staticmethod
+    def get_service_name(obj):
+        """ The name of the service name """
         return str(obj.service)
 
-    def get_regen_status(self, obj):
+    @staticmethod
+    def get_regen_status(obj):
+        """ The string representation of the regen status """
         return obj.need_regen()
 
 
@@ -315,24 +384,38 @@ class OuverturePortsSerializer(serializers.Serializer):
     ipv4 = serializers.SerializerMethodField()
     ipv6 = serializers.SerializerMethodField()
 
+    def create(self, validated_data):
+        """ Creates a new object based on the un-serialized data.
+        Used to implement an abstract inherited method """
+        pass
+
+    def update(self, instance, validated_data):
+        """ Updates an object based on the un-serialized data.
+        Used to implement an abstract inherited method """
+        pass
+
+    @staticmethod
     def get_ipv4():
-        return {i.ipv4.ipv4:
-            {
-                "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
-                "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
-                "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+        """ The representation of the policy for the IPv4 addresses """
+        return {
+            i.ipv4.ipv4: {
+                "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
+                "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
-                for i in Interface.objects.all() if i.ipv4
+            for i in Interface.objects.all() if i.ipv4
         }
 
+    @staticmethod
     def get_ipv6():
-        return {i.ipv6:
-            {
-                "tcp_in":[j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out":[j.tcp_ports_out()for j in i.port_lists.all()],
-                "udp_in":[j.udp_ports_in() for j in i.port_lists.all()],
-                "udp_out":[j.udp_ports_out() for j in i.port_lists.all()],
+        """ The representation of the policy for the IPv6 addresses """
+        return {
+            i.ipv6: {
+                "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
+                "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
-                for i in Interface.objects.all() if i.ipv6
+            for i in Interface.objects.all() if i.ipv6
         }

@@ -20,6 +20,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""machines.admin
+The objects, fields and datastructures visible in the Django admin view
+"""
 
 from __future__ import unicode_literals
 
@@ -44,74 +47,92 @@ from .models import (
 
 
 class MachineAdmin(VersionAdmin):
+    """ Admin view of a Machine object """
     pass
 
 
 class Ipv6ListAdmin(VersionAdmin):
+    """ Admin view of a Ipv6List object """
     pass
 
 
 class IpTypeAdmin(VersionAdmin):
+    """ Admin view of a IpType object """
     pass
 
 
 class MachineTypeAdmin(VersionAdmin):
+    """ Admin view of a MachineType object """
     pass
 
 
 class VlanAdmin(VersionAdmin):
+    """ Admin view of a Vlan object """
     pass
 
 
 class ExtensionAdmin(VersionAdmin):
+    """ Admin view of a Extension object """
     pass
 
 
 class SOAAdmin(VersionAdmin):
+    """ Admin view of a SOA object """
     pass
 
 
 class MxAdmin(VersionAdmin):
+    """ Admin view of a MX object """
     pass
 
 
 class NsAdmin(VersionAdmin):
+    """ Admin view of a NS object """
     pass
 
 
 class TxtAdmin(VersionAdmin):
+    """ Admin view of a TXT object """
     pass
 
 
 class SrvAdmin(VersionAdmin):
+    """ Admin view of a SRV object """
     pass
 
 
 class NasAdmin(VersionAdmin):
+    """ Admin view of a Nas object """
     pass
 
 
 class IpListAdmin(VersionAdmin):
+    """ Admin view of a Ipv4List object """
     pass
 
 
 class OuverturePortAdmin(VersionAdmin):
+    """ Admin view of a OuverturePort object """
     pass
 
 
 class OuverturePortListAdmin(VersionAdmin):
+    """ Admin view of a OuverturePortList object """
     pass
 
 
 class InterfaceAdmin(VersionAdmin):
-    list_display = ('machine','type','mac_address','ipv4','details')
+    """ Admin view of a Interface object """
+    list_display = ('machine', 'type', 'mac_address', 'ipv4', 'details')
 
 
 class DomainAdmin(VersionAdmin):
+    """ Admin view of a Domain object """
     list_display = ('interface_parent', 'name', 'extension', 'cname')
 
 
 class ServiceAdmin(VersionAdmin):
+    """ Admin view of a ServiceAdmin object """
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
 
 
@@ -133,5 +154,3 @@ admin.site.register(Ipv6List, Ipv6ListAdmin)
 admin.site.register(Nas, NasAdmin)
 admin.site.register(OuverturePort, OuverturePortAdmin)
 admin.site.register(OuverturePortList, OuverturePortListAdmin)
-
-

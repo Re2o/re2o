@@ -19,7 +19,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os, sys, pwd
+import os
+import sys
+import pwd
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -27,6 +29,7 @@ from reversion import revisions as reversion
 
 from users.models import User, ListShell
 from re2o.script_utils import get_user, get_system_user
+
 
 class Command(BaseCommand):
     help = 'Change the default shell of a user'
@@ -36,13 +39,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        current_username = get_system_user() 
+        current_username = get_system_user()
         current_user = get_user(current_username)
 
         target_username = options["target_username"] or current_username
         target_user = get_user(target_username)
 
-        #L'utilisateur n'a pas le droit de changer le shell
+        # L'utilisateur n'a pas le droit de changer le shell
         ok, msg = target_user.can_change_shell(current_user)
         if not ok:
             raise CommandError(msg)
@@ -52,9 +55,16 @@ class Command(BaseCommand):
         current_shell = "inconnu"
         if target_user.shell:
             current_shell = target_user.shell.get_pretty_name()
-        self.stdout.write("Choisissez un shell pour l'utilisateur %s (le shell actuel est %s) :" % (target_user.pseudo, current_shell))
+        self.stdout.write(
+            "Choisissez un shell pour l'utilisateur %s (le shell actuel est "
+            "%s) :" % (target_user.pseudo, current_shell)
+        )
         for shell in shells:
-            self.stdout.write("%d - %s (%s)" % (shell.id, shell.get_pretty_name(), shell.shell))
+            self.stdout.write("%d - %s (%s)" % (
+                shell.id,
+                shell.get_pretty_name(),
+                shell.shell
+            ))
         shell_id = input("Entrez un nombre : ")
 
         try:
@@ -72,4 +82,7 @@ class Command(BaseCommand):
             reversion.set_user(current_user)
             reversion.set_comment("Shell modifié")
 
-        self.stdout.write(self.style.SUCCESS("Shell modifié. La modification peut prendre quelques minutes pour s'appliquer."))
+        self.stdout.write(self.style.SUCCESS(
+            "Shell modifié. La modification peut prendre quelques minutes "
+            "pour s'appliquer."
+        ))

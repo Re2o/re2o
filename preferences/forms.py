@@ -44,12 +44,16 @@ class EditOptionalUserForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['is_tel_mandatory'].label = 'Exiger un numéro de\
-        téléphone'
-        self.fields['user_solde'].label = 'Activation du solde pour\
-        les utilisateurs'
+        self.fields['is_tel_mandatory'].label = (
+            'Exiger un numéro de téléphone'
+        )
+        self.fields['user_solde'].label = (
+            'Activation du solde pour les utilisateurs'
+        )
         self.fields['max_solde'].label = 'Solde maximum'
-        self.fields['min_online_payment'].label = 'Montant de rechargement minimum en ligne'
+        self.fields['min_online_payment'].label = (
+            'Montant de rechargement minimum en ligne'
+        )
         self.fields['self_adhesion'].label = 'Auto inscription'
 
 
@@ -160,7 +164,6 @@ class EditAssoOptionForm(ModelForm):
             self.add_error('payment_pass', msg)
 
         return cleaned_data
-
 
 
 class EditMailMessageOptionForm(ModelForm):

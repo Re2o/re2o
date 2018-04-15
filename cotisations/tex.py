@@ -24,15 +24,16 @@ Module in charge of rendering some LaTex templates.
 Used to generated PDF invoice.
 """
 
+import tempfile
+from subprocess import Popen, PIPE
+import os
+from datetime import datetime
+
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
-
-import tempfile
-from subprocess import Popen, PIPE
-import os
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -40,24 +41,27 @@ CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
 
 
-def render_invoice(request, ctx={}):
+def render_invoice(_request, ctx={}):
     """
     Render an invoice using some available information such as the current
     date, the user, the articles, the prices, ...
     """
     filename = '_'.join([
-        'invoice', 
-        slugify(ctx['asso_name']),
-        slugify(ctx['recipient_name']),
-        str(ctx['DATE'].year),
-        str(ctx['DATE'].month),
-        str(ctx['DATE'].day),
+        'invoice',
+        slugify(ctx.get('asso_name', "")),
+        slugify(ctx.get('recipient_name', "")),
+        str(ctx.get('DATE', datetime.now()).year),
+        str(ctx.get('DATE', datetime.now()).month),
+        str(ctx.get('DATE', datetime.now()).day),
     ])
-    r = render_tex(request, 'cotisations/factures.tex', ctx)
-    r['Content-Disposition'] = ''.join(['attachment; filename="',filename,'.pdf"']) 
+    r = render_tex(_request, 'cotisations/factures.tex', ctx)
+    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
+        name=filename
+    )
     return r
 
-def render_tex(request, template, ctx={}):
+
+def render_tex(_request, template, ctx={}):
     """
     Creates a PDF from a LaTex templates using pdflatex.
     Writes it in a temporary directory and send back an HTTP response for
@@ -66,13 +70,13 @@ def render_tex(request, template, ctx={}):
     context = Context(ctx)
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
-    
+
     with tempfile.TemporaryDirectory() as tempdir:
         for i in range(2):
             process = Popen(
                 ['pdflatex', '-output-directory', tempdir],
-                stdin = PIPE,
-                stdout = PIPE,
+                stdin=PIPE,
+                stdout=PIPE,
             )
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:

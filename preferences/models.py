@@ -27,26 +27,33 @@ from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
 from django.db import models
-import cotisations.models
-import machines.models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
-from .aes_field import AESEncryptedField
+import cotisations.models
+import machines.models
 from re2o.mixins import AclMixin
 
+from .aes_field import AESEncryptedField
+
+
 class PreferencesModel(models.Model):
+    """ Base object for the Preferences objects
+    Defines methods to handle the cache of the settings (they should
+    not change a lot) """
     @classmethod
     def set_in_cache(cls):
+        """ Save the preferences in a server-side cache """
         instance, _created = cls.objects.get_or_create()
         cache.set(cls().__class__.__name__.lower(), instance, None)
         return instance
 
     @classmethod
     def get_cached_value(cls, key):
+        """ Get the preferences from the server-side cache """
         instance = cache.get(cls().__class__.__name__.lower())
-        if instance == None:
+        if instance is None:
             instance = cls.set_in_cache()
         return getattr(instance, key)
 
@@ -111,7 +118,7 @@ class OptionalUser(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalUser)
-def optionaluser_post_save(sender, **kwargs):
+def optionaluser_post_save(**kwargs):
     """Ecriture dans le cache"""
     user_pref = kwargs['instance']
     user_pref.set_in_cache()
@@ -146,7 +153,8 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
     @cached_property
     def ipv6(self):
-         return not self.get_cached_value('ipv6_mode') == 'DISABLED'
+        """ Check if the IPv6 option is activated """
+        return not self.get_cached_value('ipv6_mode') == 'DISABLED'
 
     class Meta:
         permissions = (
@@ -155,7 +163,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalMachine)
-def optionalmachine_post_save(sender, **kwargs):
+def optionalmachine_post_save(**kwargs):
     """Synchronisation ipv6 et ecriture dans le cache"""
     machine_pref = kwargs['instance']
     machine_pref.set_in_cache()
@@ -203,7 +211,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalTopologie)
-def optionaltopologie_post_save(sender, **kwargs):
+def optionaltopologie_post_save(**kwargs):
     """Ecriture dans le cache"""
     topologie_pref = kwargs['instance']
     topologie_pref.set_in_cache()
@@ -230,7 +238,7 @@ class GeneralOption(AclMixin, PreferencesModel):
         blank=True,
     )
     GTU = models.FileField(
-        upload_to = '',
+        upload_to='',
         default="",
         null=True,
         blank=True,
@@ -243,7 +251,7 @@ class GeneralOption(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=GeneralOption)
-def generaloption_post_save(sender, **kwargs):
+def generaloption_post_save(**kwargs):
     """Ecriture dans le cache"""
     general_pref = kwargs['instance']
     general_pref.set_in_cache()
@@ -317,7 +325,7 @@ class AssoOption(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=AssoOption)
-def assooption_post_save(sender, **kwargs):
+def assooption_post_save(**kwargs):
     """Ecriture dans le cache"""
     asso_pref = kwargs['instance']
     asso_pref.set_in_cache()

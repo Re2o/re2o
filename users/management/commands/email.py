@@ -7,8 +7,11 @@ from users.models import User
 
 UTC = pytz.timezone('UTC')
 
+
+# TODO : remove of finsihed this because currently it should
+# be failing! Who commited that ?!
 class Command(BaseCommand):
-    commands = ['email_remainder',]
+    commands = ['email_remainder']
     args = '[command]'
     help = 'Send email remainders'
 
@@ -27,6 +30,6 @@ class Command(BaseCommand):
             elif remaining.days == 1:
                 last_day_reminder()
 
+
 def month_reminder():
     pass
-

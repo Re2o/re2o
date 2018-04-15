@@ -20,6 +20,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from users.models import User
 
+
 class Command(BaseCommand):
     help = 'Synchronise le ldap à partir du sql. A utiliser dans un cron'
 
@@ -37,4 +38,3 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for usr in User.objects.all():
             usr.ldap_sync(mac_refresh=options['full'])
-

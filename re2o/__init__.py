@@ -20,4 +20,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+"""re2o
+The main app of Re2o. In charge of all the basics elements which are not
+specific to anyother apps. It includes :
+    * Templates used in multiple places
+    * Templatetags used in multiple places
+    * ACL base
+    * Mixins base
+    * Settings for the Django project
+    * The login part
+    * Some utility scripts
+    * ...
+"""

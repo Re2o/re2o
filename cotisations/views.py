@@ -23,22 +23,23 @@
 # App de gestion des users pour re2o
 # Goulven Kermarec, Gabriel Détraz
 # Gplv2
+"""cotisations.views
+The different views used in the Cotisations module
+"""
+
 from __future__ import unicode_literals
 import os
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.core.validators import MaxValueValidator
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import ProtectedError
-from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.debug import sensitive_variables
+
 # Import des models, forms et fonctions re2o
 from reversion import revisions as reversion
 from users.models import User
@@ -70,12 +71,10 @@ from .forms import (
     SelectUserArticleForm,
     SelectClubArticleForm,
     CreditSoldeForm,
-    NewFactureSoldeForm,
     RechargeForm
 )
 from . import payment as online_payment
 from .tex import render_invoice
-
 
 
 @login_required
@@ -102,9 +101,13 @@ def new_facture(request, user, userid):
     # Building the invocie form and the article formset
     invoice_form = NewFactureForm(request.POST or None, instance=invoice)
     if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+        article_formset = formset_factory(SelectClubArticleForm)(
+            request.POST or None
+        )
     else:
-        article_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+        article_formset = formset_factory(SelectUserArticleForm)(
+            request.POST or None
+        )
 
     if invoice_form.is_valid() and article_formset.is_valid():
         new_invoice_instance = invoice_form.save(commit=False)
@@ -118,15 +121,18 @@ def new_facture(request, user, userid):
             # the authorized minimum (negative_balance)
             if user_balance:
                 # TODO : change Paiement to Payment
-                if new_invoice_instance.paiement == Paiement.objects.get_or_create(
-                        moyen='solde'
-                )[0]:
+                if new_invoice_instance.paiement == (
+                        Paiement.objects.get_or_create(moyen='solde')[0]
+                ):
                     total_price = 0
                     for art_item in articles:
                         if art_item.cleaned_data:
-                            total_price += art_item.cleaned_data['article']\
-                                    .prix*art_item.cleaned_data['quantity']
-                    if float(user.solde) - float(total_price) < negative_balance:
+                            total_price += (
+                                art_item.cleaned_data['article'].prix *
+                                art_item.cleaned_data['quantity']
+                            )
+                    if (float(user.solde) - float(total_price)
+                            < negative_balance):
                         messages.error(
                             request,
                             _("Your balance is too low for this operation.")
@@ -194,7 +200,7 @@ def new_facture(request, user, userid):
 @can_change(Facture, 'pdf')
 def new_facture_pdf(request):
     """
-    View used to generate a custom PDF invoice. It's mainly used to 
+    View used to generate a custom PDF invoice. It's mainly used to
     get invoices that are not taken into account, for the administrative
     point of view.
     """
@@ -205,9 +211,13 @@ def new_facture_pdf(request):
     # Building the invocie form and the article formset
     invoice_form = NewFactureFormPdf(request.POST or None)
     if request.user.is_class_club:
-        articles_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+        articles_formset = formset_factory(SelectClubArticleForm)(
+            request.POST or None
+        )
     else:
-        articles_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+        articles_formset = formset_factory(SelectUserArticleForm)(
+            request.POST or None
+        )
     if invoice_form.is_valid() and articles_formset.is_valid():
         # Get the article list and build an list out of it
         # contiaining (article_name, article_price, quantity, total_price)
@@ -253,7 +263,7 @@ def new_facture_pdf(request):
 # TODO : change facture to invoice
 @login_required
 @can_view(Facture)
-def facture_pdf(request, facture, factureid):
+def facture_pdf(request, facture, **_kwargs):
     """
     View used to generate a PDF file from  an existing invoice in database
     Creates a line for each Purchase (thus article sold) and generate the
@@ -296,14 +306,18 @@ def facture_pdf(request, facture, factureid):
 # TODO : change facture to invoice
 @login_required
 @can_edit(Facture)
-def edit_facture(request, facture, factureid):
+def edit_facture(request, facture, **_kwargs):
     """
     View used to edit an existing invoice.
     Articles can be added or remove to the invoice and quantity
     can be set as desired. This is also the view used to invalidate
     an invoice.
     """
-    invoice_form = EditFactureForm(request.POST or None, instance=facture, user=request.user)
+    invoice_form = EditFactureForm(
+        request.POST or None,
+        instance=facture,
+        user=request.user
+    )
     purchases_objects = Vente.objects.filter(facture=facture)
     purchase_form_set = modelformset_factory(
         Vente,
@@ -311,7 +325,10 @@ def edit_facture(request, facture, factureid):
         extra=0,
         max_num=len(purchases_objects)
         )
-    purchase_form = purchase_form_set(request.POST or None, queryset=purchases_objects)
+    purchase_form = purchase_form_set(
+        request.POST or None,
+        queryset=purchases_objects
+    )
     if invoice_form.is_valid() and purchase_form.is_valid():
         if invoice_form.changed_data:
             invoice_form.save()
@@ -330,7 +347,7 @@ def edit_facture(request, facture, factureid):
 # TODO : change facture to invoice
 @login_required
 @can_delete(Facture)
-def del_facture(request, facture, factureid):
+def del_facture(request, facture, **_kwargs):
     """
     View used to delete an existing invocie.
     """
@@ -351,7 +368,7 @@ def del_facture(request, facture, factureid):
 @login_required
 @can_create(Facture)
 @can_edit(User)
-def credit_solde(request, user, userid):
+def credit_solde(request, user, **_kwargs):
     """
     View used to edit the balance of a user.
     Can be use either to increase or decrease a user's balance.
@@ -385,7 +402,7 @@ def credit_solde(request, user, userid):
 def add_article(request):
     """
     View used to add an article.
-    
+
     .. note:: If a purchase has already been sold, the price are calculated
         once and for all. That means even if the price of an article is edited
         later, it won't change the invoice. That is really important to keep
@@ -408,7 +425,7 @@ def add_article(request):
 
 @login_required
 @can_edit(Article)
-def edit_article(request, article_instance, articleid):
+def edit_article(request, article_instance, **_kwargs):
     """
     View used to edit an article.
     """
@@ -472,7 +489,7 @@ def add_paiement(request):
 # TODO : chnage paiement to Payment
 @login_required
 @can_edit(Paiement)
-def edit_paiement(request, paiement_instance, paiementid):
+def edit_paiement(request, paiement_instance, **_kwargs):
     """
     View used to edit a payment method.
     """
@@ -550,7 +567,7 @@ def add_banque(request):
 # TODO : change banque to bank
 @login_required
 @can_edit(Banque)
-def edit_banque(request, banque_instance, banqueid):
+def edit_banque(request, banque_instance, **_kwargs):
     """
     View used to edit a bank.
     """
@@ -613,7 +630,8 @@ def control(request):
     View used to control the invoices all at once.
     """
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    invoice_list = Facture.objects.select_related('user').select_related('paiement')
+    invoice_list = (Facture.objects.select_related('user').
+                    select_related('paiement'))
     invoice_list = SortTable.sort(
         invoice_list,
         request.GET.get('col'),
@@ -725,9 +743,13 @@ def new_facture_solde(request, userid):
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(request.POST or None)
+        article_formset = formset_factory(SelectClubArticleForm)(
+            request.POST or None
+        )
     else:
-        article_formset = formset_factory(SelectUserArticleForm)(request.POST or None)
+        article_formset = formset_factory(SelectUserArticleForm)(
+            request.POST or None
+        )
 
     if article_formset.is_valid():
         articles = article_formset
@@ -826,7 +848,9 @@ def recharge(request):
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
         invoice = Facture(user=request.user)
-        payment, _created = Paiement.objects.get_or_create(moyen='Rechargement en ligne')
+        payment, _created = Paiement.objects.get_or_create(
+            moyen='Rechargement en ligne'
+        )
         invoice.paiement = payment
         invoice.valid = False
         invoice.save()
@@ -837,7 +861,9 @@ def recharge(request):
             number=1
         )
         purchase.save()
-        content = online_payment.PAYMENT_SYSTEM[AssoOption.get_cached_value('payment')](invoice, request)
+        content = online_payment.PAYMENT_SYSTEM[
+            AssoOption.get_cached_value('payment')
+        ](invoice, request)
         return render(request, 'cotisations/payment.html', content)
     return form({
         'rechargeform': refill_form

@@ -94,7 +94,8 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['type'].label = 'Type de machine'
         self.fields['type'].empty_label = "Séléctionner un type de machine"
         if "ipv4" in self.fields:
-            self.fields['ipv4'].empty_label = "Assignation automatique de l'ipv4"
+            self.fields['ipv4'].empty_label = ("Assignation automatique de "
+                                               "l'ipv4")
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
@@ -136,10 +137,10 @@ class AliasForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         user = kwargs.pop('user')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        can_use_all, reason = Extension.can_use_all(user)
+        can_use_all, _reason = Extension.can_use_all(user)
         if not can_use_all:
             self.fields['extension'].queryset = Extension.objects.filter(
-                 need_infra=False
+                need_infra=False
             )
 
 
@@ -328,6 +329,7 @@ class MxForm(FormRevMixin, ModelForm):
             interface_parent=None
         ).select_related('extension')
 
+
 class DelMxForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs MX"""
     mx = forms.ModelMultipleChoiceField(
@@ -472,10 +474,14 @@ class ServiceForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['servers'].queryset = Interface.objects.all()\
-        .select_related('domain__extension')
+        self.fields['servers'].queryset = (Interface.objects.all()
+                                           .select_related(
+                                               'domain__extension'
+                                           ))
 
     def save(self, commit=True):
+        # TODO : None of the parents of ServiceForm use the commit
+        # parameter in .save()
         instance = super(ServiceForm, self).save(commit=False)
         if commit:
             instance.save()

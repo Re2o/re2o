@@ -31,17 +31,17 @@ topologie, users, service...)
 from __future__ import unicode_literals
 
 from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db.models import ProtectedError
 from django.db import transaction
 
-from reversion.models import Version
 from reversion import revisions as reversion
 
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
+
 from .forms import ServiceForm, DelServiceForm
 from .models import Service, OptionalUser, OptionalMachine, AssoOption
 from .models import MailMessageOption, GeneralOption, OptionalTopologie
@@ -128,7 +128,7 @@ def add_service(request):
         messages.success(request, "Ce service a été ajouté")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name' : 'Ajouter'},
+        {'preferenceform': service, 'action_name': 'Ajouter'},
         'preferences/preferences.html',
         request
         )
@@ -136,7 +136,7 @@ def add_service(request):
 
 @login_required
 @can_edit(Service)
-def edit_service(request, service_instance, serviceid):
+def edit_service(request, service_instance, **_kwargs):
     """Edition des services affichés sur la page d'accueil"""
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
@@ -151,7 +151,7 @@ def edit_service(request, service_instance, serviceid):
         messages.success(request, "Service modifié")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name' : 'Editer'},
+        {'preferenceform': service, 'action_name': 'Editer'},
         'preferences/preferences.html',
         request
     )
@@ -175,7 +175,7 @@ def del_services(request, instances):
                 suivant %s ne peut être supprimé" % services_del)
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services, 'action_name' : 'Supprimer'},
+        {'preferenceform': services, 'action_name': 'Supprimer'},
         'preferences/preferences.html',
         request
     )

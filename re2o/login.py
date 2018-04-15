@@ -24,7 +24,9 @@
 # -*- coding: utf-8 -*-
 # Module d'authentification
 # David Sinquin, Gabriel Détraz, Goulven Kermarec
-
+"""re2o.login
+Module in charge of handling the login process and verifications
+"""
 
 import hashlib
 import binascii
@@ -42,6 +44,7 @@ DIGEST_LEN = 20
 
 
 def makeSecret(password):
+    """ Build a hashed and salted version of the password """
     salt = os.urandom(4)
     h = hashlib.sha1(password.encode())
     h.update(salt)
@@ -49,11 +52,13 @@ def makeSecret(password):
 
 
 def hashNT(password):
-    hash = hashlib.new('md4', password.encode('utf-16le')).digest()
-    return binascii.hexlify(hash).upper()
+    """ Build a md4 hash of the password to use as the NT-password """
+    hash_str = hashlib.new('md4', password.encode('utf-16le')).digest()
+    return binascii.hexlify(hash_str).upper()
 
 
 def checkPassword(challenge_password, password):
+    """ Check if a given password match the hash of a stored password """
     challenge_bytes = decodestring(challenge_password[ALGO_LEN:].encode())
     digest = challenge_bytes[:DIGEST_LEN]
     salt = challenge_bytes[DIGEST_LEN:]
@@ -74,7 +79,7 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
 
     algorithm = ALGO_NAME
 
-    def encode(self, password, salt, iterations=None):
+    def encode(self, password, salt):
         """
         Hash and salt the given password using SSHA algorithm
 
@@ -92,16 +97,16 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
 
     def safe_summary(self, encoded):
         """
-        Provides a safe summary ofthe password
+        Provides a safe summary of the password
         """
         assert encoded.startswith(self.algorithm)
-        hash = encoded[ALGO_LEN:]
-        hash = binascii.hexlify(decodestring(hash.encode())).decode()
+        hash_str = encoded[ALGO_LEN:]
+        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
         return OrderedDict([
             ('algorithm', self.algorithm),
             ('iterations', 0),
-            ('salt', hashers.mask_hash(hash[2*DIGEST_LEN:], show=2)),
-            ('hash', hashers.mask_hash(hash[:2*DIGEST_LEN])),
+            ('salt', hashers.mask_hash(hash_str[2*DIGEST_LEN:], show=2)),
+            ('hash', hashers.mask_hash(hash_str[:2*DIGEST_LEN])),
         ])
 
     def harden_runtime(self, password, encoded):

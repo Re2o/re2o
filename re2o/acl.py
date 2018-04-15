@@ -33,14 +33,6 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 
-import cotisations
-import logs
-import machines
-import preferences
-import search
-import topologie
-import users
-
 
 def can_create(model):
     """Decorator to check if an user can create a model.
@@ -49,7 +41,11 @@ def can_create(model):
     of models.
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             can, msg = model.can_create(request.user, *args, **kwargs)
             if not can:
                 messages.error(
@@ -68,31 +64,37 @@ def can_edit(model, *field_list):
     kind of models.
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             try:
                 instance = model.get_instance(*args, **kwargs)
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             can, msg = instance.can_edit(request.user)
             if not can:
                 messages.error(
                     request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             for field in field_list:
-                can_change = getattr(instance, 'can_change_' + field)
-                can, msg = can_change(request.user, *args, **kwargs)
+                can_change_fct = getattr(instance, 'can_change_' + field)
+                can, msg = can_change_fct(request.user, *args, **kwargs)
                 if not can:
                     messages.error(
                         request, msg or "Vous ne pouvez pas accéder à ce menu")
-                    return redirect(reverse('users:profil',
-                                            kwargs={'userid': str(
-                                                request.user.id)}
-                                            ))
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -103,17 +105,21 @@ def can_change(model, *field_list):
     Difference with can_edit : take a class and not an instance
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             for field in field_list:
-                can_change = getattr(model, 'can_change_' + field)
-                can, msg = can_change(request.user, *args, **kwargs)
+                can_change_fct = getattr(model, 'can_change_' + field)
+                can, msg = can_change_fct(request.user, *args, **kwargs)
                 if not can:
                     messages.error(
                         request, msg or "Vous ne pouvez pas accéder à ce menu")
-                    return redirect(reverse('users:profil',
-                                            kwargs={'userid': str(
-                                                request.user.id)}
-                                            ))
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
@@ -127,21 +133,27 @@ def can_delete(model):
     kind of models.
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             try:
                 instance = model.get_instance(*args, **kwargs)
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             can, msg = instance.can_delete(request.user)
             if not can:
                 messages.error(
                     request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -151,19 +163,25 @@ def can_delete_set(model):
     """Decorator which returns a list of detable models by request user.
     If none of them, return an error"""
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             all_objects = model.objects.all()
             instances_id = []
             for instance in all_objects:
-                can, msg = instance.can_delete(request.user)
+                can, _msg = instance.can_delete(request.user)
                 if can:
                     instances_id.append(instance.id)
             instances = model.objects.filter(id__in=instances_id)
             if not instances:
-                messages.error(request, "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                messages.error(
+                    request, "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             return view(request, instances, *args, **kwargs)
         return wrapper
     return decorator
@@ -177,21 +195,27 @@ def can_view(model):
     kind of models.
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             try:
                 instance = model.get_instance(*args, **kwargs)
             except model.DoesNotExist:
                 messages.error(request, u"Entrée inexistante")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             can, msg = instance.can_view(request.user)
             if not can:
                 messages.error(
                     request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             return view(request, instance, *args, **kwargs)
         return wrapper
     return decorator
@@ -201,14 +225,19 @@ def can_view_all(model):
     """Decorator to check if an user can view a class of model.
     """
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             can, msg = model.can_view_all(request.user)
             if not can:
                 messages.error(
                     request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('users:profil',
-                                        kwargs={'userid': str(request.user.id)}
-                                        ))
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
@@ -220,15 +249,20 @@ def can_view_app(app_name):
     assert app_name in sys.modules.keys()
 
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             app = sys.modules[app_name]
             can, msg = app.can_view(request.user)
             if can:
                 return view(request, *args, **kwargs)
             messages.error(request, msg)
-            return redirect(reverse('users:profil',
-                                    kwargs={'userid': str(request.user.id)}
-                                    ))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': str(request.user.id)}
+            ))
         return wrapper
     return decorator
 
@@ -236,13 +270,16 @@ def can_view_app(app_name):
 def can_edit_history(view):
     """Decorator to check if an user can edit history."""
     def wrapper(request, *args, **kwargs):
+        """The wrapper used for a specific request
+        """
         if request.user.has_perm('admin.change_logentry'):
             return view(request, *args, **kwargs)
         messages.error(
             request,
             "Vous ne pouvez pas éditer l'historique."
         )
-        return redirect(reverse('users:profil',
-                                kwargs={'userid': str(request.user.id)}
-                                ))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
     return wrapper
