@@ -155,16 +155,14 @@ BOOTSTRAP_BASE_URL = '/static/bootstrap/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static').replace('\\', '/'),
 )
-
-MEDIA_ROOT = '/var/www/re2o/media'
-
-MEDIA_URL = '/media/'
-
+# Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 # The URL to access the static files
 STATIC_URL = '/static/'
-# Directory where the media files serverd by the server are stored
+# Directory where the media files served by the server are stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
+# The URL to access the static files
+MEDIA_URL = '/media/'
 
 # Models to use for graphs
 GRAPH_MODELS = {
