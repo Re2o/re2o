@@ -489,7 +489,7 @@ def add_paiement(request):
 # TODO : chnage paiement to Payment
 @login_required
 @can_edit(Paiement)
-def edit_paiement(request, paiement_instance, *_kwargs):
+def edit_paiement(request, paiement_instance, **_kwargs):
     """
     View used to edit a payment method.
     """

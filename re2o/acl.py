@@ -171,13 +171,13 @@ def can_delete_set(model):
             all_objects = model.objects.all()
             instances_id = []
             for instance in all_objects:
-                can, msg = instance.can_delete(request.user)
+                can, _msg = instance.can_delete(request.user)
                 if can:
                     instances_id.append(instance.id)
             instances = model.objects.filter(id__in=instances_id)
             if not instances:
                 messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
+                    request, "Vous ne pouvez pas accéder à ce menu")
                 return redirect(reverse(
                     'users:profil',
                     kwargs={'userid': str(request.user.id)}

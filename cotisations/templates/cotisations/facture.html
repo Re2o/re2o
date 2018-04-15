@@ -34,6 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
+    {% if articlesformset %}
     <h3>{% trans "Invoice's articles" %}</h3>
     <div id="form_set" class="form-group">
         {{ articlesformset.management_form }}
@@ -54,11 +55,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         Total price : <span id="total_price">0,00</span> €
         {% endblocktrans %}
     </p>
+    {% endif %}
     {% bootstrap_form factureform %}
     {% bootstrap_button action_name button_type='submit' icon='star' %}
 </form>
 
-
+{% if articlesformset %}
 <script type="text/javascript">
     var prices = {};
     {% for article in articles %}
@@ -133,6 +135,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         update_price();
     });
 </script>
-
+{% endif %}
 
 {% endblock %}
