@@ -155,7 +155,11 @@ BOOTSTRAP_BASE_URL = '/static/bootstrap/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static').replace('\\', '/'),
 )
-# Directory where the static files serverd by the server are stored
+
+MEDIA_ROOT = '/var/www/re2o/media'
+
+MEDIA_URL = '/media/'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 # The URL to access the static files
 STATIC_URL = '/static/'

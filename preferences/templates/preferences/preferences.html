@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 
 
-<form class="form" method="post">
+<form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% if preferenceform %}
     {% bootstrap_form preferenceform %}
