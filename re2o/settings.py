@@ -35,38 +35,37 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 from __future__ import unicode_literals
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from .settings_local import *
 
+# The root directory for the project
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
 # Auth definition
-
 PASSWORD_HASHERS = (
     're2o.login.SSHAPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
-
-AUTH_USER_MODEL = 'users.User'
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-
+AUTH_USER_MODEL = 'users.User'  # The class to use for authentication
+LOGIN_URL = '/login/'           # The URL for login page
+LOGIN_REDIRECT_URL = '/'        # The URL for redirecting after login
 
 # Application definition
-
-INSTALLED_APPS = (
+DJANGO_CONTRIB_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+EXTERNAL_CONTRIB_APPS = (
     'bootstrap3',
+    'rest_framework',
+    'reversion',
+)
+LOCAL_APPS = (
     'users',
     'machines',
     'cotisations',
@@ -75,11 +74,14 @@ INSTALLED_APPS = (
     're2o',
     'preferences',
     'logs',
-    'rest_framework',
-    'reversion',
-    'api'
-) + OPTIONNAL_APPS
-
+    'api',
+)
+INSTALLED_APPS = (
+    DJANGO_CONTRIB_APPS +
+    EXTERNAL_CONTRIB_APPS +
+    LOCAL_APPS +
+    OPTIONNAL_APPS
+)
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -93,14 +95,17 @@ MIDDLEWARE_CLASSES = (
     'reversion.middleware.RevisionMiddleware',
 )
 
+# The root url module to define the project URLs
 ROOT_URLCONF = 're2o.urls'
 
+# The templates configuration (see Django documentation)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-                os.path.join(BASE_DIR, 'templates').replace('\\', '/'),
-            ],
+            # Use only absolute paths with '/' delimiters even on Windows
+            os.path.join(BASE_DIR, 'templates').replace('\\', '/'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,62 +120,52 @@ TEMPLATES = [
     },
 ]
 
+# The WSGI module to use in a server environment
 WSGI_APPLICATION = 're2o.wsgi.application'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
-
 LANGUAGE_CODE = 'en'
-
+USE_I18N = True
+USE_L10N = True
 # Proritary location search for translations
 # then searches in {app}/locale/ for app in INSTALLED_APPS
+# Use only absolute paths with '/' delimiters even on Windows
 LOCALE_PATHS = [
-    BASE_DIR + '/templates/locale/' # to define translations outside of apps
+    # For translations outside of apps
+    os.path.join(BASE_DIR, 'templates', 'locale').replace('\\', '/')
 ]
 
-TIME_ZONE = 'Europe/Paris'
-
-USE_I18N = True
-
-USE_L10N = True
-
+# Should use time zone ?
 USE_TZ = True
 
+# Router config for database
 DATABASE_ROUTERS = ['ldapdb.router.Router']
 
-
-# django-bootstrap3 config dictionnary
+# django-bootstrap3 config
 BOOTSTRAP3 = {
-            'jquery_url': '/static/js/jquery-2.2.4.min.js',
-            'base_url': '/static/bootstrap/',
-            'include_jquery': True,
-        }
-
+    'jquery_url': '/static/js/jquery-2.2.4.min.js',
+    'base_url': '/static/bootstrap/',
+    'include_jquery': True,
+}
 BOOTSTRAP_BASE_URL = '/static/bootstrap/'
 
+# Directories where collectstatic should look for static files
+# Use only absolute paths with '/' delimiters even on Windows
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(
-        BASE_DIR,
-        'static',
-    ),
+    os.path.join(BASE_DIR, 'static').replace('\\', '/'),
 )
-
-MEDIA_ROOT = '/var/www/re2o/media'
-
-STATIC_URL = '/static/'
-
+# Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+# The URL to access the static files
+STATIC_URL = '/static/'
+# Directory where the media files served by the server are stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
+# The URL to access the static files
+MEDIA_URL = '/media/'
 
-RIGHTS_LINK = {
-    'cableur' : ['bureau','infra','bofh','tresorier'],
-    'bofh' : ['bureau','tresorier'],
-    }
-
+# Models to use for graphs
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    'all_applications': True,
+    'group_models': True,
 }

@@ -26,6 +26,7 @@
 Here are defined some functions to check acl on the application.
 """
 
+
 def can_view(user):
     """Check if an user can view the application.
 

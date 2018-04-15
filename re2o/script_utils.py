@@ -18,33 +18,42 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""re2o.script_utils
+A set of utility scripts that can be used as standalone to interact easily
+with Re2o throught the CLI
+"""
 
-import os, sys, pwd
+import os
+from os.path import dirname
+import sys
+import pwd
 
-proj_path="/var/www/re2o"
-os.environ.setdefault("DJANGO_SETTINGS_MODULE","re2o.settings")
-sys.path.append(proj_path)
-os.chdir(proj_path)
+from getpass import getpass
+from reversion import revisions as reversion
+
 from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
-
-
 from django.core.management.base import CommandError
+from django.db import transaction
+from django.utils.html import strip_tags
+
 from users.models import User
 
-from django.utils.html import strip_tags
-from reversion import revisions as reversion
-from django.db import transaction
-from getpass import getpass
+proj_path = dirname(dirname(__file__))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "re2o.settings")
+sys.path.append(proj_path)
+os.chdir(proj_path)
+
+application = get_wsgi_application()
 
 
 def get_user(pseudo):
     """Cherche un utilisateur re2o à partir de son pseudo"""
     user = User.objects.filter(pseudo=pseudo)
-    if len(user)==0:
+    if len(user) == 0:
         raise CommandError("Utilisateur invalide")
-    if len(user)>1:
-        raise CommandError("Plusieurs utilisateurs correspondant à ce pseudo. Ceci NE DEVRAIT PAS arriver")
+    if len(user) > 1:
+        raise CommandError("Plusieurs utilisateurs correspondant à ce "
+                           "pseudo. Ceci NE DEVRAIT PAS arriver")
     return user[0]
 
 
@@ -53,7 +62,7 @@ def get_system_user():
     return pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
 
 
-def form_cli(Form,user,action,*args,**kwargs):
+def form_cli(Form, user, action, *args, **kwargs):
     """
     Remplit un formulaire à partir de la ligne de commande
         Form : le formulaire (sous forme de classe) à remplir
@@ -61,26 +70,30 @@ def form_cli(Form,user,action,*args,**kwargs):
         action : l'action réalisée par le formulaire (pour les logs)
     Les arguments suivants sont transmis tels quels au formulaire.
     """
-    data={}
-    dumb_form = Form(user=user,*args,**kwargs)
+    data = {}
+    dumb_form = Form(user=user, *args, **kwargs)
     for key in dumb_form.fields:
-        if not dumb_form.fields[key].widget.input_type=='hidden':
-            if dumb_form.fields[key].widget.input_type=='password':
-                data[key]=getpass("%s : " % dumb_form.fields[key].label)
+        if not dumb_form.fields[key].widget.input_type == 'hidden':
+            if dumb_form.fields[key].widget.input_type == 'password':
+                data[key] = getpass("%s : " % dumb_form.fields[key].label)
             else:
-                data[key]=input("%s : " % dumb_form.fields[key].label)
+                data[key] = input("%s : " % dumb_form.fields[key].label)
 
-    form = Form(data,user=user,*args,**kwargs)
+    form = Form(data, user=user, *args, **kwargs)
     if not form.is_valid():
         sys.stderr.write("Erreurs : \n")
         for err in form.errors:
-            #Oui, oui, on gère du HTML là où d'autres ont eu la lumineuse idée de le mettre
-            sys.stderr.write("\t%s : %s\n" % (err,strip_tags(form.errors[err])))
+            # Oui, oui, on gère du HTML là où d'autres ont eu la
+            # lumineuse idée de le mettre
+            sys.stderr.write(
+                "\t%s : %s\n" % (err, strip_tags(form.errors[err]))
+            )
         raise CommandError("Formulaire invalide")
 
     with transaction.atomic(), reversion.create_revision():
-       form.save()
-       reversion.set_user(user)
-       reversion.set_comment(action)
+        form.save()
+        reversion.set_user(user)
+        reversion.set_comment(action)
 
-    sys.stdout.write("%s : effectué. La modification peut prendre quelques minutes pour s'appliquer.\n" % action)
+    sys.stdout.write("%s : effectué. La modification peut prendre "
+                     "quelques minutes pour s'appliquer.\n" % action)

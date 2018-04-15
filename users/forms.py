@@ -41,6 +41,10 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
+from re2o.utils import remove_user_room
+from re2o.mixins import FormRevMixin
+from re2o.field_permissions import FieldPermissionFormMixin
+
 from .models import (
     User,
     ServiceUser,
@@ -52,9 +56,6 @@ from .models import (
     Adherent,
     Club
 )
-from re2o.utils import remove_user_room
-from re2o.mixins import FormRevMixin
-from re2o.field_permissions import FieldPermissionFormMixin
 
 
 class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
@@ -89,12 +90,16 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         password1 = self.cleaned_data.get("passwd1")
         password2 = self.cleaned_data.get("passwd2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Les 2 nouveaux mots de passe sont différents")
+            raise forms.ValidationError(
+                "Les 2 nouveaux mots de passe sont différents"
+            )
         return password2
 
     def clean_selfpasswd(self):
         """Verifie si il y a lieu que le mdp self est correct"""
-        if not self.instance.check_password(self.cleaned_data.get("selfpasswd")):
+        if not self.instance.check_password(
+                self.cleaned_data.get("selfpasswd")
+            ):
             raise forms.ValidationError("Le mot de passe actuel est incorrect")
         return
 
@@ -386,7 +391,11 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(ClubAdminandMembersForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(ClubAdminandMembersForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
 
 
 class PasswordForm(FormRevMixin, ModelForm):

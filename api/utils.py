@@ -26,6 +26,7 @@ Set of various and usefull functions for the API app
 from rest_framework.renderers import JSONRenderer
 from django.http import HttpResponse
 
+
 class JSONResponse(HttpResponse):
     """A JSON response that can be send as an HTTP response.
     Usefull in case of REST API.
@@ -51,23 +52,23 @@ class JSONResponse(HttpResponse):
 class JSONError(JSONResponse):
     """A JSON response when the request failed.
     """
-    
+
     def __init__(self, error_msg, data=None, **kwargs):
         """Initialise a JSONError object.
-        
+
         Args:
             error_msg: A message explaining where the error is.
             data: An optional field for further data to send along.
-    
+
         Creates:
-            A JSONResponse containing a field `status` set to `error` and a field
-            `reason` containing `error_msg`. If `data` argument has been given,
-            a field `data` containing it is added to the JSON response.
+            A JSONResponse containing a field `status` set to `error` and a
+            field `reason` containing `error_msg`. If `data` argument has been
+            given, a field `data` containing it is added to the JSON response.
         """
-    
+
         response = {
-            'status' : 'error',
-            'reason' : error_msg
+            'status': 'error',
+            'reason': error_msg
         }
         if data is not None:
             response['data'] = data
@@ -77,22 +78,22 @@ class JSONError(JSONResponse):
 class JSONSuccess(JSONResponse):
     """A JSON response when the request suceeded.
     """
-    
+
     def __init__(self, data=None, **kwargs):
         """Initialise a JSONSucess object.
-        
+
         Args:
             error_msg: A message explaining where the error is.
             data: An optional field for further data to send along.
-    
+
         Creates:
-            A JSONResponse containing a field `status` set to `sucess`. If `data`
-            argument has been given, a field `data` containing it is added to the
-            JSON response.
+            A JSONResponse containing a field `status` set to `sucess`. If
+            `data` argument has been given, a field `data` containing it is
+            added to the JSON response.
         """
-    
+
         response = {
-            'status' : 'success',
+            'status': 'success',
         }
         if data is not None:
             response['data'] = data
@@ -103,12 +104,20 @@ def accept_method(methods):
     """Decorator to set a list of accepted request method.
     Check if the method used is accepted. If not, send a NotAllowed response.
     """
+
     def decorator(view):
+        """The decorator to use on a specific view
+        """
         def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request
+            """
             if request.method in methods:
                 return view(request, *args, **kwargs)
             else:
-                return JSONError('Invalid request method. Request methods authorize are '+str(methods))
+                return JSONError(
+                    'Invalid request method. Request methods authorize are ' +
+                    str(methods)
+                )
             return view(request, *args, **kwargs)
         return wrapper
     return decorator

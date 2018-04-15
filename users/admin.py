@@ -56,19 +56,6 @@ from .forms import (
 )
 
 
-class UserAdmin(admin.ModelAdmin):
-    """Administration d'un user"""
-    list_display = (
-        'surname',
-        'pseudo',
-        'email',
-        'school',
-        'shell',
-        'state'
-    )
-    search_fields = ('surname', 'pseudo')
-
-
 class LdapUserAdmin(admin.ModelAdmin):
     """Administration du ldapuser"""
     list_display = ('name', 'uidNumber', 'login_shell')
@@ -143,7 +130,8 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
         'is_admin',
         'shell'
     )
-    list_display = ('pseudo',)
+    # Need to reset the settings from BaseUserAdmin
+    # They are using fields we don't use like 'is_staff'
     list_filter = ()
     fieldsets = (
         (None, {'fields': ('pseudo', 'password')}),
@@ -175,7 +163,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             }
         ),
     )
-    search_fields = ('pseudo',)
+    search_fields = ('pseudo', 'surname')
     ordering = ('pseudo',)
     filter_horizontal = ()
 

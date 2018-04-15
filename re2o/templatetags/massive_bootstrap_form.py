@@ -36,13 +36,14 @@ from bootstrap3.forms import render_field
 
 register = template.Library()
 
+
 @register.simple_tag
 def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
     """
     Render a form where some specific fields are rendered using Twitter
-    Typeahead and/or splitree's Bootstrap Tokenfield to improve the performance, the
-    speed and UX when dealing with very large datasets (select with 50k+ elts
-    for instance).
+    Typeahead and/or splitree's Bootstrap Tokenfield to improve the
+    performance, the speed and UX when dealing with very large datasets
+    (select with 50k+ elts for instance).
     When the fields specified should normally be rendered as a select with
     single selectable option, Twitter Typeahead is used for a better display
     and the matching query engine. When dealing with multiple selectable
@@ -189,15 +190,12 @@ def massive_bootstrap_form(form, mbf_fields, *args, **kwargs):
     return mbf_form.render()
 
 
-
-
 class MBFForm():
     """ An object to hold all the information and useful methods needed to
     create and render a massive django form into an actual HTML and JS
     code able to handle it correctly.
     Every field that is not listed is rendered as a normal bootstrap_field.
     """
-
 
     def __init__(self, form, mbf_fields, *args, **kwargs):
         # The django form object
@@ -224,14 +222,13 @@ class MBFForm():
         # HTML code to insert inside a template
         self.html = ""
 
-
     def render(self):
         """ HTML code for the fully rendered form with all the necessary form
         """
         for name, field in self.form.fields.items():
-            if not name in self.exclude:
+            if name not in self.exclude:
 
-                if name in self.fields and not name in self.hidden_fields:
+                if name in self.fields and name not in self.hidden_fields:
                     mbf_field = MBFField(
                         name,
                         field,
@@ -256,9 +253,6 @@ class MBFForm():
         return mark_safe(self.html)
 
 
-
-
-
 class MBFField():
     """ An object to hold all the information and useful methods needed to
     create and render a massive django form field into an actual HTML and JS
@@ -270,7 +264,6 @@ class MBFField():
     the displayed input. It's used to store the actual data that will be sent
     to the server """
 
-
     def __init__(self, name_, field_, bound_, choices_, engine_, match_func_,
                  update_on_, gen_select_, *args_, **kwargs_):
 
@@ -278,8 +271,8 @@ class MBFField():
         if not isinstance(field_.widget, Select):
             raise ValueError(
                 ('Field named {f_name} is not a Select and'
-                 'can\'t be rendered with massive_bootstrap_form.'
-                ).format(
+                 'can\'t be rendered with massive_bootstrap_form.')
+                .format(
                     f_name=name_
                 )
             )
@@ -324,7 +317,6 @@ class MBFField():
         self.args = args_
         self.kwargs = kwargs_
 
-
     def default_choices(self):
         """ JS code of the variable choices_<fieldname> """
 
@@ -351,7 +343,6 @@ class MBFField():
                 )
             )
 
-
     def default_engine(self):
         """ Default JS code of the variable engine_<field_name> """
         return (
@@ -364,7 +355,6 @@ class MBFField():
             ).format(
                 name=self.name
             )
-
 
     def default_datasets(self):
         """ Default JS script of the datasets to use with typeahead """
@@ -384,7 +374,6 @@ class MBFField():
                 match_func=self.match_func
             )
 
-
     def default_match_func(self):
         """ Default JS code of the matching function to use with typeahed """
         return (
@@ -402,13 +391,11 @@ class MBFField():
                 name=self.name
             )
 
-
     def render(self):
         """ HTML code for the fully rendered field """
         self.gen_displayed_div()
         self.gen_hidden_div()
         return mark_safe(self.html)
-
 
     def gen_displayed_div(self):
         """ Generate HTML code for the div that contains displayed tags """
@@ -434,7 +421,6 @@ class MBFField():
         if not self.gen_select:
             self.html += self.replace_input
 
-
     def gen_hidden_div(self):
         """ Generate HTML code for the div that contains hidden tags """
         self.gen_full_js()
@@ -449,7 +435,6 @@ class MBFField():
             attrs={'id': self.div2_id}
         )
 
-
     def hidden_input(self):
         """ HTML for the hidden input element """
         return render_tag(
@@ -462,13 +447,11 @@ class MBFField():
             }
         )
 
-
     def gen_full_js(self):
         """ Generate the full script tag containing the JS code """
         self.create_js()
         self.fill_js()
         self.get_script()
-
 
     def create_js(self):
         """ Generate a template for the whole script to use depending on
@@ -549,7 +532,6 @@ class MBFField():
                     '}} );'
                 )
 
-
     def fill_js(self):
         """ Fill the template with the correct values """
         self.js_script = self.js_script.format(
@@ -571,11 +553,12 @@ class MBFField():
             typ_init_input=self.typeahead_init_input()
         )
 
-
     def get_script(self):
         """ Insert the JS code inside a script tag """
-        self.js_script = render_tag('script', content=mark_safe(self.js_script))
-
+        self.js_script = render_tag(
+            'script',
+            content=mark_safe(self.js_script)
+        )
 
     def del_select(self):
         """ JS code to delete the select if it has been generated and replace
@@ -588,7 +571,6 @@ class MBFField():
             select_id=self.input_id,
             replace_input=self.replace_input
         )
-
 
     def gen_hidden(self):
         """ JS code to add a hidden tag to store the value. """
@@ -605,7 +587,6 @@ class MBFField():
             hidden_id=self.hidden_id,
             html_name=self.bound.html_name
         )
-
 
     def typeahead_init_input(self):
         """ JS code to init the fields values """
@@ -624,7 +605,6 @@ class MBFField():
                 hidden_id=self.hidden_id
             )
 
-
     def typeahead_reset_input(self):
         """ JS code to reset the fields values """
         return (
@@ -634,7 +614,6 @@ class MBFField():
                 input_id=self.input_id,
                 hidden_id=self.hidden_id
             )
-
 
     def typeahead_select(self):
         """ JS code to create the function triggered when an item is selected
@@ -648,7 +627,6 @@ class MBFField():
             ).format(
                 hidden_id=self.hidden_id
             )
-
 
     def typeahead_change(self):
         """ JS code of the function triggered when an item is changed (i.e.
@@ -666,7 +644,6 @@ class MBFField():
                 hidden_id=self.hidden_id
             )
 
-
     def typeahead_updates(self):
         """ JS code for binding external fields changes with a reset """
         reset_input = self.typeahead_reset_input()
@@ -682,7 +659,6 @@ class MBFField():
                 reset_input=reset_input
             ) for u_id in self.update_on]
         return ''.join(updates)
-
 
     def tokenfield_init_input(self):
         """ JS code to init the fields values """
@@ -700,7 +676,6 @@ class MBFField():
                     )
             )
 
-
     def tokenfield_reset_input(self):
         """ JS code to reset the fields values """
         return (
@@ -708,7 +683,6 @@ class MBFField():
             ).format(
                 input_id=self.input_id
             )
-
 
     def tokenfield_create(self):
         """ JS code triggered when a new token is created in tokenfield. """
@@ -739,7 +713,6 @@ class MBFField():
                 div2_id=self.div2_id
             )
 
-
     def tokenfield_edit(self):
         """ JS code triggered when a token is edited in tokenfield. """
         return (
@@ -765,7 +738,6 @@ class MBFField():
                 hidden_id=self.hidden_id
             )
 
-
     def tokenfield_remove(self):
         """ JS code trigggered when a token is removed from tokenfield. """
         return (
@@ -790,7 +762,6 @@ class MBFField():
                 name=self.name,
                 hidden_id=self.hidden_id
             )
-
 
     def tokenfield_updates(self):
         """ JS code for binding external fields changes with a reset """

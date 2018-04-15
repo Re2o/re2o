@@ -144,7 +144,7 @@ def search_single_word(word, filters, user,
         if not User.can_view_all(user)[0]:
             filter_users &= Q(id=user.id)
         filter_clubs = filter_users
-        filter_users |= Q(name__icontains=word)       
+        filter_users |= Q(name__icontains=word)
         filters['users'] |= filter_users
         filters['clubs'] |= filter_clubs
 

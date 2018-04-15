@@ -32,16 +32,18 @@ NewSwitchForm)
 
 from __future__ import unicode_literals
 
+from django import forms
+from django.forms import ModelForm
+from django.db.models import Prefetch
+
 from machines.models import Interface
 from machines.forms import (
-    EditInterfaceForm,
     EditMachineForm,
     NewMachineForm
 )
-from django import forms
-from django.forms import ModelForm, Form
-from django.db.models import Prefetch
-from .models import ( 
+from re2o.mixins import FormRevMixin
+
+from .models import (
     Port,
     Switch,
     Room,
@@ -52,7 +54,7 @@ from .models import (
     SwitchBay,
     Building,
 )
-from re2o.mixins import FormRevMixin
+
 
 class PortForm(FormRevMixin, ModelForm):
     """Formulaire pour la création d'un port d'un switch
@@ -82,32 +84,48 @@ class EditPortForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditPortForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['machine_interface'].queryset = Interface.objects.all()\
-           .select_related('domain__extension')
-        self.fields['related'].queryset = Port.objects.all()\
+        self.fields['machine_interface'].queryset = (
+            Interface.objects.all().select_related('domain__extension')
+        )
+        self.fields['related'].queryset = (
+            Port.objects.all()
             .prefetch_related(Prefetch(
-            'switch__interface_set',
-            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+                'switch__interface_set',
+                queryset=(Interface.objects
+                          .select_related('ipv4__ip_type__extension')
+                          .select_related('domain__extension'))
             ))
+        )
 
 
 class AddPortForm(FormRevMixin, ModelForm):
     """Permet d'ajouter un port de switch. Voir EditPortForm pour plus
     d'informations"""
     class Meta(PortForm.Meta):
-        fields = ['port', 'room', 'machine_interface', 'related',
-                  'radius', 'vlan_force', 'details']
+        fields = [
+            'port',
+            'room',
+            'machine_interface',
+            'related',
+            'radius',
+            'vlan_force',
+            'details'
+        ]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AddPortForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['machine_interface'].queryset = Interface.objects.all()\
-           .select_related('domain__extension')
-        self.fields['related'].queryset = Port.objects.all()\
-            .prefetch_related(Prefetch(
-            'switch__interface_set',
-            queryset=Interface.objects.select_related('ipv4__ip_type__extension').select_related('domain__extension')
+        self.fields['machine_interface'].queryset = (
+            Interface.objects.all().select_related('domain__extension')
+        )
+        self.fields['related'].queryset = (
+            Port.objects.all().prefetch_related(Prefetch(
+                'switch__interface_set',
+                queryset=(Interface.objects
+                          .select_related('ipv4__ip_type__extension')
+                          .select_related('domain__extension'))
             ))
+        )
 
 
 class StackForm(FormRevMixin, ModelForm):
@@ -170,15 +188,22 @@ class CreatePortsForm(forms.Form):
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Permet d'éediter un modèle de switch : nom et constructeur"""
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
- 
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
     class Meta:
         model = ModelSwitch
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditModelSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(EditModelSwitchForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
         instance = kwargs.get('instance', None)
         if instance:
             self.initial['members'] = Switch.objects.filter(model=instance)
@@ -197,13 +222,20 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditConstructorSwitchForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(EditConstructorSwitchForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
 
 
 class EditSwitchBayForm(FormRevMixin, ModelForm):
     """Permet d'éditer une baie de brassage"""
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
- 
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
     class Meta:
         model = SwitchBay
         fields = '__all__'

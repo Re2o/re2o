@@ -19,11 +19,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os, pwd
+import os
+import pwd
 
 from django.core.management.base import BaseCommand, CommandError
 from users.forms import PassForm
 from re2o.script_utils import get_user, get_system_user, form_cli
+
 
 class Command(BaseCommand):
     help = "Changer le mot de passe d'un utilisateur"
@@ -42,6 +44,13 @@ class Command(BaseCommand):
         if not ok:
             raise CommandError(msg)
 
-        self.stdout.write("Changement du mot de passe de %s" % target_user.pseudo)
+        self.stdout.write(
+            "Changement du mot de passe de %s" % target_user.pseudo
+        )
 
-        form_cli(PassForm,current_user,"Changement du mot de passe",instance=target_user)
+        form_cli(
+            PassForm,
+            current_user,
+            "Changement du mot de passe",
+            instance=target_user
+        )

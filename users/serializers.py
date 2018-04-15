@@ -20,19 +20,30 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#Maël Kervella
+# Maël Kervella
+
+"""users.serializers
+Serializers for the User app
+"""
 
 from rest_framework import serializers
 from users.models import Club, Adherent
 
+
 class MailingSerializer(serializers.ModelSerializer):
+    """ Serializer to build Mailing objects """
+
     name = serializers.CharField(source='pseudo')
 
     class Meta:
         model = Club
         fields = ('name',)
 
+
 class MailingMemberSerializer(serializers.ModelSerializer):
+    """ Serializer fot the Adherent objects (who belong to a
+    Mailing) """
+
     class Meta:
         model = Adherent
         fields = ('email',)

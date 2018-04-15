@@ -19,45 +19,56 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""re2o.settings_locale.example
+The example settings_locale.py file with all the available
+options for a locale configuration of re2o
+"""
 
 from __future__ import unicode_literals
 
+# A secret key used by the server.
 SECRET_KEY = 'SUPER_SECRET_KEY'
 
+# The password to access the project database
 DB_PASSWORD = 'SUPER_SECRET_DB'
 
-# AES key for secret key encryption length must be a multiple of 16
-AES_KEY = 'THE_AES_KEY'
+# AES key for secret key encryption.
+# The length must be a multiple of 16
+AES_KEY = 'A_SECRET_AES_KEY'
 
-
+# Should the server run in debug mode ?
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+# A list of admins of the services. Receive mails when an error occurs
 ADMINS = [('Example', 'rezo-admin@example.org')]
 
-SERVER_EMAIL = 'no-reply@example.org'
-
-# Obligatoire, liste des host autorisés
+# The list of hostname the server will respond to.
 ALLOWED_HOSTS = ['URL_SERVER']
 
+# The time zone the server is runned in
+TIME_ZONE = 'Europe/Paris'
+
+# The storage systems parameters to use
 DATABASES = {
-    'default': {
+    'default': {  # The DB
         'ENGINE': 'db_engine',
         'NAME': 'db_name_value',
         'USER': 'db_user_value',
         'PASSWORD': DB_PASSWORD,
         'HOST': 'db_host_value',
     },
-    'ldap': {
+    'ldap': {  # The LDAP
         'ENGINE': 'ldapdb.backends.ldap',
         'NAME': 'ldap://ldap_host_ip/',
         'USER': 'ldap_dn',
-        # 'TLS': True,
+        'TLS': True,
         'PASSWORD': 'SUPER_SECRET_LDAP',
-     }
+    }
 }
 
-# Security settings, à activer une fois https en place
+# Security settings for secure https
+# Activate once https is correctly configured
 SECURE_CONTENT_TYPE_NOSNIFF = False
 SECURE_BROWSER_XSS_FILTER = False
 SESSION_COOKIE_SECURE = False
@@ -66,30 +77,33 @@ CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_AGE = 60 * 60 * 3
 
+# The path where your organization logo is stored
 LOGO_PATH = "static_files/logo.png"
 
-EMAIL_HOST = 'MY_EMAIL_HOST'
-EMAIL_PORT = MY_EMAIL_PORT
+# The mail configuration for Re2o to send mails
+SERVER_EMAIL = 'no-reply@example.org'  # The mail address to use
+EMAIL_HOST = 'MY_EMAIL_HOST'           # The host to use
+EMAIL_PORT = MY_EMAIL_PORT             # The port to use
 
-# Reglages pour la bdd ldap
+# Settings of the LDAP structure
 LDAP = {
-    'base_user_dn' : 'cn=Utilisateurs,dc=example,dc=org',
-    'base_userservice_dn' : 'ou=service-users,dc=example,dc=org',
-    'base_usergroup_dn' : 'ou=posix,ou=groups,dc=example,dc=org',
-    'base_userservicegroup_dn' : 'ou=services,ou=groups,dc=example,dc=org',
-    'user_gid' : 500,
+    'base_user_dn': 'cn=Utilisateurs,dc=example,dc=org',
+    'base_userservice_dn': 'ou=service-users,dc=example,dc=org',
+    'base_usergroup_dn': 'ou=posix,ou=groups,dc=example,dc=org',
+    'base_userservicegroup_dn': 'ou=services,ou=groups,dc=example,dc=org',
+    'user_gid': 500,
     }
 
-
+# A range of UID to use. Used in linux environement
 UID_RANGES = {
-    'users' : [21001,30000],
-    'service-users' : [20000,21000],
+    'users': [21001, 30000],
+    'service-users': [20000, 21000],
 }
 
-# Chaque groupe a un gid assigné, voici la place libre pour assignation
+# A range of GID to use. Used in linux environement
 GID_RANGES = {
-    'posix' : [501, 600],
+    'posix': [501, 600],
 }
 
+# Some Django apps you want to add in you local project
 OPTIONNAL_APPS = ()
-
