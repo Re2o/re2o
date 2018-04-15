@@ -209,3 +209,8 @@ def about_page(request):
             'dependencies': dependencies
         }
     )
+
+
+def handler500(request):
+    """The handler view for a 500 error"""
+    return render(request, 'errors/500.html')
