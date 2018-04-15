@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for service in service_list %}
         <div class="col-12">
             <div class="thumbnail">
-		    <a href="{{ service.url }}"><img src="{{ service.image.url  }}" alt="{{ service.name }}"></a>
+		    <a href="{{ service.url }}"><img src="{% if service.image %}{{ service.image.url  }}{% endif %}" alt="{{ service.name }}"></a>
                     <div class="caption">
                     <h3>{{ service.name }}</h3>
                     <p>{{ service.description }}</p>
