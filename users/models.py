@@ -187,12 +187,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         (2, 'STATE_ARCHIVE'),
     )
 
-    # TODO : Use only one of auto_uid and get_fresh_user_uid
-    @staticmethod
-    def auto_uid():
-        """Renvoie un uid libre"""
-        return get_fresh_user_uid()
-
     surname = models.CharField(max_length=255)
     pseudo = models.CharField(
         max_length=32,
@@ -222,7 +216,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
-    uid_number = models.PositiveIntegerField(default=auto_uid, unique=True)
+    uid_number = models.PositiveIntegerField(
+        default=get_fresh_user_uid,
+        unique=True
+    )
     rezo_rez_uid = models.PositiveIntegerField(
         unique=True,
         blank=True,

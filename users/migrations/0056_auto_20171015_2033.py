@@ -32,6 +32,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='uid_number',
-            field=models.PositiveIntegerField(default=users.models.User.auto_uid, unique=True),
+            field=models.PositiveIntegerField(default=users.models.get_fresh_user_uid, unique=True),
         ),
     ]
