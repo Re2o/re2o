@@ -698,7 +698,7 @@ class Srv(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_soa", "Peut voir un objet soa"),
+            ("view_srv", "Peut voir un objet srv"),
         )
 
     def __str__(self):
