@@ -411,18 +411,18 @@ class Room(AclMixin, RevMixin, models.Model):
 
 
 @receiver(post_save, sender=AccessPoint)
-def ap_post_save(_sender, **_kwargs):
+def ap_post_save(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
 
 
 @receiver(post_delete, sender=AccessPoint)
-def ap_post_delete(_sender, **_kwargs):
+def ap_post_delete(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
 
 
 @receiver(post_delete, sender=Stack)
-def stack_post_delete(_sender, **_kwargs):
+def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)

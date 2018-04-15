@@ -136,7 +136,7 @@ def add_service(request):
 
 @login_required
 @can_edit(Service)
-def edit_service(request, service_instance, _serviceid):
+def edit_service(request, service_instance, **_kwargs):
     """Edition des services affichés sur la page d'accueil"""
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():

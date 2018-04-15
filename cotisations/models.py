@@ -224,7 +224,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
 
 @receiver(post_save, sender=Facture)
-def facture_post_save(_sender, **kwargs):
+def facture_post_save(**kwargs):
     """
     Synchronise the LDAP user after an invoice has been saved.
     """
@@ -234,7 +234,7 @@ def facture_post_save(_sender, **kwargs):
 
 
 @receiver(post_delete, sender=Facture)
-def facture_post_delete(_sender, **kwargs):
+def facture_post_delete(**kwargs):
     """
     Synchronise the LDAP user after an invoice has been deleted.
     """
@@ -416,7 +416,7 @@ class Vente(RevMixin, AclMixin, models.Model):
 
 # TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
-def vente_post_save(_sender, **kwargs):
+def vente_post_save(**kwargs):
     """
     Creates a 'cotisation' related object if needed and synchronise the
     LDAP user when a purchase has been saved.
@@ -434,7 +434,7 @@ def vente_post_save(_sender, **kwargs):
 
 # TODO : change vente to purchase
 @receiver(post_delete, sender=Vente)
-def vente_post_delete(_sender, **kwargs):
+def vente_post_delete(**kwargs):
     """
     Synchronise the LDAP user after a purchase has been deleted.
     """
@@ -683,7 +683,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Cotisation)
-def cotisation_post_save(_sender, **_kwargs):
+def cotisation_post_save(**_kwargs):
     """
     Mark some services as needing a regeneration after the edition of a
     cotisation. Indeed the membership status may have changed.
@@ -695,7 +695,7 @@ def cotisation_post_save(_sender, **_kwargs):
 
 
 @receiver(post_delete, sender=Cotisation)
-def cotisation_post_delete(_sender, **_kwargs):
+def cotisation_post_delete(**_kwargs):
     """
     Mark some services as needing a regeneration after the deletion of a
     cotisation. Indeed the membership status may have changed.

@@ -158,7 +158,7 @@ def new_club(request):
 
 @login_required
 @can_edit(Club)
-def edit_club_admin_members(request, club_instance, _clubid):
+def edit_club_admin_members(request, club_instance, **_kwargs):
     """Vue d'edition de la liste des users administrateurs et
     membres d'un club"""
     club = ClubAdminandMembersForm(
@@ -286,7 +286,7 @@ def password(request, user, userid):
 
 @login_required
 @can_edit(User, 'groups')
-def del_group(request, user, _userid, listrightid):
+def del_group(request, user, listrightid, **_kwargs):
     """ View used to delete a group """
     user.groups.remove(ListRight.objects.get(id=listrightid))
     user.save()
@@ -317,7 +317,7 @@ def new_serviceuser(request):
 
 @login_required
 @can_edit(ServiceUser)
-def edit_serviceuser(request, serviceuser, _serviceuserid):
+def edit_serviceuser(request, serviceuser, **_kwargs):
     """ Edit a ServiceUser """
     serviceuser = EditServiceUserForm(
         request.POST or None,
@@ -340,7 +340,7 @@ def edit_serviceuser(request, serviceuser, _serviceuserid):
 
 @login_required
 @can_delete(ServiceUser)
-def del_serviceuser(request, serviceuser, _serviceuserid):
+def del_serviceuser(request, serviceuser, **_kwargs):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         serviceuser.delete()
@@ -383,7 +383,7 @@ def add_ban(request, user, userid):
 
 @login_required
 @can_edit(Ban)
-def edit_ban(request, ban_instance, _banid):
+def edit_ban(request, ban_instance, **_kwargs):
     """ Editer un bannissement, nécessite au moins le droit bofh
     (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
@@ -434,7 +434,7 @@ def add_whitelist(request, user, userid):
 
 @login_required
 @can_edit(Whitelist)
-def edit_whitelist(request, whitelist_instance, _whitelistid):
+def edit_whitelist(request, whitelist_instance, **_kwargs):
     """ Editer un accès gracieux, temporaire ou permanent.
     Need droit cableur
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
@@ -474,7 +474,7 @@ def add_school(request):
 
 @login_required
 @can_edit(School)
-def edit_school(request, school_instance, _schoolid):
+def edit_school(request, school_instance, **_kwargs):
     """ Editer un établissement d'enseignement à partir du schoolid dans
     la base de donnée, need cableur"""
     school = SchoolForm(request.POST or None, instance=school_instance)
@@ -535,7 +535,7 @@ def add_shell(request):
 
 @login_required
 @can_edit(ListShell)
-def edit_shell(request, shell_instance, _listshellid):
+def edit_shell(request, shell_instance, **_kwargs):
     """ Editer un shell à partir du listshellid"""
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
@@ -552,7 +552,7 @@ def edit_shell(request, shell_instance, _listshellid):
 
 @login_required
 @can_delete(ListShell)
-def del_shell(request, shell, _listshellid):
+def del_shell(request, shell, **_kwargs):
     """Destruction d'un shell"""
     if request.method == "POST":
         shell.delete()
@@ -584,7 +584,7 @@ def add_listright(request):
 
 @login_required
 @can_edit(ListRight)
-def edit_listright(request, listright_instance, _listrightid):
+def edit_listright(request, listright_instance, **_kwargs):
     """ Editer un groupe/droit, necessite droit bureau,
     à partir du listright id """
     listright = ListRightForm(
@@ -798,7 +798,7 @@ def mon_profil(request):
 
 @login_required
 @can_view(User)
-def profil(request, users, _userid):
+def profil(request, users, **_kwargs):
     """ Affiche un profil, self or cableur, prend un userid en argument """
     machines = Machine.objects.filter(user=users).select_related('user')\
         .prefetch_related('interface_set__domain__extension')\

@@ -993,7 +993,7 @@ class Club(User):
 @receiver(post_save, sender=Adherent)
 @receiver(post_save, sender=Club)
 @receiver(post_save, sender=User)
-def user_post_save(_sender, **kwargs):
+def user_post_save(**kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
     Synchronise le ldap"""
     # is_created = kwargs['created']
@@ -1013,7 +1013,7 @@ def user_post_save(_sender, **kwargs):
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
 @receiver(post_delete, sender=User)
-def user_post_delete(_sender, **kwargs):
+def user_post_delete(**kwargs):
     """Post delete d'un user, on supprime son instance ldap"""
     user = kwargs['instance']
     user.ldap_del()
@@ -1100,14 +1100,14 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
 
 
 @receiver(post_save, sender=ServiceUser)
-def service_user_post_save(_sender, **kwargs):
+def service_user_post_save(**kwargs):
     """ Synchronise un service user ldap après modification django"""
     service_user = kwargs['instance']
     service_user.ldap_sync()
 
 
 @receiver(post_delete, sender=ServiceUser)
-def service_user_post_delete(_sender, **kwargs):
+def service_user_post_delete(**kwargs):
     """ Supprime un service user ldap après suppression django"""
     service_user = kwargs['instance']
     service_user.ldap_del()
@@ -1182,14 +1182,14 @@ class ListRight(RevMixin, AclMixin, Group):
 
 
 @receiver(post_save, sender=ListRight)
-def listright_post_save(_sender, **kwargs):
+def listright_post_save(**kwargs):
     """ Synchronise le droit ldap quand il est modifié"""
     right = kwargs['instance']
     right.ldap_sync()
 
 
 @receiver(post_delete, sender=ListRight)
-def listright_post_delete(_sender, **kwargs):
+def listright_post_delete(**kwargs):
     """Suppression d'un groupe ldap après suppression coté django"""
     right = kwargs['instance']
     right.ldap_del()
@@ -1282,7 +1282,7 @@ class Ban(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Ban)
-def ban_post_save(_sender, **kwargs):
+def ban_post_save(**kwargs):
     """ Regeneration de tous les services après modification d'un ban"""
     ban = kwargs['instance']
     is_created = kwargs['created']
@@ -1299,7 +1299,7 @@ def ban_post_save(_sender, **kwargs):
 
 
 @receiver(post_delete, sender=Ban)
-def ban_post_delete(_sender, **kwargs):
+def ban_post_delete(**kwargs):
     """ Regen de tous les services après suppression d'un ban"""
     user = kwargs['instance'].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -1348,7 +1348,7 @@ class Whitelist(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Whitelist)
-def whitelist_post_save(_sender, **kwargs):
+def whitelist_post_save(**kwargs):
     """Après modification d'une whitelist, on synchronise les services
     et on lui permet d'avoir internet"""
     whitelist = kwargs['instance']
@@ -1365,7 +1365,7 @@ def whitelist_post_save(_sender, **kwargs):
 
 
 @receiver(post_delete, sender=Whitelist)
-def whitelist_post_delete(_sender, **kwargs):
+def whitelist_post_delete(**kwargs):
     """Après suppression d'une whitelist, on supprime l'accès internet
     en forçant la régénration"""
     user = kwargs['instance'].user

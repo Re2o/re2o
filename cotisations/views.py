@@ -263,7 +263,7 @@ def new_facture_pdf(request):
 # TODO : change facture to invoice
 @login_required
 @can_view(Facture)
-def facture_pdf(request, facture, _factureid):
+def facture_pdf(request, facture, **_kwargs):
     """
     View used to generate a PDF file from  an existing invoice in database
     Creates a line for each Purchase (thus article sold) and generate the
@@ -306,7 +306,7 @@ def facture_pdf(request, facture, _factureid):
 # TODO : change facture to invoice
 @login_required
 @can_edit(Facture)
-def edit_facture(request, facture, _factureid):
+def edit_facture(request, facture, **_kwargs):
     """
     View used to edit an existing invoice.
     Articles can be added or remove to the invoice and quantity
@@ -347,7 +347,7 @@ def edit_facture(request, facture, _factureid):
 # TODO : change facture to invoice
 @login_required
 @can_delete(Facture)
-def del_facture(request, facture, _factureid):
+def del_facture(request, facture, **_kwargs):
     """
     View used to delete an existing invocie.
     """
@@ -368,7 +368,7 @@ def del_facture(request, facture, _factureid):
 @login_required
 @can_create(Facture)
 @can_edit(User)
-def credit_solde(request, user, _userid):
+def credit_solde(request, user, **_kwargs):
     """
     View used to edit the balance of a user.
     Can be use either to increase or decrease a user's balance.
@@ -425,7 +425,7 @@ def add_article(request):
 
 @login_required
 @can_edit(Article)
-def edit_article(request, article_instance, _articleid):
+def edit_article(request, article_instance, **_kwargs):
     """
     View used to edit an article.
     """
@@ -489,7 +489,7 @@ def add_paiement(request):
 # TODO : chnage paiement to Payment
 @login_required
 @can_edit(Paiement)
-def edit_paiement(request, paiement_instance, _paiementid):
+def edit_paiement(request, paiement_instance, *_kwargs):
     """
     View used to edit a payment method.
     """
@@ -567,7 +567,7 @@ def add_banque(request):
 # TODO : change banque to bank
 @login_required
 @can_edit(Banque)
-def edit_banque(request, banque_instance, _bbanqueid):
+def edit_banque(request, banque_instance, **_kwargs):
     """
     View used to edit a bank.
     """

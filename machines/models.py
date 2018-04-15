@@ -1519,7 +1519,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
 
 
 @receiver(post_save, sender=Machine)
-def machine_post_save(_sender, **kwargs):
+def machine_post_save(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une machine"""
     user = kwargs['instance'].user
@@ -1529,7 +1529,7 @@ def machine_post_save(_sender, **kwargs):
 
 
 @receiver(post_delete, sender=Machine)
-def machine_post_delete(_sender, **kwargs):
+def machine_post_delete(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la suppression
     d'une machine"""
     machine = kwargs['instance']
@@ -1540,7 +1540,7 @@ def machine_post_delete(_sender, **kwargs):
 
 
 @receiver(post_save, sender=Interface)
-def interface_post_save(_sender, **kwargs):
+def interface_post_save(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs['instance']
@@ -1553,7 +1553,7 @@ def interface_post_save(_sender, **kwargs):
 
 
 @receiver(post_delete, sender=Interface)
-def interface_post_delete(_sender, **kwargs):
+def interface_post_delete(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la suppression
     d'une interface"""
     interface = kwargs['instance']
@@ -1562,7 +1562,7 @@ def interface_post_delete(_sender, **kwargs):
 
 
 @receiver(post_save, sender=IpType)
-def iptype_post_save(_sender, **kwargs):
+def iptype_post_save(**kwargs):
     """Generation des objets ip après modification d'un range ip"""
     iptype = kwargs['instance']
     iptype.gen_ip_range()
@@ -1570,7 +1570,7 @@ def iptype_post_save(_sender, **kwargs):
 
 
 @receiver(post_save, sender=MachineType)
-def machinetype_post_save(_sender, **kwargs):
+def machinetype_post_save(**kwargs):
     """Mise à jour des interfaces lorsque changement d'attribution
     d'une machinetype (changement iptype parent)"""
     machinetype = kwargs['instance']
@@ -1579,84 +1579,84 @@ def machinetype_post_save(_sender, **kwargs):
 
 
 @receiver(post_save, sender=Domain)
-def domain_post_save(_sender, **_kwargs):
+def domain_post_save(**_kwargs):
     """Regeneration dns après modification d'un domain object"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Domain)
-def domain_post_delete(_sender, **_kwargs):
+def domain_post_delete(**_kwargs):
     """Regeneration dns après suppression d'un domain object"""
     regen('dns')
 
 
 @receiver(post_save, sender=Extension)
-def extension_post_save(_sender, **_kwargs):
+def extension_post_save(**_kwargs):
     """Regeneration dns après modification d'une extension"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Extension)
-def extension_post_selete(_sender, **_kwargs):
+def extension_post_selete(**_kwargs):
     """Regeneration dns après suppression d'une extension"""
     regen('dns')
 
 
 @receiver(post_save, sender=SOA)
-def soa_post_save(_sender, **_kwargs):
+def soa_post_save(**_kwargs):
     """Regeneration dns après modification d'un SOA"""
     regen('dns')
 
 
 @receiver(post_delete, sender=SOA)
-def soa_post_delete(_sender, **_kwargs):
+def soa_post_delete(**_kwargs):
     """Regeneration dns après suppresson d'un SOA"""
     regen('dns')
 
 
 @receiver(post_save, sender=Mx)
-def mx_post_save(_sender, **_kwargs):
+def mx_post_save(**_kwargs):
     """Regeneration dns après modification d'un MX"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Mx)
-def mx_post_delete(_sender, **_kwargs):
+def mx_post_delete(**_kwargs):
     """Regeneration dns après suppresson d'un MX"""
     regen('dns')
 
 
 @receiver(post_save, sender=Ns)
-def ns_post_save(_sender, **_kwargs):
+def ns_post_save(**_kwargs):
     """Regeneration dns après modification d'un NS"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Ns)
-def ns_post_delete(_sender, **_kwargs):
+def ns_post_delete(**_kwargs):
     """Regeneration dns après modification d'un NS"""
     regen('dns')
 
 
 @receiver(post_save, sender=Txt)
-def text_post_save(_sender, **_kwargs):
+def text_post_save(**_kwargs):
     """Regeneration dns après modification d'un TXT"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Txt)
-def text_post_delete(_sender, **_kwargs):
+def text_post_delete(**_kwargs):
     """Regeneration dns après modification d'un TX"""
     regen('dns')
 
 
 @receiver(post_save, sender=Srv)
-def srv_post_save(_sender, **_kwargs):
+def srv_post_save(**_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
 
 
 @receiver(post_delete, sender=Srv)
-def srv_post_delete(_sender, **_kwargs):
+def srv_post_delete(**_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')

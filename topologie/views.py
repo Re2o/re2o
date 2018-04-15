@@ -296,7 +296,7 @@ def new_port(request, switchid):
 
 @login_required
 @can_edit(Port)
-def edit_port(request, port_object, _portid):
+def edit_port(request, port_object, **_kwargs):
     """ Edition d'un port. Permet de changer le switch parent et
     l'affectation du port"""
 
@@ -322,7 +322,7 @@ def edit_port(request, port_object, _portid):
 
 @login_required
 @can_delete(Port)
-def del_port(request, port, _portid):
+def del_port(request, port, **_kwargs):
     """ Supprime le port"""
     if request.method == "POST":
         try:
@@ -358,7 +358,7 @@ def new_stack(request):
 
 @login_required
 @can_edit(Stack)
-def edit_stack(request, stack, _stackid):
+def edit_stack(request, stack, **_kwargs):
     """Edition d'un stack (nombre de switches, nom...)"""
     stack = StackForm(request.POST or None, instance=stack)
     if stack.is_valid():
@@ -374,7 +374,7 @@ def edit_stack(request, stack, _stackid):
 
 @login_required
 @can_delete(Stack)
-def del_stack(request, stack, _stackid):
+def del_stack(request, stack, **_kwargs):
     """Supprime un stack"""
     if request.method == "POST":
         try:
@@ -392,7 +392,7 @@ def del_stack(request, stack, _stackid):
 
 @login_required
 @can_edit(Stack)
-def edit_switchs_stack(request, stack, _stackid):
+def edit_switchs_stack(request, stack, **_kwargs):
     """Permet d'éditer la liste des switches dans une stack et l'ajouter"""
 
     if request.method == "POST":
@@ -599,7 +599,7 @@ def new_ap(request):
 
 @login_required
 @can_edit(AccessPoint)
-def edit_ap(request, ap, _accesspointid):
+def edit_ap(request, ap, **_kwargs):
     """ Edition d'un switch. Permet de chambre nombre de ports,
     place dans le stack, interface et machine associée"""
     interface_form = EditInterfaceForm(
@@ -668,7 +668,7 @@ def new_room(request):
 
 @login_required
 @can_edit(Room)
-def edit_room(request, room, _roomid):
+def edit_room(request, room, **_kwargs):
     """ Edition numero et details de la chambre"""
     room = EditRoomForm(request.POST or None, instance=room)
     if room.is_valid():
@@ -685,7 +685,7 @@ def edit_room(request, room, _roomid):
 
 @login_required
 @can_delete(Room)
-def del_room(request, room, _roomid):
+def del_room(request, room, **_kwargs):
     """ Suppression d'un chambre"""
     if request.method == "POST":
         try:
@@ -723,7 +723,7 @@ def new_model_switch(request):
 
 @login_required
 @can_edit(ModelSwitch)
-def edit_model_switch(request, model_switch, _modelswitchid):
+def edit_model_switch(request, model_switch, **_kwargs):
     """ Edition d'un modèle de switch"""
 
     model_switch = EditModelSwitchForm(
@@ -744,7 +744,7 @@ def edit_model_switch(request, model_switch, _modelswitchid):
 
 @login_required
 @can_delete(ModelSwitch)
-def del_model_switch(request, model_switch, _modelswitchid):
+def del_model_switch(request, model_switch, **_kwargs):
     """ Suppression d'un modèle de switch"""
     if request.method == "POST":
         try:
@@ -782,7 +782,7 @@ def new_switch_bay(request):
 
 @login_required
 @can_edit(SwitchBay)
-def edit_switch_bay(request, switch_bay, _switchbayid):
+def edit_switch_bay(request, switch_bay, **_kwargs):
     """ Edition d'une baie de switch"""
     switch_bay = EditSwitchBayForm(request.POST or None, instance=switch_bay)
     if switch_bay.is_valid():
@@ -799,7 +799,7 @@ def edit_switch_bay(request, switch_bay, _switchbayid):
 
 @login_required
 @can_delete(SwitchBay)
-def del_switch_bay(request, switch_bay, _switchbayid):
+def del_switch_bay(request, switch_bay, **_kwargs):
     """ Suppression d'une baie de switch"""
     if request.method == "POST":
         try:
@@ -837,7 +837,7 @@ def new_building(request):
 
 @login_required
 @can_edit(Building)
-def edit_building(request, building, _buildingid):
+def edit_building(request, building, **_kwargs):
     """ Edition d'un batiment"""
     building = EditBuildingForm(request.POST or None, instance=building)
     if building.is_valid():
@@ -854,7 +854,7 @@ def edit_building(request, building, _buildingid):
 
 @login_required
 @can_delete(Building)
-def del_building(request, building, _buildingid):
+def del_building(request, building, **_kwargs):
     """ Suppression d'un batiment"""
     if request.method == "POST":
         try:
@@ -892,7 +892,7 @@ def new_constructor_switch(request):
 
 @login_required
 @can_edit(ConstructorSwitch)
-def edit_constructor_switch(request, constructor_switch, _constructorswitchid):
+def edit_constructor_switch(request, constructor_switch, **_kwargs):
     """ Edition d'un constructeur de switch"""
 
     constructor_switch = EditConstructorSwitchForm(
@@ -913,7 +913,7 @@ def edit_constructor_switch(request, constructor_switch, _constructorswitchid):
 
 @login_required
 @can_delete(ConstructorSwitch)
-def del_constructor_switch(request, constructor_switch, _constructorswitchid):
+def del_constructor_switch(request, constructor_switch, **_kwargs):
     """ Suppression d'un constructeur de switch"""
     if request.method == "POST":
         try:

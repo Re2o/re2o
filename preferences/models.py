@@ -118,7 +118,7 @@ class OptionalUser(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalUser)
-def optionaluser_post_save(_sender, **kwargs):
+def optionaluser_post_save(**kwargs):
     """Ecriture dans le cache"""
     user_pref = kwargs['instance']
     user_pref.set_in_cache()
@@ -163,7 +163,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalMachine)
-def optionalmachine_post_save(_sender, **kwargs):
+def optionalmachine_post_save(**kwargs):
     """Synchronisation ipv6 et ecriture dans le cache"""
     machine_pref = kwargs['instance']
     machine_pref.set_in_cache()
@@ -211,7 +211,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=OptionalTopologie)
-def optionaltopologie_post_save(_sender, **kwargs):
+def optionaltopologie_post_save(**kwargs):
     """Ecriture dans le cache"""
     topologie_pref = kwargs['instance']
     topologie_pref.set_in_cache()
@@ -251,7 +251,7 @@ class GeneralOption(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=GeneralOption)
-def generaloption_post_save(_sender, **kwargs):
+def generaloption_post_save(**kwargs):
     """Ecriture dans le cache"""
     general_pref = kwargs['instance']
     general_pref.set_in_cache()
@@ -325,7 +325,7 @@ class AssoOption(AclMixin, PreferencesModel):
 
 
 @receiver(post_save, sender=AssoOption)
-def assooption_post_save(_sender, **kwargs):
+def assooption_post_save(**kwargs):
     """Ecriture dans le cache"""
     asso_pref = kwargs['instance']
     asso_pref.set_in_cache()

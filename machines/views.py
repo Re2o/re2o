@@ -220,7 +220,7 @@ def generate_ipv4_mbf_param(form_obj, is_type_tt):
 @login_required
 @can_create(Machine)
 @can_edit(User)
-def new_machine(request, user, _userid):
+def new_machine(request, user, **_kwargs):
     """ Fonction de creation d'une machine. Cree l'objet machine,
     le sous objet interface et l'objet domain à partir de model forms.
     Trop complexe, devrait être simplifié"""
@@ -264,7 +264,7 @@ def new_machine(request, user, _userid):
 
 @login_required
 @can_edit(Interface)
-def edit_interface(request, interface_instance, _interfaceid):
+def edit_interface(request, interface_instance, **_kwargs):
     """ Edition d'une interface. Distingue suivant les droits les valeurs
     de interfaces et machines que l'user peut modifier infra permet de
     modifier le propriétaire"""
@@ -316,7 +316,7 @@ def edit_interface(request, interface_instance, _interfaceid):
 
 @login_required
 @can_delete(Machine)
-def del_machine(request, machine, _machineid):
+def del_machine(request, machine, **_kwargs):
     """ Supprime une machine, interfaces en mode cascade"""
     if request.method == "POST":
         machine.delete()
@@ -335,7 +335,7 @@ def del_machine(request, machine, _machineid):
 @login_required
 @can_create(Interface)
 @can_edit(Machine)
-def new_interface(request, machine, _machineid):
+def new_interface(request, machine, **_kwargs):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
     interface_form = AddInterfaceForm(request.POST or None, user=request.user)
@@ -369,7 +369,7 @@ def new_interface(request, machine, _machineid):
 
 @login_required
 @can_delete(Interface)
-def del_interface(request, interface, _interfaceid):
+def del_interface(request, interface, **_kwargs):
     """ Supprime une interface. Domain objet en mode cascade"""
     if request.method == "POST":
         machine = interface.machine
@@ -391,7 +391,7 @@ def del_interface(request, interface, _interfaceid):
 @login_required
 @can_create(Ipv6List)
 @can_edit(Interface)
-def new_ipv6list(request, interface, _interfaceid):
+def new_ipv6list(request, interface, **_kwargs):
     """Nouvelle ipv6"""
     ipv6list_instance = Ipv6List(interface=interface)
     ipv6 = Ipv6ListForm(
@@ -415,7 +415,7 @@ def new_ipv6list(request, interface, _interfaceid):
 
 @login_required
 @can_edit(Ipv6List)
-def edit_ipv6list(request, ipv6list_instance, _ipv6listid):
+def edit_ipv6list(request, ipv6list_instance, **_kwargs):
     """Edition d'une ipv6"""
     ipv6 = Ipv6ListForm(
         request.POST or None,
@@ -439,7 +439,7 @@ def edit_ipv6list(request, ipv6list_instance, _ipv6listid):
 
 @login_required
 @can_delete(Ipv6List)
-def del_ipv6list(request, ipv6list, _ipv6listid):
+def del_ipv6list(request, ipv6list, **_kwargs):
     """ Supprime une ipv6"""
     if request.method == "POST":
         interfaceid = ipv6list.interface.id
@@ -476,7 +476,7 @@ def add_iptype(request):
 
 @login_required
 @can_edit(IpType)
-def edit_iptype(request, iptype_instance, _iptypeid):
+def edit_iptype(request, iptype_instance, **_kwargs):
     """ Edition d'un range. Ne permet pas de le redimensionner pour éviter
     l'incohérence"""
 
@@ -536,7 +536,7 @@ def add_machinetype(request):
 
 @login_required
 @can_edit(MachineType)
-def edit_machinetype(request, machinetype_instance, _machinetypeid):
+def edit_machinetype(request, machinetype_instance, **_kwargs):
     """ View used to edit a MachineType object """
     machinetype = MachineTypeForm(
         request.POST or None,
@@ -598,7 +598,7 @@ def add_extension(request):
 
 @login_required
 @can_edit(Extension)
-def edit_extension(request, extension_instance, _extensionid):
+def edit_extension(request, extension_instance, **_kwargs):
     """ View used to edit an Extension object """
     extension = ExtensionForm(
         request.POST or None,
@@ -660,7 +660,7 @@ def add_soa(request):
 
 @login_required
 @can_edit(SOA)
-def edit_soa(request, soa_instance, _soaid):
+def edit_soa(request, soa_instance, **_kwargs):
     """ View used to edit a SOA object """
     soa = SOAForm(request.POST or None, instance=soa_instance)
     if soa.is_valid():
@@ -718,7 +718,7 @@ def add_mx(request):
 
 @login_required
 @can_edit(Mx)
-def edit_mx(request, mx_instance, _mxid):
+def edit_mx(request, mx_instance, **_kwargs):
     """ View used to edit a MX object """
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
@@ -776,7 +776,7 @@ def add_ns(request):
 
 @login_required
 @can_edit(Ns)
-def edit_ns(request, ns_instance, _nsid):
+def edit_ns(request, ns_instance, **_kwargs):
     """ View used to edit a NS object """
     ns = NsForm(request.POST or None, instance=ns_instance)
     if ns.is_valid():
@@ -834,7 +834,7 @@ def add_txt(request):
 
 @login_required
 @can_edit(Txt)
-def edit_txt(request, txt_instance, _txtid):
+def edit_txt(request, txt_instance, **_kwargs):
     """ View used to edit a TXT object """
     txt = TxtForm(request.POST or None, instance=txt_instance)
     if txt.is_valid():
@@ -892,7 +892,7 @@ def add_srv(request):
 
 @login_required
 @can_edit(Srv)
-def edit_srv(request, srv_instance, _srvid):
+def edit_srv(request, srv_instance, **_kwargs):
     """ View used to edit a SRV object """
     srv = SrvForm(request.POST or None, instance=srv_instance)
     if srv.is_valid():
@@ -956,7 +956,7 @@ def add_alias(request, interface, interfaceid):
 
 @login_required
 @can_edit(Domain)
-def edit_alias(request, domain_instance, _domainid):
+def edit_alias(request, domain_instance, **_kwargs):
     """ View used to edit an Alias object """
     alias = AliasForm(
         request.POST or None,
@@ -1029,7 +1029,7 @@ def add_service(request):
 
 @login_required
 @can_edit(Service)
-def edit_service(request, service_instance, _serviceid):
+def edit_service(request, service_instance, **_kwargs):
     """ View used to edit a Service object """
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
@@ -1087,7 +1087,7 @@ def add_vlan(request):
 
 @login_required
 @can_edit(Vlan)
-def edit_vlan(request, vlan_instance, _vlanid):
+def edit_vlan(request, vlan_instance, **_kwargs):
     """ View used to edit a VLAN object """
     vlan = VlanForm(request.POST or None, instance=vlan_instance)
     if vlan.is_valid():
@@ -1145,7 +1145,7 @@ def add_nas(request):
 
 @login_required
 @can_edit(Nas)
-def edit_nas(request, nas_instance, _nasid):
+def edit_nas(request, nas_instance, **_kwargs):
     """ View used to edit a NAS object """
     nas = NasForm(request.POST or None, instance=nas_instance)
     if nas.is_valid():
@@ -1378,7 +1378,7 @@ def index_portlist(request):
 
 @login_required
 @can_edit(OuverturePortList)
-def edit_portlist(request, ouvertureportlist_instance, _ouvertureportlistid):
+def edit_portlist(request, ouvertureportlist_instance, **_kwargs):
     """ View used to edit a port policy """
     port_list = EditOuverturePortListForm(
         request.POST or None,
@@ -1417,7 +1417,7 @@ def edit_portlist(request, ouvertureportlist_instance, _ouvertureportlistid):
 
 @login_required
 @can_delete(OuverturePortList)
-def del_portlist(request, port_list_instance, _ouvertureportlistid):
+def del_portlist(request, port_list_instance, **_kwargs):
     """ View used to delete a port policy """
     port_list_instance.delete()
     messages.success(request, "La liste de ports a été supprimée")
@@ -1457,7 +1457,7 @@ def add_portlist(request):
 @login_required
 @can_create(OuverturePort)
 @can_edit(Interface)
-def configure_ports(request, interface_instance, _interfaceid):
+def configure_ports(request, interface_instance, **_kwargs):
     """ View to display the list of configured port policy for an
     interface """
     if not interface_instance.may_have_port_open():
