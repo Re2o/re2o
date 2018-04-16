@@ -814,6 +814,7 @@ def profil(request, users, **_kwargs):
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'
     )
+    nb_machines = machines.count()
     machines = re2o_paginator(request, machines, pagination_large_number)
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
@@ -844,6 +845,7 @@ def profil(request, users, **_kwargs):
         {
             'users': users,
             'machines_list': machines,
+            'nb_machines' : nb_machines,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,
