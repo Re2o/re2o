@@ -768,10 +768,14 @@ def index_listright(request):
     """ Affiche l'ensemble des droits"""
     listright_list = ListRight.objects.order_by('unix_name')\
         .prefetch_related('permissions').prefetch_related('user_set')
+    superuser_right = User.objects.filter(is_superuser=True)
     return render(
         request,
         'users/index_listright.html',
-        {'listright_list': listright_list}
+        {
+            'listright_list': listright_list,
+            'superuser_right' : superuser_right,
+        }
     )
 
 
