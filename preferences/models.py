@@ -331,6 +331,40 @@ def assooption_post_save(**kwargs):
     asso_pref.set_in_cache()
 
 
+class AccueilOption(AclMixin, PreferencesModel):
+    """Reglages de la page d'accueil"""
+    PRETTY_NAME = "Options de la page d'accueil"
+
+    facebook_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text="Url du compte facebook"
+    )
+    twitter_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text="Url du compte twitter"
+    )
+    twitter_account_name = models.CharField(
+        max_length=32,
+        null=True,
+        blank=True,
+        help_text="Nom du compte à afficher"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_accueiloption", "Peut voir les options de l'accueil"),
+        )
+
+
+@receiver(post_save, sender=AccueilOption)
+def accueiloption_post_save(**kwargs):
+    """Ecriture dans le cache"""
+    accueil_pref = kwargs['instance']
+    accueil_pref.set_in_cache()
+
+
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
     PRETTY_NAME = "Options de corps de mail"
