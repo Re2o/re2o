@@ -51,7 +51,7 @@ from .models import (
     MailMessageOption,
     GeneralOption,
     OptionalTopologie,
-    AccueilOption
+    HomeOption
 )
 from . import models
 from . import forms
@@ -64,7 +64,7 @@ from . import forms
 @can_view_all(GeneralOption)
 @can_view_all(AssoOption)
 @can_view_all(MailMessageOption)
-@can_view_all(AccueilOption)
+@can_view_all(HomeOption)
 def display_options(request):
     """Vue pour affichage des options (en vrac) classé selon les models
     correspondants dans un tableau"""
@@ -73,7 +73,7 @@ def display_options(request):
     topologieoptions, _created = OptionalTopologie.objects.get_or_create()
     generaloptions, _created = GeneralOption.objects.get_or_create()
     assooptions, _created = AssoOption.objects.get_or_create()
-    accueiloptions, _created = AccueilOption.objects.get_or_create()
+    homeoptions, _created = HomeOption.objects.get_or_create()
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
     return form({
@@ -82,7 +82,7 @@ def display_options(request):
         'topologieoptions': topologieoptions,
         'generaloptions': generaloptions,
         'assooptions': assooptions,
-        'accueiloptions': accueiloptions,
+        'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
         'service_list': service_list
         }, 'preferences/display_preferences.html', request)

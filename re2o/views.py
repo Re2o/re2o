@@ -45,7 +45,7 @@ from preferences.models import (
     Service,
     GeneralOption,
     AssoOption,
-    AccueilOption
+    HomeOption
 )
 import users
 import cotisations
@@ -68,9 +68,9 @@ def index(request):
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)
-    twitter_url = AccueilOption.get_cached_value('twitter_url')
-    facebook_url = AccueilOption.get_cached_value('facebook_url')
-    twitter_account_name = AccueilOption.get_cached_value('twitter_account_name')
+    twitter_url = HomeOption.get_cached_value('twitter_url')
+    facebook_url = HomeOption.get_cached_value('facebook_url')
+    twitter_account_name = HomeOption.get_cached_value('twitter_account_name')
     asso_name = AssoOption.get_cached_value('pseudo')
     return form({
          'services_urls': services,

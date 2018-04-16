@@ -331,8 +331,8 @@ def assooption_post_save(**kwargs):
     asso_pref.set_in_cache()
 
 
-class AccueilOption(AclMixin, PreferencesModel):
-    """Reglages de la page d'accueil"""
+class HomeOption(AclMixin, PreferencesModel):
+    """Settings of the home page (facebook/twitter etc)"""
     PRETTY_NAME = "Options de la page d'accueil"
 
     facebook_url = models.URLField(
@@ -354,15 +354,15 @@ class AccueilOption(AclMixin, PreferencesModel):
 
     class Meta:
         permissions = (
-            ("view_accueiloption", "Peut voir les options de l'accueil"),
+            ("view_homeoption", "Peut voir les options de l'accueil"),
         )
 
 
-@receiver(post_save, sender=AccueilOption)
-def accueiloption_post_save(**kwargs):
+@receiver(post_save, sender=HomeOption)
+def homeoption_post_save(**kwargs):
     """Ecriture dans le cache"""
-    accueil_pref = kwargs['instance']
-    accueil_pref.set_in_cache()
+    home_pref = kwargs['instance']
+    home_pref.set_in_cache()
 
 
 class MailMessageOption(AclMixin, models.Model):
