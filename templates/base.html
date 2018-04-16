@@ -118,7 +118,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </li>
                             {% acl_end %}
                             <li>
-				    <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a>
+                                <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a>
                             </li>
                             {% if not request.user.is_authenticated %}
                             {% if var_sa %}
@@ -145,48 +145,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </div>
                                 </form>
                             </li>
-			    {% endif %}
-                        </ul>
-                        </ul>
-			{% comment %}
-                        <div class="navbar-right">
-                            <form action="{% url "search:search"%}" class="navbar-form" role="search">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                                        <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <ul class="nav navbar-nav navbar-right">
-                                {% if not request.user.is_authenticated %}
-                                {% if var_sa %}
-                                <li>
-                                    <a href="{% url 'users:new-user' %}">
-                                    <i class="fa fa-user-plus"></i> Créer un compte
-                                </a>
-                                </li>
-                                {% endif %}
-                                <li>
-                                <a href="{% url 'login' %}">
-                                    <i class="fa fa-sign-in-alt"></i> Login
-                                </a>
-                                </li>
-                                {% endif %}
-                            {% can_view_app preferences %}
+                            {% endif %}
                             <li>
-                                <a href="{% url 'preferences:display-options' %}">
-                                    <i class="fa fa-cogs"></i> Preferences
-                                </a>
-                            </li>
-                            {% acl_end %}
-                            <li>
-                                <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> A propos</a>
+                                {% include 'buttons/setlang.html' %}
                             </li>
                         </ul>
-			{% endcomment %}
                     </div>
                 </div>
             </nav>

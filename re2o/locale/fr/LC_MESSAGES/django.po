@@ -30,6 +30,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: settings.py:140
+msgid "English"
+msgstr "Anglais"
+
+#: settings.py:141
+msgid "French"
+msgstr "Français"
+
 #: templates/re2o/about.html:29 templates/re2o/about.html:35
 msgid "About Re2o"
 msgstr "A propos de Re2o"
