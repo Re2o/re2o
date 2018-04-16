@@ -352,6 +352,7 @@ def new_stack(request):
     if stack.is_valid():
         stack.save()
         messages.success(request, "Stack crée")
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'topoform': stack, 'action_name': 'Créer'},
         'topologie/topo.html',
@@ -367,7 +368,7 @@ def edit_stack(request, stack, **_kwargs):
     if stack.is_valid():
         if stack.changed_data:
             stack.save()
-            return redirect(reverse('topologie:index-physical-grouping'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'topoform': stack, 'action_name': 'Editer'},
         'topologie/topo.html',
