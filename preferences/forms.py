@@ -34,7 +34,7 @@ from .models import (
     GeneralOption,
     AssoOption,
     MailMessageOption,
-    AccueilOption,
+    HomeOption,
     Service
 )
 
@@ -192,15 +192,15 @@ class EditMailMessageOptionForm(ModelForm):
         mail de bienvenue en anglais'
 
 
-class EditAccueilOptionForm(ModelForm):
-    """Formulaire d'édition des options de la page d'accueil"""
+class EditHomeOptionForm(ModelForm):
+    """Edition forms of Home options"""
     class Meta:
-        model = AccueilOption
+        model = HomeOption
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(EditAccueilOptionForm, self).__init__(
+        super(EditHomeOptionForm, self).__init__(
             *args,
             prefix=prefix,
             **kwargs

@@ -58,7 +58,7 @@ urlpatterns = [
         name='edit-options'
         ),
     url(
-        r'^edit_options/(?P<section>AccueilOption)$',
+        r'^edit_options/(?P<section>HomeOption)$',
         views.edit_options,
         name='edit-options'
         ),

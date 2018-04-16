@@ -28,8 +28,16 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import OptionalUser, OptionalMachine, OptionalTopologie
-from .models import GeneralOption, Service, AssoOption, MailMessageOption
+from .models import (
+    OptionalUser,
+    OptionalMachine,
+    OptionalTopologie,
+    GeneralOption,
+    Service,
+    AssoOption,
+    MailMessageOption,
+    HomeOption
+)
 
 
 class OptionalUserAdmin(VersionAdmin):
@@ -67,10 +75,16 @@ class MailMessageOptionAdmin(VersionAdmin):
     pass
 
 
+class HomeOptionAdmin(VersionAdmin):
+    """Class admin options home"""
+    pass
+
+
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
 admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
 admin.site.register(GeneralOption, GeneralOptionAdmin)
+admin.site.register(HomeOption, HomeOptionAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)
