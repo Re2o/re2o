@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
     <h2>{% blocktrans %}About {{AssoName}}{% endblocktrans %}</h2>
-    {{ description }}
+    {{ description | safe }}
 
     <h2>{% trans "About Re2o" %}</h2>
     <p>{% blocktrans %}
