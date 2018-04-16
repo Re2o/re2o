@@ -27,9 +27,16 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
-from .models import OptionalUser, OptionalMachine, OptionalTopologie
-from .models import GeneralOption, AssoOption, MailMessageOption, Service
-
+from .models import (
+    OptionalUser,
+    OptionalMachine,
+    OptionalTopologie,
+    GeneralOption,
+    AssoOption,
+    MailMessageOption,
+    AccueilOption,
+    Service
+)
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -183,6 +190,21 @@ class EditMailMessageOptionForm(ModelForm):
         mail de bienvenue en français'
         self.fields['welcome_mail_en'].label = 'Message dans le\
         mail de bienvenue en anglais'
+
+
+class EditAccueilOptionForm(ModelForm):
+    """Formulaire d'édition des options de la page d'accueil"""
+    class Meta:
+        model = AccueilOption
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditAccueilOptionForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
 
 
 class ServiceForm(ModelForm):

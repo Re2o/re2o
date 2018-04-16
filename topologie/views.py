@@ -42,6 +42,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from users.views import form
 from re2o.utils import re2o_paginator, SortTable
@@ -87,6 +88,8 @@ from .forms import (
     EditSwitchBayForm,
     EditBuildingForm
 )
+
+from subprocess import Popen,PIPE
 
 
 @login_required
@@ -349,6 +352,7 @@ def new_stack(request):
     if stack.is_valid():
         stack.save()
         messages.success(request, "Stack crée")
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'topoform': stack, 'action_name': 'Créer'},
         'topologie/topo.html',
@@ -364,7 +368,7 @@ def edit_stack(request, stack, **_kwargs):
     if stack.is_valid():
         if stack.changed_data:
             stack.save()
-            return redirect(reverse('topologie:index-physical-grouping'))
+        return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'topoform': stack, 'action_name': 'Editer'},
         'topologie/topo.html',
@@ -926,8 +930,103 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
                  "de la supprimer (switch ou user)" % constructor_switch)
             )
         return redirect(reverse('topologie:index-model-switch'))
-    return form(
-        {'objet': constructor_switch, 'objet_name': 'Constructeur de switch'},
-        'topologie/delete.html',
-        request
-    )
+    return form({
+        'objet': constructor_switch,
+        'objet_name': 'Constructeur de switch'
+        }, 'topologie/delete.html', request)
+
+
+def make_machine_graph():
+    """
+    Crée le fichier dot et l'image du graph des Switchs
+    """
+    #Syntaxe DOT temporaire, A mettre dans un template:
+    lignes=['''digraph Switchs {
+node [
+fontname=Helvetica
+fontsize=8
+shape=plaintext]
+edge[arrowhead=odot,arrowtail=dot]''']
+    node_fixe='''node [label=<
+<TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+<TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+<FONT FACE="Helvetica Bold" COLOR="white">
+{}
+</FONT></TD></TR>
+<TR><TD ALIGN="LEFT" BORDER="0">
+<FONT COLOR="#7B7B7B" >{}</FONT>
+</TD>
+<TD ALIGN="LEFT">
+<FONT COLOR="#7B7B7B" >{}</FONT> 
+</TD></TR>
+<TR><TD ALIGN="LEFT" BORDER="0">
+<FONT COLOR="#7B7B7B" >{}</FONT>
+</TD>
+<TD ALIGN="LEFT">
+<FONT>{}</FONT>
+</TD></TR>'''
+    node_ports='''<TR><TD ALIGN="LEFT" BORDER="0">
+<FONT COLOR="#7B7B7B" >{}</FONT>
+</TD>
+<TD ALIGN="LEFT">
+<FONT>{}</FONT>
+</TD></TR>'''
+    cluster='''subgraph cluster_{} {{
+color=blue;
+label="Batiment {}";'''
+    end_table='''</TABLE>
+>] \"{}_{}\" ;'''
+    switch_alone='''{} [label=<
+<TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+<TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+<FONT FACE="Helvetica Bold" COLOR="white">
+{}
+</FONT></TD></TR>
+</TABLE>
+>]'''
+    missing=[]
+    detected=[]
+    for sw in Switch.objects.all():
+        if(sw not in detected):
+            missing.append(sw)
+    for building in Building.objects.all():
+        lignes.append(cluster.format(len(lignes),building))
+        for switch in Switch.objects.filter(switchbay__building=building):
+            lignes.append(node_fixe.format(switch.main_interface().domain.name,"Modèle",switch.model,"Nombre de ports",switch.number))
+            for p in switch.ports.all().filter(related__isnull=False):
+                lignes.append(node_ports.format(p.port,p.related.switch.main_interface().domain.name))
+            lignes.append(end_table.format(building.id,switch.id))
+        lignes.append("}")
+    while(missing!=[]):
+        lignes,new_detected=recursive_switchs(missing[0].ports.all().filter(related=None).first(),None,lignes,[missing[0]])
+        missing=[i for i in missing if i not in new_detected]
+        detected+=new_detected
+    for switch in Switch.objects.all().filter(switchbay__isnull=True).exclude(ports__related__isnull=False):
+        lignes.append(switch_alone.format(switch.id,switch.main_interface().domain.name))
+    lignes.append("}")
+    fichier = open("media/images/switchs.dot","w")
+    for ligne in lignes:
+        fichier.write(ligne+"\n")
+    fichier.close()
+    unflatten = Popen(["unflatten","-l", "3", "media/images/switchs.dot"], stdout=PIPE)
+    image = Popen(["dot", "-Tpng", "-o", "media/images/switchs.png"], stdin=unflatten.stdout, stdout=PIPE)
+
+
+def recursive_switchs(port_start, switch_before, lignes,detected):
+    """
+    Parcour récursivement le switchs auquel appartient port_start pour trouver les ports suivants liés
+    """
+    l_ports=port_start.switch.ports.filter(related__isnull=False)
+    for port in l_ports:
+        if port.related.switch!=switch_before and port.related.switch!=port.switch:
+            links=[]
+            for sw in [switch for switch in [port_start.switch,port.related.switch]]:
+                if(sw not in detected):
+                    detected.append(sw)
+                if(sw.switchbay.building):
+                    links.append("\"{}_{}\"".format(sw.switchbay.building.id,sw.id))
+                else:
+                    links.append("\"{}\"".format(sw.id))
+            lignes.append(links[0]+" -> "+links[1])
+            lignes, detected = recursive_switchs(port.related, port_start.switch, lignes, detected)
+    return (lignes, detected)

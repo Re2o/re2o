@@ -29,7 +29,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Switchs{% endblock %}
 
 {% block content %}
-  <h2>Switchs</h2>
+<img id="zoom_01" src="/media/images/switchs.png" data-zoom-image="/media/images/switchs.png" width=100% />
+
+<script type="text/javascript" src="/static/js/jquery.ez-plus.js"></script>
+
+<script>
+$("#zoom_01").ezPlus({
+    scrollZoom: true,
+    zoomType: 'inner',
+    cursor: 'crosshair'
+});
+</script>
+
+<h2>Switchs</h2>
 {% can_create Switch %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i> Ajouter un switch</a>
 <hr>
@@ -38,4 +50,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <br />
     <br />
     <br />
+
+
 {% endblock %}

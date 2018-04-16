@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
        <td>{{switch_bay.name}}</td>
        <td>{{switch_bay.building}}</td>
        <td>{{switch_bay.info}}</td>
-       <td>{{switch_bay.switch_set.all |join:", "}}</td>
+       <td>{% for switch in switch_bay.switch_set.all %}<a href="{% url 'topologie:index-port' switch.pk %}">{{switch }} </a>{% endfor %}</td>
        <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'switchbay' switch_bay.pk %}">
                 <i class="fa fa-history"></i>

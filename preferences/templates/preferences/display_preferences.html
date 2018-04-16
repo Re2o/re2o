@@ -211,12 +211,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ mailmessageoptions.welcome_mail_en | safe }}</td>
         </tr>
     </table>
-  <h2>Liste des services page d'accueil</h2>
+  <h2>Liste des services et préférences page d'accueil</h2>
   {% can_create preferences.Service%}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
   {% acl_end %}
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
+
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AccueilOption' %}">
+            <i class="fa fa-edit"></i>
+            Editer
+        </a>
+    <p>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Url du compte twitter</th>
+            <td>{{ accueiloptions.twitter_url }}</td>
+            <th>Nom utilisé pour afficher le compte</th>
+            <td>{{ accueiloptions.twitter_account_name }}</td>
+        </tr>
+        <tr>
+            <th>Url du compte facebook</th>
+            <td>{{ accueiloptions.facebook_url }}</td>
+        </tr>
+    </table>
   <br />
   <br />
   <br />

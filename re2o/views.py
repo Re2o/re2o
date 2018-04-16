@@ -41,7 +41,12 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 
 import preferences
-from preferences.models import Service, GeneralOption, AssoOption
+from preferences.models import (
+    Service,
+    GeneralOption,
+    AssoOption,
+    AccueilOption
+)
 import users
 import cotisations
 import topologie
@@ -63,7 +68,17 @@ def index(request):
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)
-    return form({'services_urls': services}, 're2o/index.html', request)
+    twitter_url = AccueilOption.get_cached_value('twitter_url')
+    facebook_url = AccueilOption.get_cached_value('facebook_url')
+    twitter_account_name = AccueilOption.get_cached_value('twitter_account_name')
+    asso_name = AssoOption.get_cached_value('pseudo')
+    return form({
+         'services_urls': services,
+         'twitter_url': twitter_url,
+         'twitter_account_name' : twitter_account_name,
+         'facebook_url': facebook_url,
+         'asso_name': asso_name
+         }, 're2o/index.html', request)
 
 
 #: Binding the corresponding char sequence of history url to re2o models.

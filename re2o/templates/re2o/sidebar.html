@@ -25,4 +25,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 {% block sidebar %}
+
+{% if facebook_url %}
+<div class="fb-page" data-href="{{ facebook_url }}" data-tabs="timeline" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="false"><blockquote cite="{{ facebook_url }}" class="fb-xfbml-parse-ignore"><a href="{{ facebook_url }}">{{ asso_name }}</a></blockquote></div>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v2.12';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<hr>
+
+{% endif %}
+
+{% if twitter_url %}
+<a class="twitter-timeline" data-lang="fr" data-height="500" href="{{ twitter_url }}?ref_src=twsrc%5Etfw">Tweets de @{{ twitter_account_name }}</a>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<a href="{{ twitter_url }}?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false"> Suivre @{{ twitter_account_name }}</a>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% endif %}
+
 {% endblock %}
+
