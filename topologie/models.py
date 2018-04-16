@@ -121,25 +121,33 @@ class Switch(AclMixin, Machine):
     id_max de la stack parente"""
     PRETTY_NAME = "Switch / Commutateur"
 
-    number = models.PositiveIntegerField()
+    number = models.PositiveIntegerField(
+        help_text="Nombre de ports"
+    )
     stack = models.ForeignKey(
         'topologie.Stack',
         blank=True,
         null=True,
         on_delete=models.SET_NULL
         )
-    stack_member_id = models.PositiveIntegerField(blank=True, null=True)
+    stack_member_id = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="Baie de brassage du switch"
+    )
     model = models.ForeignKey(
         'topologie.ModelSwitch',
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text="Modèle du switch"
     )
     switchbay = models.ForeignKey(
         'topologie.SwitchBay',
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text="Baie de brassage du switch"
     )
 
     class Meta:
