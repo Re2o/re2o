@@ -218,7 +218,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AccueilOption' %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>
             Editer
         </a>
@@ -227,13 +227,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <tr>
             <th>Url du compte twitter</th>
-            <td>{{ accueiloptions.twitter_url }}</td>
+            <td>{{ homeoptions.twitter_url }}</td>
             <th>Nom utilisé pour afficher le compte</th>
-            <td>{{ accueiloptions.twitter_account_name }}</td>
+            <td>{{ homeoptions.twitter_account_name }}</td>
         </tr>
         <tr>
             <th>Url du compte facebook</th>
-            <td>{{ accueiloptions.facebook_url }}</td>
+            <td>{{ homeoptions.facebook_url }}</td>
         </tr>
     </table>
   <br />
