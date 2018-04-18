@@ -38,12 +38,6 @@ node [label=<
 <TD ALIGN="LEFT">
 <FONT>{{ switch.nombre }}</FONT>
 </TD></TR>
-<TR><TD ALIGN="LEFT" BORDER="0">
-<FONT COLOR="#7B7B7B" >21</FONT>
-</TD>
-<TD ALIGN="LEFT">
-<FONT>bata-2</FONT>
-</TD></TR>
 {% block liens %}
 {% for port in switch.ports %}
 <TR><TD ALIGN="LEFT" BORDER="0">
