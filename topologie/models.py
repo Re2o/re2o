@@ -103,6 +103,23 @@ class AccessPoint(AclMixin, Machine):
             ("view_accesspoint", "Peut voir une borne"),
         )
 
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+            )
+
+    def building(self):
+        """Return the building of the AP (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+            )
+
+    @classmethod
+    def all_ap_in(cls, building_instance):
+        """Get a building as argument, returns all ap of a building"""
+        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance)
+
     def __str__(self):
         return str(self.interface_set.first())
 
