@@ -41,6 +41,7 @@ import itertools
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
+from django.utils.functional import cached_property
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -123,6 +124,9 @@ class AccessPoint(AclMixin, Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
 
 class Switch(AclMixin, Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
