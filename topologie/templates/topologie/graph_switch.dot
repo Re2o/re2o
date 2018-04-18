@@ -11,6 +11,13 @@ edge[arrowhead=odot,arrowtail=dot]
 {% for sub in subs %}
 subgraph cluster_{{ sub.bat_id }} {
 label="Batiment {{ sub.bat_name }}";
+
+{% block bornes %}
+{% for borne in sub.bornes %}
+node[label="{{borne.name}}"] {{borne.id}};
+{% endfor %}
+{% endblock %}
+
 {% block switchs %}
 {% for switch in sub.switchs %}
 node [label=<

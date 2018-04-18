@@ -944,21 +944,31 @@ def make_machine_graph():
     """
     Crée le fichier dot et l'image du graph des Switchs
     """
-    dico={'subs':[],'links':[],'alone':[]}
+    dico={'subs':[],'links':[],'alone':[],'bornes':[]}
     missing=[]
     detected=[]
     for sw in Switch.objects.all():
         if(sw not in detected):
             missing.append(sw)
+
     for building in Building.objects.all():#Parcour tous les batiments
-        dico['subs'].append({'bat_id':building.id,'bat_name':building,'switchs':[]})
+
+        dico['subs'].append({'bat_id':building.id,'bat_name':building,'switchs':[],'bornes':[]})
+
+
         for switch in Switch.objects.filter(switchbay__building=building):#Parcour tous les switchs de ce batiment
             dico['subs'][-1]['switchs'].append({'name':switch.main_interface().domain.name,'nombre':switch.number,'model':switch.model,'id':switch.id,'batiment':building,'ports':[]})
-
-
             for p in switch.ports.all().filter(related__isnull=False):#Parcour tout les ports liés de ce switch 
                 dico['subs'][-1]['switchs'][-1]['ports'].append({'numero':p.port,'related':p.related.switch.main_interface().domain.name})
 
+
+        for ap in AccessPoint.all_ap_in(building):
+            dico['subs'][-1]['bornes'].append({'name':ap.short_name,'id':ap.id})
+            dico['links'].append({'depart':ap.switch()[0].id,'arrive':ap.id})
+
+
+    for ap in AccessPoint.objects.all():
+        dico['bornes'].append({'name':str(ap)})
     while(missing!=[]):#Tant que la liste des oubliés n'est pas vide i.e on les a pas tous passer
         links,new_detected=recursive_switchs(missing[0].ports.all().filter(related=None).first(),None,[missing[0]])
         for link in links:
@@ -1016,6 +1026,7 @@ def recursive_switchs(port_start, switch_before, detected):
             for link in links_down:
                 if(link!=[]):
                     links_return.append(link)
+
 
     return (links_return, detected)
 
