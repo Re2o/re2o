@@ -31,6 +31,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <i class="fa fa-globe"></i> <span class="caret"></span>
 </a>
 <div class="dropdown-menu" aria-labelledby="setlang">
+    <p style="text-align: center"><small><i class="fa fa-exclamation-triangle"></i> {% trans "Translation in development" %}</small></p>
+    <hr>
     <form method="post" action="{% url 'set_language' %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.path }}">

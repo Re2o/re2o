@@ -155,6 +155,10 @@ msgstr ""
 msgid "Dependencies"
 msgstr "Dépendances"
 
+#: templates/re2o/buttons/setlang.html:34
+msgid "Translation in development"
+msgstr "Traduction en développement"
+
 #: views.py:172
 msgid "No Git repository configured"
 msgstr "Aucun repository git configuré"
