@@ -174,3 +174,8 @@ GRAPH_MODELS = {
     'all_applications': True,
     'group_models': True,
 }
+
+#RestFramework config fot API
+REST_FRAMEWORK = {
+    'URL_FIELD_NAME': 'api_url'
+}
