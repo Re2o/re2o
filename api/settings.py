@@ -35,3 +35,9 @@ REST_FRAMEWORK = {
         'api.permissions.DefaultACLPermission',
     )
 }
+
+# API permission settings
+API_CONTENT_TYPE_APP_LABEL = 'api'
+API_CONTENT_TYPE_MODEL = 'api'
+API_PERMISSION_NAME = 'Can use the API'
+API_PERMISSION_CODENAME = 'use_api'

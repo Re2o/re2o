@@ -42,6 +42,7 @@ Including another URLconf
 """
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
@@ -70,6 +71,8 @@ urlpatterns = [
         r'^preferences/',
         include('preferences.urls', namespace='preferences')
     ),
-    url(r'^api/', include('api.urls', namespace='api')),
-
 ]
+if 'api' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        url(r'^api/', include('api.urls', namespace='api')),
+    ]
