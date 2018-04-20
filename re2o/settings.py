@@ -75,7 +75,6 @@ LOCAL_APPS = (
     're2o',
     'preferences',
     'logs',
-    'api',
 )
 INSTALLED_APPS = (
     DJANGO_CONTRIB_APPS +
@@ -175,7 +174,6 @@ GRAPH_MODELS = {
     'group_models': True,
 }
 
-#RestFramework config fot API
-REST_FRAMEWORK = {
-    'URL_FIELD_NAME': 'api_url'
-}
+# Activate API
+if 'api' in INSTALLED_APPS:
+    from api.settings import *
