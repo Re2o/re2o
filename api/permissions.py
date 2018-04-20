@@ -1,28 +1,34 @@
 from rest_framework import permissions
 from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
+from . import acl
+
+def can_see_api(_):
+    return lambda user: acl.can_view(user)
+
+
 class DefaultACLPermission(permissions.BasePermission):
     """
     Permission subclass in charge of checking the ACL to determine
     if a user can access the models
     """
     perms_map = {
-        'GET': [lambda model: model.can_view_all],
-        'OPTIONS': [lambda model: model.can_view_all],
-        'HEAD': [lambda model: model.can_view_all],
-        'POST': [lambda model: model.can_create],
+        'GET': [can_see_api, lambda model: model.can_view_all],
+        'OPTIONS': [can_see_api, lambda model: model.can_view_all],
+        'HEAD': [can_see_api, lambda model: model.can_view_all],
+        'POST': [can_see_api, lambda model: model.can_create],
         #'PUT': [],
         #'PATCH': [],
         #'DELETE': [],
     }
     perms_obj_map = {
-        'GET': [lambda obj: obj.can_view],
-        'OPTIONS': [lambda obj: obj.can_view],
-        'HEAD': [lambda obj: obj.can_view],
+        'GET': [can_see_api, lambda obj: obj.can_view],
+        'OPTIONS': [can_see_api, lambda obj: obj.can_view],
+        'HEAD': [can_see_api, lambda obj: obj.can_view],
         #'POST': [],
-        'PUT': [lambda obj: obj.can_edit],
+        'PUT': [can_see_api, lambda obj: obj.can_edit],
         #'PATCH': [],
-        'DELETE': [lambda obj: obj.can_delete],
+        'DELETE': [can_see_api, lambda obj: obj.can_delete],
     }
 
     def get_required_permissions(self, method, model):
