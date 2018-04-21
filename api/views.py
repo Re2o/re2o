@@ -24,17 +24,15 @@ The views for the API app. They should all return JSON data and not fallback on
 HTML pages such as the login and index pages for a better integration.
 """
 
-from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.csrf import csrf_exempt
+import datetime
 
+from django.conf import settings
+
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework import status, mixins, generics, viewsets
+from rest_framework import viewsets, status
 
-from re2o.utils import (
-    all_has_access,
-    all_active_assigned_interfaces,
-    filter_active_interfaces
-)
 from users.models import (
     User,
     Club,
@@ -117,6 +115,30 @@ class BanViewSet(viewsets.ReadOnlyModelViewSet):
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Whitelist.objects.all()
     serializer_class = WhitelistSerializer
+
+# Subclass the standard rest_framework.auth_token.views.ObtainAuthToken
+# in order to renew the lease of the token and add expiration time
+class ObtainExpiringAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        token_duration = datetime.timedelta(
+            seconds=settings.API_TOKEN_DURATION
+        )
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+        if not created and token.created < utc_now - token_duration:
+            token.delete()
+            token = Token.objects.create(user=user)
+            token.created = datetime.datetime.utcnow()
+            token.save()
+
+        return Response({
+            'token': token.key,
+            'expiration_date': token.created + token_duration
+        })
 
 # 
 # @csrf_exempt

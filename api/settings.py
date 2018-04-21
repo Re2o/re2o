@@ -29,6 +29,7 @@ Django settings specific to the API.
 REST_FRAMEWORK = {
     'URL_FIELD_NAME': 'api_url',
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'api.authentication.ExpiringTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -41,3 +42,9 @@ API_CONTENT_TYPE_APP_LABEL = 'api'
 API_CONTENT_TYPE_MODEL = 'api'
 API_PERMISSION_NAME = 'Can use the API'
 API_PERMISSION_CODENAME = 'use_api'
+
+# Activate token authentication
+API_APPS = (
+    'rest_framework.authtoken',
+)
+API_TOKEN_DURATION = 86400 # 24 hours

@@ -42,6 +42,7 @@ router.register(r'whitelists', views.WhitelistViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^token-auth/', views.ObtainExpiringAuthToken.as_view())
 #     # Services
 #     url(r'^services/$', views.services),
 #     url(

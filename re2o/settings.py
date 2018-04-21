@@ -177,3 +177,4 @@ GRAPH_MODELS = {
 # Activate API
 if 'api' in INSTALLED_APPS:
     from api.settings import *
+    INSTALLED_APPS += API_APPS
