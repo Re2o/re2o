@@ -33,6 +33,15 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
+
+from cotisations.models import (
+    Facture,
+    Vente,
+    Article,
+    Banque,
+    Paiement,
+    Cotisation
+)
 from users.models import (
     User,
     Club,
@@ -60,6 +69,14 @@ from machines.models import (
 )
 
 from .serializers import (
+    # COTISATION APP
+    FactureSerializer,
+    VenteSerializer,
+    ArticleSerializer,
+    BanqueSerializer,
+    PaiementSerializer,
+    CotisationSerializer,
+    # USER APP
     UserSerializer,
     ClubSerializer,
     AdherentSerializer,
@@ -70,6 +87,42 @@ from .serializers import (
     BanSerializer,
     WhitelistSerializer
 )
+
+
+# COTISATION APP
+
+
+class FactureViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Facture.objects.all()
+    serializer_class = FactureSerializer
+
+
+class VenteViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Vente.objects.all()
+    serializer_class = VenteSerializer
+
+
+class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+
+class BanqueViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Banque.objects.all()
+    serializer_class = BanqueSerializer
+
+
+class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Paiement.objects.all()
+    serializer_class = PaiementSerializer
+
+
+class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Cotisation.objects.all()
+    serializer_class = CotisationSerializer
+
+
+# USER APP
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

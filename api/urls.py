@@ -30,6 +30,14 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
+# COTISATION APP
+router.register(r'factures', views.FactureViewSet)
+router.register(r'ventes', views.VenteViewSet)
+router.register(r'articles', views.ArticleViewSet)
+router.register(r'banques', views.BanqueViewSet)
+router.register(r'paiements', views.PaiementViewSet)
+router.register(r'cotisations', views.CotisationViewSet)
+# USER APP
 router.register(r'users', views.UserViewSet)
 router.register(r'clubs', views.ClubViewSet)
 router.register(r'adherents', views.AdherentViewSet)

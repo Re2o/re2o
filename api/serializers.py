@@ -23,6 +23,15 @@ Serializers for the API app
 """
 
 from rest_framework import serializers
+
+from cotisations.models import (
+    Facture,
+    Vente,
+    Article,
+    Banque,
+    Paiement,
+    Cotisation
+)
 from users.models import (
     User,
     Club,
@@ -48,6 +57,73 @@ from machines.models import (
     OuverturePort,
     Ipv6List
 )
+
+# COTISATION APP
+
+class FactureSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Facture
+        fields = ('user', 'paiement', 'banque', 'cheque', 'date', 'valid',
+                  'control', 'prix_total', 'name', 'api_url')
+        extra_kwargs = {
+            'user': {'view_name': 'api:user-detail'},
+            'paiement': {'view_name': 'api:paiement-detail'},
+            'banque': {'view_name': 'api:banque-detail'},
+            'api_url': {'view_name': 'api:facture-detail'}
+        }
+
+
+class VenteSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Vente
+        fields = ('facture', 'number', 'name', 'prix', 'duration',
+                  'type_cotisation', 'prix_total', 'api_url')
+        extra_kwargs = {
+            'facture': {'view_name': 'api:facture-detail'},
+            'api_url': {'view_name': 'api:vente-detail'}
+        }
+
+
+class ArticleSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Article
+        fields = ('name', 'prix', 'duration', 'type_user',
+                  'type_cotisation', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:article-detail'}
+        }
+
+
+class BanqueSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Banque
+        fields = ('name', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:banque-detail'}
+        }
+
+
+class PaiementSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Paiement
+        fields = ('moyen', 'type_paiement', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:paiement-detail'}
+        }
+
+
+class CotisationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Cotisation
+        fields = ('vente', 'type_cotisation', 'date_start', 'date_end',
+                  'api_url')
+        extra_kwargs = {
+            'vente': {'view_name': 'api:vente-detail'},
+            'api_url': {'view_name': 'api:cotisation-detail'}
+        }
+
+
+# USER APP
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
