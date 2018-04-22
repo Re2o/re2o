@@ -42,17 +42,6 @@ from cotisations.models import (
     Paiement,
     Cotisation
 )
-from users.models import (
-    User,
-    Club,
-    Adherent,
-    ServiceUser,
-    School,
-    ListRight,
-    ListShell,
-    Ban,
-    Whitelist
-)
 from machines.models import (
     Machine,
     MachineType,
@@ -73,6 +62,28 @@ from machines.models import (
     Service_link,
     OuverturePortList,
     OuverturePort
+)
+# from preferences.models import (
+#     OptionalUser,
+#     OptionalMachine,
+#     OptionalTopologie,
+#     GeneralOption,
+#     AssoOption,
+#     HomeOption,
+#     MailMessageOption
+# )
+# # Avoid duplicate names
+# from preferences.models import Service as ServiceOption
+from users.models import (
+    User,
+    Club,
+    Adherent,
+    ServiceUser,
+    School,
+    ListRight,
+    ListShell,
+    Ban,
+    Whitelist
 )
 
 from .serializers import (
@@ -103,6 +114,15 @@ from .serializers import (
     ServiceLinkSerializer,
     OuverturePortListSerializer,
     OuverturePortSerializer,
+    # PREFERENCES APP
+    # OptionalUserSerializer,
+    # OptionalMachineSerializer,
+    # OptionalTopologieSerializer,
+    # GeneralOptionSerializer,
+    # ServiceOptionSerializer,
+    # AssoOptionSerializer,
+    # HomeOptionSerializer,
+    # MailMessageOptionSerializer,
     # USERS APP
     UserSerializer,
     ClubSerializer,
@@ -245,6 +265,48 @@ class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
 class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = OuverturePort.objects.all()
     serializer_class = OuverturePortSerializer
+
+
+# PREFERENCES APP
+
+# class OptionalUserViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = OptionalUser.objects.all()
+#     serializer_class = OptionalUserSerializer
+# 
+# 
+# class OptionalMachineViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = OptionalMachine.objects.all()
+#     serializer_class = OptionalMachineSerializer
+# 
+# 
+# class OptionalTopologieViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = OptionalTopologie.objects.all()
+#     serializer_class = OptionalTopologieSerializer
+# 
+# 
+# class GeneralOptionViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = GeneralOption.objects.all()
+#     serializer_class = GeneralOptionSerializer
+# 
+# 
+# class ServiceOptionViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = ServiceOption.objects.all()
+#     serializer_class = ServiceOptionSerializer
+# 
+# 
+# class AssoOptionViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = AssoOption.objects.all()
+#     serializer_class = AssoOptionSerializer
+# 
+# 
+# class HomeOptionViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = HomeOption.objects.all()
+#     serializer_class = HomeOptionSerializer
+# 
+# 
+# class MailMessageOptionViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = MailMessageOption.objects.all()
+#     serializer_class = MailMessageOptionSerializer
 
 
 # USER APP

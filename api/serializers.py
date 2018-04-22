@@ -53,6 +53,17 @@ from machines.models import (
     OuverturePortList,
     OuverturePort
 )
+from preferences.models import (
+    OptionalUser,
+    OptionalMachine,
+    OptionalTopologie,
+    GeneralOption,
+    AssoOption,
+    HomeOption,
+    MailMessageOption
+)
+# Avoid duplicate names
+from preferences.models import Service as ServiceOption
 from users.models import (
     User,
     Club,
@@ -350,6 +361,99 @@ class OuverturePortSerializer(serializers.HyperlinkedModelSerializer):
             'port_list': {'view_name': 'api:ouvertureportlist-detail'},
             'api_url': {'view_name': 'api:ouvertureport-detail'}
         }
+
+
+# PREFERENCES APP
+
+
+# class OptionalUserSerializer(serializers.HyperlinkedModelSerializer):
+#     tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
+# 
+#     class Meta:
+#         model = OptionalUser
+#         fields = ('tel_mandatory', 'user_solde', 'solde_negatif', 'max_solde',
+#                   'min_online_payement', 'gpg_fingerprint',
+#                   'all_can_create_club', 'self_adhesion', 'shell_default',
+#                   'api_url')
+#         extra_kwargs = {
+#             'shell_default': {'view_name': 'api:shell-detail'},
+#             'api_url': {'view_name': 'api:optionaluser-detail'}
+#         }
+# 
+# 
+# class OptionalMachineSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = OptionalMachine
+#         fields = ('password_machine', 'max_lambdauser_interfaces',
+#                   'max_lambdauser_aliases', 'ipv6_mode', 'create_machine',
+#                   'ipv6', 'api_url')
+#         extra_kwargs = {
+#             'api_url': {'view_name': 'api:optionalmachine-detail'}
+#         }
+# 
+# 
+# class OptionalTopologieSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = OptionalTopologie
+#         fields = ('radius_general_policy', 'vlan_decision_ok',
+#                   'vlan_decision_no', 'api_url')
+#         extra_kwargs = {
+#             'vlan_decision_ok': {'view_name': 'api:vlan-detail'},
+#             'vlan_decision_nok': {'view_name': 'api:vlan-detail'},
+#             'api_url': {'view_name': 'api:optionaltopologie-detail'}
+#         }
+# 
+# 
+# class GeneralOptionSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = GeneralOption
+#         fields = ('general_message', 'search_display_page',
+#                   'pagination_number', 'pagination_large_number',
+#                   'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
+#                   'GTU', 'api_url')
+#         extra_kwargs = {
+#             'api_url': {'view_name': 'api:generaloption-detail'}
+#         }
+# 
+# 
+# class ServiceOptionSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = ServiceOption
+#         fields = ('name', 'url', 'description', 'image', 'api_url')
+#         extra_kwargs = {
+#             'api_url': {'view_name': 'api:serviceoption-detail'}
+#         }
+# 
+# 
+# class AssoOptionSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = AssoOption
+#         fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
+#                   'telephone', 'pseudo', 'utilisateur_asso', 'payement',
+#                   'payement_id', 'payement_pass', 'description', 'api_url')
+#         extra_kwargs = {
+#             'utilisateur_asso': {'view_name': 'api:user-detail'},
+#             'api_url': {'view_name': 'api:assooption-detail'}
+#         }
+# 
+# 
+# class HomeOptionSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = HomeOption
+#         fields = ('facebook_url', 'twitter_url', 'twitter_account_name',
+#                   'api_url')
+#         extra_kwargs = {
+#             'api_url': {'view_name': 'api:homeoption-detail'}
+#         }
+# 
+# 
+# class MailMessageOptionSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = MailMessageOption
+#         fields = ('welcome_mail_fr', 'welcome_mail_en', 'api_url')
+#         extra_kwargs = {
+#             'api_url': {'view_name': 'api:mailmessageoption-detail'}
+#         }
 
 
 # USERS APP
