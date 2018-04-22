@@ -30,14 +30,34 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-# COTISATION APP
+# COTISATIONS APP
 router.register(r'factures', views.FactureViewSet)
 router.register(r'ventes', views.VenteViewSet)
 router.register(r'articles', views.ArticleViewSet)
 router.register(r'banques', views.BanqueViewSet)
 router.register(r'paiements', views.PaiementViewSet)
 router.register(r'cotisations', views.CotisationViewSet)
-# USER APP
+# MACHINES APP
+router.register(r'machines', views.MachineViewSet)
+router.register(r'machinetypes', views.MachineTypeViewSet)
+router.register(r'iptypes', views.IpTypeViewSet)
+router.register(r'vlans', views.VlanViewSet)
+router.register(r'nas', views.NasViewSet)
+router.register(r'soa', views.SOAViewSet)
+router.register(r'extensions', views.ExtensionViewSet)
+router.register(r'mx', views.MxViewSet)
+router.register(r'ns', views.NsViewSet)
+router.register(r'txt', views.TxtViewSet)
+router.register(r'srv', views.SrvViewSet)
+router.register(r'interfaces', views.InterfaceViewSet)
+router.register(r'ipv6lists', views.Ipv6ListViewSet)
+router.register(r'domains', views.DomainViewSet)
+router.register(r'iplists', views.IpListViewSet)
+router.register(r'services', views.ServiceViewSet)
+router.register(r'servicelinks', views.ServiceLinkViewSet, 'servicelink')
+router.register(r'ouvertureportlists', views.OuverturePortListViewSet)
+router.register(r'ouvertureports', views.OuverturePortViewSet)
+# USERS APP
 router.register(r'users', views.UserViewSet)
 router.register(r'clubs', views.ClubViewSet)
 router.register(r'adherents', views.AdherentViewSet)

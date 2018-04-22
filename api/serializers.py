@@ -32,6 +32,27 @@ from cotisations.models import (
     Paiement,
     Cotisation
 )
+from machines.models import (
+    Machine,
+    MachineType,
+    IpType,
+    Vlan,
+    Nas,
+    SOA,
+    Extension,
+    Mx,
+    Ns,
+    Txt,
+    Srv,
+    Interface,
+    Ipv6List,
+    Domain,
+    IpList,
+    Service,
+    Service_link,
+    OuverturePortList,
+    OuverturePort
+)
 from users.models import (
     User,
     Club,
@@ -43,22 +64,9 @@ from users.models import (
     Ban,
     Whitelist
 )
-from machines.models import (
-    Interface,
-    IpType,
-    Extension,
-    IpList,
-    Domain,
-    Txt,
-    Mx,
-    Srv,
-    Service_link,
-    Ns,
-    OuverturePort,
-    Ipv6List
-)
 
-# COTISATION APP
+
+# COTISATIONS APP
 
 class FactureSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -123,7 +131,228 @@ class CotisationSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-# USER APP
+# MACHINES APP
+
+
+class MachineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Machine
+        fields = ('user', 'name', 'active', 'api_url')
+        extra_kwargs = {
+            'user': {'view_name': 'api:user-detail'},
+            'api_url': {'view_name': 'api:machine-detail'}
+        }
+
+
+class MachineTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = MachineType
+        fields = ('type', 'ip_type', 'api_url')
+        extra_kwargs = {
+            'ip_type': {'view_name': 'api:iptype-detail'},
+            'api_url': {'view_name': 'api:machinetype-detail'}
+        }
+
+
+class IpTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = IpType
+        fields = ('type', 'extension', 'need_infra', 'domaine_ip_start',
+                  'domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports',
+                  'api_url')
+        extra_kwargs = {
+            'extension': {'view_name': 'api:extension-detail'},
+            'vlan': {'view_name': 'api:vlan-detail'},
+            'ouverture_ports': {'view_name': 'api:ouvertureportlist-detail'},
+            'api_url': {'view_name': 'api:iptype-detail'}
+        }
+
+
+class VlanSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Vlan
+        fields = ('vlan_id', 'name', 'comment', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:vlan-detail'}
+        }
+
+
+class NasSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Nas
+        fields = ('name', 'nas_type', 'machine_type', 'port_access_mode',
+                  'autocapture_mac', 'api_url')
+        extra_kwargs = {
+            'nas_type': {'view_name': 'api:machinetype-detail'},
+            'machine_type': {'view_name': 'api:machinetype-detail'},
+            'api_url': {'view_name': 'api:nas-detail'}
+        }
+
+
+class SOASerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = SOA
+        fields = ('name', 'mail', 'refresh', 'retry', 'expire', 'ttl',
+                  'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:soa-detail'}
+        }
+
+
+class ExtensionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Extension
+        fields = ('name', 'need_infra', 'origin', 'origin_v6', 'soa',
+                  'api_url')
+        extra_kwargs = {
+            'origin': {'view_name': 'api:iplist-detail'},
+            'soa': {'view_name': 'api:soa-detail'},
+            'api_url': {'view_name': 'api:extension-detail'}
+        }
+
+
+class MxSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Mx
+        fields = ('zone', 'priority', 'name', 'api_url')
+        extra_kwargs = {
+            'zone': {'view_name': 'api:extension-detail'},
+            'name': {'view_name': 'api:domain-detail'},
+            'api_url': {'view_name': 'api:mx-detail'}
+        }
+
+
+class NsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Ns
+        fields = ('zone', 'ns', 'api_url')
+        extra_kwargs = {
+            'zone': {'view_name': 'api:extension-detail'},
+            'ns': {'view_name': 'api:domain-detail'},
+            'api_url': {'view_name': 'api:ns-detail'}
+        }
+
+
+class TxtSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Txt
+        fields = ('zone', 'field1', 'field2', 'api_url')
+        extra_kwargs = {
+            'zone': {'view_name': 'api:extension-detail'},
+            'api_url': {'view_name': 'api:txt-detail'}
+        }
+
+
+class SrvSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Srv
+        fields = ('service', 'protocole', 'extension', 'ttl', 'priority',
+                  'weight', 'port', 'target', 'api_url')
+        extra_kwargs = {
+            'extension': {'view_name': 'api:extension-detail'},
+            'target': {'view_name': 'api:domain-detail'},
+            'api_url': {'view_name': 'api:mx-detail'}
+        }
+
+
+class InterfaceSerializer(serializers.HyperlinkedModelSerializer):
+    active = serializers.BooleanField(source='is_active')
+
+    class Meta:
+        model = Interface
+        fields = ('ipv4', 'mac_address', 'machine', 'type', 'details',
+                  'port_lists', 'active', 'api_url')
+        extra_kwargs = {
+            'ipv4': {'view_name': 'api:iplist-detail'},
+            'machine': {'view_name': 'api:machine-detail'},
+            'type': {'view_name': 'api:machinetype-detail'},
+            'port_lists': {'view_name': 'api:ouvertureportlist-detail'},
+            'api_url': {'view_name': 'api:interface-detail'}
+        }
+
+
+class Ipv6ListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Ipv6List
+        fields = ('ipv6', 'interface', 'slaac_ip', 'date_end',
+                  'api_url')
+        extra_kwargs = {
+            'interface': {'view_name': 'api:interface-detail'},
+            'api_url': {'view_name': 'api:ipv6list-detail'}
+        }
+
+
+class DomainSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Domain
+        fields = ('interface_parent', 'name', 'extension', 'cname',
+                  'api_url')
+        extra_kwargs = {
+            'interface_parent': {'view_name': 'api:interface-detail'},
+            'extension': {'view_name': 'api:extension-detail'},
+            'cname': {'view_name': 'api:domain-detail'},
+            'api_url': {'view_name': 'api:domain-detail'}
+        }
+
+
+class IpListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = IpList
+        fields = ('ipv4', 'ip_type', 'need_infra', 'api_url')
+        extra_kwargs = {
+            'ip_type': {'view_name': 'api:iptype-detail'},
+            'api_url': {'view_name': 'api:iplist-detail'}
+        }
+
+
+class ServiceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Service
+        fields = ('service_type', 'min_time_regen', 'regular_time_regen',
+                  'servers', 'api_url')
+        extra_kwargs = {
+            'servers': {'view_name': 'api:interface-detail'},
+            'api_url': {'view_name': 'api:service-detail'}
+        }
+
+
+class ServiceLinkSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Service_link
+        fields = ('service', 'server', 'last_regen', 'asked_regen',
+                  'need_regen', 'api_url')
+        extra_kwargs = {
+            'service': {'view_name': 'api:service-detail'},
+            'server': {'view_name': 'api:interface-detail'},
+            'api_url': {'view_name': 'api:servicelink-detail'}
+        }
+
+
+class OuverturePortListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OuverturePortList
+        fields = ('name', 'tcp_ports_in', 'udp_ports_in', 'tcp_ports_out',
+                  'udp_ports_out', 'api_url')
+        extra_kwargs = {
+            'tcp_ports_in': {'view_name': 'api:ouvertureport-detail'},
+            'udp_ports_in': {'view_name': 'api:ouvertureport-detail'},
+            'tcp_ports_out': {'view_name': 'api:ouvertureport-detail'},
+            'udp_ports_out': {'view_name': 'api:ouvertureport-detail'},
+            'api_url': {'view_name': 'api:ouvertureportlist-detail'}
+        }
+
+
+class OuverturePortSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OuverturePort
+        fields = ('begin', 'end', 'port_list', 'protocole', 'io', 'api_url')
+        extra_kwargs = {
+            'port_list': {'view_name': 'api:ouvertureportlist-detail'},
+            'api_url': {'view_name': 'api:ouvertureport-detail'}
+        }
+
+
+# USERS APP
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

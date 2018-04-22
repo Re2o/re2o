@@ -54,29 +54,56 @@ from users.models import (
     Whitelist
 )
 from machines.models import (
-    Service_link,
-    Service,
-    Interface,
-    Domain,
+    Machine,
+    MachineType,
     IpType,
+    Vlan,
+    Nas,
+    SOA,
+    Extension,
     Mx,
     Ns,
     Txt,
     Srv,
-    Extension,
+    Interface,
+    Ipv6List,
+    Domain,
+    IpList,
+    Service,
+    Service_link,
     OuverturePortList,
     OuverturePort
 )
 
 from .serializers import (
-    # COTISATION APP
+    # COTISATIONS APP
     FactureSerializer,
     VenteSerializer,
     ArticleSerializer,
     BanqueSerializer,
     PaiementSerializer,
     CotisationSerializer,
-    # USER APP
+    # MACHINES APP
+    MachineSerializer,
+    MachineTypeSerializer,
+    IpTypeSerializer,
+    VlanSerializer,
+    NasSerializer,
+    SOASerializer,
+    ExtensionSerializer,
+    MxSerializer,
+    NsSerializer,
+    TxtSerializer,
+    SrvSerializer,
+    InterfaceSerializer,
+    Ipv6ListSerializer,
+    DomainSerializer,
+    IpListSerializer,
+    ServiceSerializer,
+    ServiceLinkSerializer,
+    OuverturePortListSerializer,
+    OuverturePortSerializer,
+    # USERS APP
     UserSerializer,
     ClubSerializer,
     AdherentSerializer,
@@ -89,7 +116,7 @@ from .serializers import (
 )
 
 
-# COTISATION APP
+# COTISATIONS APP
 
 
 class FactureViewSet(viewsets.ReadOnlyModelViewSet):
@@ -120,6 +147,104 @@ class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
 class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Cotisation.objects.all()
     serializer_class = CotisationSerializer
+
+
+# MACHINES APP
+
+
+class MachineViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Machine.objects.all()
+    serializer_class = MachineSerializer
+
+
+class MachineTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = MachineType.objects.all()
+    serializer_class = MachineTypeSerializer
+
+
+class IpTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = IpType.objects.all()
+    serializer_class = IpTypeSerializer
+
+
+class VlanViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Vlan.objects.all()
+    serializer_class = VlanSerializer
+
+
+class NasViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Nas.objects.all()
+    serializer_class = NasSerializer
+
+
+class SOAViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = SOA.objects.all()
+    serializer_class = SOASerializer
+
+
+class ExtensionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Extension.objects.all()
+    serializer_class = ExtensionSerializer
+
+
+class MxViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Mx.objects.all()
+    serializer_class = MxSerializer
+
+
+class NsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ns.objects.all()
+    serializer_class = NsSerializer
+
+
+class TxtViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Txt.objects.all()
+    serializer_class = TxtSerializer
+
+
+class SrvViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Srv.objects.all()
+    serializer_class = SrvSerializer
+
+
+class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Interface.objects.all()
+    serializer_class = InterfaceSerializer
+
+
+class Ipv6ListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ipv6List.objects.all()
+    serializer_class = Ipv6ListSerializer
+
+
+class DomainViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Domain.objects.all()
+    serializer_class = DomainSerializer
+
+
+class IpListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = IpList.objects.all()
+    serializer_class = IpListSerializer
+
+
+class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+
+class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Service_link.objects.all()
+    serializer_class = ServiceLinkSerializer
+
+
+class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = OuverturePortList.objects.all()
+    serializer_class = OuverturePortListSerializer
+
+
+class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = OuverturePort.objects.all()
+    serializer_class = OuverturePortSerializer
 
 
 # USER APP
