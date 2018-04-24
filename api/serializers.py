@@ -24,666 +24,419 @@ Serializers for the API app
 
 from rest_framework import serializers
 
-from cotisations.models import (
-    Facture,
-    Vente,
-    Article,
-    Banque,
-    Paiement,
-    Cotisation
-)
-from machines.models import (
-    Machine,
-    MachineType,
-    IpType,
-    Vlan,
-    Nas,
-    SOA,
-    Extension,
-    Mx,
-    Ns,
-    Txt,
-    Srv,
-    Interface,
-    Ipv6List,
-    Domain,
-    IpList,
-    Service,
-    Service_link,
-    OuverturePortList,
-    OuverturePort
-)
-from preferences.models import (
-    OptionalUser,
-    OptionalMachine,
-    OptionalTopologie,
-    GeneralOption,
-    AssoOption,
-    HomeOption,
-    MailMessageOption
-)
-# Avoid duplicate names
-from preferences.models import Service as ServiceOption
-from topologie.models import (
-    Stack,
-    AccessPoint,
-    Switch,
-    ModelSwitch,
-    ConstructorSwitch,
-    SwitchBay,
-    Building,
-    Room
-)
-from topologie.models import Port as SwitchPort
-from users.models import (
-    User,
-    Club,
-    Adherent,
-    ServiceUser,
-    School,
-    ListRight,
-    ListShell,
-    Ban,
-    Whitelist
-)
+import cotisations.models as cotisations
+import machines.models as machines
+import preferences.models as preferences
+import topologie.models as topologie
+import users.models as users
+
+
+API_NAMESPACE = 'api'
+
+
+class NamespacedHRField(serializers.HyperlinkedRelatedField):
+    """ A HyperlinkedRelatedField subclass to automatically prefix
+    view names with a namespace """
+    def __init__(self, view_name=None, **kwargs):
+        if view_name is not None:
+            view_name = '%s:%s' % (API_NAMESPACE, view_name)
+        super(NamespacedHRField, self).__init__(view_name=view_name, **kwargs)
+
+
+class NamespacedHIField(serializers.HyperlinkedIdentityField):
+    """ A HyperlinkedIdentityField subclass to automatically prefix
+    view names with a namespace """
+    def __init__(self, view_name=None, **kwargs):
+        if view_name is not None:
+            view_name = '%s:%s' % (API_NAMESPACE, view_name)
+        super(NamespacedHIField, self).__init__(view_name=view_name, **kwargs)
+
+
+class NamespacedHMSerializer(serializers.HyperlinkedModelSerializer):
+    """ A HyperlinkedModelSerializer subclass to use `NamespacedHRField` as
+    field and automatically prefix view names with a namespace """
+    serializer_related_field = NamespacedHRField
+    serializer_url_field = NamespacedHIField
 
 
 # COTISATIONS APP
 
-class FactureSerializer(serializers.HyperlinkedModelSerializer):
+
+class FactureSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Facture
+        model = cotisations.Facture
         fields = ('user', 'paiement', 'banque', 'cheque', 'date', 'valid',
                   'control', 'prix_total', 'name', 'api_url')
-        extra_kwargs = {
-            'user': {'view_name': 'api:user-detail'},
-            'paiement': {'view_name': 'api:paiement-detail'},
-            'banque': {'view_name': 'api:banque-detail'},
-            'api_url': {'view_name': 'api:facture-detail'}
-        }
 
 
-class VenteSerializer(serializers.HyperlinkedModelSerializer):
+class VenteSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Vente
+        model = cotisations.Vente
         fields = ('facture', 'number', 'name', 'prix', 'duration',
                   'type_cotisation', 'prix_total', 'api_url')
-        extra_kwargs = {
-            'facture': {'view_name': 'api:facture-detail'},
-            'api_url': {'view_name': 'api:vente-detail'}
-        }
 
 
-class ArticleSerializer(serializers.HyperlinkedModelSerializer):
+class ArticleSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Article
+        model = cotisations.Article
         fields = ('name', 'prix', 'duration', 'type_user',
                   'type_cotisation', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:article-detail'}
-        }
 
 
-class BanqueSerializer(serializers.HyperlinkedModelSerializer):
+class BanqueSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Banque
+        model = cotisations.Banque
         fields = ('name', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:banque-detail'}
-        }
 
 
-class PaiementSerializer(serializers.HyperlinkedModelSerializer):
+class PaiementSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Paiement
+        model = cotisations.Paiement
         fields = ('moyen', 'type_paiement', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:paiement-detail'}
-        }
 
 
-class CotisationSerializer(serializers.HyperlinkedModelSerializer):
+class CotisationSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Cotisation
+        model = cotisations.Cotisation
         fields = ('vente', 'type_cotisation', 'date_start', 'date_end',
                   'api_url')
-        extra_kwargs = {
-            'vente': {'view_name': 'api:vente-detail'},
-            'api_url': {'view_name': 'api:cotisation-detail'}
-        }
 
 
 # MACHINES APP
 
 
-class MachineSerializer(serializers.HyperlinkedModelSerializer):
+class MachineSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Machine
+        model = machines.Machine
         fields = ('user', 'name', 'active', 'api_url')
-        extra_kwargs = {
-            'user': {'view_name': 'api:user-detail'},
-            'api_url': {'view_name': 'api:machine-detail'}
-        }
 
 
-class MachineTypeSerializer(serializers.HyperlinkedModelSerializer):
+class MachineTypeSerializer(NamespacedHMSerializer):
     class Meta:
-        model = MachineType
+        model = machines.MachineType
         fields = ('type', 'ip_type', 'api_url')
-        extra_kwargs = {
-            'ip_type': {'view_name': 'api:iptype-detail'},
-            'api_url': {'view_name': 'api:machinetype-detail'}
-        }
 
 
-class IpTypeSerializer(serializers.HyperlinkedModelSerializer):
+class IpTypeSerializer(NamespacedHMSerializer):
     class Meta:
-        model = IpType
+        model = machines.IpType
         fields = ('type', 'extension', 'need_infra', 'domaine_ip_start',
                   'domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports',
                   'api_url')
-        extra_kwargs = {
-            'extension': {'view_name': 'api:extension-detail'},
-            'vlan': {'view_name': 'api:vlan-detail'},
-            'ouverture_ports': {'view_name': 'api:ouvertureportlist-detail'},
-            'api_url': {'view_name': 'api:iptype-detail'}
-        }
 
 
-class VlanSerializer(serializers.HyperlinkedModelSerializer):
+class VlanSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Vlan
+        model = machines.Vlan
         fields = ('vlan_id', 'name', 'comment', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:vlan-detail'}
-        }
 
 
-class NasSerializer(serializers.HyperlinkedModelSerializer):
+class NasSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Nas
+        model = machines.Nas
         fields = ('name', 'nas_type', 'machine_type', 'port_access_mode',
                   'autocapture_mac', 'api_url')
-        extra_kwargs = {
-            'nas_type': {'view_name': 'api:machinetype-detail'},
-            'machine_type': {'view_name': 'api:machinetype-detail'},
-            'api_url': {'view_name': 'api:nas-detail'}
-        }
 
 
-class SOASerializer(serializers.HyperlinkedModelSerializer):
+class SOASerializer(NamespacedHMSerializer):
     class Meta:
-        model = SOA
+        model = machines.SOA
         fields = ('name', 'mail', 'refresh', 'retry', 'expire', 'ttl',
                   'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:soa-detail'}
-        }
 
 
-class ExtensionSerializer(serializers.HyperlinkedModelSerializer):
+class ExtensionSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Extension
+        model = machines.Extension
         fields = ('name', 'need_infra', 'origin', 'origin_v6', 'soa',
                   'api_url')
-        extra_kwargs = {
-            'origin': {'view_name': 'api:iplist-detail'},
-            'soa': {'view_name': 'api:soa-detail'},
-            'api_url': {'view_name': 'api:extension-detail'}
-        }
 
 
-class MxSerializer(serializers.HyperlinkedModelSerializer):
+class MxSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Mx
+        model = machines.Mx
         fields = ('zone', 'priority', 'name', 'api_url')
-        extra_kwargs = {
-            'zone': {'view_name': 'api:extension-detail'},
-            'name': {'view_name': 'api:domain-detail'},
-            'api_url': {'view_name': 'api:mx-detail'}
-        }
 
 
-class NsSerializer(serializers.HyperlinkedModelSerializer):
+class NsSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Ns
+        model = machines.Ns
         fields = ('zone', 'ns', 'api_url')
-        extra_kwargs = {
-            'zone': {'view_name': 'api:extension-detail'},
-            'ns': {'view_name': 'api:domain-detail'},
-            'api_url': {'view_name': 'api:ns-detail'}
-        }
 
 
-class TxtSerializer(serializers.HyperlinkedModelSerializer):
+class TxtSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Txt
+        model = machines.Txt
         fields = ('zone', 'field1', 'field2', 'api_url')
-        extra_kwargs = {
-            'zone': {'view_name': 'api:extension-detail'},
-            'api_url': {'view_name': 'api:txt-detail'}
-        }
 
 
-class SrvSerializer(serializers.HyperlinkedModelSerializer):
+class SrvSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Srv
+        model = machines.Srv
         fields = ('service', 'protocole', 'extension', 'ttl', 'priority',
                   'weight', 'port', 'target', 'api_url')
-        extra_kwargs = {
-            'extension': {'view_name': 'api:extension-detail'},
-            'target': {'view_name': 'api:domain-detail'},
-            'api_url': {'view_name': 'api:mx-detail'}
-        }
 
 
-class InterfaceSerializer(serializers.HyperlinkedModelSerializer):
+class InterfaceSerializer(NamespacedHMSerializer):
     active = serializers.BooleanField(source='is_active')
 
     class Meta:
-        model = Interface
+        model = machines.Interface
         fields = ('ipv4', 'mac_address', 'machine', 'type', 'details',
                   'port_lists', 'active', 'api_url')
-        extra_kwargs = {
-            'ipv4': {'view_name': 'api:iplist-detail'},
-            'machine': {'view_name': 'api:machine-detail'},
-            'type': {'view_name': 'api:machinetype-detail'},
-            'port_lists': {'view_name': 'api:ouvertureportlist-detail'},
-            'api_url': {'view_name': 'api:interface-detail'}
-        }
 
 
-class Ipv6ListSerializer(serializers.HyperlinkedModelSerializer):
+class Ipv6ListSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Ipv6List
+        model = machines.Ipv6List
         fields = ('ipv6', 'interface', 'slaac_ip', 'date_end',
                   'api_url')
-        extra_kwargs = {
-            'interface': {'view_name': 'api:interface-detail'},
-            'api_url': {'view_name': 'api:ipv6list-detail'}
-        }
 
 
-class DomainSerializer(serializers.HyperlinkedModelSerializer):
+class DomainSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Domain
+        model = machines.Domain
         fields = ('interface_parent', 'name', 'extension', 'cname',
                   'api_url')
-        extra_kwargs = {
-            'interface_parent': {'view_name': 'api:interface-detail'},
-            'extension': {'view_name': 'api:extension-detail'},
-            'cname': {'view_name': 'api:domain-detail'},
-            'api_url': {'view_name': 'api:domain-detail'}
-        }
 
 
-class IpListSerializer(serializers.HyperlinkedModelSerializer):
+class IpListSerializer(NamespacedHMSerializer):
     class Meta:
-        model = IpList
+        model = machines.IpList
         fields = ('ipv4', 'ip_type', 'need_infra', 'api_url')
-        extra_kwargs = {
-            'ip_type': {'view_name': 'api:iptype-detail'},
-            'api_url': {'view_name': 'api:iplist-detail'}
-        }
 
 
-class ServiceSerializer(serializers.HyperlinkedModelSerializer):
+class ServiceSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Service
+        model = machines.Service
         fields = ('service_type', 'min_time_regen', 'regular_time_regen',
                   'servers', 'api_url')
-        extra_kwargs = {
-            'servers': {'view_name': 'api:interface-detail'},
-            'api_url': {'view_name': 'api:service-detail'}
-        }
 
 
-class ServiceLinkSerializer(serializers.HyperlinkedModelSerializer):
+class ServiceLinkSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Service_link
+        model = machines.Service_link
         fields = ('service', 'server', 'last_regen', 'asked_regen',
                   'need_regen', 'api_url')
-        extra_kwargs = {
-            'service': {'view_name': 'api:service-detail'},
-            'server': {'view_name': 'api:interface-detail'},
-            'api_url': {'view_name': 'api:servicelink-detail'}
-        }
 
 
-class OuverturePortListSerializer(serializers.HyperlinkedModelSerializer):
+class OuverturePortListSerializer(NamespacedHMSerializer):
     class Meta:
-        model = OuverturePortList
+        model = machines.OuverturePortList
         fields = ('name', 'tcp_ports_in', 'udp_ports_in', 'tcp_ports_out',
                   'udp_ports_out', 'api_url')
-        extra_kwargs = {
-            'tcp_ports_in': {'view_name': 'api:ouvertureport-detail'},
-            'udp_ports_in': {'view_name': 'api:ouvertureport-detail'},
-            'tcp_ports_out': {'view_name': 'api:ouvertureport-detail'},
-            'udp_ports_out': {'view_name': 'api:ouvertureport-detail'},
-            'api_url': {'view_name': 'api:ouvertureportlist-detail'}
-        }
 
 
-class OuverturePortSerializer(serializers.HyperlinkedModelSerializer):
+class OuverturePortSerializer(NamespacedHMSerializer):
     class Meta:
-        model = OuverturePort
+        model = machines.OuverturePort
         fields = ('begin', 'end', 'port_list', 'protocole', 'io', 'api_url')
-        extra_kwargs = {
-            'port_list': {'view_name': 'api:ouvertureportlist-detail'},
-            'api_url': {'view_name': 'api:ouvertureport-detail'}
-        }
 
 
 # PREFERENCES APP
 
 
-# class OptionalUserSerializer(serializers.HyperlinkedModelSerializer):
+# class OptionalUserSerializer(NamespacedHMSerializer):
 #     tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
 # 
 #     class Meta:
-#         model = OptionalUser
+#         model = preferences.OptionalUser
 #         fields = ('tel_mandatory', 'user_solde', 'solde_negatif', 'max_solde',
 #                   'min_online_payement', 'gpg_fingerprint',
 #                   'all_can_create_club', 'self_adhesion', 'shell_default',
 #                   'api_url')
-#         extra_kwargs = {
-#             'shell_default': {'view_name': 'api:shell-detail'},
-#             'api_url': {'view_name': 'api:optionaluser-detail'}
-#         }
 # 
 # 
-# class OptionalMachineSerializer(serializers.HyperlinkedModelSerializer):
+# class OptionalMachineSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = OptionalMachine
+#         model = preferences.OptionalMachine
 #         fields = ('password_machine', 'max_lambdauser_interfaces',
 #                   'max_lambdauser_aliases', 'ipv6_mode', 'create_machine',
 #                   'ipv6', 'api_url')
-#         extra_kwargs = {
-#             'api_url': {'view_name': 'api:optionalmachine-detail'}
-#         }
 # 
 # 
-# class OptionalTopologieSerializer(serializers.HyperlinkedModelSerializer):
+# class OptionalTopologieSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = OptionalTopologie
+#         model = preferences.OptionalTopologie
 #         fields = ('radius_general_policy', 'vlan_decision_ok',
 #                   'vlan_decision_no', 'api_url')
-#         extra_kwargs = {
-#             'vlan_decision_ok': {'view_name': 'api:vlan-detail'},
-#             'vlan_decision_nok': {'view_name': 'api:vlan-detail'},
-#             'api_url': {'view_name': 'api:optionaltopologie-detail'}
-#         }
 # 
 # 
-# class GeneralOptionSerializer(serializers.HyperlinkedModelSerializer):
+# class GeneralOptionSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = GeneralOption
+#         model = preferences.GeneralOption
 #         fields = ('general_message', 'search_display_page',
 #                   'pagination_number', 'pagination_large_number',
 #                   'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
 #                   'GTU', 'api_url')
-#         extra_kwargs = {
-#             'api_url': {'view_name': 'api:generaloption-detail'}
-#         }
 # 
 # 
-# class ServiceOptionSerializer(serializers.HyperlinkedModelSerializer):
+# class ServiceOptionSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = ServiceOption
+#         model = preferences.ServiceOption
 #         fields = ('name', 'url', 'description', 'image', 'api_url')
-#         extra_kwargs = {
-#             'api_url': {'view_name': 'api:serviceoption-detail'}
-#         }
 # 
 # 
-# class AssoOptionSerializer(serializers.HyperlinkedModelSerializer):
+# class AssoOptionSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = AssoOption
+#         model = preferences.AssoOption
 #         fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
 #                   'telephone', 'pseudo', 'utilisateur_asso', 'payement',
 #                   'payement_id', 'payement_pass', 'description', 'api_url')
-#         extra_kwargs = {
-#             'utilisateur_asso': {'view_name': 'api:user-detail'},
-#             'api_url': {'view_name': 'api:assooption-detail'}
-#         }
 # 
 # 
-# class HomeOptionSerializer(serializers.HyperlinkedModelSerializer):
+# class HomeOptionSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = HomeOption
+#         model = preferences.HomeOption
 #         fields = ('facebook_url', 'twitter_url', 'twitter_account_name',
 #                   'api_url')
-#         extra_kwargs = {
-#             'api_url': {'view_name': 'api:homeoption-detail'}
-#         }
 # 
 # 
-# class MailMessageOptionSerializer(serializers.HyperlinkedModelSerializer):
+# class MailMessageOptionSerializer(NamespacedHMSerializer):
 #     class Meta:
-#         model = MailMessageOption
+#         model = preferences.MailMessageOption
 #         fields = ('welcome_mail_fr', 'welcome_mail_en', 'api_url')
-#         extra_kwargs = {
-#             'api_url': {'view_name': 'api:mailmessageoption-detail'}
-#         }
 
 
 
 # TOPOLOGIE APP
 
 
-class StackSerializer(serializers.HyperlinkedModelSerializer):
+class StackSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Stack
+        model = topologie.Stack
         fields = ('name', 'stack_id', 'details', 'member_id_min',
                   'member_id_max', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:stack-detail'}
-        }
 
 
-class AccessPointSerializer(serializers.HyperlinkedModelSerializer):
+class AccessPointSerializer(NamespacedHMSerializer):
     class Meta:
-        model = AccessPoint
+        model = topologie.AccessPoint
         fields = ('user', 'name', 'active', 'location', 'api_url')
-        extra_kwargs = {
-            'user': {'view_name': 'api:user-detail'},
-            'api_url': {'view_name': 'api:accesspoint-detail'}
-        }
 
 
-class SwitchSerializer(serializers.HyperlinkedModelSerializer):
+class SwitchSerializer(NamespacedHMSerializer):
     port_amount = serializers.IntegerField(source='number')
     class Meta:
-        model = Switch
+        model = topologie.Switch
         fields = ('port_amount', 'stack', 'stack_member_id', 'model',
                   'switchbay', 'api_url')
-        extra_kwargs = {
-            'stack': {'view_name': 'api:stack-detail'},
-            'model': {'view_name': 'api:modelswitch-detail'},
-            'switchbay': {'view_name': 'api:switchbay-detail'},
-            'api_url': {'view_name': 'api:switch-detail'}
-        }
 
 
-class ModelSwitchSerializer(serializers.HyperlinkedModelSerializer):
+class ModelSwitchSerializer(NamespacedHMSerializer):
     class Meta:
-        model = ModelSwitch
+        model = topologie.ModelSwitch
         fields = ('reference', 'constructor', 'api_url')
-        extra_kwargs = {
-            'constructor': {'view_name': 'api:constructorswitch-detail'},
-            'api_url': {'view_name': 'api:modelswitch-detail'}
-        }
 
 
-class ConstructorSwitchSerializer(serializers.HyperlinkedModelSerializer):
+class ConstructorSwitchSerializer(NamespacedHMSerializer):
     class Meta:
-        model = ConstructorSwitch
+        model = topologie.ConstructorSwitch
         fields = ('name', 'api_url')
-        extra_kwargs = {
-                'api_url': {'view_name': 'api:constructorswitch-detail'}
-        }
 
 
-class SwitchBaySerializer(serializers.HyperlinkedModelSerializer):
+class SwitchBaySerializer(NamespacedHMSerializer):
     class Meta:
-        model = SwitchBay
+        model = topologie.SwitchBay
         fields = ('name', 'building', 'info', 'api_url')
-        extra_kwargs = {
-            'building': {'view_name': 'api:building-detail'},
-            'api_url': {'view_name': 'api:switchbay-detail'}
-        }
 
 
-class BuildingSerializer(serializers.HyperlinkedModelSerializer):
+class BuildingSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Building
+        model = topologie.Building
         fields = ('name', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:building-detail'}
-        }
 
 
-class SwitchPortSerializer(serializers.HyperlinkedModelSerializer):
+class SwitchPortSerializer(NamespacedHMSerializer):
     class Meta:
-        model = SwitchPort
+        model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
                   'radius', 'vlan_force', 'details', 'api_url')
-        extra_kwargs = {
-            'switch': {'view_name': 'api:switch-detail'},
-            'room': {'view_name': 'api:room-detail'},
-            'machine_interface': {'view_name': 'api:interface-detail'},
-            'related': {'view_name': 'api:switchport-detail'},
-            'vlan_force': {'view_name': 'api:vlan-detail'},
-            'api_url': {'view_name': 'api:switchport-detail'}
-        }
 
 
-class RoomSerializer(serializers.HyperlinkedModelSerializer):
+class RoomSerializer(NamespacedHMSerializer):
     class Meta:
-        model = Room
+        model = topologie.Room
         fields = ('name', 'details', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:room-detail'}
-        }
 
 
 # USERS APP
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(NamespacedHMSerializer):
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
 
     class Meta:
-        model = User
+        model = users.User
         fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'solde', #'room',
                   'access', 'end_access', 'uid', 'class_name', 'api_url')
-        extra_kwargs = {
-            'school': {'view_name': 'api:school-detail'},
-            'shell': {'view_name': 'api:shell-detail'},
-            #'room': {'view_name': 'api:room-detail'},
-            'api_url': {'view_name': 'api:user-detail'}
-        }
 
 
-class ClubSerializer(serializers.HyperlinkedModelSerializer):
+class ClubSerializer(NamespacedHMSerializer):
     name = serializers.CharField(source='surname')
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
 
     class Meta:
-        model = Club
+        model = users.Club
         fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'solde', #'room',
                   'access', 'end_access', 'administrators', 'members',
                   'mailing', 'uid', 'api_url')
-        extra_kwargs = {
-            'school': {'view_name': 'api:school-detail'},
-            'shell': {'view_name': 'api:shell-detail'},
-            #'room': {'view_name': 'api:room-detail'},
-            'administrators': {'view_name': 'api:adherent-detail'},
-            'members': {'view_name': 'api:adherent-detail'},
-            'api_url': {'view_name': 'api:club-detail'}
-        }
 
 
-class AdherentSerializer(serializers.HyperlinkedModelSerializer):
+class AdherentSerializer(NamespacedHMSerializer):
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
 
     class Meta:
-        model = Adherent
+        model = users.Adherent
         fields = ('name', 'surname', 'pseudo', 'email', 'school', 'shell',
                   'comment', 'state', 'registered', 'telephone', #'room',
                   'solde', 'access', 'end_access', 'uid', 'api_url')
-        extra_kwargs = {
-            'school': {'view_name': 'api:school-detail'},
-            'shell': {'view_name': 'api:shell-detail'},
-            #'room': {'view_name': 'api:room-detail'},
-            'api_url': {'view_name': 'api:adherent-detail'}
-        }
 
 
-class ServiceUserSerializer(serializers.HyperlinkedModelSerializer):
+class ServiceUserSerializer(NamespacedHMSerializer):
     class Meta:
-        model = ServiceUser
+        model = users.ServiceUser
         fields = ('pseudo', 'access_group', 'comment', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:serviceuser-detail'}
-        }
 
 
-class SchoolSerializer(serializers.HyperlinkedModelSerializer):
+class SchoolSerializer(NamespacedHMSerializer):
     class Meta:
-        model = School
+        model = users.School
         fields = ('name', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:school-detail'}
-        }
 
 
-class ListRightSerializer(serializers.HyperlinkedModelSerializer):
+class ListRightSerializer(NamespacedHMSerializer):
     class Meta:
-        model = ListRight
+        model = users.ListRight
         fields = ('unix_name', 'gid', 'critical', 'details', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:listright-detail'}
-        }
 
 
-class ShellSerializer(serializers.HyperlinkedModelSerializer):
+class ShellSerializer(NamespacedHMSerializer):
     class Meta:
-        model = ListShell
+        model = users.ListShell
         fields = ('shell', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'api:shell-detail'}
-        }
 
 
-class BanSerializer(serializers.HyperlinkedModelSerializer):
+class BanSerializer(NamespacedHMSerializer):
     active = serializers.BooleanField(source='is_active')
 
     class Meta:
-        model = Ban
+        model = users.Ban
         fields = ('user', 'raison', 'date_start', 'date_end', 'state',
                   'active', 'api_url')
-        extra_kwargs = {
-            'user': {'view_name': 'api:user-detail'},
-            'api_url': {'view_name': 'api:ban-detail'}
-        }
 
 
-class WhitelistSerializer(serializers.HyperlinkedModelSerializer):
+class WhitelistSerializer(NamespacedHMSerializer):
     active = serializers.BooleanField(source='is_active')
 
     class Meta:
-        model = Whitelist
+        model = users.Whitelist
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
-        extra_kwargs = {
-            'user': {'view_name': 'api:user-detail'},
-            'api_url': {'view_name': 'api:whitelist-detail'}
-        }
 
 
 

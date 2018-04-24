@@ -33,397 +33,282 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
+import cotisations.models as cotisations
+import machines.models as machines
+import preferences.models as preferences
+import topologie.models as topologie
+import users.models as users
 
-from cotisations.models import (
-    Facture,
-    Vente,
-    Article,
-    Banque,
-    Paiement,
-    Cotisation
-)
-from machines.models import (
-    Machine,
-    MachineType,
-    IpType,
-    Vlan,
-    Nas,
-    SOA,
-    Extension,
-    Mx,
-    Ns,
-    Txt,
-    Srv,
-    Interface,
-    Ipv6List,
-    Domain,
-    IpList,
-    Service,
-    Service_link,
-    OuverturePortList,
-    OuverturePort
-)
-# from preferences.models import (
-#     OptionalUser,
-#     OptionalMachine,
-#     OptionalTopologie,
-#     GeneralOption,
-#     AssoOption,
-#     HomeOption,
-#     MailMessageOption
-# )
-# # Avoid duplicate names
-# from preferences.models import Service as ServiceOption
-from topologie.models import (
-    Stack,
-    AccessPoint,
-    Switch,
-    ModelSwitch,
-    ConstructorSwitch,
-    SwitchBay,
-    Building,
-    Room
-)
-from topologie.models import Port as SwitchPort
-from users.models import (
-    User,
-    Club,
-    Adherent,
-    ServiceUser,
-    School,
-    ListRight,
-    ListShell,
-    Ban,
-    Whitelist
-)
-
-from .serializers import (
-    # COTISATIONS APP
-    FactureSerializer,
-    VenteSerializer,
-    ArticleSerializer,
-    BanqueSerializer,
-    PaiementSerializer,
-    CotisationSerializer,
-    # MACHINES APP
-    MachineSerializer,
-    MachineTypeSerializer,
-    IpTypeSerializer,
-    VlanSerializer,
-    NasSerializer,
-    SOASerializer,
-    ExtensionSerializer,
-    MxSerializer,
-    NsSerializer,
-    TxtSerializer,
-    SrvSerializer,
-    InterfaceSerializer,
-    Ipv6ListSerializer,
-    DomainSerializer,
-    IpListSerializer,
-    ServiceSerializer,
-    ServiceLinkSerializer,
-    OuverturePortListSerializer,
-    OuverturePortSerializer,
-    # PREFERENCES APP
-    # OptionalUserSerializer,
-    # OptionalMachineSerializer,
-    # OptionalTopologieSerializer,
-    # GeneralOptionSerializer,
-    # ServiceOptionSerializer,
-    # AssoOptionSerializer,
-    # HomeOptionSerializer,
-    # MailMessageOptionSerializer,
-    # TOPOLOGIE APP
-    StackSerializer,
-    AccessPointSerializer,
-    SwitchSerializer,
-    ModelSwitchSerializer,
-    ConstructorSwitchSerializer,
-    SwitchBaySerializer,
-    BuildingSerializer,
-    SwitchPortSerializer,
-    RoomSerializer,
-    # USERS APP
-    UserSerializer,
-    ClubSerializer,
-    AdherentSerializer,
-    ServiceUserSerializer,
-    SchoolSerializer,
-    ListRightSerializer,
-    ShellSerializer,
-    BanSerializer,
-    WhitelistSerializer
-)
+from . import serializers
 
 
 # COTISATIONS APP
 
 
 class FactureViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Facture.objects.all()
-    serializer_class = FactureSerializer
+    queryset = cotisations.Facture.objects.all()
+    serializer_class = serializers.FactureSerializer
 
 
 class VenteViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Vente.objects.all()
-    serializer_class = VenteSerializer
+    queryset = cotisations.Vente.objects.all()
+    serializer_class = serializers.VenteSerializer
 
 
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Article.objects.all()
-    serializer_class = ArticleSerializer
+    queryset = cotisations.Article.objects.all()
+    serializer_class = serializers.ArticleSerializer
 
 
 class BanqueViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Banque.objects.all()
-    serializer_class = BanqueSerializer
+    queryset = cotisations.Banque.objects.all()
+    serializer_class = serializers.BanqueSerializer
 
 
 class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Paiement.objects.all()
-    serializer_class = PaiementSerializer
+    queryset = cotisations.Paiement.objects.all()
+    serializer_class = serializers.PaiementSerializer
 
 
 class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Cotisation.objects.all()
-    serializer_class = CotisationSerializer
+    queryset = cotisations.Cotisation.objects.all()
+    serializer_class = serializers.CotisationSerializer
 
 
 # MACHINES APP
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Machine.objects.all()
-    serializer_class = MachineSerializer
+    queryset = machines.Machine.objects.all()
+    serializer_class = serializers.MachineSerializer
 
 
 class MachineTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = MachineType.objects.all()
-    serializer_class = MachineTypeSerializer
+    queryset = machines.MachineType.objects.all()
+    serializer_class = serializers.MachineTypeSerializer
 
 
 class IpTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = IpType.objects.all()
-    serializer_class = IpTypeSerializer
+    queryset = machines.IpType.objects.all()
+    serializer_class = serializers.IpTypeSerializer
 
 
 class VlanViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Vlan.objects.all()
-    serializer_class = VlanSerializer
+    queryset = machines.Vlan.objects.all()
+    serializer_class = serializers.VlanSerializer
 
 
 class NasViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Nas.objects.all()
-    serializer_class = NasSerializer
+    queryset = machines.Nas.objects.all()
+    serializer_class = serializers.NasSerializer
 
 
 class SOAViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SOA.objects.all()
-    serializer_class = SOASerializer
+    queryset = machines.SOA.objects.all()
+    serializer_class = serializers.SOASerializer
 
 
 class ExtensionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Extension.objects.all()
-    serializer_class = ExtensionSerializer
+    queryset = machines.Extension.objects.all()
+    serializer_class = serializers.ExtensionSerializer
 
 
 class MxViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Mx.objects.all()
-    serializer_class = MxSerializer
+    queryset = machines.Mx.objects.all()
+    serializer_class = serializers.MxSerializer
 
 
 class NsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ns.objects.all()
-    serializer_class = NsSerializer
+    queryset = machines.Ns.objects.all()
+    serializer_class = serializers.NsSerializer
 
 
 class TxtViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Txt.objects.all()
-    serializer_class = TxtSerializer
+    queryset = machines.Txt.objects.all()
+    serializer_class = serializers.TxtSerializer
 
 
 class SrvViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Srv.objects.all()
-    serializer_class = SrvSerializer
+    queryset = machines.Srv.objects.all()
+    serializer_class = serializers.SrvSerializer
 
 
 class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Interface.objects.all()
-    serializer_class = InterfaceSerializer
+    queryset = machines.Interface.objects.all()
+    serializer_class = serializers.InterfaceSerializer
 
 
 class Ipv6ListViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ipv6List.objects.all()
-    serializer_class = Ipv6ListSerializer
+    queryset = machines.Ipv6List.objects.all()
+    serializer_class = serializers.Ipv6ListSerializer
 
 
 class DomainViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Domain.objects.all()
-    serializer_class = DomainSerializer
+    queryset = machines.Domain.objects.all()
+    serializer_class = serializers.DomainSerializer
 
 
 class IpListViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = IpList.objects.all()
-    serializer_class = IpListSerializer
+    queryset = machines.IpList.objects.all()
+    serializer_class = serializers.IpListSerializer
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Service.objects.all()
-    serializer_class = ServiceSerializer
+    queryset = machines.Service.objects.all()
+    serializer_class = serializers.ServiceSerializer
 
 
 class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Service_link.objects.all()
-    serializer_class = ServiceLinkSerializer
+    queryset = machines.Service_link.objects.all()
+    serializer_class = serializers.ServiceLinkSerializer
 
 
 class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = OuverturePortList.objects.all()
-    serializer_class = OuverturePortListSerializer
+    queryset = machines.OuverturePortList.objects.all()
+    serializer_class = serializers.OuverturePortListSerializer
 
 
 class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = OuverturePort.objects.all()
-    serializer_class = OuverturePortSerializer
+    queryset = machines.OuverturePort.objects.all()
+    serializer_class = serializers.OuverturePortSerializer
 
 
 # PREFERENCES APP
 
 # class OptionalUserViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = OptionalUser.objects.all()
-#     serializer_class = OptionalUserSerializer
+#     queryset = preferences.OptionalUser.objects.all()
+#     serializer_class = serializers.OptionalUserSerializer
 # 
 # 
 # class OptionalMachineViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = OptionalMachine.objects.all()
-#     serializer_class = OptionalMachineSerializer
+#     queryset = preferences.OptionalMachine.objects.all()
+#     serializer_class = serializers.OptionalMachineSerializer
 # 
 # 
 # class OptionalTopologieViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = OptionalTopologie.objects.all()
-#     serializer_class = OptionalTopologieSerializer
+#     queryset = preferences.OptionalTopologie.objects.all()
+#     serializer_class = serializers.OptionalTopologieSerializer
 # 
 # 
 # class GeneralOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = GeneralOption.objects.all()
-#     serializer_class = GeneralOptionSerializer
+#     queryset = preferences.GeneralOption.objects.all()
+#     serializer_class = serializers.GeneralOptionSerializer
 # 
 # 
 # class ServiceOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = ServiceOption.objects.all()
-#     serializer_class = ServiceOptionSerializer
+#     queryset = preferences.ServiceOption.objects.all()
+#     serializer_class = serializers.ServiceOptionSerializer
 # 
 # 
 # class AssoOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = AssoOption.objects.all()
-#     serializer_class = AssoOptionSerializer
+#     queryset = preferences.AssoOption.objects.all()
+#     serializer_class = serializers.AssoOptionSerializer
 # 
 # 
 # class HomeOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = HomeOption.objects.all()
-#     serializer_class = HomeOptionSerializer
+#     queryset = preferences.HomeOption.objects.all()
+#     serializer_class = serializers.HomeOptionSerializer
 # 
 # 
 # class MailMessageOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = MailMessageOption.objects.all()
-#     serializer_class = MailMessageOptionSerializer
+#     queryset = preferences.MailMessageOption.objects.all()
+#     serializer_class = serializers.MailMessageOptionSerializer
 
 
 # TOPOLOGIE APP
 
 
 class StackViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Stack.objects.all()
-    serializer_class = StackSerializer
+    queryset = topologie.Stack.objects.all()
+    serializer_class = serializers.StackSerializer
 
 
 class AccessPointViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AccessPoint.objects.all()
-    serializer_class = AccessPointSerializer
+    queryset = topologie.AccessPoint.objects.all()
+    serializer_class = serializers.AccessPointSerializer
 
 
 class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Switch.objects.all()
-    serializer_class = SwitchSerializer
+    queryset = topologie.Switch.objects.all()
+    serializer_class = serializers.SwitchSerializer
 
 
 class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ModelSwitch.objects.all()
-    serializer_class = ModelSwitchSerializer
+    queryset = topologie.ModelSwitch.objects.all()
+    serializer_class = serializers.ModelSwitchSerializer
 
 
 class ConstructorSwitchViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ConstructorSwitch.objects.all()
-    serializer_class = ConstructorSwitchSerializer
+    queryset = topologie.ConstructorSwitch.objects.all()
+    serializer_class = serializers.ConstructorSwitchSerializer
 
 
 class SwitchBayViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SwitchBay.objects.all()
-    serializer_class = SwitchBaySerializer
+    queryset = topologie.SwitchBay.objects.all()
+    serializer_class = serializers.SwitchBaySerializer
 
 
 class BuildingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Building.objects.all()
-    serializer_class = BuildingSerializer
+    queryset = topologie.Building.objects.all()
+    serializer_class = serializers.BuildingSerializer
 
 
 class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SwitchPort.objects.all()
-    serializer_class = SwitchPortSerializer
+    queryset = topologie.Port.objects.all()
+    serializer_class = serializers.SwitchPortSerializer
 
 
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
+    queryset = topologie.Room.objects.all()
+    serializer_class = serializers.RoomSerializer
 
 
 # USER APP
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    queryset = users.User.objects.all()
+    serializer_class = serializers.UserSerializer
 
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Club.objects.all()
-    serializer_class = ClubSerializer
+    queryset = users.Club.objects.all()
+    serializer_class = serializers.ClubSerializer
 
 
 class AdherentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Adherent.objects.all()
-    serializer_class = AdherentSerializer
+    queryset = users.Adherent.objects.all()
+    serializer_class = serializers.AdherentSerializer
 
 
 class ServiceUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ServiceUser.objects.all()
-    serializer_class = ServiceUserSerializer
+    queryset = users.ServiceUser.objects.all()
+    serializer_class = serializers.ServiceUserSerializer
 
 
 class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
+    queryset = users.School.objects.all()
+    serializer_class = serializers.SchoolSerializer
 
 
 class ListRightViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ListRight.objects.all()
-    serializer_class = ListRightSerializer
+    queryset = users.ListRight.objects.all()
+    serializer_class = serializers.ListRightSerializer
 
 
 class ShellViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ListShell.objects.all()
-    serializer_class = ShellSerializer
+    queryset = users.ListShell.objects.all()
+    serializer_class = serializers.ShellSerializer
 
 
 class BanViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ban.objects.all()
-    serializer_class = BanSerializer
+    queryset = users.Ban.objects.all()
+    serializer_class = serializers.BanSerializer
 
 
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Whitelist.objects.all()
-    serializer_class = WhitelistSerializer
+    queryset = users.Whitelist.objects.all()
+    serializer_class = serializers.WhitelistSerializer
 
 # Subclass the standard rest_framework.auth_token.views.ObtainAuthToken
 # in order to renew the lease of the token and add expiration time
