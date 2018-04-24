@@ -74,6 +74,17 @@ from machines.models import (
 # )
 # # Avoid duplicate names
 # from preferences.models import Service as ServiceOption
+from topologie.models import (
+    Stack,
+    AccessPoint,
+    Switch,
+    ModelSwitch,
+    ConstructorSwitch,
+    SwitchBay,
+    Building,
+    Room
+)
+from topologie.models import Port as SwitchPort
 from users.models import (
     User,
     Club,
@@ -123,6 +134,16 @@ from .serializers import (
     # AssoOptionSerializer,
     # HomeOptionSerializer,
     # MailMessageOptionSerializer,
+    # TOPOLOGIE APP
+    StackSerializer,
+    AccessPointSerializer,
+    SwitchSerializer,
+    ModelSwitchSerializer,
+    ConstructorSwitchSerializer,
+    SwitchBaySerializer,
+    BuildingSerializer,
+    SwitchPortSerializer,
+    RoomSerializer,
     # USERS APP
     UserSerializer,
     ClubSerializer,
@@ -307,6 +328,54 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
 # class MailMessageOptionViewSet(viewsets.ReadOnlyModelViewSet):
 #     queryset = MailMessageOption.objects.all()
 #     serializer_class = MailMessageOptionSerializer
+
+
+# TOPOLOGIE APP
+
+
+class StackViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Stack.objects.all()
+    serializer_class = StackSerializer
+
+
+class AccessPointViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = AccessPoint.objects.all()
+    serializer_class = AccessPointSerializer
+
+
+class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Switch.objects.all()
+    serializer_class = SwitchSerializer
+
+
+class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ModelSwitch.objects.all()
+    serializer_class = ModelSwitchSerializer
+
+
+class ConstructorSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ConstructorSwitch.objects.all()
+    serializer_class = ConstructorSwitchSerializer
+
+
+class SwitchBayViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = SwitchBay.objects.all()
+    serializer_class = SwitchBaySerializer
+
+
+class BuildingViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Building.objects.all()
+    serializer_class = BuildingSerializer
+
+
+class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = SwitchPort.objects.all()
+    serializer_class = SwitchPortSerializer
+
+
+class RoomViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
 
 
 # USER APP

@@ -64,6 +64,17 @@ from preferences.models import (
 )
 # Avoid duplicate names
 from preferences.models import Service as ServiceOption
+from topologie.models import (
+    Stack,
+    AccessPoint,
+    Switch,
+    ModelSwitch,
+    ConstructorSwitch,
+    SwitchBay,
+    Building,
+    Room
+)
+from topologie.models import Port as SwitchPort
 from users.models import (
     User,
     Club,
@@ -454,6 +465,106 @@ class OuverturePortSerializer(serializers.HyperlinkedModelSerializer):
 #         extra_kwargs = {
 #             'api_url': {'view_name': 'api:mailmessageoption-detail'}
 #         }
+
+
+
+# TOPOLOGIE APP
+
+
+class StackSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Stack
+        fields = ('name', 'stack_id', 'details', 'member_id_min',
+                  'member_id_max', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:stack-detail'}
+        }
+
+
+class AccessPointSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AccessPoint
+        fields = ('user', 'name', 'active', 'location', 'api_url')
+        extra_kwargs = {
+            'user': {'view_name': 'api:user-detail'},
+            'api_url': {'view_name': 'api:accesspoint-detail'}
+        }
+
+
+class SwitchSerializer(serializers.HyperlinkedModelSerializer):
+    port_amount = serializers.IntegerField(source='number')
+    class Meta:
+        model = Switch
+        fields = ('port_amount', 'stack', 'stack_member_id', 'model',
+                  'switchbay', 'api_url')
+        extra_kwargs = {
+            'stack': {'view_name': 'api:stack-detail'},
+            'model': {'view_name': 'api:modelswitch-detail'},
+            'switchbay': {'view_name': 'api:switchbay-detail'},
+            'api_url': {'view_name': 'api:switch-detail'}
+        }
+
+
+class ModelSwitchSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ModelSwitch
+        fields = ('reference', 'constructor', 'api_url')
+        extra_kwargs = {
+            'constructor': {'view_name': 'api:constructorswitch-detail'},
+            'api_url': {'view_name': 'api:modelswitch-detail'}
+        }
+
+
+class ConstructorSwitchSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ConstructorSwitch
+        fields = ('name', 'api_url')
+        extra_kwargs = {
+                'api_url': {'view_name': 'api:constructorswitch-detail'}
+        }
+
+
+class SwitchBaySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = SwitchBay
+        fields = ('name', 'building', 'info', 'api_url')
+        extra_kwargs = {
+            'building': {'view_name': 'api:building-detail'},
+            'api_url': {'view_name': 'api:switchbay-detail'}
+        }
+
+
+class BuildingSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Building
+        fields = ('name', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:building-detail'}
+        }
+
+
+class SwitchPortSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = SwitchPort
+        fields = ('switch', 'port', 'room', 'machine_interface', 'related',
+                  'radius', 'vlan_force', 'details', 'api_url')
+        extra_kwargs = {
+            'switch': {'view_name': 'api:switch-detail'},
+            'room': {'view_name': 'api:room-detail'},
+            'machine_interface': {'view_name': 'api:interface-detail'},
+            'related': {'view_name': 'api:switchport-detail'},
+            'vlan_force': {'view_name': 'api:vlan-detail'},
+            'api_url': {'view_name': 'api:switchport-detail'}
+        }
+
+
+class RoomSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Room
+        fields = ('name', 'details', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'api:room-detail'}
+        }
 
 
 # USERS APP
