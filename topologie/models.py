@@ -49,7 +49,7 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from machines.models import Machine, regen
-from re2o.mixins import AclMixin, RevMixin
+from re2o.mixins import AclMixin, RevMixin, SwitchPluggedMixin
 
 
 class Stack(AclMixin, RevMixin, models.Model):
@@ -85,7 +85,7 @@ class Stack(AclMixin, RevMixin, models.Model):
                 inférieure à l'id minimale"})
 
 
-class AccessPoint(AclMixin, Machine):
+class AccessPoint(AclMixin, SwitchPluggedMixin, Machine):
     """Define a wireless AP. Inherit from machines.interfaces
 
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -104,18 +104,6 @@ class AccessPoint(AclMixin, Machine):
             ("view_accesspoint", "Peut voir une borne"),
         )
 
-    def switch(self):
-        """Return the switch where this is plugged"""
-        return Switch.objects.filter(
-            ports__machine_interface__machine=self
-            )
-
-    def building(self):
-        """Return the building of the AP (building of the switchs connected to...)"""
-        return Building.objects.filter(
-            switchbay__switch=self.switch()
-            )
-
     @classmethod
     def all_ap_in(cls, building_instance):
         """Get a building as argument, returns all ap of a building"""
@@ -124,9 +112,21 @@ class AccessPoint(AclMixin, Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
-    @cached_property
-    def short_name(self):
-        return str(self.interface_set.first().domain.name)
+
+class Server(Machine, SwitchPluggedMixin):
+    """Dummy class, to retrieve servers of a building, or get switch of a server"""
+
+    class Meta:
+        proxy = True
+
+    @classmethod
+    def all_server_in(cls, building_instance):
+        """Get a building as argument, returns all server of a building"""
+        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance).exclude(accesspoint__isnull=False)
+
+    def __str__(self):
+        return str(self.interface_set.first())
+
 
 class Switch(AclMixin, Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),

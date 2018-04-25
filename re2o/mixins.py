@@ -24,6 +24,7 @@ A set of mixins used all over the project to avoid duplicating code
 """
 
 from reversion import revisions as reversion
+from django.utils.functional import cached_property
 
 
 class RevMixin(object):
@@ -157,3 +158,23 @@ class AclMixin(object):
             ),
             u"Vous n'avez pas le droit de voir des " + self.get_classname()
         )
+
+
+class SwitchPluggedMixin(object):
+    """Mixin to get building.switch where the device is plugged"""
+
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+            )
+
+    def building(self):
+        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+            )
+
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
