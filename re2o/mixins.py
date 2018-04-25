@@ -160,21 +160,3 @@ class AclMixin(object):
         )
 
 
-class SwitchPluggedMixin(object):
-    """Mixin to get building.switch where the device is plugged"""
-
-    def switch(self):
-        """Return the switch where this is plugged"""
-        return Switch.objects.filter(
-            ports__machine_interface__machine=self
-            )
-
-    def building(self):
-        """Return the building of the AP/Server (building of the switchs connected to...)"""
-        return Building.objects.filter(
-            switchbay__switch=self.switch()
-            )
-
-    @cached_property
-    def short_name(self):
-        return str(self.interface_set.first().domain.name)

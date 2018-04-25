@@ -49,7 +49,9 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from machines.models import Machine, regen
-from re2o.mixins import AclMixin, RevMixin, SwitchPluggedMixin
+from re2o.mixins import AclMixin, RevMixin
+
+
 
 
 class Stack(AclMixin, RevMixin, models.Model):
@@ -85,7 +87,7 @@ class Stack(AclMixin, RevMixin, models.Model):
                 inférieure à l'id minimale"})
 
 
-class AccessPoint(AclMixin, SwitchPluggedMixin, Machine):
+class AccessPoint(AclMixin, Machine):
     """Define a wireless AP. Inherit from machines.interfaces
 
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -104,6 +106,22 @@ class AccessPoint(AclMixin, SwitchPluggedMixin, Machine):
             ("view_accesspoint", "Peut voir une borne"),
         )
 
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+        )
+
+    def building(self):
+        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+        )
+
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
+
     @classmethod
     def all_ap_in(cls, building_instance):
         """Get a building as argument, returns all ap of a building"""
@@ -113,11 +131,27 @@ class AccessPoint(AclMixin, SwitchPluggedMixin, Machine):
         return str(self.interface_set.first())
 
 
-class Server(Machine, SwitchPluggedMixin):
+class Server(Machine):
     """Dummy class, to retrieve servers of a building, or get switch of a server"""
 
     class Meta:
         proxy = True
+
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+        )
+
+    def building(self):
+        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+        )
+
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
 
     @classmethod
     def all_server_in(cls, building_instance):
