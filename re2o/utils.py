@@ -44,6 +44,49 @@ from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
 
+# Mapping of srtftime format for better understanding
+# https://docs.python.org/3.6/library/datetime.html#strftime-strptime-behavior
+datetime_mapping={
+    '%a': '%a',
+    '%A': '%A',
+    '%w': '%w',
+    '%d': 'dd',
+    '%b': '%b',
+    '%B': '%B',
+    '%m': 'mm',
+    '%y': 'yy',
+    '%Y': 'yyyy',
+    '%H': 'HH',
+    '%I': 'HH(12h)',
+    '%p': 'AMPM',
+    '%M': 'MM',
+    '%S': 'SS',
+    '%f': 'µµ',
+    '%z': 'UTC(+/-HHMM)',
+    '%Z': 'UTC(TZ)',
+    '%j': '%j',
+    '%U': 'ww',
+    '%W': 'ww',
+    '%c': '%c',
+    '%x': '%x',
+    '%X': '%X',
+    '%%': '%%',
+}
+
+
+def convert_datetime_format(format):
+    i=0
+    new_format = ""
+    while i < len(format):
+        if format[i] == '%':
+            char = format[i:i+2]
+            new_format += datetime_mapping.get(char, char)
+            i += 2
+        else:
+            new_format += format[i]
+            i += 1
+    return new_format
+
 
 def all_adherent(search_time=None):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
@@ -318,3 +361,19 @@ def remove_user_room(room):
         return
     user.room = None
     user.save()
+
+
+def get_input_formats_help_text(input_formats):
+    """Returns a help text about the possible input formats"""
+    if len(input_formats) > 1:
+        help_text_template="Format: {main} {more}"
+    else:
+        help_text_template="Format: {main}"
+    more_text_template="<i class=\"fa fa-question-circle\" title=\"{}\"></i>"
+    help_text = help_text_template.format(
+        main=convert_datetime_format(input_formats[0]),
+        more=more_text_template.format(
+            '\n'.join(map(convert_datetime_format, input_formats))
+        )
+    )
+    return help_text

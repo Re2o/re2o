@@ -1229,7 +1229,7 @@ class Ban(RevMixin, AclMixin, models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+    date_end = models.DateTimeField()
     state = models.IntegerField(choices=STATES, default=STATE_HARD)
 
     class Meta:
@@ -1314,7 +1314,7 @@ class Whitelist(RevMixin, AclMixin, models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+    date_end = models.DateTimeField()
 
     class Meta:
         permissions = (
