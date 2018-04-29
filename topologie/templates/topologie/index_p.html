@@ -36,6 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:create-ports'  id_switch %}"><i class="fa fa-plus"></i> Ajouter des ports</a>
 {% acl_end %}
 <hr>
+{% include "topologie/aff_repr_switch.html" with port_list=port_list %}
 {% include "topologie/aff_port.html" with port_list=port_list %}
     <br />
     <br />
