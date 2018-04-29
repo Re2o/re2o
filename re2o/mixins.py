@@ -24,6 +24,7 @@ A set of mixins used all over the project to avoid duplicating code
 """
 
 from reversion import revisions as reversion
+from django.db import transaction
 
 
 class RevMixin(object):
@@ -33,13 +34,16 @@ class RevMixin(object):
     def save(self, *args, **kwargs):
         """ Creates a version of this object and save it to database """
         if self.pk is None:
-            reversion.set_comment("Création")
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_comment("Création")
+                return super(RevMixin, self).save(*args, **kwargs)
         return super(RevMixin, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """ Creates a version of this object and delete it from database """
-        reversion.set_comment("Suppresion")
-        return super(RevMixin, self).delete(*args, **kwargs)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_comment("Suppresion")
+            return super(RevMixin, self).delete(*args, **kwargs)
 
 
 class FormRevMixin(object):
