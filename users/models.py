@@ -1175,7 +1175,7 @@ class ListRight(RevMixin, AclMixin, Group):
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
-        group_ldap.name = self.listright
+        group_ldap.name = self.unix_name
         group_ldap.members = [user.pseudo for user
                               in self.user_set.all()]
         group_ldap.save()
