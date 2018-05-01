@@ -40,7 +40,7 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils.functional import cached_property
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
@@ -50,6 +50,9 @@ from reversion import revisions as reversion
 
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
+
+from os.path import isfile 
+from os import remove
 
 
 
@@ -106,6 +109,12 @@ class AccessPoint(AclMixin, Machine):
             ("view_accesspoint", "Peut voir une borne"),
         )
 
+    def port(self):
+        """Return the queryset of ports for this device"""
+        return Port.objects.filter(
+            machine_interface__machine=self
+        )
+
     def switch(self):
         """Return the switch where this is plugged"""
         return Switch.objects.filter(
@@ -136,6 +145,12 @@ class Server(Machine):
 
     class Meta:
         proxy = True
+
+    def port(self):
+        """Return the queryset of ports for this device"""
+        return Port.objects.filter(
+            machine_interface__machine=self
+        )
 
     def switch(self):
         """Return the switch where this is plugged"""
@@ -489,3 +504,14 @@ def ap_post_delete(**_kwargs):
 def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
+
+#@receiver(post_save, sender=Port)
+#@receiver(post_save, sender=AccessPoint)
+#@receiver(post_save, sender=ModelSwitch)
+#@receiver(post_save, sender=Building)
+#@receiver(post_save, sender=Building)
+#@receiver(post_save, sender=Server)
+@receiver(pre_save, sender=Switch)
+def delete_graph(**_kwargs):
+    if isfile("media/images/switchs.png"):
+        remove("media/images/switchs.png")

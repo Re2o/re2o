@@ -12,8 +12,9 @@ fontsize=15;
 label="Batiment {{ sub.bat_name }}";
 
 {% if sub.bornes %}
+{% block bornes %}
 node [label=<
-<TABLE BGCOLOR="{{ colors.back}}" BORDER="1" COLOR="#021f87" CELLBORDER="0" CELLSPACING="0">
+<TABLE BGCOLOR="{{ colors.back}}" BORDER="0" CELLBORDER="0" CELLSPACING="0">
 <TR>
 	<TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="{{ colors.head_bornes }}"> 
 	<FONT FACE="Helvetica Bold" COLOR="white">Borne</FONT></TD>
@@ -22,8 +23,6 @@ node [label=<
 	<TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="{{ colors.head_bornes }}"> 
 	<FONT FACE="Helvetica Bold" COLOR="white">Port</FONT></TD>
 </TR>
-
-{% block bornes %}
 {% for borne in sub.bornes %}
 <TR>
 	<TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BORDER="0">
@@ -37,9 +36,15 @@ node [label=<
 	</TD>
 </TR>
 {% endfor %}
+</TABLE>
+>] {{sub.bat_name}}bornes;
 {% endblock %}
+{% endif %}
 
 {% if sub.machines %}
+{% block machines %}
+node [label=<
+<TABLE BGCOLOR="{{ colors.back}}" BORDER="0" CELLBORDER="0" CELLSPACING="0">
 <TR>
 	<TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="{{ colors.head_server }}"> 
 	<FONT FACE="Helvetica Bold" COLOR="white">Machine</FONT></TD>
@@ -62,10 +67,9 @@ node [label=<
 	</TD>
 </TR>
 {% endfor %}
-{% endif %}
-
 </TABLE>
->] {{sub.bat_name}}bornes;
+>] {{sub.bat_name}}machines;
+{% endblock %}
 {% endif %}
 
 
