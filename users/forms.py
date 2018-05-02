@@ -422,11 +422,18 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = ServiceUser
-        fields = ('pseudo', 'access_group')
+        fields = ('pseudo', 'access_group','comment')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+    def save(self, commit=True):
+        """Changement du mot de passe"""
+        user = super(ServiceUserForm, self).save(commit=False)
+        if self.cleaned_data['password']:
+            user.set_password(self.cleaned_data.get("password"))
+        user.save()
 
 
 class EditServiceUserForm(ServiceUserForm):
