@@ -24,69 +24,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 
-
-<div class="table-responsive" style="font-size: 12px">
-    <table class="table table-bordered text-center text-nowrap">
-        <thead>
-        <tr>
-
-        {% for port in port_list|slice:"::2" %}
-            <td class="bg-primary text-white">{{ port.port }}</td>
-        {% endfor %}
-
-        </tr>
-        <tr>
-
-        {% for port in port_list|slice:"::2" %}
-            {% if port.room %}
-            <td class="p-3 mb-2 bg-success text-dark">
-            {{ port.room }}
-            {% elif port.machine_interface %}
-	    <td class="p-3 mb-2 bg-warning text-dark">
-	    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
-            {% elif port.related%}
-	    <td class="p-3 mb-2 bg-danger text-dark">
-	    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
-            {% else %}
-	    <td class="p-3 mb-2 bg-info text-dark">
-            Vide
-            {% endif %}
-            </td>
-        {% endfor %}
-        
-        </tr>
-
-        <tr>
-
-        {% for port in port_list|slice:"1::2" %}
-            <td class="bg-primary text-white">{{ port.port }}</td>
-        {% endfor %}
-
-        </tr>
-        <tr>
-
-        {% for port in port_list|slice:"1::2" %}
-            {% if port.room %}
-            <td class="p-3 mb-2 bg-success text-dark">
-            {{ port.room }}
-            {% elif port.machine_interface %}
-	    <td class="p-3 mb-2 bg-warning text-dark">
-	    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
-            {% elif port.related%}
-	    <td class="p-3 mb-2 bg-danger text-dark">
-	    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
-            {% else %}
-	    <td class="p-3 mb-2 bg-info text-dark">
-            Vide
-            {% endif %}
-            </td>
-        {% endfor %}
-        
-        </tr>
-    </table>
-</div>
-
-
 <div class="table-responsive">
 <table class="table table-striped">
     <thead>
@@ -105,37 +42,47 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    <tr>
         <td>{{ port.port }}</td>
         <td>
-        {% if port.room %}
-            {{ port.room }}
-        {% endif %}
+            {% if port.room %}{{ port.room }}{% endif %}
         </td>
         <td>
-        {% if port.machine_interface %}
-            <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">{{ port.machine_interface }}</a>
-        {% endif %}
+            {% if port.machine_interface %}
+            {% can_view port.machine_interface.machine.user %}
+            <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                {{ port.machine_interface }}
+            </a>
+            {% acl_else %}
+            {{ port.machine_interface }}
+            {% acl_end %}
+            {% endif %}
         </td>
         <td>
-        {% if port.related %}
-            <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">{{ port.related }}</a>
-        {% endif %}
+            {% if port.related %}
+            {% can_view port.related.switch %}
+            <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                {{ port.related }}
+            </a>
+            {% acl_else %}
+            {{ port.related }}
+            {% acl_end %}
+            {% endif %}
         </td>
         <td>{{ port.radius }}</td>
-	<td>{% if not port.vlan_force %} Aucun{%else %}{{ port.vlan_force }}{% endif %}</td>
+	<td>{% if not port.vlan_force %}Aucun{% else %}{{ port.vlan_force }}{% endif %}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
                 <i class="fa fa-history"></i>
             </a>
-        {% can_edit port %}
+            {% can_edit port %}
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
                 <i class="fa fa-edit"></i>
             </a>
-	{% acl_end %}
-	{% can_delete port %}
+	    {% acl_end %}
+            {% can_delete port %}
 	    <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
                    <i class="fa fa-trash"></i>
            </a>
-        {% acl_end %}
+           {% acl_end %}
         </td>
    </tr>
    {% endfor %}
