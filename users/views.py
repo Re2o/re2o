@@ -300,12 +300,10 @@ def new_serviceuser(request):
     """ Vue de création d'un nouvel utilisateur service"""
     user = ServiceUserForm(request.POST or None)
     if user.is_valid():
-        user_object = user.save(commit=False)
-        user_object.set_password(user.cleaned_data['password'])
-        user_object.save()
+        user.save()
         messages.success(
             request,
-            "L'utilisateur %s a été crée" % user_object.pseudo
+            "L'utilisateur a été crée"
         )
         return redirect(reverse('users:index-serviceusers'))
     return form(
@@ -324,11 +322,8 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
         instance=serviceuser
     )
     if serviceuser.is_valid():
-        user_object = serviceuser.save(commit=False)
-        if serviceuser.cleaned_data['password']:
-            user_object.set_password(serviceuser.cleaned_data['password'])
         if serviceuser.changed_data:
-            user_object.save()
+            serviceuser.save()
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
     return form(
@@ -344,7 +339,7 @@ def del_serviceuser(request, serviceuser, **_kwargs):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         serviceuser.delete()
-        messages.success(request, "L'user a été détruite")
+        messages.success(request, "L'user a été détruit")
         return redirect(reverse('users:index-serviceusers'))
     return form(
         {'objet': serviceuser, 'objet_name': 'serviceuser'},
