@@ -41,7 +41,7 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
-from re2o.utils import remove_user_room
+from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -565,6 +565,9 @@ class BanForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].help_text = get_input_formats_help_text(
+            self.fields['date_end'].input_formats
+        )
 
     class Meta:
         model = Ban
@@ -577,6 +580,9 @@ class WhitelistForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].help_text = get_input_formats_help_text(
+            self.fields['date_end'].input_formats
+        )
 
     class Meta:
         model = Whitelist

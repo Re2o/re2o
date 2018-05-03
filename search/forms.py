@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.forms import Form
+from re2o.utils import get_input_formats_help_text
 
 CHOICES_USER = (
     ('0', 'Actifs'),
@@ -91,12 +92,17 @@ class SearchFormPlus(Form):
     s = forms.DateField(
         required=False,
         label="Date de début",
-        help_text='DD/MM/YYYY',
-        input_formats=['%d/%m/%Y']
     )
     e = forms.DateField(
         required=False,
-        help_text='DD/MM/YYYY',
-        input_formats=['%d/%m/%Y'],
         label="Date de fin"
     )
+
+    def __init__(self, *args, **kwargs):
+        super(SearchFormPlus, self).__init__(*args, **kwargs)
+        self.fields['s'].help_text = get_input_formats_help_text(
+            self.fields['s'].input_formats
+        )
+        self.fields['e'].help_text = get_input_formats_help_text(
+            self.fields['e'].input_formats
+        )
