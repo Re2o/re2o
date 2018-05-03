@@ -457,7 +457,7 @@ class GroupForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = User
-        fields = ['groups', 'is_superuser']
+        fields = ['is_superuser', 'groups']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)

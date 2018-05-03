@@ -66,7 +66,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <td><p class="text-success">{{utilisateur.last}}</p></td>
                     {% endif %}
                     <td>
+                        {% if droit != 'Superuser' %}
                         <a href="{% url 'users:del-group' utilisateur.id droit.id %}">
+                        {% else %}
+                        <a href="{% url 'users:del-superuser' utilisateur.id %}">
+                        {% endif %}
                             <button type="button" class="btn btn-danger" aria-label="Left Align">
                                 <span class="fa fa-user-times" aria-hidden="true"></span>
                             </button>
