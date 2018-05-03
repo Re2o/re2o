@@ -340,20 +340,16 @@ def re2o_paginator(request, query_set, pagination_number):
     :request:
     :query_set: Query_set to paginate
     :pagination_number: Number of entries to display"""
-    if query_set.count() > pagination_number:
-        paginator = Paginator(query_set, pagination_number)
-        page = request.GET.get('page')
-        try:
-            results = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            results = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            results = paginator.page(paginator.num_pages)
-    else:
-        #If there is only one page, deliver the page without paginator
-        return query_set
+    paginator = Paginator(query_set, pagination_number)
+    page = request.GET.get('page')
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        results = paginator.page(paginator.num_pages)
     return results
 
 
