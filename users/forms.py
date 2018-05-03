@@ -454,6 +454,10 @@ class GroupForm(FormRevMixin, ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+    superuser = forms.BooleanField(
+        label="Superuser",
+        required=False,
+    )
 
     class Meta:
         model = User
@@ -462,6 +466,11 @@ class GroupForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['superuser'].initial = self.instance.is_superuser
+
+    def save(self, *args, **kwargs):
+        self.instance.is_superuser = self.cleaned_data['superuser']
+        return super(GroupForm, self).save(*args, **kwargs)
 
 
 class SchoolForm(FormRevMixin, ModelForm):
