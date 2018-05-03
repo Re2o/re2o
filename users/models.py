@@ -812,6 +812,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             "Droit requis pour éditer les groupes de l'user"
         )
 
+    @staticmethod
+    def can_change_is_superuser(user_request, *_args, **_kwargs):
+        """ Check if an user can change a is_superuser flag
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if permission is granted.
+        """
+        return (
+            user_request.is_superuser,
+            "Droit superuser requis pour éditer le flag superuser"
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view an user object.
 

@@ -246,7 +246,7 @@ def state(request, user, userid):
 @can_edit(User, 'groups')
 def groups(request, user, userid):
     """ View to edit the groups of a user """
-    group_form = GroupForm(request.POST or None, instance=user)
+    group_form = GroupForm(request.POST or None, instance=user, user=request.user)
     if group_form.is_valid():
         if group_form.changed_data:
             group_form.save()
@@ -295,7 +295,7 @@ def del_group(request, user, listrightid, **_kwargs):
 
 
 @login_required
-@can_edit(User, 'groups')
+@can_edit(User, 'is_superuser')
 def del_superuser(request, user, **_kwargs):
     """Remove the superuser right of an user."""
     user.is_superuser = False
