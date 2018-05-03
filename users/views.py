@@ -295,6 +295,16 @@ def del_group(request, user, listrightid, **_kwargs):
 
 
 @login_required
+@can_edit(User, 'groups')
+def del_superuser(request, user, **_kwargs):
+    """Remove the superuser right of an user."""
+    user.is_superuser = False
+    user.save()
+    messages.success(request, "%s n'est plus superuser" % user)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
 @can_create(ServiceUser)
 def new_serviceuser(request):
     """ Vue de création d'un nouvel utilisateur service"""

@@ -58,7 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 {% for user in superuser_right %}
 	                        <li class="list-group-item col-xs-12 col-sm-6 col-md-4" style="border:none;">
                                     {{user}}
-                                    <a role="button" href="" title="{{ desc|default:"Supprimer" }}">
+                                    <a role="button" href="{% url 'users:del-superuser' user.pk %}" title="{{ desc|default:"Supprimer" }}">
                                         <i class="fa fa-times" style="color:red"></i>
                                     </a>
                                 </li>
