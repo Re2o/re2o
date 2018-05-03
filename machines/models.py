@@ -613,7 +613,7 @@ class Ns(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Enregistrements NS"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    ns = models.OneToOneField('Domain', on_delete=models.PROTECT)
+    ns = models.ForeignKey('Domain', on_delete=models.PROTECT)
 
     class Meta:
         permissions = (
