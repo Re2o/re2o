@@ -246,7 +246,7 @@ def state(request, user, userid):
 @can_edit(User, 'groups')
 def groups(request, user, userid):
     """ View to edit the groups of a user """
-    group_form = GroupForm(request.POST or None, instance=user)
+    group_form = GroupForm(request.POST or None, instance=user, user=request.user)
     if group_form.is_valid():
         if group_form.changed_data:
             group_form.save()
@@ -291,6 +291,16 @@ def del_group(request, user, listrightid, **_kwargs):
     user.groups.remove(ListRight.objects.get(id=listrightid))
     user.save()
     messages.success(request, "Droit supprimé à %s" % user)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+@can_edit(User, 'is_superuser')
+def del_superuser(request, user, **_kwargs):
+    """Remove the superuser right of an user."""
+    user.is_superuser = False
+    user.save()
+    messages.success(request, "%s n'est plus superuser" % user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -763,10 +773,14 @@ def index_listright(request):
     """ Affiche l'ensemble des droits"""
     listright_list = ListRight.objects.order_by('unix_name')\
         .prefetch_related('permissions').prefetch_related('user_set')
+    superuser_right = User.objects.filter(is_superuser=True)
     return render(
         request,
         'users/index_listright.html',
-        {'listright_list': listright_list}
+        {
+            'listright_list': listright_list,
+            'superuser_right' : superuser_right,
+        }
     )
 
 

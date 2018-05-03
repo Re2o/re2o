@@ -41,7 +41,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Max
+from django.db.models import Count, Max, F
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -469,8 +469,13 @@ def stats_droits(request):
     for droit in ListRight.objects.all().select_related('group_ptr'):
         stats_list[droit] = droit.user_set.all().annotate(
             num=Count('revision'),
-            last=Max('revision__date_created')
+            last=Max('revision__date_created'),
         )
+
+    stats_list['Superuser'] = User.objects.filter(is_superuser=True).annotate(
+            num=Count('revision'),
+            last=Max('revision__date_created'),
+    )
 
     return render(
         request,

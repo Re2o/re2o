@@ -454,7 +454,7 @@ class StateForm(FormRevMixin, ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class GroupForm(FormRevMixin, ModelForm):
+class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """ Gestion des groupes d'un user"""
     groups = forms.ModelMultipleChoiceField(
         Group.objects.all(),
@@ -464,11 +464,13 @@ class GroupForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = User
-        fields = ['groups']
+        fields = ['is_superuser', 'groups']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+        if 'is_superuser' in self.fields:
+            self.fields['is_superuser'].label = "Superuser"
 
 
 class SchoolForm(FormRevMixin, ModelForm):
