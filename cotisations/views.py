@@ -643,7 +643,7 @@ def control(request):
         fields=('control', 'valid'),
         extra=0
     )
-    invoice_list = re2o_paginator(request, invoice_list, pagination_number)
+    invoice_list = re2o_paginator(request, invoice_list, pagination_number, force_paginate=True)
     control_invoices_form = control_invoices_formset(
         request.POST or None,
         queryset=invoice_list.object_list

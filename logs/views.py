@@ -128,7 +128,7 @@ def index(request):
         request.GET.get('order'),
         SortTable.LOGS_INDEX
     )
-    versions = re2o_paginator(request, versions, pagination_number)
+    versions = re2o_paginator(request, versions, pagination_number, force_paginate=True)
     # Force to have a list instead of QuerySet
     versions.count(0)
     # Items to remove later because invalid
