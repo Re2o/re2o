@@ -66,24 +66,35 @@ class OptionalUser(AclMixin, PreferencesModel):
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
     PRETTY_NAME = "Options utilisateur"
 
-    is_tel_mandatory = models.BooleanField(default=True)
-    user_solde = models.BooleanField(default=False)
+    is_tel_mandatory = models.BooleanField(
+        default=True,
+        help_text="Obligation de renseigner le téléphone"
+    )
+    user_solde = models.BooleanField(
+        default=False,
+        help_text="Solde pour les users"
+    )
     solde_negatif = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=0
+        default=0,
+        help_text="Maximum de négatif autorisé"
     )
     max_solde = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=50
+        default=50,
+        help_text="Valeur maximum du solde"
     )
     min_online_payment = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=10
+        default=10,
+        help_text="Montant minimum pour le rechargement online"
     )
-    gpg_fingerprint = models.BooleanField(default=True)
+    gpg_fingerprint = models.BooleanField(
+        default=True,
+        help_text="Gpg fingerprint activée")
     all_can_create_club = models.BooleanField(
         default=False,
         help_text="Les users peuvent créer un club"
@@ -100,7 +111,8 @@ class OptionalUser(AclMixin, PreferencesModel):
         'users.ListShell',
         on_delete=models.PROTECT,
         blank=True,
-        null=True
+        null=True,
+        help_text="Shell par default"
     )
 
     class Meta:
@@ -138,13 +150,20 @@ class OptionalMachine(AclMixin, PreferencesModel):
         (DISABLED, 'Désactivé'),
     )
 
-    password_machine = models.BooleanField(default=False)
-    max_lambdauser_interfaces = models.IntegerField(default=10)
-    max_lambdauser_aliases = models.IntegerField(default=10)
+    password_machine = models.BooleanField(
+        default=False,
+        help_text="Un mot de passe par machine activé")
+    max_lambdauser_interfaces = models.IntegerField(
+        default=10,
+        help_text="Maximum d'interface pour un user sans droits")
+    max_lambdauser_aliases = models.IntegerField(
+        default=10,
+        help_text="Maximum de cname pour un user sans droits")
     ipv6_mode = models.CharField(
         max_length=32,
         choices=CHOICE_IPV6,
-        default='DISABLED'
+        default='DISABLED',
+        help_text="Mode ipv6"
     )
     create_machine = models.BooleanField(
         default=True,
@@ -187,21 +206,24 @@ class OptionalTopologie(AclMixin, PreferencesModel):
     radius_general_policy = models.CharField(
         max_length=32,
         choices=CHOICE_RADIUS,
-        default='DEFINED'
+        default='DEFINED',
+        help_text="Politique par defaut de placement de vlan avec radius"
     )
     vlan_decision_ok = models.OneToOneField(
         'machines.Vlan',
         on_delete=models.PROTECT,
         related_name='decision_ok',
         blank=True,
-        null=True
+        null=True,
+        help_text="Placement sur ce vlan par default en cas d'accès OK"
     )
     vlan_decision_nok = models.OneToOneField(
         'machines.Vlan',
         on_delete=models.PROTECT,
         related_name='decision_nok',
         blank=True,
-        null=True
+        null=True,
+        help_text="Placement par defaut sur ce vlan en cas de rejet"
     )
 
     class Meta:
@@ -225,23 +247,44 @@ class GeneralOption(AclMixin, PreferencesModel):
     general_message = models.TextField(
         default="",
         blank=True,
-        help_text="Message général affiché sur le site (maintenance, etc"
+        help_text="Message général affiché sur le site (maintenance, etc)"
     )
-    search_display_page = models.IntegerField(default=15)
-    pagination_number = models.IntegerField(default=25)
-    pagination_large_number = models.IntegerField(default=8)
-    req_expire_hrs = models.IntegerField(default=48)
-    site_name = models.CharField(max_length=32, default="Re2o")
-    email_from = models.EmailField(default="www-data@example.com")
+    search_display_page = models.IntegerField(
+        default=15,
+        help_text="Nombre de résultats affichés dans une recherche"
+    )
+    pagination_number = models.IntegerField(
+        default=25,
+        help_text="Nombre d'item par page paginée"
+    )
+    pagination_large_number = models.IntegerField(
+        default=8,
+        help_text="Nombre d'item par page paginée, items larges"
+    )
+    req_expire_hrs = models.IntegerField(
+        default=48,
+        help_text="Delais d'expiration des token changement de mdp, en heure"
+    )
+    site_name = models.CharField(
+        max_length=32,
+        default="Re2o",
+        help_text="Nom du site web, par defaut re2o"
+    )
+    email_from = models.EmailField(
+        default="www-data@example.com",
+        help_text="From des mails envoyés par re2o"
+    )
     GTU_sum_up = models.TextField(
         default="",
         blank=True,
+        help_text="Résumé des CGU à l'inscription"
     )
     GTU = models.FileField(
         upload_to='',
         default="",
         null=True,
         blank=True,
+        help_text="CGU et documents réglementaires à l'inscription"
     )
 
     class Meta:
@@ -280,19 +323,43 @@ class AssoOption(AclMixin, PreferencesModel):
 
     name = models.CharField(
         default="Association réseau école machin",
-        max_length=256
+        max_length=256,
+        help_text="Nom complet de l'asso"
     )
-    siret = models.CharField(default="00000000000000", max_length=32)
-    adresse1 = models.CharField(default="1 Rue de exemple", max_length=128)
-    adresse2 = models.CharField(default="94230 Cachan", max_length=128)
-    contact = models.EmailField(default="contact@example.org")
-    telephone = models.CharField(max_length=15, default="0000000000")
-    pseudo = models.CharField(default="Asso", max_length=32)
+    siret = models.CharField(
+        default="00000000000000",
+        max_length=32,
+        help_text="Numero SIRET"
+    )
+    adresse1 = models.CharField(
+        default="1 Rue de exemple",
+        max_length=128,
+        help_text="Adresse"
+    )
+    adresse2 = models.CharField(
+        default="94230 Cachan",
+        max_length=128
+    )
+    contact = models.EmailField(
+        default="contact@example.org",
+        help_text="Mail de contact"
+    )
+    telephone = models.CharField(
+        max_length=15,
+        default="0000000000",
+        help_text="Téléphone de contact"
+    )
+    pseudo = models.CharField(
+        default="Asso",
+        max_length=32,
+        help_text="Pseudo de l'asso"
+    )
     utilisateur_asso = models.OneToOneField(
         'users.User',
         on_delete=models.PROTECT,
         blank=True,
-        null=True
+        null=True,
+        help_text="Utilisateur dans la db correspondant à l'asso"
     )
     PAYMENT = (
         ('NONE', 'NONE'),
@@ -302,20 +369,24 @@ class AssoOption(AclMixin, PreferencesModel):
         max_length=255,
         choices=PAYMENT,
         default='NONE',
+        help_text="Mode de paiement en ligne"
     )
     payment_id = models.CharField(
         max_length=255,
         default='',
-        blank=True
+        blank=True,
+        help_text="Id de paiement en ligne"
     )
     payment_pass = AESEncryptedField(
         max_length=255,
         null=True,
         blank=True,
+        help_text="Clef de paiement en ligne"
     )
     description = models.TextField(
         null=True,
         blank=True,
+        help_text="Description de l'asso"
     )
 
     class Meta:

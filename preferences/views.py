@@ -51,10 +51,21 @@ from .models import (
     MailMessageOption,
     GeneralOption,
     OptionalTopologie,
-    HomeOption
+    HomeOption,
+    Reminder
 )
 from . import models
 from . import forms
+
+
+def format_options(model):
+    """Return a list of tuple for display of settings"""
+    model_formated = []
+    for field in model._meta.get_fields()[1::2]:
+        model_formated.append([(getattr(model, field.name), model._meta.get_field(field.name).help_text)])
+    for rank, field in enumerate(model._meta.get_fields()[2::2]):
+        model_formated[rank].append((getattr(model, field.name), model._meta.get_field(field.name).help_text))
+    return model_formated
 
 
 @login_required
@@ -76,15 +87,17 @@ def display_options(request):
     homeoptions, _created = HomeOption.objects.get_or_create()
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
+    reminder_list = Reminder.objects.all()
     return form({
-        'useroptions': useroptions,
-        'machineoptions': machineoptions,
-        'topologieoptions': topologieoptions,
-        'generaloptions': generaloptions,
-        'assooptions': assooptions,
-        'homeoptions': homeoptions,
-        'mailmessageoptions': mailmessageoptions,
-        'service_list': service_list
+        'useroptions': format_options(useroptions),
+        'machineoptions': format_options(machineoptions),
+        'topologieoptions': format_options(topologieoptions),
+        'generaloptions': format_options(generaloptions),
+        'assooptions': format_options(assooptions),
+        'homeoptions': format_options(homeoptions),
+        'mailmessageoptions': format_options(mailmessageoptions),
+        'service_list': service_list,
+        'reminder_list':reminder_list
         }, 'preferences/display_preferences.html', request)
 
 
