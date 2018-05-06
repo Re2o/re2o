@@ -117,6 +117,7 @@ MODEL_NAME = {
     'OptionalTopologie': preferences.models.OptionalTopologie,
     'GeneralOption': preferences.models.GeneralOption,
     'preferences.Service': preferences.models.Service,
+    'preferences.Reminder': preferences.models.Reminder,
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
     # topologie

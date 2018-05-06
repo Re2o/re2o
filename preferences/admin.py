@@ -34,6 +34,7 @@ from .models import (
     OptionalTopologie,
     GeneralOption,
     Service,
+    Reminder,
     AssoOption,
     MailMessageOption,
     HomeOption
@@ -79,6 +80,9 @@ class HomeOptionAdmin(VersionAdmin):
     """Class admin options home"""
     pass
 
+class ReminderAdmin(VersionAdmin):
+    """Class reminder"""
+    pass
 
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
@@ -86,5 +90,6 @@ admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
 admin.site.register(GeneralOption, GeneralOptionAdmin)
 admin.site.register(HomeOption, HomeOptionAdmin)
 admin.site.register(Service, ServiceAdmin)
+admin.site.register(Reminder, ReminderAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)

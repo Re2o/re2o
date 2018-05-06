@@ -146,19 +146,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             Editer
         </a>
     <p>
-
     <table class="table table-striped">
-        <tr>
-            <th>Url du compte twitter</th>
-            <td>{{ homeoptions.twitter_url }}</td>
-            <th>Nom utilisé pour afficher le compte</th>
-            <td>{{ homeoptions.twitter_account_name }}</td>
-        </tr>
-        <tr>
-            <th>Url du compte facebook</th>
-            <td>{{ homeoptions.facebook_url }}</td>
-        </tr>
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
     </table>
+
+
+<h2>Options pour le mail de fin d'adhésion</h2>
+  {% can_create preferences.Reminder%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+  {% acl_end %}
+  {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+
   <br />
   <br />
   <br />

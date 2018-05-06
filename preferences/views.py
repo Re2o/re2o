@@ -40,9 +40,9 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from re2o.views import form
-from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
+from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
-from .forms import ServiceForm, DelServiceForm
+from .forms import ServiceForm, ReminderForm
 from .models import (
     Service,
     OptionalUser,
@@ -145,10 +145,7 @@ def add_service(request):
     """Ajout d'un service de la page d'accueil"""
     service = ServiceForm(request.POST or None, request.FILES or None)
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
+        service.save()
         messages.success(request, "Ce service a été ajouté")
         return redirect(reverse('preferences:display-options'))
     return form(
@@ -164,14 +161,7 @@ def edit_service(request, service_instance, **_kwargs):
     """Edition des services affichés sur la page d'accueil"""
     service = ServiceForm(request.POST or None, request.FILES or None,instance=service_instance)
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
-                    field for field in service.changed_data
-                    )
-            )
+        service.save()
         messages.success(request, "Service modifié")
         return redirect(reverse('preferences:display-options'))
     return form(
@@ -180,26 +170,62 @@ def edit_service(request, service_instance, **_kwargs):
         request
     )
 
-
 @login_required
-@can_delete_set(Service)
-def del_services(request, instances):
-    """Suppression d'un service de la page d'accueil"""
-    services = DelServiceForm(request.POST or None, instances=instances)
-    if services.is_valid():
-        services_dels = services.cleaned_data['services']
-        for services_del in services_dels:
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    services_del.delete()
-                    reversion.set_user(request.user)
-                messages.success(request, "Le service a été supprimée")
-            except ProtectedError:
-                messages.error(request, "Erreur le service\
-                suivant %s ne peut être supprimé" % services_del)
+@can_delete(Service)
+def del_service(request, service_instance, **_kwargs):
+    """Destruction d'un service"""
+    if request.method == "POST":
+        service_instance.delete()
+        messages.success(request, "Le service a été détruit")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services, 'action_name': 'Supprimer'},
+        {'objet': service_instance, 'objet_name': 'service'},
+        'preferences/delete.html',
+        request
+        )
+
+@login_required
+@can_create(Reminder)
+def add_reminder(request):
+    """Ajout d'un rappel"""
+    reminder = ReminderForm(request.POST or None)
+    if reminder.is_valid():
+        reminder.save()
+        messages.success(request, "Ce rappel a été ajouté")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': reminder, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+@login_required
+@can_edit(Reminder)
+def edit_reminder(request, reminder_instance, **_kwargs):
+    """Edition des rappels"""
+    reminder = ReminderForm(request.POST or None, instance=reminder_instance)
+    if reminder.is_valid():
+        reminder.save()
+        messages.success(request, "Service modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': reminder, 'action_name': 'Editer'},
         'preferences/preferences.html',
         request
     )
+
+@login_required
+@can_delete(Reminder)
+def del_reminder(request, reminder_instance, **_kwargs):
+    """Destruction d'un reminder"""
+    if request.method == "POST":
+        reminder_instance.delete()
+        messages.success(request, "Le reminder a été détruit")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': reminder_instance, 'objet_name': 'reminder'},
+        'preferences/delete.html',
+        request
+        )
+
+
