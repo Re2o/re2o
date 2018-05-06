@@ -228,6 +228,7 @@ class ServiceForm(FormRevMixin, ModelForm):
         self.fields['image'].label = _("Image")
 
 
+
 class DelServiceForm(Form):
     """Suppression de services sur la page d'accueil"""
     services = forms.ModelMultipleChoiceField(
@@ -280,3 +281,15 @@ class ReminderForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de rappel"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+

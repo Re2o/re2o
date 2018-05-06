@@ -44,7 +44,7 @@ from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
 from .forms import (
-    ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm, ReminderForm
+    ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm, ReminderForm, ReminderForm
 )
 
 from .models import (

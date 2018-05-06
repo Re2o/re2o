@@ -34,7 +34,10 @@ from .models import (
     OptionalTopologie,
     GeneralOption,
     Service,
+<<<<<<< HEAD
     MailContact,
+=======
+>>>>>>> 5a88882... Ajoute le réglage reminder et factorise la liste des services
     Reminder,
     AssoOption,
     MailMessageOption,

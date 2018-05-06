@@ -247,6 +247,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</tr>
         {% endfor %}
     </table>
+    <table class="table table-striped">
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
+    </table>
 
 
 <h2>Options pour le mail de fin d'adhésion</h2>
