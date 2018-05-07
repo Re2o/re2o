@@ -145,7 +145,10 @@ def add_service(request):
 def edit_service(request, service_instance, **_kwargs):
     """Edition des services affichés sur la page d'accueil"""
     service = ServiceForm(
-        request.POST or None, request.FILES or None, instance=service_instance)
+        request.POST or None,
+        request.FILES or None,
+        instance=service_instance
+    )
     if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
             service.save()
