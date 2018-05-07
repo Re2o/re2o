@@ -195,9 +195,7 @@ def revert_action(request, revision_id):
 
 
 @login_required
-@can_view_all(IpList)
-@can_view_all(Interface)
-@can_view_all(User)
+@can_view_all(IpList, Interface, User)
 def stats_general(request):
     """Statistiques générales affinées sur les ip, activées, utilisées par
     range, et les statistiques générales sur les users : users actifs,
@@ -313,10 +311,7 @@ def stats_general(request):
 
 
 @login_required
-@can_view_app('users')
-@can_view_app('cotisations')
-@can_view_app('machines')
-@can_view_app('topologie')
+@can_view_app('users', 'cotisations', 'machines', 'topologie')
 def stats_models(request):
     """Statistiques générales, affiche les comptages par models:
     nombre d'users, d'écoles, de droits, de bannissements,
