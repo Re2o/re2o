@@ -28,135 +28,108 @@ Here are defined some decorators that can be used in views to handle ACL.
 from __future__ import unicode_literals
 
 import sys
+from itertools import chain
 
+from django.db.models import Model
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 
 
-def can_create(model):
+def acl_base_decorator(method_name, *targets, **kwargs):
+    """Base decorator for acl. It checks if the user has the permission by
+    calling model.method_name. If the flag on_instance is True, tries to get an
+    instance of the model by calling model.get_instance(*args, **kwargs) and
+    runs instance.mehod_name rather than model.method_name.
+    """
+    on_instance = kwargs.get('on_instance', True)
+
+    def group_targets():
+        current_target = None
+        current_fields = []
+        for t in targets:
+            if isinstance(t, type) and issubclass(t, Model):
+                if current_target:
+                    yield (current_target, current_fields)
+                current_target = t
+                current_fields = []
+            else:
+                current_fields.append(t)
+        yield (current_target, current_fields)
+
+    def decorator(view):
+        """The decorator to use on a specific view
+        """
+        def wrapper(request, *args, **kwargs):
+            """The wrapper used for a specific request"""
+            instances = []
+
+            def process_target(target, fields):
+                if on_instance:
+                    try:
+                        target = target.get_instance(*args, **kwargs)
+                        instances.append(target)
+                    except target.DoesNotExist:
+                        yield False, u"Entrée inexistante"
+                        return
+                if hasattr(target, method_name):
+                    can_fct = getattr(target, method_name)
+                    yield can_fct(request.user, *args, **kwargs)
+                for field in fields:
+                    can_change_fct = getattr(target, 'can_change_' + field)
+                    yield can_change_fct(request.user, *args, **kwargs)
+            error_messages = [
+                x[1] for x in chain.from_iterable(
+                    process_target(x[0], x[1]) for x in group_targets()
+                ) if not x[0]
+            ]
+            if error_messages:
+                for msg in error_messages:
+                    messages.error(
+                        request, msg or "Vous ne pouvez pas accéder à ce menu")
+                return redirect(reverse(
+                    'users:profil',
+                    kwargs={'userid': str(request.user.id)}
+                ))
+            return view(request, *chain(instances, args), **kwargs)
+        return wrapper
+    return decorator
+
+
+def can_create(*models):
     """Decorator to check if an user can create a model.
     It assumes that a valid user exists in the request and that the model has a
     method can_create(user) which returns true if the user can create this kind
     of models.
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            can, msg = model.can_create(request.user, *args, **kwargs)
-            if not can:
-                messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse('index'))
-            return view(request, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_create', *models, on_instance=False)
 
 
-def can_edit(model, *field_list):
+def can_edit(*targets):
     """Decorator to check if an user can edit a model.
     It tries to get an instance of the model, using
     `model.get_instance(*args, **kwargs)` and assumes that the model has a
     method `can_edit(user)` which returns `true` if the user can edit this
     kind of models.
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            try:
-                instance = model.get_instance(*args, **kwargs)
-            except model.DoesNotExist:
-                messages.error(request, u"Entrée inexistante")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            can, msg = instance.can_edit(request.user)
-            if not can:
-                messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            for field in field_list:
-                can_change_fct = getattr(instance, 'can_change_' + field)
-                can, msg = can_change_fct(request.user, *args, **kwargs)
-                if not can:
-                    messages.error(
-                        request, msg or "Vous ne pouvez pas accéder à ce menu")
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': str(request.user.id)}
-                    ))
-            return view(request, instance, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_edit', *targets)
 
 
-def can_change(model, *field_list):
+def can_change(*targets):
     """Decorator to check if an user can edit a field of a model class.
     Difference with can_edit : take a class and not an instance
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            for field in field_list:
-                can_change_fct = getattr(model, 'can_change_' + field)
-                can, msg = can_change_fct(request.user, *args, **kwargs)
-                if not can:
-                    messages.error(
-                        request, msg or "Vous ne pouvez pas accéder à ce menu")
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': str(request.user.id)}
-                    ))
-            return view(request, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_change', *targets)
 
 
-def can_delete(model):
+def can_delete(*targets):
     """Decorator to check if an user can delete a model.
     It tries to get an instance of the model, using
     `model.get_instance(*args, **kwargs)` and assumes that the model has a
     method `can_delete(user)` which returns `true` if the user can delete this
     kind of models.
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            try:
-                instance = model.get_instance(*args, **kwargs)
-            except model.DoesNotExist:
-                messages.error(request, u"Entrée inexistante")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            can, msg = instance.can_delete(request.user)
-            if not can:
-                messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            return view(request, instance, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_delete', *targets)
 
 
 def can_delete_set(model):
@@ -187,60 +160,20 @@ def can_delete_set(model):
     return decorator
 
 
-def can_view(model):
+def can_view(*targets):
     """Decorator to check if an user can view a model.
     It tries to get an instance of the model, using
     `model.get_instance(*args, **kwargs)` and assumes that the model has a
     method `can_view(user)` which returns `true` if the user can view this
     kind of models.
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            try:
-                instance = model.get_instance(*args, **kwargs)
-            except model.DoesNotExist:
-                messages.error(request, u"Entrée inexistante")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            can, msg = instance.can_view(request.user)
-            if not can:
-                messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            return view(request, instance, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_view', *targets)
 
 
-def can_view_all(model):
+def can_view_all(*targets):
     """Decorator to check if an user can view a class of model.
     """
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            can, msg = model.can_view_all(request.user)
-            if not can:
-                messages.error(
-                    request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
-            return view(request, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator('can_view_all', *targets, on_instance=False)
 
 
 def can_view_app(app_name):
