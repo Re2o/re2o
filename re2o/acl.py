@@ -111,7 +111,7 @@ ModelC)
         current_target = None
         current_fields = []
         for target in targets:
-            if isinstance(target, type) and issubclass(target, Model):
+            if not isinstance(target, str):
                 if current_target:
                     yield (current_target, current_fields)
                 current_target = target
@@ -146,6 +146,7 @@ ModelC)
                 for field in fields:
                     can_change_fct = getattr(target, 'can_change_' + field)
                     yield can_change_fct(request.user, *args, **kwargs)
+
             error_messages = [
                 x[1] for x in chain.from_iterable(
                     process_target(x[0], x[1]) for x in group_targets()
@@ -251,25 +252,11 @@ def can_view_app(*apps_name):
     """
     for app_name in apps_name:
         assert app_name in sys.modules.keys()
-
-    def decorator(view):
-        """The decorator to use on a specific view
-        """
-        def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
-            for app_name in apps_name:
-                app = sys.modules[app_name]
-                can, msg = app.can_view(request.user)
-                if not can:
-                    messages.error(request, msg)
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': str(request.user.id)}
-                    ))
-            return view(request, *args, **kwargs)
-        return wrapper
-    return decorator
+    return acl_base_decorator(
+        'can_view',
+        *chain(sys.modules[app_name] for app_name in apps_name),
+        on_instance=False
+    )
 
 
 def can_edit_history(view):
