@@ -1272,12 +1272,7 @@ def index_nas(request):
 
 
 @login_required
-@can_view_all(SOA)
-@can_view_all(Mx)
-@can_view_all(Ns)
-@can_view_all(Txt)
-@can_view_all(Srv)
-@can_view_all(Extension)
+@can_view_all(SOA, Mx, Ns, Txt, Srv, Extension)
 def index_extension(request):
     """ View displaying the list of existing extensions, the list of
     existing SOA records, the list of existing MX records , the list of

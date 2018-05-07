@@ -200,9 +200,7 @@ def index_ap(request):
 
 
 @login_required
-@can_view_all(Stack)
-@can_view_all(Building)
-@can_view_all(SwitchBay)
+@can_view_all(Stack, Building, SwitchBay)
 def index_physical_grouping(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = (Stack.objects
@@ -241,8 +239,7 @@ def index_physical_grouping(request):
 
 
 @login_required
-@can_view_all(ModelSwitch)
-@can_view_all(ConstructorSwitch)
+@can_view_all(ModelSwitch, ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
     model_switch_list = ModelSwitch.objects.select_related('constructor')
@@ -957,7 +954,7 @@ edge[arrowhead=odot,arrowtail=dot]''']
 <FONT COLOR="#7B7B7B" >{}</FONT>
 </TD>
 <TD ALIGN="LEFT">
-<FONT COLOR="#7B7B7B" >{}</FONT> 
+<FONT COLOR="#7B7B7B" >{}</FONT>
 </TD></TR>
 <TR><TD ALIGN="LEFT" BORDER="0">
 <FONT COLOR="#7B7B7B" >{}</FONT>
