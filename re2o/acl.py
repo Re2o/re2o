@@ -248,10 +248,11 @@ def can_view_all(*targets):
     return acl_base_decorator('can_view_all', *targets, on_instance=False)
 
 
-def can_view_app(app_name):
-    """Decorator to check if an user can view an application.
+def can_view_app(*apps_name):
+    """Decorator to check if an user can view the applications.
     """
-    assert app_name in sys.modules.keys()
+    for app_name in apps_name:
+        assert app_name in sys.modules.keys()
 
     def decorator(view):
         """The decorator to use on a specific view
@@ -259,15 +260,16 @@ def can_view_app(app_name):
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request
             """
-            app = sys.modules[app_name]
-            can, msg = app.can_view(request.user)
-            if can:
-                return view(request, *args, **kwargs)
-            messages.error(request, msg)
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': str(request.user.id)}
-            ))
+            for app_name in apps_name:
+                app = sys.modules[app_name]
+                can, msg = app.can_view(request.user)
+                if not can:
+                    messages.error(request, msg)
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
+            return view(request, *args, **kwargs)
         return wrapper
     return decorator
 
