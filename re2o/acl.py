@@ -36,7 +36,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 
-def acl_base_decorator(method_name, *targets, **kwargs):
+def acl_base_decorator(method_name, *targets, on_instance=True):
     """Base decorator for acl. It checks if the `request.user` has the
     permission by calling model.method_name. If the flag on_instance is True,
     tries to get an instance of the model by calling
@@ -82,12 +82,11 @@ on_instance=False)
 on_instance=False)
             ```
             But don't do that, it's silly.
-        **kwargs: There is only one keyword argument, `on_instance`, which
-            default value is `True`. When `on_instance` equals `False`, the
-            decorator runs the ACL method on the model class rather than on
-            an instance. If an instance need to fetched, it is done calling the
-            assumed existing method `get_instance` of the model, with the
-            arguments originally passed to the view.
+        on_instance: When `on_instance` equals `False`, the decorator runs the
+            ACL method on the model class rather than on an instance. If an
+            instance need to fetched, it is done calling the assumed existing
+            method `get_instance` of the model, with the arguments originally
+            passed to the view.
 
     Returns:
         The user is either redirected to their own page with an explanation
@@ -104,7 +103,6 @@ ModelC)
         ```
         where `*args` and `**kwargs` are the original view arguments.
     """
-    on_instance = kwargs.get('on_instance', True)
 
     def group_targets():
         """This generator parses the targets of the decorator, yielding
