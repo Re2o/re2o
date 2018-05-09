@@ -50,6 +50,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <script src="/static/js/konami/konami.js"></script>
         <script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
         <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
+	<script src="/static/js/shortcuts.js"></script>
         <link rel="stylesheet" href="{% static "/css/base.css" %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
@@ -74,7 +75,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> Mon profil</a></li>
-                                    <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Se déconnecter</a></li>
+                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Se déconnecter</a></li>
                                 </ul>
                             </li>
                             {% endif %}
@@ -129,7 +130,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </li>
                             {% endif %}
                             <li>
-                            <a href="{% url 'login' %}">
+                            <a id="toggle_login" href="{% url 'login' %}">
                                 <i class="fa fa-sign-in-alt"></i> Login
                             </a>
                             </li>
