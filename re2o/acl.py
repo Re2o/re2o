@@ -189,7 +189,7 @@ def can_change(*targets):
     method 'can_change'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_change', *targets)
+    return acl_base_decorator('can_change', *targets, on_instance=False)
 
 
 def can_delete(*targets):
