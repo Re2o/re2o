@@ -651,6 +651,10 @@ def control(request):
     if control_invoices_form.is_valid():
         control_invoices_form.save()
         reversion.set_comment("Controle")
+        messages.success(
+            request,
+            _("Your changes have been properly taken into account.")
+        )
         return redirect(reverse('cotisations:control'))
     return render(request, 'cotisations/control.html', {
         'facture_list': invoice_list,
