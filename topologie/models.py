@@ -492,26 +492,47 @@ class Room(AclMixin, RevMixin, models.Model):
 def ap_post_save(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
-
+    regen("graph_topo")
 
 @receiver(post_delete, sender=AccessPoint)
 def ap_post_delete(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
-
+    regen("graph_topo")
 
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
 
-#@receiver(post_save, sender=Port)
-#@receiver(post_save, sender=AccessPoint)
-#@receiver(post_save, sender=ModelSwitch)
-#@receiver(post_save, sender=Building)
-#@receiver(post_save, sender=Building)
-#@receiver(post_save, sender=Server)
-@receiver(pre_save, sender=Switch)
-def delete_graph(**_kwargs):
-    if isfile("media/images/switchs.png"):
-        remove("media/images/switchs.png")
+@receiver(post_save, sender=Port)
+def port_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Port)
+def port_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=ModelSwitch)
+def modelswitch_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=ModelSwitch)
+def modelswitch_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=Building)
+def building_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Building)
+def building_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=Switch)
+def switch_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Switch)
+def switch_post_delete(**_kwargs):
+    regen("graph_topo")

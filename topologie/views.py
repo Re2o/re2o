@@ -57,13 +57,14 @@ from re2o.acl import (
     can_view,
     can_view_all,
 )
+from re2o.settings import MEDIA_ROOT
 from machines.forms import (
     DomainForm,
     EditInterfaceForm,
     AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
-from machines.models import Interface
+from machines.models import Interface, Service_link
 from preferences.models import AssoOption, GeneralOption
 
 from .models import (
@@ -118,7 +119,10 @@ def index(request):
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     switch_list = re2o_paginator(request, switch_list, pagination_number)
 
-    # make_machine_graph()
+    if any(service_link.need_regen() for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
+        make_machine_graph()
+        for service_link in Service_link.objects.filter(service__service_type='graph_topo'):
+            service_link.done_regen()
 
     return render(
         request,
@@ -1022,15 +1026,15 @@ def make_machine_graph():
 
     #Exportation du dot et génération de l'image
     dot_data=generate_image(dico)
-    fichier = open("media/images/switchs.dot","w")
+    fichier = open(MEDIA_ROOT + "/images/switchs.dot","w", encoding='utf-8')
     fichier.write(dot_data)
     fichier.close()
     unflatten = Popen(
-        ["unflatten","-l", "3", "media/images/switchs.dot"],
+        ["unflatten","-l", "3", MEDIA_ROOT + "/images/switchs.dot"],
         stdout=PIPE
     )
     image = Popen(
-        ["dot", "-Tpng", "-o", "media/images/switchs.png"],
+        ["dot", "-Tpng", "-o", MEDIA_ROOT + "/images/switchs.png"],
         stdin=unflatten.stdout,
         stdout=PIPE
     )
