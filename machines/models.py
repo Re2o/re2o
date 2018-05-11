@@ -541,8 +541,7 @@ class Extension(RevMixin, AclMixin, models.Model):
     )
     soa = models.ForeignKey(
         'SOA',
-        on_delete=models.CASCADE,
-        default=SOA.new_default_soa
+        on_delete=models.CASCADE
     )
 
     class Meta:
