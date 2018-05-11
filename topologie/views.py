@@ -948,42 +948,95 @@ def make_machine_graph():
     """
     Crée le fichier dot et l'image du graph des Switchs
     """
-    dico={'subs':[],'links':[],'alone':[],'colors':{'head':"#7f0505",'back':"#b5adad",'texte':"#563d01",'border_bornes':"#02078e",'head_bornes':"#25771c",'head_server':"#1c3777"}}
-    missing=[]
-    detected=[]
-    for sw in Switch.objects.all():
-        if(sw not in detected):
-            missing.append(sw)
-    for building in Building.objects.all():#Parcour tous les batiments
-        dico['subs'].append({'bat_id':building.id,'bat_name':building,'switchs':[],'bornes':[],'machines':[]})
-        for switch in Switch.objects.filter(switchbay__building=building):#Parcour tous les switchs de ce batiment
-            dico['subs'][-1]['switchs'].append({'name':switch.main_interface().domain.name,'nombre':switch.number,'model':switch.model,'id':switch.id,'batiment':building,'ports':[]})
-            for p in switch.ports.all().filter(related__isnull=False):#Parcour tout les ports liés de ce switch 
-                dico['subs'][-1]['switchs'][-1]['ports'].append({'numero':p.port,'related':p.related.switch.main_interface().domain.name})
+    dico = {
+        'subs': [],
+        'links' : [],
+        'alone': [],
+        'colors': {
+            'head': "#7f0505",
+            'back': "#b5adad",
+            'texte': "#563d01",
+            'border_bornes': "#02078e",
+            'head_bornes': "#25771c",
+            'head_server': "#1c3777"
+            }
+        }
+    missing = list(Switch.objects.all())
+    detected = []
+
+    #Parcours tous les batiments
+    for building in Building.objects.all():
+        dico['subs'].append(
+            {
+            'bat_id': building.id,
+            'bat_name': building,
+            'switchs': [],
+            'bornes': [],
+            'machines': []
+            }
+        )
+        #Parcours tous les switchs de ce batiment
+        for switch in Switch.objects.filter(switchbay__building=building):
+            dico['subs'][-1]['switchs'].append({
+                'name': switch.main_interface().domain.name,
+                'nombre': switch.number,
+                'model': switch.model,
+                'id': switch.id,
+                'batiment': building,
+                'ports': []
+            })
+            #Parcours tous les ports liés de ce switch, on ajoute les switchs relié à celui-ci
+            for port in switch.ports.filter(related__isnull=False): 
+                dico['subs'][-1]['switchs'][-1]['ports'].append({
+                    'numero': port.port,
+                    'related': port.related.switch.main_interface().domain.name
+                })
 
         for ap in AccessPoint.all_ap_in(building):
-            dico['subs'][-1]['bornes'].append({'name':ap.short_name,'switch':ap.switch()[0].main_interface().domain.name,'port':ap.switch()[0].ports.filter(machine_interface__machine=ap)[0].port})
+            dico['subs'][-1]['bornes'].append({
+                'name': ap.short_name,
+                'switch': ap.switch()[0].main_interface().domain.name,
+                'port': ap.switch()[0].ports.filter(
+                    machine_interface__machine=ap
+                )[0].port
+            })
         for server in Server.all_server_in(building):
-            dico['subs'][-1]['machines'].append({'name':server.short_name,'switch':server.switch()[0].main_interface().domain.name,'port':Port.objects.filter(machine_interface__machine=server)[0].port})
+            dico['subs'][-1]['machines'].append({
+                'name': server.short_name,
+                'switch': server.switch()[0].main_interface().domain.name,
+                'port': Port.objects.filter(machine_interface__machine=server)[0].port
+            })
 
-        # for ma in Allmachines_in(building):
-        #     dico['subs'][-1]['machines'].append({'name':ma.short_name,'id':ma.id,'switch':ma.switch()[0].main_interface().domain.name,'port':ma.switch()[0].ports.filter(machine_interface__machine=ap)[0].port})
-
-
-    while(missing!=[]):#Tant que la liste des oubliés n'est pas vide i.e on les a pas tous passer
-        links,new_detected=recursive_switchs(missing[0].ports.all().filter(related=None).first(),None,[missing[0]])
+    #Tant que la liste des oubliés n'est pas vide i.e on les a pas tous passer
+    while missing:
+        links, new_detected = recursive_switchs(missing[0].ports.filter(related=None).first(), None, [missing[0]])
         for link in links:
             dico['links'].append(link)
-        missing=[i for i in missing if i not in new_detected]#on recrée la liste des oubliés et des detectés
-        detected+=new_detected
-    for switch in Switch.objects.all().filter(switchbay__isnull=True).exclude(ports__related__isnull=False):#Tous ceux qui ne sont ni connectés ni dans un batiment
-        dico['alone'].append({'id':switch.id,'name':switch.main_interface().domain.name})
+        #On recrée la liste des oubliés et des detectés
+        missing=[i for i in missing if i not in new_detected]
+        detected += new_detected
+    
+    #Tous ceux qui ne sont ni connectés ni dans un batiment
+    for switch in Switch.objects.filter(switchbay__isnull=True).exclude(ports__related__isnull=False):
+        dico['alone'].append({
+            'id': switch.id,
+            'name': switch.main_interface().domain.name
+        })
+
+    #Exportation du dot et génération de l'image
     dot_data=generate_image(dico)
     fichier = open("media/images/switchs.dot","w")
     fichier.write(dot_data)
     fichier.close()
-    unflatten = Popen(["unflatten","-l", "3", "media/images/switchs.dot"], stdout=PIPE)
-    image = Popen(["dot", "-Tpng", "-o", "media/images/switchs.png"], stdin=unflatten.stdout, stdout=PIPE)
+    unflatten = Popen(
+        ["unflatten","-l", "3", "media/images/switchs.dot"],
+        stdout=PIPE
+    )
+    image = Popen(
+        ["dot", "-Tpng", "-o", "media/images/switchs.png"],
+        stdin=unflatten.stdout,
+        stdout=PIPE
+    )
 
 def generate_image(data,template='topologie/graph_switch.dot'):
     t = loader.get_template(template)
@@ -1002,14 +1055,18 @@ def recursive_switchs(port_start, switch_before, detected):
     links_return=[]#Liste de dictionaires qui stockes les nouveaux liens détéctés
     l_ports=port_start.switch.ports.filter(related__isnull=False)#Liste des ports dont le related est non null
     for port in l_ports:
-        if port.related.switch!=switch_before and port.related.switch!=port.switch:#Pas le switch dont on vient, pas le switch actuel
+        #Pas le switch dont on vient, pas le switch actuel
+        if port.related.switch!=switch_before and port.related.switch != port.switch:
             detected.append(port_start.switch)
             detected.append(port.related.switch)
-            links={'depart':port_start.switch.id,'arrive':port.related.switch.id}
+            links = {
+                'depart':port_start.switch.id,
+                'arrive':port.related.switch.id
+            }
             links_down, detected = recursive_switchs(port.related, port_start.switch, detected)
             links_return.append(links)
             for link in links_down:
-                if(link!=[]):
+                if link:
                     links_return.append(link)
     return (links_return, detected)
 
