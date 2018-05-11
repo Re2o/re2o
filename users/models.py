@@ -812,6 +812,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             "Droit requis pour éditer les groupes de l'user"
         )
 
+    @staticmethod
+    def can_change_is_superuser(user_request, *_args, **_kwargs):
+        """ Check if an user can change a is_superuser flag
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if permission is granted.
+        """
+        return (
+            user_request.is_superuser,
+            "Droit superuser requis pour éditer le flag superuser"
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view an user object.
 
@@ -1229,7 +1241,7 @@ class Ban(RevMixin, AclMixin, models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+    date_end = models.DateTimeField()
     state = models.IntegerField(choices=STATES, default=STATE_HARD)
 
     class Meta:
@@ -1314,7 +1326,7 @@ class Whitelist(RevMixin, AclMixin, models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
     date_start = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField(help_text='%d/%m/%y %H:%M:%S')
+    date_end = models.DateTimeField()
 
     class Meta:
         permissions = (

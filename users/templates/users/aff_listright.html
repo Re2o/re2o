@@ -33,6 +33,44 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th></th>
             </tr>
         </thead>
+		{% if superuser_right %}
+		<tr class="active">
+			<td>Superuser</td>
+			<td></td>
+			<td>True</td>
+			<td>
+                <button class="btn btn-default" data-parent="#accordion_superuser" type="button" data-toggle="collapse" data-target="#collapseListRight_user_superuser" aria-expanded="true" aria-controls="collapseListRight_user_superuser">
+					Utilisateurs ({{ superuser_right.count }})
+                </button>
+			</td>
+			<td>
+				Donne tous les droits sur Re2o.
+			</td>
+			<td class="text-right">
+			</td>
+		</tr>
+		<tr>
+			<td colspan=5>
+				<div class="panel-group" id="accordion_superuser" role="tablist" aria-multiselectable="true" style="margin-bottom: 0px;">
+                    <div class="panel" style="border: none;">
+                        <div class="panel-collapse collapse in" id="collapseListRight_user_superuser" role="tabpanel">
+                            <ul class="list-group" style="margin-bottom: 0px">
+                                {% for user in superuser_right %}
+	                        <li class="list-group-item col-xs-12 col-sm-6 col-md-4" style="border:none;">
+                                    {{user}}
+                                    <a role="button" href="{% url 'users:del-superuser' user.pk %}" title="{{ desc|default:"Supprimer" }}">
+                                        <i class="fa fa-times" style="color:red"></i>
+                                    </a>
+                                </li>
+                                {% endfor %}
+							</ul>
+                        </div>
+                    </div>
+                </div>
+            </td>
+		</tr>
+
+		{% endif %}
         {% for listright in listright_list %}
         <tr class="active">
             <td>
@@ -48,9 +86,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_perm_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_perm_{{listright.gid}}">
                         Ensemble des permissions ({{ listright.permissions.all|length }})
                     </button>
-		</div>
-	    </td>
-	    <td>{{ listright.details }}</td>
+				</div>
+			</td>
+			<td>{{ listright.details }}</td>
             <td class="text-right">
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}
                 {% include 'buttons/history.html' with href='users:history' name='listright' id=listright.id %}

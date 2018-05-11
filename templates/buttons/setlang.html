@@ -1,0 +1,50 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2018  Maël Kervella
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load i18n %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<a class="dropdown" type="button" role="button" id="setlang"
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    <i class="fa fa-globe"></i> <span class="caret"></span>
+</a>
+<div class="dropdown-menu" aria-labelledby="setlang">
+    <p style="text-align: center"><small><i class="fa fa-exclamation-triangle"></i> {% trans "Translation in development" %}</small></p>
+    <hr>
+    <form method="post" action="{% url 'set_language' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        {% for language in languages %}
+        <button type="submit" name="language" value="{{ language.code }}"
+                class="btn btn-link btn-block
+                {% if language.code == LANGUAGE_CODE %}disabled{% endif %}">
+            {% if language.code == LANGUAGE_CODE %}
+            <i class="fa fa-check"></i>
+            {% endif %}
+            {{ language.name_local | title }} ({{ language.code }})
+        </button>
+        {% endfor %}
+    </form>
+</div>

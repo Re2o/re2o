@@ -41,7 +41,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Max
+from django.db.models import Count, Max, F
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -195,9 +195,7 @@ def revert_action(request, revision_id):
 
 
 @login_required
-@can_view_all(IpList)
-@can_view_all(Interface)
-@can_view_all(User)
+@can_view_all(IpList, Interface, User)
 def stats_general(request):
     """Statistiques générales affinées sur les ip, activées, utilisées par
     range, et les statistiques générales sur les users : users actifs,
@@ -313,10 +311,7 @@ def stats_general(request):
 
 
 @login_required
-@can_view_app('users')
-@can_view_app('cotisations')
-@can_view_app('machines')
-@can_view_app('topologie')
+@can_view_app('users', 'cotisations', 'machines', 'topologie')
 def stats_models(request):
     """Statistiques générales, affiche les comptages par models:
     nombre d'users, d'écoles, de droits, de bannissements,
@@ -469,8 +464,13 @@ def stats_droits(request):
     for droit in ListRight.objects.all().select_related('group_ptr'):
         stats_list[droit] = droit.user_set.all().annotate(
             num=Count('revision'),
-            last=Max('revision__date_created')
+            last=Max('revision__date_created'),
         )
+
+    stats_list['Superuser'] = User.objects.filter(is_superuser=True).annotate(
+            num=Count('revision'),
+            last=Max('revision__date_created'),
+    )
 
     return render(
         request,

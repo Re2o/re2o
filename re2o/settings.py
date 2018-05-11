@@ -37,6 +37,7 @@ from __future__ import unicode_literals
 
 import os
 from .settings_local import *
+from django.utils.translation import ugettext_lazy as _
 
 # The root directory for the project
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -134,6 +135,10 @@ USE_L10N = True
 LOCALE_PATHS = [
     # For translations outside of apps
     os.path.join(BASE_DIR, 'templates', 'locale').replace('\\', '/')
+]
+LANGUAGES = [
+    ('en', _('English')),
+    ('fr', _('French'))
 ]
 
 # Should use time zone ?

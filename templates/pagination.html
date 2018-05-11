@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load url_insert_param %}
 
+{% if list.paginator.num_pages > 1 %}
 <ul class="pagination nav navbar-nav">
     {% if list.has_previous %}
     <li><a href="{% url_insert_param request.get_full_path page=1 %}"> << </a></li>
@@ -39,5 +40,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <li><a href="{% url_insert_param request.get_full_path page=list.next_page_number %}"> > </a></li>
         <li><a href="{% url_insert_param request.get_full_path page=list.paginator.page_range|length %}"> >> </a></li>
     {% endif %}
- </ul>
-
+</ul>
+{% endif %}

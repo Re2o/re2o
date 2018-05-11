@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^about/$', about_page, name='about'),
     url('^logout/', auth_views.logout, {'next_page': '/'}),
     url('^', include('django.contrib.auth.urls')),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include('users.urls', namespace='users')),
     url(r'^search/', include('search.urls', namespace='search')),

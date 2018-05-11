@@ -43,11 +43,6 @@ import radiusd  # Module magique freeradius (radiusd.py is dummy)
 from django.core.wsgi import get_wsgi_application
 from django.db.models import Q
 
-from machines.models import Interface, IpList, Nas, Domain
-from topologie.models import Port, Switch
-from users.models import User
-from preferences.models import OptionalTopologie
-
 proj_path = "/var/www/re2o/"
 # This is so Django knows where to find stuff.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "re2o.settings")
@@ -58,6 +53,12 @@ os.chdir(proj_path)
 
 # This is so models get loaded.
 application = get_wsgi_application()
+
+from machines.models import Interface, IpList, Nas, Domain
+from topologie.models import Port, Switch
+from users.models import User
+from preferences.models import OptionalTopologie
+
 
 options, created = OptionalTopologie.objects.get_or_create()
 VLAN_NOK = options.vlan_decision_nok.vlan_id

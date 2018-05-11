@@ -35,6 +35,26 @@ footer a {
     border-radius: 0;
 }
 
+/* Add right colors for buttons in dropdown in navbar-inverse (else it is light
+ * gray on white bg and white when hovered */
+.navbar-inverse .dropdown-menu .btn-link {
+    text-decoration: none;
+    color: #262626;
+    padding: 0;
+}
+.navbar-inverse .dropdown-menu .btn-link:hover {
+    background-color: #f5f5f5;
+}
+@media screen and (max-width: 767px) {
+    .navbar-inverse .dropdown-menu .btn-link {
+        color: #9d9d9d;
+    }
+    .navbar-inverse .dropdown-menu .btn-link:hover {
+        color: #fff;
+        background-color: transparent;
+    }
+}
+
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
 .row.content {
     height: 100%;

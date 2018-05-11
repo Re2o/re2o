@@ -41,7 +41,7 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 
 from preferences.models import OptionalUser
-from re2o.utils import remove_user_room
+from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -422,11 +422,18 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = ServiceUser
-        fields = ('pseudo', 'access_group')
+        fields = ('pseudo', 'access_group','comment')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+    def save(self, commit=True):
+        """Changement du mot de passe"""
+        user = super(ServiceUserForm, self).save(commit=False)
+        if self.cleaned_data['password']:
+            user.set_password(self.cleaned_data.get("password"))
+        user.save()
 
 
 class EditServiceUserForm(ServiceUserForm):
@@ -447,7 +454,7 @@ class StateForm(FormRevMixin, ModelForm):
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
-class GroupForm(FormRevMixin, ModelForm):
+class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """ Gestion des groupes d'un user"""
     groups = forms.ModelMultipleChoiceField(
         Group.objects.all(),
@@ -457,11 +464,13 @@ class GroupForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = User
-        fields = ['groups']
+        fields = ['is_superuser', 'groups']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
+        if 'is_superuser' in self.fields:
+            self.fields['is_superuser'].label = "Superuser"
 
 
 class SchoolForm(FormRevMixin, ModelForm):
@@ -558,6 +567,9 @@ class BanForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].help_text = get_input_formats_help_text(
+            self.fields['date_end'].input_formats
+        )
 
     class Meta:
         model = Ban
@@ -570,6 +582,9 @@ class WhitelistForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].help_text = get_input_formats_help_text(
+            self.fields['date_end'].input_formats
+        )
 
     class Meta:
         model = Whitelist

@@ -246,7 +246,7 @@ def state(request, user, userid):
 @can_edit(User, 'groups')
 def groups(request, user, userid):
     """ View to edit the groups of a user """
-    group_form = GroupForm(request.POST or None, instance=user)
+    group_form = GroupForm(request.POST or None, instance=user, user=request.user)
     if group_form.is_valid():
         if group_form.changed_data:
             group_form.save()
@@ -295,17 +295,25 @@ def del_group(request, user, listrightid, **_kwargs):
 
 
 @login_required
+@can_edit(User, 'is_superuser')
+def del_superuser(request, user, **_kwargs):
+    """Remove the superuser right of an user."""
+    user.is_superuser = False
+    user.save()
+    messages.success(request, "%s n'est plus superuser" % user)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
 @can_create(ServiceUser)
 def new_serviceuser(request):
     """ Vue de création d'un nouvel utilisateur service"""
     user = ServiceUserForm(request.POST or None)
     if user.is_valid():
-        user_object = user.save(commit=False)
-        user_object.set_password(user.cleaned_data['password'])
-        user_object.save()
+        user.save()
         messages.success(
             request,
-            "L'utilisateur %s a été crée" % user_object.pseudo
+            "L'utilisateur a été crée"
         )
         return redirect(reverse('users:index-serviceusers'))
     return form(
@@ -324,11 +332,8 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
         instance=serviceuser
     )
     if serviceuser.is_valid():
-        user_object = serviceuser.save(commit=False)
-        if serviceuser.cleaned_data['password']:
-            user_object.set_password(serviceuser.cleaned_data['password'])
         if serviceuser.changed_data:
-            user_object.save()
+            serviceuser.save()
         messages.success(request, "L'user a bien été modifié")
         return redirect(reverse('users:index-serviceusers'))
     return form(
@@ -344,7 +349,7 @@ def del_serviceuser(request, serviceuser, **_kwargs):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         serviceuser.delete()
-        messages.success(request, "L'user a été détruite")
+        messages.success(request, "L'user a été détruit")
         return redirect(reverse('users:index-serviceusers'))
     return form(
         {'objet': serviceuser, 'objet_name': 'serviceuser'},
@@ -768,10 +773,14 @@ def index_listright(request):
     """ Affiche l'ensemble des droits"""
     listright_list = ListRight.objects.order_by('unix_name')\
         .prefetch_related('permissions').prefetch_related('user_set')
+    superuser_right = User.objects.filter(is_superuser=True)
     return render(
         request,
         'users/index_listright.html',
-        {'listright_list': listright_list}
+        {
+            'listright_list': listright_list,
+            'superuser_right' : superuser_right,
+        }
     )
 
 
@@ -814,6 +823,7 @@ def profil(request, users, **_kwargs):
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'
     )
+    nb_machines = machines.count()
     machines = re2o_paginator(request, machines, pagination_large_number)
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
@@ -844,6 +854,7 @@ def profil(request, users, **_kwargs):
         {
             'users': users,
             'machines_list': machines,
+            'nb_machines' : nb_machines,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,

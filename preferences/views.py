@@ -58,13 +58,8 @@ from . import forms
 
 
 @login_required
-@can_view_all(OptionalUser)
-@can_view_all(OptionalMachine)
-@can_view_all(OptionalTopologie)
-@can_view_all(GeneralOption)
-@can_view_all(AssoOption)
-@can_view_all(MailMessageOption)
-@can_view_all(HomeOption)
+@can_view_all(OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption,
+              AssoOption, MailMessageOption, HomeOption)
 def display_options(request):
     """Vue pour affichage des options (en vrac) classé selon les models
     correspondants dans un tableau"""
@@ -149,7 +144,11 @@ def add_service(request):
 @can_edit(Service)
 def edit_service(request, service_instance, **_kwargs):
     """Edition des services affichés sur la page d'accueil"""
-    service = ServiceForm(request.POST or None, request.FILES or None,instance=service_instance)
+    service = ServiceForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=service_instance
+    )
     if service.is_valid():
         with transaction.atomic(), reversion.create_revision():
             service.save()
