@@ -1,9 +1,9 @@
 {% load static %} 
-<script src="{% static 'js/jquery-2.2.4.min.js' %}"></script> 
-<script src="{% static 'js/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script> 
-<script src="{% static 'js/jquery-ui-timepicker-addon.js' %}"></script> 
-<link href="{% static 'js/jquery-ui-1.12.1/jquery-ui.min.css' %}" rel="stylesheet"/> 
-<link href="{% static 'css/jquery-ui-timepicker-addon.css' %}" rel="stylesheet"/> 
+<script src="/javascript/jquery/jquery.min.js"></script> 
+<script src="/javascript/jquery-ui/jquery-ui.min.js"></script> 
+<script src="/javascript/jquery-timepicker/jquery-ui-timepicker-addon.js"></script> 
+<link href="/javascript/jquery-ui/css/smoothness/jquery-ui.min.css" rel="stylesheet"/> 
+<link href="/javascript/jquery-timepicker/jquery-ui-timepicker-addon.css" rel="stylesheet"/> 
 <input {{attrs}} name="datetimepicker" type="text" class="form-control" placeholder="Date"/> 
 <script> 
 $(document).ready(function(){ 

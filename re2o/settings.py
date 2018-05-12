@@ -149,7 +149,7 @@ DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 # django-bootstrap3 config
 BOOTSTRAP3 = {
-    'jquery_url': '/static/js/jquery-2.2.4.min.js',
+    'jquery_url': '/javascript/jquery/jquery.min.js',
     'base_url': '/static/bootstrap/',
     'include_jquery': True,
 }
@@ -159,7 +159,6 @@ BOOTSTRAP_BASE_URL = '/static/bootstrap/'
 # Use only absolute paths with '/' delimiters even on Windows
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static').replace('\\', '/'),
-    os.path.join(BASE_DIR, 'javascript').replace('\\', '/'),
 )
 # Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
