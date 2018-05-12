@@ -432,6 +432,7 @@ end=$(dialog --clear \
 apt install libjs-jquery
 apt install libjs-jquery-ui
 apt install libjs-jquery-timepicker
+apt install libjs-bootstrap
 
 main_function() {
 if [ ! -z "$1" ]
