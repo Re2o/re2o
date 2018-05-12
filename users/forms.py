@@ -569,13 +569,12 @@ class BanForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
-        self.fields['date_end'].help_text = get_input_formats_help_text(
-            self.fields['date_end'].input_formats
-        )
+        self.fields['date_end'].localize = False
 
     class Meta:
         model = Ban
         exclude = ['user']
+        widgets = {'date_end':DateTimePicker}
 
 
 class WhitelistForm(FormRevMixin, ModelForm):

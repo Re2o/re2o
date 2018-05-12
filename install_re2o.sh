@@ -429,6 +429,10 @@ end=$(dialog --clear \
 	2>&1 >/dev/tty)
 }
 
+apt install libjs-jquery
+apt install libjs-jquery-ui
+apt install libjs-jquery-timepicker
+
 main_function() {
 if [ ! -z "$1" ]
 then

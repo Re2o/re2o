@@ -159,6 +159,7 @@ BOOTSTRAP_BASE_URL = '/static/bootstrap/'
 # Use only absolute paths with '/' delimiters even on Windows
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static').replace('\\', '/'),
+    os.path.join(BASE_DIR, 'javascript').replace('\\', '/'),
 )
 # Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
