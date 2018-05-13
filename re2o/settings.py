@@ -149,11 +149,11 @@ DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 # django-bootstrap3 config
 BOOTSTRAP3 = {
-    'jquery_url': '/static/js/jquery-2.2.4.min.js',
-    'base_url': '/static/bootstrap/',
+    'jquery_url': '/javascript/jquery/jquery.min.js',
+    'base_url': '/javascript/bootstrap/',
     'include_jquery': True,
 }
-BOOTSTRAP_BASE_URL = '/static/bootstrap/'
+BOOTSTRAP_BASE_URL = '/javascript/bootstrap/'
 
 # Directories where collectstatic should look for static files
 # Use only absolute paths with '/' delimiters even on Windows

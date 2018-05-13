@@ -45,6 +45,8 @@ from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
+from .widgets import DateTimePicker
+
 from .models import (
     User,
     ServiceUser,
@@ -567,13 +569,12 @@ class BanForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
-        self.fields['date_end'].help_text = get_input_formats_help_text(
-            self.fields['date_end'].input_formats
-        )
+        self.fields['date_end'].localize = False
 
     class Meta:
         model = Ban
         exclude = ['user']
+        widgets = {'date_end':DateTimePicker}
 
 
 class WhitelistForm(FormRevMixin, ModelForm):
@@ -582,10 +583,9 @@ class WhitelistForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = 'Date de fin'
-        self.fields['date_end'].help_text = get_input_formats_help_text(
-            self.fields['date_end'].input_formats
-        )
+        self.fields['date_end'].localize = False
 
     class Meta:
         model = Whitelist
         exclude = ['user']
+        widgets = {'date_end':DateTimePicker}
