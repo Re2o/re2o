@@ -29,6 +29,7 @@ class DateTimePicker(Input):
         super().render(name, value, attrs) 
         flat_attrs = flatatt(attrs)
         context = Context({
+            'name': name,
             'attrs': flat_attrs, 
             'id': attrs['id'], 
             'closeText': _("Close"), 
