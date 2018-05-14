@@ -340,7 +340,11 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         """On supprime l'ancien user de la chambre si et seulement si la
         case est cochée"""
         if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
+            room = self.cleaned_data.get('room')
+            if room is None:
+                raise forms.ValidationError("Invalid Room")
+            remove_user_room(room)
+
         return
 
 
