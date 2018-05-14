@@ -24,7 +24,6 @@ A set of mixins used all over the project to avoid duplicating code
 """
 
 from reversion import revisions as reversion
-from django.utils.functional import cached_property
 from django.db import transaction
 
 
@@ -162,5 +161,3 @@ class AclMixin(object):
             ),
             u"Vous n'avez pas le droit de voir des " + self.get_classname()
         )
-
-
