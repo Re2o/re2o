@@ -1373,8 +1373,9 @@ class Service(RevMixin, AclMixin, models.Model):
 def regen(service):
     """ Fonction externe pour régérération d'un service, prend un objet service
     en arg"""
-    obj, created = Service.objects.get_or_create(service_type=service)
-    obj.ask_regen()
+    obj = Service.objects.filter(service_type=service)
+    if obj:
+        obj[0].ask_regen()
     return
 
 
@@ -1383,12 +1384,7 @@ class Service_link(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Relation entre service et serveur"
 
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
-    server = models.ForeignKey(
-        'Interface',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
+    server = models.ForeignKey('Interface', on_delete=models.CASCADE)
     last_regen = models.DateTimeField(auto_now_add=True)
     asked_regen = models.BooleanField(default=False)
 
@@ -1529,8 +1525,6 @@ def machine_post_save(**kwargs):
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     regen('dhcp')
     regen('mac_ip_list')
-    if user == preferences.models.OptionalMachine.get_cached_value('utilisateur_asso'):
-        regen('graph_topo')
 
 
 @receiver(post_delete, sender=Machine)
@@ -1555,8 +1549,6 @@ def interface_post_save(**kwargs):
     # Regen services
     regen('dhcp')
     regen('mac_ip_list')
-    if interface.machine.user == preferences.models.OptionalMachine.get_cached_value('utilisateur_asso'):
-        regen('graph_topo')
 
 
 @receiver(post_delete, sender=Interface)
@@ -1667,11 +1659,3 @@ def srv_post_save(**_kwargs):
 def srv_post_delete(**_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
-
-
-@receiver(post_save, sender=Service)
-def service_post_save(**kwargs):
-    """Création d'un service_link si non existant"""
-    service = kwargs['instance']
-    service_link, created = Service_link.objects.get_or_create(service=service)
-
