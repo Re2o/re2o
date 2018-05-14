@@ -1,0 +1,28 @@
+{% load static %} 
+<script src="/javascript/jquery/jquery.min.js"></script> 
+<script src="/javascript/jquery-ui/jquery-ui.min.js"></script> 
+<script src="/javascript/jquery-timepicker/jquery-ui-timepicker-addon.js"></script> 
+<link href="/javascript/jquery-ui/css/smoothness/jquery-ui.min.css" rel="stylesheet"/> 
+<link href="/javascript/jquery-timepicker/jquery-ui-timepicker-addon.css" rel="stylesheet"/> 
+<input {{attrs}} name="{{name}}" type="text" class="form-control" placeholder="Date"/> 
+<script> 
+$(document).ready(function(){ 
+	$("#{{id}}").datetimepicker({
+		closeText: "{{closeText}}",
+		currentText: "{{currentText}}", 
+		dateFormat:'yy-mm-dd',
+		dayNames: {{dayNames}}, 
+		dayNamesMin: {{dayNamesMin}},
+		dayNamesShort: {{dayNamesShort}}, 
+		firstDay: {{firstDay}}, 
+		isRTL: {{isRTL}}, 
+		monthNames: {{monthNames}}, 
+		monthNamesShort: {{monthNamesShort}}, 
+		nextText: {{nextText}}, 
+		prevText: {{prevText}}, 
+		timeFormat: 'HH:mm:ss', 
+		weekHeader: {{weekHeader}},
+		closeText: "{{closeText}}",
+	}) 
+});
+</script> 
