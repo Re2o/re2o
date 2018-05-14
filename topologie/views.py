@@ -1010,6 +1010,7 @@ def make_machine_graph():
 
     #Tant que la liste des oubliés n'est pas vide i.e on les a pas tous passer
     while missing:
+
         links, new_detected = recursive_switchs(missing[0].ports.filter(related=None).first(), None, [missing[0]])
         for link in links:
             dico['links'].append(link)
@@ -1053,21 +1054,23 @@ def recursive_switchs(port_start, switch_before, detected):
     """
     Parcour récursivement le switchs auquel appartient port_start pour trouver les ports suivants liés
     """
-    links_return=[]#Liste de dictionaires qui stockes les nouveaux liens détéctés
-    l_ports=port_start.switch.ports.filter(related__isnull=False)#Liste des ports dont le related est non null
-    for port in l_ports:
-        #Pas le switch dont on vient, pas le switch actuel
-        if port.related.switch!=switch_before and port.related.switch != port.switch:
-            detected.append(port_start.switch)
-            detected.append(port.related.switch)
+    detected.append(port_start.switch)
+    links_return=[]#Liste de dictionaires qui stockes les nouveaux liens trouvés
+    for port in port_start.switch.ports.filter(related__isnull=False):#Liste des ports dont le related est non null
+        
+        if port.related.switch!=switch_before and port.related.switch != port.switch:#Pas le switch dont on descend, pas le switch actuel
+
             links = {
                 'depart':port_start.switch.id,
                 'arrive':port.related.switch.id
             }
-            links_down, detected = recursive_switchs(port.related, port_start.switch, detected)
+            if(port.related.switch not in detected):
+                links_down, detected = recursive_switchs(port.related, port_start.switch, detected)
+                for link in links_down:
+                    if link:
+                        links_return.append(link)
+            detected.append(port.related.switch)
+
             links_return.append(links)
-            for link in links_down:
-                if link:
-                    links_return.append(link)
     return (links_return, detected)
 

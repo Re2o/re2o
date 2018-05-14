@@ -1,8 +1,8 @@
 {% block graph_dot %}
-digraph {
+strict digraph {
 graph [label="TOPOLOGIE DU RÉSEAU", labelloc=t, fontsize=40];
 node [fontname=Helvetica fontsize=8 shape=plaintext];
-edge[arrowhead=odot,arrowtail=dot];
+edge[arrowhead=none];
 
 
 {% block subgraphs %}
