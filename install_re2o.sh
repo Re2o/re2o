@@ -55,8 +55,8 @@ init=$(dialog --clear \
 
 
 BACKTITLE="Re2o preconfiguration of the database"
-MENU="Choose an option"
 TITLE="Database engine"
+MENU="Which engine should be used as the database ?"
 OPTIONS=(1 "mysql"
          2 "postgresql")
 sql_bdd_type=$(dialog --clear \
@@ -73,11 +73,11 @@ clear
 
 
 
-TITLE="Local extension to use (ex : example.net)"
-
+TITLE="Local extension"
+INPUTBOX="The local extension to use (e.g. 'example.net'). This is used in the LDAP configuration."
 extension_locale=$(dialog --title "$TITLE" \
                     --backtitle "$BACKTITLE" \
-                    --inputbox "$TITLE" \
+                    --inputbox "$INPUTBOX" \
                     $HEIGHT $WIDTH \
                     2>&1 >/dev/tty)
 clear
@@ -96,10 +96,12 @@ echo $ldap_dn
 
 
 
-TITLE="SQL database location"
+TITLE="SQL location"
+MENU="Where to install the SQL database ?
+* 'Local' will setup everything automatically but is not recommended for production
+* 'Remote' will ask you to manually perform some setup commands on the remote server)"
 OPTIONS=(1 "Local"
          2 "Remote")
-
 sql_is_local=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "$TITLE" \
@@ -110,39 +112,42 @@ sql_is_local=$(dialog --clear \
 
 clear
 
-TITLE="SQL database password"
-
+TITLE="SQL password"
+INPUTBOX="The password to access the SQL database"
 sql_password=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" $HEIGHT $WIDTH \
+        --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
         2>&1 >/dev/tty)
 clear
 
 
 if [ $sql_is_local == 2 ]
 then
-TITLE="Username to access the remote SQL database"
-sql_login=$(dialog --title "$TITLE" \
-	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" $HEIGHT $WIDTH \
-        2>&1 >/dev/tty)
-clear
-TITLE="Name of the SQL database"
-sql_name=$(dialog --title "$TITLE" \
-	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" $HEIGHT $WIDTH \
-        2>&1 >/dev/tty)
-clear
-TITLE="Host of the remote SQL database"
-sql_host=$(dialog --title "$TITLE" \
-	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" $HEIGHT $WIDTH \
-        2>&1 >/dev/tty)
-clear
+    TITLE="SQL username"
+    INPUTBOX="The username to access the remote SQL database"
+    sql_login=$(dialog --title "$TITLE" \
+    	--backtitle "$BACKTITLE" \
+            --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
+            2>&1 >/dev/tty)
+    clear
+    TITLE="SQL database name"
+    INPUTBOX="The name of the remote SQL database"
+    sql_name=$(dialog --title "$TITLE" \
+    	--backtitle "$BACKTITLE" \
+            --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
+            2>&1 >/dev/tty)
+    clear
+    TITLE="SQL host"
+    INPUTBOX="The host of the remote SQL database"
+    sql_host=$(dialog --title "$TITLE" \
+    	--backtitle "$BACKTITLE" \
+            --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
+            2>&1 >/dev/tty)
+    clear
 else
-sql_name="re2o"
-sql_login="re2o"
-sql_host="localhost"
+    sql_name="re2o"
+    sql_login="re2o"
+    sql_host="localhost"
 fi
 
 
@@ -151,10 +156,13 @@ fi
 
 
 BACKTITLE="Re2o preconfiguration of the active directory"
+
 TITLE="LDAP location"
+MENU="Where to install the LDAP ?
+* 'Local' will setup everything automatically but is not recommended for production
+* 'Remote' will ask you to manually perform some setup commands on the remote server)"
 OPTIONS=(1 "Local"
          2 "Remote")
-
 ldap_is_local=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "$TITLE" \
@@ -164,26 +172,29 @@ ldap_is_local=$(dialog --clear \
                 2>&1 >/dev/tty)
 
 TITLE="LDAP password"
+INPUTBOX="The password to access the LDAP"
 ldap_password=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" $HEIGHT $WIDTH \
+        --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
         2>&1 >/dev/tty)
 clear
 if [ $ldap_is_local == 2 ]
 then
-    TITLE="CN entry for the admin user of the remote LDAP"
+    TITLE="CN of amdin user"
+    INPUTBOX="The CN entry for the admin user of the remote LDAP"
     ldap_cn=$(dialog --title "$TITLE" \
                --backtitle "$BACKTITLE" \
-               --inputbox "$TITLE" $HEIGHT $WIDTH \
+               --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
                2>&1 >/dev/tty)
     clear
-    TITLE="Host of the remote LDAP"
+    TITLE="LDAP host"
+    INPUTBOX="The host of the remote LDAP"
     ldap_host=$(dialog --title "$TITLE" \
                  --backtitle "$BACKTITLE" \
-                 --inputbox "$TITLE" $HEIGHT $WIDTH \
+                 --inputbox "$INPUTBOX" $HEIGHT $WIDTH \
                  2>&1 >/dev/tty)
     clear
-    TITLE="Is the TLS activated ?"
+    TITLE="Activate TLS for remote LDAP ?"
     OPTIONS=(1 "Yes"
              2 "No")
     ldap_tls=$(dialog --title "$TITLE" \
@@ -205,18 +216,20 @@ fi
 
 
 BACKTITLE="Re2o preconfiguration of the mail server"
-TITLE="Host of the mail server to use"
+
+TITLE="Mail server host"
+INPUTBOX="The host of the mail server to use"
 email_host=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
         --inputbox "$TITLE" \
         $HEIGHT $WIDTH \
         2>&1 >/dev/tty)
 
-TITLE="Port of the mail server"
+TITLE="Mail server Port"
+MENU="Which port (thus which protocol) to use to contact the mail server"
 OPTIONS=(25 "SMTP"
          465 "SMTPS"
 	 587 "Submission")
-
 email_port=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "$TITLE" \
@@ -226,16 +239,18 @@ email_port=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 
+
+
+
+TITLE="Re2o setup !"
+MSGBOX="Setup of the required packages"
 install_base=$(dialog --clear \
-	--title "Re2o setup!" \
-        --msgbox "Installation des paquets de base" \
+	--title "$TITLE" \
+        --msgbox "$MSGBOX" \
 	$HEIGHT $WIDTH \
 	2>&1 >/dev/tty)
 
-
-
-
-echo "Installation des paquets de base"
+echo "Setup of the required packages"
 apt-get -y install python3-django python3-dateutil texlive-latex-base texlive-fonts-recommended python3-djangorestframework python3-django-reversion python3-pip libsasl2-dev libldap2-dev libssl-dev python3-crypto python3-git libjs-jquery libjs-jquery-uil libjs-jquery-timepicker libjs-bootstrap
 pip3 install django-bootstrap3 django-ldapdb==0.9.0 django-macaddress
 
@@ -380,10 +395,11 @@ python3 manage.py collectstatic
 
 
 BACKTITLE="Web server"
+
 TITLE="Web server to use"
+MENU="Which web server to install for accessing Re2o web frontend (automatic setup of nginx is not supported) ?"
 OPTIONS=(1 "apache2"
          2 "nginx")
-
 web_serveur=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "$TITLE" \
@@ -394,18 +410,19 @@ web_serveur=$(dialog --clear \
 
 clear
 
-TITLE="URL for accessing the web server (e.g. re2o.example.net). Be sure that this URL is accessible and correspond to a DNS entry if applicable."
+TITLE="Web URL"
+INPUTBOX="URL for accessing the web server (e.g. re2o.example.net). Be sure that this URL is accessible and correspond to a DNS entry if applicable."
 url_server=$(dialog --title "$TITLE" \
 	--backtitle "$BACKTITLE" \
-        --inputbox "$TITLE" \
+        --inputbox "$INPUTBOX" \
 	$HEIGHT $WIDTH \
         2>&1 >/dev/tty)
 clear
 
-TITLE="Activate TLS with Let'Encrypt on the web server ?"
-OPTIONS=(1 "Oui"
-         2 "Non")
-
+TITLE="TLS on web server"
+MENU="Would you like to activate the TLS (with Let'Encrypt) on the web server ?"
+OPTIONS=(1 "Yes"
+         2 "No")
 is_tls=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "$TITLE" \
@@ -441,7 +458,7 @@ then
     service apache2 reload
 else
     TITLE="Web server setup"
-    MSGBOX="Nginx non supporté, vous devrez installer manuellement"
+    MSGBOX="Nginx automatic setup is not supported. Please configure it manually."
     web_server=$(dialog --clear \
                   --title "$TITLE" \
                   --msgbox "$MSGBOX" \
@@ -472,10 +489,10 @@ main_function() {
         then
             if [ ! -z "$2" ]
             then
-                echo Installation du ldap
+                echo "Installation du ldap"
                 setup_ldap $2 $3
             else
-                echo Arguments invalides !
+                echo "Arguments invalides !"
                 exit
             fi
         fi
