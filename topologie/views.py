@@ -43,6 +43,10 @@ from django.db import IntegrityError
 from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.template.loader import get_template
+from django.template import Context, Template, loader
+
+import pprint
 
 from users.views import form
 from re2o.utils import re2o_paginator, SortTable
@@ -53,13 +57,14 @@ from re2o.acl import (
     can_view,
     can_view_all,
 )
+from re2o.settings import MEDIA_ROOT
 from machines.forms import (
     DomainForm,
     EditInterfaceForm,
     AddInterfaceForm
 )
 from machines.views import generate_ipv4_mbf_param
-from machines.models import Interface
+from machines.models import Interface, Service_link
 from preferences.models import AssoOption, GeneralOption
 
 from .models import (
@@ -71,7 +76,8 @@ from .models import (
     ConstructorSwitch,
     AccessPoint,
     SwitchBay,
-    Building
+    Building,
+    Server
 )
 from .forms import (
     EditPortForm,
@@ -112,6 +118,12 @@ def index(request):
     )
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     switch_list = re2o_paginator(request, switch_list, pagination_number)
+
+    if any(service_link.need_regen() for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
+        make_machine_graph()
+        for service_link in Service_link.objects.filter(service__service_type='graph_topo'):
+            service_link.done_regen()
+
     return render(
         request,
         'topologie/index.html',
@@ -937,93 +949,126 @@ def make_machine_graph():
     """
     Crée le fichier dot et l'image du graph des Switchs
     """
-    #Syntaxe DOT temporaire, A mettre dans un template:
-    lignes=['''digraph Switchs {
-node [
-fontname=Helvetica
-fontsize=8
-shape=plaintext]
-edge[arrowhead=odot,arrowtail=dot]''']
-    node_fixe='''node [label=<
-<TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-<TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
-<FONT FACE="Helvetica Bold" COLOR="white">
-{}
-</FONT></TD></TR>
-<TR><TD ALIGN="LEFT" BORDER="0">
-<FONT COLOR="#7B7B7B" >{}</FONT>
-</TD>
-<TD ALIGN="LEFT">
-<FONT COLOR="#7B7B7B" >{}</FONT>
-</TD></TR>
-<TR><TD ALIGN="LEFT" BORDER="0">
-<FONT COLOR="#7B7B7B" >{}</FONT>
-</TD>
-<TD ALIGN="LEFT">
-<FONT>{}</FONT>
-</TD></TR>'''
-    node_ports='''<TR><TD ALIGN="LEFT" BORDER="0">
-<FONT COLOR="#7B7B7B" >{}</FONT>
-</TD>
-<TD ALIGN="LEFT">
-<FONT>{}</FONT>
-</TD></TR>'''
-    cluster='''subgraph cluster_{} {{
-color=blue;
-label="Batiment {}";'''
-    end_table='''</TABLE>
->] \"{}_{}\" ;'''
-    switch_alone='''{} [label=<
-<TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-<TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
-<FONT FACE="Helvetica Bold" COLOR="white">
-{}
-</FONT></TD></TR>
-</TABLE>
->]'''
-    missing=[]
-    detected=[]
-    for sw in Switch.objects.all():
-        if(sw not in detected):
-            missing.append(sw)
+    dico = {
+        'subs': [],
+        'links' : [],
+        'alone': [],
+        'colors': {
+            'head': "#7f0505",
+            'back': "#b5adad",
+            'texte': "#563d01",
+            'border_bornes': "#02078e",
+            'head_bornes': "#25771c",
+            'head_server': "#1c3777"
+            }
+        }
+    missing = list(Switch.objects.all())
+    detected = []
+
+    #Parcours tous les batiments
     for building in Building.objects.all():
-        lignes.append(cluster.format(len(lignes),building))
+        dico['subs'].append(
+            {
+            'bat_id': building.id,
+            'bat_name': building,
+            'switchs': [],
+            'bornes': [],
+            'machines': []
+            }
+        )
+        #Parcours tous les switchs de ce batiment
         for switch in Switch.objects.filter(switchbay__building=building):
-            lignes.append(node_fixe.format(switch.main_interface().domain.name,"Modèle",switch.model,"Nombre de ports",switch.number))
-            for p in switch.ports.all().filter(related__isnull=False):
-                lignes.append(node_ports.format(p.port,p.related.switch.main_interface().domain.name))
-            lignes.append(end_table.format(building.id,switch.id))
-        lignes.append("}")
-    while(missing!=[]):
-        lignes,new_detected=recursive_switchs(missing[0].ports.all().filter(related=None).first(),None,lignes,[missing[0]])
-        missing=[i for i in missing if i not in new_detected]
-        detected+=new_detected
-    for switch in Switch.objects.all().filter(switchbay__isnull=True).exclude(ports__related__isnull=False):
-        lignes.append(switch_alone.format(switch.id,switch.main_interface().domain.name))
-    lignes.append("}")
-    fichier = open("media/images/switchs.dot","w")
-    for ligne in lignes:
-        fichier.write(ligne+"\n")
+            dico['subs'][-1]['switchs'].append({
+                'name': switch.main_interface().domain.name,
+                'nombre': switch.number,
+                'model': switch.model,
+                'id': switch.id,
+                'batiment': building,
+                'ports': []
+            })
+            #Parcours tous les ports liés de ce switch, on ajoute les switchs relié à celui-ci
+            for port in switch.ports.filter(related__isnull=False): 
+                dico['subs'][-1]['switchs'][-1]['ports'].append({
+                    'numero': port.port,
+                    'related': port.related.switch.main_interface().domain.name
+                })
+
+        for ap in AccessPoint.all_ap_in(building):
+            dico['subs'][-1]['bornes'].append({
+                'name': ap.short_name,
+                'switch': ap.switch()[0].main_interface().domain.name,
+                'port': ap.switch()[0].ports.filter(
+                    machine_interface__machine=ap
+                )[0].port
+            })
+        for server in Server.all_server_in(building):
+            dico['subs'][-1]['machines'].append({
+                'name': server.short_name,
+                'switch': server.switch()[0].main_interface().domain.name,
+                'port': Port.objects.filter(machine_interface__machine=server)[0].port
+            })
+
+    #Tant que la liste des oubliés n'est pas vide i.e on les a pas tous passer
+    while missing:
+        print("depart initial sur:{}".format(missing[0]))
+        if missing[0].ports.count():#le switch à des ports
+            links, new_detected = recursive_switchs(missing[0].ports.first(), None, [missing[0]])
+            for link in links:
+                dico['links'].append(link)
+            #On recrée la liste des oubliés et des detectés
+            missing=[i for i in missing if i not in new_detected]
+            detected += new_detected
+        else:#Si le switch n'a pas de port, on explore pas et on passe au suivant
+            del missing[0]
+    #Tous ceux qui ne sont ni connectés ni dans un batiment
+    for switch in Switch.objects.filter(switchbay__isnull=True).exclude(ports__related__isnull=False):
+        dico['alone'].append({
+            'id': switch.id,
+            'name': switch.main_interface().domain.name
+        })
+
+    #Exportation du dot et génération de l'image
+    dot_data=generate_image(dico)
+    fichier = open(MEDIA_ROOT + "/images/switchs.dot","w", encoding='utf-8')
+    fichier.write(dot_data)
     fichier.close()
-    unflatten = Popen(["unflatten","-l", "3", "media/images/switchs.dot"], stdout=PIPE)
-    image = Popen(["dot", "-Tpng", "-o", "media/images/switchs.png"], stdin=unflatten.stdout, stdout=PIPE)
+    unflatten = Popen(
+        ["unflatten","-l", "3", MEDIA_ROOT + "/images/switchs.dot"],
+        stdout=PIPE
+    )
+    image = Popen(
+        ["dot", "-Tpng", "-o", MEDIA_ROOT + "/images/switchs.png"],
+        stdin=unflatten.stdout,
+        stdout=PIPE
+    )
 
+def generate_image(data,template='topologie/graph_switch.dot'):
+    t = loader.get_template(template)
+    if not isinstance(t, Template) and not (hasattr(t, 'template') and isinstance(t.template, Template)):
+        raise Exception("Le template par défaut de Django n'est pas utilisé."
+                        "Cela peut mener à des erreurs de rendu."
+                        "Vérifiez les paramètres")
+    c = Context(data).flatten()
+    dot = t.render(c)
+    return(dot)
 
-def recursive_switchs(port_start, switch_before, lignes,detected):
+def recursive_switchs(port_start, switch_before, detected):
     """
     Parcour récursivement le switchs auquel appartient port_start pour trouver les ports suivants liés
     """
-    l_ports=port_start.switch.ports.filter(related__isnull=False)
-    for port in l_ports:
-        if port.related.switch!=switch_before and port.related.switch!=port.switch:
-            links=[]
-            for sw in [switch for switch in [port_start.switch,port.related.switch]]:
-                if(sw not in detected):
-                    detected.append(sw)
-                if(sw.switchbay.building):
-                    links.append("\"{}_{}\"".format(sw.switchbay.building.id,sw.id))
-                else:
-                    links.append("\"{}\"".format(sw.id))
-            lignes.append(links[0]+" -> "+links[1])
-            lignes, detected = recursive_switchs(port.related, port_start.switch, lignes, detected)
-    return (lignes, detected)
+    links_return=[]#Liste de dictionaires qui stockes les nouveaux liens trouvés
+    for port in port_start.switch.ports.filter(related__isnull=False):#Liste des ports dont le related est non null
+        if port.related.switch!=switch_before and port.related.switch != port.switch:#Pas le switch dont on descend, pas le switch actuel
+            links = {#dictionaire contenant le lien
+                'depart':port_start.switch.id,
+                'arrive':port.related.switch.id
+            }
+            if port.related.switch not in detected:#si le switch au bout de ce lien n'a pas été déjà exploré
+                links_down, detected = recursive_switchs(port.related, port_start.switch, detected)#On l'explore et on récupère le résultat
+                for link in links_down:#On ajoute les résultats du niveau inférieur à ceux du niveau actuel
+                    if link:
+                        links_return.append(link) 
+            links_return.append(links)#Ajout des liens trouvés (niveau inférieur et actuel) à la liste à renvoyer
+    detected.append(port_start.switch)#Le switch est considéré comme parcouru
+    return (links_return, detected)
+
