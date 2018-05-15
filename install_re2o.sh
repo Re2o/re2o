@@ -66,8 +66,8 @@ install_re2o_server() {
 
     # Common setup for the dialog prompts
     export DEBIAN_FRONTEND=noninteractive
-    HEIGHT=15
-    WIDTH=40
+    HEIGHT=20
+    WIDTH=60
     CHOICE_HEIGHT=4
 
 
@@ -106,7 +106,7 @@ install_re2o_server() {
     TITLE="SQL location"
     MENU="Where to install the SQL database ?
     * 'Local' will setup everything automatically but is not recommended for production
-    * 'Remote' will ask you to manually perform some setup commands on the remote server)"
+    * 'Remote' will ask you to manually perform some setup commands on the remote server"
     OPTIONS=(1 "Local"
              2 "Remote")
     sql_is_local=$(dialog --clear --backtitle "$BACKTITLE" \
@@ -145,7 +145,7 @@ install_re2o_server() {
     # Prompt to enter the database password
     TITLE="SQL password"
     INPUTBOX="The password to access the SQL database"
-    sql_password=$(dialog --clear --bakctitle "$BACKTITLE"
+    sql_password=$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)
 
@@ -161,7 +161,7 @@ install_re2o_server() {
     TITLE="LDAP location"
     MENU="Where would you like to install the LDAP ?
     * 'Local' will setup everything automatically but is not recommended for production
-    * 'Remote' will ask you to manually perform some setup commands on the remote server)"
+    * 'Remote' will ask you to manually perform some setup commands on the remote server"
     OPTIONS=(1 "Local"
              2 "Remote")
     ldap_is_local=$(dialog --clear --backtitle "$BACKTITLE" \
@@ -182,7 +182,6 @@ install_re2o_server() {
         ldap_dn+="dc=$i,"
     done
     ldap_dn=${ldap_dn::-1}
-    echo $ldap_dn
 
     if [ $ldap_is_local == 2 ]; then
         # Prompt to enter the remote LDAP hostname
@@ -323,7 +322,7 @@ install_re2o_server() {
         python3-crypto \
         python3-git \
         libjs-jquery \
-        libjs-jquery-uil \
+        libjs-jquery-ui \
         libjs-jquery-timepicker \
         libjs-bootstrap
     pip3 install django-bootstrap3 django-ldapdb==0.9.0 django-macaddress
