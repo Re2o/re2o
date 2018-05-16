@@ -498,7 +498,7 @@ install_re2o_server() {
     ##################################
 
     echo "Collecting web frontend statics ..."
-    python3 manage.py collectstatic
+    python3 manage.py collectstatic --noinput
     echo "Collecting web frontend statics: Done"
 
 
