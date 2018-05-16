@@ -321,6 +321,7 @@ install_re2o_server() {
         libssl-dev \
         python3-crypto \
         python3-git \
+        javascript-common \
         libjs-jquery \
         libjs-jquery-ui \
         libjs-jquery-timepicker \
@@ -507,6 +508,7 @@ install_re2o_server() {
     #######################
 
     echo "Setting up web server ..."
+
     if [ $web_serveur == 1 ]; then
 
         echo "Setting up Apache2 web server ..."
@@ -514,6 +516,7 @@ install_re2o_server() {
         apt-get -y install apache2 libapache2-mod-wsgi-py3
         a2enmod ssl
         a2enmod wsgi
+        a2enconf javascript-common
 
         if [ $is_tls == 1 ]; then
             echo "Setting up TLS with LE for Apache2 web server ..."
@@ -554,6 +557,8 @@ install_re2o_server() {
 
     fi
 
+    echo "Setting up web server: Done"
+
 
 
     ###########################
@@ -565,7 +570,7 @@ install_re2o_server() {
     # Prompt to inform the installation process is over
     TITLE="End of the setup"
     MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user hhas the superuser rights, meaning he can access and do everything."
-    end=$(dialog --clear --BACKTITLE "$BACKTITLE"\
+    end=$(dialog --clear --BACKTITLE "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)
 }
