@@ -1,51 +1,8 @@
 #!/bin/bash
 
-setup_ldap() {
-    ### Usage: setup_ldap <ldap_password> <local_domain>
-    #
-    #   This function is used to setup the LDAP structure based on the ldiff files
-    #   located in 'install_utils/'. It will delete the previous structure and data
-    #   and recreate a new empty one.
-    #   
-    #   Parameters:
-    #     * ldap_password: the clear password for the admin user of the LDAP
-    #     * local_domain: the domain extension to use for the LDAP structure in LDAP notation
-    ###
+SETTINGS_LOCAL_FILE='re2o/settings_local.py'
+SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 
-    apt-get -y install slapd
-
-    echo "Hashing the LDAP password ..."
-    hashed_ldap_passwd=$(slappasswd -s $1)
-    echo "Hash of the password: $hashed_ldap_passwd"
-
-    echo "Building the LDAP config files ..."
-    sed 's|dc=example,dc=org|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-    sed 's|dc=example,dc=org|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
-    echo "Building the LDAP config files: Done"
-
-    echo "Stopping slapd service ..."
-    service slapd stop
-    echo "Stopping slapd service: Done"
-
-    echo "Deleting exisitng LDAP configuration ..."
-    rm -rf /etc/ldap/slapd.d/*
-    rm -rf /var/lib/ldap/*
-    echo "Deleting existing LDAP configuration: Done"
-
-    echo "Setting up the new LDAP configuration ..."
-    slapadd -n 0 -l /tmp/schema -F /etc/ldap/slapd.d/
-    slapadd -n 1 -l /tmp/db
-    echo "Setting up the new LDAP configuration: Done"
-
-    echo "Fixing the LDAP files permissions ..."
-    chown -R openldap:openldap /etc/ldap/slapd.d
-    chown -R openldap:openldap /var/lib/ldap
-    echo "Fixing the LDAP files permissions: Done"
-
-    echo "Starting slapd service ..."
-    service slapd start
-    echo "Starting slapd service: Done"
-}
 
 
 install_requirements() {
@@ -174,28 +131,6 @@ install_database() {
 
 
 
-init_django() {
-    ### Usage: init_django
-    #
-    #   This function will initialise the Django project by applying the migrations,
-    #   creating a first user with the superuser rights and collecting the statics
-    ###
-
-    echo "Applying Django migrations ..."
-    python3 manage.py migrate
-    echo "Applying Django migrations: Done"
-
-    echo "Creating a superuser ..."
-    python3 manage.py createsuperuser
-    echo "Creating a superuser: Done"
-
-    echo "Collecting web frontend statics ..."
-    python3 manage.py collectstatic --noinput
-    echo "Collecting web frontend statics: Done"
-}
-
-
-
 install_active_directory() {
     ### Usage: install_active_directory <local_setup> <password> <domain>
     #
@@ -217,14 +152,46 @@ install_active_directory() {
 
     if [ $local_setup == 1 ]; then
 
-        echo "Setting up local active directory ..."
-        setup_ldap $password $domain
-        echo "Setting up local active directory: Done"
+        echo "Installing slapd package ..."
+        apt-get -y install slapd
+        echo "Installing slapd package: Done"
+
+        echo "Hashing the LDAP password ..."
+        hashed_ldap_passwd=$(slappasswd -s $1)
+        echo "Hash of the password: $hashed_ldap_passwd"
+
+        echo "Building the LDAP config files ..."
+        sed 's|dc=example,dc=org|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
+        sed 's|dc=example,dc=org|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
+        echo "Building the LDAP config files: Done"
+
+        echo "Stopping slapd service ..."
+        service slapd stop
+        echo "Stopping slapd service: Done"
+
+        echo "Deleting exisitng LDAP configuration ..."
+        rm -rf /etc/ldap/slapd.d/*
+        rm -rf /var/lib/ldap/*
+        echo "Deleting existing LDAP configuration: Done"
+
+        echo "Setting up the new LDAP configuration ..."
+        slapadd -n 0 -l /tmp/schema -F /etc/ldap/slapd.d/
+        slapadd -n 1 -l /tmp/db
+        echo "Setting up the new LDAP configuration: Done"
+
+        echo "Fixing the LDAP files permissions ..."
+        chown -R openldap:openldap /etc/ldap/slapd.d
+        chown -R openldap:openldap /var/lib/ldap
+        echo "Fixing the LDAP files permissions: Done"
+
+        echo "Starting slapd service ..."
+        service slapd start
+        echo "Starting slapd service: Done"
 
     else
 
         echo "Please execute the following command on the remote LDAP server and then continue"
-        echo "./install_re2o.sh ldap $password $domain"
+        echo "./install_re2o.sh setup-ldap $password $domain"
         while true; do
             read -p "Continue (y/n)?" choice
             case "$choice" in
@@ -286,9 +253,6 @@ write_settings_file() {
     extension=${13}
     url=${14}
 
-    SETTINGS_LOCAL_FILE='re2o/settings_local.py'
-    SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
-
     cp $SETTINGS_EXAMPLE_FILE $SETTINGS_LOCAL_FILE
 
     django_secret_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")
@@ -318,6 +282,36 @@ write_settings_file() {
     sed -i 's/URL_SERVER/'"$url"'/g' $SETTINGS_LOCAL_FILE
 
     echo "Writing of the settings_local.py file: Done"
+}
+
+
+
+update_django() {
+    ### Usage: update_django
+    #
+    #   This function will update the Django project by applying the migrations
+    #   and collecting the statics
+    ###
+
+    echo "Applying Django migrations ..."
+    python3 manage.py migrate
+    echo "Applying Django migrations: Done"
+
+    echo "Collecting web frontend statics ..."
+    python3 manage.py collectstatic --noinput
+    echo "Collecting web frontend statics: Done"
+}
+
+
+
+create_superuser() {
+    ### Usage: create_superuser
+    #
+    #   This will create a user with the superuser rights for the project.
+
+    echo "Creating a superuser ..."
+    python3 manage.py createsuperuser
+    echo "Creating a superuser: Done"
 }
 
 
@@ -669,7 +663,9 @@ interactive_guide() {
                         $ldap_cn $ldap_tls $ldap_password $ldap_host $ldap_dn \
                         $email_host $email_port $extension_locale $url_server
 
-    init_django
+    update_django
+
+    create_superuser
     
     install_webserver $web_serveur $is_tls $url_server
 
@@ -684,14 +680,33 @@ interactive_guide() {
     # Prompt to inform the installation process is over
     TITLE="End of the setup"
     MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user hhas the superuser rights, meaning he can access and do everything."
-    end=$(dialog --clear --BACKTITLE "$BACKTITLE" \
+    end=$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)
 }
 
 
+
+
+interactive_update_settings() {
+    ### Usage: interactvie_update_settings
+    #
+    #   This function will take the parameters in the example settings file, retrieve the
+    #   existing parameters from the local settings file and ask the user for the missing parameters
+    ###
+
+}
+
+
+
 main_function() {
-    ### Usage: main_function [ldap <ldap_password> [<local_domain>]]
+    ### Usage: main_function
+    #          main_function update
+    #          main_function update-django
+    #          main_function update-packages
+    #          main_function update-settings
+    #          main_function reset-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]
+    #          main_function reset-ldap <ldap_password> <local_domain>
     #
     #   This function will parse the arguments to determine which part of the tool to start.
     #   If launched with no arguments, the full setup guide will be started.
@@ -703,20 +718,66 @@ main_function() {
     ###
 
     if [ ! -z "$1" ]; then
-        if [ $1 == ldap ]; then
+        subcmd=$1
+
+        case "$subcmd" in
+
+        update )
+            install_requirements
+            update_django
+            interactive_update_settings
+            exit;;
+
+        update-django )
+            update_django
+            exit;;
+
+        update-packages )
+            install_requirements
+            exit;;
+
+        update-settings )
+            interactive_update_settings
+            exit;;
+
+        reset-db )
             if [ ! -z "$2" ]; then
-                echo "Setting up local active directory ..."
-                setup_ldap $2 $3
-                echo "Setting up local active directory: Done"
+                db_password=$2
+                case "$3" in 
+                mysql|mariadb )
+                    db_engine_type=1; break;;
+                postresql )
+                    db_engine_type=2; break;;
+                * )
+                    db_engine_type=1; break;;
+                esac
+                if [ ! -z "$4" ]; then db_name=$4; else db_name="re2o"; fi
+                if [ ! -z "$5" ]; then db_username=$5; else db_username="re2o"; fi
+                install_database $db_engine_type 1 $db_name $db_username $db_password
             else
-                echo "Arguments invalides !"
-                echo "Usage: ./install_re2o.sh [ldap <ldap_password> [<local_domain>]]"
-                exit
+                echo "Invalid arguments !"
+                echo "Usage: ./install_re2o.sh setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
             fi
-        fi
+            exit;;
+
+        reset-ldap )
+            if [ ! -z "$2" ] && [ ! -z "$3" ]; then
+                ldap_password=$2
+                local_domain=$3
+                install_active_directory 1 $ldap_password $local_domain
+            else
+                echo "Invalid arguments !"
+                echo "Usage: ./install_re2o.sh setup-ldap <ldap_password> <local_domain>"
+            fi
+            exit;;
+
+        * )
+            echo "Invalid";;
+
+        esac
     else
-        install_re2o_server
+        interactive_guide
     fi
 }
 
-main_function $1 $2 $3
+main_function "$@"
