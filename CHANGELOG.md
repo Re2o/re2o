@@ -1,13 +1,22 @@
-Datepicker
-=======
-Install libjs-jquery
-Install libjs-jquery-ui
-Install libjs-jquery-timepicker
-Install libjs-bootstrap
-Install (if not) javascript-common
-Enable (if not) javascript-common conf
+## Datepicker
+
+Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
+```
+apt-get -y install \
+    libjs-jquery \
+    libjs-jquery-ui \
+    libjs-jquery-timepicker \
+    libjs-bootstrap \
+    javascript-common
+```
+Enable javascript-common conf
+```
+a2enconf javascript-common
+```
 
 Delete old jquery files :
-	rm -rf static_files/js/jquery-ui-*
-	rm -rf static_files/js/jquery-2.2.4.min.js
-    static/css/jquery-ui-timepicker-addon.css
+```
+rm -r static_files/js/jquery-ui-*
+rm static_files/js/jquery-2.2.4.min.js
+rm static/css/jquery-ui-timepicker-addon.css
+```
