@@ -4,6 +4,53 @@ SETTINGS_LOCAL_FILE='re2o/settings_local.py'
 SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 
 
+VALUE= # global value used to return values by some functions
+
+_ask_value() {
+    ### Usage _ask_value <text> [<option1> [<option2> ... ] ]
+    #
+    #   This function is a utility function to force a user to enter a value
+    #   available in a set of options.
+    #
+    #   Parameters:
+    #     * text: The text to display
+    #     * option#: A possible option for the user. If no option is specifed,
+    #       all inputs are considered valid
+    #
+    #   Echo: The value entered by the user. Should be one of the choicesN if
+    #     not ommited
+    ###
+
+    shopt -s extglob
+
+    input_text="$1"
+    shift
+    if [ "$#" -ne 0 ]; then
+        choices="("
+        while [ "$#" -ne 1 ]; do
+	    choices+="$1|"
+            shift
+        done
+	choices+="$1)"
+	input_text+=" $choices: "
+	choices="@$choices"
+    else
+        input_text+=": "
+        choices="@(*)"
+    fi
+
+    while true; do
+        read -p "$input_text" choice
+        case "$choice" in
+            $choices ) break;;
+            * ) echo "Invalid option";;
+        esac
+    done
+
+    VALUE="$choice"
+}
+
+
 
 install_requirements() {
     ### Usage: install_requirements 
@@ -57,13 +104,13 @@ install_database() {
 
     echo "Setting up the database ..."
 
-    engine_type=$1
-    local_setup=$2
-    db_name=$3
-    username=$4
-    password=$5
+    engine_type="$1"
+    local_setup="$2"
+    db_name="$3"
+    username="$4"
+    password="$5"
 
-    if [ $engine_type == 1 ]; then
+    if [ "$engine_type" == 1 ]; then
 
         echo "Installing MySQL client ..."
         apt-get -y install python3-mysqldb mysql-client
@@ -74,7 +121,7 @@ install_database() {
             GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'localhost';
             FLUSH PRIVILEGES;"
 
-        if [ $local_setup == 1 ]; then
+        if [ "$local_setup" == 1 ]; then
             echo "Setting up local MySQL server ..."
             apt-get -y install mysql-server
             mysql -u root --execute="$mysql_command"
@@ -102,7 +149,7 @@ install_database() {
         pgsql_command2="CREATE USER $username with password '$password';"
         pgsql_command3="ALTER DATABASE $db_name owner to $username;"
 
-        if [ $local_setup == 1 ]; then
+        if [ "$local_setup" == 1 ]; then
             echo "Setting up local PostgreSQL server ..."
             apt-get -y install postgresql
             sudo -u postgres psql --command="$pgsql_command1"
@@ -131,38 +178,38 @@ install_database() {
 
 
 
-install_active_directory() {
-    ### Usage: install_active_directory <local_setup> <password> <domain>
+install_ldap() {
+    ### Usage: install_ldap <local_setup> <password> <domain>
     #
-    #   This function will install the active directory
+    #   This function will install the LDAP
     #
     #   Parameters:
-    #     * local_setup: Should the Active Directory be installed locally ?
+    #     * local_setup: Should the LDAP be installed locally ?
     #       1 = yes
     #       2 = no
     #     * password: the clear password for the admin user of the LDAP
     #     * domain: the domain extension to use for the LDAP structure in LDAP notation
     ###
 
-    echo "Setting up the active direcory ..."
+    echo "Setting up the LDAP ..."
 
-    local_setup=$1
-    password=$2
-    domain=$3
+    local_setup="$1"
+    password="$2"
+    domain="$3"
 
-    if [ $local_setup == 1 ]; then
+    if [ "$local_setup" == 1 ]; then
 
         echo "Installing slapd package ..."
         apt-get -y install slapd
         echo "Installing slapd package: Done"
 
         echo "Hashing the LDAP password ..."
-        hashed_ldap_passwd=$(slappasswd -s $1)
+        hashed_ldap_passwd="$(slappasswd -s $1)"
         echo "Hash of the password: $hashed_ldap_passwd"
 
         echo "Building the LDAP config files ..."
-        sed 's|dc=example,dc=org|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-        sed 's|dc=example,dc=org|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
+        sed 's|dc=example,dc=net|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
+        sed 's|dc=example,dc=net|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
         echo "Building the LDAP config files: Done"
 
         echo "Stopping slapd service ..."
@@ -203,7 +250,7 @@ install_active_directory() {
 
     fi
 
-    echo "Setting up the active directory: Done"
+    echo "Setting up the LDAP: Done"
 }
 
 
@@ -223,13 +270,13 @@ write_settings_file() {
     #     * sql_db_name: The name of the database itself
     #     * sql_username: The user to use to access the database
     #     * sql_password: The password to use to access the database
-    #     * ldap_cn: The CN entry for the Active Directory admin in LDAP notation
-    #     * ldap_tls: Should the TLS be activated to contact the Active Directory
+    #     * ldap_cn: The CN entry for the LDAP admin in LDAP notation
+    #     * ldap_tls: Should the TLS be activated to contact the LDAP
     #       1 = yes
     #       2 = no
-    #     * ldap_password: The password to use to connect to the Active Directoryy
-    #     * ldap_hostname: The hostname for contacting the Active Directory
-    #     * ldap_domain: The local domain for the Active Directory in LDAP notation
+    #     * ldap_password: The password to use to connect to the LDAP
+    #     * ldap_hostname: The hostname for contacting the LDAP
+    #     * ldap_domain: The local domain for the LDAP in LDAP notation
     #     * email_hostname: The hostname for contacting the mail server
     #     * email_port: The port for contacting the mail server
     #     * extension: The extension to use
@@ -238,48 +285,48 @@ write_settings_file() {
 
     echo "Writing of the settings_local.py file ..."
 
-    db_engine_type=$1
-    sql_hostname=$2
-    sql_db_name=$3
-    sql_username=$4
-    sql_password=$5
-    ldap_cn=$6
-    ldap_tls=$7
-    ldap_password=$8
-    ldap_hostname=$9
-    ldap_domain=${10}
-    email_hostname=${11}
-    email_port=${12}
-    extension=${13}
-    url=${14}
+    db_engine_type="$1"
+    sql_hostname="$2"
+    sql_db_name="$3"
+    sql_username="$4"
+    sql_password="$5"
+    ldap_cn="$6"
+    ldap_tls="$7"
+    ldap_password="$8"
+    ldap_hostname="$9"
+    ldap_domain="${10}"
+    email_hostname="${11}"
+    email_port="${12}"
+    extension="${13}"
+    url="${14}"
 
-    cp $SETTINGS_EXAMPLE_FILE $SETTINGS_LOCAL_FILE
+    cp "$SETTINGS_EXAMPLE_FILE" "$SETTINGS_LOCAL_FILE"
 
-    django_secret_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")
-    aes_key=$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(32)]))")
+    django_secret_key="$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")"
+    aes_key="$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(32)]))")"
     
-    if [ $db_engine_type == 1 ]; then
-        sed -i 's/db_engine/django.db.backends.mysql/g' $SETTINGS_LOCAL_FILE
+    if [ "$db_engine_type" == 1 ]; then
+        sed -i 's/db_engine/django.db.backends.mysql/g' "$SETTINGS_LOCAL_FILE"
     else
-        sed -i 's/db_engine/django.db.backends.postgresql_psycopg2/g' $SETTINGS_LOCAL_FILE
+        sed -i 's/db_engine/django.db.backends.postgresql_psycopg2/g' "$SETTINGS_LOCAL_FILE"
     fi
-    sed -i 's/SUPER_SECRET_KEY/'"$django_secret_key"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/SUPER_SECRET_DB/'"$sql_password"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/A_SECRET_AES_KEY/'"$aes_key"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/db_name_value/'"$sql_db_name"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/db_user_value/'"$sql_username"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/db_host_value/'"$sql_hostname"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/ldap_dn/'"$ldap_cn"'/g' $SETTINGS_LOCAL_FILE
+    sed -i 's/SUPER_SECRET_KEY/'"$django_secret_key"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/SUPER_SECRET_DB/'"$sql_password"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/A_SECRET_AES_KEY/'"$aes_key"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/db_name_value/'"$sql_db_name"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/db_user_value/'"$sql_username"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/db_host_value/'"$sql_hostname"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/ldap_dn/'"$ldap_cn"'/g' "$SETTINGS_LOCAL_FILE"
     if [ $ldap_tls == 2 ]; then
-        sed -i "s/'TLS': True,/# 'TLS': True,#/g" $SETTINGS_LOCAL_FILE
+        sed -i "s/'TLS': True,/# 'TLS': True,/g" "$SETTINGS_LOCAL_FILE"
     fi
-    sed -i 's/SUPER_SECRET_LDAP/'"$ldap_password"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/ldap_host_ip/'"$ldap_hostname"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/dc=example,dc=org/'"$ldap_domain"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/example.org/'"$extension"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/MY_EMAIL_HOST/'"$email_hostname"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/MY_EMAIL_PORT/'"$email_port"'/g' $SETTINGS_LOCAL_FILE
-    sed -i 's/URL_SERVER/'"$url"'/g' $SETTINGS_LOCAL_FILE
+    sed -i 's/SUPER_SECRET_LDAP/'"$ldap_password"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/ldap_host_ip/'"$ldap_hostname"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/dc=example,dc=net/'"$ldap_domain"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/example.net/'"$extension"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/MY_EMAIL_HOST/'"$email_hostname"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/MY_EMAIL_PORT/'"$email_port"'/g' "$SETTINGS_LOCAL_FILE"
+    sed -i 's/URL_SERVER/'"$url"'/g' "$SETTINGS_LOCAL_FILE"
 
     echo "Writing of the settings_local.py file: Done"
 }
@@ -335,11 +382,11 @@ install_webserver() {
 
     echo "Setting up web server ..."
 
-    engine_type=$1
-    tls=$2
-    url=$3
+    engine_type="$1"
+    tls="$2"
+    url="$3"
 
-    if [ $engine_type == 1 ]; then
+    if [ "$engine_type" == 1 ]; then
 
         echo "Setting up Apache2 web server ..."
 
@@ -348,12 +395,12 @@ install_webserver() {
         a2enmod wsgi
         a2enconf javascript-common
 
-        if [ $tls == 1 ]; then
+        if [ "$tls" == 1 ]; then
             echo "Setting up TLS with LE for Apache2 web server ..."
             cp install_utils/apache2/re2o-tls.conf /etc/apache2/sites-available/re2o.conf
             apt-get -y install certbot
             apt-get -y install python-certbot-apache
-            certbot certonly --rsa-key-size 4096 --apache -d $url
+            certbot certonly --rsa-key-size 4096 --apache -d "$url"
             sed -i 's/LE_PATH/'"$url"'/g' /etc/apache2/sites-available/re2o.conf
             echo "Setting up TLS with LE for Apache2 web server: Done"
         else
@@ -362,7 +409,7 @@ install_webserver() {
 
         rm /etc/apache2/sites-enabled/000-default.conf
         sed -i 's|URL_SERVER|'"$url"'|g' /etc/apache2/sites-available/re2o.conf
-	sed -i 's|PATH|'"$(pwd)"'|g' /etc/apache2/sites-available/re2o.conf
+        sed -i 's|PATH|'"$(pwd)"'|g' /etc/apache2/sites-available/re2o.conf
         a2ensite re2o
 
         echo "Setting up Apache2 web server: Done"
@@ -424,9 +471,9 @@ interactive_guide() {
     # Welcome prompt
     TITLE="Welcome"
     MSGBOX="This tool will help you setup re2o. It is highly recommended to use a Debian clean server for this operation."
-    init=$(dialog --clear --backtitle "$BACKTITLE" \
+    init="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
 
 
@@ -441,9 +488,9 @@ interactive_guide() {
     MENU="Which engine should be used as the database ?"
     OPTIONS=(1 "mysql"
              2 "postgresql")
-    sql_bdd_type=$(dialog --clear --backtitle "$BACKTITLE" \
+    sql_bdd_type="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
 
     # Prompt for choosing the database location
     TITLE="SQL location"
@@ -452,31 +499,31 @@ interactive_guide() {
     * 'Remote' will ask you to manually perform some setup commands on the remote server"
     OPTIONS=(1 "Local"
              2 "Remote")
-    sql_is_local=$(dialog --clear --backtitle "$BACKTITLE" \
+    sql_is_local="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
 
     if [ $sql_is_local == 2 ]; then
         # Prompt to enter the remote database hostname
         TITLE="SQL hostname"
         INPUTBOX="The hostname of the remote SQL database"
-        sql_host=$(dialog --clear --backtitle "$BACKTITLE" \
+        sql_host="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
-            $HEIGHT $WIDTH 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
         
         # Prompt to enter the remote database name
         TITLE="SQL database name"
         INPUTBOX="The name of the remote SQL database"
-        sql_name=$(dialog --clear --backtitle "$BACKTITLE" \
+        sql_name="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
-            $HEIGHT $WIDTH 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
         # Prompt to enter the remote database username
         TITLE="SQL username"
         INPUTBOX="The username to access the remote SQL database"
-        sql_login=$(dialog --clear --backtitle "$BACKTITLE" \
+        sql_login="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
-            $HEIGHT $WIDTH 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
         clear
     else
         # Use of default values for local setup
@@ -488,17 +535,17 @@ interactive_guide() {
     # Prompt to enter the database password
     TITLE="SQL password"
     INPUTBOX="The password to access the SQL database"
-    sql_password=$(dialog --clear --backtitle "$BACKTITLE" \
+    sql_password="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
 
 
-    ##############################
-    ## Active directory options ##
-    ##############################
+    ##################
+    ## LDAP options ##
+    ##################
 
-    BACKTITLE="Re2o setup - configuration of the active directory"
+    BACKTITLE="Re2o setup - configuration of the LDAP"
 
     # Prompt to choose the LDAP location
     TITLE="LDAP location"
@@ -507,16 +554,16 @@ interactive_guide() {
     * 'Remote' will ask you to manually perform some setup commands on the remote server"
     OPTIONS=(1 "Local"
              2 "Remote")
-    ldap_is_local=$(dialog --clear --backtitle "$BACKTITLE" \
+    ldap_is_local="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
     
     # Prompt to enter the LDAP domain extension
     TITLE="Domain extension"
     INPUTBOX="The local domain extension to use (e.g. 'example.net'). This is used in the LDAP configuration."
-    extension_locale=$(dialog --clear --backtitle "$BACKTITLE" \
+    extension_locale="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
     
     # Building the DN of the LDAP from the extension
     IFS='.' read -a extension_locale_array <<< $extension_locale
@@ -524,34 +571,34 @@ interactive_guide() {
     do
         ldap_dn+="dc=$i,"
     done
-    ldap_dn=${ldap_dn::-1}
+    ldap_dn="${ldap_dn::-1}"
 
-    if [ $ldap_is_local == 2 ]; then
+    if [ "$ldap_is_local" == 2 ]; then
         # Prompt to enter the remote LDAP hostname
         TITLE="LDAP hostname"
         INPUTBOX="The hostname of the remote LDAP"
-        ldap_host=$(dialog --clear --backtitle "$BACKTITLE" \
+        ldap_host="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
-            $HEIGHT $WIDTH 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
         
         # Prompt to choose if TLS should be activated or not for the LDAP
         TITLE="TLS on LDAP"
         MENU="Would you like to activate TLS for communicating with the remote LDAP ?"
         OPTIONS=(1 "Yes"
                  2 "No")
-        ldap_tls=$(dialog --clear --backtitle "$BACKTITLE" \
+        ldap_tls="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --MENU "$MENU" \
-            $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
 
         # Prompt to enter the admin's CN of the remote LDAP
         TITLE="CN of amdin user"
         INPUTBOX="The CN entry for the admin user of the remote LDAP"
-        ldap_cn=$(dialog --clear --backtitle "$BACKTITLE" \
+        ldap_cn="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
-            $HEIGHT $WIDTH 2>&1 >/dev/tty)
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
     else
         ldap_cn="cn=admin,"
-        ldap_cn+=$ldap_dn
+        ldap_cn+="$ldap_dn"
         ldap_host="localhost"
         ldap_tls=2
     fi
@@ -559,9 +606,9 @@ interactive_guide() {
     # Prompt to enter the LDAP password
     TITLE="LDAP password"
     INPUTBOX="The password to access the LDAP"
-    ldap_password=$(dialog --clear --backtitle "$BACKTITLE" \
+    ldap_password="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
 
 
@@ -574,9 +621,9 @@ interactive_guide() {
     # Prompt to enter the hostname of the mail server
     TITLE="Mail server hostname"
     INPUTBOX="The hostname of the mail server to use"
-    email_host=$(dialog --clear --backtitle "$BACKTITLE" \
+    email_host="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$TITLE" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
     # Prompt to choose the port of the mail server    
     TITLE="Mail server port"
@@ -584,9 +631,9 @@ interactive_guide() {
     OPTIONS=(25 "SMTP"
              465 "SMTPS"
              587 "Submission")
-    email_port=$(dialog --clear --backtitle "$BACKTITLE" \
+    email_port="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
 
 
 
@@ -601,25 +648,25 @@ interactive_guide() {
     MENU="Which web server to install for accessing Re2o web frontend (automatic setup of nginx is not supported) ?"
     OPTIONS=(1 "apache2"
              2 "nginx")
-    web_serveur=$(dialog --clear --backtitle "$BACKTITLE" \
+    web_serveur="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
     
     # Prompt to enter the requested URL for the web frontend
     TITLE="Web URL"
     INPUTBOX="URL for accessing the web server (e.g. re2o.example.net). Be sure that this URL is accessible and correspond to a DNS entry (if applicable)."
-    url_server=$(dialog --clear --backtitle "$BACKTITLE" \
+    url_server="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
     
     # Prompt to choose if the TLS should be setup or not for the web server
     TITLE="TLS on web server"
     MENU="Would you like to activate the TLS (with Let'Encrypt) on the web server ?"
     OPTIONS=(1 "Yes"
              2 "No")
-    is_tls=$(dialog --clear --backtitle "$BACKTITLE" \
+    is_tls="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
-        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
 
 
 
@@ -640,9 +687,9 @@ interactive_guide() {
     * Collect the statics for the web interface
     * Install and setup the requested web server
     * Install and setup a TLS certificate for the web server if requested"
-    end_config=$(dialog --clear --backtitle "$BACKTITLE" \
+    end_config="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
     clear
 
@@ -654,20 +701,20 @@ interactive_guide() {
 
     install_requirements
 
-    install_database $sql_bdd_type $sql_is_local $sql_name $sql_login $sql_password
+    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password"
 
-    install_active_directory $ldap_is_local $ldap_password $ldap_dn
+    install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn"
 
 
-    write_settings_file $sql_bdd_type $sql_host $sql_name $sql_login $sql_password \
-                        $ldap_cn $ldap_tls $ldap_password $ldap_host $ldap_dn \
-                        $email_host $email_port $extension_locale $url_server
+    write_settings_file "$sql_bdd_type" "$sql_host" "$sql_name" "$sql_login" "$sql_password" \
+                        "$ldap_cn" "$ldap_tls" "$ldap_password" "$ldap_host" "$ldap_dn" \
+                        "$email_host" "$email_port" "$extension_locale" "$url_server"
 
     update_django
 
     create_superuser
     
-    install_webserver $web_serveur $is_tls $url_server
+    install_webserver "$web_serveur" "$is_tls" "$url_server"
 
 
 
@@ -680,9 +727,9 @@ interactive_guide() {
     # Prompt to inform the installation process is over
     TITLE="End of the setup"
     MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user hhas the superuser rights, meaning he can access and do everything."
-    end=$(dialog --clear --backtitle "$BACKTITLE" \
+    end="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
-        $HEIGHT $WIDTH 2>&1 >/dev/tty)
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 }
 
 
@@ -694,6 +741,23 @@ interactive_update_settings() {
     #   This function will take the parameters in the example settings file, retrieve the
     #   existing parameters from the local settings file and ask the user for the missing parameters
     ###
+    _ask_value "Database engine" "mysql" "postgresql"; if [ "$VALUE" == "mysql" ]; then db_engine_type=1; else db_engine_type=2; fi
+    _ask_value "Database hostname"; sql_hostname="$VALUE"
+    _ask_value "Database name"; sql_db_name="$VALUE"
+    _ask_value "Database username"; sql_username="$VALUE"
+    _ask_value "Database password"; sql_password="$VALUE"
+    _ask_value "LDAP hostname"; ldap_hostname="$VALUE"
+    _ask_value "Activate TLS on LDAP" "yes" "no"; if [ "$VALUE" == "mysql" ]; then ldap_tls=1; else ldap_tls=2; fi
+    _ask_value "LDAP domain (e.g. 'dc=example,dc=net')"; ldap_domain="$VALUE"
+    _ask_value "LDAP admin CN entry (e.g. 'cn=admin,dc=example,dc=net')"; ldap_cn="$VALUE"
+    _ask_value "LDAP password"; ldap_password="$VALUE"
+    _ask_value "Mail server hostname"; email_hostname="$VALUE"
+    _ask_value "Mail server port" "25" "465" "587"; email_port="$VALUE"
+    _ask_value "Extension de domain (e.g. 'example.net')"; extension="$VALUE"
+    _ask_value "Main URL"; url="$VALUE"
+    write_settings_file "$db_engine_type" "$sql_hostname" "$sql_db_name" "$sql_username" "$sql_password" \
+                        "$ldap_cn" "$ldap_tls" "$ldap_password" "$ldap_hostname" "$ldap_domain" \
+                        "$email_hostname" "$email_port" "$extension" "$url"
 
 }
 
@@ -718,7 +782,7 @@ main_function() {
     ###
 
     if [ ! -z "$1" ]; then
-        subcmd=$1
+        subcmd="$1"
 
         case "$subcmd" in
 
@@ -726,53 +790,62 @@ main_function() {
             install_requirements
             update_django
             interactive_update_settings
-            exit;;
+            ;;
 
         update-django )
             update_django
-            exit;;
+            ;;
 
         update-packages )
             install_requirements
-            exit;;
+            ;;
 
         update-settings )
             interactive_update_settings
-            exit;;
+            ;;
 
         reset-db )
             if [ ! -z "$2" ]; then
-                db_password=$2
+                db_password="$2"
                 case "$3" in 
-                mysql|mariadb )
-                    db_engine_type=1; break;;
+                mysql )
+                    db_engine_type=1;;
                 postresql )
-                    db_engine_type=2; break;;
+                    db_engine_type=2;;
                 * )
-                    db_engine_type=1; break;;
+                    db_engine_type=1;;
                 esac
-                if [ ! -z "$4" ]; then db_name=$4; else db_name="re2o"; fi
-                if [ ! -z "$5" ]; then db_username=$5; else db_username="re2o"; fi
-                install_database $db_engine_type 1 $db_name $db_username $db_password
+                if [ ! -z "$4" ]; then
+                    db_name="$4"
+                else
+                    db_name="re2o"
+                fi
+                if [ ! -z "$5" ]; then
+                    db_username="$5"
+                else
+                    db_username="re2o"
+                fi
+                install_database "$db_engine_type" 1 "$db_name" "$db_username" "$db_password"
             else
                 echo "Invalid arguments !"
                 echo "Usage: ./install_re2o.sh setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
             fi
-            exit;;
+            ;;
 
         reset-ldap )
             if [ ! -z "$2" ] && [ ! -z "$3" ]; then
-                ldap_password=$2
-                local_domain=$3
-                install_active_directory 1 $ldap_password $local_domain
+                ldap_password="$2"
+                local_domain="$3"
+                install_ldap 1 "$ldap_password" "$local_domain"
             else
                 echo "Invalid arguments !"
                 echo "Usage: ./install_re2o.sh setup-ldap <ldap_password> <local_domain>"
             fi
-            exit;;
+            ;;
 
         * )
-            echo "Invalid";;
+            echo "Invalid"
+            ;;
 
         esac
     else

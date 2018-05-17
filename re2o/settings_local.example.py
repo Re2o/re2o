@@ -19,9 +19,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""re2o.settings_locale.example
-The example settings_locale.py file with all the available
-options for a locale configuration of re2o
+"""re2o.settings_locale
+The file with all the available options for a locale configuration of re2o
 """
 
 from __future__ import unicode_literals
@@ -41,7 +40,7 @@ AES_KEY = 'A_SECRET_AES_KEY'
 DEBUG = False
 
 # A list of admins of the services. Receive mails when an error occurs
-ADMINS = [('Example', 'rezo-admin@example.org')]
+ADMINS = [('Example', 'admin@example.net')]
 
 # The list of hostname the server will respond to.
 ALLOWED_HOSTS = ['URL_SERVER']
@@ -81,16 +80,16 @@ SESSION_COOKIE_AGE = 60 * 60 * 3
 LOGO_PATH = "static_files/logo.png"
 
 # The mail configuration for Re2o to send mails
-SERVER_EMAIL = 'no-reply@example.org'  # The mail address to use
+SERVER_EMAIL = 'no-reply@example.net'  # The mail address to use
 EMAIL_HOST = 'MY_EMAIL_HOST'           # The host to use
 EMAIL_PORT = MY_EMAIL_PORT             # The port to use
 
 # Settings of the LDAP structure
 LDAP = {
-    'base_user_dn': 'cn=Utilisateurs,dc=example,dc=org',
-    'base_userservice_dn': 'ou=service-users,dc=example,dc=org',
-    'base_usergroup_dn': 'ou=posix,ou=groups,dc=example,dc=org',
-    'base_userservicegroup_dn': 'ou=services,ou=groups,dc=example,dc=org',
+    'base_user_dn': 'cn=Utilisateurs,dc=example,dc=net',
+    'base_userservice_dn': 'ou=service-users,dc=example,dc=net',
+    'base_usergroup_dn': 'ou=posix,ou=groups,dc=example,dc=net',
+    'base_userservicegroup_dn': 'ou=services,ou=groups,dc=example,dc=net',
     'user_gid': 500,
     }
 
