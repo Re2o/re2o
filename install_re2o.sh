@@ -728,7 +728,7 @@ interactive_guide() {
     TITLE="End of the setup"
     MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user hhas the superuser rights, meaning he can access and do everything."
     end="$(dialog --clear --backtitle "$BACKTITLE" \
-        --title "$TITLE" --msgbox "$MSGBOX" \
+        --title "$TITLE" --msgbox "$MSGBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 }
 
