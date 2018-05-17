@@ -1108,35 +1108,35 @@ objectClass: olcDatabaseConfig
 objectClass: olcHdbConfig
 olcDatabase: {1}hdb
 olcDbDirectory: /var/lib/ldap
-olcSuffix: dc=example,dc=org
+olcSuffix: dc=example,dc=net
 olcAccess: {0}to attrs=userPassword,sambaNTPassword,mail by self write by an
- onymous auth by dn="cn=admin,dc=example,dc=org" write by group="cn
- =readonly,ou=services,ou=groups,dc=example,dc=org" read by group="
- cn=usermgmt,ou=services,ou=groups,dc=example,dc=org" write by * no
+ onymous auth by dn="cn=admin,dc=example,dc=net" write by group="cn
+ =readonly,ou=services,ou=groups,dc=example,dc=net" read by group="
+ cn=usermgmt,ou=services,ou=groups,dc=example,dc=net" write by * no
  ne
 olcAccess: {1}to attrs=shadowLastChange,gecos,loginShell by self write by an
- onymous auth by dn="cn=admin,dc=example,dc=org" write by group="cn
- =readonly,ou=services,ou=groups,dc=example,dc=org" read by group="
- cn=auth,ou=services,ou=groups,dc=example,dc=org" read by group="cn
- =usermgmt,ou=services,ou=groups,dc=example,dc=org" write by * none
+ onymous auth by dn="cn=admin,dc=example,dc=net" write by group="cn
+ =readonly,ou=services,ou=groups,dc=example,dc=net" read by group="
+ cn=auth,ou=services,ou=groups,dc=example,dc=net" read by group="cn
+ =usermgmt,ou=services,ou=groups,dc=example,dc=net" write by * none
 olcAccess: {2}to dn.base="" by * read
-olcAccess: {3}to dn.sub="ou=groups,dc=example,dc=org" by group="cn=
- auth,ou=services,ou=groups,dc=example,dc=org" read by group="cn=re
- adonly,ou=services,ou=groups,dc=example,dc=org" read
-olcAccess: {4}to dn.sub="cn=Utilisateurs,dc=example,dc=org" by grou
- p="cn=auth,ou=services,ou=groups,dc=example,dc=org" read by self r
- ead by group="cn=readonly,ou=services,ou=groups,dc=example,dc=org"
+olcAccess: {3}to dn.sub="ou=groups,dc=example,dc=net" by group="cn=
+ auth,ou=services,ou=groups,dc=example,dc=net" read by group="cn=re
+ adonly,ou=services,ou=groups,dc=example,dc=net" read
+olcAccess: {4}to dn.sub="cn=Utilisateurs,dc=example,dc=net" by grou
+ p="cn=auth,ou=services,ou=groups,dc=example,dc=net" read by self r
+ ead by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net"
   read by group="cn=usermgmt,ou=services,ou=groups,dc=example,dc=or
  g" write
-olcAccess: {5}to dn.sub="ou=service-users,dc=example,dc=org" by gro
- up="cn=auth,ou=services,ou=groups,dc=example,dc=org" read by group
- ="cn=readonly,ou=services,ou=groups,dc=example,dc=org" read
-olcAccess: {6}to dn.base="dc=example,dc=org" by * read
-olcAccess: {7}to * by dn="cn=admin,dc=example,dc=org" write by self
+olcAccess: {5}to dn.sub="ou=service-users,dc=example,dc=net" by gro
+ up="cn=auth,ou=services,ou=groups,dc=example,dc=net" read by group
+ ="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+olcAccess: {6}to dn.base="dc=example,dc=net" by * read
+olcAccess: {7}to * by dn="cn=admin,dc=example,dc=net" write by self
   read by group="cn=readonly,ou=services,ou=groups,dc=example,dc=or
  g" read
 olcLastMod: TRUE
-olcRootDN: cn=admin,dc=example,dc=org
+olcRootDN: cn=admin,dc=example,dc=net
 olcRootPW: FILL_IT
 olcDbCheckpoint: 512 30
 olcDbConfig: {0}set_cachesize 0 2097152 0
