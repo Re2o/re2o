@@ -204,12 +204,12 @@ install_ldap() {
         echo "Installing slapd package: Done"
 
         echo "Hashing the LDAP password ..."
-        hashed_ldap_passwd="$(slappasswd -s $1)"
+        hashed_ldap_passwd="$(slappasswd -s $password)"
         echo "Hash of the password: $hashed_ldap_passwd"
 
         echo "Building the LDAP config files ..."
-        sed 's|dc=example,dc=net|'"$2"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-        sed 's|dc=example,dc=net|'"$2"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
+        sed 's|dc=example,dc=net|'"$domain"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
+        sed 's|dc=example,dc=net|'"$domain"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
         echo "Building the LDAP config files: Done"
 
         echo "Stopping slapd service ..."
