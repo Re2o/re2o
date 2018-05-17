@@ -28,12 +28,12 @@ _ask_value() {
     if [ "$#" -ne 0 ]; then
         choices="("
         while [ "$#" -ne 1 ]; do
-	    choices+="$1|"
+            choices+="$1|"
             shift
         done
-	choices+="$1)"
-	input_text+=" $choices: "
-	choices="@$choices"
+        choices+="$1)"
+        input_text+=" $choices: "
+        choices="@$choices"
     else
         input_text+=": "
         choices="@(*)"
@@ -764,27 +764,55 @@ interactive_update_settings() {
 
 
 main_function() {
-    ### Usage: main_function
-    #          main_function update
-    #          main_function update-django
-    #          main_function update-packages
-    #          main_function update-settings
-    #          main_function reset-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]
-    #          main_function reset-ldap <ldap_password> <local_domain>
+    ### Usage: main_function [subcommand [options]]
     #
     #   This function will parse the arguments to determine which part of the tool to start.
-    #   If launched with no arguments, the full setup guide will be started.
-    #   If launched with the 'ldap' argument, only the ldap setup will performed.
-    #
-    #   Parameters:
-    #     * ldap_password: the clear password for the admin user of the LDAP
-    #     * local_domain: the domain extension to use for the LDAP structure in LDAP notation
+    #   Refer to the help message below for the details of the parameters
     ###
 
-    if [ ! -z "$1" ]; then
+    if [ -z "$1" ] || [ "$1" == "help" ]; then
+        echo ""
+        echo "Usage: install_re2o [subcommand [options]]"
+        echo ""
+        echo "The 'install_re2o' script is a utility script to setup, configure, reset and update"
+        echo "some components of re2o. Please refer to the following details for more."
+        echo ""
+        echo "Sub-commands:"
+        echo "  * [no subcommand] - Display this quick usage documentation"
+        echo "  * {help} ---------- Display this quick usage documentation"
+        echo "  * {setup} --------- Launch the full interactive guide to setup entirely"
+        echo "                      re2o from scratch"
+        echo "  * {update} -------- Apply Django migrations, collect frontend statics and"
+        echo "                      install the missing APT and pip packages and"
+        echo "                      interactively rewrite the settings file"
+        echo "  * {update-django} - Apply Django migration, collect and frontend statics"
+        echo "  * {update-packages} Install the missing APT and pip packages"
+        echo "  * {update-settings} Interactively rewrite the settings file"
+        echo "  * {reset-db} ------ Erase the previous local database, setup a new empty"
+        echo "                      one and apply the Django migrations on it."
+        echo "      Parameters:"
+        echo "        * <db_password> -- the clear-text password to connect to the database"
+        echo "        * [db_engine_type] the SQL engine to use ('mysql' or 'postgresql')."
+        echo "                           Default is 'mysql'."
+        echo "        * [db_name] ------ the name of the database itself."
+        echo "                           Default is 're2o'."
+        echo "        * [db_username] -- the username to connect to the database."
+        echo "                           Default is 're2o'."
+        echo "  * {reset-ldap} ---- Erase the previous local LDAP and setup a new empty one"
+        echo "      Parameters:"
+        echo "        * <ldap_password> the clear-text password for the admin user of the"
+        echo "                          LDAP"
+        echo "        * <local_domain>  the domain extension to use for the LDAP structure"
+        echo "                          in LDAP notation"
+        echo ""
+    else
         subcmd="$1"
 
         case "$subcmd" in
+
+        setup )
+           interactive_guide
+           ;;
 
         update )
             install_requirements
@@ -828,7 +856,8 @@ main_function() {
                 install_database "$db_engine_type" 1 "$db_name" "$db_username" "$db_password"
             else
                 echo "Invalid arguments !"
-                echo "Usage: ./install_re2o.sh setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
+                echo "Usage: install_re2o setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
+		echo "See 'install_re2o help' for further help"
             fi
             ;;
 
@@ -839,17 +868,17 @@ main_function() {
                 install_ldap 1 "$ldap_password" "$local_domain"
             else
                 echo "Invalid arguments !"
-                echo "Usage: ./install_re2o.sh setup-ldap <ldap_password> <local_domain>"
+                echo "Usage: install_re2o setup-ldap <ldap_password> <local_domain>"
+		echo "See 'install_re2o help' for further help"
             fi
             ;;
 
         * )
-            echo "Invalid"
+            echo "Unknown subcommand: $subcmd"
+            echo "Use 'install_re2o help' to display some help"
             ;;
 
         esac
-    else
-        interactive_guide
     fi
 }
 
