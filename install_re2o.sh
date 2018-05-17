@@ -789,7 +789,8 @@ main_function() {
         echo "  * {update-packages} Install the missing APT and pip packages"
         echo "  * {update-settings} Interactively rewrite the settings file"
         echo "  * {reset-db} ------ Erase the previous local database, setup a new empty"
-        echo "                      one and apply the Django migrations on it."
+        echo "                      one and apply the Django migrations on it and collect"
+        echo "                      Django statics."
         echo "      Parameters:"
         echo "        * <db_password> -- the clear-text password to connect to the database"
         echo "        * [db_engine_type] the SQL engine to use ('mysql' or 'postgresql')."
@@ -854,6 +855,7 @@ main_function() {
                     db_username="re2o"
                 fi
                 install_database "$db_engine_type" 1 "$db_name" "$db_username" "$db_password"
+		update-django
             else
                 echo "Invalid arguments !"
                 echo "Usage: install_re2o setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
