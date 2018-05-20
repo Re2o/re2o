@@ -782,10 +782,9 @@ main_function() {
         echo "  * {help} ---------- Display this quick usage documentation"
         echo "  * {setup} --------- Launch the full interactive guide to setup entirely"
         echo "                      re2o from scratch"
-        echo "  * {update} -------- Apply Django migrations, collect frontend statics and"
-        echo "                      install the missing APT and pip packages and"
-        echo "                      interactively rewrite the settings file"
-        echo "  * {update-django} - Apply Django migration, collect and frontend statics"
+        echo "  * {update} -------- Collect frontend statics, install the missing APT"
+        echo "                      and pip packages and apply the migrations to the DB"
+        echo "  * {update-django} - Apply Django migration and collect frontend statics"
         echo "  * {update-packages} Install the missing APT and pip packages"
         echo "  * {update-settings} Interactively rewrite the settings file"
         echo "  * {reset-db} ------ Erase the previous local database, setup a new empty"
@@ -818,7 +817,6 @@ main_function() {
         update )
             install_requirements
             update_django
-            interactive_update_settings
             ;;
 
         update-django )
