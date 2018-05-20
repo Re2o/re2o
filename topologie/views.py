@@ -1042,8 +1042,9 @@ def make_machine_graph():
 
 def generate_dot(data,template='topologie/graph_switch.dot'):
     """create the dot file
-    data: dictionary passed to the template
-    template: path to the dot template"""
+    :param data: dictionary passed to the template
+    :param template: path to the dot template
+    :return: all the lines of the dot file"""
     t = loader.get_template(template)
     if not isinstance(t, Template) and not (hasattr(t, 'template') and isinstance(t.template, Template)):
         raise Exception("Le template par défaut de Django n'est pas utilisé."
@@ -1055,9 +1056,10 @@ def generate_dot(data,template='topologie/graph_switch.dot'):
 
 def recursive_switchs(switch_start, switch_before, detected):
     """Visit the switch and travel to the switchs linked to it.
-    switch_start: the switch to begin the visit on
-    switch_before: the switch that you come from. None if switch_start is the first one
-    detected: list of all switchs already visited. None if switch_start is the first one"""
+    :param switch_start: the switch to begin the visit on
+    :param switch_before: the switch that you come from. None if switch_start is the first one
+    :param detected: list of all switchs already visited. None if switch_start is the first one
+    :return: A list of all the links found and a list of all the switchs visited"""
     links_return=[]#list of dictionaries of the links to be detected
     for port in switch_start.ports.filter(related__isnull=False):#Ports that are related to another switch
         if port.related.switch != switch_before and port.related.switch != port.switch:#Not the switch that we come from, not the current switch
