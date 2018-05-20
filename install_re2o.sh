@@ -17,7 +17,7 @@ _ask_value() {
     #     * option#: A possible option for the user. If no option is specifed,
     #       all inputs are considered valid
     #
-    #   Echo: The value entered by the user. Should be one of the choicesN if
+    #   Echo: The value entered by the user. Should be one of the choices if
     #     not ommited
     ###
 
@@ -56,7 +56,7 @@ install_requirements() {
     ### Usage: install_requirements 
     #
     #   This function will install the required packages from APT repository
-    #   and Pypi repository. Those packages are qll required for Re2o to work
+    #   and Pypi repository. Those packages are all required for Re2o to work
     #   properly.
     ###
 
@@ -129,14 +129,7 @@ install_database() {
         else
             echo "Please execute the following command on the remote SQL server and then continue"
             echo "$mysql_command"
-            while true; do
-                read -p "Continue (y/n)?" choice
-                case "$choice" in
-                    y|Y ) break;;
-                    n|N ) exit;;
-                    * ) echo "Invalid";;
-                esac
-            done
+            _ask_value "Continue" "yes" "no"; if [ "$VALUE" == "no" ]; then exit; fi
         fi
 
     else
@@ -161,14 +154,7 @@ install_database() {
             echo "sudo -u postgres psql $pgsql_command1"
             echo "sudo -u postgres psql $pgsql_command2"
             echo "sudo -u postgres psql $pgsql_command3"
-            while true; do
-                read -p "Continue (y/n)?" choice
-                case "$choice" in
-                    y|Y ) break;;
-                    n|N ) exit;;
-                    * ) echo "Invalid";;
-                esac
-            done
+            _ask_value "Continue" "yes" "no"; if [ "$VALUE" == "no" ]; then exit; fi
         fi
 
     fi
@@ -239,14 +225,7 @@ install_ldap() {
 
         echo "Please execute the following command on the remote LDAP server and then continue"
         echo "./install_re2o.sh setup-ldap $password $domain"
-        while true; do
-            read -p "Continue (y/n)?" choice
-            case "$choice" in
-                y|Y ) break;;
-                n|N ) exit;;
-                * ) echo "Invalid";;
-            esac
-        done
+        _ask_value "Continue" "yes" "no"; if [ "$VALUE" == "no" ]; then exit; fi
 
     fi
 
@@ -421,15 +400,8 @@ install_webserver() {
     else
 
         echo "Nginx automatic setup is not supported. Please configure it manually."
-        echo "Please onfirm you have acknowledged this message."
-        while true; do
-            read -p "Acknowledged (y/n)?" choice
-            case "$choice" in
-                y|Y ) break;;
-                n|N ) exit;;
-                * ) echo "Invalid";;
-            esac
-        done
+        echo "Please confirm you have acknowledged this message."
+        _ask_value "Acknowledged" "yes"
 
     fi
 
@@ -726,7 +698,7 @@ interactive_guide() {
 
     # Prompt to inform the installation process is over
     TITLE="End of the setup"
-    MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user hhas the superuser rights, meaning he can access and do everything."
+    MSGBOX="You can now visit $url_server and connect with the credentials you just entered. This user has the superuser rights, meaning he can access and do everything."
     end="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --msgbox "$MSGBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)"
