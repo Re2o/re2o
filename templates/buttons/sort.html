@@ -24,27 +24,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load url_insert_param %}
 
+{% load i18n %}
+
 {% spaceless %}
 <div style="display: flex; padding: 0;">
     {{ text }}&nbsp;
     <div style="display: grid; font-size: 9px; line-height: 1; margin: auto 0;">
         {% if prefix %}
         {% with prefix|add:'_'|add:col as colname %}
-        <a role="button" href="{% url_insert_param request.get_full_path col=colname order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
+	{% trans "Ascending sort" as tr_ascending_sort %}
+	{% trans "Descending sort" as tr_descending_sort %}
+	<a role="button" href="{% url_insert_param request.get_full_path col=colname order='asc' %}" title="{{ desc|default:tr_ascending_sort }}">
             <span class="fa fa-caret-up"></span>
         </a>
-        <a role="button" href="{% url_insert_param request.get_full_path col=colname order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
+	<a role="button" href="{% url_insert_param request.get_full_path col=colname order='desc' %}" title="{{ desc|default:tr_descending_sort }}">
             <span class="fa fa-caret-down"></span>
         </a>
         {% endwith %}
         {% else %}
-        <a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:"Tri croissant" }}">
+	<a role="button" href="{% url_insert_param request.get_full_path col=col order='asc' %}" title="{{ desc|default:tr_ascending_sort }}">
             <span class="fa fa-caret-up"></span>
         </a>
-        <a role="button" href="{% url_insert_param request.get_full_path col=col order='desc' %}" title="{{ desc|default:"Tri décroissant" }}">
+	<a role="button" href="{% url_insert_param request.get_full_path col=col order='desc' %}" title="{{ desc|default:tr_descending_sort }}">
             <span class="fa fa-caret-down"></span>
         </a>
         {% endif %}
     </div>
 </div>
 {% endspaceless %}
+

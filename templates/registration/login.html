@@ -25,29 +25,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 
-{% block title %}Login{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>{% trans "Your username and password didn't match. Please try again." %}</p>
 {% endif %}
 
 {% if next %}
     {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
+    <p>{% trans "Your account doesn't have access to this page. To proceed,
+    please log in with an account that has access." %}</p>
     {% else %}
-    <p>Please login to see this page.</p>
+    <p>{% trans "Please log in to see this page." %}</p>
     {% endif %}
 {% endif %}
 
 <p><form method="post" action="{% url 'login' %}">
     {% csrf_token %}
     {% bootstrap_form form %}
-    <button class="btn btn-success" type="submit"><span class="glyphicon glyphicon-log-in"></span> Login</button>
+    <button class="btn btn-success" type="submit"><span class="glyphicon glyphicon-log-in"></span> {% trans "Log in" %}</button>
     <input type="hidden" name="next" value="{{ next }}" />
 </form></p>
-<p><a class="btn btn-warning btn-sm" role="button" href="{% url 'users:reset-password' %}"> Mot de passe oublié ?</a></p>
+<p><a class="btn btn-warning btn-sm" role="button" href="{% url 'users:reset-password' %}"> {% trans "Forgotten password?" %}</a></p>
 
 {% endblock %}
+

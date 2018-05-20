@@ -21,154 +21,262 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-23 18:44+0200\n"
+"POT-Creation-Date: 2018-08-15 16:10+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
-"Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
+"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/base.html:59
+#: base.html:42 errors/404.html:35
+msgid "Networking managing website endorsed by FedeRez."
+msgstr "Site de gestion de réseau soutenu par FedeRez."
+
+#: base.html:59
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/base.html:83
-msgid "My profile"
-msgstr "Mon profil"
+#: base.html:81
+msgid "Users"
+msgstr "Utilisateurs"
 
-#: templates/base.html:84
-msgid "Log out"
-msgstr "Se déconnecter"
+#: base.html:84
+msgid "Manage the users"
+msgstr "Gérer les utilisateurs"
 
-#: templates/base.html:90
-msgid "Members"
-msgstr "Adhérents"
-
-#: templates/base.html:93
-msgid "Manage members"
-msgstr "Gérer les adhérents"
-
-#: templates/base.html:94
-msgid "Manage clubs"
+#: base.html:85
+msgid "Manage the clubs"
 msgstr "Gérer les clubs"
 
-#: templates/base.html:97
-msgid "Manage machines"
+#: base.html:88
+msgid "Manage the machines"
 msgstr "Gérer les machines"
 
-#: templates/base.html:100
-msgid "Manage cotisations"
+#: base.html:91
+msgid "Manage the subscriptions"
 msgstr "Gérer les cotisations"
 
-#: templates/base.html:107
+#: base.html:98
 msgid "Topology"
 msgstr "Topologie"
 
-#: templates/base.html:109
+#: base.html:100
 msgid "Switches"
-msgstr "Commutateurs"
+msgstr "Commutateurs réseau"
 
-#: templates/base.html:110
-msgid "Wi-Fi access points"
-msgstr "Bornes Wi-Fi"
+#: base.html:101
+msgid "Access points"
+msgstr "Points d'accès sans fil"
 
-#: templates/base.html:111
+#: base.html:102
 msgid "Rooms"
-msgstr "Chambres & locaux"
+msgstr "Chambres"
 
-#: templates/base.html:116
+#: base.html:107
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/base.html:123
-msgid "Preferences"
-msgstr "Préférences"
+#: base.html:112
+msgid "Administration"
+msgstr "Administration"
 
-#: templates/base.html:128
+#: base.html:119
+msgid "More information"
+msgstr "Plus d'informations"
+
+#: base.html:121
 msgid "About"
-msgstr "A propos"
+msgstr "À propos"
 
-#: templates/base.html:134
-msgid "Sign in"
-msgstr "Créer un compte"
+#: base.html:122
+msgid "Contact"
+msgstr "Contact"
 
-#: templates/base.html:140
+#: base.html:129
+msgid "Sign up"
+msgstr "S'enregistrer"
+
+#: base.html:135 registration/login.html:30 registration/login.html:50
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/base.html:188
+#: base.html:143
+msgid "Search"
+msgstr "Rechercher"
+
+#: base.html:157
+msgid "My profile"
+msgstr "Mon profil"
+
+#: base.html:158
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#: base.html:194
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:192
+#: base.html:198
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:196
-msgid "Connexion"
-msgstr "Connexion"
+#: base.html:202
+msgid "Internet access"
+msgstr "Accès Internet"
 
-#: templates/base.html:199 templates/base.html:209
+#: base.html:205 base.html:215
 #, python-format
 msgid "Until %(date)s"
-msgstr "Jusqu'à %(date)s"
+msgstr "Jusqu'au %(date)s"
 
-#: templates/base.html:201
-msgid "Deactivated"
-msgstr "Désactivée"
+#: base.html:207
+msgid "Disabled"
+msgstr "Désactivé"
 
-#: templates/base.html:206
+#: base.html:212
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:211
+#: base.html:217
 msgid "Not a member"
 msgstr "Non adhérent"
 
-#: templates/base.html:219
-msgid "See my profile"
+#: base.html:225
+msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:223
-msgid "You are not logged in"
-msgstr "Vous n'êtes pas connecté"
+#: base.html:229
+msgid "You are not logged in."
+msgstr "Vous n'êtes pas connecté."
 
-#: templates/base.html:229
+#: base.html:235
 #, python-format
-msgid "%(nb)s machine active"
-msgstr "%(nb)s machine actives"
+msgid "%(nb)s active machine"
+msgid_plural "%(nb)s active machines"
+msgstr[0] "%(nb)s machine active"
+msgstr[1] "%(nb)s machines actives"
 
-#: templates/base.html:229
-#, python-format
-msgid "%(nb)s machines active"
-msgstr "%(nb)s machines actives"
-
-#: templates/base.html:238
-msgid "See my machines"
+#: base.html:244
+msgid "View my machines"
 msgstr "Voir mes machines"
 
-#: templates/buttons/setlang.html:34
+#: buttons/add.html:27
+msgid "Add"
+msgstr "Ajouter"
+
+#: buttons/edit.html:27
+msgid "Edit"
+msgstr "Modifier"
+
+#: buttons/history.html:26 buttons/history.html:27
+msgid "History"
+msgstr "Historique"
+
+#: buttons/setlang.html:34
 msgid "Translation in development"
 msgstr "Traduction en développement"
 
-#: users/widgets.py:35
-msgid "Close"
-msgstr "Fermer"
+#: buttons/sort.html:35
+msgid "Ascending sort"
+msgstr "Tri croissant"
 
-#: users/widgets.py:36
-msgid "Today"
-msgstr "Aujourd'hui"
+#: buttons/sort.html:36
+msgid "Descending sort"
+msgstr "Tri décroissant"
 
-#: users/widgets.py:44
-msgid "Next"
-msgstr "Suivant"
+#: buttons/suppr.html:27
+msgid "Delete"
+msgstr "Supprimer"
 
-#: users/widgets.py:45
-msgid "Previous"
-msgstr "Précédent"
+#: errors/404.html:39
+msgid "404 error: page not found"
+msgstr "Erreur 404 : page non trouvée"
 
-#: users/widgets.py:46
-msgid "Wk"
-msgstr "Sem"
+#: errors/404.html:125
+msgid "Score: "
+msgstr "Score : "
+
+#: errors/404.html:133
+msgid "YOU LOST"
+msgstr "VOUS AVEZ PERDU"
+
+#: errors/404.html:220
+msgid "Yup, that's a 404 error."
+msgstr "Yep, c'est une erreur 404."
+
+#: errors/404.html:220
+msgid "(Go back to a safe page)"
+msgstr "(Retourner à une page sécurisée)"
+
+#: errors/404.html:222
+msgid "Your browser does not support the HTML5 canvas tag."
+msgstr "Votre navigateur ne supporte pas la balise HTML5 canvas."
+
+#: errors/500.html:6 errors/500.html:31
+msgid "500 error: Re2o internal server error"
+msgstr "Erreur 500 : Erreur interne du serveur Re2o"
+
+#: errors/500.html:34
+msgid ""
+"Congratulations! You have discovered a bug on Re2o and you've reached a page "
+"we try to hide, you can be proud of youself. We try to track those bugs down "
+"but apparently we have missed one. We sincerely thank you for the help: it "
+"is not that easy to catch them all."
+msgstr ""
+"Félicitations ! Vous avez découvert un dysfonctionnement de Re2o and vous "
+"avez atteint une page que nous essayons de cacher, vous pouvez être fier de "
+"vous. Nous essayons de repérer ces dysfonctionnements mais apparemment nous "
+"en avons raté un. Nous vous remercions sincèrement pour votre aide: ce n'est "
+"pas si facile de tous les attraper."
+
+#: errors/500.html:40
+msgid ""
+"An email has been automatically sent to the site administrators. Please "
+"avoid spamming them by trigerring the same issue multiple times."
+msgstr ""
+"Un courrier électronique a été envoyé automatiquement aux administrateurs du "
+"site. Veuillez éviter de déclencher la même erreur de multiples fois pour ne "
+"pas renvoyer de courrier électronique."
+
+#: errors/500.html:41
+msgid ""
+"The mail should contains all the details necessary to understand what went "
+"wrong but if your help were needed, you will probably be contacted by them."
+msgstr ""
+" Le courrier électronique devrait contenir tous les détails nécessaires à la "
+"compréhension de ce qui s'est mal passé mais si votre aide était requise, "
+"vous serez probablement contacté par eux."
+
+#: errors/500.html:46
+msgid ""
+"This issue will be fixed as soon as possible but please take into "
+"consideration the administrators may not be always available. If your "
+"request is really urgent, inform your local organisation, they will help you "
+"temporarily fix the issue."
+msgstr ""
+"Cette erreur sera corrigée dès que possible mais veuillez prendre en "
+"considération le fait que les administrateurs peuvent ne pas être tout le "
+"temps disponibles. Si votre requête est vraiment urgente, informez votre "
+"association locale, elle vous aidra à corriger temporairement l'erreur."
+
+#: errors/500.html:54
+msgid "If you have no idea what you've done:"
+msgstr "Si vous n'avez aucune idée de ce que vous avez fait :"
+
+#: errors/500.html:55
+msgid "Go back to a safe page"
+msgstr "Retourner à une page sécurisée"
+
+#: registration/login.html:35
+msgid "Your username and password didn't match. Please try again."
+msgstr "Vos identifiants sont incorrects. Veuillez réessayer."
+
+#: registration/login.html:43
+msgid "Please log in to see this page."
+msgstr "Veuillez vous connecter pour voir cette page."
+
+#: registration/login.html:53
+msgid "Forgotten password?"
+msgstr "Mot de passe oublié ?"
