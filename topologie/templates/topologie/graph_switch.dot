@@ -9,7 +9,7 @@ edge[arrowhead=none];
 {% for sub in subs %}
 subgraph cluster_{{ sub.bat_id }} {
 fontsize=15;
-label="Batiment {{ sub.bat_name }}";
+label="Bâtiment {{ sub.bat_name }}";
 
 {% if sub.bornes %}
 {% block bornes %}
