@@ -37,7 +37,7 @@ node [label=<
 </TR>
 {% endfor %}
 </TABLE>
->] {{sub.bat_name}}bornes;
+>] "{{sub.bat_name}}bornes";
 {% endblock %}
 {% endif %}
 
@@ -68,7 +68,7 @@ node [label=<
 </TR>
 {% endfor %}
 </TABLE>
->] {{sub.bat_name}}machines;
+>] "{{sub.bat_name}}machines";
 {% endblock %}
 {% endif %}
 
