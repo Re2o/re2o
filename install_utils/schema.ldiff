@@ -1123,7 +1123,7 @@ olcAccess: {2}to dn.base="" by * read
 olcAccess: {3}to dn.sub="ou=groups,dc=example,dc=net" by group="cn=
  auth,ou=services,ou=groups,dc=example,dc=net" read by group="cn=re
  adonly,ou=services,ou=groups,dc=example,dc=net" read
-olcAccess: {4}to dn.base="cn=Utilisateurs,dc=federez,dc=net" by * read
+olcAccess: {4}to dn.base="cn=Utilisateurs,dc=example,dc=net" by * read
 olcAccess: {5}to dn.sub="cn=Utilisateurs,dc=example,dc=net" by grou
  p="cn=auth,ou=services,ou=groups,dc=example,dc=net" read by self r
  ead by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net"
