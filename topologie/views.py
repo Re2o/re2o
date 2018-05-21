@@ -48,7 +48,7 @@ from django.template import Context, Template, loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-import pprint
+import tempfile
 
 from users.views import form
 from re2o.utils import re2o_paginator, SortTable
@@ -1037,11 +1037,12 @@ def make_machine_graph():
 
 
     dot_data=generate_dot(dico,'topologie/graph_switch.dot')  # generate the dot file
-    fichier = open(MEDIA_ROOT + "/images/switchs.dot","w", encoding='utf-8')
-    fichier.write(dot_data)
-    fichier.close()
+
+    f = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False)  # Create a temporary file to store the dot data
+    with f:
+            f.write(dot_data)
     unflatten = Popen(  # unflatten the graph to make it look better
-        ["unflatten","-l", "3", MEDIA_ROOT + "/images/switchs.dot"],
+            ["unflatten","-l", "3", f.name],
         stdout=PIPE
     )
     image = Popen(  # pipe the result of the first command into the second
