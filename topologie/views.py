@@ -45,6 +45,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import get_template
 from django.template import Context, Template, loader
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import pprint
 
@@ -95,7 +97,13 @@ from .forms import (
     EditBuildingForm
 )
 
-from subprocess import Popen,PIPE
+from subprocess import (
+    Popen,
+    PIPE
+)
+
+from os.path import isfile 
+from os import remove
 
 
 @login_required
@@ -124,6 +132,8 @@ def index(request):
         for service_link in Service_link.objects.filter(service__service_type='graph_topo'):
             service_link.done_regen()
 
+    if not isfile("/var/www/re2o/media/images/switchs.png"):
+        make_machine_graph()
     return render(
         request,
         'topologie/index.html',
@@ -954,7 +964,7 @@ def make_machine_graph():
         'links' : [],
         'alone': [],
         'colors': {
-            'head': "#7f0505",#Color parameters for the graph
+            'head': "#7f0505",  # Color parameters for the graph
             'back': "#b5adad",
             'texte': "#563d01",
             'border_bornes': "#02078e",
@@ -964,8 +974,8 @@ def make_machine_graph():
         }
     missing = list(Switch.objects.all())
     detected = []
-    #Visit all buildings
-    for building in Building.objects.all():
+    for building in Building.objects.all():  # Visit all buildings
+
         dico['subs'].append(
             {
             'bat_id': building.id,
@@ -975,8 +985,8 @@ def make_machine_graph():
             'machines': []
             }
         )
-        #Visit all switchs in this building
-        for switch in Switch.objects.filter(switchbay__building=building):
+        # Visit all switchs in this building
+        for switch in Switch.objects.filter(switchbay__building=building):   
             dico['subs'][-1]['switchs'].append({
                 'name': switch.main_interface().domain.name,
                 'nombre': switch.number,
@@ -985,7 +995,7 @@ def make_machine_graph():
                 'batiment': building,
                 'ports': []
             })
-            #visit all ports of this switch and add the switchs linked to it
+            # visit all ports of this switch and add the switchs linked to it
             for port in switch.ports.filter(related__isnull=False): 
                 dico['subs'][-1]['switchs'][-1]['ports'].append({
                     'numero': port.port,
@@ -1007,18 +1017,18 @@ def make_machine_graph():
                 'port': Port.objects.filter(machine_interface__machine=server)[0].port
             })
 
-    #While the list of forgotten ones is not empty
+    # While the list of forgotten ones is not empty
     while missing:
-        if missing[0].ports.count():#The switch is not empty
+        if missing[0].ports.count():  # The switch is not empty
             links, new_detected = recursive_switchs(missing[0], None, [missing[0]])
             for link in links:
                 dico['links'].append(link)
-            #Update the lists of missings and already detected switchs
+            # Update the lists of missings and already detected switchs
             missing=[i for i in missing if i not in new_detected]
             detected += new_detected
-        else:#If the switch have no ports, don't explore it and hop to the next one
+        else:  # If the switch have no ports, don't explore it and hop to the next one
             del missing[0]
-    #Switchs that are not connected or not in a building
+    # Switchs that are not connected or not in a building
     for switch in Switch.objects.filter(switchbay__isnull=True).exclude(ports__related__isnull=False):
         dico['alone'].append({
             'id': switch.id,
@@ -1026,21 +1036,21 @@ def make_machine_graph():
         })
 
 
-    dot_data=generate_image(dico)#generate the dot file
+    dot_data=generate_dot(dico,'topologie/graph_switch.dot')  # generate the dot file
     fichier = open(MEDIA_ROOT + "/images/switchs.dot","w", encoding='utf-8')
     fichier.write(dot_data)
     fichier.close()
-    unflatten = Popen(#unflatten the graph to make it look better
+    unflatten = Popen(  # unflatten the graph to make it look better
         ["unflatten","-l", "3", MEDIA_ROOT + "/images/switchs.dot"],
         stdout=PIPE
     )
-    image = Popen(#pipe the result of the first command into the second
+    image = Popen(  # pipe the result of the first command into the second
         ["dot", "-Tpng", "-o", MEDIA_ROOT + "/images/switchs.png"],
         stdin=unflatten.stdout,
         stdout=PIPE
     )
 
-def generate_dot(data,template='topologie/graph_switch.dot'):
+def generate_dot(data,template):
     """create the dot file
     :param data: dictionary passed to the template
     :param template: path to the dot template
@@ -1060,19 +1070,19 @@ def recursive_switchs(switch_start, switch_before, detected):
     :param switch_before: the switch that you come from. None if switch_start is the first one
     :param detected: list of all switchs already visited. None if switch_start is the first one
     :return: A list of all the links found and a list of all the switchs visited"""
-    links_return=[]#list of dictionaries of the links to be detected
-    for port in switch_start.ports.filter(related__isnull=False):#Ports that are related to another switch
-        if port.related.switch != switch_before and port.related.switch != port.switch:#Not the switch that we come from, not the current switch
-            links = {#Dictionary of a link
+    links_return=[]  # list of dictionaries of the links to be detected
+    for port in switch_start.ports.filter(related__isnull=False):  # Ports that are related to another switch
+        if port.related.switch != switch_before and port.related.switch != port.switch:  # Not the switch that we come from, not the current switch
+            links = {  # Dictionary of a link
                 'depart':switch_start.id,
                 'arrive':port.related.switch.id
             }
-            if port.related.switch not in detected:#The switch at the end of this link has not been visited
-                links_down, detected = recursive_switchs(port.related.switch, switch_start, detected)#explore it and get the results
-                for link in links_down:#Add the non empty links to the current list
+            if port.related.switch not in detected:  # The switch at the end of this link has not been visited
+                links_down, detected = recursive_switchs(port.related.switch, switch_start, detected)  # explore it and get the results
+                for link in links_down:  # Add the non empty links to the current list
                     if link:
                         links_return.append(link) 
-            links_return.append(links)#Add current and below levels links
-    detected.append(switch_start)#This switch is considered detected
+            links_return.append(links)  # Add current and below levels links
+    detected.append(switch_start)  # This switch is considered detected
     return (links_return, detected)
 

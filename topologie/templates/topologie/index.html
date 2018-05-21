@@ -29,7 +29,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Switchs{% endblock %}
 
 {% block content %}
-<img id="zoom_01" src="/media/images/switchs.png" data-zoom-image="/media/images/switchs.png" width=100% />
+
+<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collImg" aria-expanded="false" aria-controls="collapse">
+Topologie des Switchs
+</button>
+
+<a target="_blank" href="/media/images/switchs.png" class="btn btn-primary">
+  <span class="fa fa-arrows-alt"></span> 
+</a>
+
+<div id="collImg">
+<img id="zoom_01" src="/media/images/switchs.png" href="/media/images/switchs.png" target="_blank" data-zoom-image="/media/images/switchs.png" width=100% />
+</div>
 
 <script type="text/javascript" src="/static/js/jquery.ez-plus.js"></script>
 
