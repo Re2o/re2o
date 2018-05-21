@@ -3,6 +3,12 @@
 SETTINGS_LOCAL_FILE='re2o/settings_local.py'
 SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 
+APT_REQ_FILE="apt_requirements.txt"
+PIP_REQ_FILE="pip_requirements.txt"
+
+LDIF_DB_FILE="install_utils/db.ldiff"
+LDIF_SCHEMA_FILE="install_utils/schema.ldiff"
+
 
 VALUE= # global value used to return values by some functions
 
@@ -61,24 +67,8 @@ install_requirements() {
     ###
 
     echo "Setting up the required packages ..."
-    apt-get -y install \
-        python3-django \
-        python3-dateutil \
-        texlive-latex-base \
-        texlive-fonts-recommended \
-        python3-djangorestframework \
-        python3-django-reversion \
-        python3-pip \
-        libsasl2-dev libldap2-dev \
-        libssl-dev \
-        python3-crypto \
-        python3-git \
-        javascript-common \
-        libjs-jquery \
-        libjs-jquery-ui \
-        libjs-jquery-timepicker \
-        libjs-bootstrap
-    pip3 install django-bootstrap3 django-ldapdb==0.9.0 django-macaddress
+    cat $APT_REQ_FILE | xargs apt-get -y install
+    pip3 install -r $PIP_REQ_FILE
     echo "Setting up the required packages: Done"
 }
 
@@ -194,8 +184,8 @@ install_ldap() {
         echo "Hash of the password: $hashed_ldap_passwd"
 
         echo "Building the LDAP config files ..."
-        sed 's|dc=example,dc=net|'"$domain"'|g' install_utils/db.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-        sed 's|dc=example,dc=net|'"$domain"'|g' install_utils/schema.ldiff | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
+        sed 's|dc=example,dc=net|'"$domain"'|g' $LDIF_DB_FILE | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
+        sed 's|dc=example,dc=net|'"$domain"'|g' $LDIF_SCHEMA_FILE | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
         echo "Building the LDAP config files: Done"
 
         echo "Stopping slapd service ..."
