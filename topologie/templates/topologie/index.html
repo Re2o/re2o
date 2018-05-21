@@ -30,7 +30,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 
-<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collImg" aria-expanded="false" aria-controls="collapse">
+<script type="text/javascript" src="/static/js/jquery.ez-plus.js"></script>
+<script>
+function toggle_graph() {
+    $("#collImg").collapse('toggle');
+
+    ezImg = $("#zoom_01").data("ezPlus");
+    if (ezImg) {
+        ezImg.destroy();
+	$("#zoom_01").removeData("ezPlus");
+    } else {
+        $("#zoom_01").ezPlus({
+            scrollZoom: true,
+            zoomType: 'inner',
+            cursor: 'crosshair'
+        });
+    }
+}
+</script>
+
+
+<button class="btn btn-primary" type="button" onclick="toggle_graph()">
 Topologie des Switchs
 </button>
 
@@ -38,19 +58,9 @@ Topologie des Switchs
   <span class="fa fa-arrows-alt"></span> 
 </a>
 
-<div id="collImg">
+<div id="collImg" class="collapse" aria-expanded="false">
 <img id="zoom_01" src="/media/images/switchs.png" href="/media/images/switchs.png" target="_blank" data-zoom-image="/media/images/switchs.png" width=100% />
 </div>
-
-<script type="text/javascript" src="/static/js/jquery.ez-plus.js"></script>
-
-<script>
-$("#zoom_01").ezPlus({
-    scrollZoom: true,
-    zoomType: 'inner',
-    cursor: 'crosshair'
-});
-</script>
 
 <h2>Switchs</h2>
 {% can_create Switch %}
