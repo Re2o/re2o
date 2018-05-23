@@ -56,6 +56,10 @@ DATABASES = {
         'USER': 'db_user_value',
         'PASSWORD': DB_PASSWORD,
         'HOST': 'db_host_value',
+        'TEST': {
+            'CHARSET': 'utf8',
+            'COLLATION': 'utf8_general_ci'
+        }
     },
     'ldap': {  # The LDAP
         'ENGINE': 'ldapdb.backends.ldap',
