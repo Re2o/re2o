@@ -331,5 +331,5 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 
         return Response({
             'token': token.key,
-            'expiration_date': token.created + token_duration
+            'expiration': token.created + token_duration
         })
