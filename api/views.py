@@ -31,13 +31,15 @@ from django.conf import settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 
 import cotisations.models as cotisations
 import machines.models as machines
 import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
+
+from re2o.utils import all_active_interfaces
 
 from . import serializers
 
@@ -309,6 +311,14 @@ class BanViewSet(viewsets.ReadOnlyModelViewSet):
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.Whitelist.objects.all()
     serializer_class = serializers.WhitelistSerializer
+
+
+# DHCP views
+
+class HostMacIpView(generics.ListAPIView):
+    queryset = all_active_interfaces()
+    serializer_class = serializers.HostMacIpSerializer
+
 
 # Subclass the standard rest_framework.auth_token.views.ObtainAuthToken
 # in order to renew the lease of the token and add expiration time

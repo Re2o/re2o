@@ -457,3 +457,16 @@ class WhitelistSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.Whitelist
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
+
+
+# DHCP
+
+
+class HostMacIpSerializer(serializers.ModelSerializer):
+    hostname = serializers.CharField(source='domain.name', read_only=True)
+    extension = serializers.CharField(source='domain.extension.name', read_only=True)
+    ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('hostname', 'extension', 'mac_address', 'ipv4')
