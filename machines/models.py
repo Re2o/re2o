@@ -1388,6 +1388,11 @@ class Service_link(RevMixin, AclMixin, models.Model):
     last_regen = models.DateTimeField(auto_now_add=True)
     asked_regen = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (
+            ("view_service_link", "Peut voir un objet service_link"),
+        )
+
     def done_regen(self):
         """ Appellé lorsqu'un serveur a regénéré son service"""
         self.last_regen = timezone.now()
