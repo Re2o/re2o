@@ -465,6 +465,7 @@ class WhitelistSerializer(NamespacedHMSerializer):
 class HostMacIpSerializer(serializers.ModelSerializer):
     hostname = serializers.CharField(source='domain.name', read_only=True)
     extension = serializers.CharField(source='domain.extension.name', read_only=True)
+    mac_address = serializers.CharField(read_only=True)
     ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
 
     class Meta:
