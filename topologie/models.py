@@ -40,7 +40,8 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
+from django.utils.functional import cached_property
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -49,6 +50,11 @@ from reversion import revisions as reversion
 
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
+
+from os.path import isfile 
+from os import remove
+
+
 
 
 class Stack(AclMixin, RevMixin, models.Model):
@@ -102,6 +108,70 @@ class AccessPoint(AclMixin, Machine):
         permissions = (
             ("view_accesspoint", "Peut voir une borne"),
         )
+
+    def port(self):
+        """Return the queryset of ports for this device"""
+        return Port.objects.filter(
+            machine_interface__machine=self
+        )
+
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+        )
+
+    def building(self):
+        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+        )
+
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
+
+    @classmethod
+    def all_ap_in(cls, building_instance):
+        """Get a building as argument, returns all ap of a building"""
+        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance)
+
+    def __str__(self):
+        return str(self.interface_set.first())
+
+
+class Server(Machine):
+    """Dummy class, to retrieve servers of a building, or get switch of a server"""
+
+    class Meta:
+        proxy = True
+
+    def port(self):
+        """Return the queryset of ports for this device"""
+        return Port.objects.filter(
+            machine_interface__machine=self
+        )
+
+    def switch(self):
+        """Return the switch where this is plugged"""
+        return Switch.objects.filter(
+            ports__machine_interface__machine=self
+        )
+
+    def building(self):
+        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        return Building.objects.filter(
+            switchbay__switch=self.switch()
+        )
+
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
+
+    @classmethod
+    def all_server_in(cls, building_instance):
+        """Get a building as argument, returns all server of a building"""
+        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance).exclude(accesspoint__isnull=False)
 
     def __str__(self):
         return str(self.interface_set.first())
@@ -422,15 +492,47 @@ class Room(AclMixin, RevMixin, models.Model):
 def ap_post_save(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
-
+    regen("graph_topo")
 
 @receiver(post_delete, sender=AccessPoint)
 def ap_post_delete(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
-
+    regen("graph_topo")
 
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
+
+@receiver(post_save, sender=Port)
+def port_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Port)
+def port_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=ModelSwitch)
+def modelswitch_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=ModelSwitch)
+def modelswitch_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=Building)
+def building_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Building)
+def building_post_delete(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_save, sender=Switch)
+def switch_post_save(**_kwargs):
+    regen("graph_topo")
+
+@receiver(post_delete, sender=Switch)
+def switch_post_delete(**_kwargs):
+    regen("graph_topo")
