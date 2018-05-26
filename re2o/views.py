@@ -111,6 +111,7 @@ HISTORY_BIND = {
         'accesspoint': topologie.models.AccessPoint,
         'switchbay': topologie.models.SwitchBay,
         'building': topologie.models.Building,
+        'portprofile': topologie.models.PortProfile,
     },
     'machines': {
         'machine': machines.models.Machine,
