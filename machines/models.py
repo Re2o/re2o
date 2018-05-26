@@ -1399,6 +1399,7 @@ class Service_link(RevMixin, AclMixin, models.Model):
         self.asked_regen = False
         self.save()
 
+    @property
     def need_regen(self):
         """ Décide si le temps minimal écoulé est suffisant pour provoquer une
         régénération de service"""
@@ -1410,6 +1411,19 @@ class Service_link(RevMixin, AclMixin, models.Model):
                 self.last_regen + self.service.regular_time_regen
             ) < timezone.now()
         )
+
+    @need_regen.setter
+    def need_regen(self, value):
+        """
+        Force to set the need_regen value. True means a regen is asked and False
+        means a regen has been done.
+
+        :param value: (bool) The value to set to
+        """
+        if not value:
+            self.last_regen = timezone.now()
+        self.asked_regen = value
+        self.save()
 
     def __str__(self):
         return str(self.server) + " " + str(self.service)

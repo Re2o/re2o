@@ -31,7 +31,7 @@ from django.conf import settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, generics
 
 import cotisations.models as cotisations
 import machines.models as machines
@@ -160,7 +160,7 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ServiceSerializer
 
 
-class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
+class ServiceLinkViewSet(viewsets.ModelViewSet):
     queryset = machines.Service_link.objects.all()
     serializer_class = serializers.ServiceLinkSerializer
 
@@ -311,6 +311,24 @@ class BanViewSet(viewsets.ReadOnlyModelViewSet):
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.Whitelist.objects.all()
     serializer_class = serializers.WhitelistSerializer
+
+
+# Services views
+
+
+class ServiceRegenView(generics.ListAPIView):
+    serializer_class = serializers.ServiceRegenSerializer
+
+    def get_queryset(self):
+        queryset = machines.Service_link.objects.select_related(
+            'server__domain'
+        ).select_related(
+            'service'
+        )
+        if 'hostname' in self.request.GET:
+            hostname = self.request.GET['hostname']
+            queryset = queryset.filter(server__domain__name__iexact=hostname)
+        return queryset
 
 
 # DHCP views

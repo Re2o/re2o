@@ -215,6 +215,8 @@ class ServiceSerializer(NamespacedHMSerializer):
 
 
 class ServiceLinkSerializer(NamespacedHMSerializer):
+    need_regen = serializers.BooleanField()
+
     class Meta:
         model = machines.Service_link
         fields = ('service', 'server', 'last_regen', 'asked_regen',
@@ -457,6 +459,21 @@ class WhitelistSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.Whitelist
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
+
+
+# Services
+
+
+class ServiceRegenSerializer(NamespacedHMSerializer):
+    hostname = serializers.CharField(source='server.domain.name', read_only=True)
+    service_name = serializers.CharField(source='service.service_type', read_only=True)
+
+    class Meta:
+        model = machines.Service_link
+        fields = ('hostname', 'service_name', 'need_regen', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'servicelink-detail'}
+        }
 
 
 # DHCP

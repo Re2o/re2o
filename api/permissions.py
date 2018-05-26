@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework import permissions, exceptions
 from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
 from . import acl
@@ -17,17 +17,17 @@ class DefaultACLPermission(permissions.BasePermission):
         'OPTIONS': [can_see_api, lambda model: model.can_view_all],
         'HEAD': [can_see_api, lambda model: model.can_view_all],
         'POST': [can_see_api, lambda model: model.can_create],
-        #'PUT': [],
-        #'PATCH': [],
-        #'DELETE': [],
+        'PUT': [],     # No restrictions, apply to objects
+        'PATCH': [],   # No restrictions, apply to objects
+        'DELETE': [],  # No restrictions, apply to objects
     }
     perms_obj_map = {
         'GET': [can_see_api, lambda obj: obj.can_view],
         'OPTIONS': [can_see_api, lambda obj: obj.can_view],
         'HEAD': [can_see_api, lambda obj: obj.can_view],
-        #'POST': [],
+        'POST': [],    # No restrictions, apply to models
         'PUT': [can_see_api, lambda obj: obj.can_edit],
-        #'PATCH': [],
+        'PATCH': [can_see_api, lambda obj: obj.can_edit],
         'DELETE': [can_see_api, lambda obj: obj.can_delete],
     }
 

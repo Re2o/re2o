@@ -90,5 +90,6 @@ router.register(r'users/whitelists', views.WhitelistViewSet)
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^dhcp/hostmacip', views.HostMacIpView.as_view()),
-    url(r'^token-auth/', views.ObtainExpiringAuthToken.as_view())
+    url(r'^services/regen', views.ServiceRegenView.as_view()),
+    url(r'^token-auth', views.ObtainExpiringAuthToken.as_view())
 ]
