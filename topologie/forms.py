@@ -35,6 +35,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Prefetch
+from django.utils.translation import ugettext_lazy as _
 
 from machines.models import Interface
 from machines.forms import (
@@ -53,6 +54,7 @@ from .models import (
     AccessPoint,
     SwitchBay,
     Building,
+    PortProfile,
 )
 
 
@@ -254,3 +256,59 @@ class EditBuildingForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class NewPortProfileForm(FormRevMixin, ModelForm):
+    """Form to create a port profile"""
+    class Meta:
+        model = PortProfile
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(NewPortProfileForm, self).__init__(*args,
+                                                 prefix=prefix,
+                                                 **kwargs)
+
+    def clean(self):
+        cleaned_data = super(NewPortProfileForm, self).clean()
+        radius_type = cleaned_data.get('radius_type')
+        radius_mode = cleaned_data.get('radius_mode')
+
+        if radius_type == 'NO' and radius_mode:
+            raise forms.ValidationError(_("You can't specify a RADIUS mode"
+                                          " with RADIUS type NO"))
+        elif radius_type != 'NO' and not radius_mode:
+            raise forms.ValidationError(_("You have to specify a RADIUS"
+                                          " mode"))
+
+        return cleaned_data
+
+
+class EditPortProfileForm(FormRevMixin, ModelForm):
+    """Form to edit a port profile"""
+    class Meta:
+        model = PortProfile
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditPortProfileForm, self).__init__(*args,
+                                                  prefix=prefix,
+                                                  **kwargs)
+
+    def clean(self):
+        cleaned_data = super(EditPortProfileForm, self).clean()
+        radius_type = cleaned_data.get('radius_type')
+        radius_mode = cleaned_data.get('radius_mode')
+        
+        if radius_type == 'NO' and radius_mode:
+            raise forms.ValidationError(_("You can't specify a RADIUS mode"
+                                          " with RADIUS type NO"))
+        elif radius_type != 'NO' and not radius_mode:
+            raise forms.ValidationError(_("You have to specify a RADIUS"
+                                          " mode"))
+
+        return cleaned_data
+
+ 
