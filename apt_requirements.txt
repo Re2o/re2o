@@ -1,0 +1,16 @@
+python3-django
+python3-dateutil
+texlive-latex-base
+texlive-fonts-recommended
+python3-djangorestframework
+python3-django-reversion
+python3-pip
+libsasl2-dev libldap2-dev
+libssl-dev
+python3-crypto
+python3-git
+javascript-common
+libjs-jquery
+libjs-jquery-ui
+libjs-jquery-timepicker
+libjs-bootstrap
