@@ -45,6 +45,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.translation import ugettext as _
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
@@ -56,7 +57,8 @@ from re2o.views import form
 from re2o.utils import (
     all_has_access,
     SortTable,
-    re2o_paginator
+    re2o_paginator,
+    messages_protected_error
 )
 from re2o.acl import (
     can_create,
@@ -510,10 +512,7 @@ def del_school(request, instances):
                 school_del.delete()
                 messages.success(request, "L'établissement a été supprimé")
             except ProtectedError:
-                messages.error(
-                    request,
-                    "L'établissement %s est affecté à au moins un user, \
-                        vous ne pouvez pas le supprimer" % school_del)
+                messages_protected_error(messages, request, school_del, err)
         return redirect(reverse('users:index-school'))
     return form(
         {'userform': school, 'action_name': 'Supprimer'},
@@ -621,10 +620,7 @@ def del_listright(request, instances):
                 listright_del.delete()
                 messages.success(request, "Le droit/groupe a été supprimé")
             except ProtectedError:
-                messages.error(
-                    request,
-                    "Le groupe %s est affecté à au moins un user, \
-                        vous ne pouvez pas le supprimer" % listright_del)
+                messages_protected_error(messages, request, listright_del, err)
         return redirect(reverse('users:index-listright'))
     return form(
         {'userform': listright, 'action_name': 'Supprimer'},

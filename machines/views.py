@@ -39,6 +39,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
 from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.translation import ugettext as _
+
 
 from rest_framework.renderers import JSONRenderer
 
@@ -49,6 +51,7 @@ from re2o.utils import (
     filter_active_interfaces,
     SortTable,
     re2o_paginator,
+    messages_protected_error,
 )
 from re2o.acl import (
     can_create,
@@ -504,12 +507,8 @@ def del_iptype(request, instances):
             try:
                 iptype_del.delete()
                 messages.success(request, "Le type d'ip a été supprimé")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Le type d'ip %s est affectée à au moins une machine, "
-                     "vous ne pouvez pas le supprimer" % iptype_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, iptype_del, err)
         return redirect(reverse('machines:index-iptype'))
     return form(
         {'iptypeform': iptype, 'action_name': 'Supprimer'},
@@ -565,13 +564,8 @@ def del_machinetype(request, instances):
             try:
                 machinetype_del.delete()
                 messages.success(request, "Le type de machine a été supprimé")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Le type de machine %s est affectée à au moins une "
-                     "machine, vous ne pouvez pas le supprimer"
-                     % machinetype_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, machinetype_del, err)
         return redirect(reverse('machines:index-machinetype'))
     return form(
         {'machinetypeform': machinetype, 'action_name': 'Supprimer'},
@@ -627,13 +621,8 @@ def del_extension(request, instances):
             try:
                 extension_del.delete()
                 messages.success(request, "L'extension a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("L'extension %s est affectée à au moins un type de "
-                     "machine, vous ne pouvez pas la supprimer"
-                     % extension_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, extension_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'extensionform': extension, 'action_name': 'Supprimer'},
@@ -686,12 +675,8 @@ def del_soa(request, instances):
             try:
                 soa_del.delete()
                 messages.success(request, "Le SOA a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le SOA suivant %s ne peut être supprimé"
-                     % soa_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, soa_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'soaform': soa, 'action_name': 'Supprimer'},
@@ -744,12 +729,8 @@ def del_mx(request, instances):
             try:
                 mx_del.delete()
                 messages.success(request, "L'mx a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Mx suivant %s ne peut être supprimé"
-                     % mx_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, mx_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'mxform': mx, 'action_name': 'Supprimer'},
@@ -802,12 +783,8 @@ def del_ns(request, instances):
             try:
                 ns_del.delete()
                 messages.success(request, "Le ns a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Ns suivant %s ne peut être supprimé"
-                     % ns_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, ns_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'nsform': ns, 'action_name': 'Supprimer'},
@@ -860,12 +837,8 @@ def del_txt(request, instances):
             try:
                 txt_del.delete()
                 messages.success(request, "Le txt a été supprimé")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Txt suivant %s ne peut être supprimé"
-                     % txt_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, txt_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'txtform': txt, 'action_name': 'Supprimer'},
@@ -918,12 +891,8 @@ def del_srv(request, instances):
             try:
                 srv_del.delete()
                 messages.success(request, "L'srv a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Srv suivant %s ne peut être supprimé"
-                     % srv_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, srv_del, err)
         return redirect(reverse('machines:index-extension'))
     return form(
         {'srvform': srv, 'action_name': 'Supprimer'},
@@ -994,12 +963,8 @@ def del_alias(request, interface, interfaceid):
                     request,
                     "L'alias %s a été supprimé" % alias_del
                 )
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur l'alias suivant %s ne peut être supprimé"
-                     % alias_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, alias_del, err)
         return redirect(reverse(
             'machines:index-alias',
             kwargs={'interfaceid': str(interfaceid)}
@@ -1055,12 +1020,8 @@ def del_service(request, instances):
             try:
                 service_del.delete()
                 messages.success(request, "Le service a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le service suivant %s ne peut être supprimé"
-                     % service_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, service_del, err)
         return redirect(reverse('machines:index-service'))
     return form(
         {'serviceform': service, 'action_name': 'Supprimer'},
@@ -1113,12 +1074,8 @@ def del_vlan(request, instances):
             try:
                 vlan_del.delete()
                 messages.success(request, "Le vlan a été supprimée")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Vlan suivant %s ne peut être supprimé"
-                     % vlan_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, vlan_del, err)
         return redirect(reverse('machines:index-vlan'))
     return form(
         {'vlanform': vlan, 'action_name': 'Supprimer'},
@@ -1171,12 +1128,8 @@ def del_nas(request, instances):
             try:
                 nas_del.delete()
                 messages.success(request, "Le nas a été supprimé")
-            except ProtectedError:
-                messages.error(
-                    request,
-                    ("Erreur le Nas suivant %s ne peut être supprimé"
-                     % nas_del)
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, nas_del, err)
         return redirect(reverse('machines:index-nas'))
     return form(
         {'nasform': nas, 'action_name': 'Supprimer'},

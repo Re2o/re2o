@@ -46,7 +46,7 @@ from users.models import User
 from re2o.settings import LOGO_PATH
 from re2o import settings
 from re2o.views import form
-from re2o.utils import SortTable, re2o_paginator
+from re2o.utils import SortTable, re2o_paginator, messages_protected_error
 from re2o.acl import (
     can_create,
     can_edit,
@@ -528,14 +528,8 @@ def del_paiement(request, instances):
                         'method_name': payment_del
                     }
                 )
-            except ProtectedError:
-                messages.error(
-                    request,
-                    _("The payment method %(method_name)s can't be deleted \
-                    because there are invoices using it.") % {
-                        'method_name': payment_del
-                    }
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, payment_del, err)
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
@@ -606,14 +600,8 @@ def del_banque(request, instances):
                         'bank_name': bank_del
                     }
                 )
-            except ProtectedError:
-                messages.error(
-                    request,
-                    _("The bank %(bank_name)s can't be deleted \
-                    because there are invoices using it.") % {
-                        'bank_name': bank_del
-                    }
-                )
+            except ProtectedError as err:
+                messages_protected_error(messages, request, bank_del, err)
         return redirect(reverse('cotisations:index-banque'))
     return form({
         'factureform': bank,

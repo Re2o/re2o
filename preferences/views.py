@@ -36,11 +36,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import ProtectedError
 from django.db import transaction
+from django.utils.translation import ugettext as _
 
 from reversion import revisions as reversion
 
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
+from re2o.utils import messages_protected_error
 
 from .forms import ServiceForm, DelServiceForm
 from .models import (
@@ -180,9 +182,8 @@ def del_services(request, instances):
                     services_del.delete()
                     reversion.set_user(request.user)
                 messages.success(request, "Le service a été supprimée")
-            except ProtectedError:
-                messages.error(request, "Erreur le service\
-                suivant %s ne peut être supprimé" % services_del)
+            except ProtectedError as err:
+                messages_protected_error(messages, request, service_del, err)
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services, 'action_name': 'Supprimer'},

@@ -47,11 +47,12 @@ from django.template.loader import get_template
 from django.template import Context, Template, loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.translation import ugettext as _
 
 import tempfile
 
 from users.views import form
-from re2o.utils import re2o_paginator, SortTable
+from re2o.utils import re2o_paginator, SortTable, messages_protected_error
 from re2o.acl import (
     can_create,
     can_edit,
@@ -350,12 +351,8 @@ def del_port(request, port, **_kwargs):
         try:
             port.delete()
             messages.success(request, "Le port a été détruit")
-        except ProtectedError:
-            messages.error(
-                request,
-                ("Le port %s est affecté à un autre objet, impossible "
-                 "de le supprimer" % port)
-            )
+        except ProtectedError as err:
+            messages_protected_error(messages, request, port, err)
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': str(port.switch.id)}
@@ -404,11 +401,7 @@ def del_stack(request, stack, **_kwargs):
             stack.delete()
             messages.success(request, "La stack a eté détruite")
         except ProtectedError:
-            messages.error(
-                request,
-                ("La stack %s est affectée à un autre objet, impossible "
-                 "de la supprimer" % stack)
-            )
+            messages_protected_error(messages, request, satck, err)
         return redirect(reverse('topologie:index-physical-grouping'))
     return form({'objet': stack}, 'topologie/delete.html', request)
 
@@ -715,11 +708,7 @@ def del_room(request, room, **_kwargs):
             room.delete()
             messages.success(request, "La chambre/prise a été détruite")
         except ProtectedError:
-            messages.error(
-                request,
-                ("La chambre %s est affectée à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % room)
-            )
+            messages_protected_error(messages, request, room, err)
         return redirect(reverse('topologie:index-room'))
     return form(
         {'objet': room, 'objet_name': 'Chambre'},
@@ -774,11 +763,7 @@ def del_model_switch(request, model_switch, **_kwargs):
             model_switch.delete()
             messages.success(request, "Le modèle a été détruit")
         except ProtectedError:
-            messages.error(
-                request,
-                ("Le modèle %s est affectée à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % model_switch)
-            )
+            messages_protected_error(messages, request, model_switch, err)
         return redirect(reverse('topologie:index-model-switch'))
     return form(
         {'objet': model_switch, 'objet_name': 'Modèle de switch'},
@@ -829,11 +814,7 @@ def del_switch_bay(request, switch_bay, **_kwargs):
             switch_bay.delete()
             messages.success(request, "La baie a été détruite")
         except ProtectedError:
-            messages.error(
-                request,
-                ("La baie %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % switch_bay)
-            )
+            messages_protected_error(messages, request, switch_bay, err)
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'objet': switch_bay, 'objet_name': 'Baie de switch'},
@@ -883,12 +864,8 @@ def del_building(request, building, **_kwargs):
         try:
             building.delete()
             messages.success(request, "La batiment a été détruit")
-        except ProtectedError:
-            messages.error(
-                request,
-                ("Le batiment %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % building)
-            )
+        except ProtectedError as err:
+            messages_protected_error(messages, request, building, err)
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'objet': building, 'objet_name': 'Bâtiment'},
@@ -943,11 +920,7 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
             constructor_switch.delete()
             messages.success(request, "Le constructeur a été détruit")
         except ProtectedError:
-            messages.error(
-                request,
-                ("Le constructeur %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % constructor_switch)
-            )
+            messages_protected_error(messages, request, constructor_switch, err)
         return redirect(reverse('topologie:index-model-switch'))
     return form({
         'objet': constructor_switch,
