@@ -39,6 +39,7 @@ from __future__ import unicode_literals
 from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.translation import ugettext as _
 
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
@@ -377,3 +378,17 @@ def get_input_formats_help_text(input_formats):
         )
     )
     return help_text
+
+
+def messages_protected_error(messages, request, item, error):
+    """Add an error message, specific to ProtectedError exception."""
+    messages.error(
+        request,
+        _("[%(item_class_name)s] %(item_name)s can't be deleted \
+        because it is used by [%(foreign_class_name)s] %(foreign_name)s.", % {
+            'item_class_name': item.__class__.__name__,
+            'item_name': item.name,
+            'foreign_class_name': error.protected_objects[0].__class__.__name__,
+            'foreign_name': error.protected_objects[0].name,
+        })
+    )
