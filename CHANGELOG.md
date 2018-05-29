@@ -22,6 +22,19 @@ rm static/css/jquery-ui-timepicker-addon.css
 ```
 
 
+## MR 159: Graph topo & MR 164: branche de création de graph
+
+Add a graph of the network topology
+Install *graphviz*:
+```
+apt-get -y install graphviz
+```
+Create the *media/images* directory:
+```
+mkdir -p media/images
+```
+
+
 ## MR 163: Fix install re2o
 
 Refactored install_re2o.sh script.
