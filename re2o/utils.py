@@ -380,15 +380,27 @@ def get_input_formats_help_text(input_formats):
     return help_text
 
 
+# TODO : Use verbose names
 def messages_protected_error(messages, request, item, error):
     """Add an error message, specific to ProtectedError exception."""
-    messages.error(
-        request,
-        _("[{item_class_name}] {item_name} can't be deleted \
-        because it is used by [{foreign_class_name}] {foreign_name}."format({
-            'item_class_name': item.__class__.__name__,
-            'item_name': item.name,
-            'foreign_class_name': error.protected_objects[0].__class__.__name__,
-            'foreign_name': error.protected_objects[0].name,
-        })
-    )
+    if len(error.protected_objects) > 1:
+        messages.error(
+            request,
+            _("[{item_classname}] {item_name} can't be deleted \
+            because it it used by many [{foreign_classname}].".format(
+                item_classname=item.get_classname(),
+                item_name=item,
+                foreign_classname=error.protected_objects[0].get_classname()
+            ))
+        )
+    else:
+        messages.error(
+            request,
+            _("[{item_classname}] {item_name} can't be deleted \
+            because it is used by [{foreign_classname}] {foreign_name}.".format(
+                item_classname=item.get_classname(),
+                item_name=item,
+                foreign_classname=error.protected_objects[0].get_classname(),
+                foreign_name=error.protected_objects[0]
+            ))
+        )
