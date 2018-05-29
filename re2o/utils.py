@@ -384,8 +384,8 @@ def messages_protected_error(messages, request, item, error):
     """Add an error message, specific to ProtectedError exception."""
     messages.error(
         request,
-        _("[%(item_class_name)s] %(item_name)s can't be deleted \
-        because it is used by [%(foreign_class_name)s] %(foreign_name)s.", % {
+        _("[{item_class_name}] {item_name} can't be deleted \
+        because it is used by [{foreign_class_name}] {foreign_name}."format({
             'item_class_name': item.__class__.__name__,
             'item_name': item.name,
             'foreign_class_name': error.protected_objects[0].__class__.__name__,
