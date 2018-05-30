@@ -1,5 +1,5 @@
 {% block graph_dot %}
-strict digraph {
+digraph {
 graph [label="TOPOLOGIE DU RÉSEAU", labelloc=t, fontsize=40];
 node [fontname=Helvetica fontsize=8 shape=plaintext];
 edge[arrowhead=none];
