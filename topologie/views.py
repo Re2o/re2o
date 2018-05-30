@@ -1033,7 +1033,7 @@ def make_machine_graph():
         dico['alone'].append({
             'id': switch.id,
             'name': switch.main_interface().domain.name
-        })
+            })
 
 
     dot_data=generate_dot(dico,'topologie/graph_switch.dot')  # generate the dot file
@@ -1071,19 +1071,21 @@ def recursive_switchs(switch_start, switch_before, detected):
     :param switch_before: the switch that you come from. None if switch_start is the first one
     :param detected: list of all switchs already visited. None if switch_start is the first one
     :return: A list of all the links found and a list of all the switchs visited"""
+    detected.append(switch_start)
     links_return=[]  # list of dictionaries of the links to be detected
-    for port in switch_start.ports.filter(related__isnull=False):  # Ports that are related to another switch
-        if port.related.switch != switch_before and port.related.switch != port.switch:  # Not the switch that we come from, not the current switch
+    for port in switch_start.ports.filter(related__isnull=False):  # create links to every switchs below
+        if port.related.switch != switch_before and port.related.switch != port.switch and port.related.switch not in detected:  # Not the switch that we come from, not the current switch
             links = {  # Dictionary of a link
                 'depart':switch_start.id,
                 'arrive':port.related.switch.id
             }
-            if port.related.switch not in detected:  # The switch at the end of this link has not been visited
-                links_down, detected = recursive_switchs(port.related.switch, switch_start, detected)  # explore it and get the results
-                for link in links_down:  # Add the non empty links to the current list
-                    if link:
-                        links_return.append(link) 
             links_return.append(links)  # Add current and below levels links
-    detected.append(switch_start)  # This switch is considered detected
+
+    for port in switch_start.ports.filter(related__isnull=False):  # go down on every related switchs
+        if port.related.switch not in detected:  # The switch at the end of this link has not been visited
+            links_down, detected = recursive_switchs(port.related.switch, switch_start, detected)  # explore it and get the results
+            for link in links_down:  # Add the non empty links to the current list
+                if link:
+                    links_return.append(link) 
     return (links_return, detected)
 
