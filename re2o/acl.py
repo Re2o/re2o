@@ -156,10 +156,13 @@ ModelC)
                 for msg in error_messages:
                     messages.error(
                         request, msg or "Vous ne pouvez pas accéder à ce menu")
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                if request.user.is_authenticated:
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
+                else:
+                    return redirect(reverse('login'))
             return view(request, *chain(instances, args), **kwargs)
         return wrapper
     return decorator
