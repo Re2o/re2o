@@ -91,3 +91,8 @@ footer a {
     }
     .row.content {height:auto;}
 }
+
+.table-responsive {
+	overflow-y: visible;
+}
+

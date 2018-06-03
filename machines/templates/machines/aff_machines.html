@@ -22,7 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load acl %}
+{% load acl %} 
+
 <div class="table-responsive">
 {% if machines_list.paginator %}
 {% include "pagination.html" with list=machines_list %}
@@ -98,7 +99,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		    {% can_delete interface %}
                     {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
 		    {% acl_end %}
-		    <ul class="dropdown-menu" aria-labelledby="editioninterface">
+		    <ul class="dropdown-menu pull-right" aria-labelledby="editioninterface">
 			{% can_edit interface %}
 			<li>
                             <a href="{% url 'machines:edit-interface' interface.id %}">
@@ -174,6 +175,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endfor %}
     </tbody>
 </table>
+
 
 
 <script>
