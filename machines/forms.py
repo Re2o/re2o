@@ -99,7 +99,8 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
-            if not IpType.can_use_all(user):
+            can_use_all_iptype, _reason = IpType.can_use_all(user)
+            if not can_use_all_iptype:
                 self.fields['ipv4'].queryset = IpList.objects.filter(
                     interface__isnull=True
                 ).filter(ip_type__in=IpType.objects.filter(need_infra=False))
@@ -114,7 +115,8 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all()\
                 .select_related('user')
-        if not MachineType.can_use_all(user):
+        can_use_all_machinetype, _reason = MachineType.can_use_all(user)
+        if not can_use_all_machinetype:
             self.fields['type'].queryset = MachineType.objects.filter(
                 ip_type__in=IpType.objects.filter(need_infra=False)
             )
