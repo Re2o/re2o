@@ -160,7 +160,7 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ServiceSerializer
 
 
-class ServiceLinkViewSet(viewsets.ModelViewSet):
+class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = machines.Service_link.objects.all()
     serializer_class = serializers.ServiceLinkSerializer
 
@@ -316,7 +316,7 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
 # Services views
 
 
-class ServiceRegenView(generics.ListAPIView):
+class ServiceRegenViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ServiceRegenSerializer
 
     def get_queryset(self):
@@ -340,7 +340,7 @@ class HostMacIpView(generics.ListAPIView):
 
 # DNS views
 
-class DNSZonesViewSet(viewsets.ReadOnlyModelViewSet):
+class DNSZonesView(generics.ListAPIView):
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.DNSZonesSerializer
 

@@ -214,8 +214,6 @@ class ServiceSerializer(NamespacedHMSerializer):
 
 
 class ServiceLinkSerializer(NamespacedHMSerializer):
-    need_regen = serializers.BooleanField()
-
     class Meta:
         model = machines.Service_link
         fields = ('service', 'server', 'last_regen', 'asked_regen',
@@ -466,12 +464,13 @@ class WhitelistSerializer(NamespacedHMSerializer):
 class ServiceRegenSerializer(NamespacedHMSerializer):
     hostname = serializers.CharField(source='server.domain.name', read_only=True)
     service_name = serializers.CharField(source='service.service_type', read_only=True)
+    need_regen = serializers.BooleanField()
 
     class Meta:
         model = machines.Service_link
         fields = ('hostname', 'service_name', 'need_regen', 'api_url')
         extra_kwargs = {
-            'api_url': {'view_name': 'servicelink-detail'}
+            'api_url': {'view_name': 'serviceregen-detail'}
         }
 
 
@@ -545,7 +544,7 @@ class ARecordSerializer(serializers.ModelSerializer):
 
 class AAAARecordSerializer(serializers.ModelSerializer):
     hostname = serializers.CharField(source='domain.name', read_only=True)
-    ipv6 = serializers.CharField(read_only=True)
+    ipv6 = Ipv6ListSerializer(many=True, read_only=True)
 
     class Meta:
         model = machines.Interface
@@ -561,7 +560,7 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
         fields = ('alias', 'hostname')
 
 
-class DNSZonesSerializer(NamespacedHMSerializer):
+class DNSZonesSerializer(serializers.ModelSerializer):
     soa = SOARecordSerializer()
     ns_records = NSRecordSerializer(many=True, source='ns_set')
     originv4 = OriginV4RecordSerializer(source='origin')
@@ -577,7 +576,4 @@ class DNSZonesSerializer(NamespacedHMSerializer):
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records', 'api_url')
-        extra_kwargs = {
-            'api_url': {'view_name': 'dnszone-detail'}
-        }
+                  'aaaa_records', 'cname_records')

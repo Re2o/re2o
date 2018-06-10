@@ -43,3 +43,13 @@ Refactored install_re2o.sh script.
 install_re2o.sh help
 ```
 * The installation templates (LDIF files and `re2o/settings_locale.example.py`) have been changed to use `example.net` instead of `example.org` (more neutral and generic)
+
+
+
+## MR XXX: Cleanup and refactor API
+
+Activate HTTP Authorization passthrough in by adding the following in /etc/apache2/site-available/re2o.conf (example in install_utils/apache2/re2o.conf):
+```
+    WSGIPassAuthorization On
+```
+
