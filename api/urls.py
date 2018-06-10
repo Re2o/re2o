@@ -86,11 +86,12 @@ router.register(r'users/listrights', views.ListRightViewSet)
 router.register(r'users/shells', views.ShellViewSet, base_name='shell')
 router.register(r'users/bans', views.BanViewSet)
 router.register(r'users/whitelists', views.WhitelistViewSet)
+# DNS
+router.register(r'dns/zones', views.DNSZonesViewSet, base_name='dnszone')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^dhcp/hostmacip', views.HostMacIpView.as_view()),
-    url(r'^dns/zones', views.DNSZonesView.as_view()),
     url(r'^services/regen', views.ServiceRegenView.as_view()),
     url(r'^token-auth', views.ObtainExpiringAuthToken.as_view())
 ]

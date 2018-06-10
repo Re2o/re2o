@@ -340,7 +340,7 @@ class HostMacIpView(generics.ListAPIView):
 
 # DNS views
 
-class DNSZonesView(generics.ListAPIView):
+class DNSZonesViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.DNSZonesSerializer
 

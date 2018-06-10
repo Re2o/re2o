@@ -561,7 +561,7 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
         fields = ('alias', 'hostname')
 
 
-class DNSZonesSerializer(serializers.ModelSerializer):
+class DNSZonesSerializer(NamespacedHMSerializer):
     soa = SOARecordSerializer()
     ns_records = NSRecordSerializer(many=True, source='ns_set')
     originv4 = OriginV4RecordSerializer(source='origin')
@@ -577,4 +577,7 @@ class DNSZonesSerializer(serializers.ModelSerializer):
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records')
+                  'aaaa_records', 'cname_records', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'dnszone-detail'}
+        }
