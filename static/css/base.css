@@ -91,3 +91,40 @@ footer a {
     }
     .row.content {height:auto;}
 }
+
+/* style for the user page */
+
+.dashboard_container{
+margin-top: 30px;
+margin-bottom: 20px;
+}
+
+
+.panel-heading.dashboard{
+	text-align: center;
+}
+
+.panel-body.dashboard{
+	text-align: center;
+}
+#grad_red {
+	background: red; /* For browsers that do not support gradients */
+	background: linear-gradient(#ff6363, #fefefe); /* Standard syntax (must be last) */
+}
+
+#grad_green {
+	background: green; /* For browsers that do not support gradients */
+	background: linear-gradient(#C8DD58,#4FB64A); /* Standard syntax (must be last) */
+}
+
+#grad_grey {
+	background: gray; /* For browsers that do not support gradients */
+	background: linear-gradient(#d4d4ff, #fefefe); /* Standard syntax (must be last) */
+}
+
+#grad_machines{
+	background: green;
+	background: linear-gradient(#c266e0,#fefefe)
+}
+
+
