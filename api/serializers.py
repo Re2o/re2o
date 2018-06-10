@@ -577,3 +577,18 @@ class DNSZonesSerializer(serializers.ModelSerializer):
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
                   'aaaa_records', 'cname_records')
+
+
+# Mailing
+
+
+class MailingMemberSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        fields = ('name', 'pseudo', 'email')
+
+class MailingSerializer(ClubSerializer):
+    members = MailingMemberSerializer(many=True)
+    admins = MailingMemberSerializer(source='administrators', many=True)
+
+    class Meta(ClubSerializer.Meta):
+        fields = ('name', 'members', 'admins')

@@ -31,7 +31,7 @@ from django.conf import settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, views
 
 import cotisations.models as cotisations
 import machines.models as machines
@@ -39,9 +39,10 @@ import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
 
-from re2o.utils import all_active_interfaces
+from re2o.utils import all_active_interfaces, all_has_access
 
 from . import serializers
+from .pagination import PageSizedPagination
 
 
 # COTISATIONS APP
@@ -343,6 +344,26 @@ class HostMacIpView(generics.ListAPIView):
 class DNSZonesView(generics.ListAPIView):
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.DNSZonesSerializer
+
+
+# Mailing views
+
+
+class StandardMailingView(views.APIView):
+    pagination_class = PageSizedPagination
+    get_queryset = lambda self: all_has_access()
+
+    def get(self, request, format=None):
+        adherents_data = serializers.MailingMemberSerializer(self.get_queryset(), many=True).data
+        data = [{'name': 'adherents', 'members': adherents_data}]
+        paginator = self.pagination_class()
+        paginator.paginate_queryset(data, request)
+        return paginator.get_paginated_response(data)
+
+
+class ClubMailingView(generics.ListAPIView):
+    queryset = users.Club.objects.all()
+    serializer_class = serializers.MailingSerializer
 
 
 # Subclass the standard rest_framework.auth_token.views.ObtainAuthToken

@@ -94,5 +94,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^dhcp/hostmacip', views.HostMacIpView.as_view()),
     url(r'^dns/zones', views.DNSZonesView.as_view()),
+    url(r'^mailing/standard', views.StandardMailingView.as_view()),
+    url(r'^mailing/club', views.ClubMailingView.as_view()),
     url(r'^token-auth', views.ObtainExpiringAuthToken.as_view())
 ]
