@@ -562,6 +562,15 @@ class Extension(RevMixin, AclMixin, models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
+    def get_associated_a_records(self):
+        return Interface.objects.filter(type__ip_type__extension=self).filter(ipv4__isnull=False)
+
+    def get_associated_aaaa_records(self):
+        return Interface.objects.filter(type__ip_type__extension=self)
+
+    def get_associated_cname_records(self):
+        return Domain.objects.filter(extension=self).filter(cname__isnull=False)
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans

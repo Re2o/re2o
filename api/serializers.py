@@ -190,8 +190,7 @@ class InterfaceSerializer(NamespacedHMSerializer):
 class Ipv6ListSerializer(NamespacedHMSerializer):
     class Meta:
         model = machines.Ipv6List
-        fields = ('ipv6', 'interface', 'slaac_ip', 'date_end',
-                  'api_url')
+        fields = ('ipv6', 'interface', 'slaac_ip', 'api_url')
 
 
 class DomainSerializer(NamespacedHMSerializer):
@@ -488,3 +487,94 @@ class HostMacIpSerializer(serializers.ModelSerializer):
     class Meta:
         model = machines.Interface
         fields = ('hostname', 'extension', 'mac_address', 'ipv4')
+
+
+# DNS
+
+
+class SOARecordSerializer(SOASerializer):
+    class Meta:
+        model = machines.SOA
+        fields = ('name', 'mail', 'refresh', 'retry', 'expire', 'ttl')
+
+
+class OriginV4RecordSerializer(IpListSerializer):
+    class Meta(IpListSerializer.Meta):
+        fields = ('ipv4',)
+
+
+class OriginV6RecordSerializer(Ipv6ListSerializer):
+    class Meta(Ipv6ListSerializer.Meta):
+        fields = ('ipv6',)
+
+
+class NSRecordSerializer(NsSerializer):
+    target = serializers.CharField(source='ns.name', read_only=True)
+
+    class Meta(NsSerializer.Meta):
+        fields = ('target',)
+
+
+class MXRecordSerializer(MxSerializer):
+    target = serializers.CharField(source='name.name', read_only=True)
+
+    class Meta(MxSerializer.Meta):
+        fields = ('target', 'priority')
+
+
+class TXTRecordSerializer(TxtSerializer):
+    class Meta(TxtSerializer.Meta):
+        fields = ('field1', 'field2')
+
+
+class SRVRecordSerializer(SrvSerializer):
+    target = serializers.CharField(source='target.name', read_only=True)
+
+    class Meta(SrvSerializer.Meta):
+        fields = ('service', 'protocole', 'ttl', 'priority', 'weight', 'port', 'target')
+
+
+class ARecordSerializer(serializers.ModelSerializer):
+    hostname = serializers.CharField(source='domain.name', read_only=True)
+    ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('hostname', 'ipv4')
+
+
+class AAAARecordSerializer(serializers.ModelSerializer):
+    hostname = serializers.CharField(source='domain.name', read_only=True)
+    ipv6 = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('hostname', 'ipv6')
+
+
+class CNAMERecordSerializer(serializers.ModelSerializer):
+    alias = serializers.CharField(source='cname.name', read_only=True)
+    hostname = serializers.CharField(source='name', read_only=True)
+
+    class Meta:
+        model = machines.Domain
+        fields = ('alias', 'hostname')
+
+
+class DNSZonesSerializer(serializers.ModelSerializer):
+    soa = SOARecordSerializer()
+    ns_records = NSRecordSerializer(many=True, source='ns_set')
+    originv4 = OriginV4RecordSerializer(source='origin')
+    originv6 = OriginV6RecordSerializer(source='origin_v6')
+    mx_records = MXRecordSerializer(many=True, source='mx_set')
+    txt_records = TXTRecordSerializer(many=True, source='txt_set')
+    srv_records = SRVRecordSerializer(many=True, source='srv_set')
+    a_records = ARecordSerializer(many=True, source='get_associated_a_records')
+    aaaa_records = AAAARecordSerializer(many=True, source='get_associated_aaaa_records')
+    cname_records = CNAMERecordSerializer(many=True, source='get_associated_cname_records')
+
+    class Meta:
+        model = machines.Extension
+        fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
+                  'mx_records', 'txt_records', 'srv_records', 'a_records',
+                  'aaaa_records', 'cname_records')

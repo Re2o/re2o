@@ -338,6 +338,13 @@ class HostMacIpView(generics.ListAPIView):
     serializer_class = serializers.HostMacIpSerializer
 
 
+# DNS views
+
+class DNSZonesView(generics.ListAPIView):
+    queryset = machines.Extension.objects.all()
+    serializer_class = serializers.DNSZonesSerializer
+
+
 # Subclass the standard rest_framework.auth_token.views.ObtainAuthToken
 # in order to renew the lease of the token and add expiration time
 class ObtainExpiringAuthToken(ObtainAuthToken):
