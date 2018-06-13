@@ -43,6 +43,7 @@ from re2o.utils import all_active_interfaces, all_has_access
 
 from . import serializers
 from .pagination import PageSizedPagination
+from .permissions import ACLPermission
 
 
 # COTISATIONS APP
@@ -351,10 +352,11 @@ class DNSZonesView(generics.ListAPIView):
 
 class StandardMailingView(views.APIView):
     pagination_class = PageSizedPagination
-    get_queryset = lambda self: all_has_access()
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [users.User.can_view_all]}
 
     def get(self, request, format=None):
-        adherents_data = serializers.MailingMemberSerializer(self.get_queryset(), many=True).data
+        adherents_data = serializers.MailingMemberSerializer(all_has_access(), many=True).data
         data = [{'name': 'adherents', 'members': adherents_data}]
         paginator = self.pagination_class()
         paginator.paginate_queryset(data, request)

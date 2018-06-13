@@ -3,14 +3,69 @@ from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
 from . import acl
 
-def can_see_api(_):
+def can_see_api(*_, **__):
     return lambda user: acl.can_view(user)
 
 
-class DefaultACLPermission(permissions.BasePermission):
+def _get_param_in_view(view, param_name):
+    assert hasattr(view, 'get_'+param_name) \
+        or getattr(view, param_name, None) is not None, (
+        'cannot apply {} on a view that does not set '
+        '`.{}` or have a `.get_{}()` method.'
+    ).format(self.__class__.__name__, param_name, param_name)
+
+    if hasattr(view, 'get_'+param_name):
+        param = getattr(view, 'get_'+param_name)()
+        assert param is not None, (
+            '{}.get_{}() returned None'
+        ).format(view.__class__.__name__, param_name)
+        return param
+    return getattr(view, param_name)
+
+
+class ACLPermission(permissions.BasePermission):
+    """
+    Permission subclass for views that requires a specific model-based
+    permission or don't define a queryset
+    """
+
+    def get_required_permissions(self, method, view):
+        """
+        Given a list of models and an HTTP method, return the list
+        of acl functions that the user is required to verify.
+        """
+        perms_map = _get_param_in_view(view, 'perms_map')
+
+        if method not in perms_map:
+            raise exceptions.MethodNotAllowed(method)
+
+        return [can_see_api()] + list(perms_map[method])
+
+    def has_permission(self, request, view):
+        # Workaround to ensure ACLPermissions are not applied
+        # to the root view when using DefaultRouter.
+        if getattr(view, '_ignore_model_permissions', False):
+            return True
+
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        perms = self.get_required_permissions(request.method, view)
+
+        return all(perm(request.user)[0] for perm in perms)
+
+    def has_object_permission(self, request, view, obj):
+        # Should never be called here but documentation
+        # requires to implement this function
+        return False
+
+
+class AutodetectACLPermission(permissions.BasePermission):
     """
     Permission subclass in charge of checking the ACL to determine
-    if a user can access the models
+    if a user can access the models. Autodetect which ACL are required
+    based on a queryset. Requires `.queryset` or `.get_queryset()`
+    to be defined in the view.
     """
     perms_map = {
         'GET': [can_see_api, lambda model: model.can_view_all],
@@ -46,29 +101,17 @@ class DefaultACLPermission(permissions.BasePermission):
         Given an object and an HTTP method, return the list of acl
         functions that the user is required to verify.
         """
-        if method not in self.perms_map:
+        if method not in self.perms_obj_map:
             raise exceptions.MethodNotAllowed(method)
 
-        return [perm(obj) for perm in self.perms_map[method]]
+        return [perm(obj) for perm in self.perms_obj_map[method]]
 
     def _queryset(self, view):
         """
         Return the queryset associated with view and raise an error
         is there is none.
         """
-        assert hasattr(view, 'get_queryset') \
-            or getattr(view, 'queryset', None) is not None, (
-            'Cannot apply {} on a view that does not set '
-            '`.queryset` or have a `.get_queryset()` method.'
-        ).format(self.__class__.__name__)
-
-        if hasattr(view, 'get_queryset'):
-            queryset = view.get_queryset()
-            assert queryset is not None, (
-                '{}.get_queryset() returned None'.format(view.__class__.__name__)
-            )
-            return queryset
-        return view.queryset
+        return _get_param_in_view(view, 'queryset')
 
     def has_permission(self, request, view):
         # Workaround to ensure ACLPermissions are not applied

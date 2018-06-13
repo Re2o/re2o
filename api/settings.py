@@ -33,7 +33,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'api.permissions.DefaultACLPermission',
+        'api.permissions.AutodetectACLPermission',
     ),
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.PageSizedPagination',
     'PAGE_SIZE': 100
