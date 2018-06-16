@@ -239,66 +239,64 @@ class OuverturePortSerializer(NamespacedHMSerializer):
 # PREFERENCES APP
 
 
-# class OptionalUserSerializer(NamespacedHMSerializer):
-#     tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
-# 
-#     class Meta:
-#         model = preferences.OptionalUser
-#         fields = ('tel_mandatory', 'user_solde', 'solde_negatif', 'max_solde',
-#                   'min_online_payement', 'gpg_fingerprint',
-#                   'all_can_create_club', 'self_adhesion', 'shell_default',
-#                   'api_url')
-# 
-# 
-# class OptionalMachineSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.OptionalMachine
-#         fields = ('password_machine', 'max_lambdauser_interfaces',
-#                   'max_lambdauser_aliases', 'ipv6_mode', 'create_machine',
-#                   'ipv6', 'api_url')
-# 
-# 
-# class OptionalTopologieSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.OptionalTopologie
-#         fields = ('radius_general_policy', 'vlan_decision_ok',
-#                   'vlan_decision_no', 'api_url')
-# 
-# 
-# class GeneralOptionSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.GeneralOption
-#         fields = ('general_message', 'search_display_page',
-#                   'pagination_number', 'pagination_large_number',
-#                   'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
-#                   'GTU', 'api_url')
-# 
-# 
-# class ServiceOptionSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.ServiceOption
-#         fields = ('name', 'url', 'description', 'image', 'api_url')
-# 
-# 
-# class AssoOptionSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.AssoOption
-#         fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
-#                   'telephone', 'pseudo', 'utilisateur_asso', 'payement',
-#                   'payement_id', 'payement_pass', 'description', 'api_url')
-# 
-# 
-# class HomeOptionSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.HomeOption
-#         fields = ('facebook_url', 'twitter_url', 'twitter_account_name',
-#                   'api_url')
-# 
-# 
-# class MailMessageOptionSerializer(NamespacedHMSerializer):
-#     class Meta:
-#         model = preferences.MailMessageOption
-#         fields = ('welcome_mail_fr', 'welcome_mail_en', 'api_url')
+class OptionalUserSerializer(NamespacedHMSerializer):
+    tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
+
+    class Meta:
+        model = preferences.OptionalUser
+        fields = ('tel_mandatory', 'user_solde', 'solde_negatif', 'max_solde',
+                  'min_online_payment', 'gpg_fingerprint',
+                  'all_can_create_club', 'self_adhesion', 'shell_default')
+
+
+class OptionalMachineSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.OptionalMachine
+        fields = ('password_machine', 'max_lambdauser_interfaces',
+                  'max_lambdauser_aliases', 'ipv6_mode', 'create_machine',
+                  'ipv6')
+
+
+class OptionalTopologieSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.OptionalTopologie
+        fields = ('radius_general_policy', 'vlan_decision_ok',
+                  'vlan_decision_nok')
+
+
+class GeneralOptionSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.GeneralOption
+        fields = ('general_message', 'search_display_page',
+                  'pagination_number', 'pagination_large_number',
+                  'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
+                  'GTU')
+
+
+class ServiceSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.Service
+        fields = ('name', 'url', 'description', 'image', 'api_url')
+
+
+class AssoOptionSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.AssoOption
+        fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
+                  'telephone', 'pseudo', 'utilisateur_asso', 'payment',
+                  'payment_id', 'payment_pass', 'description')
+
+
+class HomeOptionSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.HomeOption
+        fields = ('facebook_url', 'twitter_url', 'twitter_account_name')
+
+
+class MailMessageOptionSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = preferences.MailMessageOption
+        fields = ('welcome_mail_fr', 'welcome_mail_en')
 
 
 

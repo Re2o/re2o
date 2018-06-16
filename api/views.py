@@ -178,45 +178,75 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # PREFERENCES APP
+# Those views differ a bit because there is only one object
+# to display, so we don't bother with the listing part
 
-# class OptionalUserViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.OptionalUser.objects.all()
-#     serializer_class = serializers.OptionalUserSerializer
-# 
-# 
-# class OptionalMachineViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.OptionalMachine.objects.all()
-#     serializer_class = serializers.OptionalMachineSerializer
-# 
-# 
-# class OptionalTopologieViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.OptionalTopologie.objects.all()
-#     serializer_class = serializers.OptionalTopologieSerializer
-# 
-# 
-# class GeneralOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.GeneralOption.objects.all()
-#     serializer_class = serializers.GeneralOptionSerializer
-# 
-# 
-# class ServiceOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.ServiceOption.objects.all()
-#     serializer_class = serializers.ServiceOptionSerializer
-# 
-# 
-# class AssoOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.AssoOption.objects.all()
-#     serializer_class = serializers.AssoOptionSerializer
-# 
-# 
-# class HomeOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.HomeOption.objects.all()
-#     serializer_class = serializers.HomeOptionSerializer
-# 
-# 
-# class MailMessageOptionViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = preferences.MailMessageOption.objects.all()
-#     serializer_class = serializers.MailMessageOptionSerializer
+class OptionalUserView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalUser.can_view_all]}
+    serializer_class = serializers.OptionalUserSerializer
+
+    def get_object(self):
+        return preferences.OptionalUser.objects.first()
+
+
+class OptionalMachineView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalMachine.can_view_all]}
+    serializer_class = serializers.OptionalMachineSerializer
+
+    def get_object(self):
+        return preferences.OptionalMachine.objects.first()
+
+
+class OptionalTopologieView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalTopologie.can_view_all]}
+    serializer_class = serializers.OptionalTopologieSerializer
+
+    def get_object(self):
+        return preferences.OptionalTopologie.objects.first()
+
+
+class GeneralOptionView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.GeneralOption.can_view_all]}
+    serializer_class = serializers.GeneralOptionSerializer
+
+    def get_object(self):
+        return preferences.GeneralOption.objects.first()
+
+
+class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = preferences.Service.objects.all()
+    serializer_class = serializers.ServiceSerializer
+
+
+class AssoOptionView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.AssoOption.can_view_all]}
+    serializer_class = serializers.AssoOptionSerializer
+
+    def get_object(self):
+        return preferences.AssoOption.objects.first()
+
+
+class HomeOptionView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.HomeOption.can_view_all]}
+    serializer_class = serializers.HomeOptionSerializer
+
+    def get_object(self):
+        return preferences.HomeOption.objects.first()
+
+
+class MailMessageOptionView(generics.RetrieveAPIView):
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.MailMessageOption.can_view_all]}
+    serializer_class = serializers.MailMessageOptionSerializer
+
+    def get_object(self):
+        return preferences.MailMessageOption.objects.first()
 
 
 # TOPOLOGIE APP

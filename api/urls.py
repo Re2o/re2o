@@ -58,14 +58,7 @@ router.register(r'machines/servicelinks', views.ServiceLinkViewSet, base_name='s
 router.register(r'machines/ouvertureportlists', views.OuverturePortListViewSet)
 router.register(r'machines/ouvertureports', views.OuverturePortViewSet)
 # PREFERENCES APP
-#router.register(r'preferences/optionaluser', views.OptionalUserSerializer)
-#router.register(r'preferences/optionalmachine', views.OptionalMachineSerializer)
-#router.register(r'preferences/optionaltopologie', views.OptionalTopologieSerializer)
-#router.register(r'preferences/generaloption', views.GeneralOptionSerializer)
-#router.register(r'preferences/serviceoption', views.ServiceOptionSerializer)
-#router.register(r'preferences/assooption', views.AssoOptionSerializer)
-#router.register(r'preferences/homeoption', views.HomeOptionSerializer)
-#router.register(r'preferences/mailmessageoption', views.MailMessageOptionSerializer)
+router.register(r'preferences/service', views.ServiceViewSet),
 # TOPOLOGIE APP
 router.register(r'topologie/stack', views.StackViewSet)
 router.register(r'topologie/acesspoint', views.AccessPointViewSet)
@@ -91,10 +84,23 @@ router.register(r'services/regen', views.ServiceRegenViewSet, base_name='service
 
 
 urlpatterns = [
+    # VIEWSETS
     url(r'^', include(router.urls)),
+    # PREFERENCES APP
+    url(r'^preferences/optionaluser', views.OptionalUserView.as_view()),
+    url(r'^preferences/optionalmachine', views.OptionalMachineView.as_view()),
+    url(r'^preferences/optionaltopologie', views.OptionalTopologieView.as_view()),
+    url(r'^preferences/generaloption', views.GeneralOptionView.as_view()),
+    url(r'^preferences/assooption', views.AssoOptionView.as_view()),
+    url(r'^preferences/homeoption', views.HomeOptionView.as_view()),
+    url(r'^preferences/mailmessageoption', views.MailMessageOptionView.as_view()),
+    # DHCP
     url(r'^dhcp/hostmacip', views.HostMacIpView.as_view()),
+    # DNS
     url(r'^dns/zones', views.DNSZonesView.as_view()),
+    # MAILING
     url(r'^mailing/standard', views.StandardMailingView.as_view()),
     url(r'^mailing/club', views.ClubMailingView.as_view()),
+    # TOKEN-AUTH
     url(r'^token-auth', views.ObtainExpiringAuthToken.as_view())
 ]
