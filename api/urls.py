@@ -25,82 +25,80 @@ Urls de l'api, pointant vers les fonctions de views
 from __future__ import unicode_literals
 
 from django.conf.urls import url, include
-from rest_framework.routers import DefaultRouter
 
+from .routers import AllViewsRouter
 from . import views
 
-router = DefaultRouter()
+router = AllViewsRouter()
 # COTISATIONS APP
-router.register(r'cotisations/factures', views.FactureViewSet)
-router.register(r'cotisations/ventes', views.VenteViewSet)
-router.register(r'cotisations/articles', views.ArticleViewSet)
-router.register(r'cotisations/banques', views.BanqueViewSet)
-router.register(r'cotisations/paiements', views.PaiementViewSet)
-router.register(r'cotisations/cotisations', views.CotisationViewSet)
+router.register_viewset(r'cotisations/factures', views.FactureViewSet)
+router.register_viewset(r'cotisations/ventes', views.VenteViewSet)
+router.register_viewset(r'cotisations/articles', views.ArticleViewSet)
+router.register_viewset(r'cotisations/banques', views.BanqueViewSet)
+router.register_viewset(r'cotisations/paiements', views.PaiementViewSet)
+router.register_viewset(r'cotisations/cotisations', views.CotisationViewSet)
 # MACHINES APP
-router.register(r'machines/machines', views.MachineViewSet)
-router.register(r'machines/machinetypes', views.MachineTypeViewSet)
-router.register(r'machines/iptypes', views.IpTypeViewSet)
-router.register(r'machines/vlans', views.VlanViewSet)
-router.register(r'machines/nas', views.NasViewSet)
-router.register(r'machines/soa', views.SOAViewSet)
-router.register(r'machines/extensions', views.ExtensionViewSet)
-router.register(r'machines/mx', views.MxViewSet)
-router.register(r'machines/ns', views.NsViewSet)
-router.register(r'machines/txt', views.TxtViewSet)
-router.register(r'machines/srv', views.SrvViewSet)
-router.register(r'machines/interfaces', views.InterfaceViewSet)
-router.register(r'machines/ipv6lists', views.Ipv6ListViewSet)
-router.register(r'machines/domains', views.DomainViewSet)
-router.register(r'machines/iplists', views.IpListViewSet)
-router.register(r'machines/services', views.ServiceViewSet)
-router.register(r'machines/servicelinks', views.ServiceLinkViewSet, base_name='servicelink')
-router.register(r'machines/ouvertureportlists', views.OuverturePortListViewSet)
-router.register(r'machines/ouvertureports', views.OuverturePortViewSet)
+router.register_viewset(r'machines/machines', views.MachineViewSet)
+router.register_viewset(r'machines/machinetypes', views.MachineTypeViewSet)
+router.register_viewset(r'machines/iptypes', views.IpTypeViewSet)
+router.register_viewset(r'machines/vlans', views.VlanViewSet)
+router.register_viewset(r'machines/nas', views.NasViewSet)
+router.register_viewset(r'machines/soa', views.SOAViewSet)
+router.register_viewset(r'machines/extensions', views.ExtensionViewSet)
+router.register_viewset(r'machines/mx', views.MxViewSet)
+router.register_viewset(r'machines/ns', views.NsViewSet)
+router.register_viewset(r'machines/txt', views.TxtViewSet)
+router.register_viewset(r'machines/srv', views.SrvViewSet)
+router.register_viewset(r'machines/interfaces', views.InterfaceViewSet)
+router.register_viewset(r'machines/ipv6lists', views.Ipv6ListViewSet)
+router.register_viewset(r'machines/domains', views.DomainViewSet)
+router.register_viewset(r'machines/iplists', views.IpListViewSet)
+router.register_viewset(r'machines/services', views.ServiceViewSet)
+router.register_viewset(r'machines/servicelinks', views.ServiceLinkViewSet, base_name='servicelink')
+router.register_viewset(r'machines/ouvertureportlists', views.OuverturePortListViewSet)
+router.register_viewset(r'machines/ouvertureports', views.OuverturePortViewSet)
 # PREFERENCES APP
-router.register(r'preferences/service', views.ServiceViewSet),
+router.register_viewset(r'preferences/service', views.ServiceViewSet),
+router.register_view(r'preferences/optionaluser', views.OptionalUserView),
+router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
+router.register_view(r'preferences/optionaltopologie', views.OptionalTopologieView),
+router.register_view(r'preferences/generaloption', views.GeneralOptionView),
+router.register_view(r'preferences/assooption', views.AssoOptionView),
+router.register_view(r'preferences/homeoption', views.HomeOptionView),
+router.register_view(r'preferences/mailmessageoption', views.MailMessageOptionView),
 # TOPOLOGIE APP
-router.register(r'topologie/stack', views.StackViewSet)
-router.register(r'topologie/acesspoint', views.AccessPointViewSet)
-router.register(r'topologie/switch', views.SwitchViewSet)
-router.register(r'topologie/modelswitch', views.ModelSwitchViewSet)
-router.register(r'topologie/constructorswitch', views.ConstructorSwitchViewSet)
-router.register(r'topologie/switchbay', views.SwitchBayViewSet)
-router.register(r'topologie/building', views.BuildingViewSet)
-router.register(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
-router.register(r'topologie/room', views.RoomViewSet)
+router.register_viewset(r'topologie/stack', views.StackViewSet)
+router.register_viewset(r'topologie/acesspoint', views.AccessPointViewSet)
+router.register_viewset(r'topologie/switch', views.SwitchViewSet)
+router.register_viewset(r'topologie/modelswitch', views.ModelSwitchViewSet)
+router.register_viewset(r'topologie/constructorswitch', views.ConstructorSwitchViewSet)
+router.register_viewset(r'topologie/switchbay', views.SwitchBayViewSet)
+router.register_viewset(r'topologie/building', views.BuildingViewSet)
+router.register_viewset(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
+router.register_viewset(r'topologie/room', views.RoomViewSet)
 # USERS APP
-router.register(r'users/users', views.UserViewSet)
-router.register(r'users/clubs', views.ClubViewSet)
-router.register(r'users/adherents', views.AdherentViewSet)
-router.register(r'users/serviceusers', views.ServiceUserViewSet)
-router.register(r'users/schools', views.SchoolViewSet)
-router.register(r'users/listrights', views.ListRightViewSet)
-router.register(r'users/shells', views.ShellViewSet, base_name='shell')
-router.register(r'users/bans', views.BanViewSet)
-router.register(r'users/whitelists', views.WhitelistViewSet)
+router.register_viewset(r'users/users', views.UserViewSet)
+router.register_viewset(r'users/clubs', views.ClubViewSet)
+router.register_viewset(r'users/adherents', views.AdherentViewSet)
+router.register_viewset(r'users/serviceusers', views.ServiceUserViewSet)
+router.register_viewset(r'users/schools', views.SchoolViewSet)
+router.register_viewset(r'users/listrights', views.ListRightViewSet)
+router.register_viewset(r'users/shells', views.ShellViewSet, base_name='shell')
+router.register_viewset(r'users/bans', views.BanViewSet)
+router.register_viewset(r'users/whitelists', views.WhitelistViewSet)
 # SERVICES REGEN
-router.register(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
+router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
+# DHCP
+router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
+# DNS
+router.register_view(r'dns/zones', views.DNSZonesView),
+# MAILING
+router.register_view(r'mailing/standard', views.StandardMailingView),
+router.register_view(r'mailing/club', views.ClubMailingView),
+# TOKEN-AUTH
+router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
 
 
 urlpatterns = [
-    # VIEWSETS
     url(r'^', include(router.urls)),
-    # PREFERENCES APP
-    url(r'^preferences/optionaluser', views.OptionalUserView.as_view()),
-    url(r'^preferences/optionalmachine', views.OptionalMachineView.as_view()),
-    url(r'^preferences/optionaltopologie', views.OptionalTopologieView.as_view()),
-    url(r'^preferences/generaloption', views.GeneralOptionView.as_view()),
-    url(r'^preferences/assooption', views.AssoOptionView.as_view()),
-    url(r'^preferences/homeoption', views.HomeOptionView.as_view()),
-    url(r'^preferences/mailmessageoption', views.MailMessageOptionView.as_view()),
-    # DHCP
-    url(r'^dhcp/hostmacip', views.HostMacIpView.as_view()),
-    # DNS
-    url(r'^dns/zones', views.DNSZonesView.as_view()),
-    # MAILING
-    url(r'^mailing/standard', views.StandardMailingView.as_view()),
-    url(r'^mailing/club', views.ClubMailingView.as_view()),
-    # TOKEN-AUTH
-    url(r'^token-auth', views.ObtainExpiringAuthToken.as_view())
 ]
