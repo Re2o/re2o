@@ -44,7 +44,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <th>IP</th>
         <th>Actions</th>
     <tbody>
-    {% for machine in machines_list %}
+        {% for machine in machines_list %}
         <tr class="info">
             <td colspan="4">
                 <b>{{ machine.name|default:'<i>Pas de nom</i>' }}</b> <i class="fa-angle-right"></i>
@@ -53,26 +53,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </a>
             </td>
             <td class="text-right">
-             {% can_create Interface machine.id %}
+                {% can_create Interface machine.id %}
                 {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc='Ajouter une interface' %}
-             {% acl_end %}
+                {% acl_end %}
                 {% include 'buttons/history.html' with href='machines:history' name='machine' id=machine.id %}
-	     {% can_delete machine %}
+                {% can_delete machine %}
                 {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
-	     {% acl_end %}
+                {% acl_end %}
             </td>
         </tr>
         {% for interface in machine.interface_set.all %}
         <tr>
             <td>
-            {% if interface.domain.related_domain.all %}
-	        {{ interface.domain }}
-		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
+                {% if interface.domain.related_domain.all %}
+                {{ interface.domain }}
+                <button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDomain_{{interface.id}}" aria-expanded="true" aria-controls="collapseDomain_{{interface.id}}">
                     Afficher les alias
                 </button>
-            {% else %}
+                {% else %}
                 {{ interface.domain }}
-            {% endif %}
+                {% endif %}
             </td>
             <td>
                 {{ interface.type }}
@@ -85,50 +85,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <br>
                 {% if ipv6_enabled and interface.ipv6 != 'None'%}
                 <b>IPv6</b>
-            		<button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseIpv6_{{interface.id}}" aria-expanded="true" aria-controls="collapseIpv6_{{interface.id}}">
-                        Afficher l'IPV6
-                        </button>
+                <button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseIpv6_{{interface.id}}" aria-expanded="true" aria-controls="collapseIpv6_{{interface.id}}">
+                    Afficher l'IPV6
+                </button>
                 {% endif %}
             </td>
             <td class="text-right">
-                <div class="dropdown" style="width: 128px;">
-                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="fa fa-edit"></i> <span class="caret"></span>
-                    </button>
+                <div style="width: 128px;">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-edit"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu pull-right" aria-labelledby="editioninterface">
+                            {% can_edit interface %}
+                            <li>
+                                <a href="{% url 'machines:edit-interface' interface.id %}">
+                                    <i class="fa fa-edit"></i> Editer
+                                </a>
+                            </li>
+                            {% acl_end %}
+                            {% can_create Domain interface.id %}
+                            <li>
+                                <a href="{% url 'machines:index-alias' interface.id %}">
+                                    <i class="fa fa-edit"></i> Gerer les alias
+                                </a>
+                            </li>
+                            {% acl_end %}
+                            {% can_create Ipv6List interface.id %}
+                            <li>
+                                <a href="{% url 'machines:index-ipv6' interface.id %}">
+                                    <i class="fa fa-edit"></i> Gerer les ipv6
+                                </a>
+                            </li>
+                            {% acl_end %}
+                            {% can_create OuverturePortList %}
+                            <li>
+                                <a href="{% url 'machines:port-config' interface.id%}">
+                                    <i class="fa fa-edit"></i> Gerer la configuration des ports
+                                </a>
+                            </li>
+                            {% acl_end %}
+                        </ul>
+                    </div>
                     {% include 'buttons/history.html' with href='machines:history' name='interface' id=interface.id %}
-		    {% can_delete interface %}
+                    {% can_delete interface %}
                     {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
-		    {% acl_end %}
-		    <ul class="dropdown-menu pull-right" aria-labelledby="editioninterface">
-			{% can_edit interface %}
-			<li>
-                            <a href="{% url 'machines:edit-interface' interface.id %}">
-                                <i class="fa fa-edit"></i> Editer
-                            </a>
-                        </li>
-		        {% acl_end %}
-			{% can_create Domain interface.id %}
-                        <li>
-                            <a href="{% url 'machines:index-alias' interface.id %}">
-                                <i class="fa fa-edit"></i> Gerer les alias
-                            </a>
-                        </li>
-			{% acl_end %}
-			{% can_create Ipv6List interface.id %}
-                        <li>
-                            <a href="{% url 'machines:index-ipv6' interface.id %}">
-                                <i class="fa fa-edit"></i> Gerer les ipv6
-                            </a>
-                        </li>
-			{% acl_end %}
-			{% can_create OuverturePortList %}
-                        <li>
-                            <a href="{% url 'machines:port-config' interface.id%}">
-                                <i class="fa fa-edit"></i> Gerer la configuration des ports
-                            </a>
-                        </li>
-			{% acl_end %}
-                    </ul>
+                    {% acl_end %}
                 </div>
             </td>
         </tr>
@@ -136,22 +138,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if ipv6_enabled and interface.ipv6 != 'None'%}
         <tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
-		 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
+                 <div class="collapse in" id="collapseIpv6_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
-		    {% for ipv6 in interface.ipv6.all %}
+                    {% for ipv6 in interface.ipv6.all %}
                         <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
-		        {{ipv6}}
-			</li>
-		        {% endfor %}
-		    </ul>
+                        {{ipv6}}
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </td>
         <tr>
         {% endif %}
 
 
-	{% if interface.domain.related_domain.all %}
-	<tr>
+        {% if interface.domain.related_domain.all %}
+        <tr>
             <td colspan=5 style="border-top: none; padding: 1px;">
                 <div class="collapse in" id="collapseDomain_{{interface.id}}">
                     <ul class="list-group" style="margin-bottom: 0px;">
@@ -182,13 +184,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 $("#machines_table").ready( function() {
     var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
     for (var i=0 ; i<alias_div.length ; i++) {
-	alias_div[i].collapse('hide');
+        alias_div[i].collapse('hide');
     }
 } );
 $("#machines_table").ready( function() {
     var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{interface.id}}"), {% endif %}{% endfor %}{% endfor %}];
     for (var i=0 ; i<ipv6_div.length ; i++) {
-	ipv6_div[i].collapse('hide');
+        ipv6_div[i].collapse('hide');
     }
 } );
 </script>
