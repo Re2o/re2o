@@ -115,6 +115,19 @@ footer a {
     }
 
 /* For tables with long text in cells */
+.panel-heading.dashboard{
+	text-align: center;
+}
+
+.panel-body.dashboard{
+	text-align: center;
+	height: 60px;
+	vertical-align:middle;
+}
+#grad_red {
+	background: red; /* For browsers that do not support gradients */
+	background: linear-gradient(#ff6363, #fefefe); /* Standard syntax (must be last) */
+}
 
 .table.long_text{
 	table-layout: fixed;
