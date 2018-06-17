@@ -61,11 +61,11 @@ router.register_viewset(r'machines/servicelinks', views.ServiceLinkViewSet, base
 router.register_viewset(r'machines/ouvertureportlists', views.OuverturePortListViewSet)
 router.register_viewset(r'machines/ouvertureports', views.OuverturePortViewSet)
 # PREFERENCES
-router.register_viewset(r'preferences/service', views.ServiceViewSet),
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
 router.register_view(r'preferences/optionaltopologie', views.OptionalTopologieView),
 router.register_view(r'preferences/generaloption', views.GeneralOptionView),
+router.register_viewset(r'preferences/service', views.ServiceViewSet),
 router.register_view(r'preferences/assooption', views.AssoOptionView),
 router.register_view(r'preferences/homeoption', views.HomeOptionView),
 router.register_view(r'preferences/mailmessageoption', views.MailMessageOptionView),

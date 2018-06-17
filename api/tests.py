@@ -101,6 +101,15 @@ class APIEndpointsTestCase(APITestCase):
 #        '/api/machines/txt/<pk>/',
         '/api/machines/vlans/',
 #        '/api/machines/vlans/<pk>/',
+        '/api/preferences/optionaluser/',
+        '/api/preferences/optionalmachine/',
+        '/api/preferences/optionaltopologie/',
+        '/api/preferences/generaloption/',
+        '/api/preferences/service/',
+#        '/api/preferences/service/<pk>/',
+        '/api/preferences/assooption/',
+        '/api/preferences/homeoption/',
+        '/api/preferences/mailmessageoption/',
         '/api/topologie/acesspoint/',
 #        '/api/topologie/acesspoint/<pk>/',
         '/api/topologie/building/',
@@ -137,6 +146,11 @@ class APIEndpointsTestCase(APITestCase):
 #        '/api/users/users/<pk>/',
         '/api/users/whitelists/',
 #        '/api/users/whitelists/<pk>/',
+        '/api/dns/zones/',
+        '/api/dhcp/hostmacip/',
+        '/api/mailing/standard',
+        '/api/mailing/club',
+        '/api/services/regen/',
     ]
     
     stduser = None
@@ -342,6 +356,7 @@ class APIPaginationTestCase(APITestCase):
         '/api/machines/srv/',
         '/api/machines/txt/',
         '/api/machines/vlans/',
+        '/api/preferences/service/',
         '/api/topologie/acesspoint/',
         '/api/topologie/building/',
         '/api/topologie/constructorswitch/',
@@ -360,6 +375,11 @@ class APIPaginationTestCase(APITestCase):
         '/api/users/shells/',
         '/api/users/users/',
         '/api/users/whitelists/',
+        '/api/dns/zones/',
+        '/api/dhcp/hostmacip/',
+        '/api/mailing/standard',
+        '/api/mailing/club',
+        '/api/services/regen/',
     ]
     superuser = None
 
