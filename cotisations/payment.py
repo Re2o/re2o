@@ -136,11 +136,11 @@ def comnpay(facture, request):
         'action': 'https://secure.homologation.comnpay.com',
         'method': 'POST',
         'content': p.buildSecretHTML(
-            "Rechargement du solde",
-            facture.prix(),
+            "Paiement de la facture "+str(facture.id),
+            facture.prix_total(),
             idTransaction=str(facture.id)
         ),
-        'amount': facture.prix,
+        'amount': facture.prix_total(),
     }
     return r
 
