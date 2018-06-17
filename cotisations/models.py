@@ -518,6 +518,10 @@ class Article(RevMixin, AclMixin, models.Model):
         max_length=255,
         verbose_name=_l("Type of cotisation")
     )
+    allow_self_subscription = models.BooleanField(
+        default=False,
+        verbose_name=_l("Is available for self subscription")
+    )
 
     unique_together = ('name', 'type_user')
 
