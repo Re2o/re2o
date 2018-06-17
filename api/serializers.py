@@ -2,7 +2,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018 Mael Kervella
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""
-Serializers for the API app
+"""Defines the serializers of the API
 """
 
 from rest_framework import serializers
@@ -31,12 +30,15 @@ import topologie.models as topologie
 import users.models as users
 
 
+# The namespace used for the API. It must match the namespace used in the
+# urlpatterns to include the API URLs.
 API_NAMESPACE = 'api'
 
 
 class NamespacedHRField(serializers.HyperlinkedRelatedField):
-    """ A HyperlinkedRelatedField subclass to automatically prefix
-    view names with a namespace """
+    """A `rest_framework.serializers.HyperlinkedRelatedField` subclass to
+    automatically prefix view names with the API namespace.
+    """
     def __init__(self, view_name=None, **kwargs):
         if view_name is not None:
             view_name = '%s:%s' % (API_NAMESPACE, view_name)
@@ -44,8 +46,9 @@ class NamespacedHRField(serializers.HyperlinkedRelatedField):
 
 
 class NamespacedHIField(serializers.HyperlinkedIdentityField):
-    """ A HyperlinkedIdentityField subclass to automatically prefix
-    view names with a namespace """
+    """A `rest_framework.serializers.HyperlinkedIdentityField` subclass to
+    automatically prefix view names with teh API namespace.
+    """
     def __init__(self, view_name=None, **kwargs):
         if view_name is not None:
             view_name = '%s:%s' % (API_NAMESPACE, view_name)
@@ -53,16 +56,19 @@ class NamespacedHIField(serializers.HyperlinkedIdentityField):
 
 
 class NamespacedHMSerializer(serializers.HyperlinkedModelSerializer):
-    """ A HyperlinkedModelSerializer subclass to use `NamespacedHRField` as
-    field and automatically prefix view names with a namespace """
+    """A `rest_framework.serializers.HyperlinkedModelSerializer` subclass to
+    automatically prefix view names with the API namespace.
+    """
     serializer_related_field = NamespacedHRField
     serializer_url_field = NamespacedHIField
 
 
-# COTISATIONS APP
+# COTISATIONS
 
 
 class FactureSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Facture` objects.
+    """
     class Meta:
         model = cotisations.Facture
         fields = ('user', 'paiement', 'banque', 'cheque', 'date', 'valid',
@@ -70,6 +76,8 @@ class FactureSerializer(NamespacedHMSerializer):
 
 
 class VenteSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Vente` objects.
+    """
     class Meta:
         model = cotisations.Vente
         fields = ('facture', 'number', 'name', 'prix', 'duration',
@@ -77,6 +85,8 @@ class VenteSerializer(NamespacedHMSerializer):
 
 
 class ArticleSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Article` objects.
+    """
     class Meta:
         model = cotisations.Article
         fields = ('name', 'prix', 'duration', 'type_user',
@@ -84,40 +94,52 @@ class ArticleSerializer(NamespacedHMSerializer):
 
 
 class BanqueSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Banque` objects.
+    """
     class Meta:
         model = cotisations.Banque
         fields = ('name', 'api_url')
 
 
 class PaiementSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Paiement` objects.
+    """
     class Meta:
         model = cotisations.Paiement
         fields = ('moyen', 'type_paiement', 'api_url')
 
 
 class CotisationSerializer(NamespacedHMSerializer):
+    """Serialize `cotisations.models.Cotisation` objects.
+    """
     class Meta:
         model = cotisations.Cotisation
         fields = ('vente', 'type_cotisation', 'date_start', 'date_end',
                   'api_url')
 
 
-# MACHINES APP
+# MACHINES
 
 
 class MachineSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Machine` objects.
+    """
     class Meta:
         model = machines.Machine
         fields = ('user', 'name', 'active', 'api_url')
 
 
 class MachineTypeSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.MachineType` objects.
+    """
     class Meta:
         model = machines.MachineType
         fields = ('type', 'ip_type', 'api_url')
 
 
 class IpTypeSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.IpType` objects.
+    """
     class Meta:
         model = machines.IpType
         fields = ('type', 'extension', 'need_infra', 'domaine_ip_start',
@@ -126,12 +148,16 @@ class IpTypeSerializer(NamespacedHMSerializer):
 
 
 class VlanSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Vlan` objects.
+    """
     class Meta:
         model = machines.Vlan
         fields = ('vlan_id', 'name', 'comment', 'api_url')
 
 
 class NasSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Nas` objects.
+    """
     class Meta:
         model = machines.Nas
         fields = ('name', 'nas_type', 'machine_type', 'port_access_mode',
@@ -139,6 +165,8 @@ class NasSerializer(NamespacedHMSerializer):
 
 
 class SOASerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.SOA` objects.
+    """
     class Meta:
         model = machines.SOA
         fields = ('name', 'mail', 'refresh', 'retry', 'expire', 'ttl',
@@ -146,6 +174,8 @@ class SOASerializer(NamespacedHMSerializer):
 
 
 class ExtensionSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Extension` objects.
+    """
     class Meta:
         model = machines.Extension
         fields = ('name', 'need_infra', 'origin', 'origin_v6', 'soa',
@@ -153,24 +183,32 @@ class ExtensionSerializer(NamespacedHMSerializer):
 
 
 class MxSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Mx` objects.
+    """
     class Meta:
         model = machines.Mx
         fields = ('zone', 'priority', 'name', 'api_url')
 
 
 class NsSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Ns` objects.
+    """
     class Meta:
         model = machines.Ns
         fields = ('zone', 'ns', 'api_url')
 
 
 class TxtSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Txt` objects.
+    """
     class Meta:
         model = machines.Txt
         fields = ('zone', 'field1', 'field2', 'api_url')
 
 
 class SrvSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Srv` objects.
+    """
     class Meta:
         model = machines.Srv
         fields = ('service', 'protocole', 'extension', 'ttl', 'priority',
@@ -178,6 +216,8 @@ class SrvSerializer(NamespacedHMSerializer):
 
 
 class InterfaceSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Interface` objects.
+    """
     mac_address = serializers.CharField()
     active = serializers.BooleanField(source='is_active')
 
@@ -188,12 +228,16 @@ class InterfaceSerializer(NamespacedHMSerializer):
 
 
 class Ipv6ListSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Ipv6List` objects.
+    """
     class Meta:
         model = machines.Ipv6List
         fields = ('ipv6', 'interface', 'slaac_ip', 'api_url')
 
 
 class DomainSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Domain` objects.
+    """
     class Meta:
         model = machines.Domain
         fields = ('interface_parent', 'name', 'extension', 'cname',
@@ -201,12 +245,16 @@ class DomainSerializer(NamespacedHMSerializer):
 
 
 class IpListSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.IpList` objects.
+    """
     class Meta:
         model = machines.IpList
         fields = ('ipv4', 'ip_type', 'need_infra', 'api_url')
 
 
 class ServiceSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Service` objects.
+    """
     class Meta:
         model = machines.Service
         fields = ('service_type', 'min_time_regen', 'regular_time_regen',
@@ -214,6 +262,8 @@ class ServiceSerializer(NamespacedHMSerializer):
 
 
 class ServiceLinkSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Service_link` objects.
+    """
     class Meta:
         model = machines.Service_link
         fields = ('service', 'server', 'last_regen', 'asked_regen',
@@ -224,6 +274,8 @@ class ServiceLinkSerializer(NamespacedHMSerializer):
 
 
 class OuverturePortListSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePortList` objects.
+    """
     class Meta:
         model = machines.OuverturePortList
         fields = ('name', 'tcp_ports_in', 'udp_ports_in', 'tcp_ports_out',
@@ -231,15 +283,19 @@ class OuverturePortListSerializer(NamespacedHMSerializer):
 
 
 class OuverturePortSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
     class Meta:
         model = machines.OuverturePort
         fields = ('begin', 'end', 'port_list', 'protocole', 'io', 'api_url')
 
 
-# PREFERENCES APP
+# PREFERENCES
 
 
 class OptionalUserSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.OptionalUser` objects.
+    """
     tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
 
     class Meta:
@@ -250,6 +306,8 @@ class OptionalUserSerializer(NamespacedHMSerializer):
 
 
 class OptionalMachineSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.OptionalMachine` objects.
+    """
     class Meta:
         model = preferences.OptionalMachine
         fields = ('password_machine', 'max_lambdauser_interfaces',
@@ -258,6 +316,8 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 
 
 class OptionalTopologieSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.OptionalTopologie` objects.
+    """
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
@@ -265,6 +325,8 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.GeneralOption` objects.
+    """
     class Meta:
         model = preferences.GeneralOption
         fields = ('general_message', 'search_display_page',
@@ -274,12 +336,16 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
 
 
 class ServiceSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.Service` objects.
+    """
     class Meta:
         model = preferences.Service
         fields = ('name', 'url', 'description', 'image', 'api_url')
 
 
 class AssoOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.AssoOption` objects.
+    """
     class Meta:
         model = preferences.AssoOption
         fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
@@ -288,22 +354,28 @@ class AssoOptionSerializer(NamespacedHMSerializer):
 
 
 class HomeOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.HomeOption` objects.
+    """
     class Meta:
         model = preferences.HomeOption
         fields = ('facebook_url', 'twitter_url', 'twitter_account_name')
 
 
 class MailMessageOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.MailMessageOption` objects.
+    """
     class Meta:
         model = preferences.MailMessageOption
         fields = ('welcome_mail_fr', 'welcome_mail_en')
 
 
 
-# TOPOLOGIE APP
+# TOPOLOGIE
 
 
 class StackSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Stack` objects
+    """
     class Meta:
         model = topologie.Stack
         fields = ('name', 'stack_id', 'details', 'member_id_min',
@@ -311,12 +383,16 @@ class StackSerializer(NamespacedHMSerializer):
 
 
 class AccessPointSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.AccessPoint` objects
+    """
     class Meta:
         model = topologie.AccessPoint
         fields = ('user', 'name', 'active', 'location', 'api_url')
 
 
 class SwitchSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Switch` objects
+    """
     port_amount = serializers.IntegerField(source='number')
     class Meta:
         model = topologie.Switch
@@ -325,30 +401,40 @@ class SwitchSerializer(NamespacedHMSerializer):
 
 
 class ModelSwitchSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.ModelSwitch` objects
+    """
     class Meta:
         model = topologie.ModelSwitch
         fields = ('reference', 'constructor', 'api_url')
 
 
 class ConstructorSwitchSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.ConstructorSwitch` objects
+    """
     class Meta:
         model = topologie.ConstructorSwitch
         fields = ('name', 'api_url')
 
 
 class SwitchBaySerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.SwitchBay` objects
+    """
     class Meta:
         model = topologie.SwitchBay
         fields = ('name', 'building', 'info', 'api_url')
 
 
 class BuildingSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Building` objects
+    """
     class Meta:
         model = topologie.Building
         fields = ('name', 'api_url')
 
 
 class SwitchPortSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Port` objects
+    """
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
@@ -360,15 +446,19 @@ class SwitchPortSerializer(NamespacedHMSerializer):
 
 
 class RoomSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Room` objects
+    """
     class Meta:
         model = topologie.Room
         fields = ('name', 'details', 'api_url')
 
 
-# USERS APP
+# USERS
 
 
 class UserSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.User` objects.
+    """
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
 
@@ -383,6 +473,8 @@ class UserSerializer(NamespacedHMSerializer):
 
 
 class ClubSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.Club` objects.
+    """
     name = serializers.CharField(source='surname')
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
@@ -399,6 +491,8 @@ class ClubSerializer(NamespacedHMSerializer):
 
 
 class AdherentSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.Adherent` objects.
+    """
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
 
@@ -413,24 +507,32 @@ class AdherentSerializer(NamespacedHMSerializer):
 
 
 class ServiceUserSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.ServiceUser` objects.
+    """
     class Meta:
         model = users.ServiceUser
         fields = ('pseudo', 'access_group', 'comment', 'api_url')
 
 
 class SchoolSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.School` objects.
+    """
     class Meta:
         model = users.School
         fields = ('name', 'api_url')
 
 
 class ListRightSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.ListRight` objects.
+    """
     class Meta:
         model = users.ListRight
         fields = ('unix_name', 'gid', 'critical', 'details', 'api_url')
 
 
 class ShellSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.ListShell` objects.
+    """
     class Meta:
         model = users.ListShell
         fields = ('shell', 'api_url')
@@ -440,6 +542,8 @@ class ShellSerializer(NamespacedHMSerializer):
 
 
 class BanSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.Ban` objects.
+    """
     active = serializers.BooleanField(source='is_active')
 
     class Meta:
@@ -449,6 +553,8 @@ class BanSerializer(NamespacedHMSerializer):
 
 
 class WhitelistSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.Whitelist` objects.
+    """
     active = serializers.BooleanField(source='is_active')
 
     class Meta:
@@ -456,10 +562,12 @@ class WhitelistSerializer(NamespacedHMSerializer):
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
 
 
-# Services
+# SERVICE REGEN
 
 
 class ServiceRegenSerializer(NamespacedHMSerializer):
+    """Serialize the data about the services to regen.
+    """
     hostname = serializers.CharField(source='server.domain.name', read_only=True)
     service_name = serializers.CharField(source='service.service_type', read_only=True)
     need_regen = serializers.BooleanField()
@@ -476,6 +584,9 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
 
 
 class HostMacIpSerializer(serializers.ModelSerializer):
+    """Serialize the data about the hostname-ipv4-mac address association
+    to build the DHCP lease files.
+    """
     hostname = serializers.CharField(source='domain.name', read_only=True)
     extension = serializers.CharField(source='domain.extension.name', read_only=True)
     mac_address = serializers.CharField(read_only=True)
@@ -490,22 +601,34 @@ class HostMacIpSerializer(serializers.ModelSerializer):
 
 
 class SOARecordSerializer(SOASerializer):
+    """Serialize `machines.models.SOA` objects with the data needed to
+    generate a SOA DNS record.
+    """
     class Meta:
         model = machines.SOA
         fields = ('name', 'mail', 'refresh', 'retry', 'expire', 'ttl')
 
 
 class OriginV4RecordSerializer(IpListSerializer):
+    """Serialize `machines.models.IpList` objects with the data needed to
+    generate an IPv4 Origin DNS record.
+    """
     class Meta(IpListSerializer.Meta):
         fields = ('ipv4',)
 
 
 class OriginV6RecordSerializer(Ipv6ListSerializer):
+    """Serialize `machines.models.Ipv6List` objects with the data needed to
+    generate an IPv6 Origin DNS record.
+    """
     class Meta(Ipv6ListSerializer.Meta):
         fields = ('ipv6',)
 
 
 class NSRecordSerializer(NsSerializer):
+    """Serialize `machines.models.Ns` objects with the data needed to
+    generate a NS DNS record.
+    """
     target = serializers.CharField(source='ns.name', read_only=True)
 
     class Meta(NsSerializer.Meta):
@@ -513,6 +636,9 @@ class NSRecordSerializer(NsSerializer):
 
 
 class MXRecordSerializer(MxSerializer):
+    """Serialize `machines.models.Mx` objects with the data needed to
+    generate a MX DNS record.
+    """
     target = serializers.CharField(source='name.name', read_only=True)
 
     class Meta(MxSerializer.Meta):
@@ -520,11 +646,17 @@ class MXRecordSerializer(MxSerializer):
 
 
 class TXTRecordSerializer(TxtSerializer):
+    """Serialize `machines.models.Txt` objects with the data needed to
+    generate a TXT DNS record.
+    """
     class Meta(TxtSerializer.Meta):
         fields = ('field1', 'field2')
 
 
 class SRVRecordSerializer(SrvSerializer):
+    """Serialize `machines.models.Srv` objects with the data needed to
+    generate a SRV DNS record.
+    """
     target = serializers.CharField(source='target.name', read_only=True)
 
     class Meta(SrvSerializer.Meta):
@@ -532,6 +664,9 @@ class SRVRecordSerializer(SrvSerializer):
 
 
 class ARecordSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Interface` objects with the data needed to
+    generate a A DNS record.
+    """
     hostname = serializers.CharField(source='domain.name', read_only=True)
     ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
 
@@ -541,6 +676,9 @@ class ARecordSerializer(serializers.ModelSerializer):
 
 
 class AAAARecordSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Interface` objects with the data needed to
+    generate a AAAA DNS record.
+    """
     hostname = serializers.CharField(source='domain.name', read_only=True)
     ipv6 = Ipv6ListSerializer(many=True, read_only=True)
 
@@ -550,6 +688,9 @@ class AAAARecordSerializer(serializers.ModelSerializer):
 
 
 class CNAMERecordSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Domain` objects with the data needed to
+    generate a CNAME DNS record.
+    """
     alias = serializers.CharField(source='cname.name', read_only=True)
     hostname = serializers.CharField(source='name', read_only=True)
 
@@ -559,6 +700,8 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):
+    """Serialize the data about DNS Zones.
+    """
     soa = SOARecordSerializer()
     ns_records = NSRecordSerializer(many=True, source='ns_set')
     originv4 = OriginV4RecordSerializer(source='origin')
@@ -577,14 +720,18 @@ class DNSZonesSerializer(serializers.ModelSerializer):
                   'aaaa_records', 'cname_records')
 
 
-# Mailing
+# MAILING
 
 
 class MailingMemberSerializer(UserSerializer):
+    """Serialize the data about a mailing member.
+    """
     class Meta(UserSerializer.Meta):
         fields = ('name', 'pseudo', 'email')
 
 class MailingSerializer(ClubSerializer):
+    """Serialize the data about a mailing.
+    """
     members = MailingMemberSerializer(many=True)
     admins = MailingMemberSerializer(source='administrators', many=True)
 

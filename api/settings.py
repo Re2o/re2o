@@ -1,11 +1,8 @@
-# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""api.settings
-Django settings specific to the API.
+"""Settings specific to the API.
 """
 
 # RestFramework config for API
@@ -49,4 +45,6 @@ API_PERMISSION_CODENAME = 'use_api'
 API_APPS = (
     'rest_framework.authtoken',
 )
+
+# The expiration time for an authentication token
 API_TOKEN_DURATION = 86400 # 24 hours

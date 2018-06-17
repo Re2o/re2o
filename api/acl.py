@@ -1,9 +1,8 @@
-# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018  Maël Kervella
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,34 +18,41 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""api.acl
+"""Defines the ACL for the whole API.
 
-Here are defined some functions to check acl on the application.
+Importing this module, creates the 'can view api' permission if not already
+done.
 """
-
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
+from django.utils.translation import ugettext_lazy as _
 
 
-# Creates the 'use_api' permission if not created
-# The 'use_api' is a fake permission in the sense
-# it is not associated with an existing model and
-# this ensure the permission is created every tun
-api_content_type, created = ContentType.objects.get_or_create(
-    app_label=settings.API_CONTENT_TYPE_APP_LABEL,
-    model=settings.API_CONTENT_TYPE_MODEL
-)
-if created:
-    api_content_type.save()
-api_permission, created = Permission.objects.get_or_create(
-    name=settings.API_PERMISSION_NAME,
-    content_type=api_content_type,
-    codename=settings.API_PERMISSION_CODENAME
-)
-if created:
-    api_permission.save()
+def _create_api_permission():
+    """Creates the 'use_api' permission if not created.
+    
+    The 'use_api' is a fake permission in the sense it is not associated with an
+    existing model and this ensure the permission is created every time this file
+    is imported.
+    """
+    api_content_type, created = ContentType.objects.get_or_create(
+        app_label=settings.API_CONTENT_TYPE_APP_LABEL,
+        model=settings.API_CONTENT_TYPE_MODEL
+    )
+    if created:
+        api_content_type.save()
+    api_permission, created = Permission.objects.get_or_create(
+        name=settings.API_PERMISSION_NAME,
+        content_type=api_content_type,
+        codename=settings.API_PERMISSION_CODENAME
+    )
+    if created:
+        api_permission.save()
+
+
+_create_api_permission()
 
 
 def can_view(user):
@@ -64,4 +70,4 @@ def can_view(user):
         'codename': settings.API_PERMISSION_CODENAME
     }
     can = user.has_perm('%(app_label)s.%(codename)s' % kwargs)
-    return can, None if can else "Vous ne pouvez pas voir cette application."
+    return can, None if can else _("You cannot see this application.")

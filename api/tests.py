@@ -2,9 +2,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""api.tests
-The tests for the API module.
+"""Defines the test suite for the API
 """
 
 import json
@@ -34,13 +31,25 @@ import users.models as users
 
 
 class APIEndpointsTestCase(APITestCase):    
-    # URLs that don't require to be authenticated
+    """Test case to test that all endpoints are reachable with respects to
+    authentication and permission checks.
+
+    Attributes:
+        no_auth_endpoints: A list of endpoints that should be reachable
+            without authentication.
+        auth_no_perm_endpoints: A list of endpoints that should be reachable
+            when being authenticated but without permissions.
+        auth_perm_endpoints: A list of endpoints that should be reachable
+            when being authenticated and having the correct permissions.
+        stduser: A standard user with no permission used for the tests and
+            initialized at the beggining of this test case.
+        superuser: A superuser (with all permissions) used for the tests and
+            initialized at the beggining of this test case.
+    """
     no_auth_endpoints = [
         '/api/'
     ]
-    # URLs that require to be authenticated and have no special permissions
     auth_no_perm_endpoints = []
-    # URLs that require to be authenticated and have special permissions
     auth_perm_endpoints = [
         '/api/cotisations/articles/',
 #        '/api/cotisations/articles/<pk>/',
@@ -160,49 +169,62 @@ class APIEndpointsTestCase(APITestCase):
         cls.superuser.delete()
         super().tearDownClass()
 
-    def check_responses_code(self, urls, expected_code, formats=[None],
+    def check_responses_code(self, urls, expected_code, formats=None,
                              assert_more=None):
-        """
-        Utility function to test if a list of urls answer an expected code
+        """Utility function to test if a list of urls answer an expected code.
 
-        :param urls: (list) The list of urls to test
-        :param expected_code: (int) The HTTP return code expected
-        :param formats: (list) The list of formats to use for the request
-            (Default: [None])
-        :param assert_more: (func) A function to assert more specific data
-            in the same test. It is evaluated with the responsem object, the
-            url and the format used.
+        Args:
+            urls: The list of urls to test
+            expected_code: The HTTP return code expected
+            formats: The list of formats to use for the request. Default is to
+                only test `None` format.
+            assert_more: An optional function to assert more specific data in
+                the same test. The response object, the url and the format
+                used are passed as arguments.
+
+        Raises:
+            AssertionError: The response got did not have the expected status
+                code.
+            Any exception raised in the evalutation of `assert_more`.
         """
+        if formats is None:
+            formats = [None]
         for url in urls:
             for format in formats:
                 with self.subTest(url=url, format=format):
                     response = self.client.get(url, format=format)
                     assert response.status_code == expected_code
-                    if assert_more:
+                    if assert_more is not None:
                         assert_more(response, url, format)
 
     def test_no_auth_endpoints_with_no_auth(self):
-        """
-        Test that every endpoint that does not require to be authenticated,
-        returns a Ok (200) response when not authenticated.
+        """Tests that every endpoint that does not require to be
+        authenticated, returns a Ok (200) response when not authenticated.
+
+        Raises:
+            AssertionError: An endpoint did not have a 200 status code.
         """
         urls = [endpoint.replace('<pk>', '1')
                 for endpoint in self.no_auth_endpoints]
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_endpoints_with_no_auth(self):
-        """
-        Test that every endpoint that does require to be authenticated,
+        """Tests that every endpoint that does require to be authenticated,
         returns a Unauthorized (401) response when not authenticated.
+
+        Raises:
+            AssertionError: An endpoint did not have a 401 status code.
         """
         urls = [endpoint.replace('<pk>', '1') for endpoint in \
                 self.auth_no_perm_endpoints + self.auth_perm_endpoints]
         self.check_responses_code(urls, codes.unauthorized)
 
     def test_no_auth_endpoints_with_auth(self):
-        """
-        Test that every endpoint that does not require to be authenticated,
-        returns a Ok (200) response when authenticated.
+        """Tests that every endpoint that does not require to be
+        authenticated, returns a Ok (200) response when authenticated.
+
+        Raises:
+            AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.stduser)
         urls = [endpoint.replace('<pk>', '1')
@@ -210,10 +232,12 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_no_perm_endpoints_with_auth_and_no_perm(self):
-        """
-        Test that every endpoint that does require to be authenticated and
-        no special permissions, returns a Ok (200) response when
-        authenticated but without permissions.
+        """Tests that every endpoint that does require to be authenticated and
+        no special permissions, returns a Ok (200) response when authenticated
+        but without permissions.
+
+        Raises:
+            AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.stduser)
         urls = [endpoint.replace('<pk>', '1')
@@ -221,10 +245,12 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_perm_endpoints_with_auth_and_no_perm(self):
-        """
-        Test that every endpoint that does require to be authenticated and
+        """Tests that every endpoint that does require to be authenticated and
         special permissions, returns a Forbidden (403) response when
         authenticated but without permissions.
+
+        Raises:
+            AssertionError: An endpoint did not have a 403 status code.
         """
         self.client.force_authenticate(user=self.stduser)
         urls = [endpoint.replace('<pk>', '1')
@@ -232,9 +258,11 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.forbidden)
 
     def test_auth_endpoints_with_auth_and_perm(self):
-        """
-        Test that every endpoint that does require to be authenticated,
-        returns a Ok (200) response when authenticated with all permissions
+        """Tests that every endpoint that does require to be authenticated,
+        returns a Ok (200) response when authenticated with all permissions.
+
+        Raises:
+            AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.superuser)
         urls = [endpoint.replace('<pk>', '1') for endpoint \
@@ -242,10 +270,12 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.ok)
 
     def test_endpoints_not_found(self):
-        """
-        Test that every endpoint that uses a primary key parameter,
+        """Tests that every endpoint that uses a primary key parameter,
         returns a Not Found (404) response when queried with non-existing
-        primary key
+        primary key.
+
+        Raises:
+            AssertionError: An endpoint did not have a 404 status code.
         """
         self.client.force_authenticate(user=self.superuser)
         # Select only the URLs with '<pk>' and replace it with '42'
@@ -255,9 +285,12 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.not_found)
 
     def test_formats(self):
-        """
-        Test that every endpoint returns a Ok (200) response when using
-        different formats. Also checks that 'json' format returns a valid json
+        """Tests that every endpoint returns a Ok (200) response when using
+        different formats. Also checks that 'json' format returns a valid
+        JSON object.
+
+        Raises:
+            AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.superuser)
         
@@ -275,6 +308,14 @@ class APIEndpointsTestCase(APITestCase):
                                   assert_more=assert_more)
 
 class APIPaginationTestCase(APITestCase):
+    """Test case to check that the pagination is used on all endpoints that
+    should use it.
+
+    Attributes:
+        endpoints: A list of endpoints that should use the pagination.
+        superuser: A superuser used in the tests to access the endpoints.
+    """
+
     endpoints = [
         '/api/cotisations/articles/',
         '/api/cotisations/banques/',
@@ -338,8 +379,12 @@ class APIPaginationTestCase(APITestCase):
         super().tearDownClass()
 
     def test_pagination(self):
-        """
-        Test that every endpoint is using the pagination correctly
+        """Tests that every endpoint is using the pagination correctly.
+
+        Raises:
+            AssertionError: An endpoint did not have one the following keyword
+                in the JSOn response: 'count', 'next', 'previous', 'results'
+                or more that 100 results were returned.
         """
         self.client.force_authenticate(self.superuser)
         for url in self.endpoints:

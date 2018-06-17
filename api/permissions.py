@@ -1,13 +1,61 @@
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2018 Maël Kervella
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+"""Defines the permission classes used in the API.
+"""
+
 from rest_framework import permissions, exceptions
+
 from re2o.acl import can_create, can_edit, can_delete, can_view_all
 
 from . import acl
 
+
 def can_see_api(*_, **__):
+    """Check if a user can view the API.
+
+    Returns:
+        A function that takes a user as an argument and returns
+        an ACL tuple that assert this user can see the API.
+    """
     return lambda user: acl.can_view(user)
 
 
 def _get_param_in_view(view, param_name):
+    """Utility function to retrieve an attribute in a view passed in argument.
+
+    Uses the result of `{view}.get_{param_name}()` if existing else uses the
+    value of `{view}.{param_name}` directly.
+
+    Args:
+        view: The view where to look into.
+        param_name: The name of the attribute to look for.
+
+    Returns:
+        The result of the getter function if found else the value of the
+        attribute itself.
+
+    Raises:
+        AssertionError: None of the getter function or the attribute are
+            defined in the view.
+    """
     assert hasattr(view, 'get_'+param_name) \
         or getattr(view, param_name, None) is not None, (
         'cannot apply {} on a view that does not set '
@@ -24,15 +72,30 @@ def _get_param_in_view(view, param_name):
 
 
 class ACLPermission(permissions.BasePermission):
-    """
-    Permission subclass for views that requires a specific model-based
-    permission or don't define a queryset
+    """A permission class used to check the ACL to validate the permissions
+    of a user.
+
+    The view must define a `.get_perms_map()` or a `.perms_map` attribute.
+    See the wiki for the syntax of this attribute.
     """
 
     def get_required_permissions(self, method, view):
-        """
-        Given a list of models and an HTTP method, return the list
-        of acl functions that the user is required to verify.
+        """Build the list of permissions required for the request to be
+        accepted.
+
+        Args:
+            method: The HTTP method name used for the request.
+            view: The view which is responding to the request.
+
+        Returns:
+            The list of ACL functions to apply to a user in order to check
+            if he has the right permissions.
+
+        Raises:
+            AssertionError: None of `.get_perms_map()` or `.perms_map` are
+                defined in the view.
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
         """
         perms_map = _get_param_in_view(view, 'perms_map')
 
@@ -42,6 +105,22 @@ class ACLPermission(permissions.BasePermission):
         return [can_see_api()] + list(perms_map[method])
 
     def has_permission(self, request, view):
+        """Check that the user has the permissions to perform the request.
+
+        Args:
+            request: The request performed.
+            view: The view which is responding to the request.
+
+        Returns:
+            A boolean indicating if the user has the permission to
+            perform the request.
+
+        Raises:
+            AssertionError: None of `.get_perms_map()` or `.perms_map` are
+                defined in the view.
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
+        """
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
         if getattr(view, '_ignore_model_permissions', False):
@@ -54,19 +133,20 @@ class ACLPermission(permissions.BasePermission):
 
         return all(perm(request.user)[0] for perm in perms)
 
-    def has_object_permission(self, request, view, obj):
-        # Should never be called here but documentation
-        # requires to implement this function
-        return False
-
 
 class AutodetectACLPermission(permissions.BasePermission):
+    """A permission class used to autodetect the ACL needed to validate the
+    permissions of a user based on the queryset of the view.
+
+    The view must define a `.get_queryset()` or a `.queryset` attribute.
+
+    Attributes:
+        perms_map: The mapping of each valid HTTP method to the required
+            model-based ACL permissions.
+        perms_obj_map: The mapping of each valid HTTP method to the required
+            object-based ACL permissions.
     """
-    Permission subclass in charge of checking the ACL to determine
-    if a user can access the models. Autodetect which ACL are required
-    based on a queryset. Requires `.queryset` or `.get_queryset()`
-    to be defined in the view.
-    """
+
     perms_map = {
         'GET': [can_see_api, lambda model: model.can_view_all],
         'OPTIONS': [can_see_api, lambda model: model.can_view_all],
@@ -87,9 +167,20 @@ class AutodetectACLPermission(permissions.BasePermission):
     }
 
     def get_required_permissions(self, method, model):
-        """
-        Given a model and an HTTP method, return the list of acl
-        functions that the user is required to verify.
+        """Build the list of model-based permissions required for the
+        request to be accepted.
+
+        Args:
+            method: The HTTP method name used for the request.
+            view: The view which is responding to the request.
+
+        Returns:
+            The list of ACL functions to apply to a user in order to check
+            if he has the right permissions.
+
+        Raises:
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
         """
         if method not in self.perms_map:
             raise exceptions.MethodNotAllowed(method)
@@ -97,9 +188,20 @@ class AutodetectACLPermission(permissions.BasePermission):
         return [perm(model) for perm in self.perms_map[method]]
 
     def get_required_object_permissions(self, method, obj):
-        """
-        Given an object and an HTTP method, return the list of acl
-        functions that the user is required to verify.
+        """Build the list of object-based permissions required for the
+        request to be accepted.
+
+        Args:
+            method: The HTTP method name used for the request.
+            view: The view which is responding to the request.
+
+        Returns:
+            The list of ACL functions to apply to a user in order to check
+            if he has the right permissions.
+
+        Raises:
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
         """
         if method not in self.perms_obj_map:
             raise exceptions.MethodNotAllowed(method)
@@ -107,13 +209,26 @@ class AutodetectACLPermission(permissions.BasePermission):
         return [perm(obj) for perm in self.perms_obj_map[method]]
 
     def _queryset(self, view):
-        """
-        Return the queryset associated with view and raise an error
-        is there is none.
-        """
         return _get_param_in_view(view, 'queryset')
 
     def has_permission(self, request, view):
+        """Check that the user has the model-based permissions to perform
+        the request.
+
+        Args:
+            request: The request performed.
+            view: The view which is responding to the request.
+
+        Returns:
+            A boolean indicating if the user has the permission to
+            perform the request.
+
+        Raises:
+            AssertionError: None of `.get_queryset()` or `.queryset` are
+                defined in the view.
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
+        """
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
         if getattr(view, '_ignore_model_permissions', False):
@@ -128,8 +243,22 @@ class AutodetectACLPermission(permissions.BasePermission):
         return all(perm(request.user)[0] for perm in perms)
 
     def has_object_permission(self, request, view, obj):
+        """Check that the user has the object-based permissions to perform
+        the request.
+
+        Args:
+            request: The request performed.
+            view: The view which is responding to the request.
+
+        Returns:
+            A boolean indicating if the user has the permission to
+            perform the request.
+
+        Raises:
+            rest_framework.exception.MethodNotAllowed: The requested method
+                is not allowed for this view.
+        """
         # authentication checks have already executed via has_permission
-        queryset = self._queryset(view)
         user = request.user
 
         perms = self.get_required_object_permissions(request.method, obj)

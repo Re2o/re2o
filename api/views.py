@@ -18,16 +18,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""api.views
+"""Defines the views of the API
 
-The views for the API app. They should all return JSON data and not fallback on
-HTML pages such as the login and index pages for a better integration.
+All views inherits the `rest_framework.views.APIview` to respect the
+REST API requirements such as dealing with HTTP status code, format of
+the response (JSON or other), the CSRF exempting, ...
 """
 
 import datetime
 
 from django.conf import settings
-
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -38,7 +38,6 @@ import machines.models as machines
 import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
-
 from re2o.utils import all_active_interfaces, all_has_access
 
 from . import serializers
@@ -46,142 +45,195 @@ from .pagination import PageSizedPagination
 from .permissions import ACLPermission
 
 
-# COTISATIONS APP
+# COTISATIONS
 
 
 class FactureViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Facture` objects.
+    """
     queryset = cotisations.Facture.objects.all()
     serializer_class = serializers.FactureSerializer
 
 
 class VenteViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Vente` objects.
+    """
     queryset = cotisations.Vente.objects.all()
     serializer_class = serializers.VenteSerializer
 
 
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Article` objects.
+    """
     queryset = cotisations.Article.objects.all()
     serializer_class = serializers.ArticleSerializer
 
 
 class BanqueViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Banque` objects.
+    """
     queryset = cotisations.Banque.objects.all()
     serializer_class = serializers.BanqueSerializer
 
 
 class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Paiement` objects.
+    """
     queryset = cotisations.Paiement.objects.all()
     serializer_class = serializers.PaiementSerializer
 
 
 class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Cotisation` objects.
+    """
     queryset = cotisations.Cotisation.objects.all()
     serializer_class = serializers.CotisationSerializer
 
 
-# MACHINES APP
+# MACHINES
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Machine` objects.
+    """
     queryset = machines.Machine.objects.all()
     serializer_class = serializers.MachineSerializer
 
 
 class MachineTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.MachineType` objects.
+    """
     queryset = machines.MachineType.objects.all()
     serializer_class = serializers.MachineTypeSerializer
 
 
 class IpTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.IpType` objects.
+    """
     queryset = machines.IpType.objects.all()
     serializer_class = serializers.IpTypeSerializer
 
 
 class VlanViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Vlan` objects.
+    """
     queryset = machines.Vlan.objects.all()
     serializer_class = serializers.VlanSerializer
 
 
 class NasViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Nas` objects.
+    """
     queryset = machines.Nas.objects.all()
     serializer_class = serializers.NasSerializer
 
 
 class SOAViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.SOA` objects.
+    """
     queryset = machines.SOA.objects.all()
     serializer_class = serializers.SOASerializer
 
 
 class ExtensionViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Extension` objects.
+    """
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.ExtensionSerializer
 
 
 class MxViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Mx` objects.
+    """
     queryset = machines.Mx.objects.all()
     serializer_class = serializers.MxSerializer
 
 
 class NsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Ns` objects.
+    """
     queryset = machines.Ns.objects.all()
     serializer_class = serializers.NsSerializer
 
 
 class TxtViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Txt` objects.
+    """
     queryset = machines.Txt.objects.all()
     serializer_class = serializers.TxtSerializer
 
 
 class SrvViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Srv` objects.
+    """
     queryset = machines.Srv.objects.all()
     serializer_class = serializers.SrvSerializer
 
 
 class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Interface` objects.
+    """
     queryset = machines.Interface.objects.all()
     serializer_class = serializers.InterfaceSerializer
 
 
 class Ipv6ListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Ipv6List` objects.
+    """
     queryset = machines.Ipv6List.objects.all()
     serializer_class = serializers.Ipv6ListSerializer
 
 
 class DomainViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Domain` objects.
+    """
     queryset = machines.Domain.objects.all()
     serializer_class = serializers.DomainSerializer
 
 
 class IpListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.IpList` objects.
+    """
     queryset = machines.IpList.objects.all()
     serializer_class = serializers.IpListSerializer
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Service` objects.
+    """
     queryset = machines.Service.objects.all()
     serializer_class = serializers.ServiceSerializer
 
 
 class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Service_link` objects.
+    """
     queryset = machines.Service_link.objects.all()
     serializer_class = serializers.ServiceLinkSerializer
 
 
 class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.OuverturePortList`
+    objects.
+    """
     queryset = machines.OuverturePortList.objects.all()
     serializer_class = serializers.OuverturePortListSerializer
 
 
 class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.OuverturePort` objects.
+    """
     queryset = machines.OuverturePort.objects.all()
     serializer_class = serializers.OuverturePortSerializer
 
 
-# PREFERENCES APP
+# PREFERENCES
 # Those views differ a bit because there is only one object
 # to display, so we don't bother with the listing part
 
 class OptionalUserView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.OptionalUser.can_view_all]}
     serializer_class = serializers.OptionalUserSerializer
@@ -191,6 +243,8 @@ class OptionalUserView(generics.RetrieveAPIView):
 
 
 class OptionalMachineView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalMachine` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.OptionalMachine.can_view_all]}
     serializer_class = serializers.OptionalMachineSerializer
@@ -200,6 +254,8 @@ class OptionalMachineView(generics.RetrieveAPIView):
 
 
 class OptionalTopologieView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalTopologie` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.OptionalTopologie.can_view_all]}
     serializer_class = serializers.OptionalTopologieSerializer
@@ -209,6 +265,8 @@ class OptionalTopologieView(generics.RetrieveAPIView):
 
 
 class GeneralOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.GeneralOption` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.GeneralOption.can_view_all]}
     serializer_class = serializers.GeneralOptionSerializer
@@ -218,11 +276,15 @@ class GeneralOptionView(generics.RetrieveAPIView):
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `preferences.models.Service` objects.
+    """
     queryset = preferences.Service.objects.all()
     serializer_class = serializers.ServiceSerializer
 
 
 class AssoOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.AssoOption` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.AssoOption.can_view_all]}
     serializer_class = serializers.AssoOptionSerializer
@@ -232,6 +294,8 @@ class AssoOptionView(generics.RetrieveAPIView):
 
 
 class HomeOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.HomeOption` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.HomeOption.can_view_all]}
     serializer_class = serializers.HomeOptionSerializer
@@ -241,6 +305,8 @@ class HomeOptionView(generics.RetrieveAPIView):
 
 
 class MailMessageOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.MailMessageOption` settings.
+    """
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [preferences.MailMessageOption.can_view_all]}
     serializer_class = serializers.MailMessageOptionSerializer
@@ -249,106 +315,145 @@ class MailMessageOptionView(generics.RetrieveAPIView):
         return preferences.MailMessageOption.objects.first()
 
 
-# TOPOLOGIE APP
+# TOPOLOGIE
 
 
 class StackViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Stack` objects.
+    """
     queryset = topologie.Stack.objects.all()
     serializer_class = serializers.StackSerializer
 
 
 class AccessPointViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.AccessPoint` objects.
+    """
     queryset = topologie.AccessPoint.objects.all()
     serializer_class = serializers.AccessPointSerializer
 
 
 class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Switch` objects.
+    """
     queryset = topologie.Switch.objects.all()
     serializer_class = serializers.SwitchSerializer
 
 
 class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.ModelSwitch` objects.
+    """
     queryset = topologie.ModelSwitch.objects.all()
     serializer_class = serializers.ModelSwitchSerializer
 
 
 class ConstructorSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.ConstructorSwitch`
+    objects.
+    """
     queryset = topologie.ConstructorSwitch.objects.all()
     serializer_class = serializers.ConstructorSwitchSerializer
 
 
 class SwitchBayViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.SwitchBay` objects.
+    """
     queryset = topologie.SwitchBay.objects.all()
     serializer_class = serializers.SwitchBaySerializer
 
 
 class BuildingViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Building` objects.
+    """
     queryset = topologie.Building.objects.all()
     serializer_class = serializers.BuildingSerializer
 
 
 class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Port` objects.
+    """
     queryset = topologie.Port.objects.all()
     serializer_class = serializers.SwitchPortSerializer
 
 
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Room` objects.
+    """
     queryset = topologie.Room.objects.all()
     serializer_class = serializers.RoomSerializer
 
 
-# USER APP
+# USER
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Users` objects.
+    """
     queryset = users.User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Club` objects.
+    """
     queryset = users.Club.objects.all()
     serializer_class = serializers.ClubSerializer
 
 
 class AdherentViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Adherent` objects.
+    """
     queryset = users.Adherent.objects.all()
     serializer_class = serializers.AdherentSerializer
 
 
 class ServiceUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ServiceUser` objects.
+    """
     queryset = users.ServiceUser.objects.all()
     serializer_class = serializers.ServiceUserSerializer
 
 
 class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.School` objects.
+    """
     queryset = users.School.objects.all()
     serializer_class = serializers.SchoolSerializer
 
 
 class ListRightViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ListRight` objects.
+    """
     queryset = users.ListRight.objects.all()
     serializer_class = serializers.ListRightSerializer
 
 
 class ShellViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ListShell` objects.
+    """
     queryset = users.ListShell.objects.all()
     serializer_class = serializers.ShellSerializer
 
 
 class BanViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Ban` objects.
+    """
     queryset = users.Ban.objects.all()
     serializer_class = serializers.BanSerializer
 
 
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Whitelist` objects.
+    """
     queryset = users.Whitelist.objects.all()
     serializer_class = serializers.WhitelistSerializer
 
 
-# Services views
+# SERVICE REGEN
 
 
 class ServiceRegenViewSet(viewsets.ModelViewSet):
+    """Exposes list and details of the services to regen
+    """
     serializer_class = serializers.ServiceRegenSerializer
 
     def get_queryset(self):
@@ -363,24 +468,33 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-# DHCP views
+# DHCP
 
 class HostMacIpView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
     queryset = all_active_interfaces()
     serializer_class = serializers.HostMacIpSerializer
 
 
-# DNS views
+# DNS
 
 class DNSZonesView(generics.ListAPIView):
+    """Exposes the detailed information about each extension (hostnames, 
+    IPs, DNS records, etc.) in order to build the DNS zone files.
+    """
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.DNSZonesSerializer
 
 
-# Mailing views
+# MAILING
 
 
 class StandardMailingView(views.APIView):
+    """Exposes list and details of standard mailings (name and members) in
+    order to building the corresponding mailing lists.
+    """
     pagination_class = PageSizedPagination
     permission_classes = (ACLPermission, )
     perms_map = {'GET' : [users.User.can_view_all]}
@@ -394,13 +508,23 @@ class StandardMailingView(views.APIView):
 
 
 class ClubMailingView(generics.ListAPIView):
+    """Exposes list and details of club mailings (name, members and admins) in
+    order to build the corresponding mailing lists.
+    """
     queryset = users.Club.objects.all()
     serializer_class = serializers.MailingSerializer
 
 
-# Subclass the standard rest_framework.auth_token.views.ObtainAuthToken
-# in order to renew the lease of the token and add expiration time
+# TOKEN AUTHENTICATION
+
+
 class ObtainExpiringAuthToken(ObtainAuthToken):
+    """Exposes a view to obtain a authentication token.
+
+    This view as the same behavior as the
+    `rest_framework.auth_token.views.ObtainAuthToken` view except that the
+    expiration time is send along with the token as an addtional information.
+    """
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)

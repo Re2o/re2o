@@ -2,7 +2,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018  Mael Kervella
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,27 +17,30 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""api.urls
 
-Urls de l'api, pointant vers les fonctions de views
+"""Defines the URLs of the API
+
+A custom router is used to register all the routes. That allows to register
+all the URL patterns from the viewsets as a standard router but, the views
+can also be register. That way a complete API root page presenting all URLs
+can be generated automatically.
 """
-
-from __future__ import unicode_literals
 
 from django.conf.urls import url, include
 
-from .routers import AllViewsRouter
 from . import views
+from .routers import AllViewsRouter
+
 
 router = AllViewsRouter()
-# COTISATIONS APP
+# COTISATIONS
 router.register_viewset(r'cotisations/factures', views.FactureViewSet)
 router.register_viewset(r'cotisations/ventes', views.VenteViewSet)
 router.register_viewset(r'cotisations/articles', views.ArticleViewSet)
 router.register_viewset(r'cotisations/banques', views.BanqueViewSet)
 router.register_viewset(r'cotisations/paiements', views.PaiementViewSet)
 router.register_viewset(r'cotisations/cotisations', views.CotisationViewSet)
-# MACHINES APP
+# MACHINES
 router.register_viewset(r'machines/machines', views.MachineViewSet)
 router.register_viewset(r'machines/machinetypes', views.MachineTypeViewSet)
 router.register_viewset(r'machines/iptypes', views.IpTypeViewSet)
@@ -57,7 +60,7 @@ router.register_viewset(r'machines/services', views.ServiceViewSet)
 router.register_viewset(r'machines/servicelinks', views.ServiceLinkViewSet, base_name='servicelink')
 router.register_viewset(r'machines/ouvertureportlists', views.OuverturePortListViewSet)
 router.register_viewset(r'machines/ouvertureports', views.OuverturePortViewSet)
-# PREFERENCES APP
+# PREFERENCES
 router.register_viewset(r'preferences/service', views.ServiceViewSet),
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
@@ -66,7 +69,7 @@ router.register_view(r'preferences/generaloption', views.GeneralOptionView),
 router.register_view(r'preferences/assooption', views.AssoOptionView),
 router.register_view(r'preferences/homeoption', views.HomeOptionView),
 router.register_view(r'preferences/mailmessageoption', views.MailMessageOptionView),
-# TOPOLOGIE APP
+# TOPOLOGIE
 router.register_viewset(r'topologie/stack', views.StackViewSet)
 router.register_viewset(r'topologie/acesspoint', views.AccessPointViewSet)
 router.register_viewset(r'topologie/switch', views.SwitchViewSet)
@@ -76,7 +79,7 @@ router.register_viewset(r'topologie/switchbay', views.SwitchBayViewSet)
 router.register_viewset(r'topologie/building', views.BuildingViewSet)
 router.register_viewset(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
 router.register_viewset(r'topologie/room', views.RoomViewSet)
-# USERS APP
+# USERS
 router.register_viewset(r'users/users', views.UserViewSet)
 router.register_viewset(r'users/clubs', views.ClubViewSet)
 router.register_viewset(r'users/adherents', views.AdherentViewSet)
@@ -86,7 +89,7 @@ router.register_viewset(r'users/listrights', views.ListRightViewSet)
 router.register_viewset(r'users/shells', views.ShellViewSet, base_name='shell')
 router.register_viewset(r'users/bans', views.BanViewSet)
 router.register_viewset(r'users/whitelists', views.WhitelistViewSet)
-# SERVICES REGEN
+# SERVICE REGEN
 router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
 # DHCP
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
@@ -95,7 +98,7 @@ router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING
 router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),
-# TOKEN-AUTH
+# TOKEN AUTHENTICATION
 router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
 
 

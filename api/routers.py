@@ -2,7 +2,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018  Mael Kervella
+# Copyright © 2018 Mael Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""api.routers
 
-Definition of the custom routers to generate the URLs of the API
+"""Defines the custom routers to generate the URLs of the API.
 """
 
 from collections import OrderedDict
+
 from django.conf.urls import url, include
 from django.core.urlresolvers import NoReverseMatch
 from rest_framework import views
@@ -32,32 +32,60 @@ from rest_framework.reverse import reverse
 from rest_framework.schemas import SchemaGenerator
 from rest_framework.settings import api_settings
 
+
 class AllViewsRouter(DefaultRouter):
+    """A router that can register both viewsets and views and generates
+    a full API root page with all the generated URLs.
+    """
+
     def __init__(self, *args, **kwargs):
         self.view_registry = []
         super(AllViewsRouter, self).__init__(*args, **kwargs)
 
     def register_viewset(self, *args, **kwargs):
-        """
-        Register a viewset in the router
-        Alias of `register` for convenience
+        """Register a viewset in the router. Alias of `register` for
+        convenience.
+
+        See `register` in the base class for details.
         """
         return self.register(*args, **kwargs)
 
     def register_view(self, pattern, view, name=None):
-        """
-        Register a view in the router
+        """Register a view in the router.
+
+        Args:
+            pattern: The URL pattern to use for this view.
+            view: The class-based view to register.
+            name: An optional name for the route generated. Defaults is
+                based on the pattern last section (delimited by '/').
         """
         if name is None:
             name = self.get_default_name(pattern)
         self.view_registry.append((pattern, view, name))
 
     def get_default_name(self, pattern):
+        """Returns the name to use for the route if none was specified.
+
+        Args:
+            pattern: The pattern for this route.
+
+        Returns:
+            The name to use for this route.
+        """
         return pattern.split('/')[-1]
 
     def get_api_root_view(self, schema_urls=None):
-        """
-        Return a view to use as the API root.
+        """Create a class-based view to use as the API root.
+
+        Highly inspired by the base class. See details on the implementation
+        in the base class. The only difference is that registered view URLs
+        are added after the registered viewset URLs on this root API page.
+
+        Args:
+            schema_urls: A schema to use for the URLs.
+
+        Returns:
+            The view to use to display the root API page.
         """
         api_root_dict = OrderedDict()
         list_name = self.routes[0].name
@@ -115,6 +143,12 @@ class AllViewsRouter(DefaultRouter):
         return APIRoot.as_view()
 
     def get_urls(self):
+        """Builds the list of URLs to register.
+
+        Returns:
+            A list of the URLs generated based on the viewsets registered
+            followed by the URLs generated based on the views registered.
+        """
         urls = super(AllViewsRouter, self).get_urls()
 
         for pattern, view, name in self.view_registry:
