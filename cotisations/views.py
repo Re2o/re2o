@@ -141,8 +141,13 @@ def new_facture(request, user, userid):
                             'users:profil',
                             kwargs={'userid': userid}
                         ))
+            is_online_payment = new_invoice_instance.paiement == (
+                Paiement.objects.get_or_create(
+                    moyen='Rechargement en ligne')[0])
+            new_invoice_instance.valid = is_online_payment
             # Saving the invoice
             new_invoice_instance.save()
+
 
             # Building a purchase for each article sold
             for art_item in articles:
@@ -158,6 +163,12 @@ def new_facture(request, user, userid):
                         number=quantity
                     )
                     new_purchase.save()
+
+            if is_online_payment:
+                content = online_payment.PAYMENT_SYSTEM[
+                    AssoOption.get_cached_value('payment')
+                    ](invoice, request)
+                return render(request, 'cotisations/payment.html', content)
 
             # In case a cotisation was bought, inform the user, the
             # cotisation time has been extended too
