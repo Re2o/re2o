@@ -870,6 +870,5 @@ def recharge(request):
         ](invoice, request)
         return render(request, 'cotisations/payment.html', content)
     return form({
-        'rechargeform': refill_form,
-        'solde': request.user.solde
+        'rechargeform': refill_form
         }, 'cotisations/recharge.html', request)
