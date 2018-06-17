@@ -96,6 +96,13 @@ class OptionalUser(AclMixin, PreferencesModel):
         default=False,
         help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
     )
+    allow_self_subscription = models.BooleanField(
+        default=False,
+        help_text=(
+            "Autoriser les utilisateurs à cotiser par eux mêmes via les"
+            " moyens de paiement permettant l'auto-cotisation."
+        )
+    )
     shell_default = models.OneToOneField(
         'users.ListShell',
         on_delete=models.PROTECT,
