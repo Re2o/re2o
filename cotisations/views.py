@@ -99,7 +99,11 @@ def new_facture(request, user, userid):
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     # Building the invocie form and the article formset
-    invoice_form = NewFactureForm(request.POST or None, instance=invoice)
+    if not request.user.has_perm('cotisations.add_facture') and OptionalUser.get_cached_value('allow_self_subscription'):
+        allowed_payment = Paiement.objects.filter(allow_self_subscription=True)
+        invoice_form = NewFactureForm(request.POST or None, instance=invoice, allowed_payment=allowed_payment)
+    else:
+        invoice_form = NewFactureForm(request.POST or None, instance=invoice)
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(
             request.POST or None

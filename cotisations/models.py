@@ -46,6 +46,7 @@ from django.utils.translation import ugettext_lazy as _l
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+from preferences.models import OptionalUser
 
 
 # TODO : change facture to invoice
@@ -212,6 +213,22 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             user_request.has_perm('cotisations.change_facture_pdf'),
             _("You don't have the right to edit an invoice.")
         )
+
+    @staticmethod
+    def can_create(user_request, *_args, **_kwargs):
+        """Check if an user can create an invoice.
+
+        :param user_request: The user who wants to create an invoice.
+        :return: a message and a boolean which is True if the user can create
+            an invoice or if the `options.allow_self_subscription` is set.
+        """
+        if OptionalUser.get_cached_value('allow_self_subscription'):
+            return True, None
+        return (
+            user_request.has_perm('cotisations.add_facture'),
+            _("You don't have the right to create an invoice.")
+        )
+
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
@@ -575,6 +592,10 @@ class Paiement(RevMixin, AclMixin, models.Model):
         choices=PAYMENT_TYPES,
         default=0,
         verbose_name=_l("Payment type")
+    )
+    allow_self_subscription = models.BooleanField(
+        default=False,
+        verbose_name=_l("Is available for self subscription")
     )
 
     class Meta:

@@ -55,9 +55,12 @@ class NewFactureForm(FormRevMixin, ModelForm):
     """
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        allowed_payment = kwargs.pop('allowed_payment', None)
         super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
         # TODO : remove the use of cheque and banque and paiement
         #        for something more generic or at least in English
+        if allowed_payment:
+            self.fields['paiement'].queryset = allowed_payment
         self.fields['cheque'].required = False
         self.fields['banque'].required = False
         self.fields['cheque'].label = _("Cheque number")
@@ -68,6 +71,7 @@ class NewFactureForm(FormRevMixin, ModelForm):
         if paiement_list:
             self.fields['paiement'].widget\
                 .attrs['data-cheque'] = paiement_list.first().id
+
 
     class Meta:
         model = Facture
@@ -231,7 +235,7 @@ class PaiementForm(FormRevMixin, ModelForm):
     class Meta:
         model = Paiement
         # TODO : change moyen to method and type_paiement to payment_type
-        fields = ['moyen', 'type_paiement']
+        fields = ['moyen', 'type_paiement', 'allow_self_subscription']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
