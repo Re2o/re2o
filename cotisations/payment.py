@@ -29,7 +29,7 @@ def accept_payment(request, factureid):
     messages.success(
         request,
         _("The payment of %(amount)s € has been accepted.") % {
-            'amount': invoice.prix()
+            'amount': invoice.prix_total()
         }
     )
     # In case a cotisation was bought, inform the user, the
