@@ -404,6 +404,24 @@ def edit_ban(request, ban_instance, **_kwargs):
         request
     )
 
+@login_required
+@can_delete(Ban)
+def del_ban(request, ban, **_kwargs):
+        """ Supprime un banissement"""
+        if request.method == "POST":
+            ban.delete()
+            messages.success(request, "Le banissement a été supprimé")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': str(ban.user.id)}
+                ))
+        return form(
+            {'objet': ban, 'objet_name': 'ban'},
+            'users/delete.html',
+            request
+        )
+
+
 
 @login_required
 @can_create(Whitelist)
