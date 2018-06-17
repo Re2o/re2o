@@ -44,8 +44,6 @@ def accept_payment(request, factureid):
                     'end_date': request.user.end_adhesion()
                 }
             )
-    else:
-        invoice.delete()
     return redirect(reverse(
         'users:profil',
         kwargs={'userid': request.user.id}
