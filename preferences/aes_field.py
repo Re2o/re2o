@@ -79,12 +79,6 @@ class AESEncryptedField(models.CharField):
         return decrypt(settings.AES_KEY,
                        binascii.a2b_base64(value)).decode('utf-8')
 
-    def from_db_value(self, value, *args, **kwargs):
-        if value is None:
-            return value
-        return decrypt(settings.AES_KEY,
-                       binascii.a2b_base64(value)).decode('utf-8')
-
     def get_prep_value(self, value):
         if value is None:
             return value
