@@ -131,6 +131,14 @@ class SelectUserArticleForm(
         required=True
     )
 
+    def __init__(self, *args, **kwargs):
+        self_subscription = kwargs.pop('is_self_subscription', False)
+        super(SelectUserArticleForm, self).__init__(*args, **kwargs)
+        if self_subscription:
+            self.fields['article'].queryset = Article.objects.filter(
+                Q(type_user='All') | Q(type_user='Adherent')
+            ).filter(allow_self_subscription=True)
+
 
 class SelectClubArticleForm(Form):
     """
@@ -149,6 +157,14 @@ class SelectClubArticleForm(Form):
         validators=[MinValueValidator(1)],
         required=True
     )
+
+    def __init__(self, *args, **kwargs):
+        self_subscription = kwargs.pop('is_self_subscription', False)
+        super(SelectClubArticleForm, self).__init__(*args, **kwargs)
+        if self_subscription:
+            self.fields['article'].queryset = Article.objects.filter(
+                Q(type_user='All') | Q(type_user='Club')
+            ).filter(allow_self_subscription=True)
 
 
 # TODO : change Facture to Invoice

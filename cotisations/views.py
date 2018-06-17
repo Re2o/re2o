@@ -99,18 +99,32 @@ def new_facture(request, user, userid):
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     # Building the invocie form and the article formset
+    is_self_subscription = False
     if not request.user.has_perm('cotisations.add_facture') and OptionalUser.get_cached_value('allow_self_subscription'):
+        is_self_subscription = True
+        article_list = article_list.filter(allow_self_subscription=True)
         allowed_payment = Paiement.objects.filter(allow_self_subscription=True)
         invoice_form = NewFactureForm(request.POST or None, instance=invoice, allowed_payment=allowed_payment)
+    elif not OptionalUser.get_cached_value('allow_self_subscription'):
+        messages.error(
+           request,
+           _("You cannot subscribe. Please ask to the staff.")
+        )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': userid}
+        ))
     else:
         invoice_form = NewFactureForm(request.POST or None, instance=invoice)
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'is_self_subscription':is_self_subscription}
         )
     else:
         article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'is_self_subscription':is_self_subscription}
         )
 
     if invoice_form.is_valid() and article_formset.is_valid():
