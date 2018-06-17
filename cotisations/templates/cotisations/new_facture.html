@@ -35,11 +35,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     <h3>{% trans "New invoice" %}</h3>
+    {% if user.solde %}
     <p>
         {% blocktrans %}
         User's balance : {{ user.solde }} €
         {% endblocktrans %}
     </p>
+    {% endif %}
     {% bootstrap_form factureform %}
     {{ venteform.management_form }}
     <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
