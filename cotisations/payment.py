@@ -129,7 +129,7 @@ def comnpay(facture, request):
             facture.prix(),
             idTransaction=str(facture.id)
         ),
-        'amount': facture.prix,
+        'amount': facture.prix(),
     }
     return r
 
