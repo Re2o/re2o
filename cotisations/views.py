@@ -162,7 +162,7 @@ def new_facture(request, user, userid):
             is_online_payment = new_invoice_instance.paiement == (
                 Paiement.objects.get_or_create(
                     moyen='Rechargement en ligne')[0])
-            new_invoice_instance.valid = is_online_payment
+            new_invoice_instance.valid = not is_online_payment
             # Saving the invoice
             new_invoice_instance.save()
 
@@ -185,7 +185,7 @@ def new_facture(request, user, userid):
             if is_online_payment:
                 content = online_payment.PAYMENT_SYSTEM[
                     AssoOption.get_cached_value('payment')
-                    ](invoice, request)
+                    ](new_invoice_instance, request)
                 return render(request, 'cotisations/payment.html', content)
 
             # In case a cotisation was bought, inform the user, the

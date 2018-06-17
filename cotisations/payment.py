@@ -26,23 +26,26 @@ def accept_payment(request, factureid):
     The view called when an online payment has been accepted.
     """
     invoice = get_object_or_404(Facture, id=factureid)
-    messages.success(
-        request,
-        _("The payment of %(amount)s € has been accepted.") % {
-            'amount': invoice.prix_total()
-        }
-    )
-    # In case a cotisation was bought, inform the user, the
-    # cotisation time has been extended too
-    if any(purchase.type_cotisation for purchase in invoice.vente_set.all()):
+    if invoice.valid:
         messages.success(
             request,
-            _("The cotisation of %(member_name)s has been \
-            extended to %(end_date)s.") % {
-                'member_name': request.user.pseudo,
-                'end_date': request.user.end_adhesion()
+            _("The payment of %(amount)s € has been accepted.") % {
+                'amount': invoice.prix_total()
             }
         )
+        # In case a cotisation was bought, inform the user, the
+        # cotisation time has been extended too
+        if any(purchase.type_cotisation for purchase in invoice.vente_set.all()):
+            messages.success(
+                request,
+                _("The cotisation of %(member_name)s has been \
+                extended to %(end_date)s.") % {
+                    'member_name': request.user.pseudo,
+                    'end_date': request.user.end_adhesion()
+                }
+            )
+    else:
+        invoice.delete()
     return redirect(reverse(
         'users:profil',
         kwargs={'userid': request.user.id}
