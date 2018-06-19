@@ -47,6 +47,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
             <td class="text-right">
+	    {% can_delete ban %}
+	    	{% include 'buttons/suppr.html' with href='users:del-ban' id=ban.id %}
+	    {% acl_end %}
             {% can_edit ban %}
                 {% include 'buttons/edit.html' with href='users:edit-ban' id=ban.id %}
             {% acl_end %}

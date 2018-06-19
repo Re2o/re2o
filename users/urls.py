@@ -55,6 +55,7 @@ urlpatterns = [
         name='del-serviceuser'),
     url(r'^add_ban/(?P<userid>[0-9]+)$', views.add_ban, name='add-ban'),
     url(r'^edit_ban/(?P<banid>[0-9]+)$', views.edit_ban, name='edit-ban'),
+    url(r'^del-ban/(?P<banid>[0-9]+)$', views.del_ban, name='del-ban'),
     url(r'^add_whitelist/(?P<userid>[0-9]+)$',
         views.add_whitelist,
         name='add-whitelist'),
