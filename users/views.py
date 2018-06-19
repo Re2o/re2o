@@ -479,6 +479,23 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
 
 
 @login_required
+@can_delete(Whitelist)
+def del_whitelist(request, whitelist, **_kwargs):
+        """ Supprime un acces gracieux"""
+        if request.method == "POST":
+            whitelist.delete()
+            messages.success(request, "L'accés gracieux a été supprimé")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': str(whitelist.user.id)}
+                ))
+        return form(
+            {'objet': whitelist, 'objet_name': 'whitelist'},
+            'users/delete.html',
+            request
+        )
+
+@login_required
 @can_create(School)
 def add_school(request):
     """ Ajouter un établissement d'enseignement à la base de donnée,
