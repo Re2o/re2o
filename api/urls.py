@@ -73,6 +73,7 @@ router.register_view(r'preferences/mailmessageoption', views.MailMessageOptionVi
 router.register_viewset(r'topologie/stack', views.StackViewSet)
 router.register_viewset(r'topologie/acesspoint', views.AccessPointViewSet)
 router.register_viewset(r'topologie/switch', views.SwitchViewSet)
+router.register_viewset(r'topologie/server', views.ServerViewSet)
 router.register_viewset(r'topologie/modelswitch', views.ModelSwitchViewSet)
 router.register_viewset(r'topologie/constructorswitch', views.ConstructorSwitchViewSet)
 router.register_viewset(r'topologie/switchbay', views.SwitchBayViewSet)

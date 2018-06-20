@@ -400,6 +400,14 @@ class SwitchSerializer(NamespacedHMSerializer):
                   'stack_member_id', 'model', 'switchbay', 'api_url')
 
 
+class ServerSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Server` objects
+    """
+    class Meta:
+        model = topologie.Server
+        fields = ('user', 'name', 'active', 'api_url')
+
+
 class ModelSwitchSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.ModelSwitch` objects
     """

@@ -339,6 +339,13 @@ class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SwitchSerializer
 
 
+class ServerViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Server` objects.
+    """
+    queryset = topologie.Server.objects.all()
+    serializer_class = serializers.ServerSerializer
+
+
 class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.ModelSwitch` objects.
     """
