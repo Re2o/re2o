@@ -49,6 +49,10 @@ install_re2o.sh help
 ## MR 172: Refactor API
 
 Creates a new (nearly) REST API to expose all models of Re2o. See [the dedicated wiki page](https://gitlab.federez.net/federez/re2o/wikis/API/Raw-Usage) for more details on how to use it.
+* For testing purpose, add `volatildap` package:
+```
+pip3 install volatildap
+```
 * Activate HTTP Authorization passthrough in by adding the following in `/etc/apache2/site-available/re2o.conf` (example in `install_utils/apache2/re2o.conf`):
 ```
     WSGIPassAuthorization On
