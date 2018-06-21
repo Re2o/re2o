@@ -190,6 +190,11 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                            "que les vôtres")
         return True, None
 
+    @cached_property
+    def short_name(self):
+        return str(self.interface_set.first().domain.name)
+
+
     def __init__(self, *args, **kwargs):
         super(Machine, self).__init__(*args, **kwargs)
         self.field_permissions = {

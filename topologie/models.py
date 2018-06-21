@@ -127,10 +127,6 @@ class AccessPoint(AclMixin, Machine):
             switchbay__switch=self.switch()
         )
 
-    @cached_property
-    def short_name(self):
-        return str(self.interface_set.first().domain.name)
-
     @classmethod
     def all_ap_in(cls, building_instance):
         """Get a building as argument, returns all ap of a building"""
