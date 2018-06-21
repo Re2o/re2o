@@ -897,7 +897,7 @@ def profil(request, users, **_kwargs):
         SortTable.USERS_INDEX_WHITE
     )
     user_solde = OptionalUser.get_cached_value('user_solde')
-    allow_online_payment = AssoOption.get_cached_value('payment') != 'NONE'
+    allow_online_payment = True# TODO : AssoOption.get_cached_value('payment') != 'NONE'
     return render(
         request,
         'users/profil.html',

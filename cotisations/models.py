@@ -42,6 +42,9 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
+from django.urls import reverse
+from django.shortcuts import redirect
+from django.contrib import messages
 
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
@@ -628,6 +631,36 @@ class Paiement(RevMixin, AclMixin, models.Model):
                 _("You cannot have multiple payment method of type cheque")
             )
         super(Paiement, self).save(*args, **kwargs)
+
+    def end_payment(self, invoice, request):
+        """
+        The general way of ending a payment. You may redefine this method for custom
+        payment methods. Must return a HttpResponse-like object.
+        """
+        if hasattr(self, 'payment_method'):
+            return self.payment_method.end_payment(invoice, request)
+
+        # In case a cotisation was bought, inform the user, the
+        # cotisation time has been extended too
+        if any(sell.type_cotisation for sell in invoice.vente_set.all()):
+            messages.success(
+                request,
+                _("The cotisation of %(member_name)s has been \
+                extended to %(end_date)s.") % {
+                    'member_name': request.user.pseudo,
+                    'end_date': request.user.end_adhesion()
+                }
+            )
+        # Else, only tell the invoice was created
+        else:
+            messages.success(
+                request,
+                _("The invoice has been created.")
+            )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': request.user.pk}
+        ))
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):

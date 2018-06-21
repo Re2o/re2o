@@ -73,7 +73,6 @@ from .forms import (
     CreditSoldeForm,
     RechargeForm
 )
-from . import payment as online_payment
 from .tex import render_invoice
 
 
@@ -159,11 +158,6 @@ def new_facture(request, user, userid):
                             'users:profil',
                             kwargs={'userid': userid}
                         ))
-            is_online_payment = new_invoice_instance.paiement == (
-                Paiement.objects.get_or_create(
-                    moyen='Rechargement en ligne')[0])
-            new_invoice_instance.valid = not is_online_payment
-            # Saving the invoice
             new_invoice_instance.save()
 
 
@@ -182,34 +176,8 @@ def new_facture(request, user, userid):
                     )
                     new_purchase.save()
 
-            if is_online_payment:
-                content = online_payment.PAYMENT_SYSTEM[
-                    AssoOption.get_cached_value('payment')
-                    ](new_invoice_instance, request)
-                return render(request, 'cotisations/payment.html', content)
+            return new_invoice_instance.paiement.end_payment(new_invoice_instance, request)
 
-            # In case a cotisation was bought, inform the user, the
-            # cotisation time has been extended too
-            if any(art_item.cleaned_data['article'].type_cotisation
-                   for art_item in articles if art_item.cleaned_data):
-                messages.success(
-                    request,
-                    _("The cotisation of %(member_name)s has been \
-                    extended to %(end_date)s.") % {
-                        'member_name': user.pseudo,
-                        'end_date': user.end_adhesion()
-                    }
-                )
-            # Else, only tell the invoice was created
-            else:
-                messages.success(
-                    request,
-                    _("The invoice has been created.")
-                )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': userid}
-            ))
         messages.error(
             request,
             _("You need to choose at least one article.")
@@ -894,9 +862,9 @@ def recharge(request):
             number=1
         )
         purchase.save()
-        content = online_payment.PAYMENT_SYSTEM[
-            AssoOption.get_cached_value('payment')
-        ](invoice, request)
+        # content = online_payment.PAYMENT_SYSTEM[
+            # AssoOption.get_cached_value('payment')
+        # ](invoice, request)
         return render(request, 'cotisations/payment.html', content)
     return form({
         'rechargeform': refill_form,

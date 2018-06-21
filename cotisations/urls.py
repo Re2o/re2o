@@ -29,7 +29,7 @@ from django.conf.urls import url
 
 import re2o
 from . import views
-from . import payment
+from . import payment_methods
 
 urlpatterns = [
     url(
@@ -143,20 +143,6 @@ urlpatterns = [
         views.recharge,
         name='recharge'
     ),
-    url(
-        r'^payment/accept/(?P<factureid>[0-9]+)$',
-        payment.accept_payment,
-        name='accept_payment'
-    ),
-    url(
-        r'^payment/refuse/$',
-        payment.refuse_payment,
-        name='refuse_payment'
-    ),
-    url(
-        r'^payment/ipn/$',
-        payment.ipn,
-        name='ipn'
-    ),
     url(r'^$', views.index, name='index'),
-]
+] + payment_methods.urlpatterns
+
