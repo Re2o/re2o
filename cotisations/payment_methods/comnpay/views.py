@@ -15,8 +15,8 @@ from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from preferences.models import AssoOption
-from .models import Facture
-from .payment_utils.comnpay import Payment as ComnpayPayment
+from cotisations.models import Facture
+from .comnpay import Transaction
 
 
 @csrf_exempt
@@ -73,7 +73,7 @@ def ipn(request):
     Verify that we can firmly save the user's action and notify
     Comnpay with 400 response if not or with a 200 response if yes
     """
-    p = ComnpayPayment()
+    p = Transaction()
     order = ('idTpe', 'idTransaction', 'montant', 'result', 'sec', )
     try:
         data = OrderedDict([(f, request.POST[f]) for f in order])
@@ -121,15 +121,15 @@ def comnpay(facture, request):
     the preferences.
     """
     host = request.get_host()
-    p = ComnpayPayment(
+    p = Transaction(
         str(AssoOption.get_cached_value('payment_id')),
         str(AssoOption.get_cached_value('payment_pass')),
         'https://' + host + reverse(
-            'cotisations:accept_payment',
+            'cotisations:comnpay_accept_payment',
             kwargs={'factureid': facture.id}
         ),
-        'https://' + host + reverse('cotisations:refuse_payment'),
-        'https://' + host + reverse('cotisations:ipn'),
+        'https://' + host + reverse('cotisations:comnpay_refuse_payment'),
+        'https://' + host + reverse('cotisations:comnpay_ipn'),
         "",
         "D"
     )
@@ -145,9 +145,3 @@ def comnpay(facture, request):
     }
     return r
 
-
-# The payment systems supported by re2o
-PAYMENT_SYSTEM = {
-    'COMNPAY': comnpay,
-    'NONE': None
-}
