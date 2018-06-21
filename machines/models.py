@@ -286,9 +286,26 @@ class IpType(RevMixin, AclMixin, models.Model):
         return IPSet(self.ip_range)
 
     @cached_property
+    def ip_set_cidrs_as_str(self):
+        """Renvoie la liste des cidrs du range en str"""
+        return [str(ip_range) for ip_range in self.ip_set.iter_cidrs()]
+
+    @cached_property
     def ip_set_as_str(self):
         """ Renvoie une liste des ip en string"""
         return [str(x) for x in self.ip_set]
+
+    @cached_property
+    def ip_set_full_info(self):
+        """Iter sur les range cidr, et renvoie network, broacast , etc"""
+        return [
+            {
+                'network': str(ip_set.network),
+                'netmask': str(ip_set.netmask),
+                'broacast': str(ip_set.broadcast),
+            } for ip_set in self.ip_set.iter_cidrs()
+        ]
+
 
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""
