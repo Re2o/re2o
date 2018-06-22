@@ -33,12 +33,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <!DOCTYPE html>
 <html lang="fr">
     <head prefix="og: http://ogp.me/ns#">
-    <meta property="og:title" content="Re2o" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="\\{{request.get_host}}" />
-    <meta property="og:image" content="\\{{request.get_host}}/static/logo/re2o.png"/>
-    <meta property="og:description" content="Site de gestion de réseau supporté par FedeRez." />
-    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+        <meta property="og:title" content="Re2o" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}/" />
+        <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
+        <meta property="og:image:type" content="image/svg"/>
+        <meta property="og:image:alt" content="The Re2o logo"/>
+        <meta property="og:description" content="Site de gestion de réseau supporté par FedeRez." />
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
         <link href="/static/css/typeaheadjs.css" rel="stylesheet">
@@ -50,9 +52,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <script src="/static/js/konami/konami.js"></script>
         <script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
         <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
-	<script src="/static/js/shortcuts.js"></script>
-        <link rel="stylesheet" href="{% static "/css/base.css" %}">
+        <script src="/static/js/shortcuts.js"></script>
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/svg" href="{% static 'images/logo_re2o.svg' %}">
         <title>{{ site_name }} : {% block title %}Accueil{% endblock %}</title>
     </head>
 
@@ -66,7 +69,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="/">{{ site_name }}</a>
+                        <a class="navbar-brand" href="/">
+                            <img src="{% static 'images/logo_re2o_navbar.svg' %}" height=32>
+                            {{ site_name }}
+                        </a>
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
