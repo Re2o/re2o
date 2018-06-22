@@ -43,3 +43,13 @@ Refactored install_re2o.sh script.
 install_re2o.sh help
 ```
 * The installation templates (LDIF files and `re2o/settings_locale.example.py`) have been changed to use `example.net` instead of `example.org` (more neutral and generic)
+
+
+
+## MR 176: Add awesome Logo
+
+Add the logo and fix somme issues on the navbar and home page. Only collecting the statics is needed:
+```
+python3 manage.py collectstatic
+```
+
