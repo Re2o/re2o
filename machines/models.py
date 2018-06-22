@@ -351,12 +351,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         crée les ip une par une. Si elles existent déjà, met à jour le type
         associé à l'ip"""
         # Creation du range d'ip dans les objets iplist
-        networks = []
-        for net in self.ip_range.cidrs():
-            networks += net.iter_hosts()
-        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in networks]
+        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in self.ip_range]
         listes_ip = IpList.objects.filter(
-            ipv4__in=[str(ip) for ip in networks]
+            ipv4__in=[str(ip) for ip in self.ip_range]
         )
         # Si il n'y a pas d'ip, on les crée
         if not listes_ip:
@@ -900,7 +897,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         blank=True,
         null=True
     )
-    mac_address = MACAddressField(integer=False, unique=True)
+    mac_address = MACAddressField(integer=False)
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
