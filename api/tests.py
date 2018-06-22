@@ -58,7 +58,7 @@ class APIEndpointsTestCase(APITestCase):
         '/api/cotisations/banque/',
         '/api/cotisations/banque/1/',
         '/api/cotisations/cotisation/',
-#        '/api/cotisations/cotisation/1/',
+        '/api/cotisations/cotisation/1/',
         '/api/cotisations/facture/',
         '/api/cotisations/facture/1/',
         '/api/cotisations/paiement/',
@@ -302,15 +302,12 @@ class APIEndpointsTestCase(APITestCase):
             duration=1,
             type_cotisation=cotisations.Vente.COTISATION_TYPE[0][0]
         )
-# Creation of this cotisation seems to revalidate the Vente object which of
-# course already exists.
-# FIXME
-#        cls.cotisations_cotisation_1 = cotisations.Cotisation.objects.create(
-#            vente=cls.cotisations_vente_1,  # Dep cotisations.Vente
-#            type_cotisation=cotisations.Cotisation.COTISATION_TYPE[0][0],
-#            date_start=datetime.datetime.now(datetime.timezone.utc),
-#            date_end=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
-#        )
+        # A cotisation is automatically created by the Vente object and
+        # trying to create another cotisation associated with this vente
+        # will fail so we simply retrieve it so it can be used in the tests
+        cls.cotisations_cotisation_1 = cotisations.Cotisation.objects.get(
+            vente=cls.cotisations_vente_1,  # Dep cotisations.Vente
+        )
         cls.machines_machine_1 = machines.Machine.objects.create(
             user=cls.users_user_1,  # Dep users.User
             name="machines_machine_1",
@@ -350,7 +347,7 @@ class APIEndpointsTestCase(APITestCase):
             ouverture_ports=cls.machines_ouvertureportlist_1  # Dep machines.OuverturePortList
         )
         # All IPs in the IpType range are autocreated so we can't create
-        # new ones and thus we only retrieve it if needed in the test
+        # new ones and thus we only retrieve it if needed in the tests
         cls.machines_iplist_1 = machines.IpList.objects.get(
             ipv4="10.0.0.1",
             ip_type=cls.machines_iptype_1,  # Dep machines.IpType
