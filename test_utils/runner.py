@@ -155,10 +155,12 @@ class DiscoverLdapRunner(DiscoverRunner):
 
     def setup_databases(self, *args, **kwargs):
         ret = super(DiscoverLdapRunner, self).setup_databases(*args, **kwargs)        
+        print("Creating test LDAP with volatildap...")
         self.ldap_server.start()
         return ret
 
     def teardown_databases(self, *args, **kwargs):
         self.ldap_server.stop()
+        print("Destroying test LDAP...")
         super(DiscoverLdapRunner, self).teardown_databases(*args, **kwargs)
 

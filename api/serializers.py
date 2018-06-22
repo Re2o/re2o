@@ -276,6 +276,11 @@ class ServiceLinkSerializer(NamespacedHMSerializer):
 class OuverturePortListSerializer(NamespacedHMSerializer):
     """Serialize `machines.models.OuverturePortList` objects.
     """
+    tcp_ports_in = NamespacedHRField(view_name='ouvertureport-detail', many=True, read_only=True)
+    udp_ports_in = NamespacedHRField(view_name='ouvertureport-detail', many=True, read_only=True)
+    tcp_ports_out = NamespacedHRField(view_name='ouvertureport-detail', many=True, read_only=True)
+    udp_ports_out = NamespacedHRField(view_name='ouvertureport-detail', many=True, read_only=True)
+
     class Meta:
         model = machines.OuverturePortList
         fields = ('name', 'tcp_ports_in', 'udp_ports_in', 'tcp_ports_out',
@@ -335,12 +340,15 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
                   'GTU')
 
 
-class ServiceSerializer(NamespacedHMSerializer):
+class HomeServiceSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.Service` objects.
     """
     class Meta:
         model = preferences.Service
         fields = ('name', 'url', 'description', 'image', 'api_url')
+        extra_kwargs = {
+            'api_url': {'view_name': 'homeservice-detail'}
+        }
 
 
 class AssoOptionSerializer(NamespacedHMSerializer):
@@ -625,14 +633,6 @@ class OriginV4RecordSerializer(IpListSerializer):
         fields = ('ipv4',)
 
 
-class OriginV6RecordSerializer(Ipv6ListSerializer):
-    """Serialize `machines.models.Ipv6List` objects with the data needed to
-    generate an IPv6 Origin DNS record.
-    """
-    class Meta(Ipv6ListSerializer.Meta):
-        fields = ('ipv6',)
-
-
 class NSRecordSerializer(NsSerializer):
     """Serialize `machines.models.Ns` objects with the data needed to
     generate a NS DNS record.
@@ -713,7 +713,7 @@ class DNSZonesSerializer(serializers.ModelSerializer):
     soa = SOARecordSerializer()
     ns_records = NSRecordSerializer(many=True, source='ns_set')
     originv4 = OriginV4RecordSerializer(source='origin')
-    originv6 = OriginV6RecordSerializer(source='origin_v6')
+    originv6 = serializers.CharField(source='origin_v6')
     mx_records = MXRecordSerializer(many=True, source='mx_set')
     txt_records = TXTRecordSerializer(many=True, source='txt_set')
     srv_records = SRVRecordSerializer(many=True, source='srv_set')

@@ -275,11 +275,11 @@ class GeneralOptionView(generics.RetrieveAPIView):
         return preferences.GeneralOption.objects.first()
 
 
-class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `preferences.models.Service` objects.
     """
     queryset = preferences.Service.objects.all()
-    serializer_class = serializers.ServiceSerializer
+    serializer_class = serializers.HomeServiceSerializer
 
 
 class AssoOptionView(generics.RetrieveAPIView):

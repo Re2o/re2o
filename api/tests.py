@@ -21,12 +21,14 @@
 """
 
 import json
+import datetime
 from rest_framework.test import APITestCase
 from requests import codes
 
-#import cotisations.models as cotisations
-#import machines.models as machines
-#import topologie.models as topologie
+import cotisations.models as cotisations
+import machines.models as machines
+import preferences.models as preferences
+import topologie.models as topologie
 import users.models as users
 
 
@@ -52,107 +54,165 @@ class APIEndpointsTestCase(APITestCase):
     auth_no_perm_endpoints = []
     auth_perm_endpoints = [
         '/api/cotisations/article/',
-#        '/api/cotisations/article/<pk>/',
+        '/api/cotisations/article/1/',
         '/api/cotisations/banque/',
-#        '/api/cotisations/banque/<pk>/',
+        '/api/cotisations/banque/1/',
         '/api/cotisations/cotisation/',
-#        '/api/cotisations/cotisation/<pk>/',
+#        '/api/cotisations/cotisation/1/',
         '/api/cotisations/facture/',
-#        '/api/cotisations/facture/<pk>/',
+        '/api/cotisations/facture/1/',
         '/api/cotisations/paiement/',
-#        '/api/cotisations/paiement/<pk>/',
+        '/api/cotisations/paiement/1/',
         '/api/cotisations/vente/',
-#        '/api/cotisations/vente/<pk>/',
+        '/api/cotisations/vente/1/',
         '/api/machines/domain/',
-#        '/api/machines/domain/<pk>/',
+        '/api/machines/domain/1/',
         '/api/machines/extension/',
-#        '/api/machines/extension/<pk>/',
+        '/api/machines/extension/1/',
         '/api/machines/interface/',
-#        '/api/machines/interface/<pk>/',
+        '/api/machines/interface/1/',
         '/api/machines/iplist/',
-#        '/api/machines/iplist/<pk>/',
+        '/api/machines/iplist/1/',
         '/api/machines/iptype/',
-#        '/api/machines/iptype/<pk>/',
+        '/api/machines/iptype/1/',
         '/api/machines/ipv6list/',
-#        '/api/machines/ipv6list/<pk>/',
+        '/api/machines/ipv6list/1/',
         '/api/machines/machine/',
-#        '/api/machines/machine/<pk>/',
+        '/api/machines/machine/1/',
         '/api/machines/machinetype/',
-#        '/api/machines/machinetype/<pk>/',
+        '/api/machines/machinetype/1/',
         '/api/machines/mx/',
-#        '/api/machines/mx/<pk>/',
+        '/api/machines/mx/1/',
         '/api/machines/nas/',
-#        '/api/machines/nas/<pk>/',
+        '/api/machines/nas/1/',
         '/api/machines/ns/',
-#        '/api/machines/ns/<pk>/',
+        '/api/machines/ns/1/',
         '/api/machines/ouvertureportlist/',
-#        '/api/machines/ouvertureportlist/<pk>/',
+        '/api/machines/ouvertureportlist/1/',
         '/api/machines/ouvertureport/',
-#        '/api/machines/ouvertureport/<pk>/',
+        '/api/machines/ouvertureport/1/',
         '/api/machines/servicelink/',
-#        '/api/machines/servicelink/<pk>/',
+        '/api/machines/servicelink/1/',
         '/api/machines/service/',
-#        '/api/machines/service/<pk>/',
+        '/api/machines/service/1/',
         '/api/machines/soa/',
-#        '/api/machines/soa/<pk>/',
+        '/api/machines/soa/1/',
         '/api/machines/srv/',
-#        '/api/machines/srv/<pk>/',
+        '/api/machines/srv/1/',
         '/api/machines/txt/',
-#        '/api/machines/txt/<pk>/',
+        '/api/machines/txt/1/',
         '/api/machines/vlan/',
-#        '/api/machines/vlan/<pk>/',
+        '/api/machines/vlan/1/',
         '/api/preferences/optionaluser/',
         '/api/preferences/optionalmachine/',
         '/api/preferences/optionaltopologie/',
         '/api/preferences/generaloption/',
         '/api/preferences/service/',
-#        '/api/preferences/service/<pk>/',
+        '/api/preferences/service/1/',
         '/api/preferences/assooption/',
         '/api/preferences/homeoption/',
         '/api/preferences/mailmessageoption/',
         '/api/topologie/acesspoint/',
-#        '/api/topologie/acesspoint/<pk>/',
+        # 2nd machine to be create (machines_machine_1, topologie_accesspoint_1)
+        '/api/topologie/acesspoint/2/',
         '/api/topologie/building/',
-#        '/api/topologie/building/<pk>/',
+        '/api/topologie/building/1/',
         '/api/topologie/constructorswitch/',
-#        '/api/topologie/constructorswitch/<pk>/',
+        '/api/topologie/constructorswitch/1/',
         '/api/topologie/modelswitch/',
-#        '/api/topologie/modelswitch/<pk>/',
+        '/api/topologie/modelswitch/1/',
         '/api/topologie/room/',
-#        '/api/topologie/room/<pk>/',
+        '/api/topologie/room/1/',
         '/api/topologie/server/',
-#        '/api/topologie/server/<pk>/',
+        # 3rd machine to be create (machines_machine_1, topologie_accesspoint_1,
+        # topologie_server_1)
+        '/api/topologie/server/3/',
         '/api/topologie/stack/',
-#        '/api/topologie/stack/<pk>/',
+        '/api/topologie/stack/1/',
         '/api/topologie/switch/',
-#        '/api/topologie/switch/<pk>/',
+        # 4th machine to be create (machines_machine_1, topologie_accesspoint_1,
+        # topologie_server_1, topologie_switch_1)
+        '/api/topologie/switch/4/',
         '/api/topologie/switchbay/',
-#        '/api/topologie/switchbay/<pk>/',
+        '/api/topologie/switchbay/1/',
         '/api/topologie/switchport/',
-#        '/api/topologie/switchport/<pk>/',
+        '/api/topologie/switchport/1/',
+        '/api/topologie/switchport/2/',
+        '/api/topologie/switchport/3/',
         '/api/users/adherent/',
-#        '/api/users/adherent/<pk>/',
+        # 3rd user to be create (stduser, superuser, users_adherent_1)
+        '/api/users/adherent/3/',
         '/api/users/ban/',
-#        '/api/users/ban/<pk>/',
+        '/api/users/ban/1/',
         '/api/users/club/',
-#        '/api/users/club/<pk>/',
+        # 4th user to be create (stduser, superuser, users_adherent_1,
+        # users_club_1)
+        '/api/users/club/4/', 
         '/api/users/listright/',
-#        '/api/users/listright/<pk>/',
+# TODO: Merge !145
+#        '/api/users/listright/1/',
         '/api/users/school/',
-#        '/api/users/school/<pk>/',
+        '/api/users/school/1/',
         '/api/users/serviceuser/',
-#        '/api/users/serviceuser/<pk>/',
+        '/api/users/serviceuser/1/',
         '/api/users/shell/',
-#        '/api/users/shell/<pk>/',
+        '/api/users/shell/1/',
         '/api/users/user/',
-#        '/api/users/user/<pk>/',
+        '/api/users/user/1/',
         '/api/users/whitelist/',
-#        '/api/users/whitelist/<pk>/',
+        '/api/users/whitelist/1/',
         '/api/dns/zones/',
         '/api/dhcp/hostmacip/',
         '/api/mailing/standard',
         '/api/mailing/club',
         '/api/services/regen/',
+    ]
+    not_found_endpoints = [
+        '/api/cotisations/article/4242/',
+        '/api/cotisations/banque/4242/',
+        '/api/cotisations/cotisation/4242/',
+        '/api/cotisations/facture/4242/',
+        '/api/cotisations/paiement/4242/',
+        '/api/cotisations/vente/4242/',
+        '/api/machines/domain/4242/',
+        '/api/machines/extension/4242/',
+        '/api/machines/interface/4242/',
+        '/api/machines/iplist/4242/',
+        '/api/machines/iptype/4242/',
+        '/api/machines/ipv6list/4242/',
+        '/api/machines/machine/4242/',
+        '/api/machines/machinetype/4242/',
+        '/api/machines/mx/4242/',
+        '/api/machines/nas/4242/',
+        '/api/machines/ns/4242/',
+        '/api/machines/ouvertureportlist/4242/',
+        '/api/machines/ouvertureport/4242/',
+        '/api/machines/servicelink/4242/',
+        '/api/machines/service/4242/',
+        '/api/machines/soa/4242/',
+        '/api/machines/srv/4242/',
+        '/api/machines/txt/4242/',
+        '/api/machines/vlan/4242/',
+        '/api/preferences/service/4242/',
+        '/api/topologie/acesspoint/4242/',
+        '/api/topologie/building/4242/',
+        '/api/topologie/constructorswitch/4242/',
+        '/api/topologie/modelswitch/4242/',
+        '/api/topologie/room/4242/',
+        '/api/topologie/server/4242/',
+        '/api/topologie/stack/4242/',
+        '/api/topologie/switch/4242/',
+        '/api/topologie/switchbay/4242/',
+        '/api/topologie/switchport/4242/',
+        '/api/users/adherent/4242/',
+        '/api/users/ban/4242/',
+        '/api/users/club/4242/',
+        '/api/users/listright/4242/',
+        '/api/users/school/4242/',
+        '/api/users/serviceuser/4242/',
+        '/api/users/shell/4242/',
+        '/api/users/user/4242/',
+        '/api/users/whitelist/4242/',
     ]
     
     stduser = None
@@ -160,6 +220,14 @@ class APIEndpointsTestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        # Be aware that every object created here is never actually committed
+        # to the database. TestCase uses rollbacks after each test to cancel all
+        # modifications and recreates the data defined here before each test.
+        # For more details, see
+        # https://docs.djangoproject.com/en/1.10/topics/testing/tools/#testcase
+
+        super(APIEndpointsTestCase, cls).setUpClass()
+
         # A user with no rights
         cls.stduser = users.User.objects.create_user(
             "apistduser",
@@ -175,15 +243,311 @@ class APIEndpointsTestCase(APITestCase):
             "apisuperuser"
         )
 
-        # TODO :
-        # Create 1 object of every model so there is an exisiting object
-        # when quering for pk=1
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.stduser.delete()
-        cls.superuser.delete()
-        super().tearDownClass()
+        # Creates 1 instance for each object so the "details" endpoints
+        # can be tested too. Objects need to be created in the right order.
+        # Dependencies (relatedFields, ...) are highlighted by a comment at
+        # the end of the concerned line (# Dep <model>).
+        cls.users_school_1 = users.School.objects.create(
+            name="users_school_1"
+        )
+        cls.users_school_1.save()
+        cls.users_listshell_1 = users.ListShell.objects.create(
+            shell="users_listshell_1"
+        )
+        cls.users_adherent_1 = users.Adherent.objects.create(
+            password="password",
+            last_login=datetime.datetime.now(datetime.timezone.utc),
+            surname="users_adherent_1",
+            pseudo="usersadherent1",
+            email="users_adherent_1@example.net",
+            school=cls.users_school_1,  # Dep users.School
+            shell=cls.users_listshell_1,  # Dep users.ListShell
+            comment="users Adherent 1 comment",
+            pwd_ntlm="",
+            state=users.User.STATES[0][0],
+            registered=datetime.datetime.now(datetime.timezone.utc),
+            telephone="0123456789",
+            uid_number=21102,
+            rezo_rez_uid=21102
+        )
+        cls.users_user_1 = cls.users_adherent_1
+        cls.cotisations_article_1 = cotisations.Article.objects.create(
+            name="cotisations_article_1",
+            prix=10,
+            duration=1,
+            type_user=cotisations.Article.USER_TYPES[0][0],
+            type_cotisation=cotisations.Article.COTISATION_TYPE[0][0]
+        )
+        cls.cotisations_banque_1 = cotisations.Banque.objects.create(
+            name="cotisations_banque_1"
+        )
+        cls.cotisations_paiement_1 = cotisations.Paiement.objects.create(
+            moyen="cotisations_paiement_1",
+            type_paiement=cotisations.Paiement.PAYMENT_TYPES[0][0]
+        )
+        cls.cotisations_facture_1 = cotisations.Facture.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            paiement=cls.cotisations_paiement_1,  # Dep cotisations.Paiement
+            banque=cls.cotisations_banque_1,  # Dep cotisations.Banque
+            cheque="1234567890",
+            date=datetime.datetime.now(datetime.timezone.utc),
+            valid=True,
+            control=False
+        )
+        cls.cotisations_vente_1 = cotisations.Vente.objects.create(
+            facture=cls.cotisations_facture_1,  # Dep cotisations.Facture
+            number=2,
+            name="cotisations_vente_1",
+            prix=10,
+            duration=1,
+            type_cotisation=cotisations.Vente.COTISATION_TYPE[0][0]
+        )
+# Creation of this cotisation seems to revalidate the Vente object which of
+# course already exists.
+# FIXME
+#        cls.cotisations_cotisation_1 = cotisations.Cotisation.objects.create(
+#            vente=cls.cotisations_vente_1,  # Dep cotisations.Vente
+#            type_cotisation=cotisations.Cotisation.COTISATION_TYPE[0][0],
+#            date_start=datetime.datetime.now(datetime.timezone.utc),
+#            date_end=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
+#        )
+        cls.machines_machine_1 = machines.Machine.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            name="machines_machine_1",
+            active=True
+        )
+        cls.machines_ouvertureportlist_1 = machines.OuverturePortList.objects.create(
+            name="machines_ouvertureportlist_1"
+        )
+        cls.machines_soa_1 = machines.SOA.objects.create(
+            name="machines_soa_1",
+            mail="postmaster@example.net",
+            refresh=86400,
+            retry=7200,
+            expire=3600000,
+            ttl=172800
+        )
+        cls.machines_extension_1 = machines.Extension.objects.create(
+            name="machines_extension_1",
+            need_infra=False,
+            # Do not set origin because of circular dependency
+            origin_v6="2001:db8:1234::",
+            soa=cls.machines_soa_1  # Dep machines.SOA
+        )
+        cls.machines_vlan_1 = machines.Vlan.objects.create(
+            vlan_id=0,
+            name="machines_vlan_1",
+            comment="machines Vlan 1"
+        )
+        cls.machines_iptype_1 = machines.IpType.objects.create(
+            type="machines_iptype_1",
+            extension=cls.machines_extension_1,  # Dep machines.Extension
+            need_infra=False,
+            domaine_ip_start="10.0.0.1",
+            domaine_ip_stop="10.0.0.255",
+            prefix_v6="2001:db8:1234::",
+            vlan=cls.machines_vlan_1,  # Dep machines.Vlan
+            ouverture_ports=cls.machines_ouvertureportlist_1  # Dep machines.OuverturePortList
+        )
+        # All IPs in the IpType range are autocreated so we can't create
+        # new ones and thus we only retrieve it if needed in the test
+        cls.machines_iplist_1 = machines.IpList.objects.get(
+            ipv4="10.0.0.1",
+            ip_type=cls.machines_iptype_1,  # Dep machines.IpType
+        )
+        cls.machines_machinetype_1 = machines.MachineType.objects.create(
+            type="machines_machinetype_1",
+            ip_type=cls.machines_iptype_1,  # Dep machines.IpType
+        )
+        cls.machines_interface_1 = machines.Interface.objects.create(
+            ipv4=cls.machines_iplist_1,  # Dep machines.IpList
+            mac_address="00:00:00:00:00:00",
+            machine=cls.machines_machine_1,  # Dep machines.Machine
+            type=cls.machines_machinetype_1,  # Dep machines.MachineType
+            details="machines Interface 1",
+            #port_lists=[cls.machines_ouvertureportlist_1]  # Dep machines.OuverturePortList
+        )
+        cls.machines_domain_1 = machines.Domain.objects.create(
+            interface_parent=cls.machines_interface_1,  # Dep machines.Interface
+            name="machinesdomain",
+            extension=cls.machines_extension_1  # Dep machines.Extension
+            # Do no define cname for circular dependency
+        )
+        cls.machines_mx_1 = machines.Mx.objects.create(
+            zone=cls.machines_extension_1,  # Dep machines.Extension
+            priority=10,
+            name=cls.machines_domain_1  # Dep machines.Domain
+        )
+        cls.machines_ns_1 = machines.Ns.objects.create(
+            zone=cls.machines_extension_1,  # Dep machines.Extension
+            ns=cls.machines_domain_1  # Dep machines.Domain
+        )
+        cls.machines_txt_1 = machines.Txt.objects.create(
+            zone=cls.machines_extension_1,  # Dep machines.Extension
+            field1="machines_txt_1",
+            field2="machies Txt 1"
+        )
+        cls.machines_srv_1 = machines.Srv.objects.create(
+            service="machines_srv_1",
+            protocole=machines.Srv.TCP,
+            extension=cls.machines_extension_1,  # Dep machines.Extension
+            ttl=172800,
+            priority=0,
+            port=1,
+            target=cls.machines_domain_1,  # Dep machines.Domain
+        )
+        cls.machines_ipv6list_1 = machines.Ipv6List.objects.create(
+            ipv6="2001:db8:1234::",
+            interface=cls.machines_interface_1,  # Dep machines.Interface
+            slaac_ip=False
+        )
+        cls.machines_service_1 = machines.Service.objects.create(
+            service_type="machines_service_1",
+            min_time_regen=datetime.timedelta(minutes=1),
+            regular_time_regen=datetime.timedelta(hours=1)
+            # Do not define service_link because circular dependency
+        )
+        cls.machines_servicelink_1 = machines.Service_link.objects.create(
+            service=cls.machines_service_1,  # Dep machines.Service
+            server=cls.machines_interface_1,  # Dep machines.Interface
+            last_regen=datetime.datetime.now(datetime.timezone.utc),
+            asked_regen=False
+        )
+        cls.machines_ouvertureport_1 = machines.OuverturePort.objects.create(
+            begin=1,
+            end=2,
+            port_list=cls.machines_ouvertureportlist_1,  # Dep machines.OuverturePortList
+            protocole=machines.OuverturePort.TCP,
+            io=machines.OuverturePort.OUT
+        )
+        cls.machines_nas_1 = machines.Nas.objects.create(
+            name="machines_nas_1",
+            nas_type=cls.machines_machinetype_1,  # Dep machines.MachineType
+            machine_type=cls.machines_machinetype_1,  # Dep machines.MachineType
+            port_access_mode=machines.Nas.AUTH[0][0],
+            autocapture_mac=False
+        )
+        cls.preferences_service_1 = preferences.Service.objects.create(
+            name="preferences_service_1",
+            url="https://example.net",
+            description="preferences Service 1",
+            image="/media/logo/none.png"
+        )
+        cls.topologie_stack_1 = topologie.Stack.objects.create(
+            name="topologie_stack_1",
+            stack_id="1",
+            details="topologie Stack 1",
+            member_id_min=1,
+            member_id_max=10
+        )
+        cls.topologie_accespoint_1 = topologie.AccessPoint.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            name="machines_machine_1",
+            active=True,
+            location="topologie AccessPoint 1"
+        )
+        cls.topologie_server_1 = topologie.Server.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            name="machines_machine_1",
+            active=True
+        )
+        cls.topologie_building_1 = topologie.Building.objects.create(
+            name="topologie_building_1"
+        )
+        cls.topologie_switchbay_1 = topologie.SwitchBay.objects.create(
+            name="topologie_switchbay_1",
+            building=cls.topologie_building_1,  # Dep topologie.Building
+            info="topologie SwitchBay 1"
+        )
+        cls.topologie_constructorswitch_1 = topologie.ConstructorSwitch.objects.create(
+            name="topologie_constructorswitch_1"
+        )
+        cls.topologie_modelswitch_1 = topologie.ModelSwitch.objects.create(
+            reference="topologie_modelswitch_1",
+            constructor=cls.topologie_constructorswitch_1  # Dep topologie.ConstructorSwitch
+        )
+        cls.topologie_switch_1 = topologie.Switch.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            name="machines_machine_1",
+            active=True,
+            number=10,
+            stack=cls.topologie_stack_1,  # Dep topologie.Stack
+            stack_member_id=1,
+            model=cls.topologie_modelswitch_1,  # Dep topologie.ModelSwitch
+            switchbay=cls.topologie_switchbay_1  # Dep topologie.SwitchBay
+        )
+        cls.topologie_room_1 = topologie.Room.objects.create(
+            name="topologie_romm_1",
+            details="topologie Room 1"
+        )
+        cls.topologie_port_1 = topologie.Port.objects.create(
+            switch=cls.topologie_switch_1,  # Dep topologie.Switch
+            port=1,
+            room=cls.topologie_room_1,  # Dep topologie.Room
+            radius=topologie.Port.STATES[0][0],
+            vlan_force=cls.machines_vlan_1,  # Dep machines.Vlan
+            details="topologie_switch_1"
+        )
+        cls.topologie_port_2 = topologie.Port.objects.create(
+            switch=cls.topologie_switch_1,  # Dep topologie.Switch
+            port=2,
+            machine_interface=cls.machines_interface_1,  # Dep machines.Interface
+            radius=topologie.Port.STATES[0][0],
+            vlan_force=cls.machines_vlan_1,  # Dep machines.Vlan
+            details="topologie_switch_1"
+        )
+        cls.topologie_port_3 = topologie.Port.objects.create(
+            switch=cls.topologie_switch_1,  # Dep topologie.Switch
+            port=3,
+            room=cls.topologie_room_1,  # Dep topologie.Room
+            radius=topologie.Port.STATES[0][0],
+            # Do not defines related because circular dependency  # Dep machines.Vlan
+            details="topologie_switch_1"
+        )
+        cls.users_ban_1 = users.Ban.objects.create(
+            user=cls.users_user_1,  # Dep users.User
+            raison="users Ban 1",
+            date_start=datetime.datetime.now(datetime.timezone.utc),
+            date_end=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1),
+            state=users.Ban.STATES[0][0]
+        )
+        cls.users_club_1 = users.Club.objects.create(
+            password="password",
+            last_login=datetime.datetime.now(datetime.timezone.utc),
+            surname="users_club_1",
+            pseudo="usersclub1",
+            email="users_club_1@example.net",
+            school=cls.users_school_1,  # Dep users.School
+            shell=cls.users_listshell_1,  # Dep users.ListShell
+            comment="users Club 1 comment",
+            pwd_ntlm="",
+            state=users.User.STATES[0][0],
+            registered=datetime.datetime.now(datetime.timezone.utc),
+            telephone="0123456789",
+            uid_number=21103,
+            rezo_rez_uid=21103
+        )
+# Need merge of MR145 to work
+# TODO: Merge !145
+#        cls.users_listright_1 = users.ListRight.objects.create(
+#            unix_name="userslistright",
+#            gid=601,
+#            critical=False,
+#            details="userslistright"
+#        )
+        cls.users_serviceuser_1 = users.ServiceUser.objects.create(
+            password="password",
+            last_login=datetime.datetime.now(datetime.timezone.utc),
+            pseudo="usersserviceuser1",
+            access_group=users.ServiceUser.ACCESS[0][0],
+            comment="users ServiceUser 1"
+        )
+        cls.users_whitelist_1 = users.Whitelist.objects.create(
+            user=cls.users_user_1,
+            raison="users Whitelist 1",
+            date_start=datetime.datetime.now(datetime.timezone.utc),
+            date_end=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
+        )
 
     def check_responses_code(self, urls, expected_code, formats=None,
                              assert_more=None):
@@ -220,8 +584,7 @@ class APIEndpointsTestCase(APITestCase):
         Raises:
             AssertionError: An endpoint did not have a 200 status code.
         """
-        urls = [endpoint.replace('<pk>', '1')
-                for endpoint in self.no_auth_endpoints]
+        urls = self.no_auth_endpoints
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_endpoints_with_no_auth(self):
@@ -231,8 +594,7 @@ class APIEndpointsTestCase(APITestCase):
         Raises:
             AssertionError: An endpoint did not have a 401 status code.
         """
-        urls = [endpoint.replace('<pk>', '1') for endpoint in \
-                self.auth_no_perm_endpoints + self.auth_perm_endpoints]
+        urls = self.auth_no_perm_endpoints + self.auth_perm_endpoints
         self.check_responses_code(urls, codes.unauthorized)
 
     def test_no_auth_endpoints_with_auth(self):
@@ -243,8 +605,7 @@ class APIEndpointsTestCase(APITestCase):
             AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.stduser)
-        urls = [endpoint.replace('<pk>', '1')
-                for endpoint in self.no_auth_endpoints]
+        urls = self.no_auth_endpoints
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_no_perm_endpoints_with_auth_and_no_perm(self):
@@ -256,8 +617,7 @@ class APIEndpointsTestCase(APITestCase):
             AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.stduser)
-        urls = [endpoint.replace('<pk>', '1')
-                for endpoint in self.auth_no_perm_endpoints]
+        urls = self.auth_no_perm_endpoints
         self.check_responses_code(urls, codes.ok)
 
     def test_auth_perm_endpoints_with_auth_and_no_perm(self):
@@ -269,8 +629,7 @@ class APIEndpointsTestCase(APITestCase):
             AssertionError: An endpoint did not have a 403 status code.
         """
         self.client.force_authenticate(user=self.stduser)
-        urls = [endpoint.replace('<pk>', '1')
-                for endpoint in self.auth_perm_endpoints]
+        urls = self.auth_perm_endpoints
         self.check_responses_code(urls, codes.forbidden)
 
     def test_auth_endpoints_with_auth_and_perm(self):
@@ -281,8 +640,7 @@ class APIEndpointsTestCase(APITestCase):
             AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.superuser)
-        urls = [endpoint.replace('<pk>', '1') for endpoint \
-                in self.auth_no_perm_endpoints + self.auth_perm_endpoints]
+        urls = self.auth_no_perm_endpoints + self.auth_perm_endpoints
         self.check_responses_code(urls, codes.ok)
 
     def test_endpoints_not_found(self):
@@ -295,9 +653,7 @@ class APIEndpointsTestCase(APITestCase):
         """
         self.client.force_authenticate(user=self.superuser)
         # Select only the URLs with '<pk>' and replace it with '42'
-        urls = [endpoint.replace('<pk>', '42') for endpoint in \
-                self.no_auth_endpoints + self.auth_no_perm_endpoints + \
-                self.auth_perm_endpoints if '<pk>' in endpoint]
+        urls = self.not_found_endpoints
         self.check_responses_code(urls, codes.not_found)
 
     def test_formats(self):
@@ -310,9 +666,8 @@ class APIEndpointsTestCase(APITestCase):
         """
         self.client.force_authenticate(user=self.superuser)
         
-        urls = [endpoint.replace('<pk>', '1') for endpoint in \
-                self.no_auth_endpoints + self.auth_no_perm_endpoints + \
-                self.auth_perm_endpoints]
+        urls = self.no_auth_endpoints + self.auth_no_perm_endpoints + \
+               self.auth_perm_endpoints
 
         def assert_more(response, url, format):
             """Assert the response is valid json when format is json"""
@@ -389,11 +744,15 @@ class APIPaginationTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         # A user with all the rights
+        # We need to use a different username than for the first
+        # test case because TestCase is using rollbacks which don't 
+        # trigger the ldap_sync() thus the LDAP still have data about
+        # the old users.
         cls.superuser = users.User.objects.create_superuser(
-            "apisuperuser",
-            "apisuperuser",
-            "apisuperuser@example.net",
-            "apisuperuser"
+            "apisuperuser2",
+            "apisuperuser2",
+            "apisuperuser2@example.net",
+            "apisuperuser2"
         )
 
     @classmethod
