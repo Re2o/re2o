@@ -72,6 +72,12 @@ urlpatterns = [
         include('preferences.urls', namespace='preferences')
     ),
 ]
+# Add debug_toolbar URLs if activated
+if 'debug_toolbar' in settings.INSTALLED_APPS:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
 if 'api' in settings.INSTALLED_APPS:
     urlpatterns += [
         url(r'^api/', include('api.urls', namespace='api')),
