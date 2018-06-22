@@ -44,8 +44,8 @@ msgstr "Accueil"
 
 #: templates/re2o/index.html:33
 #, python-format
-msgid "Welcome to %(site_name)s !"
-msgstr "Bienvenue sur %(site_name)s !"
+msgid "Welcome to %(name_website)s !"
+msgstr "Bienvenue sur %(name_website)s !"
 
 #: templates/re2o/index.html:47
 msgid "Go there"
