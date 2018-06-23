@@ -75,6 +75,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if ipv6form %}
     {% bootstrap_form_errors ipv6form %}
 {% endif %}
+{% if sshfingerprintform %}
+    {% bootstrap_form_errors sshfingerprintform %}
+{% endif %}
+
+
 
 <form class="form" method="post">
     {% csrf_token %}
@@ -145,6 +150,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if ipv6form %}
         <h3>Ipv6</h3>
         {% bootstrap_form ipv6form %}
+    {% endif %}
+    {% if sshfingerprintform %}
+        <h3>SshFingerprint</h3>
+        {% bootstrap_form sshfingerprintform %}
     {% endif %}
     {% bootstrap_button action_name button_type="submit" icon="star" %}
 </form>

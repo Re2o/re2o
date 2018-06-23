@@ -105,7 +105,9 @@ from .forms import (
     DelSrvForm,
     Ipv6ListForm,
     EditOuverturePortListForm,
-    EditOuverturePortConfigForm
+    EditOuverturePortConfigForm,
+    SshFingerprintForm,
+    SshFprAlgoForm,
 )
 from .models import (
     IpType,
@@ -126,6 +128,8 @@ from .models import (
     OuverturePortList,
     OuverturePort,
     Ipv6List,
+    SshFingerprint,
+    SshFprAlgo,
 )
 
 
@@ -451,6 +455,72 @@ def del_ipv6list(request, ipv6list, **_kwargs):
         ))
     return form(
         {'objet': ipv6list, 'objet_name': 'ipv6'},
+        'machines/delete.html',
+        request
+    )
+
+
+@login_required
+@can_create(SshFingerprint)
+@can_edit(Machine)
+def new_sshfingerprint(request, machine, **_kwargs):
+    """Nouvelle sshfingerprint"""
+    sshfingerprint_instance = SshFingerprint(machine=machine)
+    sshfingerprint = SshFingerprintForm(
+        request.POST or None,
+        instance=sshfingerprint_instance
+    )
+    if sshfingerprint.is_valid():
+        sshfingerprint.save()
+        messages.success(request, "Fingerprint ssh ajoutée")
+        return redirect(reverse(
+            'machines:index-sshfingerprint',
+            kwargs={'machine': str(machine.id)}
+        ))
+    return form(
+        {'sshfingerprintform': sshfingerprint, 'action_name': 'Créer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(SshFingerprint)
+def edit_sshfingerprint(request, sshfingerprint_instance, **_kwargs):
+    """Edition d'une sshfingerprint"""
+    sshfingerprint = SshFingerprintForm(
+        request.POST or None,
+        instance=sshfingerprint_instance
+    )
+    if sshfingerprint.is_valid():
+        if sshfingerprint.changed_data:
+            sshfingerprint.save()
+            messages.success(request, "Ipv6 modifiée")
+        return redirect(reverse(
+            'machines:index-sshfingerprint',
+            kwargs={'machineid': str(sshfingerprint_instance.machine.id)}
+        ))
+    return form(
+        {'sshfingerprintform': sshfingerprint, 'action_name': 'Editer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete(SshFingerprint)
+def del_sshfingerprint(request, sshfingerprint, **_kwargs):
+    """ Supprime une sshfingerprint"""
+    if request.method == "POST":
+        machineid = sshfingerprint.machine.id
+        sshfingerprint.delete()
+        messages.success(request, "La sshfingerprint a été détruite")
+        return redirect(reverse(
+            'machines:index-sshfingerprint',
+            kwargs={'machineid': str(machineid)}
+        ))
+    return form(
+        {'objet': sshfingerprint, 'objet_name': 'sshfingerprint'},
         'machines/delete.html',
         request
     )
@@ -1325,7 +1395,31 @@ def index_alias(request, interface, interfaceid):
 
 
 @login_required
-@can_edit(Interface)
+@can_edit(Machine)
+def index_sshfingerprint(request, machine, machineid):
+    """ View used to display the list of existing IPv6 of an interface """
+    sshfingerprint_list = SshFingerprint.objects.filter(machine=machine)
+    return render(
+        request,
+        'machines/index_sshfingerprint.html',
+        {'sshfingerprint_list': sshfingerprint_list, 'machine_id': machineid}
+    )
+
+
+@login_required
+@can_view_all(SshFprAlgo)
+def index_sshfpralgo(request):
+    """ View used to display the list of existing sshfrpalgo"""
+    sshfpralgo_list = SshFprAlgo.objects.all()
+    return render(
+        request,
+        'machines/index_sshfpralgo.html',
+        {'sshfpralgo_list': sshfpralgo_list}
+    )
+
+
+@login_required
+@can_view_all(Interface)
 def index_ipv6(request, interface, interfaceid):
     """ View used to display the list of existing IPv6 of an interface """
     ipv6_list = Ipv6List.objects.filter(interface=interface)

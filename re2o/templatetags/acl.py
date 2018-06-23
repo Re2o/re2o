@@ -111,6 +111,8 @@ MODEL_NAME = {
     'Service_link': machines.models.Service_link,
     'OuverturePortList': machines.models.OuverturePortList,
     'OuverturePort': machines.models.OuverturePort,
+    'SshFingerprint': machines.models.SshFingerprint,
+    'SshFprAlgo': machines.models.SshFprAlgo,
     # preferences
     'OptionalUser': preferences.models.OptionalUser,
     'OptionalMachine': preferences.models.OptionalMachine,
