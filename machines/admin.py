@@ -149,7 +149,7 @@ class ServiceAdmin(VersionAdmin):
 
 class RoleAdmin(VersionAdmin):
     """ Admin view of a RoleAdmin object """
-    list_display = ('role_type')
+    pass
 
 
 
