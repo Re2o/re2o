@@ -235,7 +235,7 @@ class SshFprAlgo(RevMixin, AclMixin, models.Model):
     """Un aglorithme de création de la fingerprint ssh"""
     PRETTY_NAME = "Algo de clef ssh"
 
-    name = models.TextField(max_length=256)
+    name = models.CharField(max_length=256)
 
     class Meta:
         permissions = (

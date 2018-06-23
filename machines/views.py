@@ -475,7 +475,7 @@ def new_sshfingerprint(request, machine, **_kwargs):
         messages.success(request, "Fingerprint ssh ajoutée")
         return redirect(reverse(
             'machines:index-sshfingerprint',
-            kwargs={'machine': str(machine.id)}
+            kwargs={'machineid': str(machine.id)}
         ))
     return form(
         {'sshfingerprintform': sshfingerprint, 'action_name': 'Créer'},
@@ -495,7 +495,7 @@ def edit_sshfingerprint(request, sshfingerprint_instance, **_kwargs):
     if sshfingerprint.is_valid():
         if sshfingerprint.changed_data:
             sshfingerprint.save()
-            messages.success(request, "Ipv6 modifiée")
+            messages.success(request, "Ssh fingerprint modifiée")
         return redirect(reverse(
             'machines:index-sshfingerprint',
             kwargs={'machineid': str(sshfingerprint_instance.machine.id)}
@@ -521,6 +521,72 @@ def del_sshfingerprint(request, sshfingerprint, **_kwargs):
         ))
     return form(
         {'objet': sshfingerprint, 'objet_name': 'sshfingerprint'},
+        'machines/delete.html',
+        request
+    )
+
+
+@login_required
+@can_create(SshFprAlgo)
+def new_sshfpralgo(request, **_kwargs):
+    """Nouvelle sshfpralgo"""
+    sshfpralgo = SshFprAlgoForm(
+        request.POST or None,
+    )
+    if sshfpralgo.is_valid():
+        sshfpralgo.save()
+        messages.success(request, "Algo Fingerprint ssh ajouté")
+        return redirect(reverse(
+            'machines:index-sshfpralgo'
+        ))
+    return form(
+        {'sshfpralgoform': sshfpralgo, 'action_name': 'Créer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(SshFprAlgo)
+def edit_sshfpralgo(request, sshfpralgo_instance, **_kwargs):
+    """Edition d'une sshfpralgo"""
+    sshfpralgo = SshFprAlgoForm(
+        request.POST or None,
+        instance=sshfpralgo_instance
+    )
+    if sshfpralgo.is_valid():
+        if sshfpralgo.changed_data:
+            sshfpralgo.save()
+            messages.success(request, "Algo de sshfp modifiée")
+        return redirect(reverse(
+            'machines:index-sshfpralgo'
+        ))
+    return form(
+        {'sshfpralgoform': sshfpralgo, 'action_name': 'Editer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete(SshFprAlgo)
+def del_sshfpralgo(request, sshfpralgo, **_kwargs):
+    """ Supprime une sshfpralgo"""
+    if request.method == "POST":
+        try:
+            sshfpralgo.delete()
+            messages.success(request, "La sshfpralgo a été détruite")
+        except ProtectedError:
+            messages.error(
+                request,
+                ("L'algo est affectée à au moins une fingerprint ssh, "
+                "vous ne pouvez pas le supprimer")
+            )
+        return redirect(reverse(
+            'machines:index-sshfpralgo'
+        ))
+    return form(
+        {'objet': sshfpralgo, 'objet_name': 'sshfpralgo'},
         'machines/delete.html',
         request
     )
