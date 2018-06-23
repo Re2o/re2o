@@ -81,6 +81,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if sshfingerprintform %}
     {% bootstrap_form_errors sshfingerprintform %}
 {% endif %}
+{% if sshfpralgoform  %}
+    {% bootstrap_form_errors sshfpralgoform %}
+{% endif %}
+
 
 
 
@@ -161,6 +165,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if sshfingerprintform %}
         <h3>SshFingerprint</h3>
         {% bootstrap_form sshfingerprintform %}
+    {% endif %}
+    {% if sshfpralgoform %}
+        <h3>Algorithme de fingerprint ssh</h3>
+        {% bootstrap_form sshfpralgoform %}
     {% endif %}
     {% bootstrap_button action_name button_type="submit" icon="star" %}
 </form>
