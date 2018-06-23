@@ -50,10 +50,10 @@ def get_user(pseudo):
     """Cherche un utilisateur re2o à partir de son pseudo"""
     user = User.objects.filter(pseudo=pseudo)
     if len(user) == 0:
-        raise CommandError("Utilisateur invalide")
+        raise CommandError("Invalid user.")
     if len(user) > 1:
-        raise CommandError("Plusieurs utilisateurs correspondant à ce "
-                           "pseudo. Ceci NE DEVRAIT PAS arriver")
+        raise CommandError("Several users match this username. This SHOULD"
+                           " NOT happen.")
     return user[0]
 
 
@@ -81,19 +81,19 @@ def form_cli(Form, user, action, *args, **kwargs):
 
     form = Form(data, user=user, *args, **kwargs)
     if not form.is_valid():
-        sys.stderr.write("Erreurs : \n")
+        sys.stderr.write("Errors: \n")
         for err in form.errors:
             # Oui, oui, on gère du HTML là où d'autres ont eu la
             # lumineuse idée de le mettre
             sys.stderr.write(
                 "\t%s : %s\n" % (err, strip_tags(form.errors[err]))
             )
-        raise CommandError("Formulaire invalide")
+        raise CommandError("Invalid form.")
 
     with transaction.atomic(), reversion.create_revision():
         form.save()
         reversion.set_user(user)
         reversion.set_comment(action)
 
-    sys.stdout.write("%s : effectué. La modification peut prendre "
-                     "quelques minutes pour s'appliquer.\n" % action)
+    sys.stdout.write("%s : done. The edit may take several minutes to"
+                     " apply.\n" % action)

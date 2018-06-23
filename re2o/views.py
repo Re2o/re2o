@@ -131,3 +131,4 @@ def handler500(request):
 def handler404(request):
     """The handler view for a 404 error"""
     return render(request, 'errors/404.html')
+
