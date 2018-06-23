@@ -30,17 +30,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Invoice control" %}{% endblock %}
 
 {% block content %}
+
 <h2>{% trans "Invoice control and validation" %}</h2>
+
 {% if facture_list.paginator %}
 {% include 'pagination.html' with list=facture_list %}
 {% endif %}
+
 <form class="form" method="post">
     {% csrf_token %}
     {{ controlform.management_form }}
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% trans "Profil" %}</th>
+                <th>{% trans "Profile" %}</th>
                 <th>
                     {% trans "Last name" as tr_last_name %}
                     {% include 'buttons/sort.html' with prefix='control' col='name' text=tr_last_name %}
@@ -50,11 +53,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% include 'buttons/sort.html' with prefix='control' col='surname' text=tr_first_name %}
                 </th>
                 <th>
-                    {% trans "Invoice id" as tr_invoice_id %}
+                    {% trans "Invoice ID" as tr_invoice_id %}
                     {% include 'buttons/sort.html' with prefix='control' col='id' text=tr_invoice_id %}
                 </th>
                 <th>
-                    {% trans "User id" as tr_user_id %}
+                    {% trans "User ID" as tr_user_id %}
                     {% include 'buttons/sort.html' with prefix='control' col='user-id' text=tr_user_id %}
                 </th>
                 <th>{% trans "Designation" %}</th>
@@ -65,7 +68,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </th>
                 <th>
                     {% trans "Date" as tr_date %}
-                    {% include 'buttons/sort.html' with prefix='control' col='date' text=tr_date %}i
+                    {% include 'buttons/sort.html' with prefix='control' col='date' text=tr_date %}
 		    </th>
                 <th>
                     {% trans "Validated" as tr_validated %}
@@ -109,3 +112,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if facture_list.paginator %}
 {% include 'pagination.html' with list=facture_list %}
 {% endif %}
+

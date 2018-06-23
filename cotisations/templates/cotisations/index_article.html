@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article' %}">
-        <i class="fa fa-trash"></i> {% trans "Delete article types" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several article types" %}
     </a>
     {% include 'cotisations/aff_article.html' with  article_list=article_list %}
 {% endblock %}

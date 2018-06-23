@@ -21,8 +21,7 @@
 from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import ugettext_lazy as _
 
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
@@ -37,7 +36,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     """
 
     class Meta:
-        verbose_name = "ComNpay"
+        verbose_name = _("ComNpay")
 
     payment = models.OneToOneField(
         Paiement,
@@ -49,17 +48,17 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         max_length=255,
         default='',
         blank=True,
-        verbose_name=_l("ComNpay VAD Number"),
+        verbose_name=_("ComNpay VAT Number"),
     )
     payment_pass = AESEncryptedField(
         max_length=255,
         null=True,
         blank=True,
-        verbose_name=_l("ComNpay Secret Key"),
+        verbose_name=_("ComNpay secret key"),
     )
     minimum_payment = models.DecimalField(
-        verbose_name=_l("Minimum payment"),
-        help_text=_l("The minimal amount of money you have to use when paying"
+        verbose_name=_("Minimum payment"),
+        help_text=_("The minimal amount of money you have to use when paying"
                      " with ComNpay"),
         max_digits=5,
         decimal_places=2,
@@ -67,7 +66,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     )
     production = models.BooleanField(
         default=True,
-        verbose_name=_l("Production mode enabled (production url, instead of homologation)"),
+        verbose_name=_("Production mode enabled (production URL, instead of homologation)"),
     )
 
     def return_url_comnpay(self):
@@ -102,7 +101,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
             'action': self.return_url_comnpay(),
             'method': 'POST',
             'content': p.buildSecretHTML(
-                _("Pay invoice no : ")+str(invoice.id),
+                _("Pay invoice number ")+str(invoice.id),
                 invoice.prix_total(),
                 idTransaction=str(invoice.id)
             ),
@@ -114,6 +113,6 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         """Checks that the price meets the requirement to be paid with ComNpay.
         """
         return ((price >= self.minimum_payment),
-                _('In order to pay your invoice with ComNpay'
-                  ', the price must be grater than {} €')
-                .format(self.minimum_payment))
+                _("In order to pay your invoice with ComNpay, the price must"
+                  " be greater than {} €.").format(self.minimum_payment))
+

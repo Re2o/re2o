@@ -26,25 +26,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 {% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Bank" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for banque in banque_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ banque.name }}</td>
-            <td class="text-right">
-        {% can_edit banque %}
-        <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-banque' banque.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
-        {% acl_end %}
-                {% history_button banque %}
-            </td>
+            <th>{% trans "Bank" %}</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for banque in banque_list %}
+    <tr>
+        <td>{{ banque.name }}</td>
+        <td class="text-right">
+        {% can_edit banque %}
+        {% include 'buttons/edit.html' with href='cotisations:edit-banque' id=banque.id %}
+        {% acl_end %}
+        {% history_button banque %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
