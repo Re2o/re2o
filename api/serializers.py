@@ -701,10 +701,11 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
     """
     alias = serializers.CharField(source='cname.name', read_only=True)
     hostname = serializers.CharField(source='name', read_only=True)
+    extension = serializers.CharField(source='extension.name', read_only=True)
 
     class Meta:
         model = machines.Domain
-        fields = ('alias', 'hostname')
+        fields = ('alias', 'hostname', 'extension')
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):

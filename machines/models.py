@@ -563,13 +563,22 @@ class Extension(RevMixin, AclMixin, models.Model):
         return entry
 
     def get_associated_a_records(self):
-        return Interface.objects.filter(type__ip_type__extension=self).filter(ipv4__isnull=False)
+        return (Interface.objects
+                .filter(type__ip_type__extension=self)
+                .filter(ipv4__isnull=False)
+                .prefetch_related('domain')
+                .prefetch_related('ipv4'))
 
     def get_associated_aaaa_records(self):
-        return Interface.objects.filter(type__ip_type__extension=self)
+        return (Interface.objects
+                .filter(type__ip_type__extension=self)
+                .prefetch_related('domain'))
 
     def get_associated_cname_records(self):
-        return Domain.objects.filter(extension=self).filter(cname__isnull=False)
+        return (Domain.objects
+                .filter(extension=self)
+                .filter(cname__isnull=False)
+                .prefetch_related('cname'))
 
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):

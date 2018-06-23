@@ -491,7 +491,14 @@ class DNSZonesView(generics.ListAPIView):
     """Exposes the detailed information about each extension (hostnames, 
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
-    queryset = machines.Extension.objects.all()
+    queryset = (machines.Extension.objects
+                .prefetch_related('soa')
+                .prefetch_related('ns_set').prefetch_related('ns_set__ns')
+                .prefetch_related('origin')
+                .prefetch_related('mx_set').prefetch_related('mx_set__name')
+                .prefetch_related('txt_set')
+                .prefetch_related('srv_set').prefetch_related('srv_set__target')
+                .all())
     serializer_class = serializers.DNSZonesSerializer
 
 
