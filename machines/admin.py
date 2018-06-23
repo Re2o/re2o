@@ -40,6 +40,7 @@ from .models import (
     Srv,
     Nas,
     Service,
+    Role,
     OuverturePort,
     Ipv6List,
     OuverturePortList
@@ -135,6 +136,11 @@ class ServiceAdmin(VersionAdmin):
     """ Admin view of a ServiceAdmin object """
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
 
+class RoleAdmin(VersionAdmin):
+    """ Admin view of a RoleAdmin object """
+    list_display = ('role_type')
+
+
 
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
@@ -149,6 +155,7 @@ admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Service, ServiceAdmin)
+admin.site.register(Role, RoleAdmin)
 admin.site.register(Vlan, VlanAdmin)
 admin.site.register(Ipv6List, Ipv6ListAdmin)
 admin.site.register(Nas, NasAdmin)

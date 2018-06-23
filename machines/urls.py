@@ -21,7 +21,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """machines.urls
-The defined URLs for the Cotisations app
+The defined URLs for the Machines app
 """
 
 from __future__ import unicode_literals
@@ -111,6 +111,12 @@ urlpatterns = [
         name='edit-service'),
     url(r'^del_service/$', views.del_service, name='del-service'),
     url(r'^index_service/$', views.index_service, name='index-service'),
+    url(r'^add_role/$', views.add_role, name='add-role'),
+    url(r'^edit_role/(?P<roleid>[0-9]+)$',
+        views.edit_role,
+        name='edit-role'),
+    url(r'^del_role/$', views.del_role, name='del-role'),
+    url(r'^index_role/$', views.index_role, name='index-role'),
     url(r'^add_vlan/$', views.add_vlan, name='add-vlan'),
     url(r'^edit_vlan/(?P<vlanid>[0-9]+)$', views.edit_vlan, name='edit-vlan'),
     url(r'^del_vlan/$', views.del_vlan, name='del-vlan'),

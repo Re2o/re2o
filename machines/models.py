@@ -1344,6 +1344,26 @@ class IpList(RevMixin, AclMixin, models.Model):
         return self.ipv4
 
 
+
+class Role(RevMixin, AclMixin, models.Model):
+    """ Definition d'un role (routeur principal, routeur de backkup)"""
+    """ Sert à la génération automatique de la conf des serveurs"""
+    PRETTY_NAME = "Roles des serveurs"
+
+    role_type = models.CharField(max_length=255, unique=True)
+    servers = models.ManyToManyField('Interface')
+
+    class Meta:
+        permissions = (
+            ("view_role", "Peut voir un objet service"),
+        )
+
+    def save(self, *args, **kwargs):
+        super(Role, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.role_type)
+
 class Service(RevMixin, AclMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     PRETTY_NAME = "Services à générer (dhcp, dns, etc)"

@@ -109,6 +109,7 @@ MODEL_NAME = {
     'Ipv6List': machines.models.Ipv6List,
     'machines.Service': machines.models.Service,
     'Service_link': machines.models.Service_link,
+    'Role': machines.models.Role,
     'OuverturePortList': machines.models.OuverturePortList,
     'OuverturePort': machines.models.OuverturePort,
     # preferences

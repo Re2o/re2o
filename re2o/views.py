@@ -125,6 +125,7 @@ HISTORY_BIND = {
         'srv': machines.models.Srv,
         'ns': machines.models.Ns,
         'service': machines.models.Service,
+        'role': machines.models.Role,
         'vlan': machines.models.Vlan,
         'nas': machines.models.Nas,
         'ipv6list': machines.models.Ipv6List,
