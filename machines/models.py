@@ -563,21 +563,22 @@ class Extension(RevMixin, AclMixin, models.Model):
         return entry
 
     def get_associated_a_records(self):
-        return (Interface.objects
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
                 .filter(type__ip_type__extension=self)
-                .filter(ipv4__isnull=False)
-                .prefetch_related('domain')
-                .prefetch_related('ipv4'))
+                .filter(ipv4__isnull=False))
 
     def get_associated_aaaa_records(self):
-        return (Interface.objects
-                .filter(type__ip_type__extension=self)
-                .prefetch_related('domain'))
+        from re2o.utils import all_active_interfaces
+        return (all_active_interfaces(full=True)
+                .filter(type__ip_type__extension=self))
 
     def get_associated_cname_records(self):
+        from re2o.utils import all_active_assigned_interfaces
         return (Domain.objects
                 .filter(extension=self)
                 .filter(cname__isnull=False)
+                .filter(interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
 
     @staticmethod
