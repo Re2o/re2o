@@ -112,6 +112,8 @@ MODEL_NAME = {
     'Role': machines.models.Role,
     'OuverturePortList': machines.models.OuverturePortList,
     'OuverturePort': machines.models.OuverturePort,
+    'SshFingerprint': machines.models.SshFingerprint,
+    'SshFprAlgo': machines.models.SshFprAlgo,
     # preferences
     'OptionalUser': preferences.models.OptionalUser,
     'OptionalMachine': preferences.models.OptionalMachine,

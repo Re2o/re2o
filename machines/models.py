@@ -204,6 +204,52 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
+class SshFingerprint(RevMixin, AclMixin, models.Model):
+    """Hash de la clef ssh d'une machine"""
+
+    PRETTY_NAME = "Fingerprint ssh"
+
+    machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
+    hash_entry = models.TextField(max_length=512)
+    algo = models.ForeignKey('SshFprAlgo', on_delete=models.PROTECT)
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        permissions = (
+            ("view_sshfingerprint", "Peut voir un objet sshfingerprint"),
+        )
+
+    def can_view(self, user_request, *_args, **_kwargs):
+        return self.machine.can_view(user_request, *_args, **_kwargs)
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return self.machine.can_edit(user_request, *args, **kwargs)
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return self.machine.can_delete(user_request, *args, **kwargs)
+
+    def __str__(self):
+        return str(self.algo) + ' ' + str(self.hash_entry) + ' ' + str(self.comment)
+
+
+class SshFprAlgo(RevMixin, AclMixin, models.Model):
+    """Un aglorithme de création de la fingerprint ssh"""
+    PRETTY_NAME = "Algo de clef ssh"
+
+    name = models.TextField(max_length=256)
+
+    class Meta:
+        permissions = (
+            ("view_sshfpralgo", "Peut voir un algo de chiffrement"),
+        )
+
+    def  __str__(self):
+       return str(self.name)
+
 
 class MachineType(RevMixin, AclMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""

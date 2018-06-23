@@ -129,6 +129,8 @@ HISTORY_BIND = {
         'vlan': machines.models.Vlan,
         'nas': machines.models.Nas,
         'ipv6list': machines.models.Ipv6List,
+        'sshfingerprint': machines.models.SshFingerprint,
+        'sshfpralgo': machines.models.SshFprAlgo,
     },
 }
 
