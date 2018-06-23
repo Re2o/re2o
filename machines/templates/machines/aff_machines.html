@@ -119,6 +119,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         </a>
                                     </li>
                                     {% acl_end %}
+                                    {% can_create SshFingerprint interface.machine.id %}
+                                    <li>
+                                        <a href="{% url 'machines:index-sshfingerprint' interface.machine.id %}">
+                                            <i class="fa fa-edit"></i> Gerer les fingerprint ssh
+                                        </a>
+                                    </li>
+                                    {% acl_end %}
                                     {% can_create OuverturePortList %}
                                     <li>
                                         <a href="{% url 'machines:port-config' interface.id%}">

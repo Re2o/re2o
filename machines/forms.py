@@ -60,6 +60,8 @@ from .models import (
     IpType,
     OuverturePortList,
     Ipv6List,
+    SshFingerprint,
+    SshFprAlgo
 )
 
 
@@ -591,6 +593,36 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditOuverturePortListForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
+
+        
+class SshFingerprintForm(FormRevMixin, ModelForm):
+    """Edition d'une sshfingerprint"""
+    class Meta:
+        model = SshFingerprint
+        exclude = ('machine',)
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SshFingerprintForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
+
+
+class SshFprAlgoForm(FormRevMixin, ModelForm):
+    """Edition de la liste des algo pour sshfpr"""
+    class Meta:
+        model = SshFprAlgo
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SshFprAlgoForm, self).__init__(
             *args,
             prefix=prefix,
             **kwargs
