@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for sshfpr in sshfingerprint_list %}
         <tr>
-            <td>{{ sshfpr.hash_entry }}</td>
+            <td>{{ sshfpr.pub_key_entry }}</td>
             <td>{{ sshfpr.algo }}</td>
             <td>{{ sshfpr.comment }}</td>
 	    <td class="text-right">
