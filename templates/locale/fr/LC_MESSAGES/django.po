@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 14:05+0000\n"
+"POT-Creation-Date: 2018-06-23 18:44+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
 "Language-Team: \n"
@@ -30,6 +30,145 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: base.html:121
+#: templates/base.html:59
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/base.html:83
+msgid "My profile"
+msgstr "Mon profil"
+
+#: templates/base.html:84
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#: templates/base.html:90
+msgid "Members"
+msgstr "Adhérents"
+
+#: templates/base.html:93
+msgid "Manage members"
+msgstr "Gérer les adhérents"
+
+#: templates/base.html:94
+msgid "Manage clubs"
+msgstr "Gérer les clubs"
+
+#: templates/base.html:97
+msgid "Manage machines"
+msgstr "Gérer les machines"
+
+#: templates/base.html:100
+msgid "Manage cotisations"
+msgstr "Gérer les cotisations"
+
+#: templates/base.html:107
+msgid "Topology"
+msgstr "Topologie"
+
+#: templates/base.html:109
+msgid "Switches"
+msgstr "Commutateurs"
+
+#: templates/base.html:110
+msgid "Wi-Fi access points"
+msgstr "Bornes Wi-Fi"
+
+#: templates/base.html:111
+msgid "Rooms"
+msgstr "Chambres & locaux"
+
+#: templates/base.html:116
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/base.html:123
+msgid "Preferences"
+msgstr "Préférences"
+
+#: templates/base.html:128
 msgid "About"
 msgstr "A propos"
+
+#: templates/base.html:134
+msgid "Sign in"
+msgstr "Créer un compte"
+
+#: templates/base.html:140
+msgid "Log in"
+msgstr "Se connecter"
+
+#: templates/base.html:188
+msgid "Username"
+msgstr "Pseudo"
+
+#: templates/base.html:192
+msgid "Room"
+msgstr "Chambre"
+
+#: templates/base.html:196
+msgid "Connexion"
+msgstr "Connexion"
+
+#: templates/base.html:199 templates/base.html:209
+#, python-format
+msgid "Until %(date)s"
+msgstr "Jusqu'à %(date)s"
+
+#: templates/base.html:201
+msgid "Deactivated"
+msgstr "Désactivée"
+
+#: templates/base.html:206
+msgid "Membership"
+msgstr "Adhésion"
+
+#: templates/base.html:211
+msgid "Not a member"
+msgstr "Non adhérent"
+
+#: templates/base.html:219
+msgid "See my profile"
+msgstr "Voir mon profil"
+
+#: templates/base.html:223
+msgid "You are not logged in"
+msgstr "Vous n'êtes pas connecté"
+
+#: templates/base.html:229
+#, python-format
+msgid "%(nb)s machine active"
+msgstr "%(nb)s machine actives"
+
+#: templates/base.html:229
+#, python-format
+msgid "%(nb)s machines active"
+msgstr "%(nb)s machines actives"
+
+#: templates/base.html:238
+msgid "See my machines"
+msgstr "Voir mes machines"
+
+#: templates/buttons/setlang.html:34
+msgid "Translation in development"
+msgstr "Traduction en développement"
+
+#: users/widgets.py:35
+msgid "Close"
+msgstr "Fermer"
+
+#: users/widgets.py:36
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: users/widgets.py:44
+msgid "Next"
+msgstr "Suivant"
+
+#: users/widgets.py:45
+msgid "Previous"
+msgstr "Précédent"
+
+#: users/widgets.py:46
+msgid "Wk"
+msgstr "Sem"

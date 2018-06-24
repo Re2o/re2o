@@ -35,6 +35,18 @@ footer a {
     border-radius: 0;
 }
 
+/* Reduce the padding for the logo in the navbar-brand so the 32px-high logo
+ * is centered in the navbar */
+.navbar-brand {
+    padding-top: 9px;
+    padding-bottom: 9px;
+}
+
+/* Display logo and site name side by side and not on top of each other */
+.navbar-brand img {
+    display: initial;
+}
+
 /* Add right colors for buttons in dropdown in navbar-inverse (else it is light
  * gray on white bg and white when hovered */
 .navbar-inverse .dropdown-menu .btn-link {
