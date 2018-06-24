@@ -378,7 +378,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             {
                 'network': str(ip_set.network),
                 'netmask': str(ip_set.netmask),
-                'broacast': str(ip_set.broadcast),
+                'broadcast': str(ip_set.broadcast),
             } for ip_set in self.ip_set.iter_cidrs()
         ]
 
