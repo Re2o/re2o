@@ -258,7 +258,7 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
         return self.machine.can_delete(user_request, *args, **kwargs)
 
     def __str__(self):
-        return str(self.algo) + ' ' + str(self.hash_entry) + ' ' + str(self.comment)
+        return str(self.algo) + ' ' + str(self.pub_key_entry) + ' ' + str(self.comment)
 
 
 class SshFprAlgo(RevMixin, AclMixin, models.Model):
