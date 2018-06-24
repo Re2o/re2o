@@ -75,7 +75,6 @@ LOCAL_APPS = (
     're2o',
     'preferences',
     'logs',
-    'api',
 )
 INSTALLED_APPS = (
     DJANGO_CONTRIB_APPS +
@@ -174,3 +173,8 @@ GRAPH_MODELS = {
     'all_applications': True,
     'group_models': True,
 }
+
+# Activate API
+if 'api' in INSTALLED_APPS:
+    from api.settings import *
+    INSTALLED_APPS += API_APPS

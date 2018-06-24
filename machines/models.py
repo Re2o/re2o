@@ -652,6 +652,25 @@ class Extension(RevMixin, AclMixin, models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
+    def get_associated_a_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
+                .filter(type__ip_type__extension=self)
+                .filter(ipv4__isnull=False))
+
+    def get_associated_aaaa_records(self):
+        from re2o.utils import all_active_interfaces
+        return (all_active_interfaces(full=True)
+                .filter(type__ip_type__extension=self))
+
+    def get_associated_cname_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (Domain.objects
+                .filter(extension=self)
+                .filter(cname__isnull=False)
+                .filter(interface_parent__in=all_active_assigned_interfaces())
+                .prefetch_related('cname'))
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans
@@ -1498,12 +1517,18 @@ class Service_link(RevMixin, AclMixin, models.Model):
     last_regen = models.DateTimeField(auto_now_add=True)
     asked_regen = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (
+            ("view_service_link", "Peut voir un objet service_link"),
+        )
+
     def done_regen(self):
         """ Appellé lorsqu'un serveur a regénéré son service"""
         self.last_regen = timezone.now()
         self.asked_regen = False
         self.save()
 
+    @property
     def need_regen(self):
         """ Décide si le temps minimal écoulé est suffisant pour provoquer une
         régénération de service"""
@@ -1515,6 +1540,19 @@ class Service_link(RevMixin, AclMixin, models.Model):
                 self.last_regen + self.service.regular_time_regen
             ) < timezone.now()
         )
+
+    @need_regen.setter
+    def need_regen(self, value):
+        """
+        Force to set the need_regen value. True means a regen is asked and False
+        means a regen has been done.
+
+        :param value: (bool) The value to set to
+        """
+        if not value:
+            self.last_regen = timezone.now()
+        self.asked_regen = value
+        self.save()
 
     def __str__(self):
         return str(self.server) + " " + str(self.service)

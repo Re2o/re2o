@@ -1005,11 +1005,10 @@ class Club(User):
 def user_post_save(**kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
     Synchronise le ldap"""
-    # is_created = kwargs['created']
+    is_created = kwargs['created']
     user = kwargs['instance']
-    # TODO : remove if unnecessary
-    # if is_created:
-    #     user.notif_inscription()
+    if is_created:
+        user.notif_inscription()
     user.ldap_sync(
         base=True,
         access_refresh=True,
