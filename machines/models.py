@@ -201,14 +201,22 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
 class SshFingerprint(RevMixin, AclMixin, models.Model):
-    """Hash de la clef ssh d'une machine"""
+    """Stockage de la clef ssh publique d'une machine
+    et calcul de ses hash"""
 
-    PRETTY_NAME = "Fingerprint ssh"
+    PRETTY_NAME = "Clef publique ssh"
 
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
-    hash_entry = models.TextField(max_length=512)
-    algo = models.ForeignKey('SshFprAlgo', on_delete=models.PROTECT)
+    pub_key_entry = models.TextField(
+        help_text="Clef publique ssh",
+        max_length=2048
+    )
+    algo = models.ForeignKey(
+        'SshFprAlgo',
+        on_delete=models.PROTECT
+    )
     comment = models.CharField(
+        help_text="Commentaire",
         max_length=255,
         null=True,
         blank=True
