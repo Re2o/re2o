@@ -36,6 +36,7 @@ import hashlib
 import base64
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
@@ -193,6 +194,27 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             return False, (u"Vous n'avez pas droit de voir les machines autre "
                            "que les vôtres")
         return True, None
+
+    @cached_property
+    def short_name(self):
+        """Par defaut, renvoie le nom de la première interface
+        de cette machine"""
+        return str(self.interface_set.first().domain.name)
+
+    @cached_property
+    def all_short_names(self):
+        """Renvoie de manière unique, le nom des interfaces de cette
+        machine"""
+        return Domain.objects.filter(
+            interface_parent__machine=self
+            ).values_list('name', flat=True).distinct()
+
+    @cached_property
+    def all_complete_names(self):
+        """Renvoie tous les tls complets de la machine"""
+        return [str(domain) for domain in Domain.objects.filter(
+            Q(cname__interface_parent__machine=self) | Q(interface_parent__machine=self)
+            )]
 
     def __init__(self, *args, **kwargs):
         super(Machine, self).__init__(*args, **kwargs)
