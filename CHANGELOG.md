@@ -46,6 +46,14 @@ install_re2o.sh help
 
 
 
+## MR 176: Add awesome Logo
+
+Add the logo and fix somme issues on the navbar and home page. Only collecting the statics is needed:
+```
+python3 manage.py collectstatic
+```
+
+
 ## MR 172: Refactor API
 
 Creates a new (nearly) REST API to expose all models of Re2o. See [the dedicated wiki page](https://gitlab.federez.net/federez/re2o/wikis/API/Raw-Usage) for more details on how to use it.
@@ -64,5 +72,3 @@ OPTIONAL_APPS = (
     'api',
     ...
 )
-```
-

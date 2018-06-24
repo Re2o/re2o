@@ -25,11 +25,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load i18n %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
 
 {% block content %}
-<h1>Bienvenue sur {{ request.get_host }} !</h1>
+<h1>{% blocktrans %}Welcome to {{ name_website }} !{% endblocktrans %}</h1>
 
 <div class="row">
 {% for service_list in services_urls %}
@@ -38,12 +39,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-12">
             <div class="thumbnail">
                     {% if service.image %}
-                    <a href="{{ service.url }}"><img src="{{ service.image.url  }}" alt="{{ service.name }}"></a>
+                    <a href="{{ service.url }}"><img src="{{ service.image.url }}" alt="{{ service.name }}"></a>
                     {% endif %}
                     <div class="caption">
                     <h3>{{ service.name }}</h3>
                     <p>{{ service.description }}</p>
-                    <p><a href="{{ service.url }}" class="btn btn-primary" role="button">Accéder</a></p>
+                    <p><a href="{{ service.url }}" class="btn btn-primary" role="button">{% trans "Go there" %}</a></p>
                 </div>
             </div>
         </div>
