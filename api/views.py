@@ -18,600 +18,544 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""api.views
+"""Defines the views of the API
 
-The views for the API app. They should all return JSON data and not fallback on
-HTML pages such as the login and index pages for a better integration.
+All views inherits the `rest_framework.views.APIview` to respect the
+REST API requirements such as dealing with HTTP status code, format of
+the response (JSON or other), the CSRF exempting, ...
 """
 
-from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.csrf import csrf_exempt
+import datetime
 
-from re2o.utils import (
-    all_has_access,
-    all_active_assigned_interfaces,
-    filter_active_interfaces
-)
-from users.models import Club
-from machines.models import (
-    Service_link,
-    Service,
-    Interface,
-    Domain,
-    IpType,
-    Mx,
-    Ns,
-    Txt,
-    Srv,
-    Extension,
-    OuverturePortList,
-    OuverturePort
-)
+from django.conf import settings
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework import viewsets, generics, views
 
-from .serializers import (
-    ServicesSerializer,
-    ServiceLinkSerializer,
-    FullInterfaceSerializer,
-    DomainSerializer,
-    TypeSerializer,
-    MxSerializer,
-    NsSerializer,
-    TxtSerializer,
-    SrvSerializer,
-    ExtensionSerializer,
-    InterfaceSerializer,
-    MailingMemberSerializer,
-    MailingSerializer
-)
-from .utils import JSONError, JSONSuccess, accept_method
+import cotisations.models as cotisations
+import machines.models as machines
+import preferences.models as preferences
+import topologie.models as topologie
+import users.models as users
+from re2o.utils import all_active_interfaces, all_has_access
+
+from . import serializers
+from .pagination import PageSizedPagination
+from .permissions import ACLPermission
 
 
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def services(_request):
-    """The list of the different services and servers couples
+# COTISATIONS
 
-    Return:
-        GET:
-            A JSONSuccess response with a field `data` containing:
-            * a list of dictionnaries (one for each service-server couple)
-              containing:
-              * a field `server`: the server name
-              * a field `service`: the service name
-              * a field `need_regen`: does the service need a regeneration ?
+
+class FactureViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Facture` objects.
     """
-
-    service_link = (Service_link.objects.all()
-                    .select_related('server__domain')
-                    .select_related('service'))
-    seria = ServicesSerializer(service_link, many=True)
-    return JSONSuccess(seria.data)
+    queryset = cotisations.Facture.objects.all()
+    serializer_class = serializers.FactureSerializer
 
 
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET', 'POST'])
-def services_server_service_regen(request, server_name, service_name):
-    """The status of a particular service linked to a particular server.
-    Mark the service as regenerated if POST used.
-
-    Returns:
-        GET:
-            A JSONSucess response with a field `data` containing:
-            * a field `need_regen`: does the service need a regeneration ?
-
-        POST:
-            An empty JSONSuccess response.
+class VenteViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Vente` objects.
     """
+    queryset = cotisations.Vente.objects.all()
+    serializer_class = serializers.VenteSerializer
 
-    query = Service_link.objects.filter(
-        service__in=Service.objects.filter(service_type=service_name),
-        server__in=Interface.objects.filter(
-            domain__in=Domain.objects.filter(name=server_name)
+
+class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Article` objects.
+    """
+    queryset = cotisations.Article.objects.all()
+    serializer_class = serializers.ArticleSerializer
+
+
+class BanqueViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Banque` objects.
+    """
+    queryset = cotisations.Banque.objects.all()
+    serializer_class = serializers.BanqueSerializer
+
+
+class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Paiement` objects.
+    """
+    queryset = cotisations.Paiement.objects.all()
+    serializer_class = serializers.PaiementSerializer
+
+
+class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Cotisation` objects.
+    """
+    queryset = cotisations.Cotisation.objects.all()
+    serializer_class = serializers.CotisationSerializer
+
+
+# MACHINES
+
+
+class MachineViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Machine` objects.
+    """
+    queryset = machines.Machine.objects.all()
+    serializer_class = serializers.MachineSerializer
+
+
+class MachineTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.MachineType` objects.
+    """
+    queryset = machines.MachineType.objects.all()
+    serializer_class = serializers.MachineTypeSerializer
+
+
+class IpTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.IpType` objects.
+    """
+    queryset = machines.IpType.objects.all()
+    serializer_class = serializers.IpTypeSerializer
+
+
+class VlanViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Vlan` objects.
+    """
+    queryset = machines.Vlan.objects.all()
+    serializer_class = serializers.VlanSerializer
+
+
+class NasViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Nas` objects.
+    """
+    queryset = machines.Nas.objects.all()
+    serializer_class = serializers.NasSerializer
+
+
+class SOAViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.SOA` objects.
+    """
+    queryset = machines.SOA.objects.all()
+    serializer_class = serializers.SOASerializer
+
+
+class ExtensionViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Extension` objects.
+    """
+    queryset = machines.Extension.objects.all()
+    serializer_class = serializers.ExtensionSerializer
+
+
+class MxViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Mx` objects.
+    """
+    queryset = machines.Mx.objects.all()
+    serializer_class = serializers.MxSerializer
+
+
+class NsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Ns` objects.
+    """
+    queryset = machines.Ns.objects.all()
+    serializer_class = serializers.NsSerializer
+
+
+class TxtViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Txt` objects.
+    """
+    queryset = machines.Txt.objects.all()
+    serializer_class = serializers.TxtSerializer
+
+
+class SrvViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Srv` objects.
+    """
+    queryset = machines.Srv.objects.all()
+    serializer_class = serializers.SrvSerializer
+
+
+class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Interface` objects.
+    """
+    queryset = machines.Interface.objects.all()
+    serializer_class = serializers.InterfaceSerializer
+
+
+class Ipv6ListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Ipv6List` objects.
+    """
+    queryset = machines.Ipv6List.objects.all()
+    serializer_class = serializers.Ipv6ListSerializer
+
+
+class DomainViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Domain` objects.
+    """
+    queryset = machines.Domain.objects.all()
+    serializer_class = serializers.DomainSerializer
+
+
+class IpListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.IpList` objects.
+    """
+    queryset = machines.IpList.objects.all()
+    serializer_class = serializers.IpListSerializer
+
+
+class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Service` objects.
+    """
+    queryset = machines.Service.objects.all()
+    serializer_class = serializers.ServiceSerializer
+
+
+class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Service_link` objects.
+    """
+    queryset = machines.Service_link.objects.all()
+    serializer_class = serializers.ServiceLinkSerializer
+
+
+class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.OuverturePortList`
+    objects.
+    """
+    queryset = machines.OuverturePortList.objects.all()
+    serializer_class = serializers.OuverturePortListSerializer
+
+
+class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.OuverturePort` objects.
+    """
+    queryset = machines.OuverturePort.objects.all()
+    serializer_class = serializers.OuverturePortSerializer
+
+
+# PREFERENCES
+# Those views differ a bit because there is only one object
+# to display, so we don't bother with the listing part
+
+class OptionalUserView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalUser.can_view_all]}
+    serializer_class = serializers.OptionalUserSerializer
+
+    def get_object(self):
+        return preferences.OptionalUser.objects.first()
+
+
+class OptionalMachineView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalMachine` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalMachine.can_view_all]}
+    serializer_class = serializers.OptionalMachineSerializer
+
+    def get_object(self):
+        return preferences.OptionalMachine.objects.first()
+
+
+class OptionalTopologieView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalTopologie` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.OptionalTopologie.can_view_all]}
+    serializer_class = serializers.OptionalTopologieSerializer
+
+    def get_object(self):
+        return preferences.OptionalTopologie.objects.first()
+
+
+class GeneralOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.GeneralOption` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.GeneralOption.can_view_all]}
+    serializer_class = serializers.GeneralOptionSerializer
+
+    def get_object(self):
+        return preferences.GeneralOption.objects.first()
+
+
+class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `preferences.models.Service` objects.
+    """
+    queryset = preferences.Service.objects.all()
+    serializer_class = serializers.HomeServiceSerializer
+
+
+class AssoOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.AssoOption` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.AssoOption.can_view_all]}
+    serializer_class = serializers.AssoOptionSerializer
+
+    def get_object(self):
+        return preferences.AssoOption.objects.first()
+
+
+class HomeOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.HomeOption` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.HomeOption.can_view_all]}
+    serializer_class = serializers.HomeOptionSerializer
+
+    def get_object(self):
+        return preferences.HomeOption.objects.first()
+
+
+class MailMessageOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.MailMessageOption` settings.
+    """
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [preferences.MailMessageOption.can_view_all]}
+    serializer_class = serializers.MailMessageOptionSerializer
+
+    def get_object(self):
+        return preferences.MailMessageOption.objects.first()
+
+
+# TOPOLOGIE
+
+
+class StackViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Stack` objects.
+    """
+    queryset = topologie.Stack.objects.all()
+    serializer_class = serializers.StackSerializer
+
+
+class AccessPointViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.AccessPoint` objects.
+    """
+    queryset = topologie.AccessPoint.objects.all()
+    serializer_class = serializers.AccessPointSerializer
+
+
+class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Switch` objects.
+    """
+    queryset = topologie.Switch.objects.all()
+    serializer_class = serializers.SwitchSerializer
+
+
+class ServerViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Server` objects.
+    """
+    queryset = topologie.Server.objects.all()
+    serializer_class = serializers.ServerSerializer
+
+
+class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.ModelSwitch` objects.
+    """
+    queryset = topologie.ModelSwitch.objects.all()
+    serializer_class = serializers.ModelSwitchSerializer
+
+
+class ConstructorSwitchViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.ConstructorSwitch`
+    objects.
+    """
+    queryset = topologie.ConstructorSwitch.objects.all()
+    serializer_class = serializers.ConstructorSwitchSerializer
+
+
+class SwitchBayViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.SwitchBay` objects.
+    """
+    queryset = topologie.SwitchBay.objects.all()
+    serializer_class = serializers.SwitchBaySerializer
+
+
+class BuildingViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Building` objects.
+    """
+    queryset = topologie.Building.objects.all()
+    serializer_class = serializers.BuildingSerializer
+
+
+class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Port` objects.
+    """
+    queryset = topologie.Port.objects.all()
+    serializer_class = serializers.SwitchPortSerializer
+
+
+class RoomViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Room` objects.
+    """
+    queryset = topologie.Room.objects.all()
+    serializer_class = serializers.RoomSerializer
+
+
+# USER
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Users` objects.
+    """
+    queryset = users.User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+
+class ClubViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Club` objects.
+    """
+    queryset = users.Club.objects.all()
+    serializer_class = serializers.ClubSerializer
+
+
+class AdherentViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Adherent` objects.
+    """
+    queryset = users.Adherent.objects.all()
+    serializer_class = serializers.AdherentSerializer
+
+
+class ServiceUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ServiceUser` objects.
+    """
+    queryset = users.ServiceUser.objects.all()
+    serializer_class = serializers.ServiceUserSerializer
+
+
+class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.School` objects.
+    """
+    queryset = users.School.objects.all()
+    serializer_class = serializers.SchoolSerializer
+
+
+class ListRightViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ListRight` objects.
+    """
+    queryset = users.ListRight.objects.all()
+    serializer_class = serializers.ListRightSerializer
+
+
+class ShellViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.ListShell` objects.
+    """
+    queryset = users.ListShell.objects.all()
+    serializer_class = serializers.ShellSerializer
+
+
+class BanViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Ban` objects.
+    """
+    queryset = users.Ban.objects.all()
+    serializer_class = serializers.BanSerializer
+
+
+class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.Whitelist` objects.
+    """
+    queryset = users.Whitelist.objects.all()
+    serializer_class = serializers.WhitelistSerializer
+
+
+# SERVICE REGEN
+
+
+class ServiceRegenViewSet(viewsets.ModelViewSet):
+    """Exposes list and details of the services to regen
+    """
+    serializer_class = serializers.ServiceRegenSerializer
+
+    def get_queryset(self):
+        queryset = machines.Service_link.objects.select_related(
+            'server__domain'
+        ).select_related(
+            'service'
         )
-    )
-    if not query:
-        return JSONError("This service is not active for this server")
-
-    service = query.first()
-    if request.method == 'GET':
-        return JSONSuccess({'need_regen': service.need_regen()})
-    else:
-        service.done_regen()
-        return JSONSuccess()
+        if 'hostname' in self.request.GET:
+            hostname = self.request.GET['hostname']
+            queryset = queryset.filter(server__domain__name__iexact=hostname)
+        return queryset
 
 
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def services_server(_request, server_name):
-    """The list of services attached to a specific server
+# DHCP
 
-    Returns:
-        GET:
-            A JSONSuccess response with a field `data` containing:
-            * a list of dictionnaries (one for each service) containing:
-              * a field `name`: the name of a service
+class HostMacIpView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
     """
+    queryset = all_active_interfaces()
+    serializer_class = serializers.HostMacIpSerializer
 
-    query = Service_link.objects.filter(
-        server__in=Interface.objects.filter(
-            domain__in=Domain.objects.filter(name=server_name)
+
+# DNS
+
+class DNSZonesView(generics.ListAPIView):
+    """Exposes the detailed information about each extension (hostnames, 
+    IPs, DNS records, etc.) in order to build the DNS zone files.
+    """
+    queryset = (machines.Extension.objects
+                .prefetch_related('soa')
+                .prefetch_related('ns_set').prefetch_related('ns_set__ns')
+                .prefetch_related('origin')
+                .prefetch_related('mx_set').prefetch_related('mx_set__name')
+                .prefetch_related('txt_set')
+                .prefetch_related('srv_set').prefetch_related('srv_set__target')
+                .all())
+    serializer_class = serializers.DNSZonesSerializer
+
+
+# MAILING
+
+
+class StandardMailingView(views.APIView):
+    """Exposes list and details of standard mailings (name and members) in
+    order to building the corresponding mailing lists.
+    """
+    pagination_class = PageSizedPagination
+    permission_classes = (ACLPermission, )
+    perms_map = {'GET' : [users.User.can_view_all]}
+
+    def get(self, request, format=None):
+        adherents_data = serializers.MailingMemberSerializer(all_has_access(), many=True).data
+        data = [{'name': 'adherents', 'members': adherents_data}]
+        paginator = self.pagination_class()
+        paginator.paginate_queryset(data, request)
+        return paginator.get_paginated_response(data)
+
+
+class ClubMailingView(generics.ListAPIView):
+    """Exposes list and details of club mailings (name, members and admins) in
+    order to build the corresponding mailing lists.
+    """
+    queryset = users.Club.objects.all()
+    serializer_class = serializers.MailingSerializer
+
+
+# TOKEN AUTHENTICATION
+
+
+class ObtainExpiringAuthToken(ObtainAuthToken):
+    """Exposes a view to obtain a authentication token.
+
+    This view as the same behavior as the
+    `rest_framework.auth_token.views.ObtainAuthToken` view except that the
+    expiration time is send along with the token as an addtional information.
+    """
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        token_duration = datetime.timedelta(
+            seconds=settings.API_TOKEN_DURATION
         )
-    )
-    if not query:
-        return JSONError("This service is not active for this server")
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+        if not created and token.created < utc_now - token_duration:
+            token.delete()
+            token = Token.objects.create(user=user)
+            token.created = datetime.datetime.utcnow()
+            token.save()
 
-    services_objects = query.all()
-    seria = ServiceLinkSerializer(services_objects, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_mac_ip_dns(_request):
-    """The list of all active interfaces with all the associated infos
-    (MAC, IP, IpType, DNS name and associated zone extension)
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each interface) containing:
-              * a field `ipv4` containing:
-                * a field `ipv4`: the ip for this interface
-                * a field `ip_type`: the name of the IpType of this interface
-              * a field `ipv6` containing `null` if ipv6 is deactivated else:
-                * a field `ipv6`: the ip for this interface
-                * a field `ip_type`: the name of the IpType of this interface
-              * a field `mac_address`: the MAC of this interface
-              * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this
-                interface
-    """
-
-    interfaces = all_active_assigned_interfaces(full=True)
-    seria = FullInterfaceSerializer(interfaces, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_alias(_request):
-    """The list of all the alias used and the DNS info associated
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each alias) containing:
-              * a field `name`: the alias used
-              * a field `cname`: the target of the alias (real name of the
-                interface)
-              * a field `cname_entry`: the entry to write in the DNS to have
-                the alias
-              * a field `extension`: the extension for the DNS zone of this
-                interface
-    """
-
-    alias = (Domain.objects
-             .filter(interface_parent=None)
-             .filter(
-                 cname__in=Domain.objects.filter(
-                     interface_parent__in=Interface.objects.exclude(ipv4=None)
-                 )
-             )
-             .select_related('extension')
-             .select_related('cname__extension'))
-    seria = DomainSerializer(alias, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def accesspoint_ip_dns(_request):
-    """The list of all active interfaces with all the associated infos
-    (MAC, IP, IpType, DNS name and associated zone extension)
-
-    Only display access points. Use to gen unifi controler names
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each interface) containing:
-              * a field `ipv4` containing:
-                * a field `ipv4`: the ip for this interface
-                * a field `ip_type`: the name of the IpType of this interface
-              * a field `ipv6` containing `null` if ipv6 is deactivated else:
-                * a field `ipv6`: the ip for this interface
-                * a field `ip_type`: the name of the IpType of this interface
-              * a field `mac_address`: the MAC of this interface
-              * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this
-                interface
-    """
-
-    interfaces = (all_active_assigned_interfaces(full=True)
-                  .filter(machine__accesspoint__isnull=False))
-    seria = FullInterfaceSerializer(interfaces, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_corresp(_request):
-    """The list of the IpTypes possible with the infos about each
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each IpType) containing:
-              * a field `type`: the name of the type
-              * a field `extension`: the DNS extension associated
-              * a field `domain_ip_start`: the first ip to use for this type
-              * a field `domain_ip_stop`: the last ip to use for this type
-              * a field `prefix_v6`: `null` if IPv6 is deactivated else the
-                prefix to use
-              * a field `ouverture_ports_tcp_in`: the policy for TCP IN ports
-              * a field `ouverture_ports_tcp_out`: the policy for TCP OUT ports
-              * a field `ouverture_ports_udp_in`: the policy for UDP IN ports
-              * a field `ouverture_ports_udp_out`: the policy for UDP OUT ports
-    """
-
-    ip_type = IpType.objects.all().select_related('extension')
-    seria = TypeSerializer(ip_type, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_mx(_request):
-    """The list of MX record to add to the DNS
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each MX record) containing:
-              * a field `zone`: the extension for the concerned zone
-              * a field `priority`: the priority to use
-              * a field `name`: the name of the target
-              * a field `mx_entry`: the full entry to add in the DNS for this
-                MX record
-    """
-
-    mx = (Mx.objects.all()
-          .select_related('zone')
-          .select_related('name__extension'))
-    seria = MxSerializer(mx, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_ns(_request):
-    """The list of NS record to add to the DNS
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each NS record) containing:
-              * a field `zone`: the extension for the concerned zone
-              * a field `ns`: the DNS name for the NS server targeted
-              * a field `ns_entry`: the full entry to add in the DNS for this
-                NS record
-    """
-
-    ns = (Ns.objects
-          .exclude(
-              ns__in=Domain.objects.filter(
-                  interface_parent__in=Interface.objects.filter(ipv4=None)
-              )
-          )
-          .select_related('zone')
-          .select_related('ns__extension'))
-    seria = NsSerializer(ns, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_txt(_request):
-    """The list of TXT record to add to the DNS
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each TXT record) containing:
-              * a field `zone`: the extension for the concerned zone
-              * a field `field1`: the first field in the record (target)
-              * a field `field2`: the second field in the record (value)
-              * a field `txt_entry`: the full entry to add in the DNS for this
-                TXT record
-    """
-
-    txt = Txt.objects.all().select_related('zone')
-    seria = TxtSerializer(txt, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_srv(_request):
-    """The list of SRV record to add to the DNS
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each SRV record) containing:
-              * a field `extension`: the extension for the concerned zone
-              * a field `service`: the name of the service concerned
-              * a field `protocole`: the name of the protocol to use
-              * a field `ttl`: the Time To Live to use
-              * a field `priority`: the priority for this service
-              * a field `weight`: the weight for same priority entries
-              * a field `port`: the port targeted
-              * a field `target`: the interface targeted by this service
-              * a field `srv_entry`: the full entry to add in the DNS for this
-                SRV record
-    """
-
-    srv = (Srv.objects.all()
-           .select_related('extension')
-           .select_related('target__extension'))
-    seria = SrvSerializer(srv, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dns_zones(_request):
-    """The list of the zones managed
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each zone) containing:
-              * a field `name`: the extension for the zone
-              * a field `origin`: the server IPv4 for the orgin of the zone
-              * a field `origin_v6`: `null` if ipv6 is deactivated else the
-                server IPv6 for the origin of the zone
-              * a field `soa` containing:
-                * a field `mail` containing the mail to contact in case of
-                  problem with the zone
-                * a field `param` containing the full soa paramters to use
-                  in the DNS for this zone
-              * a field `zone_entry`: the full entry to add in the DNS for the
-                origin of the zone
-    """
-
-    zones = Extension.objects.all().select_related('origin')
-    seria = ExtensionSerializer(zones, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def firewall_ouverture_ports(_request):
-    """The list of the ports authorized to be openned by the firewall
-
-    Returns:
-        GET:
-            A JSONSuccess response with a `data` field containing:
-            * a field `ipv4` containing:
-              * a field `tcp_in` containing:
-                * a list of port number where ipv4 tcp in should be ok
-              * a field `tcp_out` containing:
-                * a list of port number where ipv4 tcp ou should be ok
-              * a field `udp_in` containing:
-                * a list of port number where ipv4 udp in should be ok
-              * a field `udp_out` containing:
-                * a list of port number where ipv4 udp out should be ok
-            * a field `ipv6` containing:
-              * a field `tcp_in` containing:
-                * a list of port number where ipv6 tcp in should be ok
-              * a field `tcp_out` containing:
-                * a list of port number where ipv6 tcp ou should be ok
-              * a field `udp_in` containing:
-                * a list of port number where ipv6 udp in should be ok
-              * a field `udp_out` containing:
-                * a list of port number where ipv6 udp out should be ok
-    """
-
-    r = {'ipv4': {}, 'ipv6': {}}
-    for o in (OuverturePortList.objects.all()
-              .prefetch_related('ouvertureport_set')
-              .prefetch_related('interface_set', 'interface_set__ipv4')):
-        pl = {
-            "tcp_in": set(map(
-                str,
-                o.ouvertureport_set.filter(
-                    protocole=OuverturePort.TCP,
-                    io=OuverturePort.IN
-                )
-            )),
-            "tcp_out": set(map(
-                str,
-                o.ouvertureport_set.filter(
-                    protocole=OuverturePort.TCP,
-                    io=OuverturePort.OUT
-                )
-            )),
-            "udp_in": set(map(
-                str,
-                o.ouvertureport_set.filter(
-                    protocole=OuverturePort.UDP,
-                    io=OuverturePort.IN
-                )
-            )),
-            "udp_out": set(map(
-                str,
-                o.ouvertureport_set.filter(
-                    protocole=OuverturePort.UDP,
-                    io=OuverturePort.OUT
-                )
-            )),
-        }
-        for i in filter_active_interfaces(o.interface_set):
-            if i.may_have_port_open():
-                d = r['ipv4'].get(i.ipv4.ipv4, {})
-                d["tcp_in"] = (d.get("tcp_in", set())
-                               .union(pl["tcp_in"]))
-                d["tcp_out"] = (d.get("tcp_out", set())
-                                .union(pl["tcp_out"]))
-                d["udp_in"] = (d.get("udp_in", set())
-                               .union(pl["udp_in"]))
-                d["udp_out"] = (d.get("udp_out", set())
-                                .union(pl["udp_out"]))
-                r['ipv4'][i.ipv4.ipv4] = d
-            if i.ipv6():
-                for ipv6 in i.ipv6():
-                    d = r['ipv6'].get(ipv6.ipv6, {})
-                    d["tcp_in"] = (d.get("tcp_in", set())
-                                   .union(pl["tcp_in"]))
-                    d["tcp_out"] = (d.get("tcp_out", set())
-                                    .union(pl["tcp_out"]))
-                    d["udp_in"] = (d.get("udp_in", set())
-                                   .union(pl["udp_in"]))
-                    d["udp_out"] = (d.get("udp_out", set())
-                                    .union(pl["udp_out"]))
-                    r['ipv6'][ipv6.ipv6] = d
-    return JSONSuccess(r)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def dhcp_mac_ip(_request):
-    """The list of all active interfaces with all the associated infos
-    (MAC, IP, IpType, DNS name and associated zone extension)
-
-    Returns:
-        GET:
-            A JSON Success response with a field `data` containing:
-            * a list of dictionnaries (one for each interface) containing:
-              * a field `ipv4` containing:
-                * a field `ipv4`: the ip for this interface
-                * a field `ip_type`: the name of the IpType of this interface
-              * a field `mac_address`: the MAC of this interface
-              * a field `domain`: the DNS name for this interface
-              * a field `extension`: the extension for the DNS zone of this
-                interface
-    """
-
-    interfaces = all_active_assigned_interfaces()
-    seria = InterfaceSerializer(interfaces, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def mailing_standard(_request):
-    """All the available standard mailings.
-
-    Returns:
-        GET:
-            A JSONSucess response with a field `data` containing:
-            * a list of dictionnaries (one for each mailing) containing:
-              * a field `name`: the name of a mailing
-    """
-
-    return JSONSuccess([
-        {'name': 'adherents'}
-    ])
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def mailing_standard_ml_members(_request, ml_name):
-    """All the members of a specific standard mailing
-
-    Returns:
-        GET:
-            A JSONSucess response with a field `data` containing:
-            * a list if dictionnaries (one for each member) containing:
-              * a field `email`:   the email of the member
-              * a field `name`:    the name of the member
-              * a field `surname`: the surname of the member
-              * a field `pseudo`:  the pseudo of the member
-    """
-
-    # All with active connextion
-    if ml_name == 'adherents':
-        members = all_has_access().values('email').distinct()
-    # Unknown mailing
-    else:
-        return JSONError("This mailing does not exist")
-    seria = MailingMemberSerializer(members, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def mailing_club(_request):
-    """All the available club mailings.
-
-    Returns:
-        GET:
-            A JSONSucess response with a field `data` containing:
-            * a list of dictionnaries (one for each mailing) containing:
-              * a field `name` indicating the name of a mailing
-    """
-
-    clubs = Club.objects.filter(mailing=True).values('pseudo')
-    seria = MailingSerializer(clubs, many=True)
-    return JSONSuccess(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required('machines.serveur')
-@accept_method(['GET'])
-def mailing_club_ml_members(_request, ml_name):
-    """All the members of a specific club mailing
-
-    Returns:
-        GET:
-            A JSONSucess response with a field `data` containing:
-            * a list if dictionnaries (one for each member) containing:
-              * a field `email`:   the email of the member
-              * a field `name`:    the name of the member
-              * a field `surname`: the surname of the member
-              * a field `pseudo`:  the pseudo of the member
-    """
-
-    try:
-        club = Club.objects.get(mailing=True, pseudo=ml_name)
-    except Club.DoesNotExist:
-        return JSONError("This mailing does not exist")
-    members = club.administrators.all().values('email').distinct()
-    seria = MailingMemberSerializer(members, many=True)
-    return JSONSuccess(seria.data)
+        return Response({
+            'token': token.key,
+            'expiration': token.created + token_duration
+        })

@@ -376,7 +376,7 @@ class ServiceServersSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_regen_status(obj):
         """ The string representation of the regen status """
-        return obj.need_regen()
+        return obj.need_regen
 
 
 class OuverturePortsSerializer(serializers.Serializer):
