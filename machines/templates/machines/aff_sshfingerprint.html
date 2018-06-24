@@ -21,11 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
-
-    <table class="table table-striped">
+<div class="table-responsive">
+    <table class="table table-striped long_text">
         <thead>
             <tr>
-		<th>Entrée du hash</th>
+		<th class="long_text">Entrée du hash</th>
 		<th>Algorithme utilisé</th>
 		<th>Commentaire</th>
 		<th></th>
@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for sshfpr in sshfingerprint_list %}
         <tr>
-            <td>{{ sshfpr.pub_key_entry }}</td>
+            <td class="long_text">{{ sshfpr.pub_key_entry }}</td>
             <td>{{ sshfpr.algo }}</td>
             <td>{{ sshfpr.comment }}</td>
 	    <td class="text-right">
@@ -48,4 +48,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
+</div>
 

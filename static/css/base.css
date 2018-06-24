@@ -108,3 +108,19 @@ footer a {
 	overflow-y: visible;
 }
 
+
+/* For tables with long text in cells */
+
+.table.long_text{
+	table-layout: fixed;
+	width: 100%;
+}
+
+td.long_text{
+	word-wrap: break-word;
+	width: 40%;
+}
+
+th.long_text{
+	width: 60%;
+}
