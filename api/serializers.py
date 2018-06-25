@@ -190,6 +190,13 @@ class MxSerializer(NamespacedHMSerializer):
         fields = ('zone', 'priority', 'name', 'api_url')
 
 
+class DNameSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.DName` objects.
+    """
+    class Meta:
+        model = machines.DName
+        fields = ('zone', 'alias', 'api_url')
+
 class NsSerializer(NamespacedHMSerializer):
     """Serialize `machines.models.Ns` objects.
     """
