@@ -54,6 +54,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if nsform %}
     {% bootstrap_form_errors nsform %}
 {% endif %}
+{% if dnameform %}
+    {% bootstrap_form_errors dnameform %}
+{% endif %}
 {% if txtform %}
     {% bootstrap_form_errors txtform %}
 {% endif %}
@@ -121,6 +124,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if txtform %}
         <h3>Enregistrement TXT</h3>
         {% bootstrap_form txtform %}
+    {% endif %}
+    {% if dnameform %}
+        <h3>Enregistrement DName</h3>
+        {% bootstrap_form dnameform %}
     {% endif %}
     {% if srvform %}
         <h3>Enregistrement SRV</h3>

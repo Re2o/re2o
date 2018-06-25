@@ -93,6 +93,8 @@ from .forms import (
     DelNsForm,
     TxtForm,
     DelTxtForm,
+    DNameForm,
+    DelDNameForm,
     MxForm,
     DelMxForm,
     VlanForm,
@@ -122,6 +124,7 @@ from .models import (
     Vlan,
     Nas,
     Txt,
+    DName,
     Srv,
     OuverturePortList,
     OuverturePort,
@@ -815,6 +818,63 @@ def del_ns(request, instances):
         request
     )
 
+@login_required
+@can_create(DName)
+def add_dname(request):
+    """ View used to add a DName object """
+    dname = DNameForm(request.POST or None)
+    if dname.is_valid():
+        dname.save()
+        messages.success(request, "Cet enregistrement DName a été ajouté")
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': 'Créer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(DName)
+def edit_dname(request, dname_instance, **_kwargs):
+    """ View used to edit a DName object """
+    dname = DNameForm(request.POST or None, instance=dname_instance)
+    if dname.is_valid():
+        if dname.changed_data:
+            dname.save()
+            messages.success(request, "DName modifié")
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': 'Editer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete_set(DName)
+def del_dname(request, instances):
+    """ View used to delete a DName object """
+    dname = DelDNameForm(request.POST or None, instances=instances)
+    if dname.is_valid():
+        dname_dels = dname.cleaned_data['dname']
+        for dname_del in dname_dels:
+            try:
+                dname_del.delete()
+                messages.success(request, "Le dname a été supprimé")
+            except ProtectedError:
+                messages.error(
+                    request,
+                    ("Erreur le dname suivant %s ne peut être supprimé"
+                     % dname_del)
+                )
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': 'Supprimer'},
+        'machines/machine.html',
+        request
+    )
+
 
 @login_required
 @can_create(Txt)
@@ -1272,7 +1332,7 @@ def index_nas(request):
 
 
 @login_required
-@can_view_all(SOA, Mx, Ns, Txt, Srv, Extension)
+@can_view_all(SOA, Mx, Ns, Txt, DName, Srv, Extension)
 def index_extension(request):
     """ View displaying the list of existing extensions, the list of
     existing SOA records, the list of existing MX records , the list of
@@ -1292,6 +1352,7 @@ def index_extension(request):
                .select_related('zone')
                .select_related('ns__extension'))
     txt_list = Txt.objects.all().select_related('zone')
+    dname_list = DName.objects.all().select_related('zone')
     srv_list = (Srv.objects
                 .all()
                 .select_related('extension')
@@ -1305,6 +1366,7 @@ def index_extension(request):
             'mx_list': mx_list,
             'ns_list': ns_list,
             'txt_list': txt_list,
+            'dname_list': dname_list,
             'srv_list': srv_list
         }
     )
