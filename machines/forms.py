@@ -218,7 +218,8 @@ class IpTypeForm(FormRevMixin, ModelForm):
     class Meta:
         model = IpType
         fields = ['type', 'extension', 'need_infra', 'domaine_ip_start',
-                  'domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports']
+                  'domaine_ip_stop', 'dnssec_reverse_v4', 'prefix_v6',
+                  'dnssec_reverse_v6', 'vlan', 'ouverture_ports']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -231,6 +232,7 @@ class EditIpTypeForm(IpTypeForm):
     synchroniser les objets iplist"""
     class Meta(IpTypeForm.Meta):
         fields = ['extension', 'type', 'need_infra', 'prefix_v6', 'vlan',
+                  'dnssec_reverse_v4', 'dnssec_reverse_v6',
                   'ouverture_ports']
 
 

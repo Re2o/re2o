@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Nécessite l'autorisation infra</th>
                 <th>Plage ipv4</th>
 		<th>Préfixe v6</th>
+		<th>DNSSEC reverse v4/v6</th>
                 <th>Sur vlan</th>
 		<th>Ouverture ports par défault</th>
 		<th></th>
@@ -45,6 +46,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.need_infra }}</td>
 	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
 	    <td>{{ type.prefix_v6 }}</td>
+	    <td>{{ type.dnssec_reverse_v4 }}/{{ type.dnssec_reverse_v6 }}</td>
             <td>{{ type.vlan }}</td>
 	    <td>{{ type.ouverture_ports }}</td>
             <td class="text-right">
