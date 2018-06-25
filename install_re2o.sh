@@ -176,7 +176,7 @@ install_ldap() {
     if [ "$local_setup" == 1 ]; then
 
         echo "Installing slapd package ..."
-        apt-get -y install slapd
+        DEBIAN_FRONTEND=noninteractive apt-get -y install slapd
         echo "Installing slapd package: Done"
 
         echo "Hashing the LDAP password ..."
@@ -842,8 +842,8 @@ main_function() {
             install_database 1 1 re2o re2o re2o
             install_ldap 1 re2o "dc=example,dc=net"
             write_settings_file 1 localhost re2o re2o re2o \
-                "cn=admin,dc=example,dc=net" 2 re2o "dc=example,dc=net" \
-                "no-reply@example.net" 25 "example.net" "re2o.example.net"
+                "cn=admin,dc=example,dc=net" 2 re2o localhost "dc=example,dc=net" \
+                "mailserver.example.net" 25 "example.net" "re2o.example.net"
             update_django
             create_superuser
             install_webserver 1 2 "re2o.example.net"
