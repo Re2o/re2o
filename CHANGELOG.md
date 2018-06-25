@@ -72,3 +72,25 @@ OPTIONAL_APPS = (
     'api',
     ...
 )
+```
+
+
+
+## MR 177: Add django-debug-toolbar support
+
+Add the possibility to enable `django-debug-toolbar` in debug mode. First install the APT package:
+```
+apt install pyhton3-django-debug-toolbar
+```
+And then activate it for Re2o by adding the app to the `OPTIONAL_APPS` in `re2o/settings_local.py`:
+```python
+OPTIONAL_APPS = (
+    # ...
+    'debug_toolbar',
+    # ...
+)
+```
+If you to restrict the IP which can see the debug, use the `INTERNAL_IPS` options in `re2o/settings_local.py`:
+```
+INTERNAL_IPS = ["10.0.0.1", "10.0.0.2"]
+```
