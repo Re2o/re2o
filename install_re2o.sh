@@ -107,8 +107,8 @@ install_database() {
         echo "Installing MySQL client: Done"
 
         mysql_command="CREATE DATABASE $db_name collate='utf8_general_ci';
-            CREATE USER '$username'@'127.0.0.1' IDENTIFIED BY '$password';
-            GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'127.0.0.1';
+            CREATE USER '$username' IDENTIFIED BY '$password';
+            GRANT ALL PRIVILEGES ON $db_name.* TO '$username';
             FLUSH PRIVILEGES;"
 
         if [ "$local_setup" == 1 ]; then
