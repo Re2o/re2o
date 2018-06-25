@@ -107,8 +107,8 @@ install_database() {
         echo "Installing MySQL client: Done"
 
         mysql_command="CREATE DATABASE $db_name collate='utf8_general_ci';
-            CREATE USER '$username'@'localhost' IDENTIFIED BY '$password';
-            GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'localhost';
+            CREATE USER '$username'@'127.0.0.1' IDENTIFIED BY '$password';
+            GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'127.0.0.1';
             FLUSH PRIVILEGES;"
 
         if [ "$local_setup" == 1 ]; then
@@ -491,7 +491,7 @@ interactive_guide() {
         # Use of default values for local setup
         sql_name="re2o"
         sql_login="re2o"
-        sql_host="localhost"
+        sql_host="127.0.0.1"
     fi
 
     # Prompt to enter the database password
