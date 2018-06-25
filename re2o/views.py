@@ -122,6 +122,7 @@ HISTORY_BIND = {
         'soa': machines.models.SOA,
         'mx': machines.models.Mx,
         'txt': machines.models.Txt,
+        'dname': machines.models.DName,
         'srv': machines.models.Srv,
         'ns': machines.models.Ns,
         'service': machines.models.Service,

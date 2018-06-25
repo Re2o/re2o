@@ -760,6 +760,27 @@ class Txt(RevMixin, AclMixin, models.Model):
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
+class DName(RevMixin, AclMixin, models.Model):
+    """ Un enregistrement DName, qui crée un alias depuis la zone spécifié vers l'extension"""
+    PRETTY_NAME = "Enregistrement DName"
+
+    zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    alias = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ("view_dname", "Peut voir un objet dname"),
+        )
+
+    def __str__(self):
+        return str(self.zone) + " : " + str(self.alias)
+
+    @cached_property
+    def dns_entry(self):
+        """Renvoie l'enregisterment DNAME complet pour le fichier de zone"""
+        return str(self.alias) + " IN  DNAME   " + str(self.zone)
+
+
 class Srv(RevMixin, AclMixin, models.Model):
     """ A SRV record """
     PRETTY_NAME = "Enregistrement Srv"
@@ -1790,10 +1811,19 @@ def text_post_save(**_kwargs):
     """Regeneration dns après modification d'un TXT"""
     regen('dns')
 
-
 @receiver(post_delete, sender=Txt)
 def text_post_delete(**_kwargs):
     """Regeneration dns après modification d'un TX"""
+    regen('dns')
+
+@receiver(post_save, sender=DName)
+def dname_post_save(**_kwargs):
+    """Regeneration dns après modification d'un DName"""
+    regen('dns')
+
+@receiver(post_delete, sender=DName)
+def DName_post_delete(**_kwargs):
+    """Regeneration dns après modification d'un DName"""
     regen('dns')
 
 

@@ -102,6 +102,7 @@ MODEL_NAME = {
     'Mx': machines.models.Mx,
     'Ns': machines.models.Ns,
     'Txt': machines.models.Txt,
+    'DName': machines.models.DName,
     'Srv': machines.models.Srv,
     'Interface': machines.models.Interface,
     'Domain': machines.models.Domain,
