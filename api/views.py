@@ -163,6 +163,12 @@ class TxtViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = machines.Txt.objects.all()
     serializer_class = serializers.TxtSerializer
 
+class DNameViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.DName` objects.
+    """
+    queryset = machines.DName.objects.all()
+    serializer_class = serializers.DNameSerializer
+
 
 class SrvViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `machines.models.Srv` objects.
