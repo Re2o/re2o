@@ -34,10 +34,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Extension</th>
                 <th>Nécessite l'autorisation infra</th>
                 <th>Plage ipv4</th>
-                <th>Préfixe v6</th>
+		<th>Préfixe v6</th>
+		<th>DNSSEC reverse v4/v6</th>
                 <th>Sur vlan</th>
                 <th>Ouverture ports par défault</th>
-                <th></th>
                 <th></th>
             </tr>
         </thead>
@@ -46,8 +46,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.type }}</td>
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra|tick }}</td>
-            <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
-            <td>{{ type.prefix_v6 }}</td>
+	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
+	    <td>{{ type.prefix_v6 }}</td>
+	    <td>{{ type.dnssec_reverse_v4|tick }}/{{ type.dnssec_reverse_v6|tick }}</td>
             <td>{{ type.vlan }}</td>
             <td>{{ type.ouverture_ports }}</td>
             <td class="text-right">

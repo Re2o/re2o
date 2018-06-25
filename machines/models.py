@@ -256,10 +256,18 @@ class IpType(RevMixin, AclMixin, models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
+    dnssec_reverse_v4 = models.BooleanField(
+            default=False, 
+            help_text="Activer DNSSEC sur le reverse DNS IPv4",
+    )
     prefix_v6 = models.GenericIPAddressField(
         protocol='IPv6',
         null=True,
         blank=True
+    )
+    dnssec_reverse_v6 = models.BooleanField(
+            default=False,
+            help_text="Activer DNSSEC sur le reverse DNS IPv6",
     )
     vlan = models.ForeignKey(
         'Vlan',
