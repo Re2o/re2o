@@ -841,7 +841,7 @@ main_function() {
             install_requirements
             install_database 1 1 re2o re2o re2o
             install_ldap 1 re2o "dc=example,dc=net"
-            write_settings_file 1 localhost re2o re2o re2o \
+            write_settings_file 1 "127.0.0.1" re2o re2o re2o \
                 "cn=admin,dc=example,dc=net" 2 re2o localhost "dc=example,dc=net" \
                 "mailserver.example.net" 25 "example.net" "re2o.example.net"
             update_django
