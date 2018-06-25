@@ -766,6 +766,8 @@ main_function() {
         echo "                          LDAP"
         echo "        * <local_domain>  the domain extension to use for the LDAP structure"
         echo "                          in LDAP notation"
+        echo "  * {auto-setup} ---- Automatic setup with default values, use this for quick"
+        echo "                      but entire setup."
         echo ""
     else
         subcmd="$1"
@@ -833,6 +835,18 @@ main_function() {
                 echo "Usage: install_re2o setup-ldap <ldap_password> <local_domain>"
 		echo "See 'install_re2o help' for further help"
             fi
+            ;;
+
+        auto-setup )
+            install_requirements
+            install_database 1 1 re2o re2o re2o
+            install_ldap 1 re2o "dc=example,dc=net"
+            write_settings_file 1 localhost re2o re2o re2o \
+                "cn=admin,dc=example,dc=net" 2 re2o "dc=example,dc=net" \
+                "no-reply@example.net" 25 "example.net" "re2o.example.net"
+            update_django
+            create_superuser
+            install_webserver 1 2 "re2o.example.net"
             ;;
 
         * )
