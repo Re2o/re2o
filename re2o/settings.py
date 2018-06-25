@@ -94,6 +94,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
 )
+# Include debug_toolbar middleware if activated
+if 'debug_toolbar' in INSTALLED_APPS:
+    # Include this middleware at the beggining
+    MIDDLEWARE_CLASSES = (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ) + MIDDLEWARE_CLASSES
+    # Change the default show_toolbar middleware
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 're2o.middleware.show_debug_toolbar'
+    }
 
 # The root url module to define the project URLs
 ROOT_URLCONF = 're2o.urls'
