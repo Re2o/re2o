@@ -31,6 +31,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
+from django.forms import ValidationError
+import cotisations.models
 import machines.models
 from re2o.mixins import AclMixin
 
@@ -83,12 +85,25 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    mail_extension = models.CharField(
+        max_length = 32,
+        default = "@example.org",
+        help_text="Extension principale pour les mails internes",
+    )
 
     class Meta:
         permissions = (
             ("view_optionaluser", "Peut voir les options de l'user"),
         )
 
+    def clean(self):
+        """Clean du model:
+        Creation du mode de paiement par solde
+        Vérifie que l'extension mail commence bien par @
+        """
+        if self.mail_extension[0] != "@":
+            raise ValidationError("L'extension mail doit commencer par un @")
+    
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(**kwargs):

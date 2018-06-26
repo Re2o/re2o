@@ -262,7 +262,6 @@ class ExtensionForm(FormRevMixin, ModelForm):
         self.fields['origin'].label = 'Enregistrement A origin'
         self.fields['origin_v6'].label = 'Enregistrement AAAA origin'
         self.fields['soa'].label = 'En-tête SOA à utiliser'
-        self.fielss['mail_extension'].label = 'Utilisable comme extension mail'
 
 
 class DelExtensionForm(FormRevMixin, Form):

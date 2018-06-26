@@ -79,7 +79,7 @@ from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, Machine, regen, Extension
+from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
@@ -134,7 +134,6 @@ class UserManager(BaseUserManager):
             self,
             pseudo,
             surname,
-            email,
             password=None,
             su=False
     ):
@@ -148,7 +147,6 @@ class UserManager(BaseUserManager):
             pseudo=pseudo,
             surname=surname,
             name=surname,
-            email=self.normalize_email(email),
         )
 
         user.set_password(password)
@@ -157,19 +155,19 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, pseudo, surname, email, password=None):
+    def create_user(self, pseudo, surname, password=None):
         """
         Creates and saves a User with the given pseudo, name, surname, email,
         and password.
         """
-        return self._create_user(pseudo, surname, email, password, False)
+        return self._create_user(pseudo, surname, password, False)
 
-    def create_superuser(self, pseudo, surname, email, password):
+    def create_superuser(self, pseudo, surname, password):
         """
         Creates and saves a superuser with the given pseudo, name, surname,
         email, and password.
         """
-        return self._create_user(pseudo, surname, email, password, True)
+        return self._create_user(pseudo, surname, password, True)
 
 
 class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
@@ -188,19 +186,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
 
     surname = models.CharField(max_length=255)
+    email = models.EmailField()
     pseudo = models.CharField(
         max_length=32,
         unique=True,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
         validators=[linux_user_validator]
     )
-    email = models.EmailField()
-    """
-    email= models.OneToOneField(
-            Mail,
-            on_delete=models.PROTECT
-    )
-    """
     school = models.ForeignKey(
         'School',
         on_delete=models.PROTECT,
@@ -233,7 +225,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
 
     USERNAME_FIELD = 'pseudo'
-    REQUIRED_FIELDS = ['surname', 'email']
+    REQUIRED_FIELDS = ['surname']
 
     objects = UserManager()
 
@@ -686,10 +678,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         Return the mail address choosen by the user
         """
-        if not self.mail.internal_activated:
-            return(self.mail.external)
+        if not self.mail.internal_address:
+            return self.mail.external_mail
         else:
-            return(self.mail.mailalias_set.first())
+            return self.mail.mailalias_set.get(valeur=pseudo)
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
@@ -1619,7 +1611,7 @@ class Mail(RevMixin, AclMixin, models.Model):
     Compte mail d'un utilisateur
     """
     external_mail = models.EmailField(help_text="Mail externe")
-    user = models.ForeignKey(
+    user = models.OneToOneField(
             'User',
             on_delete=models.CASCADE,
             help_text="Object mail d'un User"
@@ -1632,7 +1624,7 @@ class Mail(RevMixin, AclMixin, models.Model):
     )
     
     def __str__(self):
-        return self.mail
+        return self.user.get_mail()
 
 
 class MailAlias(RevMixin, AclMixin, models.Model):
@@ -1647,20 +1639,14 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         help_text="Objects Mail associé"
     )
     valeur = models.CharField(
+        unique=True,
         max_length=64,
         help_text="username de l'adresse mail"
     )
-    extension = models.ForeignKey(
-        'machines.Extension',
-        on_delete=models.CASCADE,
-        help_text="Extension mail interne"
-    )
 
-    class Meta:
-        unique_together = ('valeur', 'extension',)
 
     def __str__(self):
-        return self.valeur + "@" + self.extension
+        return self.valeur + OptionalUser.get_cached_value('mail_extension')
 
     def can_view(self, user_request, *_args, **_kwargs):
         """
@@ -1681,7 +1667,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
             return True, None
         else:
             if user_request == self.mail.user:
-                if self.id != 0:
+                if self.valeur == self.mail.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas supprimer l'alias lié à votre pseudo"
@@ -1697,7 +1683,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
             return True, None
         else:
             if user_request == self.mail.user:
-                if self.id != 0:
+                if self.valeur == self.mail.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas modifier l'alias lié à votre pseudo"
