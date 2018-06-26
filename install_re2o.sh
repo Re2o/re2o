@@ -766,8 +766,8 @@ main_function() {
         echo "                          LDAP"
         echo "        * <local_domain>  the domain extension to use for the LDAP structure"
         echo "                          in LDAP notation"
-        echo "  * {auto-setup} ---- Automatic setup with default values, use this for quick"
-        echo "                      but entire setup."
+        echo "  * {ci-setup} ------ Automatic setup with default values, this command is"
+        echo "                      used for building the gitlab CI."
         echo ""
     else
         subcmd="$1"
@@ -837,11 +837,10 @@ main_function() {
             fi
             ;;
 
-        auto-setup )
+        ci-setup )
             install_requirements
-            install_database 1 1 re2o re2o re2o
             install_ldap 1 re2o "dc=example,dc=net"
-            write_settings_file 1 "127.0.0.1" re2o re2o re2o \
+            write_settings_file 1 mysql re2o root re2o \
                 "cn=admin,dc=example,dc=net" 2 re2o localhost "dc=example,dc=net" \
                 "mailserver.example.net" 25 "example.net" "re2o.example.net"
             update_django

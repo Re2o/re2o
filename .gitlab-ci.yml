@@ -1,8 +1,31 @@
 ---
+services:
+  - mysql:latest
+
+variables:
+  MYSQL_DATABASE: re2o
+  MYSQL_ROOT_PASSWORD: re2o
+
 image: debian:stretch
 stages:
-  - lint
+  - build
   - tests
+  - lint
+
+
+build:
+  stage: build
+  variables:
+    LANG: 'en_US.UTF-8'
+    LC_ALL: 'en_US.UTF-8'
+    LANGUAGE: 'en_US.UTF-8'
+  script:
+  - apt-get -qq update
+  - DEBIAN_FRONTEND=noninteractive apt-get -qq install -y locales
+  - sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales && update-locale LANG=en_US.UTF-8
+  - ./install_re2o.sh ci-setup
+  - cat re2o/settings_local.py
+
 
 lint:
   stage: lint
@@ -11,9 +34,6 @@ lint:
     LC_ALL: 'en_US.UTF-8'
     LANGUAGE: 'en_US.UTF-8'
   script:
-  - apt-get -qq update
-  - DEBIAN_FRONTEND=noninteractive apt-get -qq install -y locales python3-django python3-pylint-django
-  - sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales && update-locale LANG=en_US.UTF-8
   - pylint3 --load-plugins pylint_django cotisations machines re2o logs topologie preferences search users || if [ $? -ne 1 ]; then exit 0; else exit 1; fi
 
 
@@ -24,9 +44,4 @@ tests:
     LC_ALL: 'en_US.UTF-8'
     LANGUAGE: 'en_US.UTF-8'
   script:
-  - apt-get -qq update
-  - DEBIAN_FRONTEND=noninteractive apt-get -qq install -y locales
-  - sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales && update-locale LANG=en_US.UTF-8
-  - ./install_re2o.sh auto-setup
-  - cat re2o/settings_local.py
   - python3 manage.py test
