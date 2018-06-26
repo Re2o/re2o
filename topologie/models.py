@@ -493,7 +493,7 @@ class Room(AclMixin, RevMixin, models.Model):
         return self.name
 
 
-class PortProfile(AclMixin, models.Model):
+class PortProfile(AclMixin, RevMixin, models.Model):
     """Contains the information of the ports' configuration for a switch"""
     TYPES = (
         ('NO', 'NO'),
@@ -504,37 +504,100 @@ class PortProfile(AclMixin, models.Model):
         ('STRICT', 'STRICT'),
         ('COMMON', 'COMMON'),
         )
+    SPEED = (
+        ('10-half', '10-half'),
+        ('100-half', '100-half'),
+        ('10-full', '10-full'),
+        ('100-full', '100-full'),
+        ('1000-full', '1000-full'),
+        ('auto', 'auto'),
+        ('auto-10', 'auto-10'),
+        ('auto-100', 'auto-100'),
+        )
+    PROFIL_DEFAULT= (
+        ('room', 'room'),
+        ('accespoint', 'accesspoint'),
+        ('uplink', 'uplink'),
+        ('asso_machine', 'asso_machine'),
+        )
     name = models.CharField(max_length=255, verbose_name=_("Name"))
-    room_default = models.BooleanField(verbose_name=_("Room default"))
-    hotspot_default = models.BooleanField(_("Hotspot default"))
-    uplink_default = models.BooleanField(_("Uplink default"))
-    orga_machine_default = models.BooleanField(_("Organisation machine"
-                                                 " default"))
+    profil_default = models.CharField(
+        max_length=32,
+        choices=PROFIL_DEFAULT,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name=_("profil default")
+    )
     vlan_untagged = models.ForeignKey(
-            'machines.Vlan',
-            related_name='vlan_untagged',
-            on_delete=models.SET_NULL,
-            blank=True,
-            null=True,
-            verbose_name=_("VLAN untagged")
+        'machines.Vlan',
+        related_name='vlan_untagged',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name=_("VLAN untagged")
     )
     vlan_tagged = models.ManyToManyField(
-            'machines.Vlan',
-            related_name='vlan_tagged',
-            blank=True,
-            verbose_name=_("VLAN(s) tagged"))
+        'machines.Vlan',
+        related_name='vlan_tagged',
+        blank=True,
+        null=True,
+        verbose_name=_("VLAN(s) tagged")
+    )
     radius_type = models.CharField(
-            max_length=32,
-            choices=TYPES,
-            verbose_name=_("RADIUS type")
+        max_length=32,
+        choices=TYPES,
+        verbose_name=_("RADIUS type")
     )
     radius_mode = models.CharField(
-            max_length=32,
-            choices=MODES,
-            blank=True,
-            null=True,
-            verbose_name=_("RADIUS mode")
+        max_length=32,
+        choices=MODES,
+        default='COMMON',
+        verbose_name=_("RADIUS mode")
     )
+    speed = models.CharField(
+        max_length=32,
+        choices=SPEED,
+        default='auto',
+        help_text='Mode de transmission et vitesse du port',
+        verbose_name=_("Speed")
+    )
+    mac_limit = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Limit du nombre de mac sur le port',
+        verbose_name=_("Mac limit")
+    )
+    flow_control = models.BooleanField(
+        default=False,
+        help_text='Gestion des débits',
+        verbose_name=_("Flow control")
+    )
+    dhcp_snooping = models.BooleanField(
+        default=False,
+        help_text='Protection dhcp pirate',
+        verbose_name=_("Dhcp snooping")
+    )
+    dhcpv6_snooping = models.BooleanField(
+        default=False,
+        help_text='Protection dhcpv6 pirate',
+        verbose_name=_("Dhcpv6 snooping")
+    )
+    arp_protect = models.BooleanField(
+        default=False,
+        help_text='Verification assignation de l\'IP par dhcp',
+        verbose_name=_("Arp protect")
+    )
+    ra_guard = models.BooleanField(
+        default=False,
+        help_text='Protection contre ra pirate',
+        verbose_name=_("Ra guard")
+    )   
+    loop_protect = models.BooleanField(
+        default=False,
+        help_text='Protection contre les boucles',
+        verbose_name=_("Loop Protect")
+    ) 
 
     class Meta:
         permissions = (
