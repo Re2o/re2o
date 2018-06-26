@@ -1634,7 +1634,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         help_text="username de l'adresse mail"
     )
     extension = models.ForeignKey(
-        'Extension',
+        'machines.Extension',
         on_delete=models.CASCADE,
         help_text="Extension mail interne"
     )
