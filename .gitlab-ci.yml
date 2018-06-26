@@ -3,6 +3,12 @@ variables:
   LANG: 'en_US.UTF-8'
   LC_ALL: 'en_US.UTF-8'
   LANGUAGE: 'en_US.UTF-8'
+  POSTGRES_DB: re2o
+  POSTGRES_USER: re2o
+  POSTGRES_PASSWORD: re2o
+
+services:
+  - postgres:latest
 
 image: debian:stretch
 stages:
