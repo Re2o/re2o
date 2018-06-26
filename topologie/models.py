@@ -46,6 +46,7 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
 from machines.models import Machine, regen
@@ -483,6 +484,60 @@ class Room(AclMixin, RevMixin, models.Model):
         permissions = (
             ("view_room", "Peut voir un objet chambre"),
         )
+
+    def __str__(self):
+        return self.name
+
+
+class PortProfile(AclMixin, models.Model):
+    """Contains the information of the ports' configuration for a switch"""
+    TYPES = (
+        ('NO', 'NO'),
+        ('802.1X', '802.1X'),
+        ('MAC-radius', 'MAC-radius'),
+        )
+    MODES = (
+        ('STRICT', 'STRICT'),
+        ('COMMON', 'COMMON'),
+        )
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    room_default = models.BooleanField(verbose_name=_("Room default"))
+    hotspot_default = models.BooleanField(_("Hotspot default"))
+    uplink_default = models.BooleanField(_("Uplink default"))
+    orga_machine_default = models.BooleanField(_("Organisation machine"
+                                                 " default"))
+    vlan_untagged = models.ForeignKey(
+            'machines.Vlan',
+            related_name='vlan_untagged',
+            on_delete=models.SET_NULL,
+            blank=True,
+            null=True,
+            verbose_name=_("VLAN untagged")
+    )
+    vlan_tagged = models.ManyToManyField(
+            'machines.Vlan',
+            related_name='vlan_tagged',
+            blank=True,
+            verbose_name=_("VLAN(s) tagged"))
+    radius_type = models.CharField(
+            max_length=32,
+            choices=TYPES,
+            verbose_name=_("RADIUS type")
+    )
+    radius_mode = models.CharField(
+            max_length=32,
+            choices=MODES,
+            blank=True,
+            null=True,
+            verbose_name=_("RADIUS mode")
+    )
+
+    class Meta:
+        permissions = (
+                ("view_port_profile", _("Can view a port profile object")),
+        )
+        verbose_name = _("Port profile")
+        verbose_name_plural = _("Port profiles")
 
     def __str__(self):
         return self.name

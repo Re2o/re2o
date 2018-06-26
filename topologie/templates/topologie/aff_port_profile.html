@@ -1,0 +1,46 @@
+{% load acl %}
+{% load i18n %}
+
+<div class="table-responsive">
+
+{% if port_profile_list.paginator %}
+{% include "pagination.html" with list=port_profile_list %}
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+	    <th>{% trans "Name" %}</th>
+	    <th>{% trans "VLAN untagged" %}</th>
+	    <th>{% trans "VLAN(s) tagged" %}</th>
+	    <th>{% trans "RADIUS type" %}</th>
+	    <th>{% trans "RADIUS mode" %}</th>
+	</tr>
+    </thead>
+    {% for port_profile in port_profile_list %}
+    <tr>
+        <td>{{port_profile.name}}</td>
+	<td>{{port_profile.vlan_untagged}}</td>
+	<td>
+	{{port_profile.vlan_tagged.all|join:", "}}
+	</td>
+	<td>{{port_profile.radius_type}}</td>
+	<td>{{port_profile.radius_mode}}</td>
+	<td class="text-right">
+	    {% include 'buttons/history.html' with href='topologie:history' name='portprofile' id=port_profile.pk %}
+	    {% can_edit port_profile %}
+	    {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.pk %}
+	    {% acl_end %}
+	    {% can_delete port_profile %}
+	    {% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.pk %}
+	    {% acl_end %}
+	</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if port_profile_list.paginator %}
+{% include "pagination.html" with list=port_profile_list %}
+{% endif %}
+
+</div>
