@@ -80,6 +80,8 @@ from .models import (
     Adherent,
     Club,
     ListShell,
+    MailAlias,
+    Mail,
 )
 from .forms import (
     BanForm,

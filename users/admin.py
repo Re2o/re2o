@@ -127,7 +127,6 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     list_display = (
         'pseudo',
         'surname',
-        'email',
         'school',
         'is_admin',
         'shell'
@@ -141,7 +140,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             'Personal info',
             {
                 'fields':
-                ('surname', 'email', 'school', 'shell', 'uid_number')
+                ('surname', 'school', 'shell', 'uid_number')
             }
         ),
         ('Permissions', {'fields': ('is_admin', )}),
@@ -156,7 +155,6 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 'fields': (
                     'pseudo',
                     'surname',
-                    'email',
                     'school',
                     'is_admin',
                     'password1',
