@@ -493,6 +493,66 @@ def del_whitelist(request, whitelist, **_kwargs):
 
 
 @login_required
+@can_create(MailAlias)
+@can_edit(User)
+def add_mailalias(request, user, userid):
+    """ Créer un alias """
+    mailalias_instance = MailAlias(mail=user.mail)
+    whitelist = WhitelistForm(
+        request.POST or None,
+        instance=whitelist_instance
+    )
+    if whitelist.is_valid():
+        whitelist.save()
+        messages.success(request, "Alias créé")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(userid)}
+        ))
+
+    return form(
+        {'userform': mailalias, 'action_name': 'Ajouter un alias mail'},
+        'users/user.html',
+        request
+    )
+
+@login_required
+@can_edit(MailAlias)
+def edit_mailalias(request, mailalias_instance, **_kwargs):
+    """ Editer un alias mail"""
+    mailalias = MailAliasForm(
+        request.POST or None,
+        instance=mailalias_instance
+    )
+    if whitelist.is_valid():
+        if whitelist.changed_data:
+            whitelist.save()
+            messages.success(request, "Alias modifiée")
+        return redirect(reverse('users:index'))
+    return form(
+        {'userform': mailalias, 'action_name': 'Editer un alias mail'},
+        'users/user.html',
+        request
+    )
+
+@login_required
+@can_delete(MailAlias)
+def del_mailalias(request, mailalias, **_kwargs):
+        """ Supprime un alias mail"""
+        if request.method == "POST":
+            mailalias.delete()
+            messages.success(request, "L'alias a été supprimé")
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': str(mailalias.mail.user.id)}
+                ))
+        return form(
+            {'objet': mailalias, 'objet_name': 'mailalias'},
+            'users/delete.html',
+            request
+        )
+
+@login_required
 @can_create(School)
 def add_school(request):
     """ Ajouter un établissement d'enseignement à la base de donnée,

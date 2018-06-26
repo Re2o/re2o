@@ -53,6 +53,7 @@ from .models import (
     School,
     ListRight,
     Whitelist,
+    MailAlias,
     ListShell,
     Ban,
     Adherent,
@@ -590,3 +591,16 @@ class WhitelistForm(FormRevMixin, ModelForm):
         model = Whitelist
         exclude = ['user']
         widgets = {'date_end':DateTimePicker}
+
+
+class MailAliasForm(FormRevMixin, ModelForm):
+    """Creation, edition d'un objet alias mail"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(MailAliasForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['valeur'].label = 'nom de l\'adresse mail'
+        self.fields['extension'].label = 'extension de l\'adresse mail'
+
+    class Meta:
+        model = MailAlias
+        exclude = ['mail']

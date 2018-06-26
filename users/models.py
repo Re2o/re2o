@@ -79,7 +79,7 @@ from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, Machine, regen
+from machines.models import Domain, Interface, Machine, regen, Extension
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
@@ -195,6 +195,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         validators=[linux_user_validator]
     )
     email = models.EmailField()
+    """
+    email= models.OneToOneField(
+            Mail,
+            on_delete=models.PROTECT
+    )
+    """
     school = models.ForeignKey(
         'School',
         on_delete=models.PROTECT,
@@ -246,7 +252,9 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             ("view_user",
              "Peut voir un objet user quelquonque"),
         )
-
+    
+    
+        
     @cached_property
     def name(self):
         """Si il s'agit d'un adhérent, on renvoie le prénom"""
@@ -673,6 +681,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
+
+    def get_mail(self):
+        """
+        Return the mail address choosen by the user
+        """
+        if not self.mail.internal_activated:
+            return(self.mail.external)
+        else:
+            return(self.mail.mailalias_set.first())
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
@@ -1593,3 +1610,99 @@ class LdapServiceUserGroup(ldapdb.models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Mail(RevMixin, AclMixin, models.Model):
+    """
+    Mail account of a user
+
+    Compte mail d'un utilisateur
+    """
+    external_mail = models.EmailField(help_text="Mail externe")
+    user = models.ForeignKey(
+            'User',
+            on_delete=models.CASCADE,
+            help_text="Object mail d'un User"
+    )
+    redirection = models.BooleanField(
+        default=False
+    )
+    internal_address = models.BooleanField(
+        default=False
+    )
+    
+    def __str__(self):
+        return self.mail
+
+
+class MailAlias(RevMixin, AclMixin, models.Model):
+    """
+    Define a alias for a user Mail
+
+    Définit un aliase pour un Mail d'utilisateur
+    """
+    mail = models.ForeignKey(
+        'Mail',
+        on_delete=models.CASCADE,
+        help_text="Objects Mail associé"
+    )
+    valeur = models.CharField(
+        max_length=64,
+        help_text="username de l'adresse mail"
+    )
+    extension = models.ForeignKey(
+        'Extension',
+        on_delete=models.CASCADE,
+        help_text="Extension mail interne"
+    )
+
+    class Meta:
+        unique_together = ('valeur', 'extension',)
+
+    def __str__(self):
+        return self.valeur + "@" + self.extension
+
+    def can_view(self, user_request, *_args, **_kwargs):
+        """
+        Check if the user can view the aliases
+        """
+
+        if user_request.has_perm('users.view_mailalias') or user.request == self.mail.user:
+            return True, None
+        else:
+            return False, "Vous n'avais pas les droits suffisants et n'êtes pas propriétaire de ces alias"
+    
+    def can_delete(self, user_request, *_args, **_kwargs):
+        """
+        Check if the user can delete the alias
+        """
+
+        if user_request.has_perm('users.delete_mailalias'): 
+            return True, None
+        else:
+            if user_request == self.mail.user:
+                if self.id != 0:
+                    return True, None
+                else:
+                    return False, "Vous ne pouvez pas supprimer l'alias lié à votre pseudo"
+            else:
+                return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de ces alias"
+
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """
+        Check if the user can edit the alias
+        """
+
+        if user_request.has_perm('users.change_mailalias'):
+            return True, None
+        else:
+            if user_request == self.mail.user:
+                if self.id != 0:
+                    return True, None
+                else:
+                    return False, "Vous ne pouvez pas modifier l'alias lié à votre pseudo"
+            else:
+                return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de cet alias"
+
+
+
