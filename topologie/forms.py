@@ -257,34 +257,6 @@ class EditBuildingForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)
 
-
-class NewPortProfileForm(FormRevMixin, ModelForm):
-    """Form to create a port profile"""
-    class Meta:
-        model = PortProfile
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewPortProfileForm, self).__init__(*args,
-                                                 prefix=prefix,
-                                                 **kwargs)
-
-    def clean(self):
-        cleaned_data = super(NewPortProfileForm, self).clean()
-        radius_type = cleaned_data.get('radius_type')
-        radius_mode = cleaned_data.get('radius_mode')
-
-        if radius_type == 'NO' and radius_mode:
-            raise forms.ValidationError(_("You can't specify a RADIUS mode"
-                                          " with RADIUS type NO"))
-        elif radius_type != 'NO' and not radius_mode:
-            raise forms.ValidationError(_("You have to specify a RADIUS"
-                                          " mode"))
-
-        return cleaned_data
-
-
 class EditPortProfileForm(FormRevMixin, ModelForm):
     """Form to edit a port profile"""
     class Meta:
@@ -297,18 +269,3 @@ class EditPortProfileForm(FormRevMixin, ModelForm):
                                                   prefix=prefix,
                                                   **kwargs)
 
-    def clean(self):
-        cleaned_data = super(EditPortProfileForm, self).clean()
-        radius_type = cleaned_data.get('radius_type')
-        radius_mode = cleaned_data.get('radius_mode')
-        
-        if radius_type == 'NO' and radius_mode:
-            raise forms.ValidationError(_("You can't specify a RADIUS mode"
-                                          " with RADIUS type NO"))
-        elif radius_type != 'NO' and not radius_mode:
-            raise forms.ValidationError(_("You have to specify a RADIUS"
-                                          " mode"))
-
-        return cleaned_data
-
- 

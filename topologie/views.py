@@ -97,7 +97,6 @@ from .forms import (
     EditAccessPointForm,
     EditSwitchBayForm,
     EditBuildingForm,
-    NewPortProfileForm,
     EditPortProfileForm,
 )
 
@@ -135,7 +134,7 @@ def index(request):
     switch_list = re2o_paginator(request, switch_list, pagination_number)
     port_profile_list = re2o_paginator(request, port_profile_list, pagination_number)
 
-    if any(service_link.need_regen() for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
+    if any(service_link.need_regen for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
         make_machine_graph()
         for service_link in Service_link.objects.filter(service__service_type='graph_topo'):
             service_link.done_regen()
@@ -967,7 +966,7 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
 @can_create(PortProfile)
 def new_port_profile(request):
     """Create a new port profile"""
-    port_profile = NewPortProfileForm(request.POST or None)
+    port_profile = EditPortProfileForm(request.POST or None)
     if port_profile.is_valid():
         port_profile.save()
         messages.success(request, _("Port profile created"))

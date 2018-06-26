@@ -9,53 +9,34 @@
 
 <table class="table table-striped">
         <tr>
-	    <th>{% trans "Name" %}</th>
-	    <th></td>
-	    <th>{% trans "VLAN untagged" %}</th>
-	    <td></td>
-	    <th>{% trans "VLAN(s) tagged" %}</th>
-	    <tr></tr>
-	</tr>
-	<tr>
-	    <th>{% trans "RADIUS type" %}</th>
-	    <td></td>
-	    <th>{% trans "RADIUS mode" %}</th>
-	    <th></th>
-	    <th>{% trans "RADIUS type" %}</th>
-	    <td></td>
-	</tr>
-	<tr>
-	    <th>{% trans "speed" %}</th>
-	    <td></td>
-	    <th>{% trans "Mac limit" %}</th>
-	    <th></th>
-	    <th>{% trans "Flow control" %}</th>
-	    <td></td>
-	</tr>
-	<tr>
-	    <th>{% trans "dhcp snooping" %}</th>
-	    <td></td>
-	    <th>{% trans "dhcpv6 snooping" %}</th>
-	    <th></th>
-	    <th>{% trans "arp protect" %}</th>
-	    <td></td>
-	</tr>
-	<tr>
-	    <th>{% trans "ra guard" %}</th>
-	    <td></td>
-	    <th>{% trans "loop protect" %}</th>
+	    <th>{% trans "Nom" %}</th>
+	    <th>{% trans "Default pour" %}</th>
+	    <th>{% trans "VLANs" %}</th>
+	    <th>{% trans "Réglages RADIUS" %}</th>
+	    <th>{% trans "Vitesse" %}</th>
+	    <th>{% trans "Mac address limit" %}</th>
+	    <th>{% trans "Sécurité" %}</th>
 	    <th></th>
 	</tr>
     </thead>
     {% for port_profile in port_profile_list %}
     <tr>
         <td>{{port_profile.name}}</td>
-	<td>{{port_profile.vlan_untagged}}</td>
+        <td>{{port_profile.profil_default}}</td>
 	<td>
-	{{port_profile.vlan_tagged.all|join:", "}}
+	<b>Untagged : </b>{{port_profile.vlan_untagged}} 
+	<br>
+	<b>Tagged : </b>{{port_profile.vlan_tagged.all|join:", "}}
 	</td>
-	<td>{{port_profile.radius_type}}</td>
-	<td>{{port_profile.radius_mode}}</td>
+	<td>
+	<b>Type : </b>{{port_profile.radius_type}}
+	{% if port_profile.radius_type == "MAC-radius" %}
+	<br>
+	<b>Mode : </b>{{port_profile.radius_mode}}</td>
+	{% endif %}
+	<td>{{port_profile.speed}}</td>
+	<td>{{port_profile.mac_limit}}</td>
+	<td>{{port_profile.security_parameters_enabled|join:"<br>"}}</td>
 	<td class="text-right">
 	    {% include 'buttons/history.html' with href='topologie:history' name='portprofile' id=port_profile.pk %}
 	    {% can_edit port_profile %}

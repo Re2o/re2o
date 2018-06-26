@@ -546,12 +546,14 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     radius_type = models.CharField(
         max_length=32,
         choices=TYPES,
+        help_text="Choix du type d'authentification radius : non actif, mac ou 802.1X",
         verbose_name=_("RADIUS type")
     )
     radius_mode = models.CharField(
         max_length=32,
         choices=MODES,
         default='COMMON',
+        help_text="En cas d'auth par mac, auth common ou strcit sur le port",
         verbose_name=_("RADIUS mode")
     )
     speed = models.CharField(
@@ -604,6 +606,12 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         )
         verbose_name = _("Port profile")
         verbose_name_plural = _("Port profiles")
+
+    security_parameters_fields = ['loop_protect', 'ra_guard', 'arp_protect', 'dhcpv6_snooping', 'dhcp_snooping', 'flow_control']
+
+    @cached_property
+    def security_parameters_enabled(self):
+        return [parameter for parameter in self.security_parameters_fields if getattr(self, parameter)]
 
     def __str__(self):
         return self.name
