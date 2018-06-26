@@ -1,10 +1,5 @@
 ---
-services:
-  - mysql:latest
-
 variables:
-  MYSQL_DATABASE: re2o
-  MYSQL_ROOT_PASSWORD: re2o
   LANG: 'en_US.UTF-8'
   LC_ALL: 'en_US.UTF-8'
   LANGUAGE: 'en_US.UTF-8'

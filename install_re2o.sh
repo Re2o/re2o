@@ -839,7 +839,7 @@ main_function() {
 
         ci-setup )
             install_requirements
-            install_db 2 1 re2o re2o re2o
+            install_database 2 1 re2o re2o re2o
             install_ldap 1 re2o "dc=example,dc=net"
             write_settings_file 2 localhost re2o re2o re2o \
                 "cn=admin,dc=example,dc=net" 2 re2o localhost "dc=example,dc=net" \
