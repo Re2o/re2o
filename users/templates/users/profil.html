@@ -40,23 +40,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       	<div class="col-12">
 	    {% if users.is_ban%}
 	    <div class="panel panel-danger">
-		    <div class="panel-heading dashboard">Votre compte est banni</div>
+		<div class="panel-heading dashboard">Votre compte est banni</div>
 	    	<div class="panel-body dashboard">
 			<i class="text-danger">Fin du ban : {{user.end_ban|date:"d M Y"}}</i>
 		</div>
 	    </div>
-	    {% elif not users.is_adherent%}
+	    {% elif not users.is_connected%}
 	    <div class="panel panel-danger">
-		    <div class="panel-heading dashboard">Non Connécté</div>
-	    		<div class="panel-body dashboard"> 
-	        		<a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    		<i class="fas fa-sign-in-alt"></i>
-                    		Adhérer
-                		</a>
-			</div>
+	        <div class="panel-heading dashboard">Pas d'accès à internet</div>
+	    	<div class="panel-body dashboard"> 
+	            <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+                    <i class="fas fa-sign-in-alt"></i>
+                        Payer ma connexion
+                    </a>
+		</div>
+	    </div>
             {% else %}
 	    <div class="panel panel-success">
-		<div class="panel-heading dashboard">Connécté</div>
+		<div class="panel-heading dashboard">Connecté</div>
 		<div class="panel-body dashboard">
 			<i class="text-success">Fin de connexion: {{user.end_adhesion|date:"d M Y"}}</i>
 		</div>
@@ -67,23 +68,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if solde_activated %}
     <div class="col-sm-6 col-md-4">
         <div class="col-12">
-            <div class="col-12">
-	    	<div class="panel panel-info">
-	    		<div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-
-				{{user.solde}} <i class="fas fa-euro-sign"></i>
-			</div>
-	    		<div class="panel-body dashboard">
-	        		<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    		<i class="fa fa-euro-sign"></i>
-                    		Modifier le solde
-                		</a>
-			</div>
-	    	</div>
-    	    </div>
-        </div>
+	    <div class="panel panel-info">
+	    <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
+		{{user.solde}} <i class="fas fa-euro-sign"></i>
+            </div>
+	    <div class="panel-body dashboard">
+		<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+        	    <i class="fa fa-euro-sign"></i>
+              	    Modifier le solde
+       		</a>
+	    </div>
+	    </div>
+	</div>
     </div>
     {% endif %}
+
     {% if solde_activated %}
     <div class="col-sm-6 col-md-4">
     {% else %}
