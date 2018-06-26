@@ -537,7 +537,6 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         'machines.Vlan',
         related_name='vlan_tagged',
         blank=True,
-        null=True,
         verbose_name=_("VLAN(s) tagged")
     )
     radius_type = models.CharField(

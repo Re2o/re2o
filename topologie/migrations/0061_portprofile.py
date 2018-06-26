@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('arp_protect', models.BooleanField(default=False, help_text="Verification assignation de l'IP par dhcp", verbose_name='Arp protect')),
                 ('ra_guard', models.BooleanField(default=False, help_text='Protection contre ra pirate', verbose_name='Ra guard')),
                 ('loop_protect', models.BooleanField(default=False, help_text='Protection contre les boucles', verbose_name='Loop Protect')),
-                ('vlan_tagged', models.ManyToManyField(blank=True, null=True, related_name='vlan_tagged', to='machines.Vlan', verbose_name='VLAN(s) tagged')),
+                ('vlan_tagged', models.ManyToManyField(blank=True, related_name='vlan_tagged', to='machines.Vlan', verbose_name='VLAN(s) tagged')),
                 ('vlan_untagged', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vlan_untagged', to='machines.Vlan', verbose_name='VLAN untagged')),
             ],
             options={
