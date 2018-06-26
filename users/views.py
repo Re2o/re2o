@@ -860,7 +860,7 @@ def profil(request, users, **_kwargs):
     )
     nb_machines = machines.count()
     machines = re2o_paginator(request, machines, pagination_large_number)
-    factures = Facture.objects.filter(user=users)
+    factures = Facture.objects.filter(user=users).select_related('paiement').select_related('user')
     factures = SortTable.sort(
         factures,
         request.GET.get('col'),
