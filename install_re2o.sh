@@ -134,7 +134,7 @@ install_database() {
 
         if [ "$local_setup" == 1 ]; then
             echo "Setting up local PostgreSQL server ..."
-            apt-get -y install postgresql
+            apt-get -y install postgresql sudo
             sudo -u postgres psql --command="$pgsql_command1"
             sudo -u postgres psql --command="$pgsql_command2"
             sudo -u postgres psql --command="$pgsql_command3"
