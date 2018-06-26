@@ -40,16 +40,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>Téléphone obligatoirement requis</th>
             <td>{{ useroptions.is_tel_mandatory }}</td>
-            <th>Activation du solde pour les utilisateurs</th>
-            <td>{{ useroptions.user_solde }}</td>
+	    <th>Auto inscription</th>
+            <td>{{ useroptions.self_adhesion }}</td>
         </tr>
         <tr>
             <th>Champ gpg fingerprint</th>
             <td>{{ useroptions.gpg_fingerprint }}</td>
-	    {% if useroptions.user_solde %}
-	    <th>Solde négatif</th>
-	    <td>{{ useroptions.solde_negatif }}</td>
-	    {% endif %}
+ 	    <th>Shell par défaut des utilisateurs</th>
+            <td>{{ useroptions.shell_default }}</td>
         </tr>
         <tr>
             <th>Creations d'adhérents par tous</th>
@@ -57,20 +55,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Creations de clubs par tous</th>
 	    <td>{{ useroptions.all_can_create_club }}</td>
         </tr>
-	{% if useroptions.user_solde %}
+
 	<tr>
-	<th>Solde maximum</th>
-        <td>{{ useroptions.max_solde }}</td>
-	<th>Montant minimal de rechargement en ligne</th>
-	<td>{{ useroptions.min_online_payment }}</td>
+            <th>Activation du solde pour les utilisateurs</th>
+            <td>{{ useroptions.user_solde }}</td>
+	{% if useroptions.user_solde %}
+	    <th>Solde négatif</th>
+	    <td>{{ useroptions.solde_negatif }}</td>
+        </tr>
+	<tr>
+	    <th>Solde maximum</th>
+            <td>{{ useroptions.max_solde }}</td>
+	    <th>Montant minimal de rechargement en ligne</th>
+	    <td>{{ useroptions.min_online_payment }}</td>
 	</tr>
-	{% endif %}
-        <tr>
-	    <th>Auto inscription</th>
-            <td>{{ useroptions.self_adhesion }}</td>
- 	    <th>Shell par défaut des utilisateurs</th>
-            <td>{{ useroptions.shell_default }}</td>       
+	{% else %}
 	</tr>
+	{% endif%}
 	<tr>
 		<th>Extension mail interne</th>
 		<td>{{ useroptions.mail_extension }}</td>
