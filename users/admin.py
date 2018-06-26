@@ -34,6 +34,8 @@ from reversion.admin import VersionAdmin
 
 from .models import (
     User,
+    Mail,
+    MailAlias,
     ServiceUser,
     School,
     ListRight,
