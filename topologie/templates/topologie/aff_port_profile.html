@@ -8,13 +8,43 @@
 {% endif %}
 
 <table class="table table-striped">
-    <thead>
         <tr>
 	    <th>{% trans "Name" %}</th>
+	    <th></td>
 	    <th>{% trans "VLAN untagged" %}</th>
+	    <td></td>
 	    <th>{% trans "VLAN(s) tagged" %}</th>
+	    <tr></tr>
+	</tr>
+	<tr>
 	    <th>{% trans "RADIUS type" %}</th>
+	    <td></td>
 	    <th>{% trans "RADIUS mode" %}</th>
+	    <th></th>
+	    <th>{% trans "RADIUS type" %}</th>
+	    <td></td>
+	</tr>
+	<tr>
+	    <th>{% trans "speed" %}</th>
+	    <td></td>
+	    <th>{% trans "Mac limit" %}</th>
+	    <th></th>
+	    <th>{% trans "Flow control" %}</th>
+	    <td></td>
+	</tr>
+	<tr>
+	    <th>{% trans "dhcp snooping" %}</th>
+	    <td></td>
+	    <th>{% trans "dhcpv6 snooping" %}</th>
+	    <th></th>
+	    <th>{% trans "arp protect" %}</th>
+	    <td></td>
+	</tr>
+	<tr>
+	    <th>{% trans "ra guard" %}</th>
+	    <td></td>
+	    <th>{% trans "loop protect" %}</th>
+	    <th></th>
 	</tr>
     </thead>
     {% for port_profile in port_profile_list %}
