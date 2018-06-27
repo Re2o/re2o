@@ -681,7 +681,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         if not self.mail.internal_address:
             return self.mail.external_mail
         else:
-            return self.mail.mailalias_set.get(valeur=pseudo)
+            return self.mail.mailalias_set.get(valeur=self.pseudo)
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
@@ -1625,6 +1625,16 @@ class Mail(RevMixin, AclMixin, models.Model):
     
     def __str__(self):
         return self.user.get_mail()
+
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """
+        Check if the user can edit the mail
+        """
+
+        if user_request.has_perm('users.change_mail') or user_request == self.user:
+            return True, None
+        else:
+            return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de cet alias"
 
 
 class MailAlias(RevMixin, AclMixin, models.Model):

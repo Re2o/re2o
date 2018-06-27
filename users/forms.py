@@ -53,6 +53,7 @@ from .models import (
     School,
     ListRight,
     Whitelist,
+    Mail,
     MailAlias,
     ListShell,
     Ban,
@@ -597,8 +598,20 @@ class MailAliasForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailAliasForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['valeur'].label = 'nom de l\'adresse mail'
-        self.fields['extension'].label = 'extension de l\'adresse mail'
 
     class Meta:
         model = MailAlias
         exclude = ['mail']
+
+class MailForm(FormRevMixin, ModelForm):
+    """Creation, edition d'un objet mail"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['external_mail'].label = 'Adresse mail externe'
+        self.fields['redirection'].label = 'Activation de la redirection vers l\'adress externe'
+        self.fields['internal_address'].label = 'Adresse mail interne'
+
+    class Meta:
+        model = Mail
+        exclude = ['user']

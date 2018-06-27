@@ -25,7 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if alias_list.paginator %}
 {% include "pagination.html" with list=alias_list %}
 {% endif %}
-
     <table class="table table-striped">
         <thead>
             <tr>
@@ -37,10 +36,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ alias }}</td>
             <td class="text-right">
 	    {% can_delete alias %}
-	    	{% include 'buttons/suppr.html' with href='users:del-alias' id=alias.id %}
+	    	{% include 'buttons/suppr.html' with href='users:del-mailalias' id=alias.id %}
 	    {% acl_end %}
             {% can_edit alias %}
-                {% include 'buttons/edit.html' with href='users:edit-alias' id=alias.id %}
+                {% include 'buttons/edit.html' with href='users:edit-mailalias' id=alias.id %}
             {% acl_end %}
                 {% include 'buttons/history.html' with href='users:history' name='alias' id=alias.id %}
             </td>
