@@ -31,44 +31,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 
-<script type="text/javascript" src="/static/js/jquery.ez-plus.js"></script>
-<script>
-function toggle_graph() {
-    $("#collImg").collapse('toggle');
-
-    ezImg = $("#zoom_01").data("ezPlus");
-    if (ezImg) {
-        ezImg.destroy();
-	$("#zoom_01").removeData("ezPlus");
-    } else {
-        $("#zoom_01").ezPlus({
-            scrollZoom: true,
-            zoomType: 'inner',
-            cursor: 'crosshair'
-        });
-    }
-}
-</script>
-
-
-<button class="btn btn-primary" type="button" onclick="toggle_graph()">
-Topologie des Switchs
-</button>
-
-<a target="_blank" href="/media/images/switchs.png" class="btn btn-primary">
-  <span class="fa fa-arrows-alt"></span> 
-</a>
-
-<div id="collImg" class="collapse" aria-expanded="false">
-<img id="zoom_01" src="/media/images/switchs.png" href="/media/images/switchs.png" target="_blank" data-zoom-image="/media/images/switchs.png" width=100% />
-</div>
-
-<h2>Switchs</h2>
-{% can_create Switch %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i> Ajouter un switch</a>
+<h2>{% trans "Port profiles" %}</h2>
+{% can_create PortProfile %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port-profile' %}"><i class="fa fa-plus"></i>{% trans " Add a port profile" %}</a>
 <hr>
 {% acl_end %}
-    {% include "topologie/aff_switch.html" with switch_list=switch_list %}
+    {% include "topologie/aff_port_profile.html" with port_profile_list=port_profile_list %}
     <br />
     <br />
     <br />
