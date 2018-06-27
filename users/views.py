@@ -86,6 +86,8 @@ from .models import (
 from .forms import (
     BanForm,
     WhitelistForm,
+    MailAliasForm,
+    MailForm,
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
@@ -503,12 +505,12 @@ def del_whitelist(request, whitelist, **_kwargs):
 def add_mailalias(request, user, userid):
     """ Créer un alias """
     mailalias_instance = MailAlias(mail=user.mail)
-    whitelist = WhitelistForm(
+    mailalias = MailAliasForm(
         request.POST or None,
-        instance=whitelist_instance
+        instance=mailalias_instance
     )
-    if whitelist.is_valid():
-        whitelist.save()
+    if mailalias.is_valid():
+        mailalias.save()
         messages.success(request, "Alias créé")
         return redirect(reverse(
             'users:profil',
@@ -529,9 +531,9 @@ def edit_mailalias(request, mailalias_instance, **_kwargs):
         request.POST or None,
         instance=mailalias_instance
     )
-    if whitelist.is_valid():
-        if whitelist.changed_data:
-            whitelist.save()
+    if mailalias.is_valid():
+        if mailalias.changed_data:
+            mailalias.save()
             messages.success(request, "Alias modifiée")
         return redirect(reverse('users:index'))
     return form(
@@ -556,6 +558,25 @@ def del_mailalias(request, mailalias, **_kwargs):
             'users/delete.html',
             request
         )
+
+@login_required
+@can_edit(Mail)
+def edit_mail(request, mail_instance, **_kwargs):
+    """ Editer un compte mail"""
+    mail = MailForm(
+        request.POST or None,
+        instance=mail_instance
+    )
+    if mail.is_valid():
+        if mail.changed_data:
+            mail.save()
+            messages.success(request, "Compte mail modifiée")
+        return redirect(reverse('users:index'))
+    return form(
+        {'userform': mail, 'action_name': 'Editer un compte mail'},
+        'users/user.html',
+        request
+    )
 
 @login_required
 @can_create(School)
@@ -957,7 +978,9 @@ def profil(request, users, **_kwargs):
             'white_list': whitelists,
             'user_solde': user_solde,
             'allow_online_payment': allow_online_payment,
-            'solde_activated': OptionalUser.objects.first().user_solde
+            'solde_activated': OptionalUser.objects.first().user_solde,
+            'asso_name': AssoOption.objects.first().name,
+            'alias_list': users.mail.mailalias_set.all()
         }
     )
 

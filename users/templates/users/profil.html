@@ -427,6 +427,46 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-envelope"></i>
+                Gestion des mails
+            </h3>
+        </div>
+        <div id="collapse7" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% can_edit user.mail %}
+		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-mail' users.mail.id %}">
+			<i class="fa fa-plus-square"></i>
+			Modifier les options mail
+		</a>
+                {% acl_end %}
+	    <div class="table-responsive">
+	        <table class="table">
+		    <tr>
+		    	<th>Adresse mail externe</th>
+			<th>Compte mail {{ asso_name }}</th>
+			<th>Adresse mail de contact</th>
+		    </tr>
+		    <tr>
+			<td>{{ user.mail.external_mail }}</td>
+			<td>{{ user.mail.internal_address|yesno:"Activé,Désactivé" }}</td>
+			<td>{{ user.mail.external_mail }}</td>
+	        </table>
+	    </div>
+                {% can_create MailAlias %}
+		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-mailalias' users.id %}">
+			<i class="fa fa-plus-square"></i>
+			Ajouter un alias mail
+		</a>
+                {% acl_end %}
+                {% if alias_list %}
+                {% include "users/aff_alias.html" with alias_list=alias_list %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 <br />
