@@ -34,25 +34,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <h4 class="text-danger">
                 <i class="fa fa-address-book"></i>
-                Superuser
+                {% trans "Superuser" %}
             </h4>
-            Django's specific pre-defined right that supersed any other rights.
+            {% trans "Django's specific pre-defined right that supersed any other rights." %}
     </div>
     <div class="panel-collapse collapse" id="collapse_superuser">
         <div class="panel-body">
-            <h4 class="text-danger">Total: All permissions</h4>
+            <h4 class="text-danger">{% trans "Total: All permissions" %}</h4>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modal_superuser" tabindex="-1" role="dialog" aria-labelledby="Users">
+<div class="modal fade" id="modal_superuser" tabindex="-1" role="dialog" aria-labelledby="Users in Superuser">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <i class="fa fa-times"></i>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Users in Superuser</h4>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Users in Superuser" %}</h4>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
@@ -76,7 +76,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <td class="text-warning">{% trans "No membership records" %}</td>
                             {% else %}
                             <td class="text-danger">
-                                {% blocktrans with user.end_adhesion as end_date %}Not since {{ end_date }}{% endblocktrans %}
+                                {% blocktrans trimmed with user.end_adhesion as end_date %}
+                                Not since {{ end_date }}
+                                {% endblocktrans %}
                             </td>
                             {% endif %}
                             <td>{{ user.last_login }}</td>
@@ -84,7 +86,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% if not user.last_seen %}
                             <td class="text-danger">{% trans "Never" %}</td>
                             {% else %}
-                            <td class="text-success">{{user.last_seen}}</td>
+                            <td class="text-success">{{ user.last_seen }}</td>
                             {% endif %}
                             <td>
                                 <a class="btn btn-danger" role="button" href="{% url 'users:del-superuser' user.id %}">
@@ -117,13 +119,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <h4 class="{% if right.critical %}text-danger{% endif %}">
                 <i class="fa fa-address-book"></i>
-                {{right.name}} (gid: {{ right.gid }})
+                {% blocktrans trimmed with right.name as right_name and right.gid as right_gid %}
+                {{ right_name }} (gid: {{ right_gid }})
+                {% endblocktrans %}
             </h4>
             {{ right.details }}
     </div>
     <div class="panel-collapse collapse" id="collapse_{{right.id}}">
         <div class="panel-body">
-            <h4>Total: {{ right.permissions.count }} permissions</h4>
+            <h4>
+                {% blocktrans trimmed count right.permissions.count as perm_count%}
+                Total: {{ perm_count }} permission
+                {% plural %}
+                Total: {{ perm_count }} permissions
+                {% endblocktrans %}
+            </h4>
             <ul class="list-group" style="margin-bottom: 0px">
                 {% for perm in right.permissions.all %}
                 <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border:none;">
@@ -143,7 +153,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <i class="fa fa-times"></i>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Users in {{ right.name }}</h4>
+                <h4 class="modal-title" id="myModalLabel">
+                    {% blocktrans trimmed with right.name as right_name %}
+                    Users in {{ right_name }}
+                    {% endblocktrans %}
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
@@ -167,7 +181,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <td class="text-warning">{% trans "No membership records" %}</td>
                             {% else %}
                             <td class="text-danger">
-                                {% blocktrans with user.end_adhesion as end_date %}Not since {{ end_date }}{% endblocktrans %}
+                                {% blocktrans trimmed with user.end_adhesion as end_date %}
+                                Not since {{ end_date }}
+                                {% endblocktrans %}
                             </td>
                             {% endif %}
                             <td>{{ user.last_login }}</td>
