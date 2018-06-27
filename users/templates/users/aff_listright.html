@@ -28,8 +28,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel panel-default">
     <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_superuser">
             <div class="pull-right">
-                <a data-toggle="modal" data-target="#modal_superuser">
-                    <span class="badge">{{superusers.count}} <i class="fa fa-user"></i></span>
+                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_superuser">
+                    {{superusers.count}} <i class="fa fa-user"></i>
                 </a>
             </div>
             <h4 class="text-danger">
@@ -106,12 +106,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_{{right.id}}">
             <div class="pull-right">
                 {% if users %}
-                <a data-toggle="modal" data-target="#modal_{{right.id}}">
-                    <span class="badge">{{users.count}} <i class="fa fa-user"></i></span>
-                </a>
+                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_{{right.id}}">
                 {% else %}
-                <span class="badge">{{users.count}} <i class="fa fa-user"></i></span>
+                <a type="button" class="btn btn-sm btn-default" disabled="disabled">
                 {% endif %}
+                    {{users.count}} <i class="fa fa-user"></i>
+                </a>
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=right.id %}
                 {% include 'buttons/history.html' with href='users:history' name='listright' id=right.id %}
             </div>
