@@ -108,3 +108,9 @@ footer a {
 	overflow-y: visible;
 }
 
+/* Make modal wider on wide screens */
+@media (min-width: 1024px) {
+    .modal-dialog {
+        width: 1000px
+    }
+}
