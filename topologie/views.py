@@ -128,11 +128,9 @@ def index(request):
         SortTable.TOPOLOGIE_INDEX
     )
 
-    port_profile_list = PortProfile.objects.all()
 
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     switch_list = re2o_paginator(request, switch_list, pagination_number)
-    port_profile_list = re2o_paginator(request, port_profile_list, pagination_number)
 
     if any(service_link.need_regen for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
         make_machine_graph()
@@ -144,7 +142,20 @@ def index(request):
     return render(
         request,
         'topologie/index.html',
-        {'switch_list': switch_list, 'port_profile_list': port_profile_list}
+        {'switch_list': switch_list}
+    )
+
+
+@login_required
+@can_view_all(PortProfile)
+def index_port_profile(request):
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    port_profile_list = PortProfile.objects.all().select_related('vlan_untagged')
+    port_profile_list = re2o_paginator(request, port_profile_list, pagination_number)
+    return render(
+        request,
+        'topologie/index_portprofile.html',
+        {'port_profile_list': port_profile_list}
     )
 
 
