@@ -73,6 +73,7 @@ urlpatterns = [
         r'^preferences/',
         include('preferences.urls', namespace='preferences')
     ),
+    url(r'^printer/', include('printer.urls', namespace='printer')),
 ]
 # Add debug_toolbar URLs if activated
 if 'debug_toolbar' in settings.INSTALLED_APPS:
