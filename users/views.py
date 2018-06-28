@@ -811,15 +811,18 @@ def index_listright(request):
                   .order_by('name')
                   .prefetch_related('permissions')
                   .prefetch_related('user_set')
+                  .prefetch_related('user_set__facture_set__vente_set__cotisation')
                  ):
         rights[right] = (right.user_set
                          .annotate(action_number=Count('revision'),
-                                   last_seen=Max('revision__date_created'))
+                                   last_seen=Max('revision__date_created'),
+                                   end_adhesion=Max('facture__vente__cotisation__date_end'))
                         )
     superusers = (User.objects
                   .filter(is_superuser=True)
                   .annotate(action_number=Count('revision'),
-                            last_seen=Max('revision__date_created'))
+                            last_seen=Max('revision__date_created'),
+                            end_adhesion=Max('facture__vente__cotisation__date_end'))
                  )
     return render(
         request,
