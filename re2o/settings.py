@@ -75,6 +75,7 @@ LOCAL_APPS = (
     're2o',
     'preferences',
     'logs',
+    'printer',
 )
 INSTALLED_APPS = (
     DJANGO_CONTRIB_APPS +
