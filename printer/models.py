@@ -43,6 +43,9 @@ import math
 """
 
 
+def user_printing_path(instance, filename):
+    # File will be uploaded to MEDIA_ROOT/printings/user_<id>/<filename>
+    return 'printings/user_{0}/{1}'.format(instance.user.id, filename)
 
 class JobWithOptions(RevMixin, models.Model):
         """
