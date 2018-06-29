@@ -564,13 +564,17 @@ def edit_mail(request, mail_instance, **_kwargs):
     """ Editer un compte mail"""
     mail = MailForm(
         request.POST or None,
-        instance=mail_instance
+        instance=user_instance,
+        user=request.user
     )
     if mail.is_valid():
         if mail.changed_data:
             mail.save()
             messages.success(request, "Compte mail modifiée")
-        return redirect(reverse('users:index'))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(user_instance.id)}
+            ))
     return form(
         {'userform': mail, 'action_name': 'Editer un compte mail'},
         'users/user.html',

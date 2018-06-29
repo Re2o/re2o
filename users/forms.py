@@ -603,14 +603,16 @@ class MailAliasForm(FormRevMixin, ModelForm):
         model = MailAlias
         exclude = ['mail']
 
-class MailForm(FormRevMixin, ModelForm):
-    """Creation, edition d'un objet mail"""
+class MailForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
+    """Creation, edition des paramètres mail"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['external_mail'].label = 'Adresse mail externe'
-        self.fields['redirection'].label = 'Activation de la redirection vers l\'adress externe'
-        self.fields['internal_address'].label = 'Adresse mail interne'
+        if 'redirection' in self.fields:
+            self.fields['redirection'].label = 'Activation de la redirection vers l\'adress externe'
+        if 'internal_address' in self.fields:
+            self.fields['internal_address'].label = 'Adresse mail interne'
 
     class Meta:
         model = Mail
