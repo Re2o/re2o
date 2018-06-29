@@ -53,7 +53,6 @@ from .models import (
     School,
     ListRight,
     Whitelist,
-    Mail,
     MailAlias,
     ListShell,
     Ban,
@@ -307,7 +306,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = 'Chambre'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
-
     class Meta:
         model = Adherent
         fields = [
@@ -600,10 +598,10 @@ class MailAliasForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = MailAlias
-        exclude = ['mail']
+        exclude = ['user']
 
 class MailForm(FormRevMixin, ModelForm):
-    """Creation, edition d'un objet mail"""
+    """Creation, edition des paramètres mail"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -612,5 +610,5 @@ class MailForm(FormRevMixin, ModelForm):
         self.fields['internal_address'].label = 'Adresse mail interne'
 
     class Meta:
-        model = Mail
-        exclude = ['user']
+        model = User
+        fields = ['external_mail', 'redirection', 'internal_address']

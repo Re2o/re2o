@@ -81,7 +81,6 @@ from .models import (
     Club,
     ListShell,
     MailAlias,
-    Mail,
 )
 from .forms import (
     BanForm,
@@ -504,7 +503,7 @@ def del_whitelist(request, whitelist, **_kwargs):
 @can_edit(User)
 def add_mailalias(request, user, userid):
     """ Créer un alias """
-    mailalias_instance = MailAlias(mail=user.mail)
+    mailalias_instance = MailAlias(user=user)
     mailalias = MailAliasForm(
         request.POST or None,
         instance=mailalias_instance
@@ -560,12 +559,12 @@ def del_mailalias(request, mailalias, **_kwargs):
         )
 
 @login_required
-@can_edit(Mail)
-def edit_mail(request, mail_instance, **_kwargs):
+@can_edit(User)
+def edit_mail(request, user_instance, **_kwargs):
     """ Editer un compte mail"""
     mail = MailForm(
         request.POST or None,
-        instance=mail_instance
+        instance=user_instance
     )
     if mail.is_valid():
         if mail.changed_data:
@@ -980,7 +979,7 @@ def profil(request, users, **_kwargs):
             'allow_online_payment': allow_online_payment,
             'solde_activated': OptionalUser.objects.first().user_solde,
             'asso_name': AssoOption.objects.first().name,
-            'alias_list': users.mail.mailalias_set.all()
+            'alias_list': users.mailalias_set.all()
         }
     )
 

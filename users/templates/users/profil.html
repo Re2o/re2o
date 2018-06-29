@@ -436,8 +436,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
         <div id="collapse7" class="panel-collapse collapse">
             <div class="panel-body">
-                {% can_edit user.mail %}
-		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-mail' users.mail.id %}">
+                {% can_edit user %}
+		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-mail' users.id %}">
 			<i class="fa fa-plus-square"></i>
 			Modifier les options mail
 		</a>
@@ -450,9 +450,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			<th>Adresse mail de contact</th>
 		    </tr>
 		    <tr>
-			<td>{{ user.mail.external_mail }}</td>
-			<td>{{ user.mail.internal_address|yesno:"Activé,Désactivé" }}</td>
-			<td>{{ user.mail.external_mail }}</td>
+			<td>{{ user.external_mail }}</td>
+			<td>{{ user.internal_address|yesno:"Activé,Désactivé" }}</td>
+			<td>{{ user.get_mail }}</td>
 	        </table>
 	    </div>
                 {% can_create MailAlias %}
