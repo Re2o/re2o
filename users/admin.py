@@ -34,7 +34,6 @@ from reversion.admin import VersionAdmin
 
 from .models import (
     User,
-    Mail,
     MailAlias,
     ServiceUser,
     School,
@@ -132,6 +131,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     list_display = (
         'pseudo',
         'surname',
+        'external_mail',
         'school',
         'is_admin',
         'shell'
@@ -145,7 +145,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             'Personal info',
             {
                 'fields':
-                ('surname', 'school', 'shell', 'uid_number')
+                ('surname', 'external_mail', 'school', 'shell', 'uid_number')
             }
         ),
         ('Permissions', {'fields': ('is_admin', )}),
@@ -160,6 +160,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 'fields': (
                     'pseudo',
                     'surname',
+                    'external_mail',
                     'school',
                     'is_admin',
                     'password1',

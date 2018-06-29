@@ -135,6 +135,7 @@ class UserManager(BaseUserManager):
             self,
             pseudo,
             surname,
+            external_mail,
             password=None,
             su=False
     ):
@@ -148,6 +149,7 @@ class UserManager(BaseUserManager):
             pseudo=pseudo,
             surname=surname,
             name=surname,
+            external_mail=external_mail,
         )
 
         user.set_password(password)
@@ -156,19 +158,19 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, pseudo, surname, password=None):
+    def create_user(self, pseudo, surname, external_mail, password=None):
         """
         Creates and saves a User with the given pseudo, name, surname, email,
         and password.
         """
-        return self._create_user(pseudo, surname, password, False)
+        return self._create_user(pseudo, surname, external_mail, password, False)
 
-    def create_superuser(self, pseudo, surname, password):
+    def create_superuser(self, pseudo, surname, external_mail, password):
         """
         Creates and saves a superuser with the given pseudo, name, surname,
         email, and password.
         """
-        return self._create_user(pseudo, surname, password, True)
+        return self._create_user(pseudo, surname, external_mail, password, True)
 
 
 class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
@@ -187,12 +189,20 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
 
     surname = models.CharField(max_length=255)
-    email = models.EmailField()
     pseudo = models.CharField(
         max_length=32,
         unique=True,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
         validators=[linux_user_validator]
+    )
+    external_mail = models.EmailField()
+    redirection = models.BooleanField(
+        default=False,
+        help_text='Activer ou non la redirection du mail interne vers le mail externe'
+    )
+    internal_address = models.BooleanField(
+        default=False,
+        help_text='Activer ou non l\'utilisation de l\'adresse mail interne'
     )
     school = models.ForeignKey(
         'School',
@@ -226,7 +236,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
 
     USERNAME_FIELD = 'pseudo'
-    REQUIRED_FIELDS = ['surname']
+    REQUIRED_FIELDS = ['surname', 'external_mail']
 
     objects = UserManager()
 
@@ -526,7 +536,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.sn = self.pseudo
             user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
-            user_ldap.mail = self.email
+            user_ldap.mail = self.get_mail()
             user_ldap.given_name = self.surname.lower() + '_'\
                 + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
@@ -1646,56 +1656,22 @@ class LdapServiceUserGroup(ldapdb.models.Model):
         return self.name
 
 
-class Mail(RevMixin, AclMixin, models.Model):
-    """
-    Mail account of a user
-
-    Compte mail d'un utilisateur
-    """
-    external_mail = models.EmailField(help_text="Mail externe")
-    user = models.OneToOneField(
-            'User',
-            on_delete=models.CASCADE,
-            help_text="Object mail d'un User"
-    )
-    redirection = models.BooleanField(
-        default=False
-    )
-    internal_address = models.BooleanField(
-        default=False
-    )
-    
-    def __str__(self):
-        return self.user.get_mail()
-
-    def can_edit(self, user_request, *_args, **_kwargs):
-        """
-        Check if the user can edit the mail
-        """
-
-        if user_request.has_perm('users.change_mail') or user_request == self.user:
-            return True, None
-        else:
-            return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de cet alias"
-
-
 class MailAlias(RevMixin, AclMixin, models.Model):
     """
     Define a alias for a user Mail
 
     Définit un alias pour un Mail d'utilisateur
     """
-    mail = models.ForeignKey(
-        'Mail',
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
-        help_text="Compte mail",
+        help_text="Utilisateur associé",
     )
     valeur = models.CharField(
         unique=True,
         max_length=128,
         help_text="Valeur de l'alias mail"
     )
-
 
     def __str__(self):
         return self.valeur + OptionalUser.get_cached_value('mail_extension')
