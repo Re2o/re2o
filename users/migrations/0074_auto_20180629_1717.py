@@ -13,6 +13,19 @@ class Migration(migrations.Migration):
         ('users', '0073_auto_20180629_1614'),
     ]
 
+    def transfer_pseudo(apps, schema_editor):
+        db_alias = schema_editor.connection.alias
+        users = apps.get_model("users", "User")
+        mailalias = apps.get_model("users", "MailAlias")
+        users_list = users.objects.using(db_alias).all()
+        for user in users_list:
+            mailalias.objects.using(db_alias).create(valeur=user.pseudo, user=user)
+
+    def untransfer_pseudo(apps, schema_editor):
+        db_alias = schema_editor.connection.alias
+        mailalias = apps.get_model("users", "MailAlias")
+        mailalias.objects.using(db_alias).delete()
+
     operations = [
         migrations.AlterField(
             model_name='mailalias',
@@ -24,4 +37,5 @@ class Migration(migrations.Migration):
             name='valeur',
             field=models.CharField(help_text="Valeur de l'alias mail", max_length=64, unique=True),
         ),
+        migrations.RunPython(transfer_pseudo, untransfer_pseudo),
     ]
