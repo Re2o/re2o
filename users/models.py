@@ -682,10 +682,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         Return the mail address choosen by the user
         """
-        if not OptionalUser.get_cached_value('mail_accounts') or not self.internal_address:
-            return self.external_mail
+        if not OptionalUser.get_cached_value('mail_accounts') or not self.internal_address or self.redirection:
+            return str(self.external_mail)
         else:
-            return self.mailalias_set.get(valeur=self.pseudo)
+            return str(self.mailalias_set.get(valeur=self.pseudo))
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
