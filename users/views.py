@@ -515,7 +515,6 @@ def add_mailalias(request, user, userid):
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
-
     return form(
         {'userform': mailalias, 'action_name': 'Ajouter un alias mail'},
         'users/user.html',
@@ -534,7 +533,10 @@ def edit_mailalias(request, mailalias_instance, **_kwargs):
         if mailalias.changed_data:
             mailalias.save()
             messages.success(request, "Alias modifiée")
-        return redirect(reverse('users:index'))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(mailalias_instance.user.id)}
+        ))
     return form(
         {'userform': mailalias, 'action_name': 'Editer un alias mail'},
         'users/user.html',
@@ -550,7 +552,7 @@ def del_mailalias(request, mailalias, **_kwargs):
             messages.success(request, "L'alias a été supprimé")
             return redirect(reverse(
                 'users:profil',
-                kwargs={'userid': str(mailalias.mail.user.id)}
+                kwargs={'userid': str(mailalias.user.id)}
                 ))
         return form(
             {'objet': mailalias, 'objet_name': 'mailalias'},
