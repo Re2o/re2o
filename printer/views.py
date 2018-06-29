@@ -1,5 +1,4 @@
 # -*- mode: python; coding: utf-8 -*-
-
 """printer.views
 The views for the printer app
 Author : Maxime Bombar <bombar@crans.org>.
@@ -11,6 +10,7 @@ from __future__ import unicode_literals
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.forms import modelformset_factory, formset_factory
+from django.contrib.auth.decorators import login_required
 
 from re2o.views import form
 from users.models import User
@@ -21,7 +21,7 @@ from .forms import (
     JobWithOptionsForm,
     )
 
-
+@login_required
 def new_job(request):
     """
     View to create a new printing job
