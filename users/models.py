@@ -53,6 +53,7 @@ from django.db import models
 from django.db.models import Q
 from django import forms
 from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.forms import ValidationError
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.template import Context, loader
@@ -97,7 +98,7 @@ def linux_user_validator(login):
     """ Retourne une erreur de validation si le login ne respecte
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
-        raise forms.ValidationError(
+        raise ValidationError(
             ", ce pseudo ('%(label)s') contient des carractères interdits",
             params={'label': login},
         )
@@ -1646,12 +1647,12 @@ class MailAlias(RevMixin, AclMixin, models.Model):
     mail = models.ForeignKey(
         'Mail',
         on_delete=models.CASCADE,
-        help_text="Objects Mail associé"
+        help_text="Compte mail",
     )
     valeur = models.CharField(
         unique=True,
         max_length=64,
-        help_text="username de l'adresse mail"
+        help_text="Valeur de l'alias mail"
     )
 
 
@@ -1663,7 +1664,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         Check if the user can view the aliases
         """
 
-        if user_request.has_perm('users.view_mailalias') or user.request == self.mail.user:
+        if user_request.has_perm('users.view_mailalias') or user.request == self.user:
             return True, None
         else:
             return False, "Vous n'avais pas les droits suffisants et n'êtes pas propriétaire de ces alias"
@@ -1676,8 +1677,8 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.delete_mailalias'): 
             return True, None
         else:
-            if user_request == self.mail.user:
-                if self.valeur == self.mail.user.pseudo:
+            if user_request == self.user:
+                if self.valeur != self.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas supprimer l'alias lié à votre pseudo"
@@ -1692,13 +1693,16 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.change_mailalias'):
             return True, None
         else:
-            if user_request == self.mail.user:
-                if self.valeur == self.mail.user.pseudo:
+            if user_request == self.user:
+                if self.valeur != self.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas modifier l'alias lié à votre pseudo"
             else:
                 return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de cet alias"
 
-
+    def clean(self, *args, **kwargs):
+        if "@" in self.valeur:
+            raise ValidationError("Cet alias ne peut contenir un @")
+        super(MailAlias, self).clean(*args, **kwargs)
 
