@@ -682,7 +682,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         Return the mail address choosen by the user
         """
-        if not self.internal_address:
+        if not OptionalUser.get_cached_value('mail_accounts') or not self.internal_address:
             return self.external_mail
         else:
             return self.mailalias_set.get(valeur=self.pseudo)
@@ -806,6 +806,32 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
 
     @staticmethod
+    def can_change_redirection(user_request, *_args, **_kwargs):
+        """ Check if a user can change redirection.
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a redirection
+        """
+        return (
+            OptionalUser.get_cached_value('mail_accounts'),
+            "La gestion des comptes mails doit être activée"
+        )
+
+    @staticmethod
+    def can_change_internal_address(user_request, *_args, **_kwargs):
+        """ Check if a user can change internal address .
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change internal address
+        """
+        return (
+            OptionalUser.get_cached_value('mail_accounts'),
+            "La gestion des comptes mails doit être activée"
+        ) 
+
+    @staticmethod
     def can_change_force(user_request, *_args, **_kwargs):
         """ Check if a user can change a force
 
@@ -899,6 +925,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'shell': self.can_change_shell,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
+            'redirection': self.can_change_redirection,
+            'internal_address' : self.can_change_internal_address,
         }
 
     def __str__(self):
