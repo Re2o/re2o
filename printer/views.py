@@ -154,7 +154,6 @@ def new_job(request):
             form_kwargs={'user': request.user}
         )
 
-
     return form(
         {
             'jobform': job_formset,
