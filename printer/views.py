@@ -18,7 +18,7 @@ from users.models import User
 from . import settings
 
 from .forms import (
-    JobForm,
+    JobWithOptionsForm,
     )
 
 
@@ -26,8 +26,8 @@ def new_job(request):
     """
     View to create a new printing job
     """
-    job_formset = formset_factory(JobForm)(
-            request.POST or None, request.FILES,
+    job_formset = formset_factory(JobWithOptionsForm)(
+            request.POST or None, request.FILES or None,
     )
     if job_formset.is_valid():
         for job in job_formset:
