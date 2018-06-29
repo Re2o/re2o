@@ -21,10 +21,10 @@ from .models import (
 )
 
 
-class JobForm(FormRevMixin, ModelForm):
+class JobWithOptionsForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(TrueJobForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(JobWithOptionsForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
         model = JobWithOptions
