@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
         mailalias = apps.get_model("users", "MailAlias")
         mailalias.objects.using(db_alias).delete()
 
+
     operations = [
         migrations.AlterField(
             model_name='mailalias',
