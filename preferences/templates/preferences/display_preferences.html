@@ -33,11 +33,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <h4>Préférences utilisateur</h4>
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
         <i class="fa fa-edit"></i>
-        Editer
-</a>
-<p>
-</p>
-<table class="table table-striped">
+            Editer
+    </a>
+    <p>
+    </p>
+    <h5>Généralités</h5>
+    <table class="table table-striped">
         <tr>
                 <th>Téléphone obligatoirement requis</th>
                 <td>{{ useroptions.is_tel_mandatory|tick }}</td>
@@ -69,6 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<td>{{ useroption.max_mail_alias }}<td>
 	</tr>
     </table>
+
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
             <i class="fa fa-edit"></i>

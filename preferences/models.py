@@ -85,6 +85,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    mail_accounts = models.BooleanField(
+        default=False,
+        help_text="Activation des comptes mails pour les utilisateurs"
+    )
     mail_extension = models.CharField(
         max_length = 32,
         default = "@example.org",
