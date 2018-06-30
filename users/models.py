@@ -936,7 +936,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def __str__(self):
         return self.pseudo
 
-
 class Adherent(User):
     """ A class representing a member (it's a user with special
     informations) """
@@ -1687,7 +1686,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
     )
     valeur = models.CharField(
         unique=True,
-        max_length=64,
+        max_length=128,
         help_text="Valeur de l'alias mail"
     )
 

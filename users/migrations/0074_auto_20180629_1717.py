@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='mailalias',
             name='valeur',
-            field=models.CharField(help_text="Valeur de l'alias mail", max_length=64, unique=True),
+            field=models.CharField(help_text="Valeur de l'alias mail", max_length=128, unique=True),
         ),
     ]
