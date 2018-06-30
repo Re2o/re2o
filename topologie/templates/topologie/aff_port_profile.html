@@ -52,7 +52,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <b>Untagged : </b>{{port_profile.vlan_untagged}} 
         <br>
         {% endif %}
-        {% if port_profile.vlan_untagged %}
+        {% if port_profile.vlan_tagged.all %}
         <b>Tagged : </b>{{port_profile.vlan_tagged.all|join:", "}}
         {% endif %}
         </td>
