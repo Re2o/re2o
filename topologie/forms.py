@@ -81,7 +81,7 @@ class EditPortForm(FormRevMixin, ModelForm):
     lent sans)"""
     class Meta(PortForm.Meta):
         fields = ['room', 'related', 'machine_interface', 'custom_profil',
-                  'details']
+                'state', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -102,6 +102,7 @@ class AddPortForm(FormRevMixin, ModelForm):
             'machine_interface',
             'related',
             'custom_profil',
+            'state',
             'details'
         ]
 

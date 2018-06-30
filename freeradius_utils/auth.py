@@ -369,14 +369,14 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
     else:
         DECISION_VLAN = VLAN_OK
 
+    if not port.state:
+        return (sw_name, port.room, u'Port desactive', VLAN_NOK)
+
     if port_profil.radius_type == 'NO':
         return (sw_name,
                 "",
                 u"Pas d'authentification sur ce port" + extra_log,
                 DECISION_VLAN)
-
-    if port_profil.radius_type == 'BLOQ':
-        return (sw_name, port.room, u'Port desactive', VLAN_NOK)
 
     if port_profil.radius_type == 'STRICT':
         room = port.room
