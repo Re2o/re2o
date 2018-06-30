@@ -462,6 +462,13 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.WhitelistSerializer
 
 
+class MailAliasViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.MailAlias` objects.
+    """
+    queryset = users.MailAlias.objects.all()
+    serializer_class = serializers.MailAliasSerializer
+
+
 # SERVICE REGEN
 
 

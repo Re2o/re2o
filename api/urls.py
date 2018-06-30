@@ -92,6 +92,7 @@ router.register_viewset(r'users/listright', views.ListRightViewSet)
 router.register_viewset(r'users/shell', views.ShellViewSet, base_name='shell')
 router.register_viewset(r'users/ban', views.BanViewSet)
 router.register_viewset(r'users/whitelist', views.WhitelistViewSet)
+router.register_viewset(r'users/mailalias', views.MailAliasViewSet)
 # SERVICE REGEN
 router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
 # DHCP
