@@ -1635,7 +1635,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
     """
     Define a alias for a user Mail
 
-    Définit un aliase pour un Mail d'utilisateur
+    Définit un alias pour un Mail d'utilisateur
     """
     user = models.ForeignKey(
         User,
@@ -1670,7 +1670,7 @@ class MailAlias(RevMixin, AclMixin, models.Model):
 
     def can_view(self, user_request, *_args, **_kwargs):
         """
-        Check if the user can view the aliases
+        Check if the user can view the alias
         """
 
         if user_request.has_perm('users.view_mailalias') or user.request == self.user:

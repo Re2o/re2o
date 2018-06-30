@@ -109,6 +109,11 @@ class BanAdmin(VersionAdmin):
     pass
 
 
+class MailAliasAdmin(VersionAdmin):
+    """Gestion des alias mail"""
+    pass
+
+
 class WhitelistAdmin(VersionAdmin):
     """Gestion des whitelist"""
     pass
@@ -212,6 +217,7 @@ admin.site.register(School, SchoolAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)
+admin.site.register(MailAlias, MailAliasAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
 # Now register the new UserAdmin...
