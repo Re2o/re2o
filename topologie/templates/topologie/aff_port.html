@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
-	    <th>Etat du port</th>
+            <th>Etat du port</th>
             <th>Profil du port</th>
             <th>Détails</th>
             <th></th>
@@ -67,7 +67,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% endif %}
         </td>
         <td>{% if port.state %} <i class="text-success">Actif</i>{% else %}<i class="text-danger">Désactivé</i>{% endif %}</td>
-	<td>{% if not port.custom_profil %}<u>Par défaut</u> : {% endif %}{{port.get_port_profil}}</td>
+        <td>{% if not port.custom_profile %}<u>Par défaut</u> : {% endif %}{{port.get_port_profil}}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
@@ -77,10 +77,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
                 <i class="fa fa-edit"></i>
             </a>
-	    {% acl_end %}
+            {% acl_end %}
             {% can_delete port %}
-	    <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
-                   <i class="fa fa-trash"></i>
+            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
+                <i class="fa fa-trash"></i>
            </a>
            {% acl_end %}
         </td>

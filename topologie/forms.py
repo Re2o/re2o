@@ -80,8 +80,8 @@ class EditPortForm(FormRevMixin, ModelForm):
     optimiser le temps de chargement avec select_related (vraiment
     lent sans)"""
     class Meta(PortForm.Meta):
-        fields = ['room', 'related', 'machine_interface', 'custom_profil',
-                'state', 'details']
+        fields = ['room', 'related', 'machine_interface', 'custom_profile',
+                  'state', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -109,7 +109,7 @@ class AddPortForm(FormRevMixin, ModelForm):
             'room',
             'machine_interface',
             'related',
-            'custom_profil',
+            'custom_profile',
             'state',
             'details'
         ]
