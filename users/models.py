@@ -927,6 +927,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         }
         self.__original_state = self.state
 
+    def clean(self, *args, **kwargs):
+        """Check if this pseudo is already used by any mailalias.
+        Better than raising an error in post-save and catching it"""
+        if MailAlias.objects.filter(valeur=self.pseudo).exclude(user=self):
+            raise ValidationError("Ce pseudo est déjà utilisé")
+
     def __str__(self):
         return self.pseudo
 
@@ -1049,9 +1055,11 @@ class Club(User):
 @receiver(post_save, sender=User)
 def user_post_save(**kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
+    Synchronise le pseudo, en créant un alias mail correspondant
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
+    mail_alias, created = MailAlias.objects.get_or_create(valeur=user.pseudo, user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
