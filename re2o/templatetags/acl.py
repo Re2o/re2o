@@ -79,7 +79,6 @@ from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
-
 def get_model(model_name):
     """Retrieve the model object from its name"""
     splitted = model_name.split('.')

@@ -267,6 +267,29 @@ class Service(AclMixin, models.Model):
     def __str__(self):
         return str(self.name)
 
+class MailContact(AclMixin, models.Model):
+    """Addresse mail de contact associée à un commentaire descriptif"""
+
+    address = models.EmailField(
+        default = "contact@example.org",
+        help_text = "Adresse mail de contact"
+    )
+
+    commentary = models.CharField(
+        blank = True,
+        null = True,
+        help_text = "Description de l'utilisation de l'adresse mail associée",
+        max_length = 256
+    )
+
+    class Meta:
+        permissions = (
+            ("view_mailcontact", "Peut voir les mails de contact"),
+        )
+
+    def __str__(self):
+        return(self.address)
+
 
 class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""

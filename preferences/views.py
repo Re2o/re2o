@@ -42,9 +42,10 @@ from reversion import revisions as reversion
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
 
-from .forms import ServiceForm, DelServiceForm
+from .forms import ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm
 from .models import (
     Service,
+    MailContact,
     OptionalUser,
     OptionalMachine,
     AssoOption,
@@ -71,6 +72,7 @@ def display_options(request):
     homeoptions, _created = HomeOption.objects.get_or_create()
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
+    mailcontact_list = MailContact.objects.all()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -79,7 +81,8 @@ def display_options(request):
         'assooptions': assooptions,
         'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
-        'service_list': service_list
+        'service_list': service_list,
+        'mailcontact_list': mailcontact_list
         }, 'preferences/display_preferences.html', request)
 
 
@@ -169,7 +172,7 @@ def edit_service(request, service_instance, **_kwargs):
 
 @login_required
 @can_delete_set(Service)
-def del_services(request, instances):
+def del_service(request, instances):
     """Suppression d'un service de la page d'accueil"""
     services = DelServiceForm(request.POST or None, instances=instances)
     if services.is_valid():
@@ -179,13 +182,85 @@ def del_services(request, instances):
                 with transaction.atomic(), reversion.create_revision():
                     services_del.delete()
                     reversion.set_user(request.user)
-                messages.success(request, "Le service a été supprimée")
+                messages.success(request, "Le service a été supprimé")
             except ProtectedError:
                 messages.error(request, "Erreur le service\
                 suivant %s ne peut être supprimé" % services_del)
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': services, 'action_name': 'Supprimer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_create(MailContact)
+def add_mailcontact(request):
+    """Ajout d'une adresse de contact"""
+    mailcontact = MailContactForm(
+        request.POST or None,
+        request.FILES or None
+    )
+    if mailcontact.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            mailcontact.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Création")
+        messages.success(request, "Cette adresse a été ajoutée")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': mailcontact, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+
+@login_required
+@can_edit(MailContact)
+def edit_mailcontact(request, mailcontact_instance, **_kwargs):
+    """Edition des adresses de contacte affichées"""
+    mailcontact = MailContactForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=mailcontact_instance
+    )
+    if mailcontact.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            mailcontact.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Modification")
+        messages.success(request, "Adresse modifiée")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': mailcontact, 'action_name': 'Editer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_delete_set(MailContact)
+def del_mailcontact(request, instances):
+    """Suppression d'une adresse de contact"""
+    mailcontacts = DelMailContactForm(
+        request.POST or None,
+        instances=instances
+    )
+    if mailcontacts.is_valid():
+        mailcontacts_dels = mailcontacts.cleaned_data['mailcontacts']
+        for mailcontacts_del in mailcontacts_dels:
+            try:
+                with transaction.atomic(), reversion.create_revision():
+                    mailcontacts_del.delete()
+                    reversion.set_user(request.user)
+                messages.success(request, "L'adresse a été supprimée")
+            except ProtectedError:
+                messages.error(request, "Erreur le service\
+                suivant %s ne peut être supprimé" % mailcontacts_del)
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': mailcontacts, 'action_name': 'Supprimer'},
         'preferences/preferences.html',
         request
     )

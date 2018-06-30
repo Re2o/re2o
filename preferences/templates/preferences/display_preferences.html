@@ -220,6 +220,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
     <i class="fa fa-edit"></i> Editer
 </a>
+
+<h4>Liste des adresses mail de contact</h4>
+  {% can_create preferences.MailContact%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>Ajouter une adresse</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>Supprimer une ou plusieurs adresses</a>
+  {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
+<p>
+
 <table class="table table-striped">
     <tr>
         <th>Url du compte twitter</th>
