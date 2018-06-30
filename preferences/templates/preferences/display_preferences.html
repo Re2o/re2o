@@ -57,7 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ useroptions.all_can_create_club }}</td>
         </tr>
     </table>
-    <h5>Gestion du solde {% if useroptions.user_solde %}<span class="label label-success">Activé{% else %}<span class="label label-danger"> Désactivé{% endif%}</span></h5>
+    <h5>{% if useroptions.user_solde %}<span class="label label-success">Gestion du solde{% else %}<span class="label label-danger">Gesion du solde{% endif%}</span></h5>
     <table class="table table-striped">
 	<tr>
             <th>Activation du solde pour les utilisateurs</th>
@@ -73,7 +73,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ useroptions.min_online_payment }}</td>
 	</tr>
     </table>
-    <h5>Comptes mails {% if useroptions.mail_accounts %}<span class="label label-success">Activé{% else %}<span class="label label-danger"> Désactivé{% endif%}</span></h5>
+    <h5>{% if useroptions.mail_accounts %}<span class="label label-success">Comptes mails{% else %}<span class="label label-danger">Comptes mails{% endif%}</span></h5>
     <table class="table table-striped">
 	<tr>
 		<th>Gestion des comptes mails</th>
