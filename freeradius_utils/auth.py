@@ -359,23 +359,26 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
     if not port:
         return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK)
 
+    # On récupère le profil du port
+    port_profil = port.get_port_profil
+
     # Si un vlan a été précisé, on l'utilise pour VLAN_OK
-    if port.vlan_force:
-        DECISION_VLAN = int(port.vlan_force.vlan_id)
+    if port_profil.vlan_untagged:
+        DECISION_VLAN = int(port_profil.vlan_untagged.vlan_id)
         extra_log = u"Force sur vlan " + str(DECISION_VLAN)
     else:
         DECISION_VLAN = VLAN_OK
 
-    if port.radius == 'NO':
+    if port_profil.radius_type == 'NO':
         return (sw_name,
                 "",
                 u"Pas d'authentification sur ce port" + extra_log,
                 DECISION_VLAN)
 
-    if port.radius == 'BLOQ':
+    if port_profil.radius_type == 'BLOQ':
         return (sw_name, port.room, u'Port desactive', VLAN_NOK)
 
-    if port.radius == 'STRICT':
+    if port_profil.radius_type == 'STRICT':
         room = port.room
         if not room:
             return (sw_name, "Inconnue", u'Chambre inconnue', VLAN_NOK)
@@ -390,7 +393,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
                 return (sw_name, room, u'Chambre resident desactive', VLAN_NOK)
         # else: user OK, on passe à la verif MAC
 
-    if port.radius == 'COMMON' or port.radius == 'STRICT':
+    if port_profil.radius_type == 'COMMON' or port_profil.radius_type == 'STRICT':
         # Authentification par mac
         interface = (Interface.objects
                      .filter(mac_address=mac_address)
