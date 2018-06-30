@@ -4,9 +4,8 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
-Copyright © 2017  Augustin Lemesle
+Copyright © 2018  Gabriel Détraz
+
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,9 +35,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port-profile' %}"><i class="fa fa-plus"></i>{% trans " Add a port profile" %}</a>
 <hr>
 {% acl_end %}
-    {% include "topologie/aff_port_profile.html" with port_profile_list=port_profile_list %}
-    <br />
-    <br />
-    <br />
+{% include "topologie/aff_port_profile.html" with port_profile_list=port_profile_list %}
+<br />
+<br />
+<br />
 
 {% endblock %}

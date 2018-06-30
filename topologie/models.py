@@ -395,7 +395,7 @@ class Port(AclMixin, RevMixin, models.Model):
         blank=True,
         related_name='related_port'
         )
-    custom_profil = models.ForeignKey(
+    custom_profile = models.ForeignKey(
         'PortProfile',
         on_delete=models.PROTECT,
         blank=True,
@@ -403,8 +403,8 @@ class Port(AclMixin, RevMixin, models.Model):
         )
     state = models.BooleanField(
         default=True,
-        help_text='Etat du port Actif',
-        verbose_name=_("Etat du port Actif")
+        help_text='Port state Active',
+        verbose_name=_("Port State Active")
     )
     details = models.CharField(max_length=255, blank=True)
 
@@ -416,7 +416,8 @@ class Port(AclMixin, RevMixin, models.Model):
 
     @cached_property
     def get_port_profil(self):
-        """Return the config profil for this port"""
+        """Return the config profil for this port
+        :returns: the profile of self (port)"""
         def profil_or_nothing(profil):
             port_profil = PortProfile.objects.filter(profil_default=profil).first()
             if port_profil:
@@ -427,8 +428,8 @@ class Port(AclMixin, RevMixin, models.Model):
                     nothing = PortProfile.objects.create(profil_default='nothing', name='nothing', radius_type='NO')
                 return nothing
 
-        if self.custom_profil:
-            return self.custom_profil
+        if self.custom_profile:
+            return self.custom_profile
         elif self.related:
             return profil_or_nothing('uplink')
         elif self.machine_interface:
@@ -572,57 +573,57 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     radius_type = models.CharField(
         max_length=32,
         choices=TYPES,
-        help_text="Choix du type d'authentification radius : non actif, mac ou 802.1X",
+        help_text="Type of radius auth : inactive, mac-address or 802.1X",
         verbose_name=_("RADIUS type")
     )
     radius_mode = models.CharField(
         max_length=32,
         choices=MODES,
         default='COMMON',
-        help_text="En cas d'auth par mac, auth common ou strcit sur le port",
+        help_text="In case of mac-auth : mode common or strict on this port",
         verbose_name=_("RADIUS mode")
     )
     speed = models.CharField(
         max_length=32,
         choices=SPEED,
         default='auto',
-        help_text='Mode de transmission et vitesse du port',
+        help_text='Port speed limit',
         verbose_name=_("Speed")
     )
     mac_limit = models.IntegerField(
         null=True,
         blank=True,
-        help_text='Limit du nombre de mac sur le port',
+        help_text='Limit of mac-address on this port',
         verbose_name=_("Mac limit")
     )
     flow_control = models.BooleanField(
         default=False,
-        help_text='Gestion des débits',
+        help_text='Flow control',
         verbose_name=_("Flow control")
     )
     dhcp_snooping = models.BooleanField(
         default=False,
-        help_text='Protection dhcp pirate',
+        help_text='Protect against rogue dhcp',
         verbose_name=_("Dhcp snooping")
     )
     dhcpv6_snooping = models.BooleanField(
         default=False,
-        help_text='Protection dhcpv6 pirate',
+        help_text='Protect against rogue dhcpv6',
         verbose_name=_("Dhcpv6 snooping")
     )
     arp_protect = models.BooleanField(
         default=False,
-        help_text='Verification assignation de l\'IP par dhcp',
+        help_text='Check if ip is dhcp assigned',
         verbose_name=_("Arp protect")
     )
     ra_guard = models.BooleanField(
         default=False,
-        help_text='Protection contre ra pirate',
+        help_text='Protect against rogue ra',
         verbose_name=_("Ra guard")
     )   
     loop_protect = models.BooleanField(
         default=False,
-        help_text='Protection contre les boucles',
+        help_text='Protect again loop',
         verbose_name=_("Loop Protect")
     ) 
 
@@ -638,6 +639,10 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     @cached_property
     def security_parameters_enabled(self):
         return [parameter for parameter in self.security_parameters_fields if getattr(self, parameter)]
+
+    @cached_property
+    def security_parameters_as_str(self):
+        return ','.join(self.security_parameters_enabled)
 
     def __str__(self):
         return self.name

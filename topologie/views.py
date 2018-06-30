@@ -1014,11 +1014,11 @@ def del_port_profile(request, port_profile, **_kwargs):
     if request.method == 'POST':
         try:
             port_profile.delete()
-            messages.success(request, _("The port profile was successfully"
-                                        " deleted"))
+            messages.success(request, 
+                _("The port profile was successfully deleted"))
         except ProtectedError:
-            messages.success(request, _("Impossible to delete the port"
-                                        " profile"))
+            messages.success(request, 
+                _("Impossible to delete the port profile"))
         return redirect(reverse('topologie:index'))
     return form(
             {'objet': port_profile, 'objet_name': _("Port profile")},
