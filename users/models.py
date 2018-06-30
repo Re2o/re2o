@@ -1694,6 +1694,23 @@ class MailAlias(RevMixin, AclMixin, models.Model):
     def __str__(self):
         return self.valeur + OptionalUser.get_cached_value('mail_extension')
 
+    @staticmethod
+    def can_create(user_request, userid, *_args, **_kwargs):
+        """Check if an user can create an mailalias object.
+
+        :param user_request: The user who wants to create a mailalias object.
+        :return: a message and a boolean which is True if the user can create
+            an user or if the `options.all_can_create` is set.
+        """
+        if not user_request.has_perm('users.add_mailalias'):
+            if int(user_request.id) != int(userid):
+                return False, 'Vous n\'avez pas le droit d\'ajouter un alias à une autre personne'
+            elif user_request.mailalias_set.all().count() >= OptionalUser.get_cached_value('max_mail_alias'):
+                return False, "Vous avez atteint la limite de {} alias".format(OptionalUser.get_cached_value('max_mail_alias'))
+            else:
+                return True, None
+        return True, None
+
     def can_view(self, user_request, *_args, **_kwargs):
         """
         Check if the user can view the aliases

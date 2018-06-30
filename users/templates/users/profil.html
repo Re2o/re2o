@@ -415,8 +415,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
         <div id="collapse7" class="panel-collapse collapse">
             <div class="panel-body">
-                {% can_edit user.mail %}
-		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-mail' users.mail.id %}">
+                {% can_edit users %}
+		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-mail' users.id %}">
 			<i class="fa fa-plus-square"></i>
 			Modifier les options mail
 		</a>
@@ -430,18 +430,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 				<th>Adresse mail de contact</th>
 		    	</tr>
 		    	<tr>
-				<td>{{ user.external_mail }}</td>
-				<td>{{ user.internal_address|yesno:"Activé,Désactivé" }}</td>
-				<td>{{ user.get_mail }}</td>
+				<td>{{ users.external_mail }}</td>
+				<td>{{ users.internal_address|yesno:"Activé,Désactivé" }}</td>
+				<td>{{ users.get_mail }}</td>
 	            </table>
 		    <div class="alert alert-info" role="alert">
 			    Vous pouvez bénéficier d'une adresse mail {{ asso_name }}.
 			    Vous pouvez également la rediriger vers une adresse externe en modifiant les options mail.
 		    </div>
 	    	</div>
-	    	{% if user.internal_address %}
-
-                {% can_create MailAlias %}
+	    	{% if users.internal_address %}
+                {% can_create MailAlias users.id %}
 		<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-mailalias' users.id %}">
 			<i class="fa fa-plus-square"></i>
 			Ajouter un alias mail
@@ -458,7 +457,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		    	    <th>Adresse mail</th>
 		        </tr>
 		        <tr>
-			    <td>{{ user.external_mail }}</td>
+			    <td>{{ users.external_mail }}</td>
 			</tr>
 	            </table>
 	        </div>

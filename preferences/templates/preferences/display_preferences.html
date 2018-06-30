@@ -64,17 +64,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th>Extension mail interne</th>
 		<td>{{ useroptions.mail_extension }}</td>
 	</tr>
-</table>
-
-
-<h4>Préférences machines</h4>
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
-        <i class="fa fa-edit"></i>
-        Editer
-</a>
-<p>
-</p>
-<table class="table table-striped">
+	<tr>
+		<th>Nombre d'alias maximum</th>
+		<td>{{ useroption.max_mail_alias }}<td>
+	</tr>
+    </table>
+    <h4>Préférences machines</h4>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
+            <i class="fa fa-edit"></i>
+            Editer
+        </a>
+    <p>
+    </p>
+    <table class="table table-striped">
         <tr>
                 <th>Mot de passe par machine</th>
                 <td>{{ machineoptions.password_machine|tick }}</td>

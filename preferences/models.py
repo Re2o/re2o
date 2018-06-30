@@ -90,6 +90,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         default = "@example.org",
         help_text="Extension principale pour les mails internes",
     )
+    max_mail_alias = models.IntegerField(
+        default = 15,
+        help_text = "Nombre maximal d'alias pour un utilisateur lambda"
+    )
 
     class Meta:
         permissions = (
