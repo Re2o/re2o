@@ -230,8 +230,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   {% can_create preferences.Service%}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-service'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs services</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
+
+  <h2>Liste des adresses mail de contact</h2>
+  {% can_create preferences.MailContact%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>Ajouter une adresse</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>Supprimer une ou plusieurs adresses</a>
+  {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
+
 
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>
