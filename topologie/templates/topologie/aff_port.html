@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
+	    <th>Etat du port</th>
             <th>Profil du port</th>
             <th>Détails</th>
             <th></th>
@@ -65,6 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% acl_end %}
             {% endif %}
         </td>
+        <td>{% if port.state %} <i class="text-success">Actif</i>{% else %}<i class="text-danger">Désactivé</i>{% endif %}</td>
 	<td>{% if not port.custom_profil %}<u>Par défaut</u> : {% endif %}{{port.get_port_profil}}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">

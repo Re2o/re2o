@@ -397,7 +397,11 @@ class Port(AclMixin, RevMixin, models.Model):
         blank=True,
         null=True
         )
-    
+    state = models.BooleanField(
+        default=True,
+        help_text='Etat du port Actif',
+        verbose_name=_("Etat du port Actif")
+    )
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:
