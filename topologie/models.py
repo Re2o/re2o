@@ -413,19 +413,29 @@ class Port(AclMixin, RevMixin, models.Model):
     @cached_property
     def get_port_profil(self):
         """Return the config profil for this port"""
-        if self.custom_profil:
-            return custom_profil
-        elif self.related:
-            return PortProfil.objects.get(profil_default='uplink')
-        elif self.machine_interface:
-            if isinstance(self.machine_interface.machine, AccessPoint):
-                return PortProfil.objects.get(profil_default='access_point')
+        def profil_or_nothing(profil):
+            port_profil = PortProfile.objects.filter(profil_default=profil).first()
+            if port_profil:
+                return port_profil
             else:
-                return PortProfil.objects.get(profil_default='asso_machine')
+                nothing = PortProfile.objects.filter(profil_default='nothing').first()
+                if not nothing:
+                    nothing = PortProfile.objects.create(profil_default='nothing', name='nothing', radius_type='NO')
+                return nothing
+
+        if self.custom_profil:
+            return self.custom_profil
+        elif self.related:
+            return profil_or_nothing('uplink')
+        elif self.machine_interface:
+            if hasattr(self.machine_interface.machine, 'accesspoint'):
+                return profil_or_nothing('access_point')
+            else:
+                return profil_or_nothing('asso_machine')
         elif self.room:
-            return PortProfil.objects.get(profil_default='room')
+            return profil_or_nothing('room')
         else:
-            return PortProfil.objects.get(profil_default='nothing')
+            return profil_or_nothing('nothing')
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):

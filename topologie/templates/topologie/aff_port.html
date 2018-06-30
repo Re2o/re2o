@@ -70,7 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% acl_end %}
                 {% endif %}
             </td>
-            <td>{% if not port.custom_profil %}Par défaut{% else %}{{port.custom_profil}}{% endif %}</td>
+            <td>{% if not port.custom_profil %}<u>Par défaut</u> : {% endif %}{{port.get_port_profil}}</td>
             <td>{{ port.details }}</td>
             <td class="text-right">
                 {% history_button port %}
