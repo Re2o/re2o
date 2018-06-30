@@ -64,11 +64,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </a>
                 {% acl_else %}
                 {{ port.related }}
+                </a>
+                {% acl_else %}
+                {{ port.related }}
                 {% acl_end %}
                 {% endif %}
             </td>
-            <td>{{ port.radius }}</td>
-            <td>{% if not port.vlan_force %}Aucun{% else %}{{ port.vlan_force }}{% endif %}</td>
+            <td>{% if not port.custom_profil %}Par défaut{% else %}{{port.custom_profil}}{% endif %}</td>
             <td>{{ port.details }}</td>
             <td class="text-right">
                 {% history_button port %}
