@@ -570,13 +570,13 @@ def edit_mail(request, mail_instance, **_kwargs):
     if mail.is_valid():
         if mail.changed_data:
             mail.save()
-            messages.success(request, "Compte mail modifiée")
+            messages.success(request, "Option mail modifiée")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user_instance.id)}
             ))
     return form(
-        {'userform': mail, 'action_name': 'Editer un compte mail'},
+        {'userform': mail, 'action_name': 'Editer les options mail'},
         'users/user.html',
         request
     )
@@ -1006,7 +1006,8 @@ def profil(request, users, **_kwargs):
             'asso_name': AssoOption.objects.first().name
             'allow_online_payment': allow_online_payment,
             'asso_name': AssoOption.objects.first().name,
-            'alias_list': users.mail.mailalias_set.all()
+            'alias_list': users.mailalias_set.all(),
+            'mail_accounts': OptionalUser.objects.first().mail_accounts 
         }
     )
 
