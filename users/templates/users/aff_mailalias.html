@@ -41,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% can_edit alias %}
                 {% include 'buttons/edit.html' with href='users:edit-mailalias' id=alias.id %}
             {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='alias' id=alias.id %}
+                {% include 'buttons/history.html' with href='users:history' name='mailalias' id=alias.id %}
             </td>
         </tr>
         {% endfor %}
