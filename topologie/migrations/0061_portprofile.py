@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255, verbose_name='Name')),
-                ('profil_default', models.CharField(blank=True, choices=[('room', 'room'), ('accespoint', 'accesspoint'), ('uplink', 'uplink'), ('asso_machine', 'asso_machine')], max_length=32, null=True, unique=True, verbose_name='profil default')),
+                ('profil_default', models.CharField(blank=True, choices=[('room', 'room'), ('nothing', 'nothing'), ('accespoint', 'accesspoint'), ('uplink', 'uplink'), ('asso_machine', 'asso_machine')], max_length=32, null=True, unique=True, verbose_name='profil default')),
                 ('radius_type', models.CharField(choices=[('NO', 'NO'), ('802.1X', '802.1X'), ('MAC-radius', 'MAC-radius')], max_length=32, verbose_name='RADIUS type')),
                 ('radius_mode', models.CharField(choices=[('STRICT', 'STRICT'), ('COMMON', 'COMMON')], default='COMMON', max_length=32, verbose_name='RADIUS mode')),
                 ('speed', models.CharField(choices=[('10-half', '10-half'), ('100-half', '100-half'), ('10-full', '10-full'), ('100-full', '100-full'), ('1000-full', '1000-full'), ('auto', 'auto'), ('auto-10', 'auto-10'), ('auto-100', 'auto-100')], default='auto', help_text='Mode de transmission et vitesse du port', max_length=32, verbose_name='Speed')),

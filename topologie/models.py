@@ -366,12 +366,6 @@ class Port(AclMixin, RevMixin, models.Model):
     de forcer un port sur un vlan particulier. S'additionne à la politique
     RADIUS"""
     PRETTY_NAME = "Port de switch"
-    STATES = (
-        ('NO', 'NO'),
-        ('STRICT', 'STRICT'),
-        ('BLOQ', 'BLOQ'),
-        ('COMMON', 'COMMON'),
-        )
 
     switch = models.ForeignKey(
         'Switch',
@@ -397,13 +391,13 @@ class Port(AclMixin, RevMixin, models.Model):
         blank=True,
         related_name='related_port'
         )
-    radius = models.CharField(max_length=32, choices=STATES, default='NO')
-    vlan_force = models.ForeignKey(
-        'machines.Vlan',
-        on_delete=models.SET_NULL,
+    custom_profil = models.ForeignKey(
+        'PortProfile',
+        on_delete=models.PROTECT,
         blank=True,
         null=True
         )
+    
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:
@@ -411,6 +405,23 @@ class Port(AclMixin, RevMixin, models.Model):
         permissions = (
             ("view_port", "Peut voir un objet port"),
         )
+
+    @cached_property
+    def get_port_profil(self):
+        """Return the config profil for this port"""
+        if self.custom_profil:
+            return custom_profil
+        elif self.related:
+            return PortProfil.objects.get(profil_default='uplink')
+        elif self.machine_interface:
+            if isinstance(self.machine_interface.machine, AccessPoint):
+                return PortProfil.objects.get(profil_default='access_point')
+            else:
+                return PortProfil.objects.get(profil_default='asso_machine')
+        elif self.room:
+            return PortProfil.objects.get(profil_default='room')
+        else:
+            return PortProfil.objects.get(profil_default='nothing')
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):
@@ -515,6 +526,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ('accespoint', 'accesspoint'),
         ('uplink', 'uplink'),
         ('asso_machine', 'asso_machine'),
+        ('nothing', 'nothing'),
         )
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     profil_default = models.CharField(

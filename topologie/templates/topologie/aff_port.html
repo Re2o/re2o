@@ -32,8 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
             <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='radius' text='Radius' %}</th>
-	    <th>{% include "buttons/sort.html" with prefix='port' col='vlan' text='Vlan forcé' %}</th>
+            <th>Profil du port</th>
             <th>Détails</th>
             <th></th>
         </tr>
@@ -66,8 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% acl_end %}
             {% endif %}
         </td>
-        <td>{{ port.radius }}</td>
-	<td>{% if not port.vlan_force %}Aucun{% else %}{{ port.vlan_force }}{% endif %}</td>
+	<td>{% if not port.custom_profil %}Par défaut{% else %}{{port.custom_profil}}{% endif %}</td>
         <td>{{ port.details }}</td>
         <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
