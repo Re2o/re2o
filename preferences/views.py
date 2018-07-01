@@ -40,7 +40,7 @@ from django.db import transaction
 from reversion import revisions as reversion
 
 from re2o.views import form
-from re2o.acl import can_create, can_edit, can_delete, can_view_all
+from re2o.acl import can_create, can_edit, can_delete, can_delete_set, can_view_all
 
 from .forms import MailContactForm, DelMailContactForm
 from .forms import ServiceForm, ReminderForm
