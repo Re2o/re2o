@@ -43,6 +43,7 @@ from django.views.decorators.cache import cache_page
 import preferences
 from preferences.models import (
     Service,
+    MailContact,
     GeneralOption,
     AssoOption,
     HomeOption
@@ -86,6 +87,7 @@ HISTORY_BIND = {
     'users': {
         'user': users.models.User,
         'ban': users.models.Ban,
+        'mailalias': users.models.MailAlias,
         'whitelist': users.models.Whitelist,
         'school': users.models.School,
         'listright': users.models.ListRight,
@@ -94,6 +96,7 @@ HISTORY_BIND = {
     },
     'preferences': {
         'service': preferences.models.Service,
+        'mailcontact': preferences.models.MailContact,
     },
     'cotisations': {
         'facture': cotisations.models.Facture,
@@ -226,6 +229,21 @@ def about_page(request):
             'git_info_commit': git_info_commit,
             'git_info_commit_date': git_info_commit_date,
             'dependencies': dependencies
+        }
+    )
+
+def contact_page(request):
+    """The view for the contact page
+    Send all the objects MailContact
+    """
+    address = MailContact.objects.all()
+
+    return render(
+        request,
+        "re2o/contact.html",
+        {
+            'contacts': address,
+            'asso_name': AssoOption.objects.first().name
         }
     )
 

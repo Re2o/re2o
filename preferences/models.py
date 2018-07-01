@@ -307,6 +307,10 @@ class MailContact(AclMixin, models.Model):
         max_length = 256
     )
 
+    @cached_property
+    def get_name(self):
+        return self.address.split("@")[0]
+
     class Meta:
         permissions = (
             ("view_mailcontact", "Peut voir les mails de contact"),
