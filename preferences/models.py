@@ -31,6 +31,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
+from django.forms import ValidationError
 import cotisations.models
 import machines.models
 from re2o.mixins import AclMixin
@@ -102,6 +103,19 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    mail_accounts = models.BooleanField(
+        default=False,
+        help_text="Activation des comptes mails pour les utilisateurs"
+    )
+    mail_extension = models.CharField(
+        max_length = 32,
+        default = "@example.org",
+        help_text="Extension principale pour les mails internes",
+    )
+    max_mail_alias = models.IntegerField(
+        default = 15,
+        help_text = "Nombre maximal d'alias pour un utilisateur lambda"
+    )
 
     class Meta:
         permissions = (
@@ -109,13 +123,18 @@ class OptionalUser(AclMixin, PreferencesModel):
         )
 
     def clean(self):
-        """Creation du mode de paiement par solde"""
+        """Clean du model:
+        Creation du mode de paiement par solde
+        Vérifie que l'extension mail commence bien par @
+        """
         if self.user_solde:
             p = cotisations.models.Paiement.objects.filter(moyen="Solde")
             if not len(p):
                 c = cotisations.models.Paiement(moyen="Solde")
                 c.save()
-
+        if self.mail_extension[0] != "@":
+            raise ValidationError("L'extension mail doit commencer par un @")
+    
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(**kwargs):
@@ -272,6 +291,33 @@ class Service(AclMixin, models.Model):
 
     def __str__(self):
         return str(self.name)
+
+class MailContact(AclMixin, models.Model):
+    """Addresse mail de contact associée à un commentaire descriptif"""
+
+    address = models.EmailField(
+        default = "contact@example.org",
+        help_text = "Adresse mail de contact"
+    )
+
+    commentary = models.CharField(
+        blank = True,
+        null = True,
+        help_text = "Description de l'utilisation de l'adresse mail associée",
+        max_length = 256
+    )
+
+    @cached_property
+    def get_name(self):
+        return self.address.split("@")[0]
+
+    class Meta:
+        permissions = (
+            ("view_mailcontact", "Peut voir les mails de contact"),
+        )
+
+    def __str__(self):
+        return(self.address)
 
 
 class AssoOption(AclMixin, PreferencesModel):

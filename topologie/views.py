@@ -47,6 +47,7 @@ from django.template.loader import get_template
 from django.template import Context, Template, loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.translation import ugettext as _
 
 import tempfile
 
@@ -80,6 +81,7 @@ from .models import (
     SwitchBay,
     Building,
     Server,
+    PortProfile,
 )
 from .forms import (
     EditPortForm,
@@ -94,7 +96,8 @@ from .forms import (
     AddAccessPointForm,
     EditAccessPointForm,
     EditSwitchBayForm,
-    EditBuildingForm
+    EditBuildingForm,
+    EditPortProfileForm,
 )
 
 from subprocess import (
@@ -124,10 +127,12 @@ def index(request):
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX
     )
+
+
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     switch_list = re2o_paginator(request, switch_list, pagination_number)
 
-    if any(service_link.need_regen() for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
+    if any(service_link.need_regen for service_link in Service_link.objects.filter(service__service_type='graph_topo')):
         make_machine_graph()
         for service_link in Service_link.objects.filter(service__service_type='graph_topo'):
             service_link.done_regen()
@@ -138,6 +143,19 @@ def index(request):
         request,
         'topologie/index.html',
         {'switch_list': switch_list}
+    )
+
+
+@login_required
+@can_view_all(PortProfile)
+def index_port_profile(request):
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    port_profile_list = PortProfile.objects.all().select_related('vlan_untagged')
+    port_profile_list = re2o_paginator(request, port_profile_list, pagination_number)
+    return render(
+        request,
+        'topologie/index_portprofile.html',
+        {'port_profile_list': port_profile_list}
     )
 
 
@@ -954,6 +972,59 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
         'objet_name': 'Constructeur de switch'
         }, 'topologie/delete.html', request)
 
+
+@login_required
+@can_create(PortProfile)
+def new_port_profile(request):
+    """Create a new port profile"""
+    port_profile = EditPortProfileForm(request.POST or None)
+    if port_profile.is_valid():
+        port_profile.save()
+        messages.success(request, _("Port profile created"))
+        return redirect(reverse('topologie:index'))
+    return form(
+        {'topoform': port_profile, 'action_name': _("Create")},
+        'topologie/topo.html',
+        request
+    )
+
+
+@login_required
+@can_edit(PortProfile)
+def edit_port_profile(request, port_profile, **_kwargs):
+    """Edit a port profile"""
+    port_profile = EditPortProfileForm(request.POST or None, instance=port_profile)
+    if port_profile.is_valid():
+        if port_profile.changed_data:
+            port_profile.save()
+            messages.success(request, _("Port profile modified"))
+        return redirect(reverse('topologie:index'))
+    return form(
+        {'topoform': port_profile, 'action_name': _("Edit")},
+        'topologie/topo.html',
+        request
+    )
+
+
+
+@login_required
+@can_delete(PortProfile)
+def del_port_profile(request, port_profile, **_kwargs):
+    """Delete a port profile"""
+    if request.method == 'POST':
+        try:
+            port_profile.delete()
+            messages.success(request, 
+                _("The port profile was successfully deleted"))
+        except ProtectedError:
+            messages.success(request, 
+                _("Impossible to delete the port profile"))
+        return redirect(reverse('topologie:index'))
+    return form(
+            {'objet': port_profile, 'objet_name': _("Port profile")},
+            'topologie/delete.html',
+            request
+    )
 
 def make_machine_graph():
     """

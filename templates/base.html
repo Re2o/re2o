@@ -112,6 +112,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </ul>
                             </li>
                             {% acl_end %}
+			    <li class="dropdown">
+                              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-print"></i> Printer<span class="caret"></span></a>
+                              <ul class="dropdown-menu">
+				<li><a href="{% url "printer:new-job" %}"><i class="fa fa-print"></i> {% trans "Print" %}</a></li>
+                              </ul>
+                            </li>
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> {% trans "Statistics" %}</a></li>
                             {% acl_end %}
@@ -124,8 +130,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </a>
                             </li>
                             {% acl_end %}
-                            <li>
-                                <a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "Info" %}<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
+                                    <li><a href="{% url 'contact' %}"><i class="fas fa-at"></i> {% trans "Contact" %}</a></li>
+                                </ul>
                             </li>
                             {% if not request.user.is_authenticated %}
                             {% if var_sa %}

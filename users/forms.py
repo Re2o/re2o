@@ -140,7 +140,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
 
     class Meta:
         model = Adherent
-        fields = ('pseudo', 'surname', 'email')
+        fields = ('pseudo', 'surname')
 
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques"""
@@ -220,7 +220,7 @@ class UserChangeForm(FormRevMixin, forms.ModelForm):
 
     class Meta:
         model = Adherent
-        fields = ('pseudo', 'password', 'surname', 'email')
+        fields = ('pseudo', 'password', 'surname')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -306,14 +306,12 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = 'Chambre'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
-
     class Meta:
         model = Adherent
         fields = [
             'name',
             'surname',
             'pseudo',
-            'email',
             'school',
             'comment',
             'room',
@@ -365,7 +363,6 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         fields = [
             'surname',
             'pseudo',
-            'email',
             'school',
             'comment',
             'room',
@@ -597,9 +594,23 @@ class MailAliasForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailAliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['valeur'].label = 'nom de l\'adresse mail'
-        self.fields['extension'].label = 'extension de l\'adresse mail'
+        self.fields['valeur'].label = "Prefixe de l'alias mail. Ne peut contenir de @"
 
     class Meta:
         model = MailAlias
-        exclude = ['mail']
+        exclude = ['user']
+
+class MailForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
+    """Creation, edition des paramètres mail"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['external_mail'].label = 'Adresse mail externe'
+        if 'redirection' in self.fields:
+            self.fields['redirection'].label = 'Activation de la redirection vers l\'adress externe'
+        if 'internal_address' in self.fields:
+            self.fields['internal_address'].label = 'Adresse mail interne'
+
+    class Meta:
+        model = User
+        fields = ['external_mail', 'redirection', 'internal_address']

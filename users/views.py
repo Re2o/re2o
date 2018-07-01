@@ -80,10 +80,13 @@ from .models import (
     Adherent,
     Club,
     ListShell,
+    MailAlias,
 )
 from .forms import (
     BanForm,
     WhitelistForm,
+    MailAliasForm,
+    MailForm,
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
@@ -111,8 +114,8 @@ def new_user(request):
     GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
     GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
-        user = user.save(commit=False)
-        user.save()
+        #user = user.save(commit=False)
+        user = user.save()
         user.reset_passwd_mail(request)
         messages.success(request, "L'utilisateur %s a été crée, un mail\
         pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
@@ -500,19 +503,18 @@ def del_whitelist(request, whitelist, **_kwargs):
 @can_edit(User)
 def add_mailalias(request, user, userid):
     """ Créer un alias """
-    mailalias_instance = MailAlias(mail=user.mail)
-    whitelist = WhitelistForm(
+    mailalias_instance = MailAlias(user=user)
+    mailalias = MailAliasForm(
         request.POST or None,
-        instance=whitelist_instance
+        instance=mailalias_instance
     )
-    if whitelist.is_valid():
-        whitelist.save()
+    if mailalias.is_valid():
+        mailalias.save()
         messages.success(request, "Alias créé")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
-
     return form(
         {'userform': mailalias, 'action_name': 'Ajouter un alias mail'},
         'users/user.html',
@@ -527,11 +529,14 @@ def edit_mailalias(request, mailalias_instance, **_kwargs):
         request.POST or None,
         instance=mailalias_instance
     )
-    if whitelist.is_valid():
-        if whitelist.changed_data:
-            whitelist.save()
+    if mailalias.is_valid():
+        if mailalias.changed_data:
+            mailalias.save()
             messages.success(request, "Alias modifiée")
-        return redirect(reverse('users:index'))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(mailalias_instance.user.id)}
+        ))
     return form(
         {'userform': mailalias, 'action_name': 'Editer un alias mail'},
         'users/user.html',
@@ -547,13 +552,36 @@ def del_mailalias(request, mailalias, **_kwargs):
             messages.success(request, "L'alias a été supprimé")
             return redirect(reverse(
                 'users:profil',
-                kwargs={'userid': str(mailalias.mail.user.id)}
+                kwargs={'userid': str(mailalias.user.id)}
                 ))
         return form(
             {'objet': mailalias, 'objet_name': 'mailalias'},
             'users/delete.html',
             request
         )
+
+@login_required
+@can_edit(User)
+def edit_mail(request, user_instance, **_kwargs):
+    """ Editer un compte mail"""
+    mail = MailForm(
+        request.POST or None,
+        instance=user_instance,
+        user=request.user
+    )
+    if mail.is_valid():
+        if mail.changed_data:
+            mail.save()
+            messages.success(request, "Option mail modifiée")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(user_instance.id)}
+            ))
+    return form(
+        {'userform': mail, 'action_name': 'Editer les options mail'},
+        'users/user.html',
+        request
+    )
 
 @login_required
 @can_create(School)
@@ -920,7 +948,7 @@ def profil(request, users, **_kwargs):
     )
     nb_machines = machines.count()
     machines = re2o_paginator(request, machines, pagination_large_number)
-    factures = Facture.objects.filter(user=users)
+    factures = Facture.objects.filter(user=users).select_related('paiement').select_related('user')
     factures = SortTable.sort(
         factures,
         request.GET.get('col'),
@@ -955,6 +983,10 @@ def profil(request, users, **_kwargs):
             'white_list': whitelists,
             'user_solde': user_solde,
             'allow_online_payment': allow_online_payment,
+            'solde_activated': OptionalUser.objects.first().user_solde,
+            'asso_name': AssoOption.objects.first().name,
+            'alias_list': users.mailalias_set.all(),
+            'mail_accounts': OptionalUser.objects.first().mail_accounts 
         }
     )
 

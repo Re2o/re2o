@@ -36,20 +36,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</a>
     <p>
     </p>
+    <h5>Généralités</h5>
     <table class="table table-striped">
         <tr>
             <th>Téléphone obligatoirement requis</th>
             <td>{{ useroptions.is_tel_mandatory }}</td>
-            <th>Activation du solde pour les utilisateurs</th>
-            <td>{{ useroptions.user_solde }}</td>
+	    <th>Auto inscription</th>
+            <td>{{ useroptions.self_adhesion }}</td>
         </tr>
         <tr>
             <th>Champ gpg fingerprint</th>
             <td>{{ useroptions.gpg_fingerprint }}</td>
-	    {% if useroptions.user_solde %}
-	    <th>Solde négatif</th>
-	    <td>{{ useroptions.solde_negatif }}</td>
-	    {% endif %}
+ 	    <th>Shell par défaut des utilisateurs</th>
+            <td>{{ useroptions.shell_default }}</td>
         </tr>
         <tr>
             <th>Creations d'adhérents par tous</th>
@@ -57,21 +56,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Creations de clubs par tous</th>
 	    <td>{{ useroptions.all_can_create_club }}</td>
         </tr>
-	{% if useroptions.user_solde %}
+    </table>
+    <h5>{% if useroptions.user_solde %}<span class="label label-success">Gestion du solde{% else %}<span class="label label-danger">Gesion du solde{% endif%}</span></h5>
+    <table class="table table-striped">
 	<tr>
-	<th>Solde maximum</th>
-        <td>{{ useroptions.max_solde }}</td>
-	<th>Montant minimal de rechargement en ligne</th>
-	<td>{{ useroptions.min_online_payment }}</td>
-	</tr>
-	{% endif %}
-        <tr>
-	    <th>Auto inscription</th>
-            <td>{{ useroptions.self_adhesion }}</td>
- 	    <th>Shell par défaut des utilisateurs</th>
-            <td>{{ useroptions.shell_default }}</td>       
+            <th>Activation du solde pour les utilisateurs</th>
+            <td>{{ useroptions.user_solde }}</td>
+
+	    <th>Solde négatif</th>
+	    <td>{{ useroptions.solde_negatif }}</td>
+        </tr>
+	<tr>
+	    <th>Solde maximum</th>
+            <td>{{ useroptions.max_solde }}</td>
+	    <th>Montant minimal de rechargement en ligne</th>
+	    <td>{{ useroptions.min_online_payment }}</td>
 	</tr>
     </table>
+    <h5>{% if useroptions.mail_accounts %}<span class="label label-success">Comptes mails{% else %}<span class="label label-danger">Comptes mails{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Gestion des comptes mails</th>
+		<td>{{ useroptions.mail_accounts }}</td>
+		<th>Extension mail interne</th>
+		<td>{{ useroptions.mail_extension }}</td>
+	</tr>
+	<tr>
+		<th>Nombre d'alias maximum</th>
+		<td>{{ useroption.max_mail_alias }}<td>
+	</tr>
+    </table>
+
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
             <i class="fa fa-edit"></i>
@@ -215,8 +230,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   {% can_create preferences.Service%}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-services'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs service</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-service'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs services</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
+
+  <h2>Liste des adresses mail de contact</h2>
+  {% can_create preferences.MailContact%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>Ajouter une adresse</a>
+  {% acl_end %}
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>Supprimer une ou plusieurs adresses</a>
+  {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
+
 
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>

@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -484,10 +485,12 @@ class UserSerializer(NamespacedHMSerializer):
     """
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
+    email = serializers.CharField(source='get_mail')
 
     class Meta:
         model = users.User
         fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
+                  'external_mail', 'redirection', 'internal_address',
                   'state', 'registered', 'telephone', 'solde', 'access',
                   'end_access', 'uid', 'class_name', 'api_url')
         extra_kwargs = {
@@ -501,10 +504,12 @@ class ClubSerializer(NamespacedHMSerializer):
     name = serializers.CharField(source='surname')
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
+    email = serializers.CharField(source='get_mail')
 
     class Meta:
         model = users.Club
         fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
+                  'external_mail', 'redirection', 'internal_address',
                   'state', 'registered', 'telephone', 'solde', 'room',
                   'access', 'end_access', 'administrators', 'members',
                   'mailing', 'uid', 'api_url')
@@ -518,10 +523,12 @@ class AdherentSerializer(NamespacedHMSerializer):
     """
     access = serializers.BooleanField(source='has_access')
     uid = serializers.IntegerField(source='uid_number')
+    email = serializers.CharField(source='get_mail')
 
     class Meta:
         model = users.Adherent
-        fields = ('name', 'surname', 'pseudo', 'email', 'school', 'shell',
+        fields = ('name', 'surname', 'pseudo', 'email', 'redirection', 'internal_address',
+                  'external_mail', 'school', 'shell',
                   'comment', 'state', 'registered', 'telephone', 'room',
                   'solde', 'access', 'end_access', 'uid', 'api_url')
         extra_kwargs = {
@@ -583,6 +590,15 @@ class WhitelistSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.Whitelist
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
+
+
+class MailAliasSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.MailAlias` objects.
+    """
+
+    class Meta:
+        model = users.MailAlias
+        fields = ('user', 'valeur', 'complete_mail')
 
 
 # SERVICE REGEN

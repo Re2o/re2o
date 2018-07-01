@@ -51,7 +51,7 @@ import datetime
 
 from django.db import models
 from django.db.models import Q
-from django import forms
+from django.forms import ValidationError
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.functional import cached_property
@@ -79,7 +79,7 @@ from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
-from machines.models import Domain, Interface, Machine, regen, Extension
+from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
@@ -97,7 +97,7 @@ def linux_user_validator(login):
     """ Retourne une erreur de validation si le login ne respecte
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
-        raise forms.ValidationError(
+        raise ValidationError(
             ", ce pseudo ('%(label)s') contient des carractères interdits",
             params={'label': login},
         )
@@ -134,7 +134,7 @@ class UserManager(BaseUserManager):
             self,
             pseudo,
             surname,
-            email,
+            external_mail,
             password=None,
             su=False
     ):
@@ -148,7 +148,7 @@ class UserManager(BaseUserManager):
             pseudo=pseudo,
             surname=surname,
             name=surname,
-            email=self.normalize_email(email),
+            external_mail=external_mail,
         )
 
         user.set_password(password)
@@ -157,19 +157,19 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, pseudo, surname, email, password=None):
+    def create_user(self, pseudo, surname, external_mail, password=None):
         """
         Creates and saves a User with the given pseudo, name, surname, email,
         and password.
         """
-        return self._create_user(pseudo, surname, email, password, False)
+        return self._create_user(pseudo, surname, external_mail, password, False)
 
-    def create_superuser(self, pseudo, surname, email, password):
+    def create_superuser(self, pseudo, surname, external_mail, password):
         """
         Creates and saves a superuser with the given pseudo, name, surname,
         email, and password.
         """
-        return self._create_user(pseudo, surname, email, password, True)
+        return self._create_user(pseudo, surname, external_mail, password, True)
 
 
 class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
@@ -194,13 +194,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
         validators=[linux_user_validator]
     )
-    email = models.EmailField()
-    """
-    email= models.OneToOneField(
-            Mail,
-            on_delete=models.PROTECT
+    external_mail = models.EmailField()
+    redirection = models.BooleanField(
+        default=False,
+        help_text='Activer ou non la redirection du mail interne vers le mail externe'
     )
-    """
+    internal_address = models.BooleanField(
+        default=False,
+        help_text='Activer ou non l\'utilisation de l\'adresse mail interne'
+    )
     school = models.ForeignKey(
         'School',
         on_delete=models.PROTECT,
@@ -233,7 +235,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
 
     USERNAME_FIELD = 'pseudo'
-    REQUIRED_FIELDS = ['surname', 'email']
+    REQUIRED_FIELDS = ['surname', 'external_mail']
 
     objects = UserManager()
 
@@ -527,7 +529,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.sn = self.pseudo
             user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
-            user_ldap.mail = self.email
+            user_ldap.mail = self.get_mail()
             user_ldap.given_name = self.surname.lower() + '_'\
                 + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
@@ -680,10 +682,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         Return the mail address choosen by the user
         """
-        if not self.mail.internal_activated:
-            return(self.mail.external)
+        if not OptionalUser.get_cached_value('mail_accounts') or not self.internal_address or self.redirection:
+            return str(self.external_mail)
         else:
-            return(self.mail.mailalias_set.first())
+            return str(self.mailalias_set.get(valeur=self.pseudo))
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
@@ -804,6 +806,32 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
 
     @staticmethod
+    def can_change_redirection(user_request, *_args, **_kwargs):
+        """ Check if a user can change redirection.
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a redirection
+        """
+        return (
+            OptionalUser.get_cached_value('mail_accounts'),
+            "La gestion des comptes mails doit être activée"
+        )
+
+    @staticmethod
+    def can_change_internal_address(user_request, *_args, **_kwargs):
+        """ Check if a user can change internal address .
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change internal address
+        """
+        return (
+            OptionalUser.get_cached_value('mail_accounts'),
+            "La gestion des comptes mails doit être activée"
+        ) 
+
+    @staticmethod
     def can_change_force(user_request, *_args, **_kwargs):
         """ Check if a user can change a force
 
@@ -897,11 +925,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'shell': self.can_change_shell,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
+            'redirection': self.can_change_redirection,
+            'internal_address' : self.can_change_internal_address,
         }
+
+    def clean(self, *args, **kwargs):
+        """Check if this pseudo is already used by any mailalias.
+        Better than raising an error in post-save and catching it"""
+        if MailAlias.objects.filter(valeur=self.pseudo).exclude(user=self):
+            raise ValidationError("Ce pseudo est déjà utilisé")
 
     def __str__(self):
         return self.pseudo
-
 
 class Adherent(User):
     """ A class representing a member (it's a user with special
@@ -1021,9 +1056,11 @@ class Club(User):
 @receiver(post_save, sender=User)
 def user_post_save(**kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
+    Synchronise le pseudo, en créant un alias mail correspondant
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
+    mail_alias, created = MailAlias.objects.get_or_create(valeur=user.pseudo, user=user)
     if is_created:
         user.notif_inscription()
     user.ldap_sync(
@@ -1594,62 +1631,53 @@ class LdapServiceUserGroup(ldapdb.models.Model):
         return self.name
 
 
-class Mail(RevMixin, AclMixin, models.Model):
-    """
-    Mail account of a user
-
-    Compte mail d'un utilisateur
-    """
-    external_mail = models.EmailField(help_text="Mail externe")
-    user = models.ForeignKey(
-            'User',
-            on_delete=models.CASCADE,
-            help_text="Object mail d'un User"
-    )
-    redirection = models.BooleanField(
-        default=False
-    )
-    internal_address = models.BooleanField(
-        default=False
-    )
-    
-    def __str__(self):
-        return self.mail
-
-
 class MailAlias(RevMixin, AclMixin, models.Model):
     """
     Define a alias for a user Mail
 
-    Définit un aliase pour un Mail d'utilisateur
+    Définit un alias pour un Mail d'utilisateur
     """
-    mail = models.ForeignKey(
-        'Mail',
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
-        help_text="Objects Mail associé"
+        help_text="Utilisateur associé",
     )
     valeur = models.CharField(
-        max_length=64,
-        help_text="username de l'adresse mail"
+        unique=True,
+        max_length=128,
+        help_text="Valeur de l'alias mail"
     )
-    extension = models.ForeignKey(
-        'Extension',
-        on_delete=models.CASCADE,
-        help_text="Extension mail interne"
-    )
-
-    class Meta:
-        unique_together = ('valeur', 'extension',)
 
     def __str__(self):
-        return self.valeur + "@" + self.extension
+        return self.complete_mail
+
+    @cached_property
+    def complete_mail(self):
+        return self.valeur + OptionalUser.get_cached_value('mail_extension')
+
+    @staticmethod
+    def can_create(user_request, userid, *_args, **_kwargs):
+        """Check if an user can create an mailalias object.
+
+        :param user_request: The user who wants to create a mailalias object.
+        :return: a message and a boolean which is True if the user can create
+            an user or if the `options.all_can_create` is set.
+        """
+        if not user_request.has_perm('users.add_mailalias'):
+            if int(user_request.id) != int(userid):
+                return False, 'Vous n\'avez pas le droit d\'ajouter un alias à une autre personne'
+            elif user_request.mailalias_set.all().count() >= OptionalUser.get_cached_value('max_mail_alias'):
+                return False, "Vous avez atteint la limite de {} alias".format(OptionalUser.get_cached_value('max_mail_alias'))
+            else:
+                return True, None
+        return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """
-        Check if the user can view the aliases
+        Check if the user can view the alias
         """
 
-        if user_request.has_perm('users.view_mailalias') or user.request == self.mail.user:
+        if user_request.has_perm('users.view_mailalias') or user.request == self.user:
             return True, None
         else:
             return False, "Vous n'avais pas les droits suffisants et n'êtes pas propriétaire de ces alias"
@@ -1662,8 +1690,8 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.delete_mailalias'): 
             return True, None
         else:
-            if user_request == self.mail.user:
-                if self.id != 0:
+            if user_request == self.user:
+                if self.valeur != self.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas supprimer l'alias lié à votre pseudo"
@@ -1678,13 +1706,16 @@ class MailAlias(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.change_mailalias'):
             return True, None
         else:
-            if user_request == self.mail.user:
-                if self.id != 0:
+            if user_request == self.user:
+                if self.valeur != self.user.pseudo:
                     return True, None
                 else:
                     return False, "Vous ne pouvez pas modifier l'alias lié à votre pseudo"
             else:
                 return False, "Vous n'avez pas les droits suffisants et n'êtes pas propriétairs de cet alias"
 
-
+    def clean(self, *args, **kwargs):
+        if "@" in self.valeur:
+            raise ValidationError("Cet alias ne peut contenir un @")
+        super(MailAlias, self).clean(*args, **kwargs)
 

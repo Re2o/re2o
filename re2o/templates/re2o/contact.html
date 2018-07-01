@@ -1,3 +1,4 @@
+{% extends "re2o/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -21,33 +22,31 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-{% load acl %}
-{% if alias_list.paginator %}
-{% include "pagination.html" with list=alias_list %}
-{% endif %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Alias</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for alias in alias_list %}
-            <td>{{ alias }}</td>
-            <td class="text-right">
-	    {% can_delete alias %}
-	    	{% include 'buttons/suppr.html' with href='users:del-alias' id=alias.id %}
-	    {% acl_end %}
-            {% can_edit alias %}
-                {% include 'buttons/edit.html' with href='users:edit-alias' id=alias.id %}
-            {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='alias' id=alias.id %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+{% load bootstrap3 %}
+{% load i18n %}
 
-{% if alias_list.paginator %}
-{% include "pagination.html" with list=alias_list %}
-{% endif %}
+{% block title %}{% trans "Contact" %}{% endblock %}
+
+{% block content %}
+<h2>{% blocktrans %}Contacter l'association {{asso_name}}{% endblocktrans %}</h2>
+</br>
+    
+{% for contact in contacts %}
+
+<div class="panel panel-info">
+    <div class="panel-heading"><h4>{{ contact.get_name }}</h4></div>
+    <div class="panel-body">
+        <div class="row">
+	    <div class="col-sm-9">{{ contact.commentary}}</div>
+	    <div class="col-sm-3"><a href="mailto:{{ contact.address }}">{{ contact.address }}</a></div>
+	</div> 
+    </div>
+</div>
+
+{% endfor %}
+      
+
+
+{% endblock %}
+

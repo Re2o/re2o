@@ -641,10 +641,6 @@ class Extension(RevMixin, AclMixin, models.Model):
         'SOA',
         on_delete=models.CASCADE
     )
-    mail_extension = models.BooleanField(
-        default=False,
-        help_text="Determine si l'extension peut être utilisée comme extension mail interne"
-    )
 
     class Meta:
         permissions = (

@@ -121,6 +121,7 @@ MODEL_NAME = {
     'OptionalTopologie': preferences.models.OptionalTopologie,
     'GeneralOption': preferences.models.GeneralOption,
     'preferences.Service': preferences.models.Service,
+    'preferences.MailContact': preferences.models.MailContact,
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
     # topologie
@@ -133,9 +134,9 @@ MODEL_NAME = {
     'Room': topologie.models.Room,
     'Building': topologie.models.Building,
     'SwitchBay': topologie.models.SwitchBay,
+    'PortProfile': topologie.models.PortProfile,
     # users
     'User': users.models.User,
-    'Mail': users.models.Mail,
     'MailAlias': users.models.MailAlias,
     'Adherent': users.models.Adherent,
     'Club': users.models.Club,

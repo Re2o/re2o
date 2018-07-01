@@ -34,7 +34,6 @@ from reversion.admin import VersionAdmin
 
 from .models import (
     User,
-    Mail,
     MailAlias,
     ServiceUser,
     School,
@@ -110,6 +109,11 @@ class BanAdmin(VersionAdmin):
     pass
 
 
+class MailAliasAdmin(VersionAdmin):
+    """Gestion des alias mail"""
+    pass
+
+
 class WhitelistAdmin(VersionAdmin):
     """Gestion des whitelist"""
     pass
@@ -127,7 +131,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
     list_display = (
         'pseudo',
         'surname',
-        'email',
+        'external_mail',
         'school',
         'is_admin',
         'shell'
@@ -141,7 +145,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             'Personal info',
             {
                 'fields':
-                ('surname', 'email', 'school', 'shell', 'uid_number')
+                ('surname', 'external_mail', 'school', 'shell', 'uid_number')
             }
         ),
         ('Permissions', {'fields': ('is_admin', )}),
@@ -156,7 +160,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 'fields': (
                     'pseudo',
                     'surname',
-                    'email',
+                    'external_mail',
                     'school',
                     'is_admin',
                     'password1',
@@ -213,6 +217,7 @@ admin.site.register(School, SchoolAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)
+admin.site.register(MailAlias, MailAliasAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
 # Now register the new UserAdmin...

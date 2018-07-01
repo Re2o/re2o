@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -459,6 +460,13 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = users.Whitelist.objects.all()
     serializer_class = serializers.WhitelistSerializer
+
+
+class MailAliasViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.MailAlias` objects.
+    """
+    queryset = users.MailAlias.objects.all()
+    serializer_class = serializers.MailAliasSerializer
 
 
 # SERVICE REGEN

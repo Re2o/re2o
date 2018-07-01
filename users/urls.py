@@ -68,6 +68,7 @@ urlpatterns = [
     url(r'^add_mailalias/(?P<userid>[0-9]+)$', views.add_mailalias, name='add-mailalias'),
     url(r'^edit_mailalias/(?P<mailaliasid>[0-9]+)$', views.edit_mailalias, name='edit-mailalias'),
     url(r'^del-mailalias/(?P<mailaliasid>[0-9]+)$', views.del_mailalias, name='del-mailalias'),
+    url(r'^edit_mail/(?P<userid>[0-9]+)$', views.edit_mail, name='edit-mail'),
     url(r'^add_school/$', views.add_school, name='add-school'),
     url(r'^edit_school/(?P<schoolid>[0-9]+)$',
         views.edit_school,

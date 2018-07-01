@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -43,6 +44,7 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         )
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         if token.created < utc_now - token_duration:
+            raise ValueError('boom')
             raise exceptions.AuthenticationFailed(_('Token has expired'))
 
         return (token.user, token)

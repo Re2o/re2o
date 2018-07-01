@@ -262,9 +262,9 @@ def search_single_word(word, filters, user,
         ) | Q(
             related__switch__interface__domain__name__icontains=word
         ) | Q(
-            radius__icontains=word
+            custom_profile__name__icontains=word
         ) | Q(
-            vlan_force__name__icontains=word
+            custom_profile__profil_default__icontains=word
         ) | Q(
             details__icontains=word
         )
