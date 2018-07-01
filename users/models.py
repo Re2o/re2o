@@ -1649,6 +1649,10 @@ class MailAlias(RevMixin, AclMixin, models.Model):
     )
 
     def __str__(self):
+        return self.complete_mail
+
+    @cached_property
+    def complete_mail(self):
         return self.valeur + OptionalUser.get_cached_value('mail_extension')
 
     @staticmethod
