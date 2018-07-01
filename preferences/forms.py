@@ -24,6 +24,7 @@ Formulaire d'edition des réglages : user, machine, topologie, asso...
 """
 
 from __future__ import unicode_literals
+from re2o.mixins import FormRevMixin
 
 from django.forms import ModelForm, Form
 from django import forms
@@ -36,7 +37,8 @@ from .models import (
     MailMessageOption,
     HomeOption,
     Service,
-    MailContact
+    MailContact,
+    Reminder
 )
 
 class EditOptionalUserForm(ModelForm):
@@ -52,18 +54,6 @@ class EditOptionalUserForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['is_tel_mandatory'].label = (
-            'Exiger un numéro de téléphone'
-        )
-        self.fields['user_solde'].label = (
-            'Activation du solde pour les utilisateurs'
-        )
-        self.fields['max_solde'].label = 'Solde maximum'
-        self.fields['min_online_payment'].label = (
-            'Montant de rechargement minimum en ligne'
-        )
-        self.fields['self_adhesion'].label = 'Auto inscription'
-
 
 class EditOptionalMachineForm(ModelForm):
     """Options machines (max de machines, etc)"""
@@ -208,7 +198,7 @@ class EditHomeOptionForm(ModelForm):
         )
 
 
-class ServiceForm(ModelForm):
+class ServiceForm(FormRevMixin, ModelForm):
     """Edition, ajout de services sur la page d'accueil"""
     class Meta:
         model = Service
@@ -218,23 +208,17 @@ class ServiceForm(ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
 
-
-class DelServiceForm(Form):
-    """Suppression de services sur la page d'accueil"""
-    services = forms.ModelMultipleChoiceField(
-        queryset=Service.objects.none(),
-        label="Enregistrements service actuels",
-        widget=forms.CheckboxSelectMultiple
-    )
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de rappel"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        instances = kwargs.pop('instances', None)
-        super(DelServiceForm, self).__init__(*args, **kwargs)
-        if instances:
-            self.fields['services'].queryset = instances
-        else:
-            self.fields['services'].queryset = Service.objects.all()
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
 
+ 
 class MailContactForm(ModelForm):
     """Edition, ajout d'adresse de contact"""
     class Meta:
