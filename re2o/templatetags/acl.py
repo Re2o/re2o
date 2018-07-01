@@ -135,6 +135,8 @@ MODEL_NAME = {
     'SwitchBay': topologie.models.SwitchBay,
     # users
     'User': users.models.User,
+    'Mail': users.models.Mail,
+    'MailAlias': users.models.MailAlias,
     'Adherent': users.models.Adherent,
     'Club': users.models.Club,
     'ServiceUser': users.models.ServiceUser,
