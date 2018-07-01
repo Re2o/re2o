@@ -81,6 +81,13 @@ urlpatterns = [
         name='edit-mailcontact'
         ),
     url(r'^del_mailcontact/$', views.del_mailcontact, name='del-mailcontact'),
+    url(r'^add_reminder/$', views.add_reminder, name='add-reminder'),
+    url(
+        r'^edit_reminder/(?P<reminderid>[0-9]+)$',
+        views.edit_reminder,
+        name='edit-reminder'
+        ),
+    url(r'^del_reminder/$', views.del_reminder, name='del-reminder'),
     url(
         r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,

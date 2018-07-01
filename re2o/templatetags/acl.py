@@ -122,6 +122,7 @@ MODEL_NAME = {
     'GeneralOption': preferences.models.GeneralOption,
     'preferences.Service': preferences.models.Service,
     'preferences.MailContact': preferences.models.MailContact,
+    'preferences.Reminder': preferences.models.Reminder,
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
     # topologie

@@ -97,6 +97,7 @@ HISTORY_BIND = {
     'preferences': {
         'service': preferences.models.Service,
         'mailcontact': preferences.models.MailContact,
+        'reminder': preferences.models.Reminder,
     },
     'cotisations': {
         'facture': cotisations.models.Facture,

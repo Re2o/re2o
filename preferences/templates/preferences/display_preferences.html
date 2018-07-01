@@ -85,6 +85,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th>Nombre d'alias maximum</th>
 		<td>{{ useroption.max_mail_alias }}<td>
 	</tr>
+        {% endfor %}
     </table>
 
     <h4>Préférences machines</h4>
@@ -94,23 +95,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </a>
     <p>
     </p>
-    <table class="table table-striped">
-        <tr>
-            <th>Mot de passe par machine</th>
-            <td>{{ machineoptions.password_machine }}</td>
-            <th>Machines/interfaces autorisées par utilisateurs</th>
-            <td>{{ machineoptions.max_lambdauser_interfaces }}</td>
-        </tr>
-        <tr>
-            <th>Alias dns autorisé par utilisateur</th>
-            <td>{{ machineoptions.max_lambdauser_aliases }}</td>
-            <th>Support de l'ipv6</th>
-            <td>{{ machineoptions.ipv6_mode }}</td>
-     	</tr>
+     <table class="table table-striped">
+        {% for line in machineoptions %}
 	<tr>
-	    <th>Creation de machines</th>
-            <td>{{ machineoptions.create_machine }}</td>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
 	</tr>
+        {% endfor %}
     </table>
     <h4>Préférences topologie</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
@@ -120,19 +113,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>
     </p>
     <table class="table table-striped">
-        <tr>
-            <th>Politique générale de placement de vlan</th>
-            <td>{{ topologieoptions.radius_general_policy }}</td>
-	    <th> Ce réglage défini la politique vlan après acceptation radius : soit sur le vlan de la plage d'ip de la machine, soit sur un vlan prédéfini dans "Vlan où placer les machines après acceptation RADIUS"</th>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Vlan où placer les machines après acceptation RADIUS</th>
-            <td>{{ topologieoptions.vlan_decision_ok }}</td>
-            <th>Vlan où placer les machines après rejet RADIUS</th>
-            <td>{{ topologieoptions.vlan_decision_nok }}</td>
-        </tr>
+        {% for line in topologieoptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
     </table>
+
     <h4>Préférences generales</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
             <i class="fa fa-edit"></i>
@@ -141,35 +131,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>
     </p>
     <table class="table table-striped">
-        <tr>
-            <th>Nom du site web</th>
-            <td>{{ generaloptions.site_name }}</td>
-            <th>Adresse mail d'expedition automatique</th>
-            <td>{{ generaloptions.email_from }}</td>
-        </tr>
-        <tr>
-            <th>Affichage de résultats dans le champ de recherche</th>
-            <td>{{ generaloptions.search_display_page }}</td>
-            <th>Nombre d'items affichés en liste (taille normale)</th>
-            <td>{{ generaloptions.pagination_number }}</td>
-        </tr>
-        <tr>
-            <th>Nombre d'items affichés en liste (taille élevée)</th>
-            <td>{{ generaloptions.pagination_large_number }}</td>
-            <th>Temps avant expiration du lien de reinitialisation de mot de passe (en heures)</th>
-            <td>{{ generaloptions.req_expire_hrs }}</td>
-        </tr>
+        {% for line in generaloptions %}
 	<tr>
-            <th>Message global affiché sur le site</th>
-            <td>{{ generaloptions.general_message }}</td>
-            <th>Résumé des CGU</th>
-            <td>{{ generaloptions.GTU_sum_up }}</td>
-	<tr>
-    <tr>
-        <th>CGU</th>
-        <td>{{generaloptions.GTU}}</th>
-    </tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
     </table>
+
     <h4>Données de l'association</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
@@ -178,37 +149,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>
     </p>
     <table class="table table-striped">
-        <tr>
-            <th>Nom</th>
-            <td>{{ assooptions.name }}</td>
-            <th>SIRET</th>
-            <td>{{ assooptions.siret }}</td>
-        </tr>
-        <tr>
-            <th>Adresse</th>
-	    <td>{{ assooptions.adresse1  }}<br>
-		{{ assooptions.adresse2 }}</td>
-            <th>Contact mail</th>
-            <td>{{ assooptions.contact }}</td>
-        </tr>
-        <tr>
-            <th>Telephone</th>
-            <td>{{ assooptions.telephone }}</td>
-            <th>Pseudo d'usage</th>
-            <td>{{ assooptions.pseudo }}</td>
-        </tr>
-        <tr>
-            <th>Objet utilisateur de l'association</th>
-            <td>{{ assooptions.utilisateur_asso }}</td>
-            <th>Moyen de paiement automatique</th>
-            <td>{{ assooptions.payment }}</td>
-        </tr>
-        <tr>
-	    <th>Description de l'association</th>
-            <td colspan="3">{{ assooptions.description | safe }}</td>
-        </tr>
-
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
     </table>
+
     <h4>Messages personalisé dans les mails</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="fa fa-edit"></i>
@@ -217,20 +167,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p>
     </p>
     <table class="table table-striped">
-        <tr>
-            <th>Mail de bienvenue (Français)</th>
-            <td>{{ mailmessageoptions.welcome_mail_fr | safe }}</td>
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
 	</tr>
-        <tr>
-            <th>Mail de bienvenue (Anglais)</th>
-            <td>{{ mailmessageoptions.welcome_mail_en | safe }}</td>
-        </tr>
+        {% endfor %}
     </table>
+
   <h2>Liste des services et préférences page d'accueil</h2>
   {% can_create preferences.Service%}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i> Ajouter un service</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-service'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs services</a>
   {%  include "preferences/aff_service.html" with  service_list=service_list %}
 
   <h2>Liste des adresses mail de contact</h2>
@@ -246,19 +196,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             Editer
         </a>
     <p>
-
     <table class="table table-striped">
-        <tr>
-            <th>Url du compte twitter</th>
-            <td>{{ homeoptions.twitter_url }}</td>
-            <th>Nom utilisé pour afficher le compte</th>
-            <td>{{ homeoptions.twitter_account_name }}</td>
-        </tr>
-        <tr>
-            <th>Url du compte facebook</th>
-            <td>{{ homeoptions.facebook_url }}</td>
-        </tr>
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
     </table>
+
+
+<h2>Options pour le mail de fin d'adhésion</h2>
+  {% can_create preferences.Reminder%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+  {% acl_end %}
+  {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+
   <br />
   <br />
   <br />
