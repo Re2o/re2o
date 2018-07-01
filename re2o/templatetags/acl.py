@@ -134,6 +134,7 @@ MODEL_NAME = {
     'Room': topologie.models.Room,
     'Building': topologie.models.Building,
     'SwitchBay': topologie.models.SwitchBay,
+    'PortProfile': topologie.models.PortProfile,
     # users
     'User': users.models.User,
     'MailAlias': users.models.MailAlias,
