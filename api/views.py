@@ -397,6 +397,13 @@ class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SwitchPortSerializer
 
 
+class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.PortProfile` objects.
+    """
+    queryset = topologie.PortProfile.objects.all()
+    serializer_class = serializers.PortProfileSerializer
+
+
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.Room` objects.
     """
@@ -514,6 +521,15 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
             hostname = self.request.GET['hostname']
             queryset = queryset.filter(server__domain__name__iexact=hostname)
         return queryset
+
+# Config des switches
+
+class SwitchPortView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = topologie.Switch.objects.all().prefetch_related('ports__custom_profile')
+    serializer_class = serializers.SwitchPortSerializer
 
 
 # LOCAL EMAILS
