@@ -27,6 +27,7 @@ from django.contrib import messages
 
 from preferences.models import GeneralOption, OptionalMachine
 
+from re2o.settings import INSTALLED_APPS
 
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
@@ -47,3 +48,12 @@ def context_user(request):
         'name_website': GeneralOption.get_cached_value('site_name'),
         'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
     }
+
+def context_printer(request):
+    """
+    Useful to know whether the printer app is activated or not
+    """
+    printer = 'printer' in INSTALLED_APPS
+    return {
+        'printer': printer,
+        }
