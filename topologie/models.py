@@ -292,6 +292,14 @@ class Switch(AclMixin, Machine):
     def get_name(self):
         return self.name or self.main_interface().domain.name
 
+    @cached_property
+    def subnet(self):
+       return self.main_interface().type.ip_type.ip_set_full_info
+
+    @cached_property
+    def subnet6(self):
+       return self.main_interface().type.ip_type.ip6_set_full_info
+
     def __str__(self):
         return str(self.get_name)
 

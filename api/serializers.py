@@ -467,14 +467,28 @@ class BuildingSerializer(NamespacedHMSerializer):
 class SwitchPortSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.Port` objects
     """
+
+    get_port_profil = NamespacedHIField(view_name='portprofile-detail', read_only=True)
+
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'custom_profile', 'state', 'details', 'api_url')
+                  'custom_profile', 'state', 'get_port_profil', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
             'api_url': {'view_name': 'switchport-detail'},
         }
+
+
+class PortProfileSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Room` objects
+    """
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 
+                  'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control',
+                  'dhcp_snooping', 'dhcpv6_snooping', 'dhcpv6_snooping', 'arp_protect',
+                  'ra_guard', 'loop_protect', 'api_url')
 
 
 class RoomSerializer(NamespacedHMSerializer):
@@ -644,6 +658,45 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
             'api_url': {'view_name': 'serviceregen-detail'}
         }
 
+# Switches et ports
+
+class ProfilSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect')
+
+
+class ModelSwitchSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = topologie.ModelSwitch
+        fields = ('reference',)
+
+
+class SwitchBaySerializer(NamespacedHMSerializer):
+    class Meta:
+        model = topologie.SwitchBay
+        fields = ('name',)
+
+
+class PortsSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Ipv6List` objects.
+    """
+    get_port_profil = ProfilSerializer(read_only=True)
+
+    class Meta:
+        model = topologie.Port
+        fields = ('state', 'port', 'get_port_profil')
+
+
+class SwitchPortSerializer(serializers.ModelSerializer):
+    """Serialize the data about the switches"""
+    ports = PortsSerializer(many=True, read_only=True)
+    model = ModelSwitchSerializer(read_only=True)
+    switchbay = SwitchBaySerializer(read_only=True)
+
+    class Meta:
+        model = topologie.Switch
+        fields = ('short_name', 'model', 'switchbay', 'ports', 'subnet', 'subnet6')
 
 # LOCAL EMAILS
 
