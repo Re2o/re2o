@@ -12,7 +12,7 @@ from django.utils.translation import ugettext as _
 from cotisations.models import Facture as Invoice
 
 from .models import ChequePayment
-from .forms import ChequeForm
+from .forms import InvoiceForm
 
 
 @login_required
@@ -28,16 +28,15 @@ def cheque(request, invoice_pk):
             'users:profil',
             kwargs={'userid': request.user.pk}
         ))
-    form = ChequeForm(request.POST or None)
+    form = InvoiceForm(request.POST or None, instance=invoice)
     if form.is_valid():
-        invoice.banque = form.cleaned_data['bank']
-        invoice.cheque = form.cleaned_data['number']
-        invoice.valid = True
-        invoice.save()
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': request.user.pk}
-        ))
+        form.instance.valid = True
+        form.save()
+        return form.instance.paiement.end_payment(
+            form.instance,
+            request,
+            use_payment_method=False
+        )
     return render(
         request,
         'cotisations/payment_form.html',
