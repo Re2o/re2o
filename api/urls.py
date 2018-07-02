@@ -81,6 +81,7 @@ router.register_viewset(r'topologie/constructorswitch', views.ConstructorSwitchV
 router.register_viewset(r'topologie/switchbay', views.SwitchBayViewSet)
 router.register_viewset(r'topologie/building', views.BuildingViewSet)
 router.register_viewset(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
+router.register_viewset(r'topologie/portprofile', views.PortProfileViewSet, base_name='portprofile')
 router.register_viewset(r'topologie/room', views.RoomViewSet)
 # USERS
 router.register_viewset(r'users/user', views.UserViewSet)
@@ -97,6 +98,8 @@ router.register_viewset(r'users/mailalias', views.MailAliasViewSet)
 router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
 # DHCP
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
+# Switches config
+router.register_view(r'switchs/ports-config', views.SwitchPortView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING

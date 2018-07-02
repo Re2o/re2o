@@ -390,6 +390,15 @@ class IpType(RevMixin, AclMixin, models.Model):
             } for ip_set in self.ip_set.iter_cidrs()
         ]
 
+    @cached_property
+    def ip6_set_full_info(self):
+        if self.prefix_v6:
+            return {
+                'network' : str(self.prefix_v6),
+                'netmask' : 'ffff:ffff:ffff:ffff::'
+            }
+        else:
+            return None
 
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""
