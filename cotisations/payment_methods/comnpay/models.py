@@ -31,5 +31,5 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     def end_payment(self, invoice, request):
         invoice.valid = False
         invoice.save()
-        content = comnpay(invoice, request)
+        content = comnpay(invoice, request, self)
         return render(request, 'cotisations/payment.html', content)

@@ -51,6 +51,8 @@ from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 from preferences.models import OptionalUser
 
+from cotisations.utils import find_payment_method
+
 
 # TODO : change facture to invoice
 class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
@@ -643,8 +645,9 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
         :returns: An `HttpResponse`-like object.
         """
-        if hasattr(self, 'payment_method') and use_payment_method:
-            return self.payment_method.end_payment(invoice, request)
+        payment_method = find_payment_method(self)
+        if payment_method is not None and use_payment_method:
+            return payment_method.end_payment(invoice, request)
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too

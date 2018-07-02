@@ -2,8 +2,8 @@ from django import forms
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 
-from . import PAYMENT_METHODS, find_payment_method
-
+from . import PAYMENT_METHODS
+from cotisations.utils import find_payment_method
 
 def payment_method_factory(payment, *args, **kwargs):
     payment_method = kwargs.pop('instance', find_payment_method(payment))

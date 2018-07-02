@@ -144,5 +144,5 @@ urlpatterns = [
         name='recharge'
     ),
     url(r'^$', views.index, name='index'),
-] + payment_methods.urlpatterns
+] + payment_methods.urls.urlpatterns
 

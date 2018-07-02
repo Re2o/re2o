@@ -114,7 +114,7 @@ def ipn(request):
     return HttpResponse("HTTP/1.0 200 OK")
 
 
-def comnpay(facture, request):
+def comnpay(facture, request, payment):
     """
     Build a request to start the negociation with Comnpay by using
     a facture id, the price and the secret transaction data stored in
@@ -122,14 +122,14 @@ def comnpay(facture, request):
     """
     host = request.get_host()
     p = Transaction(
-        str(AssoOption.get_cached_value('payment_id')),
-        str(AssoOption.get_cached_value('payment_pass')),
+        str(payment.payment_credential),
+        str(payment.payment_pass),
         'https://' + host + reverse(
-            'cotisations:comnpay_accept_payment',
+            'cotisations:comnpay:accept_payment',
             kwargs={'factureid': facture.id}
         ),
-        'https://' + host + reverse('cotisations:comnpay_refuse_payment'),
-        'https://' + host + reverse('cotisations:comnpay_ipn'),
+        'https://' + host + reverse('cotisations:comnpay:refuse_payment'),
+        'https://' + host + reverse('cotisations:comnpay:ipn'),
         "",
         "D"
     )
