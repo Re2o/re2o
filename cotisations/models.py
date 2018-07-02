@@ -135,7 +135,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
         price = Vente.objects.filter(
             facture=self
-            ).aggregate(models.Sum('prix'))['prix__sum']
+        ).aggregate(models.Sum('prix'))['prix__sum']
         return price
 
     # TODO : change prix to price
@@ -147,12 +147,12 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         # TODO : change Vente to somethingelse
         return Vente.objects.filter(
             facture=self
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total']
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total']
 
     def name(self):
         """
@@ -161,7 +161,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
         name = ' - '.join(Vente.objects.filter(
             facture=self
-            ).values_list('name', flat=True))
+        ).values_list('name', flat=True))
         return name
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -231,7 +231,6 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             user_request.has_perm('cotisations.add_facture'),
             _("You don't have the right to create an invoice.")
         )
-
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
@@ -361,12 +360,12 @@ class Vente(RevMixin, AclMixin, models.Model):
                         facture__in=Facture.objects.filter(
                             user=self.facture.user
                         ).exclude(valid=False))
-                    ).filter(
-                        Q(type_cotisation='All') |
-                        Q(type_cotisation=self.type_cotisation)
-                    ).filter(
-                        date_start__lt=date_start
-                    ).aggregate(Max('date_end'))['date_end__max']
+                ).filter(
+                    Q(type_cotisation='All') |
+                    Q(type_cotisation=self.type_cotisation)
+                ).filter(
+                    date_start__lt=date_start
+                ).aggregate(Max('date_end'))['date_end__max']
             elif self.type_cotisation == "Adhesion":
                 end_cotisation = self.facture.user.end_adhesion()
             else:
@@ -377,7 +376,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
                 months=self.duration*self.number
-                )
+            )
         return
 
     def save(self, *args, **kwargs):
@@ -400,7 +399,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         elif (not user_request.has_perm('cotisations.change_all_facture') and
               not self.facture.user.can_edit(
                   user_request, *args, **kwargs
-              )[0]):
+        )[0]):
             return False, _("You don't have the right to edit this user's "
                             "purchases.")
         elif (not user_request.has_perm('cotisations.change_all_vente') and
@@ -632,12 +631,19 @@ class Paiement(RevMixin, AclMixin, models.Model):
             )
         super(Paiement, self).save(*args, **kwargs)
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, use_payment_method=True):
         """
-        The general way of ending a payment. You may redefine this method for custom
-        payment methods. Must return a HttpResponse-like object.
+        The general way of ending a payment.
+
+        :param invoice: The invoice being created.
+        :param request: Request sended by the user.
+        :param use_payment_method: If `self` has an attribute `payment_method`,
+            returns the result of
+            `self.payment_method.end_payment(invoice, request)`
+
+        :returns: An `HttpResponse`-like object.
         """
-        if hasattr(self, 'payment_method'):
+        if hasattr(self, 'payment_method') and use_payment_method:
             return self.payment_method.end_payment(invoice, request)
 
         # In case a cotisation was bought, inform the user, the
