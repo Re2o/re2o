@@ -74,6 +74,7 @@ from .forms import (
     RechargeForm
 )
 from .tex import render_invoice
+from .payment_methods.forms import payment_method_factory
 
 
 @login_required
@@ -473,9 +474,15 @@ def add_paiement(request):
     """
     View used to add a payment method.
     """
-    payment = PaiementForm(request.POST or None)
-    if payment.is_valid():
-        payment.save()
+    payment = PaiementForm(request.POST or None, prefix='payment')
+    payment_method = payment_method_factory(
+        payment.instance,
+        request.POST or None,
+        prefix='payment_method'
+    )
+    if payment.is_valid() and payment_method.is_valid():
+        payment = payment.save()
+        payment_method.save(payment=payment)
         messages.success(
             request,
             _("The payment method has been successfully created.")
@@ -483,6 +490,7 @@ def add_paiement(request):
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
+        'payment_method': payment_method,
         'action_name': _("Add")
         }, 'cotisations/facture.html', request)
 
@@ -494,17 +502,28 @@ def edit_paiement(request, paiement_instance, **_kwargs):
     """
     View used to edit a payment method.
     """
-    payment = PaiementForm(request.POST or None, instance=paiement_instance)
-    if payment.is_valid():
-        if payment.changed_data:
-            payment.save()
-            messages.success(
-                request,
-                _("The payement method has been successfully edited.")
-            )
+    payment = PaiementForm(
+        request.POST or None,
+        instance=paiement_instance,
+        prefix="payment"
+    )
+    payment_method = payment_method_factory(
+        paiement_instance,
+        request.POST or None,
+        prefix='payment_method'
+    )
+
+    if payment.is_valid() and payment_method.is_valid():
+        payment.save()
+        payment_method.save()
+        messages.success(
+            request,
+            _("The payement method has been successfully edited.")
+        )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
+        'payment_method': payment_method,
         'action_name': _("Edit")
         }, 'cotisations/facture.html', request)
 

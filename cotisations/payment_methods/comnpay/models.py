@@ -1,19 +1,22 @@
 from django.db import models
 from django.shortcuts import render
 
-from cotisations.models import Paiement as BasePayment
+from cotisations.models import Paiement
+from cotisations.payment_methods.mixins import PaymentMethodMixin
 
 from .aes_field import AESEncryptedField
 from .views import comnpay
 
 
-class ComnpayPayment(models.Model):
+class ComnpayPayment(PaymentMethodMixin, models.Model):
     """
-    The model allowing you to pay with COMNPAY. It redefines post_payment
-    method. See `cotisations.models.Paiement for further details.
+    The model allowing you to pay with COMNPAY.
     """
-    payment = models.OneToOneField(BasePayment, related_name='payment_method')
-
+    payment = models.OneToOneField(
+        Paiement,
+        related_name='payment_method',
+        editable=False
+    )
     payment_credential = models.CharField(
         max_length=255,
         default='',
