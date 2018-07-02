@@ -61,21 +61,12 @@ class NewFactureForm(FormRevMixin, ModelForm):
         #        for something more generic or at least in English
         if allowed_payment:
             self.fields['paiement'].queryset = allowed_payment
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = _("Cheque number")
-        self.fields['banque'].empty_label = _("Not specified")
         self.fields['paiement'].empty_label = \
             _("Select a payment method")
-        paiement_list = Paiement.objects.filter(type_paiement=1)
-        if paiement_list:
-            self.fields['paiement'].widget\
-                .attrs['data-cheque'] = paiement_list.first().id
-
 
     class Meta:
         model = Facture
-        fields = ['paiement', 'banque', 'cheque']
+        fields = ['paiement']
 
     def clean(self):
         cleaned_data = super(NewFactureForm, self).clean()
