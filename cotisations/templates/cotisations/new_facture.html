@@ -44,7 +44,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% bootstrap_form factureform %}
     {{ venteform.management_form }}
-    <!-- TODO: FIXME to include data-type="check" for right option in id_cheque select -->
     <h3>{% trans "Invoice's articles" %}</h3>
     <div id="form_set" class="form-group">
         {% for form in venteform.forms %}
@@ -132,20 +131,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             )
     }
 
-    function set_cheque_info_visibility() {
-        var paiement = document.getElementById("id_Facture-paiement");
-        var visible = paiement.value == paiement.getAttribute('data-cheque');
-        p = document.getElementById("id_Facture-paiement");
-        var display = 'none';
-        if (visible) {
-            display = 'block';
-        }
-        document.getElementById("id_Facture-cheque")
-            .parentNode.style.display = display;
-        document.getElementById("id_Facture-banque")
-            .parentNode.style.display = display;
-    }
-
     // Add events manager when DOM is fully loaded
     document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("add_one")
@@ -155,9 +140,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         for (i = 0; i < product_count; ++i){
             add_listenner_for_id(i);
         }
-        document.getElementById("id_Facture-paiement")
-            .addEventListener("change", set_cheque_info_visibility, true);
-        set_cheque_info_visibility();
         update_price();
     });
 
