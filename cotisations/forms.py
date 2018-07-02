@@ -242,17 +242,12 @@ class PaiementForm(FormRevMixin, ModelForm):
     class Meta:
         model = Paiement
         # TODO : change moyen to method and type_paiement to payment_type
-        fields = ['moyen', 'type_paiement', 'allow_self_subscription']
+        fields = ['moyen', 'allow_self_subscription']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(PaiementForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['moyen'].label = _("Payment method name")
-        self.fields['type_paiement'].label = _("Payment type")
-        self.fields['type_paiement'].help_text = \
-            _("The payement type is used for specific behaviour.\
-            The \"cheque\" type means a cheque number and a bank name\
-            may be added when using this payment method.")
 
 
 # TODO : change paiement to payment
