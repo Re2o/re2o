@@ -26,5 +26,7 @@ class ComnpayPayment(models.Model):
     )
 
     def end_payment(self, invoice, request):
+        invoice.valid = False
+        invoice.save()
         content = comnpay(invoice, request)
         return render(request, 'cotisations/payment.html', content)
