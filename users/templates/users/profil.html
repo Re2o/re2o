@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <div class="panel panel-danger">
 		<div class="panel-heading dashboard">Votre compte est banni</div>
 	    	<div class="panel-body dashboard">
-			<i class="text-danger">Fin du ban : {{user.end_ban|date:"d M Y"}}</i>
+			<i class="text-danger">Fin du ban : {{users.end_ban|date:"d M Y"}}</i>
 		</div>
 	    </div>
 	    {% elif not users.is_connected%}
@@ -59,7 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <div class="panel panel-success">
 		<div class="panel-heading dashboard">Connecté</div>
 		<div class="panel-body dashboard">
-			<i class="text-success">Fin de connexion: {{user.end_adhesion|date:"d M Y"}}</i>
+			<i class="text-success">Fin de connexion: {{users.end_adhesion|date:"d M Y"}}</i>
 		</div>
 	    </div>
             {% endif %}
