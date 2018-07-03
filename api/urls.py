@@ -100,6 +100,8 @@ router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name=
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 # Switches config
 router.register_view(r'switchs/ports-config', views.SwitchPortView),
+# Reminder
+router.register_view(r'reminder/get-users', views.ReminderView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING

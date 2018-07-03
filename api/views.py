@@ -504,6 +504,15 @@ class SwitchPortView(generics.ListAPIView):
     queryset = topologie.Switch.objects.all().prefetch_related('ports__custom_profile')
     serializer_class = serializers.SwitchPortSerializer
 
+# Rappel fin adhésion
+
+class ReminderView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = preferences.Reminder.objects.all()
+    serializer_class = serializers.ReminderSerializer
+
 
 # DHCP
 

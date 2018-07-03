@@ -26,6 +26,7 @@ Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
+from django.utils import timezone
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -36,7 +37,10 @@ import cotisations.models
 import machines.models
 from re2o.mixins import AclMixin
 
+
 from .aes_field import AESEncryptedField
+
+from datetime import timedelta
 
 
 class PreferencesModel(models.Model):
@@ -282,6 +286,13 @@ class Reminder(AclMixin, models.Model):
         permissions = (
             ("view_reminder", "Peut voir un objet reminder"),
         )
+
+    def users_to_remind(self):
+        from re2o.utils import all_has_access
+        date = timezone.now().replace(minute=0,hour=0)
+        futur_date = date + timedelta(days=self.days)
+        users = all_has_access(futur_date).exclude(pk__in = all_has_access(futur_date + timedelta(days=1))) 
+        return users
 
 
 class GeneralOption(AclMixin, PreferencesModel):
