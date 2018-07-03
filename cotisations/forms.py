@@ -42,10 +42,10 @@ from django.core.validators import MinValueValidator
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 
-from preferences.models import OptionalUser
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from .models import Article, Paiement, Facture, Banque
+from .payment_methods import balance
 
 
 class NewFactureForm(FormRevMixin, ModelForm):
@@ -362,34 +362,41 @@ class RechargeForm(FormRevMixin, Form):
         min_value=0.01,
         validators=[]
     )
+    payment = forms.ModelChoiceField(
+        queryset=Paiement.objects.none(),
+        label=_l("Payment method")
+    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(RechargeForm, self).__init__(*args, **kwargs)
+        self.fields['payment'].empty_label = \
+            _("Select a payment method")
+        self.fields['payment'].queryset = Paiement.objects.filter(
+            pk__in=map(lambda x: x.pk,
+                       Paiement.find_allowed_payments(self.user))
+        )
 
     def clean_value(self):
         """
-        Returns a cleaned vlaue from the received form by validating
+        Returns a cleaned value from the received form by validating
         the value is well inside the possible limits
         """
         value = self.cleaned_data['value']
-        if value < OptionalUser.get_cached_value('min_online_payment'):
+        balance_method, _created = balance.PaymentMethod\
+            .objects.get_or_create()
+        if value < balance_method.minimum_balance:
             raise forms.ValidationError(
                 _("Requested amount is too small. Minimum amount possible : \
                 %(min_online_amount)s €.") % {
-                    'min_online_amount': OptionalUser.get_cached_value(
-                        'min_online_payment'
-                    )
+                    'min_online_amount': balance_method.minimum_balance
                 }
             )
-        if value + self.user.solde > \
-                OptionalUser.get_cached_value('max_solde'):
+        if value + self.user.solde > balance_method.maximum_balance:
             raise forms.ValidationError(
                 _("Requested amount is too high. Your balance can't exceed \
                 %(max_online_balance)s €.") % {
-                    'max_online_balance': OptionalUser.get_cached_value(
-                        'max_solde'
-                    )
+                    'max_online_balance': balance_method.maximum_balance
                 }
             )
         return value

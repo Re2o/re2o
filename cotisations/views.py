@@ -821,24 +821,11 @@ def recharge(request):
     """
     View used to refill the balance by using online payment.
     """
-    if AssoOption.get_cached_value('payment') == 'NONE':
-        messages.error(
-            request,
-            _("Online payment is disabled.")
-        )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': request.user.id}
-        ))
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
         invoice = Facture(user=request.user)
-        payment, _created = Paiement.objects.get_or_create(
-            moyen='Rechargement en ligne'
-        )
-        invoice.paiement = payment
+        invoice.paiement = refill_form.cleaned_data['payment']
         invoice.valid = False
-        invoice.save()
         purchase = Vente.objects.create(
             facture=invoice,
             name='solde',
@@ -846,10 +833,8 @@ def recharge(request):
             number=1
         )
         purchase.save()
-        # content = online_payment.PAYMENT_SYSTEM[
-        # AssoOption.get_cached_value('payment')
-        # ](invoice, request)
-        return render(request, 'cotisations/payment.html', content)
+        invoice.save()
+        return invoice.paiement.end_payment(invoice, request)
     return form({
         'rechargeform': refill_form,
         'solde': request.user.solde
