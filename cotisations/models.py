@@ -668,7 +668,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
             )
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid': request.user.pk}
+            kwargs={'userid': invoice.user.pk}
         ))
 
 

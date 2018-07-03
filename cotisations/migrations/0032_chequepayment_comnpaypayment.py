@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import cotisations.payment_methods.comnpay.aes_field
-import cotisations.payment_methods.models
+import cotisations.payment_methods.mixins
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
             ],
-            bases=(cotisations.payment_methods.models.PaymentMethodMixin, models.Model),
+            bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
         ),
         migrations.CreateModel(
             name='ComnpayPayment',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('payment_pass', cotisations.payment_methods.comnpay.aes_field.AESEncryptedField(blank=True, max_length=255, null=True)),
                 ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
             ],
-            bases=(cotisations.payment_methods.models.PaymentMethodMixin, models.Model),
+            bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
         ),
         migrations.RunPython(add_comnpay),
         migrations.RunPython(add_cheque),

@@ -139,33 +139,6 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Check if at leat one article has been selected
         if any(art.cleaned_data for art in articles):
-            user_balance = OptionalUser.get_cached_value('user_solde')
-            negative_balance = OptionalUser.get_cached_value('solde_negatif')
-            # If the paiement using balance has been activated,
-            # checking that the total price won't get the user under
-            # the authorized minimum (negative_balance)
-            if user_balance:
-                # TODO : change Paiement to Payment
-                if new_invoice_instance.paiement == (
-                        Paiement.objects.get_or_create(moyen='solde')[0]
-                ):
-                    total_price = 0
-                    for art_item in articles:
-                        if art_item.cleaned_data:
-                            total_price += (
-                                art_item.cleaned_data['article'].prix *
-                                art_item.cleaned_data['quantity']
-                            )
-                    if (float(user.solde) - float(total_price)
-                            < negative_balance):
-                        messages.error(
-                            request,
-                            _("Your balance is too low for this operation.")
-                        )
-                        return redirect(reverse(
-                            'users:profil',
-                            kwargs={'userid': userid}
-                        ))
             new_invoice_instance.save()
 
             # Building a purchase for each article sold
