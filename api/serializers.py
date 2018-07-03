@@ -957,6 +957,26 @@ class DNSZonesSerializer(serializers.ModelSerializer):
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
                   'aaaa_records', 'cname_records', 'sshfp_records')
 
+#REMINDER
+
+
+class ReminderUsersSerializer(UserSerializer):
+    """Serialize the data about a mailing member.
+    """
+    class Meta(UserSerializer.Meta):
+        fields = ('get_full_name', 'email')
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    """
+    Serialize the data about a reminder
+    """
+    users_to_remind = ReminderUsersSerializer(many=True)
+
+    class Meta:
+        model = preferences.Reminder
+        fields = ('days','message','users_to_remind')
+
 
 class DNSReverseZonesSerializer(serializers.ModelSerializer):
     """Serialize the data about DNS Zones.

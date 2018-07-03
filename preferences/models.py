@@ -26,6 +26,7 @@ Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
+from django.utils import timezone
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -37,6 +38,7 @@ import machines.models
 
 from re2o.mixins import AclMixin
 from re2o.aes_field import AESEncryptedField
+
 from datetime import timedelta
 
 

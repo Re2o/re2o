@@ -110,6 +110,8 @@ router.register_view(r'firewall/interface-ports', views.InterfacePortsOpenView),
 # Switches config
 router.register_view(r'switchs/ports-config', views.SwitchPortView),
 router.register_view(r'switchs/role', views.RoleView),
+# Reminder
+router.register_view(r'reminder/get-users', views.ReminderView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
