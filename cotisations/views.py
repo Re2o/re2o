@@ -98,40 +98,22 @@ def new_facture(request, user, userid):
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
-    # Building the invocie form and the article formset
-    is_self_subscription = False
-    can_create_invoice = request.user.has_perm('cotisations.add_facture')
-    allow_self_subscription = OptionalUser.get_cached_value(
-        'allow_self_subscription')
-    if not can_create_invoice:
-        if allow_self_subscription:
-            is_self_subscription = True
-            article_list = article_list.filter(allow_self_subscription=True)
-            allowed_payment = Paiement.objects.filter(
-                allow_self_subscription=True)
-            invoice_form = NewFactureForm(
-                request.POST or None, instance=invoice, allowed_payment=allowed_payment)
-        else:
-            messages.error(
-                request,
-                _("You cannot subscribe. Please ask to the staff.")
-            )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': userid}
-            ))
-    else:
-        invoice_form = NewFactureForm(request.POST or None, instance=invoice)
+    # Building the invoice form and the article formset
+    invoice_form = NewFactureForm(
+        request.POST or None,
+        instance=invoice,
+        user=request.user
+    )
 
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(
             request.POST or None,
-            form_kwargs={'is_self_subscription': is_self_subscription}
+            form_kwargs={'user': request.user}
         )
     else:
         article_formset = formset_factory(SelectUserArticleForm)(
             request.POST or None,
-            form_kwargs={'is_self_subscription': is_self_subscription}
+            form_kwargs={'user': request.user}
         )
 
     if invoice_form.is_valid() and article_formset.is_valid():
@@ -156,7 +138,10 @@ def new_facture(request, user, userid):
                     )
                     new_purchase.save()
 
-            return new_invoice_instance.paiement.end_payment(new_invoice_instance, request)
+            return new_invoice_instance.paiement.end_payment(
+                new_invoice_instance,
+                request
+            )
 
         messages.error(
             request,

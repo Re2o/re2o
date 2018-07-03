@@ -49,7 +49,6 @@ from django.contrib import messages
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
-from preferences.models import OptionalUser
 
 from cotisations.utils import find_payment_method
 
@@ -227,10 +226,11 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: a message and a boolean which is True if the user can create
             an invoice or if the `options.allow_self_subscription` is set.
         """
-        if OptionalUser.get_cached_value('allow_self_subscription'):
-            return True, None
+        nb_payments = len(Paiement.find_allowed_payments(user_request))
+        nb_articles = len(Article.find_allowed_articles(user_request))
         return (
-            user_request.has_perm('cotisations.add_facture'),
+            user_request.has_perm('cotisations.add_facture')
+            or (nb_payments*nb_articles),
             _("You don't have the right to create an invoice.")
         )
 
@@ -522,9 +522,9 @@ class Article(RevMixin, AclMixin, models.Model):
         max_length=255,
         verbose_name=_l("Type of cotisation")
     )
-    allow_self_subscription = models.BooleanField(
+    available_for_everyone = models.BooleanField(
         default=False,
-        verbose_name=_l("Is available for self subscription")
+        verbose_name=_l("Is available for every user")
     )
 
     unique_together = ('name', 'type_user')
@@ -532,6 +532,7 @@ class Article(RevMixin, AclMixin, models.Model):
     class Meta:
         permissions = (
             ('view_article', _l("Can see an article's details")),
+            ('buy_every_article', _l("Can buy every_article"))
         )
         verbose_name = "Article"
         verbose_name_plural = "Articles"
@@ -548,6 +549,24 @@ class Article(RevMixin, AclMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+    def can_buy_article(self, user, *_args, **_kwargs):
+        """Check if a user can buy this article.
+
+        :param self: The article
+        :param user: The user requesting buying
+        :returns: A boolean stating if usage is granted and an explanation
+            message if the boolean is `False`.
+        """
+        return (
+            self.available_for_everyone
+            or user.has_perm('cotisations.buy_every_article'),
+            _("You cannot use this Payment.")
+        )
+
+    @classmethod
+    def find_allowed_articles(cls, user):
+        return [p for p in cls.objects.all() if p.can_buy_article(user)[0]]
 
 
 class Banque(RevMixin, AclMixin, models.Model):
@@ -601,14 +620,15 @@ class Paiement(RevMixin, AclMixin, models.Model):
         default=0,
         verbose_name=_l("Payment type")
     )
-    allow_self_subscription = models.BooleanField(
+    available_for_everyone = models.BooleanField(
         default=False,
-        verbose_name=_l("Is available for self subscription")
+        verbose_name=_l("Is available for every user")
     )
 
     class Meta:
         permissions = (
             ('view_paiement', _l("Can see a payement's details")),
+            ('use_every_payment', _l("Can use every payement")),
         )
         verbose_name = _l("Payment method")
         verbose_name_plural = _l("Payment methods")
@@ -670,6 +690,24 @@ class Paiement(RevMixin, AclMixin, models.Model):
             'users:profil',
             kwargs={'userid': invoice.user.pk}
         ))
+
+    def can_use_payment(self, user, *_args, **_kwargs):
+        """Check if a user can use this payment.
+
+        :param self: The payment
+        :param user: The user requesting usage
+        :returns: A boolean stating if usage is granted and an explanation
+            message if the boolean is `False`.
+        """
+        return (
+            self.available_for_everyone
+            or user.has_perm('cotisations.use_every_payment'),
+            _("You cannot use this Payment.")
+        )
+
+    @classmethod
+    def find_allowed_payments(cls, user):
+        return [p for p in cls.objects.all() if p.can_use_payment(user)[0]]
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):

@@ -53,16 +53,16 @@ class NewFactureForm(FormRevMixin, ModelForm):
     Form used to create a new invoice by using a payment method, a bank and a
     cheque number.
     """
+
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        allowed_payment = kwargs.pop('allowed_payment', None)
         super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
-        # TODO : remove the use of cheque and banque and paiement
-        #        for something more generic or at least in English
-        if allowed_payment:
-            self.fields['paiement'].queryset = allowed_payment
         self.fields['paiement'].empty_label = \
             _("Select a payment method")
+        self.fields['paiement'].queryset = Paiement.objects.filter(
+            pk__in=map(lambda x: x.pk, Paiement.find_allowed_payments(user))
+        )
 
     class Meta:
         model = Facture
@@ -71,15 +71,9 @@ class NewFactureForm(FormRevMixin, ModelForm):
     def clean(self):
         cleaned_data = super(NewFactureForm, self).clean()
         paiement = cleaned_data.get('paiement')
-        cheque = cleaned_data.get('cheque')
-        banque = cleaned_data.get('banque')
         if not paiement:
             raise forms.ValidationError(
                 _("A payment method must be specified.")
-            )
-        elif paiement.type_paiement == 'check' and not (cheque and banque):
-            raise forms.ValidationError(
-                _("A cheque number and a bank must be specified.")
             )
         return cleaned_data
 
@@ -103,8 +97,7 @@ class CreditSoldeForm(NewFactureForm):
     montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 
-class SelectUserArticleForm(
-        FormRevMixin, Form):
+class SelectUserArticleForm(FormRevMixin, Form):
     """
     Form used to select an article during the creation of an invoice for a
     member.
@@ -123,12 +116,11 @@ class SelectUserArticleForm(
     )
 
     def __init__(self, *args, **kwargs):
-        self_subscription = kwargs.pop('is_self_subscription', False)
+        user = kwargs.pop('user')
         super(SelectUserArticleForm, self).__init__(*args, **kwargs)
-        if self_subscription:
-            self.fields['article'].queryset = Article.objects.filter(
-                Q(type_user='All') | Q(type_user='Adherent')
-            ).filter(allow_self_subscription=True)
+        self.fields['article'].queryset = Article.objects.filter(
+            pk__in=map(lambda x: x.pk, Article.find_allowed_articles(user))
+        )
 
 
 class SelectClubArticleForm(Form):
@@ -150,12 +142,11 @@ class SelectClubArticleForm(Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self_subscription = kwargs.pop('is_self_subscription', False)
+        user = kwargs.pop('user')
         super(SelectClubArticleForm, self).__init__(*args, **kwargs)
-        if self_subscription:
-            self.fields['article'].queryset = Article.objects.filter(
-                Q(type_user='All') | Q(type_user='Club')
-            ).filter(allow_self_subscription=True)
+        self.fields['article'].queryset = Article.objects.filter(
+            pk__in=map(lambda x: x.pk, Article.find_allowed_articles(user))
+        )
 
 
 # TODO : change Facture to Invoice
@@ -242,7 +233,7 @@ class PaiementForm(FormRevMixin, ModelForm):
     class Meta:
         model = Paiement
         # TODO : change moyen to method and type_paiement to payment_type
-        fields = ['moyen', 'allow_self_subscription']
+        fields = ['moyen', 'available_for_everyone']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -315,6 +306,7 @@ class NewFactureSoldeForm(NewFactureForm):
     """
     Form used to create an invoice
     """
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(NewFactureSoldeForm, self).__init__(
