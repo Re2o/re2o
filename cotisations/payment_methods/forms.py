@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _l
 from . import PAYMENT_METHODS
 from cotisations.utils import find_payment_method
 
-def payment_method_factory(payment, *args, **kwargs):
+def payment_method_factory(payment, *args, creation=True, **kwargs):
     payment_method = kwargs.pop('instance', find_payment_method(payment))
     if payment_method is not None:
         return forms.modelform_factory(type(payment_method), fields='__all__')(
@@ -13,7 +13,10 @@ def payment_method_factory(payment, *args, **kwargs):
             instance=payment_method,
             **kwargs
         )
-    return PaymentMethodForm(payment_method, *args, **kwargs)
+    elif creation:
+        return PaymentMethodForm(payment_method, *args, **kwargs)
+    else:
+        return forms.Form()
 
 
 class PaymentMethodForm(forms.Form):
@@ -25,6 +28,10 @@ class PaymentMethodForm(forms.Form):
 
     payment_method = forms.ChoiceField(
         label=_l("Special payment method"),
+        help_text=_l("Warning : You will not be able to change the payment "
+                     "method later. But you will be allowed to edit its "
+                     "options."
+        ),
         required=False
     )
 

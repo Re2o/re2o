@@ -485,7 +485,8 @@ def edit_paiement(request, paiement_instance, **_kwargs):
     payment_method = payment_method_factory(
         paiement_instance,
         request.POST or None,
-        prefix='payment_method'
+        prefix='payment_method',
+        creation=False
     )
 
     if payment.is_valid() and payment_method.is_valid():
