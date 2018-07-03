@@ -826,14 +826,13 @@ def recharge(request):
         invoice = Facture(user=request.user)
         invoice.paiement = refill_form.cleaned_data['payment']
         invoice.valid = False
-        purchase = Vente.objects.create(
+        invoice.save()
+        Vente.objects.create(
             facture=invoice,
             name='solde',
             prix=refill_form.cleaned_data['value'],
             number=1
         )
-        purchase.save()
-        invoice.save()
         return invoice.paiement.end_payment(invoice, request)
     return form({
         'rechargeform': refill_form,
