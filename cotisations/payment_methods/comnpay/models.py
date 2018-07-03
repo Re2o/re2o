@@ -2,6 +2,7 @@ from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _l
 
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
@@ -22,12 +23,14 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     payment_credential = models.CharField(
         max_length=255,
         default='',
-        blank=True
+        blank=True,
+        verbose_name=_l("ComNpay VAD Number"),
     )
     payment_pass = AESEncryptedField(
         max_length=255,
         null=True,
         blank=True,
+        verbose_name=_l("ComNpay Secret Key"),
     )
 
     def end_payment(self, invoice, request):
