@@ -39,6 +39,9 @@ def cheque(request, invoice_pk):
         )
     return render(
         request,
-        'cotisations/payment_form.html',
-        {'form': form}
+        'cotisations/payment.html',
+        {
+            'form': form,
+            'amount': invoice.prix_total()
+        }
     )
