@@ -14,9 +14,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest
 
-from preferences.models import AssoOption
 from cotisations.models import Facture
 from .comnpay import Transaction
+from .models import ComnpayPayment
 
 
 @csrf_exempt
@@ -35,7 +35,8 @@ def accept_payment(request, factureid):
         )
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(purchase.type_cotisation for purchase in invoice.vente_set.all()):
+        if any(purchase.type_cotisation
+               for purchase in invoice.vente_set.all()):
             messages.success(
                 request,
                 _("The cotisation of %(member_name)s has been \
@@ -80,28 +81,29 @@ def ipn(request):
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
-    if not p.validSec(data, AssoOption.get_cached_value('payment_pass')):
-        return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
-
-    result = True if (request.POST['result'] == 'OK') else False
-    idTpe = request.POST['idTpe']
     idTransaction = request.POST['idTransaction']
-
-    # Checking that the payment is actually for us.
-    if not idTpe == AssoOption.get_cached_value('payment_id'):
-        return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
-
     try:
         factureid = int(idTransaction)
     except ValueError:
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
     facture = get_object_or_404(Facture, id=factureid)
+    payment_method = get_object_or_404(
+        ComnpayPayment, payment=facture.paiement)
 
-    # Checking that the payment is valid
+    if not p.validSec(data, payment_method.payment_pass):
+        return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
+
+    result = True if (request.POST['result'] == 'OK') else False
+    idTpe = request.POST['idTpe']
+
+    # Checking that the payment is actually for us.
+    if not idTpe == payment_method.payment_credential:
+        return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
+
+        # Checking that the payment is valid
     if not result:
         # Payment failed: Cancelling the invoice operation
-        facture.delete()
         # And send the response to Comnpay indicating we have well
         # received the failure information.
         return HttpResponse("HTTP/1.1 200 OK")
@@ -112,36 +114,3 @@ def ipn(request):
     # Everything worked we send a reponse to Comnpay indicating that
     # it's ok for them to proceed
     return HttpResponse("HTTP/1.0 200 OK")
-
-
-def comnpay(facture, request, payment):
-    """
-    Build a request to start the negociation with Comnpay by using
-    a facture id, the price and the secret transaction data stored in
-    the preferences.
-    """
-    host = request.get_host()
-    p = Transaction(
-        str(payment.payment_credential),
-        str(payment.payment_pass),
-        'https://' + host + reverse(
-            'cotisations:comnpay:accept_payment',
-            kwargs={'factureid': facture.id}
-        ),
-        'https://' + host + reverse('cotisations:comnpay:refuse_payment'),
-        'https://' + host + reverse('cotisations:comnpay:ipn'),
-        "",
-        "D"
-    )
-    r = {
-        'action': 'https://secure.homologation.comnpay.com',
-        'method': 'POST',
-        'content': p.buildSecretHTML(
-            "Paiement de la facture "+str(facture.id),
-            facture.prix_total(),
-            idTransaction=str(facture.id)
-        ),
-        'amount': facture.prix_total(),
-    }
-    return r
-
