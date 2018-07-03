@@ -28,6 +28,13 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         max_digits=5,
         decimal_places=2,
     )
+    maximum_balance = models.DecimalField(
+        verbose_name=_l("Maximum balance"),
+        help_text=_l("The maximal amount of money allowed for the balance."),
+        max_digits=5,
+        decimal_places=2,
+        default=50
+    )
 
     def end_payment(self, invoice, request):
         user = invoice.user

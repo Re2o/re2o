@@ -166,7 +166,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <th>Solde</th>
                         <td>{{ users.solde }} €
-                        {% if user_solde and allow_online_payment %}
+                        {% if user_solde %}
                         <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
                                 <i class="fa fa-euro-sign"></i>
                                 Recharger
