@@ -101,16 +101,19 @@ def new_facture(request, user, userid):
     # Building the invocie form and the article formset
     is_self_subscription = False
     can_create_invoice = request.user.has_perm('cotisations.add_facture')
-    allow_self_subscription = OptionalUser.get_cached_value('allow_self_subscription')
+    allow_self_subscription = OptionalUser.get_cached_value(
+        'allow_self_subscription')
     if not can_create_invoice:
         if allow_self_subscription:
             is_self_subscription = True
             article_list = article_list.filter(allow_self_subscription=True)
-            allowed_payment = Paiement.objects.filter(allow_self_subscription=True)
-            invoice_form = NewFactureForm(request.POST or None, instance=invoice, allowed_payment=allowed_payment)
+            allowed_payment = Paiement.objects.filter(
+                allow_self_subscription=True)
+            invoice_form = NewFactureForm(
+                request.POST or None, instance=invoice, allowed_payment=allowed_payment)
         else:
             messages.error(
-            request,
+                request,
                 _("You cannot subscribe. Please ask to the staff.")
             )
             return redirect(reverse(
@@ -123,12 +126,12 @@ def new_facture(request, user, userid):
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(
             request.POST or None,
-            form_kwargs={'is_self_subscription':is_self_subscription}
+            form_kwargs={'is_self_subscription': is_self_subscription}
         )
     else:
         article_formset = formset_factory(SelectUserArticleForm)(
             request.POST or None,
-            form_kwargs={'is_self_subscription':is_self_subscription}
+            form_kwargs={'is_self_subscription': is_self_subscription}
         )
 
     if invoice_form.is_valid() and article_formset.is_valid():
@@ -164,7 +167,6 @@ def new_facture(request, user, userid):
                             kwargs={'userid': userid}
                         ))
             new_invoice_instance.save()
-
 
             # Building a purchase for each article sold
             for art_item in articles:
@@ -253,13 +255,13 @@ def new_facture_pdf(request):
             'email': AssoOption.get_cached_value('contact'),
             'phone': AssoOption.get_cached_value('telephone'),
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-            })
+        })
     return form({
         'factureform': invoice_form,
         'action_name': _("Create"),
         'articlesformset': articles_formset,
         'articles': articles
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -302,7 +304,7 @@ def facture_pdf(request, facture, **_kwargs):
         'email': AssoOption.get_cached_value('contact'),
         'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-        })
+    })
 
 
 # TODO : change facture to invoice
@@ -326,7 +328,7 @@ def edit_facture(request, facture, **_kwargs):
         fields=('name', 'number'),
         extra=0,
         max_num=len(purchases_objects)
-        )
+    )
     purchase_form = purchase_form_set(
         request.POST or None,
         queryset=purchases_objects
@@ -343,7 +345,7 @@ def edit_facture(request, facture, **_kwargs):
     return form({
         'factureform': invoice_form,
         'venteform': purchase_form
-        }, 'cotisations/edit_facture.html', request)
+    }, 'cotisations/edit_facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -363,7 +365,7 @@ def del_facture(request, facture, **_kwargs):
     return form({
         'objet': facture,
         'objet_name': _("Invoice")
-        }, 'cotisations/delete.html', request)
+    }, 'cotisations/delete.html', request)
 
 
 # TODO : change solde to balance
@@ -386,7 +388,7 @@ def credit_solde(request, user, **_kwargs):
             name="solde",
             prix=invoice.cleaned_data['montant'],
             number=1
-            )
+        )
         new_purchase.save()
         messages.success(
             request,
@@ -396,7 +398,7 @@ def credit_solde(request, user, **_kwargs):
     return form({
         'factureform': invoice,
         'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -422,7 +424,7 @@ def add_article(request):
     return form({
         'factureform': article,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -443,7 +445,7 @@ def edit_article(request, article_instance, **_kwargs):
     return form({
         'factureform': article,
         'action_name': _('Edit')
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -464,7 +466,7 @@ def del_article(request, instances):
     return form({
         'factureform': article,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change paiement to payment
@@ -492,7 +494,7 @@ def add_paiement(request):
         'factureform': payment,
         'payment_method': payment_method,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : chnage paiement to Payment
@@ -525,7 +527,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         'factureform': payment,
         'payment_method': payment_method,
         'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change paiement to payment
@@ -560,7 +562,7 @@ def del_paiement(request, instances):
     return form({
         'factureform': payment,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change banque to bank
@@ -581,7 +583,7 @@ def add_banque(request):
     return form({
         'factureform': bank,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change banque to bank
@@ -603,7 +605,7 @@ def edit_banque(request, banque_instance, **_kwargs):
     return form({
         'factureform': bank,
         'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : chnage banque to bank
@@ -638,7 +640,7 @@ def del_banque(request, instances):
     return form({
         'factureform': bank,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -679,7 +681,7 @@ def control(request):
     return render(request, 'cotisations/control.html', {
         'facture_list': invoice_list,
         'controlform': control_invoices_form
-        })
+    })
 
 
 @login_required
@@ -692,7 +694,7 @@ def index_article(request):
     article_list = Article.objects.order_by('name')
     return render(request, 'cotisations/index_article.html', {
         'article_list': article_list
-        })
+    })
 
 
 # TODO : change paiement to payment
@@ -705,7 +707,7 @@ def index_paiement(request):
     payment_list = Paiement.objects.order_by('moyen')
     return render(request, 'cotisations/index_paiement.html', {
         'paiement_list': payment_list
-        })
+    })
 
 
 # TODO : change banque to bank
@@ -718,7 +720,7 @@ def index_banque(request):
     bank_list = Banque.objects.order_by('name')
     return render(request, 'cotisations/index_banque.html', {
         'banque_list': bank_list
-        })
+    })
 
 
 @login_required
@@ -739,7 +741,7 @@ def index(request):
     invoice_list = re2o_paginator(request, invoice_list, pagination_number)
     return render(request, 'cotisations/index.html', {
         'facture_list': invoice_list
-        })
+    })
 
 
 # TODO : merge this function with new_facture() which is nearly the same
@@ -789,7 +791,7 @@ def new_facture_solde(request, userid):
                 for art_item in articles:
                     if art_item.cleaned_data:
                         total_price += art_item.cleaned_data['article']\
-                                .prix*art_item.cleaned_data['quantity']
+                            .prix*art_item.cleaned_data['quantity']
                 if float(user.solde) - float(total_price) < negative_balance:
                     messages.error(
                         request,
@@ -851,7 +853,7 @@ def new_facture_solde(request, userid):
     return form({
         'venteform': article_formset,
         'articlelist': article_list
-        }, 'cotisations/new_facture_solde.html', request)
+    }, 'cotisations/new_facture_solde.html', request)
 
 
 # TODO : change recharge to refill
@@ -886,10 +888,10 @@ def recharge(request):
         )
         purchase.save()
         # content = online_payment.PAYMENT_SYSTEM[
-            # AssoOption.get_cached_value('payment')
+        # AssoOption.get_cached_value('payment')
         # ](invoice, request)
         return render(request, 'cotisations/payment.html', content)
     return form({
         'rechargeform': refill_form,
         'solde': request.user.solde
-        }, 'cotisations/recharge.html', request)
+    }, 'cotisations/recharge.html', request)

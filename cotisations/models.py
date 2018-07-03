@@ -221,7 +221,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     @staticmethod
     def can_create(user_request, *_args, **_kwargs):
-        """Check if an user can create an invoice.
+        """Check if a user can create an invoice.
 
         :param user_request: The user who wants to create an invoice.
         :return: a message and a boolean which is True if the user can create
