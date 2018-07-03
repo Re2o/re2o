@@ -138,11 +138,6 @@ urlpatterns = [
         views.new_facture_solde,
         name='new_facture_solde'
     ),
-    url(
-        r'^recharge/$',
-        views.recharge,
-        name='recharge'
-    ),
     url(r'^$', views.index, name='index'),
 ] + payment_methods.urls.urlpatterns
 

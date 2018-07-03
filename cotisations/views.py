@@ -326,39 +326,6 @@ def del_facture(request, facture, **_kwargs):
     }, 'cotisations/delete.html', request)
 
 
-# TODO : change solde to balance
-@login_required
-@can_create(Facture)
-@can_edit(User)
-def credit_solde(request, user, **_kwargs):
-    """
-    View used to edit the balance of a user.
-    Can be use either to increase or decrease a user's balance.
-    """
-    # TODO : change facture to invoice
-    invoice = CreditSoldeForm(request.POST or None)
-    if invoice.is_valid():
-        invoice_instance = invoice.save(commit=False)
-        invoice_instance.user = user
-        invoice_instance.save()
-        new_purchase = Vente.objects.create(
-            facture=invoice_instance,
-            name="solde",
-            prix=invoice.cleaned_data['montant'],
-            number=1
-        )
-        new_purchase.save()
-        messages.success(
-            request,
-            _("Balance successfully updated.")
-        )
-        return redirect(reverse('cotisations:index'))
-    return form({
-        'factureform': invoice,
-        'action_name': _("Edit")
-    }, 'cotisations/facture.html', request)
-
-
 @login_required
 @can_create(Article)
 def add_article(request):
@@ -815,11 +782,14 @@ def new_facture_solde(request, userid):
     }, 'cotisations/new_facture_solde.html', request)
 
 
-# TODO : change recharge to refill
+# TODO : change solde to balance
 @login_required
-def recharge(request):
+@can_create(Facture)
+@can_edit(User)
+def credit_solde(request, user, **_kwargs):
     """
-    View used to refill the balance by using online payment.
+    View used to edit the balance of a user.
+    Can be use either to increase or decrease a user's balance.
     """
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
@@ -835,6 +805,8 @@ def recharge(request):
         )
         return invoice.paiement.end_payment(invoice, request)
     return form({
-        'rechargeform': refill_form,
-        'solde': request.user.solde
-    }, 'cotisations/recharge.html', request)
+        'factureform': refill_form,
+        'balance': request.user.solde,
+        'title': _("Refill your balance"),
+        'action_name': _("Pay")
+    }, 'cotisations/facture.html', request)

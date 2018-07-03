@@ -34,7 +34,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
 <span class="label label-success">active</span>{% else %}<span class="label label-danger">désactivée</span>{% endif %}.</p>
 {% if user_solde %}
 <p>Votre solde est de <span class="badge">{{ users.solde }}€</span>.
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:recharge' %}">
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
     <i class="fa fa-euro-sign"></i>
     Recharger
 </a>
@@ -165,7 +165,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                         <th>Solde</th>
                         <td>{{ users.solde }} €
                         {% if user_solde %}
-                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
                                 <i class="fa fa-euro-sign"></i>
                                 Recharger
                         </a>

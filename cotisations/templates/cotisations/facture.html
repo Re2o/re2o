@@ -31,7 +31,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 {% bootstrap_form_errors factureform %}
-
+{% if title %}
+<h3>{{title}}</h3>
+{% endif %}
+{% if balance %}
+<h4>{% trans "Current balance :" %}{{balance}}€</h4>
+{% endif %}
 <form class="form" method="post">
     {% csrf_token %}
     {% if articlesformset %}
