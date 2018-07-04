@@ -344,7 +344,7 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
         model = preferences.GeneralOption
         fields = ('general_message', 'search_display_page',
                   'pagination_number', 'pagination_large_number',
-                  'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
+                  'req_expire_hrs', 'site_name', 'site_url', 'email_from', 'GTU_sum_up',
                   'GTU')
 
 
