@@ -5,6 +5,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,7 +57,7 @@ from re2o.acl import (
     can_delete_set,
     can_change,
 )
-from preferences.models import OptionalUser, AssoOption, GeneralOption
+from preferences.models import AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
     NewFactureForm,
@@ -70,7 +71,6 @@ from .forms import (
     NewFactureFormPdf,
     SelectUserArticleForm,
     SelectClubArticleForm,
-    CreditSoldeForm,
     RechargeForm
 )
 from .tex import render_invoice
@@ -88,10 +88,6 @@ def new_facture(request, user, userid):
     A bit of JS is used in the template to add articles in a fancier way.
     If everything is correct, save each one of the articles, save the
     purchase object associated and finally the newly created invoice.
-
-    TODO : The whole verification process should be moved to the model. This
-    function should only act as a dumb interface between the model and the
-    user.
     """
     invoice = Facture(user=user)
     # The template needs the list of articles (for the JS part)
@@ -668,118 +664,6 @@ def index(request):
     return render(request, 'cotisations/index.html', {
         'facture_list': invoice_list
     })
-
-
-# TODO : merge this function with new_facture() which is nearly the same
-# TODO : change facture to invoice
-@login_required
-def new_facture_solde(request, userid):
-    """
-    View called to create a new invoice when using the balance to pay.
-    Currently, send the list of available articles for the user along with
-    a formset of a new invoice (based on the `:forms:NewFactureForm()` form.
-    A bit of JS is used in the template to add articles in a fancier way.
-    If everything is correct, save each one of the articles, save the
-    purchase object associated and finally the newly created invoice.
-
-    TODO : The whole verification process should be moved to the model. This
-    function should only act as a dumb interface between the model and the
-    user.
-    """
-    user = request.user
-    invoice = Facture(user=user)
-    payment, _created = Paiement.objects.get_or_create(is_balance=True)
-    invoice.paiement = payment
-    # The template needs the list of articles (for the JS part)
-    article_list = Article.objects.filter(
-        Q(type_user='All') | Q(type_user=request.user.class_name)
-    )
-    if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None
-        )
-    else:
-        article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None
-        )
-
-    if article_formset.is_valid():
-        articles = article_formset
-        # Check if at leat one article has been selected
-        if any(art.cleaned_data for art in articles):
-            user_balance = OptionalUser.get_cached_value('user_solde')
-            negative_balance = OptionalUser.get_cached_value('solde_negatif')
-            # If the paiement using balance has been activated,
-            # checking that the total price won't get the user under
-            # the authorized minimum (negative_balance)
-            if user_balance:
-                total_price = 0
-                for art_item in articles:
-                    if art_item.cleaned_data:
-                        total_price += art_item.cleaned_data['article']\
-                            .prix*art_item.cleaned_data['quantity']
-                if float(user.solde) - float(total_price) < negative_balance:
-                    messages.error(
-                        request,
-                        _("The balance is too low for this operation.")
-                    )
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': userid}
-                    ))
-            # Saving the invoice
-            invoice.save()
-
-            # Building a purchase for each article sold
-            for art_item in articles:
-                if art_item.cleaned_data:
-                    article = art_item.cleaned_data['article']
-                    quantity = art_item.cleaned_data['quantity']
-                    new_purchase = Vente.objects.create(
-                        facture=invoice,
-                        name=article.name,
-                        prix=article.prix,
-                        type_cotisation=article.type_cotisation,
-                        duration=article.duration,
-                        number=quantity
-                    )
-                    new_purchase.save()
-
-            # In case a cotisation was bought, inform the user, the
-            # cotisation time has been extended too
-            if any(art_item.cleaned_data['article'].type_cotisation
-                   for art_item in articles if art_item.cleaned_data):
-                messages.success(
-                    request,
-                    _("The cotisation of %(member_name)s has been successfully \
-                    extended to %(end_date)s.") % {
-                        'member_name': user.pseudo,
-                        'end_date': user.end_adhesion()
-                    }
-                )
-            # Else, only tell the invoice was created
-            else:
-                messages.success(
-                    request,
-                    _("The invoice has been successuflly created.")
-                )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': userid}
-            ))
-        messages.error(
-            request,
-            _("You need to choose at least one article.")
-        )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': userid}
-        ))
-
-    return form({
-        'venteform': article_formset,
-        'articlelist': article_list
-    }, 'cotisations/new_facture_solde.html', request)
 
 
 # TODO : change solde to balance

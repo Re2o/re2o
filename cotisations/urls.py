@@ -133,11 +133,5 @@ urlpatterns = [
         views.control,
         name='control'
     ),
-    url(
-        r'^new_facture_solde/(?P<userid>[0-9]+)$',
-        views.new_facture_solde,
-        name='new_facture_solde'
-    ),
     url(r'^$', views.index, name='index'),
 ] + payment_methods.urls.urlpatterns
-

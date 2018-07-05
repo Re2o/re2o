@@ -5,6 +5,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,24 +77,6 @@ class NewFactureForm(FormRevMixin, ModelForm):
                 _("A payment method must be specified.")
             )
         return cleaned_data
-
-
-class CreditSoldeForm(NewFactureForm):
-    """
-    Form used to make some operations on the user's balance if the option is
-    activated.
-    """
-    class Meta(NewFactureForm.Meta):
-        model = Facture
-        fields = ['paiement', 'banque', 'cheque']
-
-    def __init__(self, *args, **kwargs):
-        super(CreditSoldeForm, self).__init__(*args, **kwargs)
-        # TODO : change solde to balance
-        self.fields['paiement'].queryset = Paiement.objects.exclude(
-            is_balance=True)
-
-    montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 
 
 class SelectUserArticleForm(FormRevMixin, Form):
@@ -298,57 +281,6 @@ class DelBanqueForm(FormRevMixin, Form):
             self.fields['banques'].queryset = instances
         else:
             self.fields['banques'].queryset = Banque.objects.all()
-
-
-# TODO : change facture to Invoice
-class NewFactureSoldeForm(NewFactureForm):
-    """
-    Form used to create an invoice
-    """
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewFactureSoldeForm, self).__init__(
-            *args,
-            prefix=prefix,
-            **kwargs
-        )
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = _('Cheque number')
-        self.fields['banque'].empty_label = _("Not specified")
-        self.fields['paiement'].empty_label = \
-            _("Select a payment method")
-        # TODO : change paiement to payment
-        paiement_list = Paiement.objects.filter(type_paiement=1)
-        if paiement_list:
-            self.fields['paiement'].widget\
-                .attrs['data-cheque'] = paiement_list.first().id
-
-    class Meta:
-        # TODO : change facture to invoice
-        model = Facture
-        # TODO : change paiement to payment and baque to bank
-        fields = ['paiement', 'banque']
-
-    def clean(self):
-        cleaned_data = super(NewFactureSoldeForm, self).clean()
-        # TODO : change paiement to payment
-        paiement = cleaned_data.get("paiement")
-        cheque = cleaned_data.get("cheque")
-        # TODO : change banque to bank
-        banque = cleaned_data.get("banque")
-        # TODO : change paiement to payment
-        if not paiement:
-            raise forms.ValidationError(
-                _("A payment method must be specified.")
-            )
-        # TODO : change paiement and banque to payment and bank
-        elif paiement.type_paiement == "check" and not (cheque and banque):
-            raise forms.ValidationError(
-                _("A cheque number and a bank must be specified.")
-            )
-        return cleaned_data
 
 
 # TODO : Better name and docstring
