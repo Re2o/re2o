@@ -55,3 +55,14 @@ class BalancePayment(PaymentMethodMixin, models.Model):
             request,
             use_payment_method=False
         )
+
+    def valid_form(self, form):
+        p = Paiement.objects.filter(is_balance=True)
+        if len(p) > 0:
+            form.add_error(
+                'payment_method',
+                _("There is already a payment type for user balance")
+            )
+
+    def alter_payment(self, payment):
+        self.payment.is_balance = True

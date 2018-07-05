@@ -51,16 +51,27 @@ class PaymentMethodForm(forms.Form):
         else:
             self.fields = {}
 
-    def save(self, *args, payment=None, **kwargs):
-        commit = kwargs.pop('commit', True)
+    def clean(self):
+        super(PaymentMethodForm, self).clean()
         choice = self.cleaned_data['payment_method']
         if choice=='':
             return
         choice = int(choice)
         model = PAYMENT_METHODS[choice].PaymentMethod
         form = forms.modelform_factory(model, fields='__all__')(self.data, prefix=self.prefix)
-        payment_method = form.save(commit=False)
-        payment_method.payment = payment
+        self.payment_method = form.save(commit=False)
+        if hasattr(self.payment_method, 'valid_form'):
+            self.payment_method.valid_form(self)
+        return self.cleaned_data
+
+
+
+    def save(self, payment, *args, **kwargs):
+        commit = kwargs.pop('commit', True)
+        self.payment_method.payment = payment
+        if hasattr(self.payment_method, 'alter_payment'):
+            self.payment_method.alter_payment(payment)
         if commit:
-            payment_method.save()
-        return payment_method
+            payment.save()
+            self.payment_method.save()
+        return self.payment_method
