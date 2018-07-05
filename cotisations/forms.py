@@ -91,8 +91,7 @@ class CreditSoldeForm(NewFactureForm):
         super(CreditSoldeForm, self).__init__(*args, **kwargs)
         # TODO : change solde to balance
         self.fields['paiement'].queryset = Paiement.objects.exclude(
-            moyen='solde'
-        ).exclude(moyen='Solde')
+            is_balance=True)
 
     montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
 

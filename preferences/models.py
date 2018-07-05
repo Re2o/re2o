@@ -118,10 +118,7 @@ class OptionalUser(AclMixin, PreferencesModel):
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
-            p = cotisations.models.Paiement.objects.filter(moyen="Solde")
-            if not len(p):
-                c = cotisations.models.Paiement(moyen="Solde")
-                c.save()
+            cotisations.models.Paiement.objects.get_or_create(is_balance=True)
 
 
 @receiver(post_save, sender=OptionalUser)

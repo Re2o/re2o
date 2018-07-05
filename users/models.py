@@ -428,7 +428,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def solde(self):
         """ Renvoie le solde d'un user.
         Somme les crédits de solde et retire les débit payés par solde"""
-        solde_objects = Paiement.objects.filter(moyen='solde')
+        solde_objects = Paiement.objects.filter(is_balance=True)
         somme_debit = Vente.objects.filter(
             facture__in=Facture.objects.filter(
                 user=self,

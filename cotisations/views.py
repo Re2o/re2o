@@ -409,7 +409,7 @@ def add_paiement(request):
     )
     if payment.is_valid() and payment_method.is_valid():
         payment = payment.save()
-        payment_method.save(payment=payment)
+        payment_method.save(payment)
         messages.success(
             request,
             _("The payment method has been successfully created.")
@@ -688,7 +688,7 @@ def new_facture_solde(request, userid):
     """
     user = request.user
     invoice = Facture(user=user)
-    payment, _created = Paiement.objects.get_or_create(moyen='Solde')
+    payment, _created = Paiement.objects.get_or_create(is_balance=True)
     invoice.paiement = payment
     # The template needs the list of articles (for the JS part)
     article_list = Article.objects.filter(

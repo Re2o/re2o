@@ -594,6 +594,17 @@ class Banque(RevMixin, AclMixin, models.Model):
         return self.name
 
 
+def check_no_balance():
+    """This functions checks that no Paiement with is_balance=True exists
+
+    :raises ValidationError: if such a Paiement exists.
+    """
+    p = Paiement.objects.filter(is_balance=True)
+    if len(p)>0:
+        raise ValidationError(
+            _("There are already payment method(s) for user balance")
+        )
+
 # TODO : change Paiement to Payment
 class Paiement(RevMixin, AclMixin, models.Model):
     """
@@ -623,6 +634,13 @@ class Paiement(RevMixin, AclMixin, models.Model):
     available_for_everyone = models.BooleanField(
         default=False,
         verbose_name=_l("Is available for every user")
+    )
+    is_balance = models.BooleanField(
+        default=False,
+        editable=False,
+        verbose_name=_l("Is user balance"),
+        help_text=_l("There should be only one balance payment method."),
+        validators=[check_no_balance]
     )
 
     class Meta:
