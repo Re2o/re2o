@@ -27,6 +27,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
                      ),
         max_digits=5,
         decimal_places=2,
+        default=0,
     )
     maximum_balance = models.DecimalField(
         verbose_name=_l("Maximum balance"),
