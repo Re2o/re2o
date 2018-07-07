@@ -634,10 +634,19 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
 
 # Switches et ports
 
+class VlanPortSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = machines.Vlan
+        fields = ('vlan_id', 'name')
+
+
 class ProfilSerializer(NamespacedHMSerializer):
+    vlan_untagged = VlanSerializer(read_only=True)
+    vlan_tagged = VlanPortSerializer(read_only=True, many=True)
+
     class Meta:
         model = topologie.PortProfile
-        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect')
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged', 'vlan_tagged')
 
 
 class ModelSwitchSerializer(NamespacedHMSerializer):
@@ -657,9 +666,11 @@ class PortsSerializer(NamespacedHMSerializer):
     """
     get_port_profil = ProfilSerializer(read_only=True)
 
+
     class Meta:
         model = topologie.Port
         fields = ('state', 'port', 'get_port_profil')
+
 
 
 class SwitchPortSerializer(serializers.ModelSerializer):
@@ -667,6 +678,7 @@ class SwitchPortSerializer(serializers.ModelSerializer):
     ports = PortsSerializer(many=True, read_only=True)
     model = ModelSwitchSerializer(read_only=True)
     switchbay = SwitchBaySerializer(read_only=True)
+
 
     class Meta:
         model = topologie.Switch
