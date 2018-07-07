@@ -1,6 +1,26 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2018  Hugo Levy-Falk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """Payment
 
-Here are defined some views dedicated to online payement.
+Here are the views needed by comnpay
 """
 
 from collections import OrderedDict
@@ -23,7 +43,8 @@ from .models import ComnpayPayment
 @login_required
 def accept_payment(request, factureid):
     """
-    The view called when an online payment has been accepted.
+    The view where the user is redirected when a comnpay payment has been
+    accepted.
     """
     invoice = get_object_or_404(Facture, id=factureid)
     if invoice.valid:
@@ -55,7 +76,8 @@ def accept_payment(request, factureid):
 @login_required
 def refuse_payment(request):
     """
-    The view called when an online payment has been refused.
+    The view where the user is redirected when a comnpay payment has been
+    refused.
     """
     messages.error(
         request,
@@ -72,7 +94,7 @@ def ipn(request):
     """
     The view called by Comnpay server to validate the transaction.
     Verify that we can firmly save the user's action and notify
-    Comnpay with 400 response if not or with a 200 response if yes
+    Comnpay with 400 response if not or with a 200 response if yes.
     """
     p = Transaction()
     order = ('idTpe', 'idTransaction', 'montant', 'result', 'sec', )

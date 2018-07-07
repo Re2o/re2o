@@ -1,3 +1,23 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2018  Hugo Levy-Falk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -16,6 +36,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     """
     payment = models.OneToOneField(
         Paiement,
+        on_delete=models.CASCADE,
         related_name='payment_method',
         editable=False
     )
@@ -38,6 +59,9 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     )
 
     def end_payment(self, invoice, request):
+        """Changes the user's balance to pay the invoice. If it is not
+        possible, shows an error and invalidates the invoice.
+        """
         user = invoice.user
         total_price = invoice.prix_total()
         if float(user.solde) - float(total_price) < self.minimum_balance:
@@ -58,6 +82,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         )
 
     def valid_form(self, form):
+        """Checks that there is not already a balance payment method."""
         p = Paiement.objects.filter(is_balance=True)
         if len(p) > 0:
             form.add_error(
@@ -66,4 +91,5 @@ class BalancePayment(PaymentMethodMixin, models.Model):
             )
 
     def alter_payment(self, payment):
+        """Register the payment as a balance payment."""
         self.payment.is_balance = True

@@ -1,3 +1,23 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2018  Hugo Levy-Falk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """Payment
 
 Here are defined some views dedicated to cheque payement.
@@ -17,6 +37,7 @@ from .forms import InvoiceForm
 
 @login_required
 def cheque(request, invoice_pk):
+    """This view validate an invoice with the data from a cheque."""
     invoice = get_object_or_404(Invoice, pk=invoice_pk)
     payment_method = getattr(invoice.paiement, 'payment_method', None)
     if invoice.valid or not isinstance(payment_method, ChequePayment):
