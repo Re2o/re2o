@@ -103,14 +103,7 @@ After this modification you need to:
 * Double-check your defined groups' unix-name only contain small letters 
 * Run the following commands to rebuild your ldap's groups:
   ```shell
-  # In the LDAP shell :
-  ou=groups,ou=posix > rm *
-  ```
-  ```python
-  # In the Django shell
-  >>> from users.model import ListRight
-  >>> for lr in ListRight.objects.all():
-  ...     lr.ldap_sync()
+  python3 manage.py ldap_rebuild
   ```
 
 * You may need to force your nslcd cache to be reloaded on some servers (else you will have to wait for the cache to be refreshed):
