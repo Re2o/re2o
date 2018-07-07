@@ -41,6 +41,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL('update preferences_assooption set payment_pass="" where id=1;'),
         migrations.CreateModel(
             name='ChequePayment',
             fields=[
