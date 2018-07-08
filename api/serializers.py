@@ -153,7 +153,7 @@ class VlanSerializer(NamespacedHMSerializer):
     """
     class Meta:
         model = machines.Vlan
-        fields = ('vlan_id', 'name', 'comment', 'api_url')
+        fields = ('vlan_id', 'name', 'comment', 'arp_protect', 'dhcp_snooping', 'dhcpv6_snooping', 'api_url')
 
 
 class NasSerializer(NamespacedHMSerializer):
@@ -301,6 +301,16 @@ class OuverturePortSerializer(NamespacedHMSerializer):
     class Meta:
         model = machines.OuverturePort
         fields = ('begin', 'end', 'port_list', 'protocole', 'io', 'api_url')
+
+
+class RoleSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
+    servers = InterfaceSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = machines.Role
+        fields = ('role_type', 'servers', 'api_url')
 
 
 # PREFERENCES
@@ -634,10 +644,38 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
 
 # Switches et ports
 
+class InterfaceVlanSerializer(NamespacedHMSerializer):
+    domain = serializers.CharField(read_only=True)
+    ipv4 = serializers.CharField(read_only=True)
+    ipv6 = Ipv6ListSerializer(read_only=True, many=True)
+    vlan_id = serializers.IntegerField(source='type.ip_type.vlan.vlan_id', read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('ipv4', 'ipv6', 'domain', 'vlan_id')
+
+class InterfaceRoleSerializer(NamespacedHMSerializer):
+    interface = InterfaceVlanSerializer(source='machine.interface_set', read_only=True, many=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('interface',)
+
+
+class RoleSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
+    servers = InterfaceRoleSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = machines.Role
+        fields = ('role_type', 'servers')
+
+
 class VlanPortSerializer(NamespacedHMSerializer):
     class Meta:
         model = machines.Vlan
-        fields = ('vlan_id', 'name')
+        fields = ('vlan_id', 'name') 
 
 
 class ProfilSerializer(NamespacedHMSerializer):
@@ -669,7 +707,7 @@ class PortsSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = topologie.Port
-        fields = ('state', 'port', 'get_port_profil')
+        fields = ('state', 'port', 'pretty_name', 'get_port_profil')
 
 
 
@@ -682,7 +720,7 @@ class SwitchPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = topologie.Switch
-        fields = ('short_name', 'model', 'switchbay', 'ports', 'subnet', 'subnet6')
+        fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6', 'subnet', 'subnet6')
 
 # DHCP
 

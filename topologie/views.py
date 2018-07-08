@@ -64,10 +64,15 @@ from re2o.settings import MEDIA_ROOT
 from machines.forms import (
     DomainForm,
     EditInterfaceForm,
-    AddInterfaceForm
+    AddInterfaceForm,
+    EditOptionVlanForm
 )
 from machines.views import generate_ipv4_mbf_param
-from machines.models import Interface, Service_link
+from machines.models import (
+    Interface,
+    Service_link, 
+    Vlan
+)
 from preferences.models import AssoOption, GeneralOption
 
 from .models import (
@@ -152,10 +157,11 @@ def index_port_profile(request):
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     port_profile_list = PortProfile.objects.all().select_related('vlan_untagged')
     port_profile_list = re2o_paginator(request, port_profile_list, pagination_number)
+    vlan_list = Vlan.objects.all().order_by('vlan_id')
     return render(
         request,
         'topologie/index_portprofile.html',
-        {'port_profile_list': port_profile_list}
+        {'port_profile_list': port_profile_list, 'vlan_list': vlan_list}
     )
 
 
@@ -303,6 +309,23 @@ def index_model_switch(request):
             'model_switch_list': model_switch_list,
             'constructor_switch_list': constructor_switch_list,
         }
+    )
+
+
+@login_required
+@can_edit(Vlan)
+def edit_vlanoptions(request, vlan_instance, **_kwargs):
+    """ View used to edit options for switch of VLAN object """
+    vlan = EditOptionVlanForm(request.POST or None, instance=vlan_instance)
+    if vlan.is_valid():
+        if vlan.changed_data:
+            vlan.save()
+            messages.success(request, "Vlan modifié")
+        return redirect(reverse('topologie:index-port-profile'))
+    return form(
+        {'vlanform': vlan, 'action_name': 'Editer'},
+        'machines/machine.html',
+        request
     )
 
 

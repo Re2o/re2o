@@ -234,6 +234,13 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.OuverturePortSerializer
 
 
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Machine` objects.
+    """
+    queryset = machines.Role.objects.all()
+    serializer_class = serializers.RoleSerializer
+
+
 # PREFERENCES
 # Those views differ a bit because there is only one object
 # to display, so we don't bother with the listing part
@@ -503,6 +510,15 @@ class SwitchPortView(generics.ListAPIView):
     """
     queryset = topologie.Switch.objects.all().prefetch_related('ports__custom_profile')
     serializer_class = serializers.SwitchPortSerializer
+
+
+class RoleView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = machines.Role.objects.all().prefetch_related('servers')
+    serializer_class = serializers.RoleSerializer
+
 
 # Rappel fin adhésion
 

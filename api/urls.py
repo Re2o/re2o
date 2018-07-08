@@ -62,6 +62,7 @@ router.register_viewset(r'machines/service', views.ServiceViewSet)
 router.register_viewset(r'machines/servicelink', views.ServiceLinkViewSet, base_name='servicelink')
 router.register_viewset(r'machines/ouvertureportlist', views.OuverturePortListViewSet)
 router.register_viewset(r'machines/ouvertureport', views.OuverturePortViewSet)
+router.register_viewset(r'machines/role', views.RoleViewSet)
 # PREFERENCES
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
@@ -100,6 +101,7 @@ router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name=
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 # Switches config
 router.register_view(r'switchs/ports-config', views.SwitchPortView),
+router.register_view(r'switchs/role', views.RoleView),
 # Reminder
 router.register_view(r'reminder/get-users', views.ReminderView),
 # DNS

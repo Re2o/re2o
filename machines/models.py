@@ -387,6 +387,8 @@ class IpType(RevMixin, AclMixin, models.Model):
                 'network': str(ip_set.network),
                 'netmask': str(ip_set.netmask),
                 'broadcast': str(ip_set.broadcast),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
             } for ip_set in self.ip_set.iter_cidrs()
         ]
 
@@ -395,7 +397,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         if self.prefix_v6:
             return {
                 'network' : str(self.prefix_v6),
-                'netmask' : 'ffff:ffff:ffff:ffff::'
+                'netmask' : 'ffff:ffff:ffff:ffff::',
+                'vlan': str(self.vlan),
+                'vlan_id': str(self.vlan.vlan_id)
             }
         else:
             return None
@@ -494,7 +498,11 @@ class Vlan(RevMixin, AclMixin, models.Model):
     vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
-
+    #Réglages supplémentaires
+    arp_protect = models.BooleanField(default=False)
+    dhcp_snooping = models.BooleanField(default=False)
+    dhcpv6_snooping = models.BooleanField(default=False)
+ 
     class Meta:
         permissions = (
             ("view_vlan", "Peut voir un objet vlan"),

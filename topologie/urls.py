@@ -125,4 +125,7 @@ urlpatterns = [
     url(r'^del_port_profile/(?P<portprofileid>[0-9]+)$',
         views.del_port_profile,
         name='del-port-profile'),
-]
+    url(r'^edit_vlanoptions/(?P<vlanid>[0-9]+)$',
+        views.edit_vlanoptions,
+        name='edit-vlanoptions'),
+    ]

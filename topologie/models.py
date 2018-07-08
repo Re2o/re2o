@@ -272,6 +272,14 @@ class Switch(AclMixin, Machine):
         return self.interface_set.first()
 
     @cached_property
+    def ipv4(self):
+        return str(self.main_interface().ipv4)
+
+    @cached_property
+    def ipv6(self):
+        return str(self.main_interface().ipv6().first())
+
+    @cached_property
     def subnet(self):
        return self.main_interface().type.ip_type.ip_set_full_info
 
@@ -413,6 +421,18 @@ class Port(AclMixin, RevMixin, models.Model):
         permissions = (
             ("view_port", "Peut voir un objet port"),
         )
+
+    @cached_property
+    def pretty_name(self):
+        """More elaborated name for label on switch conf"""
+        if self.related:
+            return "Uplink : " + self.related.switch.short_name
+        elif self.machine_interface:
+            return "Machine : " + str(self.machine_interface.domain)
+        elif self.room:
+            return "Chambre : " + str(self.room)
+        else:
+            return "Inconnue"
 
     @cached_property
     def get_port_profil(self):
