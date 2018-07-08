@@ -371,7 +371,7 @@ class IpType(RevMixin, AclMixin, models.Model):
                 'netmask' : 'ffff:ffff:ffff:ffff::',
                 'netmask_cidr' : str(self.prefix_v6_length),
                 'vlan': str(self.vlan),
-                'vlan_id': self.vlan.vlan_id
+                'vlan_id': str(self.vlan.vlan_id)
             }
         else:
             return None
@@ -515,7 +515,11 @@ class Vlan(RevMixin, AclMixin, models.Model):
     vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
-
+    #Réglages supplémentaires
+    arp_protect = models.BooleanField(default=False)
+    dhcp_snooping = models.BooleanField(default=False)
+    dhcpv6_snooping = models.BooleanField(default=False)
+ 
     class Meta:
         permissions = (
             ("view_vlan", _("Can view a VLAN object")),

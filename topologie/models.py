@@ -291,6 +291,14 @@ class Switch(AclMixin, Machine):
     @cached_property
     def get_name(self):
         return self.name or self.main_interface().domain.name
+    
+    @cached_property
+    def ipv4(self):
+        return str(self.main_interface().ipv4)
+
+    @cached_property
+    def ipv6(self):
+        return str(self.main_interface().ipv6().first())
 
     @cached_property
     def subnet(self):
@@ -445,8 +453,20 @@ class Port(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("ports")
 
     @cached_property
-    def get_port_profile(self):
-        """Return the config profile for this port
+    def pretty_name(self):
+        """More elaborated name for label on switch conf"""
+        if self.related:
+            return "Uplink : " + self.related.switch.short_name
+        elif self.machine_interface:
+            return "Machine : " + str(self.machine_interface.domain)
+        elif self.room:
+            return "Chambre : " + str(self.room)
+        else:
+            return "Inconnue"
+
+    @cached_property
+    def get_port_profil(self):
+        """Return the config profil for this port
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
             port_profile = PortProfile.objects.filter(

@@ -63,6 +63,7 @@ router.register_viewset(r'machines/service', views.ServiceViewSet)
 router.register_viewset(r'machines/servicelink', views.ServiceLinkViewSet, base_name='servicelink')
 router.register_viewset(r'machines/ouvertureportlist', views.OuverturePortListViewSet)
 router.register_viewset(r'machines/ouvertureport', views.OuverturePortViewSet)
+router.register_viewset(r'machines/role', views.RoleViewSet)
 # PREFERENCES
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
@@ -108,6 +109,7 @@ router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 router.register_view(r'firewall/interface-ports', views.InterfacePortsOpenView),
 # Switches config
 router.register_view(r'switchs/ports-config', views.SwitchPortView),
+router.register_view(r'switchs/role', views.RoleView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
