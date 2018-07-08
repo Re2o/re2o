@@ -535,7 +535,8 @@ class SwitchPortView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
     order to build the DHCP lease files.
     """
-    queryset = topologie.Switch.objects.all().prefetch_related('ports__custom_profile')
+    queryset = topologie.Switch.objects.all().select_related("switchbay").select_related("model__constructor").prefetch_related("ports__custom_profile__vlan_tagged").prefetch_related("ports__custom_profile__vlan_untagged").prefetch_related("ports__machine_interface__domain__extension").prefetch_related("ports__room")
+
     serializer_class = serializers.SwitchPortSerializer
 
 
