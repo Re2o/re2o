@@ -32,13 +32,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             <th>{% include "buttons/sort.html" with prefix='model-switch' col='reference' text='Référence' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='model-switch' col='constructor' text='Constructeur' %}</th>
+            <th>Firmware</th>
+	    <th>{% include "buttons/sort.html" with prefix='model-switch' col='constructor' text='Constructeur' %}</th>
 	    <th></th>
         </tr>
    </thead>
    {% for model_switch in model_switch_list %}
    <tr>
        <td>{{model_switch.reference}}</td>
+       <td>{{model_switch.firmware}}</td>
        <td>{{model_switch.constructor}}</td>
        <td class="text-right">
             <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'modelswitch' model_switch.pk %}">
