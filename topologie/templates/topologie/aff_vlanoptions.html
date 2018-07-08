@@ -33,6 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<th>Arp Protect</th>
                 <th>Dhcp Snooping</th>
                 <th>Dhcpv6 Snooping</th>
+                <th>Igmp</th>
+		<th>Mld</th>
 		<th></th>
             </tr>
         </thead>
@@ -43,6 +45,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <td>{{ vlan.arp_protect }}</td>
 	    <td>{{ vlan.dhcp_snooping }}</td>
 	    <td>{{ vlan.dhcpv6_snooping }}</td>
+	    <td>{{ vlan.igmp }}</td>
+	    <td>{{ vlan.mld }}</td>
 	    <td class="text-right">
 		{% can_edit vlan %}
                 {% include 'buttons/edit.html' with href='topologie:edit-vlanoptions' id=vlan.id %}

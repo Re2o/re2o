@@ -502,7 +502,15 @@ class Vlan(RevMixin, AclMixin, models.Model):
     arp_protect = models.BooleanField(default=False)
     dhcp_snooping = models.BooleanField(default=False)
     dhcpv6_snooping = models.BooleanField(default=False)
- 
+    igmp = models.BooleanField(
+        default=False,
+        help_text="Gestion multicast v4"
+    )
+    mld = models.BooleanField(
+        default=False,
+        help_text="Gestion multicast v6"
+    )
+
     class Meta:
         permissions = (
             ("view_vlan", "Peut voir un objet vlan"),

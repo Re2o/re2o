@@ -580,11 +580,22 @@ class VlanForm(FormRevMixin, ModelForm):
     """Ajout d'un vlan : id, nom"""
     class Meta:
         model = Vlan
-        fields = '__all__'
+        fields = ['vlan_id', 'name', 'comment']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(VlanForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditOptionVlanForm(FormRevMixin, ModelForm):
+    """Ajout d'un vlan : id, nom"""
+    class Meta:
+        model = Vlan
+        fields = ['dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'igmp', 'mld']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionVlanForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
 class DelVlanForm(FormRevMixin, Form):
