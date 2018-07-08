@@ -153,7 +153,8 @@ class VlanSerializer(NamespacedHMSerializer):
     """
     class Meta:
         model = machines.Vlan
-        fields = ('vlan_id', 'name', 'comment', 'arp_protect', 'dhcp_snooping', 'dhcpv6_snooping', 'api_url')
+        fields = ('vlan_id', 'name', 'comment', 'arp_protect', 'dhcp_snooping',
+                  'dhcpv6_snooping', 'igmp', 'mld', 'api_url')
 
 
 class NasSerializer(NamespacedHMSerializer):
