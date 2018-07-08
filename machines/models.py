@@ -386,6 +386,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             {
                 'network': str(ip_set.network),
                 'netmask': str(ip_set.netmask),
+                'netmask_cidr': str(ip_set.prefixlen),
                 'broadcast': str(ip_set.broadcast),
                 'vlan': str(self.vlan),
                 'vlan_id': self.vlan.vlan_id
@@ -398,6 +399,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             return {
                 'network' : str(self.prefix_v6),
                 'netmask' : 'ffff:ffff:ffff:ffff::',
+                'netmask_cidr' : '64',
                 'vlan': str(self.vlan),
                 'vlan_id': str(self.vlan.vlan_id)
             }
