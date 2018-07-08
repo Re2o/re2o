@@ -320,6 +320,11 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         'topologie.ConstructorSwitch',
         on_delete=models.PROTECT
     )
+    firmware = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         permissions = (
