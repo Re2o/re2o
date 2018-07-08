@@ -689,9 +689,11 @@ class ProfilSerializer(NamespacedHMSerializer):
 
 
 class ModelSwitchSerializer(NamespacedHMSerializer):
+    constructor = serializers.CharField(read_only=True)
+
     class Meta:
         model = topologie.ModelSwitch
-        fields = ('reference', 'firmware')
+        fields = ('reference', 'firmware', 'constructor')
 
 
 class SwitchBaySerializer(NamespacedHMSerializer):
