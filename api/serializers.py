@@ -723,7 +723,7 @@ class SwitchPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = topologie.Switch
-        fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6', 'subnet', 'subnet6')
+        fields = ('short_name', 'complete_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6', 'subnet', 'subnet6')
 
 # DHCP
 
