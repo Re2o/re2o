@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% massive_bootstrap_form options 'utilisateur_asso' %}
+    {% massive_bootstrap_form options 'utilisateur_asso,automatic_provision_switchs' %}
     {% trans "Edit" as tr_edit %}
     {% bootstrap_button tr_edit button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
