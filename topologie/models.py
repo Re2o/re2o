@@ -273,7 +273,11 @@ class Switch(AclMixin, Machine):
                 ValidationError("Création d'un port existant.")
 
     def main_interface(self):
-        """ Returns the 'main' interface of the switch """
+        """ Returns the 'main' interface of the switch
+        It must the the management interface for that device"""
+        switch_iptype = OptionalTopologie.get_cached_value('switchs_ip_type')
+        if switch_iptype: 
+            return self.interface_set.filter(type__ip_type=switch_iptype).first()
         return self.interface_set.first()
 
     @cached_property
@@ -286,19 +290,22 @@ class Switch(AclMixin, Machine):
 
     @cached_property
     def ipv4(self):
+        """Return the switch's management ipv4"""
         return str(self.main_interface().ipv4)
 
     @cached_property
     def ipv6(self):
+        """Returne the switch's management ipv6"""
         return str(self.main_interface().ipv6().first())
 
     @cached_property
     def subnet(self):
-       return self.main_interface().type.ip_type.ip_set_full_info
+        """ Return the subnet of the management ip"""
+        return self.main_interface().type.ip_type.ip_set_full_info
 
     @cached_property
     def subnet6(self):
-       return self.main_interface().type.ip_type.ip6_set_full_info
+        return self.main_interface().type.ip_type.ip6_set_full_info
 
     def __str__(self):
         return str(self.main_interface())
