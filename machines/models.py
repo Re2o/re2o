@@ -202,6 +202,12 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         return str(self.interface_set.first().domain.name)
 
     @cached_property
+    def complete_name(self):
+        """Par defaut, renvoie le nom de la première interface
+        de cette machine"""
+        return str(self.interface_set.first())
+
+    @cached_property
     def all_short_names(self):
         """Renvoie de manière unique, le nom des interfaces de cette
         machine"""
