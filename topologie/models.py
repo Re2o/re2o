@@ -247,6 +247,10 @@ class Switch(AclMixin, Machine):
         on_delete=models.PROTECT,
         help_text="Identifiant de management de ce switch"
     )
+    automatic_provision = models.BooleanField(
+        default=False,
+        help_text='Provision automatique de ce switch',
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
