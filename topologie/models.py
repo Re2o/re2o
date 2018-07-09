@@ -297,6 +297,21 @@ class Switch(AclMixin, Machine):
         return self.name or self.main_interface().domain.name
     
     @cached_property
+    def rest_enabled(self):
+        return OptionalTopologie.get_cached_value('switchs_rest_management') or self.automatic_provision
+
+    @cached_property
+    def web_management_enabled(self):
+        sw_management = OptionalTopologie.get_cached_value('switchs_web_management')
+        sw_management_ssl = OptionalTopologie.get_cached_value('switchs_web_management_ssl')
+        if sw_management_ssl:
+            return "ssl"
+        elif sw_management:
+            return "plain"
+        else:
+            return self.automatic_provision
+
+    @cached_property
     def ipv4(self):
         """Return the switch's management ipv4"""
         return str(self.main_interface().ipv4)
