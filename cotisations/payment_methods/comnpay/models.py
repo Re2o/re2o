@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _l
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
 
-from .aes_field import AESEncryptedField
+from re2o.aes_field import AESEncryptedField
 from .comnpay import Transaction
 
 
