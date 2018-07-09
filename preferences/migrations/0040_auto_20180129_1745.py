@@ -6,7 +6,7 @@ from django.db import migrations, models
 try:
     import preferences.aes_field as aes_field
 except ImportError:
-    import cotisations.payment_methods.comnpay.aes_field as aes_field
+    import re2o.aes_field as aes_field
 
 
 class Migration(migrations.Migration):
