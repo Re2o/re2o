@@ -40,6 +40,7 @@ from .models import (
     MailContact,
     Reminder
 )
+from topologie.models import Switch
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -77,7 +78,14 @@ class EditOptionalMachineForm(ModelForm):
 
 
 class EditOptionalTopologieForm(ModelForm):
-    """Options de topologie, formulaire d'edition (vlan par default etc)"""
+    """Options de topologie, formulaire d'edition (vlan par default etc)
+    On rajoute un champ automatic provision switchs pour gérer facilement
+    l'ajout de switchs au provisionning automatique"""
+    automatic_provision_switchs = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
     class Meta:
         model = OptionalTopologie
         fields = '__all__'
@@ -93,6 +101,14 @@ class EditOptionalTopologieForm(ModelForm):
         machines après acceptation RADIUS"
         self.fields['vlan_decision_nok'].label = "Vlan où placer les\
         machines après rejet RADIUS"
+
+        self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        Switch.objects.all().update(automatic_provision=False)
+        self.cleaned_data['automatic_provision_switchs'].update(automatic_provision=True)
+        return instance
 
 
 class EditGeneralOptionForm(ModelForm):

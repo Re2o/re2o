@@ -111,15 +111,41 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </a>
     <p>
     </p>
+    <h5>Préférences authentification radius</h5>
     <table class="table table-striped">
-        {% for line in topologieoptions %}
 	<tr>
-	{% for text, field in line %}
-            <th>{{ field }}</th>
-            <td>{{ text }}</td>
-	{% endfor %}
+            <th>Politique par defaut de placement de vlan avec radius</th>
+            <td>{{ topologieoptions.radius_general_policy }}</td>
+	    <th>Placement sur ce vlan par default en cas d'accès OK</th>
+	    <td>{{ topologieoptions.vlan_decision_ok }}</td>
+        </tr>
+	<tr>	
+	    <th>Placement sur ce vlan par default en cas de rejet</th>
+	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
 	</tr>
-        {% endfor %}
+    </table>
+
+    <h5>Configuration des switches</h5>
+    <table class="table table-striped">
+	<tr>
+            <th>Web management, activé si provision automatique</th>
+            <td>{{ topologieoptions.switchs_web_management }}</td>
+	    <th>Rest management, activé si provision auto</th>
+	    <td>{{ topologieoptions.switchs_rest_management }}</td>
+        </tr>
+	<tr>	
+	    <th>Plage d'ip de management des switchs</th>
+	    <td>{{ topologieoptions.switchs_ip_type }}</td>
+	</tr>
+    </table>
+
+
+    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Switchs configurés automatiquement</th>
+		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
+	</tr>
     </table>
 
     <h4>Préférences generales</h4>

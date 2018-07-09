@@ -49,6 +49,7 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
+from preferences.models import OptionalTopologie
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
@@ -216,6 +217,10 @@ class Switch(AclMixin, Machine):
         on_delete=models.SET_NULL,
         help_text="Baie de brassage du switch"
     )
+    automatic_provision = models.BooleanField(
+        default=False,
+        help_text='Provision automatique de ce switch',
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -270,6 +275,14 @@ class Switch(AclMixin, Machine):
     def main_interface(self):
         """ Returns the 'main' interface of the switch """
         return self.interface_set.first()
+
+    @cached_property
+    def rest_enabled(self):
+        return OptionalTopologie.get_cached_value('switchs_rest_management') or self.automatic_provision
+
+    @cached_property
+    def web_management_enabled(self):
+        return OptionalTopologie.get_cached_value('switchs_web_management') or self.automatic_provision
 
     @cached_property
     def ipv4(self):

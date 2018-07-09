@@ -35,6 +35,7 @@ from django.core.cache import cache
 from django.forms import ValidationError
 import cotisations.models
 import machines.models
+
 from re2o.mixins import AclMixin
 
 
@@ -248,6 +249,26 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         null=True,
         help_text="Placement par defaut sur ce vlan en cas de rejet"
     )
+    switchs_web_management = models.BooleanField(
+        default=False,
+        help_text="Web management, activé si provision automatique"
+    )
+    switchs_rest_management = models.BooleanField(
+        default=False,
+        help_text="Rest management, activé si provision auto"
+    )
+    switchs_ip_type = models.OneToOneField(
+        'machines.IpType',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        help_text="Plage d'ip de management des switchs"
+    )
+
+    @cached_property
+    def provisioned_switchs(self):
+        from topologie.models import Switch
+        return Switch.objects.filter(automatic_provision=True)
 
     class Meta:
         permissions = (
@@ -325,6 +346,11 @@ class GeneralOption(AclMixin, PreferencesModel):
         max_length=32,
         default="Re2o",
         help_text="Nom du site web, par defaut re2o"
+    )
+    site_url = models.CharField(
+        max_length=32,
+        default="re2o.example.org",
+        help_text="url par défaut du site. par défaut: re2o.example.org"
     )
     email_from = models.EmailField(
         default="www-data@example.com",

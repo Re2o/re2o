@@ -87,9 +87,9 @@ def display_options(request):
     mailcontact_list = MailContact.objects.all()
     reminder_list = Reminder.objects.all()
     return form({
-        'useroptions': format_options(useroptions),
+        'useroptions': useroptions,
         'machineoptions': format_options(machineoptions),
-        'topologieoptions': format_options(topologieoptions),
+        'topologieoptions': topologieoptions,
         'generaloptions': format_options(generaloptions),
         'assooptions': format_options(assooptions),
         'homeoptions': format_options(homeoptions),
