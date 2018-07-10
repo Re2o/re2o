@@ -695,8 +695,8 @@ class Paiement(RevMixin, AclMixin, models.Model):
                 request,
                 _("The cotisation of %(member_name)s has been \
                 extended to %(end_date)s.") % {
-                    'member_name': request.user.pseudo,
-                    'end_date': request.user.end_adhesion()
+                    'member_name': invoice.user.pseudo,
+                    'end_date': invoice.user.end_adhesion()
                 }
             )
         # Else, only tell the invoice was created

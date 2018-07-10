@@ -36,12 +36,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 {% if title %}
 <h3>{{title}}</h3>
+{% else %}
+<h3>{% trans "New invoice" %}</h3>
 {% endif %}
-{% if balance %}
-<h4>{% trans "Current balance :" %}{{balance}}€</h4>
+{% if balance is not None %}
+<p>
+    {% trans "Current balance :" %} {{ balance }} €
+</p>
 {% endif %}
+
 <form class="form" method="post">
     {% csrf_token %}
+    {% bootstrap_form factureform %}
+    {% if payment_method %}
+    {% bootstrap_form payment_method %}
+    <div id="paymentMethod"></div>
+    {% endif %}
     {% if articlesformset %}
     <h3>{% trans "Invoice's articles" %}</h3>
     <div id="form_set" class="form-group">
@@ -63,11 +73,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         Total price : <span id="total_price">0,00</span> €
         {% endblocktrans %}
     </p>
-    {% endif %}
-    {% bootstrap_form factureform %}
-    {% if payment_method %}
-    {% bootstrap_form payment_method %}
-    <div id="paymentMethod"></div>
     {% endif %}
     {% bootstrap_button action_name button_type='submit' icon='star' %}
 </form>
