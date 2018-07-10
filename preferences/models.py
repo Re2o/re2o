@@ -200,6 +200,31 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    switchs_web_management = models.BooleanField(
+        default=False,
+        help_text="Web management, activé si provision automatique"
+    )
+    switchs_web_management_ssl = models.BooleanField(
+        default=False,
+        help_text="Web management ssl. Assurez-vous que un certif est installé sur le switch !"
+    )   
+    switchs_rest_management = models.BooleanField(
+        default=False,
+        help_text="Rest management, activé si provision auto"
+    )
+    switchs_ip_type = models.OneToOneField(
+        'machines.IpType',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        help_text="Plage d'ip de management des switchs"
+    )
+
+
+    @cached_property
+    def provisioned_switchs(self):
+        from topologie.models import Switch
+        return Switch.objects.filter(automatic_provision=True)
 
     class Meta:
         permissions = (
@@ -383,8 +408,8 @@ def homeoption_post_save(**kwargs):
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
 
-    welcome_mail_fr = models.TextField(default="")
-    welcome_mail_en = models.TextField(default="")
+    welcome_mail_fr = models.TextField(default="", help_text="Mail de bienvenue en français")
+    welcome_mail_en = models.TextField(default="", help_text="Mail de bienvenue en anglais")
 
     class Meta:
         permissions = (
