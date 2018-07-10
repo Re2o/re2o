@@ -31,17 +31,18 @@ def add_comnpay(apps, schema_editor):
     comnpay.payment = payment
     comnpay.save()
     payment.moyen = "ComnPay"
+
     payment.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('preferences', '0044_remove_payment_pass'),
         ('cotisations', '0031_article_allow_self_subscription'),
     ]
 
     operations = [
-        migrations.RunSQL('update preferences_assooption set payment_pass="" where id=1;'),
         migrations.CreateModel(
             name='ChequePayment',
             fields=[
@@ -60,6 +61,6 @@ class Migration(migrations.Migration):
             ],
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
         ),
-        migrations.RunPython(add_comnpay),
-        migrations.RunPython(add_cheque),
+        # migrations.RunPython(add_comnpay),
+        # migrations.RunPython(add_cheque),
     ]
