@@ -10,7 +10,7 @@ import hashlib
 from collections import OrderedDict
 
 
-class Payment():
+class Transaction():
     """ The class representing a transaction with all the functions
     used during the negociation
     """

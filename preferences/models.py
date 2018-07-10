@@ -35,8 +35,6 @@ import cotisations.models
 import machines.models
 from re2o.mixins import AclMixin
 
-from .aes_field import AESEncryptedField
-
 
 class PreferencesModel(models.Model):
     """ Base object for the Preferences objects
@@ -67,22 +65,6 @@ class OptionalUser(AclMixin, PreferencesModel):
     PRETTY_NAME = "Options utilisateur"
 
     is_tel_mandatory = models.BooleanField(default=True)
-    user_solde = models.BooleanField(default=False)
-    solde_negatif = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=0
-    )
-    max_solde = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=50
-    )
-    min_online_payment = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=10
-    )
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create_club = models.BooleanField(
         default=False,
@@ -111,10 +93,7 @@ class OptionalUser(AclMixin, PreferencesModel):
     def clean(self):
         """Creation du mode de paiement par solde"""
         if self.user_solde:
-            p = cotisations.models.Paiement.objects.filter(moyen="Solde")
-            if not len(p):
-                c = cotisations.models.Paiement(moyen="Solde")
-                c.save()
+            cotisations.models.Paiement.objects.get_or_create(is_balance=True)
 
 
 @receiver(post_save, sender=OptionalUser)
@@ -293,25 +272,6 @@ class AssoOption(AclMixin, PreferencesModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True
-    )
-    PAYMENT = (
-        ('NONE', 'NONE'),
-        ('COMNPAY', 'COMNPAY'),
-    )
-    payment = models.CharField(
-        max_length=255,
-        choices=PAYMENT,
-        default='NONE',
-    )
-    payment_id = models.CharField(
-        max_length=255,
-        default='',
-        blank=True
-    )
-    payment_pass = AESEncryptedField(
-        max_length=255,
-        null=True,
-        blank=True,
     )
     description = models.TextField(
         null=True,

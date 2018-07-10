@@ -6,6 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,10 +43,15 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
+from django.urls import reverse
+from django.shortcuts import redirect
+from django.contrib import messages
 
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+
+from cotisations.utils import find_payment_method
 
 
 # TODO : change facture to invoice
@@ -131,7 +137,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
         price = Vente.objects.filter(
             facture=self
-            ).aggregate(models.Sum('prix'))['prix__sum']
+        ).aggregate(models.Sum('prix'))['prix__sum']
         return price
 
     # TODO : change prix to price
@@ -143,12 +149,12 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         # TODO : change Vente to somethingelse
         return Vente.objects.filter(
             facture=self
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total']
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total']
 
     def name(self):
         """
@@ -157,7 +163,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
         name = ' - '.join(Vente.objects.filter(
             facture=self
-            ).values_list('name', flat=True))
+        ).values_list('name', flat=True))
         return name
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -211,6 +217,22 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return (
             user_request.has_perm('cotisations.change_facture_pdf'),
             _("You don't have the right to edit an invoice.")
+        )
+
+    @staticmethod
+    def can_create(user_request, *_args, **_kwargs):
+        """Check if a user can create an invoice.
+
+        :param user_request: The user who wants to create an invoice.
+        :return: a message and a boolean which is True if the user can create
+            an invoice or if the `options.allow_self_subscription` is set.
+        """
+        nb_payments = len(Paiement.find_allowed_payments(user_request))
+        nb_articles = len(Article.find_allowed_articles(user_request))
+        return (
+            user_request.has_perm('cotisations.add_facture')
+            or (nb_payments*nb_articles),
+            _("You don't have the right to create an invoice.")
         )
 
     def __init__(self, *args, **kwargs):
@@ -341,12 +363,12 @@ class Vente(RevMixin, AclMixin, models.Model):
                         facture__in=Facture.objects.filter(
                             user=self.facture.user
                         ).exclude(valid=False))
-                    ).filter(
-                        Q(type_cotisation='All') |
-                        Q(type_cotisation=self.type_cotisation)
-                    ).filter(
-                        date_start__lt=date_start
-                    ).aggregate(Max('date_end'))['date_end__max']
+                ).filter(
+                    Q(type_cotisation='All') |
+                    Q(type_cotisation=self.type_cotisation)
+                ).filter(
+                    date_start__lt=date_start
+                ).aggregate(Max('date_end'))['date_end__max']
             elif self.type_cotisation == "Adhesion":
                 end_cotisation = self.facture.user.end_adhesion()
             else:
@@ -357,7 +379,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
                 months=self.duration*self.number
-                )
+            )
         return
 
     def save(self, *args, **kwargs):
@@ -380,7 +402,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         elif (not user_request.has_perm('cotisations.change_all_facture') and
               not self.facture.user.can_edit(
                   user_request, *args, **kwargs
-              )[0]):
+        )[0]):
             return False, _("You don't have the right to edit this user's "
                             "purchases.")
         elif (not user_request.has_perm('cotisations.change_all_vente') and
@@ -501,12 +523,17 @@ class Article(RevMixin, AclMixin, models.Model):
         max_length=255,
         verbose_name=_l("Type of cotisation")
     )
+    available_for_everyone = models.BooleanField(
+        default=False,
+        verbose_name=_l("Is available for every user")
+    )
 
     unique_together = ('name', 'type_user')
 
     class Meta:
         permissions = (
             ('view_article', _l("Can see an article's details")),
+            ('buy_every_article', _l("Can buy every_article"))
         )
         verbose_name = "Article"
         verbose_name_plural = "Articles"
@@ -523,6 +550,24 @@ class Article(RevMixin, AclMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+    def can_buy_article(self, user, *_args, **_kwargs):
+        """Check if a user can buy this article.
+
+        :param self: The article
+        :param user: The user requesting buying
+        :returns: A boolean stating if usage is granted and an explanation
+            message if the boolean is `False`.
+        """
+        return (
+            self.available_for_everyone
+            or user.has_perm('cotisations.buy_every_article'),
+            _("You cannot use this Payment.")
+        )
+
+    @classmethod
+    def find_allowed_articles(cls, user):
+        return [p for p in cls.objects.all() if p.can_buy_article(user)[0]]
 
 
 class Banque(RevMixin, AclMixin, models.Model):
@@ -550,6 +595,17 @@ class Banque(RevMixin, AclMixin, models.Model):
         return self.name
 
 
+def check_no_balance():
+    """This functions checks that no Paiement with is_balance=True exists
+
+    :raises ValidationError: if such a Paiement exists.
+    """
+    p = Paiement.objects.filter(is_balance=True)
+    if len(p)>0:
+        raise ValidationError(
+            _("There are already payment method(s) for user balance")
+        )
+
 # TODO : change Paiement to Payment
 class Paiement(RevMixin, AclMixin, models.Model):
     """
@@ -576,10 +632,22 @@ class Paiement(RevMixin, AclMixin, models.Model):
         default=0,
         verbose_name=_l("Payment type")
     )
+    available_for_everyone = models.BooleanField(
+        default=False,
+        verbose_name=_l("Is available for every user")
+    )
+    is_balance = models.BooleanField(
+        default=False,
+        editable=False,
+        verbose_name=_l("Is user balance"),
+        help_text=_l("There should be only one balance payment method."),
+        validators=[check_no_balance]
+    )
 
     class Meta:
         permissions = (
             ('view_paiement', _l("Can see a payement's details")),
+            ('use_every_payment', _l("Can use every payement")),
         )
         verbose_name = _l("Payment method")
         verbose_name_plural = _l("Payment methods")
@@ -603,6 +671,62 @@ class Paiement(RevMixin, AclMixin, models.Model):
                 _("You cannot have multiple payment method of type cheque")
             )
         super(Paiement, self).save(*args, **kwargs)
+
+    def end_payment(self, invoice, request, use_payment_method=True):
+        """
+        The general way of ending a payment.
+
+        :param invoice: The invoice being created.
+        :param request: Request sended by the user.
+        :param use_payment_method: If `self` has an attribute `payment_method`,
+            returns the result of
+            `self.payment_method.end_payment(invoice, request)`
+
+        :returns: An `HttpResponse`-like object.
+        """
+        payment_method = find_payment_method(self)
+        if payment_method is not None and use_payment_method:
+            return payment_method.end_payment(invoice, request)
+
+        # In case a cotisation was bought, inform the user, the
+        # cotisation time has been extended too
+        if any(sell.type_cotisation for sell in invoice.vente_set.all()):
+            messages.success(
+                request,
+                _("The cotisation of %(member_name)s has been \
+                extended to %(end_date)s.") % {
+                    'member_name': request.user.pseudo,
+                    'end_date': request.user.end_adhesion()
+                }
+            )
+        # Else, only tell the invoice was created
+        else:
+            messages.success(
+                request,
+                _("The invoice has been created.")
+            )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': invoice.user.pk}
+        ))
+
+    def can_use_payment(self, user, *_args, **_kwargs):
+        """Check if a user can use this payment.
+
+        :param self: The payment
+        :param user: The user requesting usage
+        :returns: A boolean stating if usage is granted and an explanation
+            message if the boolean is `False`.
+        """
+        return (
+            self.available_for_everyone
+            or user.has_perm('cotisations.use_every_payment'),
+            _("You cannot use this Payment.")
+        )
+
+    @classmethod
+    def find_allowed_payments(cls, user):
+        return [p for p in cls.objects.all() if p.can_use_payment(user)[0]]
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):

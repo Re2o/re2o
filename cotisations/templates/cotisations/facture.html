@@ -31,7 +31,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 {% bootstrap_form_errors factureform %}
-
+{% if payment_method %}
+{% bootstrap_form_errors payment_method %}
+{% endif %}
+{% if title %}
+<h3>{{title}}</h3>
+{% endif %}
+{% if balance %}
+<h4>{% trans "Current balance :" %}{{balance}}€</h4>
+{% endif %}
 <form class="form" method="post">
     {% csrf_token %}
     {% if articlesformset %}
@@ -57,16 +65,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </p>
     {% endif %}
     {% bootstrap_form factureform %}
+    {% if payment_method %}
+    {% bootstrap_form payment_method %}
+    <div id="paymentMethod"></div>
+    {% endif %}
     {% bootstrap_button action_name button_type='submit' icon='star' %}
 </form>
 
-{% if articlesformset %}
+{% if articlesformset or payment_method%}
 <script type="text/javascript">
+{% if articlesformset %}
     var prices = {};
     {% for article in articles %}
     prices[{{ article.id|escapejs }}] = {{ article.prix }};
     {% endfor %}
- 
+
     var template = `Article : &nbsp;
         {% bootstrap_form articlesformset.empty_form label_class='sr-only' %}
         &nbsp;
@@ -134,6 +147,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         }
         update_price();
     });
+{% endif %}
+{% if payment_method.templates %}
+    var TEMPLATES = [
+        "",
+        {% for t in payment_method.templates %}
+        {% if t %}
+        `{% bootstrap_form t %}`,
+        {% else %}
+        "",
+        {% endif %}
+        {% endfor %}
+    ];
+    function update_payment_method_form(){
+        var method = document.getElementById('paymentMethodSelect').value;
+        if(method==""){
+            method=0;
+        }
+        else{
+            method = Number(method);
+            method += 1;
+        }
+        console.log(method);
+        var html = TEMPLATES[method];
+
+        document.getElementById('paymentMethod').innerHTML = html;
+    }
+    document.getElementById("paymentMethodSelect").addEventListener("change", update_payment_method_form);
+{% endif %}
 </script>
 {% endif %}
 

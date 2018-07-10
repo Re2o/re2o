@@ -426,36 +426,31 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     @cached_property
     def solde(self):
-        """ Renvoie le solde d'un user. Vérifie que l'option solde est
-        activé, retourne 0 sinon.
+        """ Renvoie le solde d'un user.
         Somme les crédits de solde et retire les débit payés par solde"""
-        user_solde = OptionalUser.get_cached_value('user_solde')
-        if user_solde:
-            solde_objects = Paiement.objects.filter(moyen='Solde')
-            somme_debit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(
-                    user=self,
-                    paiement__in=solde_objects,
-                    valid=True
-                )
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total'] or 0
-            somme_credit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(user=self, valid=True),
-                name="solde"
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total'] or 0
-            return somme_credit - somme_debit
-        else:
-            return 0
+        solde_objects = Paiement.objects.filter(is_balance=True)
+        somme_debit = Vente.objects.filter(
+            facture__in=Facture.objects.filter(
+                user=self,
+                paiement__in=solde_objects,
+                valid=True
+            )
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total'] or 0
+        somme_credit = Vente.objects.filter(
+            facture__in=Facture.objects.filter(user=self, valid=True),
+            name="solde"
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total'] or 0
+        return somme_credit - somme_debit
 
     def user_interfaces(self, active=True):
         """ Renvoie toutes les interfaces dont les machines appartiennent à
