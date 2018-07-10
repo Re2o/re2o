@@ -49,6 +49,7 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
+from preferences.models import OptionalTopologie, RadiusKey
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
@@ -228,6 +229,13 @@ class Switch(AclMixin, Machine):
         null=True,
         on_delete=models.SET_NULL,
     )
+    radius_key = models.ForeignKey(
+        'preferences.RadiusKey',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text="Clef radius du switch"
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -295,7 +303,18 @@ class Switch(AclMixin, Machine):
     @cached_property
     def get_name(self):
         return self.name or self.main_interface().domain.name
-    
+
+    @cached_property
+    def get_radius_key(self):
+        return self.radius_key or RadiusKey.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_radius_key_value(self):
+        if self.get_radius_key:
+            return self.get_radius_key.radius_key
+        else:
+            return None
+
     @cached_property
     def rest_enabled(self):
         return OptionalTopologie.get_cached_value('switchs_rest_management') or self.automatic_provision
