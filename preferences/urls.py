@@ -88,6 +88,13 @@ urlpatterns = [
         name='edit-reminder'
         ),
     url(r'^del_reminder/$', views.del_reminder, name='del-reminder'),
+    url(r'^add_radiuskey/$', views.add_radiuskey, name='add-radiuskey'),
+    url(
+        r'^edit_radiuskey/(?P<radiuskeyid>[0-9]+)$',
+        views.edit_radiuskey,
+        name='edit-radiuskey'
+        ),
+    url(r'^del_radiuskey/$', views.del_radiuskey, name='del-radiuskey'),
     url(
         r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
         re2o.views.history,

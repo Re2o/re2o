@@ -43,7 +43,11 @@ from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete, can_delete_set, can_view_all
 
 from .forms import MailContactForm, DelMailContactForm
-from .forms import ServiceForm, ReminderForm
+from .forms import (
+    ServiceForm,
+    ReminderForm,
+    RadiusKeyForm
+)
 from .models import (
     Service,
     MailContact,
@@ -54,7 +58,8 @@ from .models import (
     GeneralOption,
     OptionalTopologie,
     HomeOption,
-    Reminder
+    Reminder,
+    RadiusKey
 )
 from . import models
 from . import forms
@@ -86,6 +91,7 @@ def display_options(request):
     service_list = Service.objects.all()
     mailcontact_list = MailContact.objects.all()
     reminder_list = Reminder.objects.all()
+    radiuskey_list = RadiusKey.objects.all()
     return form({
         'useroptions': useroptions,
         'machineoptions': format_options(machineoptions),
@@ -95,8 +101,9 @@ def display_options(request):
         'homeoptions': format_options(homeoptions),
         'mailmessageoptions': format_options(mailmessageoptions),
         'service_list': service_list,
-        'reminder_list':reminder_list,
-        'mailcontact_list': mailcontact_list
+        'reminder_list': reminder_list,
+        'mailcontact_list': mailcontact_list,
+        'radiuskey_list' : radiuskey_list,
         }, 'preferences/display_preferences.html', request)
 
 
@@ -227,6 +234,51 @@ def del_reminder(request, reminder_instance, **_kwargs):
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': reminder_instance, 'objet_name': 'reminder'},
+        'preferences/delete.html',
+        request
+        )
+
+
+@login_required
+@can_create(RadiusKey)
+def add_radiuskey(request):
+    """Ajout d'une clef radius"""
+    radiuskey = RadiusKeyForm(request.POST or None)
+    if radiuskey.is_valid():
+        radiuskey.save()
+        messages.success(request, "Cette clef a été ajouté")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': radiuskey, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+@can_edit(RadiusKey)
+def edit_radiuskey(request, radiuskey_instance, **_kwargs):
+    """Edition des clefs radius"""
+    radiuskey = RadiusKeyForm(request.POST or None, instance=radiuskey_instance)
+    if radiuskey.is_valid():
+        radiuskey.save()
+        messages.success(request, "Radiuskey modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': radiuskey, 'action_name': 'Editer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_delete(RadiusKey)
+def del_radiuskey(request, radiuskey_instance, **_kwargs):
+    """Destruction d'un radiuskey"""
+    if request.method == "POST":
+        radiuskey_instance.delete()
+        messages.success(request, "La radiuskey a été détruite")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': radiuskey_instance, 'objet_name': 'radiuskey'},
         'preferences/delete.html',
         request
         )

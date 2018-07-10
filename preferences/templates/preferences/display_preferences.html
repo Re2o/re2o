@@ -129,6 +129,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</tr>
     </table>
 
+	<h5>Clef radius</h5>
+	  {% can_create RadiusKey%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+	  {% acl_end %}
+	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
 
     <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
     <table class="table table-striped">

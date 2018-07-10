@@ -38,7 +38,8 @@ from .models import (
     HomeOption,
     Service,
     MailContact,
-    Reminder
+    Reminder,
+    RadiusKey
 )
 from topologie.models import Switch
 
@@ -234,7 +235,31 @@ class ReminderForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
 
- 
+
+class RadiusKeyForm(FormRevMixin, ModelForm):
+    """Edition, ajout de clef radius"""
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = RadiusKey
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RadiusKeyForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(radius_key=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
 class MailContactForm(ModelForm):
     """Edition, ajout d'adresse de contact"""
     class Meta:

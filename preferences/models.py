@@ -37,6 +37,7 @@ import cotisations.models
 import machines.models
 
 from re2o.mixins import AclMixin
+from re2o.aes_field import AESEncryptedField
 from datetime import timedelta
 
 
@@ -252,6 +253,30 @@ def optionaltopologie_post_save(**kwargs):
     """Ecriture dans le cache"""
     topologie_pref = kwargs['instance']
     topologie_pref.set_in_cache()
+
+
+class RadiusKey(AclMixin, models.Model):
+    """Class of a radius key"""
+    radius_key = AESEncryptedField(
+        max_length=255,
+        help_text="Clef radius"
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Commentaire de cette clef"
+    )
+    default_switch = models.BooleanField(
+        default=True,
+        unique=True,
+        help_text= "Clef par défaut des switchs"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_radiuskey", "Peut voir un objet radiuskey"),
+        )
 
 
 class Reminder(AclMixin, models.Model):

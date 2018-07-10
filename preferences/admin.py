@@ -38,7 +38,8 @@ from .models import (
     Reminder,
     AssoOption,
     MailMessageOption,
-    HomeOption
+    HomeOption,
+    RadiusKey
 )
 
 
@@ -90,6 +91,11 @@ class ReminderAdmin(VersionAdmin):
     """Class reminder"""
     pass
 
+class RadiusKeyAdmin(VersionAdmin):
+    """Class radiuskey"""
+    pass
+
+
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
 admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
@@ -98,5 +104,6 @@ admin.site.register(HomeOption, HomeOptionAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(MailContact, MailContactAdmin)
 admin.site.register(Reminder, ReminderAdmin)
+admin.site.register(RadiusKey, RadiusKeyAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)
