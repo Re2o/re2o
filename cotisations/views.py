@@ -143,13 +143,20 @@ def new_facture(request, user, userid):
             request,
             _("You need to choose at least one article.")
         )
+    p = Paiement.objects.filter(is_balance=True)
+    if len(p) and p[0].can_use_payment(request.user):
+        balance = user.solde
+    else:
+        balance = None
     return form(
         {
             'factureform': invoice_form,
-            'venteform': article_formset,
-            'articlelist': article_list
+            'articlesformset': article_formset,
+            'articlelist': article_list,
+            'balance': balance,
+            'action_name': _('Create'),
         },
-        'cotisations/new_facture.html', request
+        'cotisations/facture.html', request
     )
 
 
