@@ -225,11 +225,17 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         help_text="Plage d'ip de management des switchs"
     )
 
-
     @cached_property
     def provisioned_switchs(self):
+        """Liste des switches provisionnés"""
         from topologie.models import Switch
         return Switch.objects.filter(automatic_provision=True)
+
+    @cached_property
+    def provision_switchs_enabled(self):
+        """Return true if all settings are ok : switchs on automatic provision,
+        ip_type"""
+        return bool(self.provisioned_switchs and self.switchs_ip_type)
 
     class Meta:
         permissions = (
