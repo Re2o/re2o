@@ -49,28 +49,34 @@ from .models import Article, Paiement, Facture, Banque
 from .payment_methods import balance
 
 
-class NewFactureForm(FormRevMixin, ModelForm):
+class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """
-    Form used to create a new invoice by using a payment method, a bank and a
-    cheque number.
+    Form used to manage and create an invoice and its fields.
     """
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+    def __init__(self, *args, creation=False, **kwargs):
+        user = kwargs['user']
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(FactureForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['paiement'].empty_label = \
             _("Select a payment method")
         self.fields['paiement'].queryset = Paiement.objects.filter(
             pk__in=map(lambda x: x.pk, Paiement.find_allowed_payments(user))
         )
+        if not creation:
+            self.fields['user'].label = _("Member")
+            self.fields['user'].empty_label = \
+                _("Select the proprietary member")
+            self.fields['valid'].label = _("Validated invoice")
+        else:
+            self.fields = {'paiement': self.fields['paiement']}
 
     class Meta:
         model = Facture
-        fields = ['paiement']
+        fields = '__all__'
 
     def clean(self):
-        cleaned_data = super(NewFactureForm, self).clean()
+        cleaned_data = super(FactureForm, self).clean()
         paiement = cleaned_data.get('paiement')
         if not paiement:
             raise forms.ValidationError(
@@ -149,26 +155,6 @@ class NewFactureFormPdf(Form):
         max_length=10,
         label=_l("Address")
     )
-
-
-# TODO : change Facture to Invoice
-class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
-    """
-    Form used to edit an invoice and its fields : payment method, bank,
-    user associated, ...
-    """
-    class Meta(NewFactureForm.Meta):
-        # TODO : change Facture to Invoice
-        model = Facture
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        # TODO : change Facture to Invoice
-        super(EditFactureForm, self).__init__(*args, **kwargs)
-        self.fields['user'].label = _("Member")
-        self.fields['user'].empty_label = \
-            _("Select the proprietary member")
-        self.fields['valid'].label = _("Validated invoice")
 
 
 class ArticleForm(FormRevMixin, ModelForm):
