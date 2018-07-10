@@ -50,7 +50,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <div class="panel panel-danger">
 	        <div class="panel-heading dashboard">Pas d'accès à internet</div>
 	    	<div class="panel-body dashboard"> 
-	            <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+	            <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
                     <i class="fas fa-sign-in-alt"></i>
                         Payer ma connexion
                     </a>
@@ -61,6 +61,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<div class="panel-heading dashboard">Connecté</div>
 		<div class="panel-body dashboard">
 			<i class="text-success">Fin de connexion: {{users.end_access|date:"d M Y"}}</i>
+	            <a class="btn btn-success btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                    <i class="fas fa-sign-in-alt"></i>
+                        Prolonger</a>
 		</div>
 	    </div>
             {% endif %}
@@ -71,7 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-12">
 	    <div class="panel panel-info">
 	    <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-		{{user.solde}} <i class="fas fa-euro-sign"></i>
+		{{users.solde}} <i class="fas fa-euro-sign"></i>
             </div>
 	    <div class="panel-body dashboard">
 		<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
@@ -355,21 +358,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_create Facture %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
                     <i class="fa fa-euro-sign"></i>
-                    Ajouter une cotisation
+                    Cotiser
                 </a>
                 {% if user_solde %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
                     <i class="fa fa-euro-sign"></i>
-                    Modifier le solde
+                    Recharger le solde
                 </a>
-                {% endif%}{% acl_else %}
-                {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
-                    <i class="fa fa-euro-sign"></i>
-                    Ajouter une cotisation par solde
-                </a>
-                {% endif %}
-                {% acl_end %}
+                {% endif%}
+		{% acl_end %}
             </div>
             <div class="panel-body">
                 {% if facture_list %}
