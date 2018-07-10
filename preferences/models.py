@@ -284,6 +284,9 @@ class RadiusKey(AclMixin, models.Model):
             ("view_radiuskey", "Peut voir un objet radiuskey"),
         )
 
+    def __str__(self):
+        return "Clef radius " + str(self.id) + " " + str(self.comment)
+
 
 class Reminder(AclMixin, models.Model):
     """Options pour les mails de notification de fin d'adhésion.
