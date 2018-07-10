@@ -123,9 +123,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Rest management, activé si provision auto</th>
 	    <td>{{ topologieoptions.switchs_rest_management }}</td>
         </tr>
+    </table>
+
+
+
+    <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+	    <th>Switchs configurés automatiquement</th>
+	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+	</tr>
 	<tr>	
 	    <th>Plage d'ip de management des switchs</th>
-	    <td>{{ topologieoptions.switchs_ip_type }}</td>
+	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
     </table>
 
@@ -134,14 +144,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
 	  {% acl_end %}
 	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
-
-    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
-    <table class="table table-striped">
-	<tr>
-		<th>Switchs configurés automatiquement</th>
-		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
-	</tr>
-    </table>
 
     <h4>Préférences generales</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
