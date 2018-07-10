@@ -35,6 +35,11 @@ from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 from re2o.mixins import AclMixin
+<<<<<<< HEAD
+=======
+from re2o.aes_field import AESEncryptedField
+from datetime import timedelta
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
 
 
 class PreferencesModel(models.Model):
@@ -238,6 +243,63 @@ def optionaltopologie_post_save(**kwargs):
     """Ecriture dans le cache"""
     topologie_pref = kwargs['instance']
     topologie_pref.set_in_cache()
+
+
+class RadiusKey(AclMixin, models.Model):
+    """Class of a radius key"""
+    radius_key = AESEncryptedField(
+        max_length=255,
+        help_text="Clef radius"
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Commentaire de cette clef"
+    )
+    default_switch = models.BooleanField(
+        default=True,
+        unique=True,
+        help_text= "Clef par défaut des switchs"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_radiuskey", "Peut voir un objet radiuskey"),
+        )
+
+
+class Reminder(AclMixin, models.Model):
+    """Options pour les mails de notification de fin d'adhésion.
+    Days: liste des nombres de jours pour lesquells un mail est envoyé
+    optionalMessage: message additionel pour le mail
+    """
+    PRETTY_NAME="Options pour le mail de fin d'adhésion"
+
+    days = models.IntegerField(
+        default=7,
+        unique=True,
+        help_text="Délais entre le mail et la fin d'adhésion"
+    )
+    message = models.CharField(
+        max_length=255,
+        default="",
+        null=True,
+        blank=True,
+        help_text="Message affiché spécifiquement pour ce rappel"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_reminder", "Peut voir un objet reminder"),
+        )
+
+    def users_to_remind(self):
+        from re2o.utils import all_has_access
+        date = timezone.now().replace(minute=0,hour=0)
+        futur_date = date + timedelta(days=self.days)
+        users = all_has_access(futur_date).exclude(pk__in = all_has_access(futur_date + timedelta(days=1))) 
+        return users
 
 
 class GeneralOption(AclMixin, PreferencesModel):

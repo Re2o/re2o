@@ -118,6 +118,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
+	<tr>	
+	    <th>Placement sur ce vlan par default en cas de rejet</th>
+	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
+	</tr>
+    </table>
+
+    <h5>Configuration des switches</h5>
+    <table class="table table-striped">
+	<tr>
+            <th>Web management, activé si provision automatique</th>
+            <td>{{ topologieoptions.switchs_web_management }}</td>
+	    <th>Rest management, activé si provision auto</th>
+	    <td>{{ topologieoptions.switchs_rest_management }}</td>
+        </tr>
+	<tr>	
+	    <th>Plage d'ip de management des switchs</th>
+	    <td>{{ topologieoptions.switchs_ip_type }}</td>
+	</tr>
+    </table>
+
+	<h5>Clef radius</h5>
+	  {% can_create RadiusKey%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+	  {% acl_end %}
+	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+
+    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Switchs configurés automatiquement</th>
+		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
+	</tr>
     </table>
     <h4>{% trans "General preferences" %}</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">

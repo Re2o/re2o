@@ -43,8 +43,16 @@ from reversion import revisions as reversion
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
 
+<<<<<<< HEAD
 from .forms import (
     ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm
+=======
+from .forms import MailContactForm, DelMailContactForm
+from .forms import (
+    ServiceForm,
+    ReminderForm,
+    RadiusKeyForm
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
 )
 from .models import (
     Service,
@@ -55,7 +63,13 @@ from .models import (
     MailMessageOption,
     GeneralOption,
     OptionalTopologie,
+<<<<<<< HEAD
     HomeOption
+=======
+    HomeOption,
+    Reminder,
+    RadiusKey
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
 )
 from . import models
 from . import forms
@@ -76,6 +90,11 @@ def display_options(request):
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
     mailcontact_list = MailContact.objects.all()
+<<<<<<< HEAD
+=======
+    reminder_list = Reminder.objects.all()
+    radiuskey_list = RadiusKey.objects.all()
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -85,7 +104,13 @@ def display_options(request):
         'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
         'service_list': service_list,
+<<<<<<< HEAD
         'mailcontact_list': mailcontact_list
+=======
+        'reminder_list': reminder_list,
+        'mailcontact_list': mailcontact_list,
+        'radiuskey_list' : radiuskey_list,
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
         }, 'preferences/display_preferences.html', request)
 
 
@@ -198,6 +223,69 @@ def del_service(request, instances):
 
 
 @login_required
+<<<<<<< HEAD
+=======
+@can_delete(Reminder)
+def del_reminder(request, reminder_instance, **_kwargs):
+    """Destruction d'un reminder"""
+    if request.method == "POST":
+        reminder_instance.delete()
+        messages.success(request, "Le reminder a été détruit")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': reminder_instance, 'objet_name': 'reminder'},
+        'preferences/delete.html',
+        request
+        )
+
+
+@login_required
+@can_create(RadiusKey)
+def add_radiuskey(request):
+    """Ajout d'une clef radius"""
+    radiuskey = RadiusKeyForm(request.POST or None)
+    if radiuskey.is_valid():
+        radiuskey.save()
+        messages.success(request, "Cette clef a été ajouté")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': radiuskey, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+@can_edit(RadiusKey)
+def edit_radiuskey(request, radiuskey_instance, **_kwargs):
+    """Edition des clefs radius"""
+    radiuskey = RadiusKeyForm(request.POST or None, instance=radiuskey_instance)
+    if radiuskey.is_valid():
+        radiuskey.save()
+        messages.success(request, "Radiuskey modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': radiuskey, 'action_name': 'Editer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_delete(RadiusKey)
+def del_radiuskey(request, radiuskey_instance, **_kwargs):
+    """Destruction d'un radiuskey"""
+    if request.method == "POST":
+        radiuskey_instance.delete()
+        messages.success(request, "La radiuskey a été détruite")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': radiuskey_instance, 'objet_name': 'radiuskey'},
+        'preferences/delete.html',
+        request
+        )
+
+
+@login_required
+>>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
 @can_create(MailContact)
 def add_mailcontact(request):
     """Add a contact email adress."""
