@@ -8,7 +8,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0035_optionaluser_allow_self_subscription'),
+        ('preferences', '0044_remove_payment_pass'),
+        ('cotisations', '0032_chequepayment_comnpaypayment'),
     ]
 
     operations = [
@@ -19,10 +20,6 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='assooption',
             name='payment_id',
-        ),
-        migrations.RemoveField(
-            model_name='assooption',
-            name='payment_pass',
         ),
         migrations.RemoveField(
             model_name='optionaluser',
