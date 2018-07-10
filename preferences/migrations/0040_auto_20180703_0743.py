@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import preferences.aes_field
 
 
 class Migration(migrations.Migration):
@@ -44,11 +43,6 @@ class Migration(migrations.Migration):
             model_name='assooption',
             name='payment_id',
             field=models.CharField(blank=True, default='', help_text='Id de paiement en ligne', max_length=255),
-        ),
-        migrations.AlterField(
-            model_name='assooption',
-            name='payment_pass',
-            field=preferences.aes_field.AESEncryptedField(blank=True, help_text='Clef de paiement en ligne', max_length=255, null=True),
         ),
         migrations.AlterField(
             model_name='assooption',
