@@ -37,10 +37,6 @@ import cotisations.models
 import machines.models
 
 from re2o.mixins import AclMixin
-
-
-from .aes_field import AESEncryptedField
-
 from datetime import timedelta
 
 
