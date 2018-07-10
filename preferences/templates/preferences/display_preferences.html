@@ -31,9 +31,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     <h4>Préférences utilisateur</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
-	    <i class="fa fa-edit"></i>
+        <i class="fa fa-edit"></i>
             Editer
-	</a>
+    </a>
     <p>
     </p>
     <h5>Généralités</h5>
@@ -49,6 +49,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ useroptions.gpg_fingerprint }}</td>
  	    <th>Shell par défaut des utilisateurs</th>
             <td>{{ useroptions.shell_default }}</td>
+        </tr>
+        <tr>
+            <th>Champ gpg fingerprint</th>
+            <td>{{ useroptions.gpg_fingerprint }}</td>
         </tr>
         <tr>
             <th>Creations d'adhérents par tous</th>
@@ -103,6 +107,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% endfor %}
 	</tr>
         {% endfor %}
+
     </table>
     <h4>Préférences topologie</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
@@ -164,6 +169,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% endfor %}
 	</tr>
         {% endfor %}
+
     </table>
 
     <h4>Données de l'association</h4>
@@ -182,6 +188,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% endfor %}
 	</tr>
         {% endfor %}
+
     </table>
 
     <h4>Messages personalisés dans les mails</h4>
@@ -201,6 +208,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% endfor %}
 	</tr>
         {% endfor %}
+
     </table>
 
 

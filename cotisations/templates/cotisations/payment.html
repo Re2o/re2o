@@ -32,11 +32,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     <h3>
         {% blocktrans %}
-        Refill of {{ amount }} €
+        Pay {{ amount }} €
         {% endblocktrans %}
     </h3>
     <form class="form" method="{{ method }}" action="{{ action }}">
         {{ content | safe }}
+        {% if form %}
+        {% bootstrap_form form %}
+        {% endif %}
         {% trans "Pay" as tr_pay %}
         {% bootstrap_button tr_pay button_type='submit' icon='piggy-bank' %}
     </form>

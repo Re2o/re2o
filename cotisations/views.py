@@ -5,6 +5,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,7 +57,7 @@ from re2o.acl import (
     can_delete_set,
     can_change,
 )
-from preferences.models import OptionalUser, AssoOption, GeneralOption
+from preferences.models import AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
     NewFactureForm,
@@ -70,11 +71,10 @@ from .forms import (
     NewFactureFormPdf,
     SelectUserArticleForm,
     SelectClubArticleForm,
-    CreditSoldeForm,
     RechargeForm
 )
-from . import payment as online_payment
 from .tex import render_invoice
+from .payment_methods.forms import payment_method_factory
 
 
 @login_required
@@ -88,25 +88,28 @@ def new_facture(request, user, userid):
     A bit of JS is used in the template to add articles in a fancier way.
     If everything is correct, save each one of the articles, save the
     purchase object associated and finally the newly created invoice.
-
-    TODO : The whole verification process should be moved to the model. This
-    function should only act as a dumb interface between the model and the
-    user.
     """
     invoice = Facture(user=user)
     # The template needs the list of articles (for the JS part)
     article_list = Article.objects.filter(
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
-    # Building the invocie form and the article formset
-    invoice_form = NewFactureForm(request.POST or None, instance=invoice)
+    # Building the invoice form and the article formset
+    invoice_form = NewFactureForm(
+        request.POST or None,
+        instance=invoice,
+        user=request.user
+    )
+
     if request.user.is_class_club:
         article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'user': request.user}
         )
     else:
         article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'user': request.user}
         )
 
     if invoice_form.is_valid() and article_formset.is_valid():
@@ -114,34 +117,6 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Check if at leat one article has been selected
         if any(art.cleaned_data for art in articles):
-            user_balance = OptionalUser.get_cached_value('user_solde')
-            negative_balance = OptionalUser.get_cached_value('solde_negatif')
-            # If the paiement using balance has been activated,
-            # checking that the total price won't get the user under
-            # the authorized minimum (negative_balance)
-            if user_balance:
-                # TODO : change Paiement to Payment
-                if new_invoice_instance.paiement == (
-                        Paiement.objects.get_or_create(moyen='solde')[0]
-                ):
-                    total_price = 0
-                    for art_item in articles:
-                        if art_item.cleaned_data:
-                            total_price += (
-                                art_item.cleaned_data['article'].prix *
-                                art_item.cleaned_data['quantity']
-                            )
-                    if (float(user.solde) - float(total_price)
-                            < negative_balance):
-                        messages.error(
-                            request,
-                            _("Your balance is too low for this operation.")
-                        )
-                        return redirect(reverse(
-                            'users:profil',
-                            kwargs={'userid': userid}
-                        ))
-            # Saving the invoice
             new_invoice_instance.save()
 
             # Building a purchase for each article sold
@@ -159,28 +134,11 @@ def new_facture(request, user, userid):
                     )
                     new_purchase.save()
 
-            # In case a cotisation was bought, inform the user, the
-            # cotisation time has been extended too
-            if any(art_item.cleaned_data['article'].type_cotisation
-                   for art_item in articles if art_item.cleaned_data):
-                messages.success(
-                    request,
-                    _("The cotisation of %(member_name)s has been \
-                    extended to %(end_date)s.") % {
-                        'member_name': user.pseudo,
-                        'end_date': user.end_adhesion()
-                    }
-                )
-            # Else, only tell the invoice was created
-            else:
-                messages.success(
-                    request,
-                    _("The invoice has been created.")
-                )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': userid}
-            ))
+            return new_invoice_instance.paiement.end_payment(
+                new_invoice_instance,
+                request
+            )
+
         messages.error(
             request,
             _("You need to choose at least one article.")
@@ -251,13 +209,13 @@ def new_facture_pdf(request):
             'email': AssoOption.get_cached_value('contact'),
             'phone': AssoOption.get_cached_value('telephone'),
             'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-            })
+        })
     return form({
         'factureform': invoice_form,
         'action_name': _("Create"),
         'articlesformset': articles_formset,
         'articles': articles
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -300,7 +258,7 @@ def facture_pdf(request, facture, **_kwargs):
         'email': AssoOption.get_cached_value('contact'),
         'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-        })
+    })
 
 
 # TODO : change facture to invoice
@@ -324,7 +282,7 @@ def edit_facture(request, facture, **_kwargs):
         fields=('name', 'number'),
         extra=0,
         max_num=len(purchases_objects)
-        )
+    )
     purchase_form = purchase_form_set(
         request.POST or None,
         queryset=purchases_objects
@@ -341,7 +299,7 @@ def edit_facture(request, facture, **_kwargs):
     return form({
         'factureform': invoice_form,
         'venteform': purchase_form
-        }, 'cotisations/edit_facture.html', request)
+    }, 'cotisations/edit_facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -361,40 +319,7 @@ def del_facture(request, facture, **_kwargs):
     return form({
         'objet': facture,
         'objet_name': _("Invoice")
-        }, 'cotisations/delete.html', request)
-
-
-# TODO : change solde to balance
-@login_required
-@can_create(Facture)
-@can_edit(User)
-def credit_solde(request, user, **_kwargs):
-    """
-    View used to edit the balance of a user.
-    Can be use either to increase or decrease a user's balance.
-    """
-    # TODO : change facture to invoice
-    invoice = CreditSoldeForm(request.POST or None)
-    if invoice.is_valid():
-        invoice_instance = invoice.save(commit=False)
-        invoice_instance.user = user
-        invoice_instance.save()
-        new_purchase = Vente.objects.create(
-            facture=invoice_instance,
-            name="solde",
-            prix=invoice.cleaned_data['montant'],
-            number=1
-            )
-        new_purchase.save()
-        messages.success(
-            request,
-            _("Balance successfully updated.")
-        )
-        return redirect(reverse('cotisations:index'))
-    return form({
-        'factureform': invoice,
-        'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/delete.html', request)
 
 
 @login_required
@@ -420,7 +345,7 @@ def add_article(request):
     return form({
         'factureform': article,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -441,7 +366,7 @@ def edit_article(request, article_instance, **_kwargs):
     return form({
         'factureform': article,
         'action_name': _('Edit')
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 @login_required
@@ -462,7 +387,7 @@ def del_article(request, instances):
     return form({
         'factureform': article,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change paiement to payment
@@ -472,9 +397,15 @@ def add_paiement(request):
     """
     View used to add a payment method.
     """
-    payment = PaiementForm(request.POST or None)
-    if payment.is_valid():
-        payment.save()
+    payment = PaiementForm(request.POST or None, prefix='payment')
+    payment_method = payment_method_factory(
+        payment.instance,
+        request.POST or None,
+        prefix='payment_method'
+    )
+    if payment.is_valid() and payment_method.is_valid():
+        payment = payment.save()
+        payment_method.save(payment)
         messages.success(
             request,
             _("The payment method has been successfully created.")
@@ -482,8 +413,9 @@ def add_paiement(request):
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
+        'payment_method': payment_method,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : chnage paiement to Payment
@@ -493,19 +425,31 @@ def edit_paiement(request, paiement_instance, **_kwargs):
     """
     View used to edit a payment method.
     """
-    payment = PaiementForm(request.POST or None, instance=paiement_instance)
-    if payment.is_valid():
-        if payment.changed_data:
-            payment.save()
-            messages.success(
-                request,
-                _("The payement method has been successfully edited.")
-            )
+    payment = PaiementForm(
+        request.POST or None,
+        instance=paiement_instance,
+        prefix="payment"
+    )
+    payment_method = payment_method_factory(
+        paiement_instance,
+        request.POST or None,
+        prefix='payment_method',
+        creation=False
+    )
+
+    if payment.is_valid() and payment_method.is_valid():
+        payment.save()
+        payment_method.save()
+        messages.success(
+            request,
+            _("The payement method has been successfully edited.")
+        )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
+        'payment_method': payment_method,
         'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change paiement to payment
@@ -540,7 +484,7 @@ def del_paiement(request, instances):
     return form({
         'factureform': payment,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change banque to bank
@@ -561,7 +505,7 @@ def add_banque(request):
     return form({
         'factureform': bank,
         'action_name': _("Add")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change banque to bank
@@ -583,7 +527,7 @@ def edit_banque(request, banque_instance, **_kwargs):
     return form({
         'factureform': bank,
         'action_name': _("Edit")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : chnage banque to bank
@@ -618,7 +562,7 @@ def del_banque(request, instances):
     return form({
         'factureform': bank,
         'action_name': _("Delete")
-        }, 'cotisations/facture.html', request)
+    }, 'cotisations/facture.html', request)
 
 
 # TODO : change facture to invoice
@@ -659,7 +603,7 @@ def control(request):
     return render(request, 'cotisations/control.html', {
         'facture_list': invoice_list,
         'controlform': control_invoices_form
-        })
+    })
 
 
 @login_required
@@ -672,7 +616,7 @@ def index_article(request):
     article_list = Article.objects.order_by('name')
     return render(request, 'cotisations/index_article.html', {
         'article_list': article_list
-        })
+    })
 
 
 # TODO : change paiement to payment
@@ -685,7 +629,7 @@ def index_paiement(request):
     payment_list = Paiement.objects.order_by('moyen')
     return render(request, 'cotisations/index_paiement.html', {
         'paiement_list': payment_list
-        })
+    })
 
 
 # TODO : change banque to bank
@@ -698,7 +642,7 @@ def index_banque(request):
     bank_list = Banque.objects.order_by('name')
     return render(request, 'cotisations/index_banque.html', {
         'banque_list': bank_list
-        })
+    })
 
 
 @login_required
@@ -719,156 +663,34 @@ def index(request):
     invoice_list = re2o_paginator(request, invoice_list, pagination_number)
     return render(request, 'cotisations/index.html', {
         'facture_list': invoice_list
-        })
+    })
 
 
-# TODO : merge this function with new_facture() which is nearly the same
-# TODO : change facture to invoice
+# TODO : change solde to balance
 @login_required
-def new_facture_solde(request, userid):
+@can_create(Facture)
+@can_edit(User)
+def credit_solde(request, user, **_kwargs):
     """
-    View called to create a new invoice when using the balance to pay.
-    Currently, send the list of available articles for the user along with
-    a formset of a new invoice (based on the `:forms:NewFactureForm()` form.
-    A bit of JS is used in the template to add articles in a fancier way.
-    If everything is correct, save each one of the articles, save the
-    purchase object associated and finally the newly created invoice.
-
-    TODO : The whole verification process should be moved to the model. This
-    function should only act as a dumb interface between the model and the
-    user.
+    View used to edit the balance of a user.
+    Can be use either to increase or decrease a user's balance.
     """
-    user = request.user
-    invoice = Facture(user=user)
-    payment, _created = Paiement.objects.get_or_create(moyen='Solde')
-    invoice.paiement = payment
-    # The template needs the list of articles (for the JS part)
-    article_list = Article.objects.filter(
-        Q(type_user='All') | Q(type_user=request.user.class_name)
-    )
-    if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None
-        )
-    else:
-        article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None
-        )
-
-    if article_formset.is_valid():
-        articles = article_formset
-        # Check if at leat one article has been selected
-        if any(art.cleaned_data for art in articles):
-            user_balance = OptionalUser.get_cached_value('user_solde')
-            negative_balance = OptionalUser.get_cached_value('solde_negatif')
-            # If the paiement using balance has been activated,
-            # checking that the total price won't get the user under
-            # the authorized minimum (negative_balance)
-            if user_balance:
-                total_price = 0
-                for art_item in articles:
-                    if art_item.cleaned_data:
-                        total_price += art_item.cleaned_data['article']\
-                                .prix*art_item.cleaned_data['quantity']
-                if float(user.solde) - float(total_price) < negative_balance:
-                    messages.error(
-                        request,
-                        _("The balance is too low for this operation.")
-                    )
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': userid}
-                    ))
-            # Saving the invoice
-            invoice.save()
-
-            # Building a purchase for each article sold
-            for art_item in articles:
-                if art_item.cleaned_data:
-                    article = art_item.cleaned_data['article']
-                    quantity = art_item.cleaned_data['quantity']
-                    new_purchase = Vente.objects.create(
-                        facture=invoice,
-                        name=article.name,
-                        prix=article.prix,
-                        type_cotisation=article.type_cotisation,
-                        duration=article.duration,
-                        number=quantity
-                    )
-                    new_purchase.save()
-
-            # In case a cotisation was bought, inform the user, the
-            # cotisation time has been extended too
-            if any(art_item.cleaned_data['article'].type_cotisation
-                   for art_item in articles if art_item.cleaned_data):
-                messages.success(
-                    request,
-                    _("The cotisation of %(member_name)s has been successfully \
-                    extended to %(end_date)s.") % {
-                        'member_name': user.pseudo,
-                        'end_date': user.end_adhesion()
-                    }
-                )
-            # Else, only tell the invoice was created
-            else:
-                messages.success(
-                    request,
-                    _("The invoice has been successuflly created.")
-                )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': userid}
-            ))
-        messages.error(
-            request,
-            _("You need to choose at least one article.")
-        )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': userid}
-        ))
-
-    return form({
-        'venteform': article_formset,
-        'articlelist': article_list
-        }, 'cotisations/new_facture_solde.html', request)
-
-
-# TODO : change recharge to refill
-@login_required
-def recharge(request):
-    """
-    View used to refill the balance by using online payment.
-    """
-    if AssoOption.get_cached_value('payment') == 'NONE':
-        messages.error(
-            request,
-            _("Online payment is disabled.")
-        )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': request.user.id}
-        ))
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
         invoice = Facture(user=request.user)
-        payment, _created = Paiement.objects.get_or_create(
-            moyen='Rechargement en ligne'
-        )
-        invoice.paiement = payment
+        invoice.paiement = refill_form.cleaned_data['payment']
         invoice.valid = False
         invoice.save()
-        purchase = Vente.objects.create(
+        Vente.objects.create(
             facture=invoice,
             name='solde',
             prix=refill_form.cleaned_data['value'],
             number=1
         )
-        purchase.save()
-        content = online_payment.PAYMENT_SYSTEM[
-            AssoOption.get_cached_value('payment')
-        ](invoice, request)
-        return render(request, 'cotisations/payment.html', content)
+        return invoice.paiement.end_payment(invoice, request)
     return form({
-        'rechargeform': refill_form
-        }, 'cotisations/recharge.html', request)
+        'factureform': refill_form,
+        'balance': request.user.solde,
+        'title': _("Refill your balance"),
+        'action_name': _("Pay")
+    }, 'cotisations/facture.html', request)

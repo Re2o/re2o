@@ -72,35 +72,8 @@ class OptionalUser(AclMixin, PreferencesModel):
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
     PRETTY_NAME = "Options utilisateur"
 
-    is_tel_mandatory = models.BooleanField(
-        default=True,
-        help_text="Obligation de renseigner le téléphone"
-    )
-    user_solde = models.BooleanField(
-        default=False,
-        help_text="Solde pour les users"
-    )
-    solde_negatif = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=0,
-        help_text="Maximum de négatif autorisé"
-    )
-    max_solde = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=50,
-        help_text="Valeur maximum du solde"
-    )
-    min_online_payment = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=10,
-        help_text="Montant minimum pour le rechargement online"
-    )
-    gpg_fingerprint = models.BooleanField(
-        default=True,
-        help_text="Gpg fingerprint activée")
+    is_tel_mandatory = models.BooleanField(default=True)
+    gpg_fingerprint = models.BooleanField(default=True)
     all_can_create_club = models.BooleanField(
         default=False,
         help_text="Les users peuvent créer un club"
@@ -145,13 +118,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         Vérifie que l'extension mail commence bien par @
         """
         if self.user_solde:
-            p = cotisations.models.Paiement.objects.filter(moyen="Solde")
-            if not len(p):
-                c = cotisations.models.Paiement(moyen="Solde")
-                c.save()
+            cotisations.models.Paiement.objects.get_or_create(is_balance=True)
         if self.mail_extension[0] != "@":
             raise ValidationError("L'extension mail doit commencer par un @")
-    
+
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(**kwargs):
@@ -469,28 +439,6 @@ class AssoOption(AclMixin, PreferencesModel):
         blank=True,
         null=True,
         help_text="Utilisateur dans la db correspondant à l'asso"
-    )
-    PAYMENT = (
-        ('NONE', 'NONE'),
-        ('COMNPAY', 'COMNPAY'),
-    )
-    payment = models.CharField(
-        max_length=255,
-        choices=PAYMENT,
-        default='NONE',
-        help_text="Mode de paiement en ligne"
-    )
-    payment_id = models.CharField(
-        max_length=255,
-        default='',
-        blank=True,
-        help_text="Id de paiement en ligne"
-    )
-    payment_pass = AESEncryptedField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="Clef de paiement en ligne"
     )
     description = models.TextField(
         null=True,
