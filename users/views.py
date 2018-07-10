@@ -51,7 +51,7 @@ from reversion import revisions as reversion
 
 from cotisations.models import Facture, Paiement
 from machines.models import Machine
-from preferences.models import GeneralOption
+from preferences.models import OptionalUser, GeneralOption, AssoOption
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
@@ -985,8 +985,7 @@ def profil(request, users, **_kwargs):
             'ban_list': bans,
             'white_list': whitelists,
             'user_solde': user_solde,
-            'allow_online_payment': allow_online_payment,
-            'solde_activated': OptionalUser.objects.first().user_solde,
+            'solde_activated': Paiement.objects.filter(is_balance=True).exists(),
             'asso_name': AssoOption.objects.first().name,
             'alias_list': users.mailalias_set.all(),
             'mail_accounts': OptionalUser.objects.first().mail_accounts 
