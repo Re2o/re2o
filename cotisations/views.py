@@ -60,8 +60,7 @@ from re2o.acl import (
 from preferences.models import AssoOption, GeneralOption
 from .models import Facture, Article, Vente, Paiement, Banque
 from .forms import (
-    NewFactureForm,
-    EditFactureForm,
+    FactureForm,
     ArticleForm,
     DelArticleForm,
     PaiementForm,
@@ -84,7 +83,7 @@ def new_facture(request, user, userid):
     """
     View called to create a new invoice.
     Currently, Send the list of available articles for the user along with
-    a formset of a new invoice (based on the `:forms:NewFactureForm()` form.
+    a formset of a new invoice (based on the `:forms:FactureForm()` form.
     A bit of JS is used in the template to add articles in a fancier way.
     If everything is correct, save each one of the articles, save the
     purchase object associated and finally the newly created invoice.
@@ -95,10 +94,11 @@ def new_facture(request, user, userid):
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     # Building the invoice form and the article formset
-    invoice_form = NewFactureForm(
+    invoice_form = FactureForm(
         request.POST or None,
         instance=invoice,
-        user=request.user
+        user=request.user,
+        creation=True
     )
 
     if request.user.is_class_club:
@@ -278,7 +278,7 @@ def edit_facture(request, facture, **_kwargs):
     can be set as desired. This is also the view used to invalidate
     an invoice.
     """
-    invoice_form = EditFactureForm(
+    invoice_form = FactureForm(
         request.POST or None,
         instance=facture,
         user=request.user
