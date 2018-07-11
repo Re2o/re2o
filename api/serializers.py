@@ -750,7 +750,7 @@ class SwitchPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = topologie.Switch
         fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6',
-                  'subnet', 'subnet6', 'automatic_provision', 'rest_enabled',
+                  'interfaces_subnet', 'interfaces6_subnet', 'automatic_provision', 'rest_enabled',
                   'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value')
 
 # LOCAL EMAILS
