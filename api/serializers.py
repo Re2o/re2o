@@ -338,10 +338,15 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 class OptionalTopologieSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalTopologie` objects.
     """
+    switchs_management_interface_ip= serializers.CharField(read_only=True)
+
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
-                  'vlan_decision_nok')
+                  'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
+                  'switchs_web_management_ssl', 'switchs_rest_management',
+                  'switchs_management_utils', 'switchs_management_interface_ip',
+                  'provision_switchs_enabled')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):

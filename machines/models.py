@@ -1497,6 +1497,13 @@ class Role(RevMixin, AclMixin, models.Model):
             role=cls.objects.filter(specific_role=roletype)
         )
 
+    @classmethod
+    def all_interfaces_for_roletype(cls, roletype):
+        """Return all interfaces for a roletype"""
+        return Interface.objects.filter(
+            machine__interface__role=cls.objects.filter(specific_role=roletype)
+        )
+
     def save(self, *args, **kwargs):
         super(Role, self).save(*args, **kwargs)
 
