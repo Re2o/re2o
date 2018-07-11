@@ -152,6 +152,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Plage d'ip de management des switchs</th>
 	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
+	<tr>	
+            <th>Serveur des config des switchs</th>
+	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+	</tr>
     </table>
 
        <h6>Creds de management des switchs</h6>
