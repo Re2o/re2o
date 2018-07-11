@@ -235,7 +235,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
     def provision_switchs_enabled(self):
         """Return true if all settings are ok : switchs on automatic provision,
         ip_type"""
-        return bool(self.provisioned_switchs and self.switchs_ip_type)
+        return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists())
 
     class Meta:
         permissions = (
@@ -276,6 +276,31 @@ class RadiusKey(AclMixin, models.Model):
 
     def __str__(self):
         return "Clef radius " + str(self.id) + " " + str(self.comment)
+
+
+class SwitchManagementCred(AclMixin, models.Model):
+    """Class of a management creds of a switch, for rest management"""
+    management_id = models.CharField(
+        max_length=63,
+        help_text="Login du switch"
+    )
+    management_pass = AESEncryptedField(
+        max_length=63,
+        help_text="Mot de passe"
+    )
+    default_switch = models.BooleanField(
+        default=True,
+        unique=True,
+        help_text= "Creds par défaut des switchs"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_switchmanagementcred", "Peut voir un objet switchmanagementcred"),
+        )
+
+    def __str__(self):
+        return "Identifiant " + str(self.management_id)
 
 
 class Reminder(AclMixin, models.Model):

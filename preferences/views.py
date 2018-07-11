@@ -43,16 +43,12 @@ from reversion import revisions as reversion
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
 
-<<<<<<< HEAD
-from .forms import (
-    ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm
-=======
 from .forms import MailContactForm, DelMailContactForm
 from .forms import (
     ServiceForm,
     ReminderForm,
-    RadiusKeyForm
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
+    RadiusKeyForm,
+    SwitchManagementCredForm
 )
 from .models import (
     Service,
@@ -63,13 +59,10 @@ from .models import (
     MailMessageOption,
     GeneralOption,
     OptionalTopologie,
-<<<<<<< HEAD
-    HomeOption
-=======
     HomeOption,
     Reminder,
-    RadiusKey
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
+    RadiusKey,
+    SwitchManagementCred
 )
 from . import models
 from . import forms
@@ -90,11 +83,9 @@ def display_options(request):
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
     mailcontact_list = MailContact.objects.all()
-<<<<<<< HEAD
-=======
     reminder_list = Reminder.objects.all()
     radiuskey_list = RadiusKey.objects.all()
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
+    switchmanagementcred_list = SwitchManagementCred.objects.all()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -104,13 +95,11 @@ def display_options(request):
         'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
         'service_list': service_list,
-<<<<<<< HEAD
         'mailcontact_list': mailcontact_list
-=======
         'reminder_list': reminder_list,
         'mailcontact_list': mailcontact_list,
         'radiuskey_list' : radiuskey_list,
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
+        'switchmanagementcred_list': switchmanagementcred_list,  
         }, 'preferences/display_preferences.html', request)
 
 
@@ -223,8 +212,6 @@ def del_service(request, instances):
 
 
 @login_required
-<<<<<<< HEAD
-=======
 @can_delete(Reminder)
 def del_reminder(request, reminder_instance, **_kwargs):
     """Destruction d'un reminder"""
@@ -285,7 +272,51 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
 
 
 @login_required
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
+@can_create(SwitchManagementCred)
+def add_switchmanagementcred(request):
+    """Ajout de creds de management"""
+    switchmanagementcred = SwitchManagementCredForm(request.POST or None)
+    if switchmanagementcred.is_valid():
+        switchmanagementcred.save()
+        messages.success(request, "Ces creds ont été ajoutés")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': switchmanagementcred, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+@can_edit(SwitchManagementCred)
+def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
+    """Edition des creds de management"""
+    switchmanagementcred = SwitchManagementCredForm(request.POST or None, instance=switchmanagementcred_instance)
+    if switchmanagementcred.is_valid():
+        switchmanagementcred.save()
+        messages.success(request, "Creds de managament modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': switchmanagementcred, 'action_name': 'Editer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_delete(SwitchManagementCred)
+def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
+    """Destruction d'un switchmanagementcred"""
+    if request.method == "POST":
+        switchmanagementcred_instance.delete()
+        messages.success(request, "Ce switchmanagementcred a été détruit")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': switchmanagementcred_instance, 'objet_name': 'switchmanagementcred'},
+        'preferences/delete.html',
+        request
+        )
+
+
+@login_required
 @can_create(MailContact)
 def add_mailcontact(request):
     """Add a contact email adress."""

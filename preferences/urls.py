@@ -94,5 +94,12 @@ urlpatterns = [
         name='edit-radiuskey'
         ),
     url(r'^del_radiuskey/$', views.del_radiuskey, name='del-radiuskey'),
+    url(r'^add_switchmanagementcred/$', views.add_switchmanagementcred, name='add-switchmanagementcred'),
+    url(
+        r'^edit_switchmanagementcred/(?P<switchmanagementcredid>[0-9]+)$',
+        views.edit_switchmanagementcred,
+        name='edit-switchmanagementcred'
+        ),
+    url(r'^del_switchmanagementcred/$', views.del_switchmanagementcred, name='del-switchmanagementcred'),
     url(r'^$', views.display_options, name='display-options'),
 ]
