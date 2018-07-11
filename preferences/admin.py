@@ -39,7 +39,8 @@ from .models import (
     AssoOption,
     MailMessageOption,
     HomeOption,
-    RadiusKey
+    RadiusKey,
+    SwitchManagementCred
 )
 
 
@@ -95,6 +96,10 @@ class RadiusKeyAdmin(VersionAdmin):
     """Class radiuskey"""
     pass
 
+class SwitchManagementCredAdmin(VersionAdmin):
+    """Class managementcred for switch"""
+    pass
+
 
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
@@ -105,5 +110,6 @@ admin.site.register(Service, ServiceAdmin)
 admin.site.register(MailContact, MailContactAdmin)
 admin.site.register(Reminder, ReminderAdmin)
 admin.site.register(RadiusKey, RadiusKeyAdmin)
+admin.site.register(SwitchManagementCred, SwitchManagementCredAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)

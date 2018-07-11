@@ -49,7 +49,11 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
-from preferences.models import OptionalTopologie, RadiusKey
+from preferences.models import (
+    OptionalTopologie,
+    RadiusKey,
+    SwitchManagementCred
+)
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
@@ -228,6 +232,13 @@ class Switch(AclMixin, Machine):
         on_delete=models.PROTECT,
         help_text="Clef radius du switch"
     )
+    management_creds = models.ForeignKey(
+        'preferences.SwitchManagementCred',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text="Identifiant de management de ce switch"
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -289,12 +300,27 @@ class Switch(AclMixin, Machine):
 
     @cached_property
     def get_radius_key(self):
+        """Retourne l'objet de la clef radius de ce switch"""
         return self.radius_key or RadiusKey.objects.filter(default_switch=True).first()
 
     @cached_property
     def get_radius_key_value(self):
+        """Retourne la valeur en str de la clef radius, none si il n'y en a pas"""
         if self.get_radius_key:
             return self.get_radius_key.radius_key
+        else:
+            return None
+
+    @cached_property
+    def get_management_cred(self):
+        """Retourne l'objet des creds de managament de ce switch"""
+        return self.management_creds or SwitchManagementCred.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_management_cred_value(self):
+        """Retourne un dict des creds de management du switch"""
+        if self.get_management_cred:
+            return {'id': self.get_management_cred.management_id, 'pass': self.get_management_cred.management_pass}
         else:
             return None
 

@@ -99,6 +99,7 @@ HISTORY_BIND = {
         'mailcontact': preferences.models.MailContact,
         'reminder': preferences.models.Reminder,
         'radiuskey': preferences.models.RadiusKey,
+        'switchmanagementcred': preferences.models.SwitchManagementCred,
     },
     'cotisations': {
         'facture': cotisations.models.Facture,

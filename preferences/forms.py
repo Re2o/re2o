@@ -39,7 +39,8 @@ from .models import (
     Service,
     MailContact,
     Reminder,
-    RadiusKey
+    RadiusKey,
+    SwitchManagementCred
 )
 from topologie.models import Switch
 
@@ -253,6 +254,31 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
         instance = kwargs.get('instance', None)
         if instance:
             self.initial['members'] = Switch.objects.filter(radius_key=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class SwitchManagementCredForm(FormRevMixin, ModelForm):
+    """Edition, ajout de creds de management pour gestion
+    et interface rest des switchs"""
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = SwitchManagementCred
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SwitchManagementCredForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(management_creds=instance)
 
     def save(self, commit=True):
         instance = super().save(commit)

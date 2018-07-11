@@ -125,6 +125,8 @@ MODEL_NAME = {
     'preferences.Reminder': preferences.models.Reminder,
     'AssoOption': preferences.models.AssoOption,
     'MailMessageOption': preferences.models.MailMessageOption,
+    'RadiusKey': preferences.models.RadiusKey,
+    'SwitchManagementCred': preferences.models.SwitchManagementCred,
     # topologie
     'Stack': topologie.models.Stack,
     'Switch': topologie.models.Switch,

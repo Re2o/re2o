@@ -46,7 +46,8 @@ from .forms import MailContactForm, DelMailContactForm
 from .forms import (
     ServiceForm,
     ReminderForm,
-    RadiusKeyForm
+    RadiusKeyForm,
+    SwitchManagementCredForm
 )
 from .models import (
     Service,
@@ -59,7 +60,8 @@ from .models import (
     OptionalTopologie,
     HomeOption,
     Reminder,
-    RadiusKey
+    RadiusKey,
+    SwitchManagementCred
 )
 from . import models
 from . import forms
@@ -92,6 +94,7 @@ def display_options(request):
     mailcontact_list = MailContact.objects.all()
     reminder_list = Reminder.objects.all()
     radiuskey_list = RadiusKey.objects.all()
+    switchmanagementcred_list = SwitchManagementCred.objects.all()
     return form({
         'useroptions': useroptions,
         'machineoptions': format_options(machineoptions),
@@ -104,6 +107,7 @@ def display_options(request):
         'reminder_list': reminder_list,
         'mailcontact_list': mailcontact_list,
         'radiuskey_list' : radiuskey_list,
+        'switchmanagementcred_list': switchmanagementcred_list,  
         }, 'preferences/display_preferences.html', request)
 
 
@@ -279,6 +283,51 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': radiuskey_instance, 'objet_name': 'radiuskey'},
+        'preferences/delete.html',
+        request
+        )
+
+
+@login_required
+@can_create(SwitchManagementCred)
+def add_switchmanagementcred(request):
+    """Ajout de creds de management"""
+    switchmanagementcred = SwitchManagementCredForm(request.POST or None)
+    if switchmanagementcred.is_valid():
+        switchmanagementcred.save()
+        messages.success(request, "Ces creds ont été ajoutés")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': switchmanagementcred, 'action_name': 'Ajouter'},
+        'preferences/preferences.html',
+        request
+        )
+
+@can_edit(SwitchManagementCred)
+def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
+    """Edition des creds de management"""
+    switchmanagementcred = SwitchManagementCredForm(request.POST or None, instance=switchmanagementcred_instance)
+    if switchmanagementcred.is_valid():
+        switchmanagementcred.save()
+        messages.success(request, "Creds de managament modifié")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': switchmanagementcred, 'action_name': 'Editer'},
+        'preferences/preferences.html',
+        request
+    )
+
+
+@login_required
+@can_delete(SwitchManagementCred)
+def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
+    """Destruction d'un switchmanagementcred"""
+    if request.method == "POST":
+        switchmanagementcred_instance.delete()
+        messages.success(request, "Ce switchmanagementcred a été détruit")
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': switchmanagementcred_instance, 'objet_name': 'switchmanagementcred'},
         'preferences/delete.html',
         request
         )
