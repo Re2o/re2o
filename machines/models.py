@@ -377,7 +377,7 @@ class IpType(RevMixin, AclMixin, models.Model):
                 'netmask' : 'ffff:ffff:ffff:ffff::',
                 'netmask_cidr' : str(self.prefix_v6_length),
                 'vlan': str(self.vlan),
-                'vlan_id': str(self.vlan.vlan_id)
+                'vlan_id': self.vlan.vlan_id
             }
         else:
             return None
