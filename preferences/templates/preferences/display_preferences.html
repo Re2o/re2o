@@ -124,7 +124,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</tr>
     </table>
 
-    <h5>Configuration des switches</h5>
+	<h6>Clef radius</h6>
+	  {% can_create RadiusKey%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+	  {% acl_end %}
+	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+
+    <h4>Configuration des switches</h4>
     <table class="table table-striped">
 	<tr>
             <th>Web management, activé si provision automatique</th>
@@ -148,11 +154,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</tr>
     </table>
 
-	<h5>Clef radius</h5>
-	  {% can_create RadiusKey%}
-	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+       <h6>Creds de management des switchs</h6>
+	  {% can_create SwitchManagementCred%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i> Ajouter un id/mdp de management switch</a>
 	  {% acl_end %}
-	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+          <p>
+          </p>
+          {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
+          {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
+
+
 
     <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
     <table class="table table-striped">
