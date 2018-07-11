@@ -259,6 +259,24 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         return self.switchs_management_interface.ipv4
 
     @cached_property
+    def switchs_management_utils(self):
+        """Used for switch_conf, return a list of ip on vlans"""
+        from machines.models import Role, Ipv6List, Interface
+        def return_ips_dict(interfaces):
+            return {'ipv4' : [str(interface.ipv4) for interface in interfaces], 'ipv6' : Ipv6List.objects.filter(interface__in=interfaces).values_list('ipv6', flat=True)}
+
+        ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(type__ip_type=self.switchs_ip_type)
+        log_servers = Role.all_interfaces_for_roletype("log-server").filter(type__ip_type=self.switchs_ip_type)
+        radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(type__ip_type=self.switchs_ip_type)
+        dhcp_servers = Role.all_interfaces_for_roletype("dhcp-server")
+        subnet = None
+        subnet6 = None
+        if self.switchs_ip_type:
+            subnet = self.switchs_ip_type.ip_set_full_info
+            subnet6 = self.switchs_ip_type.ip6_set_full_info
+        return {'ntp_servers': return_ips_dict(ntp_servers), 'log_servers': return_ips_dict(log_servers), 'radius_servers': return_ips_dict(radius_servers), 'dhcp_servers': return_ips_dict(dhcp_servers), 'subnet': subnet, 'subnet6': subnet6}
+
+    @cached_property
     def provision_switchs_enabled(self):
         """Return true if all settings are ok : switchs on automatic provision,
         ip_type"""
