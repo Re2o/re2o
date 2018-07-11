@@ -29,9 +29,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=port_profile_list %}
 {% endif %}
 
-<thead>
 
 <table class="table table-striped">
+	<thead>
     <tr>
         <th>{% trans "Name" %}</th>
         <th>{% trans "Default for" %}</th>
@@ -49,7 +49,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{port_profile.profil_default}}</td>
         <td>
 	{% if port_profile.vlan_untagged %}
-        <b>Untagged : </b>{{port_profile.vlan_untagged}} 
+        <b>Untagged : </b>{{port_profile.vlan_untagged}}
         <br>
         {% endif %}
         {% if port_profile.vlan_tagged.all %}
