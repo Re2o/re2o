@@ -72,9 +72,10 @@ class AESEncryptedFormField(forms.CharField):
 class AESEncryptedField(models.CharField):
     """ A Field that can be used in forms for adding the support
     of AES ecnrypted fields """
+
     def save_form_data(self, instance, data):
-        setattr(instance, self.name,
-                binascii.b2a_base64(encrypt(settings.AES_KEY, data)))
+        setattr(instance, self.name, binascii.b2a_base64(
+            encrypt(settings.AES_KEY, data)).decode('utf-8'))
 
     def to_python(self, value):
         if value is None:
@@ -83,18 +84,16 @@ class AESEncryptedField(models.CharField):
             return decrypt(settings.AES_KEY,
                            binascii.a2b_base64(value)).decode('utf-8')
         except Exception as e:
-            v = decrypt(settings.AES_KEY, binascii.a2b_base64(value))
-            raise ValueError(v)
+            raise ValueError(value)
 
     def from_db_value(self, value, *args, **kwargs):
         if value is None:
             return value
         try:
             return decrypt(settings.AES_KEY,
-                       binascii.a2b_base64(value)).decode('utf-8')
+                           binascii.a2b_base64(value)).decode('utf-8')
         except Exception as e:
-            v = decrypt(settings.AES_KEY, binascii.a2b_base64(value))
-            raise ValueError(v)
+            raise ValueError(value)
 
     def get_prep_value(self, value):
         if value is None:
@@ -102,7 +101,7 @@ class AESEncryptedField(models.CharField):
         return binascii.b2a_base64(encrypt(
             settings.AES_KEY,
             value
-        ))
+        )).decode('utf-8')
 
     def formfield(self, **kwargs):
         defaults = {'form_class': AESEncryptedFormField}
