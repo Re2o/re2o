@@ -1502,8 +1502,31 @@ class Role(RevMixin, AclMixin, models.Model):
     """ Sert à la génération automatique de la conf des serveurs"""
     PRETTY_NAME = "Roles des serveurs"
 
+    ROLE = (
+        ('dhcp-server', 'dhcp-server'),
+        ('switch-conf-server', 'switch-conf-server'),
+        ('dns-recursif-server', 'dns-recursif-server'),
+        ('ntp-server', 'ntp-server'),
+        ('radius-server', 'radius-server'),
+        ('ntp-server', 'ntp-server'),
+        ('log-server', 'log-server'),
+        ('ldap-master-server', 'ldap-master-server'),
+        ('ldap-backup-server', 'ldap-backup-server'),
+        ('smtp-server', 'smtp-server'),
+        ('postgresql-server', 'postgresql-server'),
+        ('mysql-server', 'mysql-server'),
+        ('sql-client', 'sql-client'),
+        ('gateway', 'gateway'),
+    )
+
     role_type = models.CharField(max_length=255, unique=True)
     servers = models.ManyToManyField('Interface')
+    specific_role = models.CharField(
+        choices=ROLE,
+        null=True,
+        blank=True,
+        max_length=32,
+    )
 
     class Meta:
         permissions = (
