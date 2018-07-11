@@ -421,7 +421,8 @@ def add_paiement(request):
     return form({
         'factureform': payment,
         'payment_method': payment_method,
-        'action_name': _("Add")
+        'action_name': _("Add"),
+        'title': _("New payment method")
     }, 'cotisations/facture.html', request)
 
 
