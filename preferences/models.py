@@ -242,11 +242,27 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         from topologie.models import Switch
         return Switch.objects.filter(automatic_provision=True)
 
+    @cached_property   
+    def switchs_management_interface(self):
+        """Return the ip of the interface that the switch have to contact to get it's config"""
+        if self.switchs_ip_type:
+            from machines.models import Role, Interface
+            return Interface.objects.filter(machine__interface__in=Role.interface_for_roletype("switch-conf-server")).filter(type__ip_type=self.switchs_ip_type).first()
+        else:
+            return None
+
+    @cached_property   
+    def switchs_management_interface_ip(self):
+        """Same, but return the ipv4"""
+        if not self.switchs_management_interface:
+            return None
+        return self.switchs_management_interface.ipv4
+
     @cached_property
     def provision_switchs_enabled(self):
         """Return true if all settings are ok : switchs on automatic provision,
         ip_type"""
-        return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists())
+        return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists() and self.switchs_management_interface_ip)
 
     class Meta:
         permissions = (

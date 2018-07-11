@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>Nom du role</th>
+		<th>Role spécifique</th>
                 <th>Serveurs inclus</th>
 		<th></th>
                 <th></th>
@@ -36,6 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for role in role_list %}
         <tr>
             <td>{{ role.role_type }}</td>
+	    <td>{{ role.specific_role }}</td>
 	    <td>{% for serv in role.servers.all %}{{ serv }}, {% endfor %}</td>
             <td class="text-right">
 		{% can_edit role %}
