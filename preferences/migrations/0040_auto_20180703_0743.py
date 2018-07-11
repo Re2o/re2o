@@ -36,16 +36,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='assooption',
-            name='payment',
-            field=models.CharField(choices=[('NONE', 'NONE'), ('COMNPAY', 'COMNPAY')], default='NONE', help_text='Mode de paiement en ligne', max_length=255),
-        ),
-        migrations.AlterField(
-            model_name='assooption',
-            name='payment_id',
-            field=models.CharField(blank=True, default='', help_text='Id de paiement en ligne', max_length=255),
-        ),
-        migrations.AlterField(
-            model_name='assooption',
             name='pseudo',
             field=models.CharField(default='Asso', help_text="Pseudo de l'asso", max_length=32),
         ),
@@ -156,28 +146,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='optionaluser',
-            name='max_solde',
-            field=models.DecimalField(decimal_places=2, default=50, help_text='Valeur maximum du solde', max_digits=5),
-        ),
-        migrations.AlterField(
-            model_name='optionaluser',
-            name='min_online_payment',
-            field=models.DecimalField(decimal_places=2, default=10, help_text='Montant minimum pour le rechargement online', max_digits=5),
-        ),
-        migrations.AlterField(
-            model_name='optionaluser',
             name='shell_default',
             field=models.OneToOneField(blank=True, help_text='Shell par default', null=True, on_delete=django.db.models.deletion.PROTECT, to='users.ListShell'),
-        ),
-        migrations.AlterField(
-            model_name='optionaluser',
-            name='solde_negatif',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='Maximum de négatif autorisé', max_digits=5),
-        ),
-        migrations.AlterField(
-            model_name='optionaluser',
-            name='user_solde',
-            field=models.BooleanField(default=False, help_text='Solde pour les users'),
         ),
         migrations.AlterField(
             model_name='reminder',
