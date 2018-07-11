@@ -350,13 +350,14 @@ class Switch(AclMixin, Machine):
         return str(self.main_interface().ipv6().first())
 
     @cached_property
-    def subnet(self):
-        """ Return the subnet of the management ip"""
-        return self.main_interface().type.ip_type.ip_set_full_info
+    def interfaces_subnet(self):
+        """Return dict ip:subnet for all ip of the switch"""
+        return dict((str(interface.ipv4), interface.type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
 
     @cached_property
-    def subnet6(self):
-        return self.main_interface().type.ip_type.ip6_set_full_info
+    def interfaces6_subnet(self):
+        """Return dict ip6:subnet for all ipv6 of the switch"""
+        return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
     def __str__(self):
         return str(self.main_interface())
