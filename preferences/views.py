@@ -261,8 +261,12 @@ def edit_radiuskey(request, radiuskey_instance, **_kwargs):
 def del_radiuskey(request, radiuskey_instance, **_kwargs):
     """Destruction d'un radiuskey"""
     if request.method == "POST":
-        radiuskey_instance.delete()
-        messages.success(request, "La radiuskey a été détruite")
+        try:
+            radiuskey_instance.delete()
+            messages.success(request, "La radiuskey a été détruite")
+        except ProtectedError:
+            messages.error(request, "Erreur la\
+                clef ne peut être supprimé, elle est affectée à des switchs")
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': radiuskey_instance, 'objet_name': 'radiuskey'},
@@ -306,8 +310,12 @@ def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs)
 def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
     """Destruction d'un switchmanagementcred"""
     if request.method == "POST":
-        switchmanagementcred_instance.delete()
-        messages.success(request, "Ce switchmanagementcred a été détruit")
+        try:
+            switchmanagementcred_instance.delete()
+            messages.success(request, "Ces creds ont été détruits")
+        except ProtectedError:
+            messages.error(request, "Erreur ces\
+                creds ne peuvent être supprimés, ils sont affectés à des switchs")
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': switchmanagementcred_instance, 'objet_name': 'switchmanagementcred'},

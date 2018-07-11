@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Clef</th>
 		<th>Commentaire</th>
                 <th>Clef par default des switchs</th>
+		<th>Clef utilisée par les switchs</th>
 		<th></th>
                 <th></th>
             </tr>
@@ -37,9 +38,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ radiuskey.radius_key }}</td>
             <td>{{ radiuskey.comment }}</td>
             <td>{{ radiuskey.default_switch }}</td>
+	    <td>{{ radiuskey.switch_set.all|join:", " }}</td>
             <td class="text-right">
             {% can_edit radiuskey %}
             {% include 'buttons/edit.html' with href='preferences:edit-radiuskey' id=radiuskey.id %}
+            {% acl_end %}
+	    {% can_delete radiuskey %}
+            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-radiuskey' radiuskey.pk %}">
+		   <i class="fa fa-trash"></i>
+            </a>
             {% acl_end %}
             {% include 'buttons/history.html' with href='preferences:history' name='radiuskey' id=radiuskey.id %}
             </td>

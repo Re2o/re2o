@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Identifiant</th>
                 <th>Creds par default des switchs</th>
+		<th>Utilisé pour les switchs</th>
 		<th></th>
                 <th></th>
             </tr>
@@ -35,9 +36,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ switchmanagementcred.management_id }}</td>
             <td>{{ switchmanagementcred.default_switch }}</td>
+	    <td>{{ switchmanagementcred.switch_set.all|join:", " }}</td>
             <td class="text-right">
             {% can_edit switchmanagementcred %}
             {% include 'buttons/edit.html' with href='preferences:edit-switchmanagementcred' id=switchmanagementcred.id %}
+            {% acl_end %}
+	    {% can_delete switchmanagementcred %}
+            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-switchmanagementcred' switchmanagementcred.pk %}">
+         	   <i class="fa fa-trash"></i>
+            </a>
             {% acl_end %}
             {% include 'buttons/history.html' with href='preferences:history' name='switchmanagementcred' id=switchmanagementcred.id %}
             </td>
