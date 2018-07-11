@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Clef</th>
+                <th>Id Clef</th>
 		<th>Commentaire</th>
                 <th>Clef par default des switchs</th>
 		<th>Clef utilisée par les switchs</th>
@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for radiuskey in radiuskey_list %}
         <tr>
-            <td>{{ radiuskey.radius_key }}</td>
+            <td>{{ radiuskey.id }}</td>
             <td>{{ radiuskey.comment }}</td>
             <td>{{ radiuskey.default_switch }}</td>
 	    <td>{{ radiuskey.switch_set.all|join:", " }}</td>
