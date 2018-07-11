@@ -40,7 +40,7 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.db.models.signals import post_save, post_delete
 from django.utils.functional import cached_property
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
@@ -51,11 +51,6 @@ from reversion import revisions as reversion
 
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
-
-from os.path import isfile 
-from os import remove
-
-
 
 
 class Stack(AclMixin, RevMixin, models.Model):
@@ -123,7 +118,10 @@ class AccessPoint(AclMixin, Machine):
         )
 
     def building(self):
-        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        """
+        Return the building of the AP/Server (building of the switchs
+        connected to...)
+        """
         return Building.objects.filter(
             switchbay__switch=self.switch()
         )
@@ -135,14 +133,18 @@ class AccessPoint(AclMixin, Machine):
     @classmethod
     def all_ap_in(cls, building_instance):
         """Get a building as argument, returns all ap of a building"""
-        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance)
+        return cls.objects.filter(
+            interface__port__switch__switchbay__building=building_instance
+        )
 
     def __str__(self):
         return str(self.interface_set.first())
 
 
 class Server(Machine):
-    """Dummy class, to retrieve servers of a building, or get switch of a server"""
+    """
+    Dummy class, to retrieve servers of a building, or get switch of a server
+    """
 
     class Meta:
         proxy = True
@@ -160,7 +162,10 @@ class Server(Machine):
         )
 
     def building(self):
-        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        """
+        Return the building of the AP/Server
+        (building of the switchs connected to...)
+        """
         return Building.objects.filter(
             switchbay__switch=self.switch()
         )
@@ -172,7 +177,9 @@ class Server(Machine):
     @classmethod
     def all_server_in(cls, building_instance):
         """Get a building as argument, returns all server of a building"""
-        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance).exclude(accesspoint__isnull=False)
+        return cls.objects.filter(
+            interface__port__switch__switchbay__building=building_instance
+        ).exclude(accesspoint__isnull=False)
 
     def __str__(self):
         return str(self.interface_set.first())
@@ -200,7 +207,7 @@ class Switch(AclMixin, Machine):
         blank=True,
         null=True,
         on_delete=models.SET_NULL
-        )
+    )
     stack_member_id = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -238,7 +245,7 @@ class Switch(AclMixin, Machine):
                     raise ValidationError(
                         {'stack_member_id': "L'id de ce switch est en\
                             dehors des bornes permises pas la stack"}
-                        )
+                    )
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
@@ -378,25 +385,25 @@ class Port(AclMixin, RevMixin, models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True
-        )
+    )
     machine_interface = models.ForeignKey(
         'machines.Interface',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
-        )
+    )
     related = models.OneToOneField(
         'self',
         null=True,
         blank=True,
         related_name='related_port'
-        )
+    )
     custom_profile = models.ForeignKey(
         'PortProfile',
         on_delete=models.PROTECT,
         blank=True,
         null=True
-        )
+    )
     state = models.BooleanField(
         default=True,
         help_text='Port state Active',
@@ -411,32 +418,35 @@ class Port(AclMixin, RevMixin, models.Model):
         )
 
     @cached_property
-    def get_port_profil(self):
-        """Return the config profil for this port
+    def get_port_profile(self):
+        """Return the config profile for this port
         :returns: the profile of self (port)"""
-        def profil_or_nothing(profil):
-            port_profil = PortProfile.objects.filter(profil_default=profil).first()
-            if port_profil:
-                return port_profil
+        def profile_or_nothing(profile):
+            port_profile = PortProfile.objects.filter(
+                profile_default=profile).first()
+            if port_profile:
+                return port_profile
             else:
-                nothing = PortProfile.objects.filter(profil_default='nothing').first()
-                if not nothing:
-                    nothing = PortProfile.objects.create(profil_default='nothing', name='nothing', radius_type='NO')
-                return nothing
+                nothing_profile, _created = PortProfile.objects.get_or_create(
+                    profile_default='nothing',
+                    name='nothing',
+                    radius_type='NO'
+                )
+                return nothing_profile
 
         if self.custom_profile:
             return self.custom_profile
         elif self.related:
-            return profil_or_nothing('uplink')
+            return profile_or_nothing('uplink')
         elif self.machine_interface:
             if hasattr(self.machine_interface.machine, 'accesspoint'):
-                return profil_or_nothing('access_point')
+                return profile_or_nothing('access_point')
             else:
-                return profil_or_nothing('asso_machine')
+                return profile_or_nothing('asso_machine')
         elif self.room:
-            return profil_or_nothing('room')
+            return profile_or_nothing('room')
         else:
-            return profil_or_nothing('nothing')
+            return profile_or_nothing('nothing')
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):
@@ -521,11 +531,11 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ('NO', 'NO'),
         ('802.1X', '802.1X'),
         ('MAC-radius', 'MAC-radius'),
-        )
+    )
     MODES = (
         ('STRICT', 'STRICT'),
         ('COMMON', 'COMMON'),
-        )
+    )
     SPEED = (
         ('10-half', '10-half'),
         ('100-half', '100-half'),
@@ -535,14 +545,14 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ('auto', 'auto'),
         ('auto-10', 'auto-10'),
         ('auto-100', 'auto-100'),
-        )
-    PROFIL_DEFAULT= (
+    )
+    PROFIL_DEFAULT = (
         ('room', 'room'),
         ('accespoint', 'accesspoint'),
         ('uplink', 'uplink'),
         ('asso_machine', 'asso_machine'),
         ('nothing', 'nothing'),
-        )
+    )
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     profil_default = models.CharField(
         max_length=32,
@@ -616,25 +626,36 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         default=False,
         help_text='Protect against rogue ra',
         verbose_name=_("Ra guard")
-    )   
+    )
     loop_protect = models.BooleanField(
         default=False,
         help_text='Protect again loop',
         verbose_name=_("Loop Protect")
-    ) 
+    )
 
     class Meta:
         permissions = (
-                ("view_port_profile", _("Can view a port profile object")),
+            ("view_port_profile", _("Can view a port profile object")),
         )
         verbose_name = _("Port profile")
         verbose_name_plural = _("Port profiles")
 
-    security_parameters_fields = ['loop_protect', 'ra_guard', 'arp_protect', 'dhcpv6_snooping', 'dhcp_snooping', 'flow_control']
+    security_parameters_fields = [
+        'loop_protect',
+        'ra_guard',
+        'arp_protect',
+        'dhcpv6_snooping',
+        'dhcp_snooping',
+        'flow_control'
+    ]
 
     @cached_property
     def security_parameters_enabled(self):
-        return [parameter for parameter in self.security_parameters_fields if getattr(self, parameter)]
+        return [
+            parameter
+            for parameter in self.security_parameters_fields
+            if getattr(self, parameter)
+        ]
 
     @cached_property
     def security_parameters_as_str(self):
@@ -650,44 +671,54 @@ def ap_post_save(**_kwargs):
     regen('unifi-ap-names')
     regen("graph_topo")
 
+
 @receiver(post_delete, sender=AccessPoint)
 def ap_post_delete(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
     regen("graph_topo")
 
+
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
 
+
 @receiver(post_save, sender=Port)
 def port_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Port)
 def port_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=ModelSwitch)
 def modelswitch_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=ModelSwitch)
 def modelswitch_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=Building)
 def building_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Building)
 def building_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=Switch)
 def switch_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Switch)
 def switch_post_delete(**_kwargs):

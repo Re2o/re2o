@@ -355,7 +355,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
                 port=port_number
             )
             .first())
-    
+
     # Si le port est inconnu, on place sur le vlan defaut
     # Aucune information particulière ne permet de déterminer quelle
     # politique à appliquer sur ce port
@@ -363,12 +363,12 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
         return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK)
 
     # On récupère le profil du port
-    port_profil = port.get_port_profil
+    port_profile = port.get_port_profile
 
-    # Si un vlan a été précisé dans la config du port, 
+    # Si un vlan a été précisé dans la config du port,
     # on l'utilise pour VLAN_OK
-    if port_profil.vlan_untagged:
-        DECISION_VLAN = int(port_profil.vlan_untagged.vlan_id)
+    if port_profile.vlan_untagged:
+        DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
         extra_log = u"Force sur vlan " + str(DECISION_VLAN)
     else:
         DECISION_VLAN = VLAN_OK
@@ -378,7 +378,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
         return (sw_name, port.room, u'Port desactivé', VLAN_NOK)
 
     # Si radius est désactivé, on laisse passer
-    if port_profil.radius_type == 'NO':
+    if port_profile.radius_type == 'NO':
         return (sw_name,
                 "",
                 u"Pas d'authentification sur ce port" + extra_log,
@@ -386,7 +386,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
 
     # Si le 802.1X est activé sur ce port, cela veut dire que la personne a été accept précédemment
     # Par conséquent, on laisse passer sur le bon vlan
-    if nas_type.port_access_mode == '802.1X' and port_profil.radius_type == '802.1X':
+    if nas_type.port_access_mode == '802.1X' and port_profile.radius_type == '802.1X':
         room = port.room or "Chambre/local inconnu"
         return (sw_name, room, u'Acceptation authentification 802.1X', DECISION_VLAN)
 
@@ -395,7 +395,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
     # rattachés à ce port sont bien à jour de cotisation. Sinon on rejette (anti squattage)
     # Il n'est pas possible de se connecter sur une prise strict sans adhérent à jour de cotis
     # dedans
-    if port_profil.radius_mode == 'STRICT':
+    if port_profile.radius_mode == 'STRICT':
         room = port.room
         if not room:
             return (sw_name, "Inconnue", u'Chambre inconnue', VLAN_NOK)
@@ -411,7 +411,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
         # else: user OK, on passe à la verif MAC
 
     # Si on fait de l'auth par mac, on cherche l'interface via sa mac dans la bdd
-    if port_profil.radius_mode == 'COMMON' or port_profil.radius_mode == 'STRICT':
+    if port_profile.radius_mode == 'COMMON' or port_profile.radius_mode == 'STRICT':
         # Authentification par mac
         interface = (Interface.objects
                      .filter(mac_address=mac_address)
