@@ -696,7 +696,7 @@ class RoleSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.Role
-        fields = ('role_type', 'servers')
+        fields = ('role_type', 'servers', 'specific_role')
 
 
 class VlanPortSerializer(NamespacedHMSerializer):
