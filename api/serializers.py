@@ -622,6 +622,50 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
             'api_url': {'view_name': 'serviceregen-detail'}
         }
 
+# Switches et ports
+
+class InterfaceVlanSerializer(NamespacedHMSerializer):
+    domain = serializers.CharField(read_only=True)
+    ipv4 = serializers.CharField(read_only=True)
+    ipv6 = Ipv6ListSerializer(read_only=True, many=True)
+    vlan_id = serializers.IntegerField(source='type.ip_type.vlan.vlan_id', read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('ipv4', 'ipv6', 'domain', 'vlan_id')
+
+class InterfaceRoleSerializer(NamespacedHMSerializer):
+    interface = InterfaceVlanSerializer(source='machine.interface_set', read_only=True, many=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('interface',)
+
+
+class RoleSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
+    servers = InterfaceRoleSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = machines.Role
+        fields = ('role_type', 'servers', 'specific_role')
+
+
+class VlanPortSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = machines.Vlan
+        fields = ('vlan_id', 'name')
+
+
+class ProfilSerializer(NamespacedHMSerializer):
+    vlan_untagged = VlanSerializer(read_only=True)
+    vlan_tagged = VlanPortSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged', 'vlan_tagged')
+
 
 # LOCAL EMAILS
 
