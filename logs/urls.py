@@ -39,5 +39,4 @@ urlpatterns = [
     url(r'^stats_models/$', views.stats_models, name='stats-models'),
     url(r'^stats_users/$', views.stats_users, name='stats-users'),
     url(r'^stats_actions/$', views.stats_actions, name='stats-actions'),
-    url(r'^stats_droits/$', views.stats_droits, name='stats-droits'),
 ]

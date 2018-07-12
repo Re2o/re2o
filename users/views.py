@@ -39,7 +39,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Count, Max
 from django.utils import timezone
 from django.db import transaction
 from django.http import HttpResponse
@@ -806,15 +806,30 @@ def index_shell(request):
 @can_view_all(ListRight)
 def index_listright(request):
     """ Affiche l'ensemble des droits"""
-    listright_list = ListRight.objects.order_by('unix_name')\
-        .prefetch_related('permissions').prefetch_related('user_set')
-    superuser_right = User.objects.filter(is_superuser=True)
+    rights = {}
+    for right in (ListRight.objects
+                  .order_by('name')
+                  .prefetch_related('permissions')
+                  .prefetch_related('user_set')
+                  .prefetch_related('user_set__facture_set__vente_set__cotisation')
+                 ):
+        rights[right] = (right.user_set
+                         .annotate(action_number=Count('revision'),
+                                   last_seen=Max('revision__date_created'),
+                                   end_adhesion=Max('facture__vente__cotisation__date_end'))
+                        )
+    superusers = (User.objects
+                  .filter(is_superuser=True)
+                  .annotate(action_number=Count('revision'),
+                            last_seen=Max('revision__date_created'),
+                            end_adhesion=Max('facture__vente__cotisation__date_end'))
+                 )
     return render(
         request,
         'users/index_listright.html',
         {
-            'listright_list': listright_list,
-            'superuser_right' : superuser_right,
+            'rights': rights,
+            'superusers' : superusers,
         }
     )
 

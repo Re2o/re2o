@@ -22,118 +22,189 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    <table id="listRights_table" class="table">
-        <thead>
-            <tr>
-                <th>Droit</th>
-                <th>Gid</th>
-		<th>Groupe/permission critique</th>
-                <th>Informations</th>
-                <th>Details</th>
-		<th></th>
-            </tr>
-        </thead>
-		{% if superuser_right %}
-		<tr class="active">
-			<td>Superuser</td>
-			<td></td>
-			<td>True</td>
-			<td>
-                <button class="btn btn-default" data-parent="#accordion_superuser" type="button" data-toggle="collapse" data-target="#collapseListRight_user_superuser" aria-expanded="true" aria-controls="collapseListRight_user_superuser">
-					Utilisateurs ({{ superuser_right.count }})
+{% load i18n %}
+
+{% if superusers.count %}
+<div class="panel panel-default">
+    <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_superuser">
+            <div class="pull-right">
+                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_superuser">
+                    {{superusers.count}} <i class="fa fa-user"></i>
+                </a>
+            </div>
+            <h4 class="text-danger">
+                <i class="fa fa-address-book"></i>
+                {% trans "Superuser" %}
+            </h4>
+            {% trans "Django's specific pre-defined right that supersed any other rights." %}
+    </div>
+    <div class="panel-collapse collapse" id="collapse_superuser">
+        <div class="panel-body">
+            <h4 class="text-danger">{% trans "Total: All permissions" %}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_superuser" tabindex="-1" role="dialog" aria-labelledby="Users in Superuser">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times"></i>
                 </button>
-			</td>
-			<td>
-				Donne tous les droits sur Re2o.
-			</td>
-			<td class="text-right">
-			</td>
-		</tr>
-		<tr>
-			<td colspan=5>
-				<div class="panel-group" id="accordion_superuser" role="tablist" aria-multiselectable="true" style="margin-bottom: 0px;">
-                    <div class="panel" style="border: none;">
-                        <div class="panel-collapse collapse in" id="collapseListRight_user_superuser" role="tabpanel">
-                            <ul class="list-group" style="margin-bottom: 0px">
-                                {% for user in superuser_right %}
-	                        <li class="list-group-item col-xs-12 col-sm-6 col-md-4" style="border:none;">
-                                    {{user}}
-                                    <a role="button" href="{% url 'users:del-superuser' user.pk %}" title="{{ desc|default:"Supprimer" }}">
-                                        <i class="fa fa-times" style="color:red"></i>
-                                    </a>
-                                </li>
-                                {% endfor %}
-							</ul>
-                        </div>
-                    </div>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Users in Superuser" %}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Username" %}</th>
+                                <th>{% trans "Membership" %}</th>
+                                <th>{% trans "Last seen" %}</th>
+                                <th>{% trans "Actions" %}</th>
+                                <th>{% trans "Last action" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        {% for user in superusers %}
+                        <tr>
+                            <td>{{ user.pseudo }}</td>
+                            {% if user.end_adhesion is not None and user.end_adhesion >= now_aware %}
+                            <td class="text-success">{% trans "Member" %}</td>
+                            {% elif not user.end_adhesion %}
+                            <td class="text-warning">{% trans "No membership records" %}</td>
+                            {% else %}
+                            <td class="text-danger">
+                                {% blocktrans trimmed with user.end_adhesion as end_date %}
+                                Not since {{ end_date }}
+                                {% endblocktrans %}
+                            </td>
+                            {% endif %}
+                            <td>{{ user.last_login }}</td>
+                            <td>{{ user.action_number }}</td>
+                            {% if not user.last_seen %}
+                            <td class="text-danger">{% trans "Never" %}</td>
+                            {% else %}
+                            <td class="text-success">{{ user.last_seen }}</td>
+                            {% endif %}
+                            <td>
+                                <a class="btn btn-danger" role="button" href="{% url 'users:del-superuser' user.id %}">
+                                    <span class="fa fa-user-times" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                 </div>
-            </td>
-		</tr>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
-		{% endif %}
-        {% for listright in listright_list %}
-        <tr class="active">
-            <td>
-                {{ listright.name }}
-            </td>
-            <td>{{ listright.gid }}</td>
-	    <td>{{ listright.critical }}</td>
-            <td>
-                <div class="dropdown">
-                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_user_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_user_{{listright.gid}}">
-                        Utilisateurs ({{ listright.user_set.all|length }})
-                    </button>
-                    <button class="btn btn-default" data-parent="#accordion_{{listright.gid}}" type="button" data-toggle="collapse" data-target="#collapseListRight_perm_{{listright.gid}}" aria-expanded="true" aria-controls="collapseListRight_perm_{{listright.gid}}">
-                        Ensemble des permissions ({{ listright.permissions.all|length }})
-                    </button>
-				</div>
-			</td>
-			<td>{{ listright.details }}</td>
-            <td class="text-right">
-                {% include 'buttons/edit.html' with href='users:edit-listright' id=listright.id %}
-                {% include 'buttons/history.html' with href='users:history' name='listright' id=listright.id %}
-            </td>
-        </tr>
-	<tr>
-	    <td colspan=5>
-		<div class="panel-group" id="accordion_{{listright.gid}}" role="tablist" aria-multiselectable="true" style="margin-bottom: 0px;">
-                    <div class="panel" style="border: none;">
-                        <div class="panel-collapse collapse in" id="collapseListRight_perm_{{listright.gid}}" role="tabpanel">
-                            <ul class="list-group" style="margin-bottom: 0px">
-                            {% for perm in listright.permissions.all %}
-                                <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border:none;">
-                                    {{perm.name}}
-                                </li>
-                                {% endfor %}
-                             </ul>
-                        </div>
-                    </div>
-                    <div class="panel" style="border: none;">
-                        <div class="panel-collapse collapse in" id="collapseListRight_user_{{listright.gid}}" role="tabpanel">
-                            <ul class="list-group" style="margin-bottom: 0px">
-                                {% for user in listright.user_set.all %}
-	                        <li class="list-group-item col-xs-12 col-sm-6 col-md-4" style="border:none;">
-                                    {{user}}
-                                    <a role="button" href="{% url 'users:del-group' user.id listright.id %}" title="{{ desc|default:"Supprimer" }}">
-                                        <i class="fa fa-times" style="color:red"></i>
-                                    </a>
-                                </li>
-                                {% endfor %}
-	                    </ul>
-                        </div>
-                    </div>
+{% for right, users in rights.items %}
+<div class="panel panel-default">
+    <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_{{right.id}}">
+            <div class="pull-right">
+                {% if users %}
+                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_{{right.id}}">
+                {% else %}
+                <a type="button" class="btn btn-sm btn-default" disabled="disabled">
+                {% endif %}
+                    {{users.count}} <i class="fa fa-user"></i>
+                </a>
+                {% include 'buttons/edit.html' with href='users:edit-listright' id=right.id %}
+                {% include 'buttons/history.html' with href='users:history' name='listright' id=right.id %}
+            </div>
+            <h4 class="{% if right.critical %}text-danger{% endif %}">
+                <i class="fa fa-address-book"></i>
+                {% blocktrans trimmed with right.name as right_name and right.gid as right_gid %}
+                {{ right_name }} (gid: {{ right_gid }})
+                {% endblocktrans %}
+            </h4>
+            {{ right.details }}
+    </div>
+    <div class="panel-collapse collapse" id="collapse_{{right.id}}">
+        <div class="panel-body">
+            <h4>
+                {% blocktrans trimmed count right.permissions.count as perm_count%}
+                Total: {{ perm_count }} permission
+                {% plural %}
+                Total: {{ perm_count }} permissions
+                {% endblocktrans %}
+            </h4>
+            <ul class="list-group" style="margin-bottom: 0px">
+                {% for perm in right.permissions.all %}
+                <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border:none;">
+                    {{perm.name}}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if users %}
+<div class="modal fade" id="modal_{{right.id}}" tabindex="-1" role="dialog" aria-labelledby="Users">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times"></i>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    {% blocktrans trimmed with right.name as right_name %}
+                    Users in {{ right_name }}
+                    {% endblocktrans %}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Username" %}</th>
+                                <th>{% trans "Membership" %}</th>
+                                <th>{% trans "Last seen" %}</th>
+                                <th>{% trans "Actions" %}</th>
+                                <th>{% trans "Last action" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.pseudo }}</td>
+                            {% if user.end_adhesion is not None and user.end_adhesion >= now_aware %}
+                            <td class="text-success">{% trans "Member" %}</td>
+                            {% elif not user.end_adhesion %}
+                            <td class="text-warning">{% trans "No membership records" %}</td>
+                            {% else %}
+                            <td class="text-danger">
+                                {% blocktrans trimmed with user.end_adhesion as end_date %}
+                                Not since {{ end_date }}
+                                {% endblocktrans %}
+                            </td>
+                            {% endif %}
+                            <td>{{ user.last_login }}</td>
+                            <td>{{ user.action_number }}</td>
+                            {% if not user.last_seen %}
+                            <td class="text-danger">{% trans "Never" %}</td>
+                            {% else %}
+                            <td class="text-success">{{user.last_seen}}</td>
+                            {% endif %}
+                            <td>
+                                <a class="btn btn-danger" role="button" href="{% url 'users:del-group' user.id right.id %}">
+                                    <span class="fa fa-user-times" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                 </div>
-            </td>
-	</tr>
-        {% endfor %}
-    </table>
-
-<script>
-$("#listRights_table").ready( function () {
-    var listRights_div = [{% for listright in listright_list %}[$("#accordion_{{listright.gid}}"), $("#collapseListRight_user_{{listright.gid}}"), $("#collapseListRight_perm_{{listright.gid}}")], {% endfor %}];
-    for (var i=0 ; i<listRights_div.length ; i++) {
-        listRights_div[i][1].collapse({ toggle: true, parent: listRights_div[i][0] });
-        listRights_div[i][2].collapse({ toggle: true, parent: listRights_div[i][0] });
-    }
-} );
-</script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}

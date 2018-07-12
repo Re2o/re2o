@@ -453,27 +453,3 @@ def stats_actions(request):
         },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
-
-
-@login_required
-@can_view_app('users')
-def stats_droits(request):
-    """Affiche la liste des droits et les users ayant chaque droit"""
-    stats_list = {}
-
-    for droit in ListRight.objects.all().select_related('group_ptr'):
-        stats_list[droit] = droit.user_set.all().annotate(
-            num=Count('revision'),
-            last=Max('revision__date_created'),
-        )
-
-    stats_list['Superuser'] = User.objects.filter(is_superuser=True).annotate(
-            num=Count('revision'),
-            last=Max('revision__date_created'),
-    )
-
-    return render(
-        request,
-        'logs/stats_droits.html',
-        {'stats_list': stats_list}
-    )

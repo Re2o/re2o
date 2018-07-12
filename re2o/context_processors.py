@@ -21,8 +21,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """Fonction de context, variables renvoyées à toutes les vues"""
 
-
 from __future__ import unicode_literals
+
+import datetime
+
 from django.contrib import messages
 
 from preferences.models import GeneralOption, OptionalMachine
@@ -46,4 +48,13 @@ def context_user(request):
         # overrides 'site_name' context variable.
         'name_website': GeneralOption.get_cached_value('site_name'),
         'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
+    }
+
+
+def date_now(request):
+    """Add the current date in the context for quick informations and
+    comparisons"""
+    return {
+        'now_aware': datetime.datetime.now(datetime.timezone.utc),
+        'now_naive': datetime.datetime.now()
     }
