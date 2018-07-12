@@ -9,7 +9,7 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0082_auto_20180621_1524'),
+        ('machines', '0083_remove_duplicate_rights'),
     ]
 
     operations = [
