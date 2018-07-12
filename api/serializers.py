@@ -350,7 +350,7 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
                   'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
                   'switchs_web_management_ssl', 'switchs_rest_management',
                   'switchs_management_utils', 'switchs_management_interface_ip',
-                  'provision_switchs_enabled')
+                  'provision_switchs_enabled', 'switchs_provision', 'switchs_management_sftp_creds')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
