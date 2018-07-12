@@ -23,21 +23,35 @@ from django.conf import settings
 from users.models import User, ListRight
 
 
+def split_lines(lines):
+    """
+    Split LDIF lines. They can span over multiple system lines if the
+    following system lines begins with a space.
+    """
+    ret = []
+    for line in lines.split(b'\n'):
+        if line.startswith(b' ') and len(ret) > 1:
+            ret[-1] += line[len(b' '):]
+        else:
+            ret.append(line)
+    return ret
+
+
 def flush_ldap(binddn, bindpass, server, usersdn, groupsdn):
     """
     Perform the python (and more understandable) equivalent of the following commands:
 
-    ldapsearch -A -s one -D $binddn -w $bindpass -H $server -b $usersdn dn \
+    ldapsearch -LLL -s one -D $binddn -w $bindpass -H $server -b $usersdn dn \
             | grep "dn: " | sed -e 's/dn: //g' \
             | ldapdelete -v -D $binddn -w $bindpass -H $server --
-    ldapsearch -A -s one -D $binddn -w $bindpass -H $server -b $usersdn dn \
+    ldapsearch -LLL -s one -D $binddn -w $bindpass -H $server -b $usersdn dn \
             | grep "dn:: " | sed -e 's/dn:: //g' \
             | while read x; do echo "$x" | base64 -d; echo ""; done \
             | ldapdelete -v -D $binddn -w $bindpass -H $server --
-    ldapsearch -A -s one -D $binddn -w $bindpass -H $server -b $groupsdn dn \
+    ldapsearch -LLL -s one -D $binddn -w $bindpass -H $server -b $groupsdn dn \
             | grep "dn: " | sed -e 's/dn: //g' \
             | ldapdelete -v -D $binddn -w $bindpass -H $server --
-    ldapsearch -A -s one -D $binddn -w $bindpass -H $server -b $groupsdn dn \
+    ldapsearch -LLL -s one -D $binddn -w $bindpass -H $server -b $groupsdn dn \
             | grep "dn:: " | sed -e 's/dn:: //g' \
             | while read x; do echo "$x" | base64 -d; echo ""; done \
             | ldapdelete -v -D $binddn -w $bindpass -H $server --
@@ -48,7 +62,7 @@ def flush_ldap(binddn, bindpass, server, usersdn, groupsdn):
     for lookup in (usersdn, groupsdn):
         search_cmd = [
             'ldapsearch',
-            '-A',
+            '-LLL',
             '-s', 'one',
             '-D', binddn,
             '-w', bindpass,
@@ -56,7 +70,7 @@ def flush_ldap(binddn, bindpass, server, usersdn, groupsdn):
             '-b', lookup,
             'dn'
         ]
-        for line in subprocess.check_output(search_cmd).split(b'\n'):
+        for line in split_lines(subprocess.check_output(search_cmd)):
             if line.startswith(b'dn: '):
                 to_remove.append(line[len(b'dn: '):])
             elif line.startswith(b'dn:: '):
