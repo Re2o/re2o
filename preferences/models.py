@@ -35,11 +35,8 @@ from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 from re2o.mixins import AclMixin
-<<<<<<< HEAD
-=======
 from re2o.aes_field import AESEncryptedField
 from datetime import timedelta
->>>>>>> 3d881c4f... Gestion de la clef radius, et serialisation
 
 
 class PreferencesModel(models.Model):
@@ -185,6 +182,10 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         (MACHINE, _("On the IP range's VLAN of the machine")),
         (DEFINED, _("Preset in 'VLAN for machines accepted by RADIUS'")),
     )
+    CHOICE_PROVISION = (
+        ('sftp', 'sftp'),
+        ('tftp', 'tftp'),
+    )
 
     radius_general_policy = models.CharField(
         max_length=32,
@@ -224,6 +225,24 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         null=True,
         help_text="Plage d'ip de management des switchs"
     )
+    switchs_provision = models.CharField(
+        max_length=32,
+        choices=CHOICE_PROVISION,
+        default='tftp',
+        help_text="Mode de récupération des confs par les switchs"
+    )
+    sftp_login = models.CharField(
+        max_length=32,
+        null=True,
+        blank=True,
+        help_text="Login sftp des switchs"
+    )
+    sftp_pass = AESEncryptedField(
+        max_length=63,
+        null=True,
+        blank=True,
+        help_text="Mot de passe sftp"
+    )
 
     @cached_property
     def provisioned_switchs(self):
@@ -248,10 +267,36 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         return self.switchs_management_interface.ipv4
 
     @cached_property
+    def switchs_management_sftp_creds(self):
+        """Credentials des switchs pour provion sftp"""
+        if self.sftp_login and self.sftp_pass:
+            return {'login' : self.sftp_login, 'pass' : self.sftp_pass}
+        else:
+            return None
+
+    @cached_property
+    def switchs_management_utils(self):
+        """Used for switch_conf, return a list of ip on vlans"""
+        from machines.models import Role, Ipv6List, Interface
+        def return_ips_dict(interfaces):
+            return {'ipv4' : [str(interface.ipv4) for interface in interfaces], 'ipv6' : Ipv6List.objects.filter(interface__in=interfaces).values_list('ipv6', flat=True)}
+
+        ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(type__ip_type=self.switchs_ip_type)
+        log_servers = Role.all_interfaces_for_roletype("log-server").filter(type__ip_type=self.switchs_ip_type)
+        radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(type__ip_type=self.switchs_ip_type)
+        dhcp_servers = Role.all_interfaces_for_roletype("dhcp-server")
+        subnet = None
+        subnet6 = None
+        if self.switchs_ip_type:
+            subnet = self.switchs_ip_type.ip_set_full_info
+            subnet6 = self.switchs_ip_type.ip6_set_full_info
+        return {'ntp_servers': return_ips_dict(ntp_servers), 'log_servers': return_ips_dict(log_servers), 'radius_servers': return_ips_dict(radius_servers), 'dhcp_servers': return_ips_dict(dhcp_servers), 'subnet': subnet, 'subnet6': subnet6}
+
+    @cached_property
     def provision_switchs_enabled(self):
         """Return true if all settings are ok : switchs on automatic provision,
         ip_type"""
-        return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists() and self.switchs_management_interface_ip)
+        return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists() and self.switchs_management_interface_ip and bool(self.switchs_provision != 'sftp'  or self.switchs_management_sftp_creds))
 
     class Meta:
         permissions = (
