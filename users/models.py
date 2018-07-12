@@ -52,7 +52,7 @@ import datetime
 from django.db import models
 from django.db.models import Q
 from django import forms
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.template import Context, loader
@@ -538,7 +538,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
         if group_refresh:
-            for group in self.groups.all():
+            # Need to refresh all groups because we don't know which groups
+            # were updated during edition of groups and the user may no longer
+            # be part of the updated group (case of group removal)
+            for group in Group.objects.all():
                 if hasattr(group, 'listright'):
                     group.listright.ldap_sync()
         user_ldap.save()
@@ -1017,6 +1020,16 @@ def user_post_save(**kwargs):
     )
     regen('mailing')
 
+
+@receiver(m2m_changed, sender=User.groups.through)
+def user_group_relation_changed(**kwargs):
+    action = kwargs['action']
+    if action in ('post_add', 'post_remove', 'post_clear'):
+        user = kwargs['instance']
+        user.ldap_sync(base=False,
+                       access_refresh=False,
+                       mac_refresh=False,
+                       group_refresh=True)
 
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
