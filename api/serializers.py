@@ -353,7 +353,10 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
-                  'vlan_decision_nok')
+                  'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
+                  'switchs_web_management_ssl', 'switchs_rest_management',
+                  'switchs_management_utils', 'switchs_management_interface_ip',
+                  'provision_switchs_enabled', 'switchs_provision', 'switchs_management_sftp_creds')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
