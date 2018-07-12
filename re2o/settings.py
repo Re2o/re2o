@@ -125,6 +125,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 're2o.context_processors.context_user',
+                're2o.context_processors.date_now',
             ],
         },
     },

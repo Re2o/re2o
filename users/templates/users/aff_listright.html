@@ -70,7 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% for user in superusers %}
                         <tr>
                             <td>{{ user.pseudo }}</td>
-                            {% if user.end_adhesion is not None and user.end_adhesion >= now %}
+                            {% if user.end_adhesion is not None and user.end_adhesion >= now_aware %}
                             <td class="text-success">{% trans "Member" %}</td>
                             {% elif not user.end_adhesion %}
                             <td class="text-warning">{% trans "No membership records" %}</td>
@@ -175,7 +175,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% for user in users %}
                         <tr>
                             <td>{{ user.pseudo }}</td>
-                            {% if user.end_adhesion is not None and user.end_adhesion >= now %}
+                            {% if user.end_adhesion is not None and user.end_adhesion >= now_aware %}
                             <td class="text-success">{% trans "Member" %}</td>
                             {% elif not user.end_adhesion %}
                             <td class="text-warning">{% trans "No membership records" %}</td>
