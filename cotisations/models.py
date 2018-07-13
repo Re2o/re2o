@@ -562,7 +562,7 @@ class Article(RevMixin, AclMixin, models.Model):
         return (
             self.available_for_everyone
             or user.has_perm('cotisations.buy_every_article'),
-            _("You cannot use this Payment.")
+            _("You cannot buy this Article.")
         )
 
     @classmethod
@@ -677,7 +677,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         The general way of ending a payment.
 
         :param invoice: The invoice being created.
-        :param request: Request sended by the user.
+        :param request: Request sent by the user.
         :param use_payment_method: If `self` has an attribute `payment_method`,
             returns the result of
             `self.payment_method.end_payment(invoice, request)`

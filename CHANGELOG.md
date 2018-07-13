@@ -119,4 +119,4 @@ to the staff members so they can use every type of payment to buy anything.
 Don't forget to run migrations, several settings previously in the `preferences` app ar now
 in their own Payment models.
 
-To have a closer look on how the payments works, pleas go to the wiki.
+To have a closer look on how the payments works, please go to the wiki.
