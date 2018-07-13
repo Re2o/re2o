@@ -649,17 +649,6 @@ class Paiement(RevMixin, AclMixin, models.Model):
         """
         self.moyen = self.moyen.title()
 
-    def save(self, *args, **kwargs):
-        """
-        Override of the herited save function to be sure only one payment
-        method of type 'cheque' exists.
-        """
-        if Paiement.objects.filter(type_paiement=1).count() > 1:
-            raise ValidationError(
-                _("You cannot have multiple payment method of type cheque")
-            )
-        super(Paiement, self).save(*args, **kwargs)
-
     def end_payment(self, invoice, request, use_payment_method=True):
         """
         The general way of ending a payment.
