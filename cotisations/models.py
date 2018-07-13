@@ -554,9 +554,12 @@ class Article(RevMixin, AclMixin, models.Model):
     def can_buy_article(self, user, *_args, **_kwargs):
         """Check if a user can buy this article.
 
-        :param self: The article
-        :param user: The user requesting buying
-        :returns: A boolean stating if usage is granted and an explanation
+        Args:
+            self: The article
+            user: The user requesting buying
+
+        Returns:
+            A boolean stating if usage is granted and an explanation
             message if the boolean is `False`.
         """
         return (
@@ -569,7 +572,8 @@ class Article(RevMixin, AclMixin, models.Model):
     def find_allowed_articles(cls, user):
         """Finds every allowed articles for an user.
 
-        :param user: The user requesting articles.
+        Args:
+            user: The user requesting articles.
         """
         if user.has_perm('cotisations.buy_every_article'):
             return cls.objects.all()
@@ -604,7 +608,8 @@ class Banque(RevMixin, AclMixin, models.Model):
 def check_no_balance():
     """This functions checks that no Paiement with is_balance=True exists
 
-    :raises ValidationError: if such a Paiement exists.
+    Raises:
+        ValidationError: if such a Paiement exists.
     """
     p = Paiement.objects.filter(is_balance=True)
     if len(p)>0:
@@ -619,24 +624,12 @@ class Paiement(RevMixin, AclMixin, models.Model):
     invoice. It's easier to know this information when doing the accouts.
     It is represented by:
         * a name
-        * a type (used for the type 'cheque' which implies the use of a bank
-            and an account number in related models)
     """
-
-    PAYMENT_TYPES = (
-        (0, _l("Standard")),
-        (1, _l("Cheque")),
-    )
 
     # TODO : change moyen to method
     moyen = models.CharField(
         max_length=255,
         verbose_name=_l("Method")
-    )
-    type_paiement = models.IntegerField(
-        choices=PAYMENT_TYPES,
-        default=0,
-        verbose_name=_l("Payment type")
     )
     available_for_everyone = models.BooleanField(
         default=False,
@@ -682,13 +675,15 @@ class Paiement(RevMixin, AclMixin, models.Model):
         """
         The general way of ending a payment.
 
-        :param invoice: The invoice being created.
-        :param request: Request sent by the user.
-        :param use_payment_method: If `self` has an attribute `payment_method`,
-            returns the result of
-            `self.payment_method.end_payment(invoice, request)`
+        Args:
+            invoice: The invoice being created.
+            request: Request sent by the user.
+            use_payment_method: If this flag is set to True and`self` has
+                an attribute `payment_method`, returns the result of
+                `self.payment_method.end_payment(invoice, request)`
 
-        :returns: An `HttpResponse`-like object.
+        Returns:
+            An `HttpResponse`-like object.
         """
         payment_method = find_payment_method(self)
         if payment_method is not None and use_payment_method:
@@ -719,9 +714,11 @@ class Paiement(RevMixin, AclMixin, models.Model):
     def can_use_payment(self, user, *_args, **_kwargs):
         """Check if a user can use this payment.
 
-        :param self: The payment
-        :param user: The user requesting usage
-        :returns: A boolean stating if usage is granted and an explanation
+        Args:
+            self: The payment
+            user: The user requesting usage
+        Returns:
+            A boolean stating if usage is granted and an explanation
             message if the boolean is `False`.
         """
         return (
@@ -734,7 +731,8 @@ class Paiement(RevMixin, AclMixin, models.Model):
     def find_allowed_payments(cls, user):
         """Finds every allowed payments for an user.
 
-        :param user: The user requesting payment methods.
+        Args:
+            user: The user requesting payment methods.
         """
         if user.has_perm('cotisations.use_every_payment'):
             return cls.objects.all()

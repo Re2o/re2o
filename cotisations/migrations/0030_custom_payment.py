@@ -118,6 +118,10 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(add_comnpay),
         migrations.RunPython(add_cheque),
-        migrations.RunPython(add_solde)
+        migrations.RunPython(add_solde),
+        migrations.RemoveField(
+            model_name='paiement',
+            name='type_paiement',
+        ),
 
     ]

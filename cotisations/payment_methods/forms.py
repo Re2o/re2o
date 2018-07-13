@@ -32,12 +32,14 @@ def payment_method_factory(payment, *args, creation=True, **kwargs):
     it is the creation of the payment, a `PaymentMethodForm`.
     Else an empty form.
 
-    :param payment: The payment
-    :param *args: arguments passed to the form
-    :param creation: Should be True if you are creating the payment
-    :param **kwargs: passed to the form
+    Args:
+        payment: The payment
+        *args: arguments passed to the form
+        creation: Should be True if you are creating the payment
+        **kwargs: passed to the form
 
-    :returns: A form
+    Returns:
+        A form
     """
     payment_method = kwargs.pop('instance', find_payment_method(payment))
     if payment_method is not None:
@@ -60,7 +62,7 @@ class PaymentMethodForm(forms.Form):
     payment_method = forms.ChoiceField(
         label=_l("Special payment method"),
         help_text=_l("Warning : You will not be able to change the payment "
-                     "method later. But you will be allowed to edit its "
+                     "method later. But you will be allowed to edit the other "
                      "options."
         ),
         required=False
