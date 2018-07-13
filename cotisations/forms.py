@@ -60,9 +60,7 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
         super(FactureForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['paiement'].empty_label = \
             _("Select a payment method")
-        self.fields['paiement'].queryset = Paiement.objects.filter(
-            pk__in=map(lambda x: x.pk, Paiement.find_allowed_payments(user))
-        )
+        self.fields['paiement'].queryset = Paiement.find_allowed_payments(user)
         if not creation:
             self.fields['user'].label = _("Member")
             self.fields['user'].empty_label = \
@@ -106,9 +104,7 @@ class SelectUserArticleForm(FormRevMixin, Form):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(SelectUserArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.objects.filter(
-            pk__in=map(lambda x: x.pk, Article.find_allowed_articles(user))
-        )
+        self.fields['article'].queryset = Article.find_allowed_articles(user)
 
 
 class SelectClubArticleForm(Form):
@@ -129,12 +125,9 @@ class SelectClubArticleForm(Form):
         required=True
     )
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+    def __init__(self, user, *args, **kwargs):
         super(SelectClubArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.objects.filter(
-            pk__in=map(lambda x: x.pk, Article.find_allowed_articles(user))
-        )
+        self.fields['article'].queryset = Article.find_allowed_articles(user)
 
 
 # TODO : change Facture to Invoice
@@ -284,15 +277,12 @@ class RechargeForm(FormRevMixin, Form):
         label=_l("Payment method")
     )
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
         super(RechargeForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
             _("Select a payment method")
-        self.fields['payment'].queryset = Paiement.objects.filter(
-            pk__in=map(lambda x: x.pk,
-                       Paiement.find_allowed_payments(self.user))
-        )
+        self.fields['payment'].queryset = Paiement.find_allowed_payments(user)
 
     def clean_value(self):
         """

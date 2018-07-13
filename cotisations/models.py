@@ -567,7 +567,13 @@ class Article(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def find_allowed_articles(cls, user):
-        return [p for p in cls.objects.all() if p.can_buy_article(user)[0]]
+        """Finds every allowed articles for an user.
+
+        :param user: The user requesting articles.
+        """
+        if user.has_perm('cotisations.buy_every_article'):
+            return cls.objects.all()
+        return cls.objects.filter(available_for_everyone=True)
 
 
 class Banque(RevMixin, AclMixin, models.Model):
@@ -726,7 +732,13 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def find_allowed_payments(cls, user):
-        return [p for p in cls.objects.all() if p.can_use_payment(user)[0]]
+        """Finds every allowed payments for an user.
+
+        :param user: The user requesting payment methods.
+        """
+        if user.has_perm('cotisations.use_every_payment'):
+            return cls.objects.all()
+        return cls.objects.filter(available_for_everyone=True)
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):
