@@ -191,11 +191,13 @@ def new_facture_pdf(request):
     invoice_form = NewFactureFormPdf(request.POST or None)
     if request.user.is_class_club:
         articles_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'user': request.user}
         )
     else:
         articles_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None
+            request.POST or None,
+            form_kwargs={'user': request.user}
         )
     if invoice_form.is_valid() and articles_formset.is_valid():
         # Get the article list and build an list out of it
