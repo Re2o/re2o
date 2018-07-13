@@ -39,6 +39,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% else %}
 <h3>{% trans "New invoice" %}</h3>
 {% endif %}
+{% if max_balance %}
+<h4>{% trans "Maximum allowed balance : "%}{{max_balance}} €</h4>
+{% endif %}
 {% if balance is not None %}
 <p>
     {% trans "Current balance :" %} {{ balance }} €

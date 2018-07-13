@@ -55,7 +55,9 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         help_text=_l("The maximal amount of money allowed for the balance."),
         max_digits=5,
         decimal_places=2,
-        default=50
+        default=50,
+        blank=True,
+        null=True,
     )
 
     def end_payment(self, invoice, request):

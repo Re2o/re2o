@@ -32,7 +32,7 @@ from __future__ import unicode_literals
 import os
 
 from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import ProtectedError
@@ -696,9 +696,11 @@ def credit_solde(request, user, **_kwargs):
             number=1
         )
         return invoice.paiement.end_payment(invoice, request)
+    p = get_object_or_404(Paiement, is_balance=True)
     return form({
         'factureform': refill_form,
         'balance': request.user.solde,
         'title': _("Refill your balance"),
-        'action_name': _("Pay")
+        'action_name': _("Pay"),
+        'max_balance': p.payment_method.maximum_balance,
     }, 'cotisations/facture.html', request)
