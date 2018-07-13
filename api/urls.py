@@ -100,6 +100,8 @@ router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name=
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 # LOCAL EMAILS
 router.register_view(r'localemail/users', views.LocalEmailUsersView),
+# Firewall
+router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING
