@@ -52,6 +52,7 @@ from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.utils import find_payment_method
+from cotisations.validators import check_no_balance
 
 
 # TODO : change facture to invoice
@@ -604,18 +605,6 @@ class Banque(RevMixin, AclMixin, models.Model):
     def __str__(self):
         return self.name
 
-
-def check_no_balance():
-    """This functions checks that no Paiement with is_balance=True exists
-
-    Raises:
-        ValidationError: if such a Paiement exists.
-    """
-    p = Paiement.objects.filter(is_balance=True)
-    if len(p)>0:
-        raise ValidationError(
-            _("There are already payment method(s) for user balance")
-        )
 
 # TODO : change Paiement to Payment
 class Paiement(RevMixin, AclMixin, models.Model):
