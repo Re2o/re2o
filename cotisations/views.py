@@ -74,7 +74,7 @@ from .forms import (
 )
 from .tex import render_invoice
 from .payment_methods.forms import payment_method_factory
-from cotisations.utils import find_payment_method
+from .utils import find_payment_method
 
 
 @login_required
@@ -121,11 +121,13 @@ def new_facture(request, user, userid):
             new_invoice_instance.save()
             # Building a purchase for each article sold
             purchases = []
+            total_price = 0
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
                     quantity = art_item.cleaned_data['quantity']
-                    new_purchase = Vente.objects.create(
+                    total_price += article.prix*quantity
+                    new_purchase = Vente(
                         facture=new_invoice_instance,
                         name=article.name,
                         prix=article.prix,
@@ -135,17 +137,21 @@ def new_facture(request, user, userid):
                     )
                     purchases.append(new_purchase)
             p = find_payment_method(new_invoice_instance.paiement)
-            if hasattr(p, 'check_invoice'):
-                accept = p.check_invoice(invoice_form)
+            if hasattr(p, 'check_price'):
+                price_ok, msg = p.check_price(total_price, user)
+                invoice_form.add_error(None, msg)
             else:
-                accept = True
-            if accept:
+                price_ok = True
+            if price_ok:
+                new_invoice_instance.save()
+                for p in purchases:
+                    p.facture = new_invoice_instance
+                    p.save()
+
                 return new_invoice_instance.paiement.end_payment(
                     new_invoice_instance,
                     request
                 )
-            else:
-                new_invoice_instance.delete()
         else:
             messages.error(
                 request,
@@ -693,17 +699,25 @@ def credit_solde(request, user, **_kwargs):
     """
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
+        price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
         invoice.paiement = refill_form.cleaned_data['payment']
-        invoice.valid = True
-        invoice.save()
-        Vente.objects.create(
-            facture=invoice,
-            name='solde',
-            prix=refill_form.cleaned_data['value'],
-            number=1
-        )
-        return invoice.paiement.end_payment(invoice, request)
+        p = find_payment_method(invoice.paiement)
+        if hasattr(p, 'check_price'):
+            price_ok, msg = p.check_price(price, user)
+            refill_form.add_error(None, msg)
+        else:
+            price_ok = True
+        if price_ok:
+            invoice.valid = True
+            invoice.save()
+            Vente.objects.create(
+                facture=invoice,
+                name='solde',
+                prix=refill_form.cleaned_data['value'],
+                number=1
+            )
+            return invoice.paiement.end_payment(invoice, request)
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
         'factureform': refill_form,

@@ -24,6 +24,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 from django.contrib import messages
+from django.forms import ValidationError
 
 
 from cotisations.models import Paiement
@@ -96,23 +97,11 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         """Register the payment as a balance payment."""
         self.payment.is_balance = True
 
-    def check_invoice(self, invoice_form):
-        """Checks that a invoice meets the requirement to be paid with user
+    def check_price(self, price, user, *args, **kwargs):
+        """Checks that the price meets the requirement to be paid with user
         balance.
-
-        Args:
-            invoice_form: The invoice_form which is to be checked.
-
-        Returns:
-            True if the form is valid for this payment.
-
         """
-        user = invoice_form.instance.user
-        total_price = invoice_form.instance.prix_total()
-        if float(user.solde) - float(total_price) < self.minimum_balance:
-            invoice_form.add_error(
-                'paiement',
-                _("Your balance is too low for this operation.")
-            )
-            return False
-        return True
+        return (
+            float(user.solde) - float(price) >= self.minimum_balance,
+            _("Your balance is too low for this operation.")
+        )

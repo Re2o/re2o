@@ -95,22 +95,10 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         }
         return render(request, 'cotisations/payment.html', r)
 
-    def check_invoice(self, invoice_form):
-        """Checks that a invoice meets the requirement to be paid with ComNpay.
-
-        Args:
-            invoice_form: The invoice_form which is to be checked.
-
-        Returns:
-            True if the form is valid for ComNpay.
-
+    def check_price(self, price, *args, **kwargs):
+        """Checks that the price meets the requirement to be paid with ComNpay.
         """
-        if invoice_form.instance.prix_total() < self.minimum_payment:
-            invoice_form.add_error(
-                'paiement',
+        return ((price >= self.minimum_payment),
                 _('In order to pay your invoice with ComNpay'
                   ', the price must be grater than {} €')
-                .format(self.minimum_payment)
-            )
-            return False
-        return True
+                .format(self.minimum_payment))
