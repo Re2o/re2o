@@ -281,13 +281,7 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <i class="fa fa-euro-sign"></i>
                     Modifier le solde
                 </a>
-                {% endif%}{% acl_else %}
-                {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
-                    <i class="fa fa-euro-sign"></i>
-                    Ajouter une cotisation par solde
-                </a>
-                {% endif %}
+                {% endif%}
                 {% acl_end %}
             </div>
             <div class="panel-body">

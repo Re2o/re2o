@@ -367,7 +367,8 @@ def add_article(request):
         return redirect(reverse('cotisations:index-article'))
     return form({
         'factureform': article,
-        'action_name': _("Add")
+        'action_name': _("Add"),
+        'title': _("New article")
     }, 'cotisations/facture.html', request)
 
 
@@ -388,7 +389,8 @@ def edit_article(request, article_instance, **_kwargs):
         return redirect(reverse('cotisations:index-article'))
     return form({
         'factureform': article,
-        'action_name': _('Edit')
+        'action_name': _('Edit'),
+        'title': _("Edit article")
     }, 'cotisations/facture.html', request)
 
 
@@ -409,7 +411,8 @@ def del_article(request, instances):
         return redirect(reverse('cotisations:index-article'))
     return form({
         'factureform': article,
-        'action_name': _("Delete")
+        'action_name': _("Delete"),
+        'title': _("Delete article")
     }, 'cotisations/facture.html', request)
 
 
@@ -472,9 +475,11 @@ def edit_paiement(request, paiement_instance, **_kwargs):
     return form({
         'factureform': payment,
         'payment_method': payment_method,
-        'action_name': _("Edit")
+        'action_name': _("Edit"),
+        'title': _("Edit payment method")
     }, 'cotisations/facture.html', request)
 
+        'title': _("New payment method")
 
 # TODO : change paiement to payment
 @login_required
@@ -507,7 +512,8 @@ def del_paiement(request, instances):
         return redirect(reverse('cotisations:index-paiement'))
     return form({
         'factureform': payment,
-        'action_name': _("Delete")
+        'action_name': _("Delete"),
+        'title': _("Delete payment method")
     }, 'cotisations/facture.html', request)
 
 
@@ -528,7 +534,8 @@ def add_banque(request):
         return redirect(reverse('cotisations:index-banque'))
     return form({
         'factureform': bank,
-        'action_name': _("Add")
+        'action_name': _("Add"),
+        'title': _("New bank")
     }, 'cotisations/facture.html', request)
 
 
@@ -550,7 +557,8 @@ def edit_banque(request, banque_instance, **_kwargs):
         return redirect(reverse('cotisations:index-banque'))
     return form({
         'factureform': bank,
-        'action_name': _("Edit")
+        'action_name': _("Edit"),
+        'title': _("Edit bank")
     }, 'cotisations/facture.html', request)
 
 
@@ -585,7 +593,8 @@ def del_banque(request, instances):
         return redirect(reverse('cotisations:index-banque'))
     return form({
         'factureform': bank,
-        'action_name': _("Delete")
+        'action_name': _("Delete"),
+        'title': _("Delete bank")
     }, 'cotisations/facture.html', request)
 
 
