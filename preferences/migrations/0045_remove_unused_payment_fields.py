@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('preferences', '0044_remove_payment_pass'),
-        ('cotisations', '0032_chequepayment_comnpaypayment'),
+        ('cotisations', '0030_custom_payment'),
     ]
 
     operations = [
