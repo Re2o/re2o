@@ -30,10 +30,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Invoices creation and edition" %}{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors factureform %}
-{% if payment_method %}
-{% bootstrap_form_errors payment_method %}
-{% endif %}
 {% if title %}
 <h3>{{title}}</h3>
 {% else %}
