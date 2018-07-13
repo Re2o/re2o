@@ -81,7 +81,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <script type="text/javascript">
 {% if articlesformset %}
     var prices = {};
-    {% for article in articles %}
+    {% for article in articlelist %}
     prices[{{ article.id|escapejs }}] = {{ article.prix }};
     {% endfor %}
 
