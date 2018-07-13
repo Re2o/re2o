@@ -104,6 +104,8 @@ router.register_view(r'switchs/ports-config', views.SwitchPortView),
 router.register_view(r'switchs/role', views.RoleView),
 # Reminder
 router.register_view(r'reminder/get-users', views.ReminderView),
+# Firewall
+router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING

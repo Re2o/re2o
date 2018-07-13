@@ -541,6 +541,12 @@ class HostMacIpView(generics.ListAPIView):
     serializer_class = serializers.HostMacIpSerializer
 
 
+#Firewall
+
+class SubnetPortsOpenView(generics.ListAPIView):
+    queryset = machines.IpType.objects.all()
+    serializer_class = serializers.SubnetPortsOpenSerializer
+
 # DNS
 
 class DNSZonesView(generics.ListAPIView):
