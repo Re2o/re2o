@@ -30,6 +30,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 
 from cotisations.models import Facture as Invoice
+from cotisations.utils import find_payment_method
 
 from .models import ChequePayment
 from .forms import InvoiceForm
@@ -39,7 +40,7 @@ from .forms import InvoiceForm
 def cheque(request, invoice_pk):
     """This view validate an invoice with the data from a cheque."""
     invoice = get_object_or_404(Invoice, pk=invoice_pk)
-    payment_method = getattr(invoice.paiement, 'payment_method', None)
+    payment_method = find_payment_method(invoice.paiement)
     if invoice.valid or not isinstance(payment_method, ChequePayment):
         messages.error(
             request,

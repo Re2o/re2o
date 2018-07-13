@@ -479,7 +479,6 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         'title': _("Edit payment method")
     }, 'cotisations/facture.html', request)
 
-        'title': _("New payment method")
 
 # TODO : change paiement to payment
 @login_required
