@@ -155,7 +155,7 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 models.F('prix')*models.F('number'),
                 output_field=models.FloatField()
             )
-        )['total']
+        )['total'] or 0
 
     def name(self):
         """

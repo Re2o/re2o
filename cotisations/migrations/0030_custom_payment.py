@@ -103,6 +103,7 @@ class Migration(migrations.Migration):
                 ('payment_credential', models.CharField(blank=True, default='', max_length=255, verbose_name='ComNpay VAD Number')),
                 ('payment_pass', re2o.aes_field.AESEncryptedField(blank=True, max_length=255, null=True, verbose_name='ComNpay Secret Key')),
                 ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
+                ('minimum_payment', models.DecimalField(decimal_places=2, default=1, help_text='The minimal amount of money you have to use when paying with ComNpay', max_digits=5, verbose_name='Minimum payment')),
             ],
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
         ),

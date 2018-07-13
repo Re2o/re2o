@@ -95,3 +95,24 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     def alter_payment(self, payment):
         """Register the payment as a balance payment."""
         self.payment.is_balance = True
+
+    def check_invoice(self, invoice_form):
+        """Checks that a invoice meets the requirement to be paid with user
+        balance.
+
+        Args:
+            invoice_form: The invoice_form which is to be checked.
+
+        Returns:
+            True if the form is valid for this payment.
+
+        """
+        user = invoice_form.instance.user
+        total_price = invoice_form.instance.prix_total()
+        if float(user.solde) - float(total_price) < self.minimum_balance:
+            invoice_form.add_error(
+                'paiement',
+                _("Your balance is too low for this operation.")
+            )
+            return False
+        return True

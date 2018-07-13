@@ -74,6 +74,7 @@ from .forms import (
 )
 from .tex import render_invoice
 from .payment_methods.forms import payment_method_factory
+from cotisations.utils import find_payment_method
 
 
 @login_required
@@ -118,8 +119,8 @@ def new_facture(request, user, userid):
         # Check if at leat one article has been selected
         if any(art.cleaned_data for art in articles):
             new_invoice_instance.save()
-
             # Building a purchase for each article sold
+            purchases = []
             for art_item in articles:
                 if art_item.cleaned_data:
                     article = art_item.cleaned_data['article']
@@ -132,17 +133,24 @@ def new_facture(request, user, userid):
                         duration=article.duration,
                         number=quantity
                     )
-                    new_purchase.save()
-
-            return new_invoice_instance.paiement.end_payment(
-                new_invoice_instance,
-                request
+                    purchases.append(new_purchase)
+            p = find_payment_method(new_invoice_instance.paiement)
+            if hasattr(p, 'check_invoice'):
+                accept = p.check_invoice(invoice_form)
+            else:
+                accept = True
+            if accept:
+                return new_invoice_instance.paiement.end_payment(
+                    new_invoice_instance,
+                    request
+                )
+            else:
+                new_invoice_instance.delete()
+        else:
+            messages.error(
+                request,
+                _("You need to choose at least one article.")
             )
-
-        messages.error(
-            request,
-            _("You need to choose at least one article.")
-        )
     p = Paiement.objects.filter(is_balance=True)
     if len(p) and p[0].can_use_payment(request.user):
         balance = user.solde

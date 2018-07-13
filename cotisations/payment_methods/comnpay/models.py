@@ -53,6 +53,14 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         blank=True,
         verbose_name=_l("ComNpay Secret Key"),
     )
+    minimum_payment = models.DecimalField(
+        verbose_name=_l("Minimum payment"),
+        help_text=_l("The minimal amount of money you have to use when paying"
+                     " with ComNpay"),
+        max_digits=5,
+        decimal_places=2,
+        default=1,
+    )
 
     def end_payment(self, invoice, request):
         """
@@ -86,3 +94,23 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
             'amount': invoice.prix_total(),
         }
         return render(request, 'cotisations/payment.html', r)
+
+    def check_invoice(self, invoice_form):
+        """Checks that a invoice meets the requirement to be paid with ComNpay.
+
+        Args:
+            invoice_form: The invoice_form which is to be checked.
+
+        Returns:
+            True if the form is valid for ComNpay.
+
+        """
+        if invoice_form.instance.prix_total() < self.minimum_payment:
+            invoice_form.add_error(
+                'paiement',
+                _('In order to pay your invoice with ComNpay'
+                  ', the price must be grater than {} €')
+                .format(self.minimum_payment)
+            )
+            return False
+        return True
