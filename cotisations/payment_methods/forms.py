@@ -104,6 +104,8 @@ class PaymentMethodForm(forms.Form):
         Tries to call `payment_method.alter_payment` if it exists.
         """
         commit = kwargs.pop('commit', True)
+        if not hasattr(self, 'payment_method'):
+            return None
         self.payment_method.payment = payment
         if hasattr(self.payment_method, 'alter_payment'):
             self.payment_method.alter_payment(payment)
