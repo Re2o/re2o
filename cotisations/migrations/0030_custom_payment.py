@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='paiement',
-            options={'permissions': (('view_paiement', "Can see a payement's details"), ('use_every_payment', 'Can use a payement')), 'verbose_name': 'Payment method', 'verbose_name_plural': 'Payment methods'},
+            options={'permissions': (('view_paiement', "Can see a payement's details"), ('use_every_payment', 'Can use every payement')), 'verbose_name': 'Payment method', 'verbose_name_plural': 'Payment methods'},
         ),
         migrations.AlterModelOptions(
             name='article',
