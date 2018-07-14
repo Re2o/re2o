@@ -104,6 +104,7 @@ router.register_view(r'localemail/users', views.LocalEmailUsersView),
 router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
+router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
 # MAILING
 router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),

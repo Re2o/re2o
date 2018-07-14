@@ -353,6 +353,17 @@ class IpType(RevMixin, AclMixin, models.Model):
             ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
+    def get_associated_ptr_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
+                .filter(type__ip_type=self)
+                .filter(ipv4__isnull=False))
+
+    def get_associated_ptr_v6_records(self):
+        from re2o.utils import all_active_interfaces
+        return (all_active_interfaces(full=True)
+                .filter(type__ip_type=self))
+
     def clean(self):
         """ Nettoyage. Vérifie :
         - Que ip_stop est après ip_start
