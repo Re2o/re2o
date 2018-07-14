@@ -888,6 +888,26 @@ class DNSZonesSerializer(serializers.ModelSerializer):
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
                   'aaaa_records', 'cname_records')
 
+
+class DNSReverseZonesSerializer(serializers.ModelSerializer):
+    """Serialize the data about DNS Zones.
+    """
+    soa = SOARecordSerializer(source='extension.soa')
+    extension = serializers.CharField(source='extension.name', read_only=True)
+    cidrs = serializers.CharField(source='ip_set_cidrs_as_str', read_only=True)
+    ns_records = NSRecordSerializer(many=True, source='extension.ns_set')
+    mx_records = MXRecordSerializer(many=True, source='extension.mx_set')
+    txt_records = TXTRecordSerializer(many=True, source='extension.txt_set')
+    ptr_records = ARecordSerializer(many=True, source='get_associated_ptr_records')
+    ptr_v6_records = AAAARecordSerializer(many=True, source='get_associated_ptr_v6_records')
+
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
+                  'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs')
+
+
 #REMINDER
 
 
