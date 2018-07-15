@@ -565,7 +565,8 @@ class Article(RevMixin, AclMixin, models.Model):
         """
         return (
             self.available_for_everyone
-            or user.has_perm('cotisations.buy_every_article'),
+            or user.has_perm('cotisations.buy_every_article')
+            or user.has_perm('cotisations.add_facture'),
             _("You cannot buy this Article.")
         )
 
@@ -701,7 +702,8 @@ class Paiement(RevMixin, AclMixin, models.Model):
         """
         return (
             self.available_for_everyone
-            or user.has_perm('cotisations.use_every_payment'),
+            or user.has_perm('cotisations.use_every_payment')
+            or user.has_perm('cotisations.add_facture'),
             _("You cannot use this Payment.")
         )
 
