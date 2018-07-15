@@ -414,7 +414,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
-        return (self.state == User.STATE_ACTIVE and
+        if(OptionalUser.get_cached_value('mail_verification') and not self.verified and self.verification_deadline is not None and datetime.now() > self.verification_deadline):
+            verified = False
+        else:
+            verified = True
+        return (verified and self.state == User.STATE_ACTIVE and
                 not self.is_ban() and
                 (self.is_connected() or self.is_whitelisted()))
 
