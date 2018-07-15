@@ -111,11 +111,17 @@ def new_user(request):
     GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
     GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
+        password = user.cleaned_data['password2']
         user = user.save(commit=False)
         user.save()
-        user.reset_passwd_mail(request)
-        messages.success(request, "L'utilisateur %s a été crée, un mail\
-        pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
+        if(password != ""):
+            user.set_password(password)
+            user.save()
+            messages.success(request, "L'utilisateur %s a été créé" % user.pseudo)
+        else:
+            user.reset_passwd_mail(request)
+            messages.success(request, "L'utilisateur %s a été crée, un mail\
+            pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user.id)}

@@ -295,6 +295,14 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
+
+    password1 = forms.CharField(widget=forms.PasswordInput, required=False)
+    password2 = forms.CharField(widget=forms.PasswordInput, required=False)
+    force = forms.BooleanField(
+        label="Forcer le déménagement ?",
+        initial=False,
+        required=False
+    )
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -305,6 +313,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = 'Chambre'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
+        self.fields['password1'].label = 'Mot de passe'
+        self.fields['password2'].label = 'Mot de passe (répétez)'
+        self.fields['password2'].help_text = 'Laisser les champs mot de passe vide pour envoyer un mail d\'initialisation'
 
     class Meta:
         model = Adherent
@@ -330,11 +341,16 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             )
         return telephone
 
-    force = forms.BooleanField(
-        label="Forcer le déménagement ?",
-        initial=False,
-        required=False
-    )
+    def clean_password2(self):
+        """Vérifie si les mots de passe sont identiques"""
+        password1 = self.cleaned_data['password1']
+        password2 = self.cleaned_data['password2']
+        if(password1 != password2):
+            raise forms.ValidationError(
+                "Les mots de passe sont différents"
+            )
+        return password2
+
 
     def clean_force(self):
         """On supprime l'ancien user de la chambre si et seulement si la
