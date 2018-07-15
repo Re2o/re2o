@@ -172,6 +172,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                     </div>
                     <div class="col-sm-8 text-left">
+			{% if user.is_authenticated and user.verification_message %}
+			<div class="alert alert-danger">{{user.verification_message}}</div>
+			{% endif %}
                         {# Display django.contrib.messages as Bootstrap alerts #}
                         {% bootstrap_messages %}
                         <hr>

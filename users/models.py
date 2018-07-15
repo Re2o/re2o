@@ -618,6 +618,17 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             fail_silently=False
         )
         return
+    
+    @property
+    def verification_message(self):
+        if(OptionalUser.get_cached_value('mail_verification') and not self.verified):
+            if(self.verification_deadline is not None):
+                message = 'Votre adresse mail n\'est pas vérifiée. Si vous ne vérifiez pas votre adresse mail, toute connexion sera intérrompu le ' + self.verification_deadline
+            else:
+                message = 'Votre adresse mail n\'est pas vérifiée.'
+            return message
+        else:
+            return False
 
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
