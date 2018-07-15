@@ -232,6 +232,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True,
         null = True
     )
+    verification_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['surname', 'email']
