@@ -232,9 +232,9 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             return True, None
         if len(Paiement.find_allowed_payments(user_request)) <= 0:
             return False, _("There are no payment types which you can use.")
-        if len(Article.find_allowed_articles(user_request)):
+        if len(Article.find_allowed_articles(user_request)) <= 0:
             return False, _("There are no article that you can buy.")
-        return True
+        return True, None
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
