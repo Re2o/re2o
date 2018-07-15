@@ -95,6 +95,7 @@ class Migration(migrations.Migration):
                 ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
             ],
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
+            options={'verbose_name': 'Cheque'},
         ),
         migrations.CreateModel(
             name='ComnpayPayment',
@@ -106,6 +107,7 @@ class Migration(migrations.Migration):
                 ('minimum_payment', models.DecimalField(decimal_places=2, default=1, help_text='The minimal amount of money you have to use when paying with ComNpay', max_digits=5, verbose_name='Minimum payment')),
             ],
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
+            options={'verbose_name': 'ComNpay'},
         ),
         migrations.CreateModel(
             name='BalancePayment',
@@ -116,6 +118,7 @@ class Migration(migrations.Migration):
                 ('maximum_balance', models.DecimalField(decimal_places=2, default=50, help_text='The maximal amount of money allowed for the balance.', max_digits=5, verbose_name='Maximum balance', null=True, blank=True)),
             ],
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
+            options={'verbose_name': 'User Balance'},
         ),
         migrations.RunPython(add_comnpay),
         migrations.RunPython(add_cheque),

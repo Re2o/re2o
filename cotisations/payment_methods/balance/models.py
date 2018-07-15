@@ -24,7 +24,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
 from django.contrib import messages
-from django.forms import ValidationError
 
 
 from cotisations.models import Paiement
@@ -35,6 +34,10 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     """
     The model allowing you to pay with a cheque.
     """
+
+    class Meta:
+        verbose_name = _l("User Balance")
+
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,

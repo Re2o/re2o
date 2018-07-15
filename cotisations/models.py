@@ -716,6 +716,12 @@ class Paiement(RevMixin, AclMixin, models.Model):
             return cls.objects.all()
         return cls.objects.filter(available_for_everyone=True)
 
+    def get_payment_method_name(self):
+        p = find_payment_method(self)
+        if p is not None:
+            return p._meta.verbose_name
+        return _("No custom payment method")
+
 
 class Cotisation(RevMixin, AclMixin, models.Model):
     """

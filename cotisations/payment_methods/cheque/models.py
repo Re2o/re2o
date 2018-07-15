@@ -21,6 +21,7 @@
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _l
 
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
@@ -30,6 +31,10 @@ class ChequePayment(PaymentMethodMixin, models.Model):
     """
     The model allowing you to pay with a cheque.
     """
+
+    class Meta:
+        verbose_name = _l("Cheque")
+
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,

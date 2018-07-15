@@ -35,6 +35,10 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     """
     The model allowing you to pay with COMNPAY.
     """
+
+    class Meta:
+        verbose_name = "ComNpay"
+
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,

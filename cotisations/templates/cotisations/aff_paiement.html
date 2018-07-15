@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Payment type" %}</th>
                 <th>{% trans "Is available for everyone" %}</th>
+                <th>{% trans "Custom payment method" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -37,6 +38,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ paiement.moyen }}</td>
             <td>{{ paiement.available_for_everyone }}</td>
+            <td>
+                {{paiement.get_payment_method_name}}
+            </td>
             <td class="text-right">
                 {% can_edit paiement %}
                 <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-paiement' paiement.id %}">
