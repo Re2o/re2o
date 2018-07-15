@@ -496,6 +496,17 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+# Server mail config
+
+
+class UserMailAliasView(generics.ListAPIView):
+    """Expose all the aliases of the users that activated the internal address
+    """
+
+    queryset = users.User.objects.filter(internal_address=True)
+    serializer_class = serializers.UserMailAliasSerializer
+
+
 # DHCP
 
 class HostMacIpView(generics.ListAPIView):

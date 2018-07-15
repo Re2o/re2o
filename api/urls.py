@@ -98,6 +98,8 @@ router.register_viewset(r'users/mailalias', views.MailAliasViewSet)
 router.register_viewset(r'services/regen', views.ServiceRegenViewSet, base_name='serviceregen')
 # DHCP
 router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
+# Mail config
+router.register_view(r'mail/alias', views.UserMailAliasView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 # MAILING

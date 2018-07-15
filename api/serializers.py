@@ -608,6 +608,9 @@ class MailAliasSerializer(NamespacedHMSerializer):
         fields = ('user', 'valeur', 'complete_mail')
 
 
+
+
+
 # SERVICE REGEN
 
 
@@ -624,6 +627,17 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
         extra_kwargs = {
             'api_url': {'view_name': 'serviceregen-detail'}
         }
+        
+# Configuration mail
+
+
+class UserMailAliasSerializer(NamespacedHMSerializer): 
+    get_mail_aliases = MailAliasSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = users.User
+        fields = ('pseudo', 'get_mail_aliases')
+
 
 
 # DHCP
