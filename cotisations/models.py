@@ -228,13 +228,13 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: a message and a boolean which is True if the user can create
             an invoice or if the `options.allow_self_subscription` is set.
         """
-        nb_payments = len(Paiement.find_allowed_payments(user_request))
-        nb_articles = len(Article.find_allowed_articles(user_request))
-        return (
-            user_request.has_perm('cotisations.add_facture')
-            or (nb_payments*nb_articles),
-            _("You don't have the right to create an invoice.")
-        )
+        if user_request.has_perm('cotisations.add_facture'):
+            return True, None
+        if len(Paiement.find_allowed_payments(user_request)) <= 0:
+            return False, _("There are no payment types which you can use.")
+        if len(Article.find_allowed_articles(user_request)):
+            return False, _("There are no article that you can buy.")
+        return True
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
