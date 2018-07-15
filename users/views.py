@@ -899,8 +899,8 @@ def profil(request, users, **_kwargs):
         SortTable.USERS_INDEX_WHITE
     )
     balance, _created = Paiement.objects.get_or_create(moyen="solde")
-    user_solde = Facture.can_create(request.user) \
-        and balance.can_use_payment(request.user)
+    user_solde = Facture.can_create(request.user)[0] \
+        and balance.can_use_payment(request.user)[0]
     return render(
         request,
         'users/profil.html',
