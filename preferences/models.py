@@ -31,7 +31,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
-import cotisations.models
 import machines.models
 from re2o.mixins import AclMixin
 
@@ -89,11 +88,6 @@ class OptionalUser(AclMixin, PreferencesModel):
         permissions = (
             ("view_optionaluser", "Peut voir les options de l'user"),
         )
-
-    def clean(self):
-        """Creation du mode de paiement par solde"""
-        if self.user_solde:
-            cotisations.models.Paiement.objects.get_or_create(is_balance=True)
 
 
 @receiver(post_save, sender=OptionalUser)
