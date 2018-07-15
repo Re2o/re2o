@@ -71,6 +71,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  	    <th>Shell par défaut des utilisateurs</th>
             <td>{{ useroptions.shell_default }}</td>       
 	</tr>
+	<tr>
+	    <th>Vérification du mail</th>
+	    <td>{{ useroptions.mail_verification}}</td>
+	    {% if useroptions.mail_verification %}
+	    <th>Temps pour vérifier</th>
+	    <td>{{ useroptions.verification_time | default:"0" }}h</td>
+	    {% endif %}
+	</tr>
     </table>
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">

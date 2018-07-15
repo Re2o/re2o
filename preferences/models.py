@@ -102,6 +102,15 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    mail_verification = models.BooleanField(
+        default=True,
+        help_text = "Vérification du mail obligatoire"
+    )
+    verification_time = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text = "Durée (en heures) pour vérifier son compte (laisser vide pour ne pas avoir de limite"
+    )
 
     class Meta:
         permissions = (
