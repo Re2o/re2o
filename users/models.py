@@ -225,6 +225,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True,
         null=True
     )
+    verified = models.BooleanField(
+        default=False
+    )
+    verification_deadline = models.DateTimeField(
+        blank=True,
+        null = True
+    )
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['surname', 'email']
