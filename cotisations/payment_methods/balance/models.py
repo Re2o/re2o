@@ -63,6 +63,10 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         blank=True,
         null=True,
     )
+    credit_balance_allowed = models.BooleanField(
+        verbose_name=_l("Allow user to credit their balance"),
+        default=False,
+    )
 
     def end_payment(self, invoice, request):
         """Changes the user's balance to pay the invoice. If it is not
@@ -108,3 +112,9 @@ class BalancePayment(PaymentMethodMixin, models.Model):
             float(user.solde) - float(price) >= self.minimum_balance,
             _("Your balance is too low for this operation.")
         )
+
+    def can_credit_balance(self, user_request):
+        return (
+            len(Paiement.find_allowed_payments(user_request)
+                .exclude(is_balance=True)) > 0
+        ) and self.credit_balance_allowed

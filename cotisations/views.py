@@ -699,13 +699,31 @@ def index(request):
 
 # TODO : change solde to balance
 @login_required
-@can_create(Facture)
 @can_edit(User)
 def credit_solde(request, user, **_kwargs):
     """
     View used to edit the balance of a user.
     Can be use either to increase or decrease a user's balance.
     """
+    try:
+        balance = find_payment_method(Paiement.objects.get(is_balance=True))
+    except Paiement.DoesNotExist:
+        credit_allowed = False
+    else:
+        credit_allowed = (
+            balance is not None
+            and balance.can_credit_balance(request.user)
+        )
+    if not credit_allowed:
+        messages.error(
+            request,
+            _("You are not allowed to credit your balance.")
+        )
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': user.id}
+        ))
+
     refill_form = RechargeForm(request.POST or None, user=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']

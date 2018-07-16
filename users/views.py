@@ -67,6 +67,7 @@ from re2o.acl import (
     can_view_all,
     can_change
 )
+from cotisations.utils import find_payment_method
 
 from .serializers import MailingSerializer, MailingMemberSerializer
 from .models import (
@@ -898,9 +899,15 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.USERS_INDEX_WHITE
     )
-    balance, _created = Paiement.objects.get_or_create(moyen="solde")
-    user_solde = Facture.can_create(request.user)[0] \
-        and balance.can_use_payment(request.user)[0]
+    try:
+        balance = find_payment_method(Paiement.objects.get(is_balance=True))
+    except Paiement.DoesNotExist:
+        user_solde = False
+    else:
+        user_solde = (
+            balance is not None
+            and balance.can_credit_balance(request.user)
+        )
     return render(
         request,
         'users/profil.html',
