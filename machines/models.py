@@ -39,7 +39,7 @@ from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from macaddress.fields import MACAddressField
 
@@ -343,6 +343,13 @@ class IpType(RevMixin, AclMixin, models.Model):
         null=True,
         blank=True
     )
+    prefix_v6_length = models.IntegerField(
+        default=64,
+        validators=[
+            MaxValueValidator(128),
+            MinValueValidator(0)
+        ]
+        )
     dnssec_reverse_v6 = models.BooleanField(
             default=False,
             help_text="Activer DNSSEC sur le reverse DNS IPv6",
@@ -405,7 +412,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             return {
                 'network' : str(self.prefix_v6),
                 'netmask' : 'ffff:ffff:ffff:ffff::',
-                'netmask_cidr' : '64',
+                'netmask_cidr' : str(self.prefix_v6_length),
                 'vlan': str(self.vlan),
                 'vlan_id': self.vlan.vlan_id
             }
