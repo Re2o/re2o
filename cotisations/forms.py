@@ -291,7 +291,7 @@ class RechargeForm(FormRevMixin, Form):
         the value is well inside the possible limits
         """
         value = self.cleaned_data['value']
-        balance_method, _created = get_object_or_404(balance.PaymentMethod)
+        balance_method = get_object_or_404(balance.PaymentMethod)
         if balance_method.maximum_balance is not None and \
            value + self.user.solde > balance_method.maximum_balance:
             raise forms.ValidationError(
