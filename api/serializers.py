@@ -822,7 +822,7 @@ class DNSReverseZonesSerializer(serializers.ModelSerializer):
     """
     soa = SOARecordSerializer(source='extension.soa')
     extension = serializers.CharField(source='extension.name', read_only=True)
-    cidrs = serializers.CharField(source='ip_set_cidrs_as_str', read_only=True)
+    cidrs = serializers.ListField(child=serializers.CharField(), source='ip_set_cidrs_as_str', read_only=True)
     ns_records = NSRecordSerializer(many=True, source='extension.ns_set')
     mx_records = MXRecordSerializer(many=True, source='extension.mx_set')
     txt_records = TXTRecordSerializer(many=True, source='extension.txt_set')
