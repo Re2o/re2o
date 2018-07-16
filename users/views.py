@@ -113,6 +113,11 @@ def new_user(request):
     if user.is_valid():
         password = user.cleaned_data['password2']
         user = user.save(commit=False)
+        if(OptionalUser.get_cached_value('mail_verification'):
+            user.send_verification_mail(request)
+            messages.warning(request, "Un mail pour vérifier l'adresse a été envoyé")
+            if(OptionalUser.get_cached_value('verification_time')>0):
+                user.verification_deadline = datetime.datetime.now() + datetime.timedelta(hours=OptionalUser.get_cached_value('verification_time'))
         user.save()
         if(password != ""):
             user.set_password(password)
@@ -953,7 +958,15 @@ def process(request, token):
     req = get_object_or_404(valid_reqs, token=token)
 
     if req.type == Request.PASSWD:
+        user = req.user
+        user.mail_verification = True
+        user.save()
         return process_passwd(request, req)
+    elif req.type == Request.EMAIL:
+        user = req.user
+        user.mail_verification = True
+        user.save()
+        return redirect(reverse('login'))
     else:
         messages.error(request, "Entrée incorrecte, contactez un admin")
         redirect(reverse('index'))

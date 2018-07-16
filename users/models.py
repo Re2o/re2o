@@ -232,7 +232,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True,
         null = True
     )
-    verification_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['surname', 'email']
@@ -590,6 +589,36 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
         return
 
+def send_verification_mail(self, request):
+        """ Prend en argument un request, envoie un mail de
+        vérification"""
+        req = Request()
+        req.type = Request.EMAIL
+        req.user = self
+        req.save()
+        template = loader.get_template('users/email_verification_request')
+        context = {
+            'name': req.user.get_full_name(),
+            'asso': AssoOption.get_cached_value('name'),
+            'asso_mail': AssoOption.get_cached_value('contact'),
+            'site_name': GeneralOption.get_cached_value('site_name'),
+            'url': request.build_absolute_uri(
+                reverse('users:process', kwargs={'token': req.token})
+            ),
+            'expire_in': str(
+                GeneralOption.get_cached_value('req_expire_hrs')
+            ) + ' heures',
+        }
+        send_mail(
+            'Changement du compte de %(name)s / Account verification for '
+            '%(name)s' % {'name': AssoOption.get_cached_value('name')},
+            template.render(context),
+            GeneralOption.get_cached_value('email_from'),
+            [req.user.email],
+            fail_silently=False
+        )
+        return
+ 
     def reset_passwd_mail(self, request):
         """ Prend en argument un request, envoie un mail de
         réinitialisation de mot de pass """
