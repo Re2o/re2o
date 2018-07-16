@@ -833,7 +833,8 @@ class DNSReverseZonesSerializer(serializers.ModelSerializer):
     class Meta:
         model = machines.IpType
         fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
-                  'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs')
+                  'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
+                  'prefix_v6')
 
 # MAILING
 
