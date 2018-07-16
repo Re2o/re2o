@@ -118,7 +118,6 @@ def new_facture(request, user, userid):
         articles = article_formset
         # Check if at leat one article has been selected
         if any(art.cleaned_data for art in articles):
-            new_invoice_instance.save()
             # Building a purchase for each article sold
             purchases = []
             total_price = 0
