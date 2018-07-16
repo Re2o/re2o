@@ -41,8 +41,8 @@ from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
 from django.utils.translation import ugettext_lazy as _l
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from macaddress.fields import MACAddressField
 
@@ -265,6 +265,13 @@ class IpType(RevMixin, AclMixin, models.Model):
         null=True,
         blank=True
     )
+    prefix_v6_length = models.IntegerField(
+        default=64,
+        validators=[
+            MaxValueValidator(128),
+            MinValueValidator(0)
+        ]
+        )
     dnssec_reverse_v6 = models.BooleanField(
             default=False,
             help_text="Activer DNSSEC sur le reverse DNS IPv6",
@@ -301,6 +308,33 @@ class IpType(RevMixin, AclMixin, models.Model):
     def ip_set_as_str(self):
         """ Renvoie une liste des ip en string"""
         return [str(x) for x in self.ip_set]
+
+    @cached_property
+    def ip_set_full_info(self):
+        """Iter sur les range cidr, et renvoie network, broacast , etc"""
+        return [
+            {
+                'network': str(ip_set.network),
+                'netmask': str(ip_set.netmask),
+                'netmask_cidr': str(ip_set.prefixlen),
+                'broadcast': str(ip_set.broadcast),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
+            } for ip_set in self.ip_set.iter_cidrs()
+        ]
+
+    @cached_property
+    def ip6_set_full_info(self):
+        if self.prefix_v6:
+            return {
+                'network' : str(self.prefix_v6),
+                'netmask' : 'ffff:ffff:ffff:ffff::',
+                'netmask_cidr' : str(self.prefix_v6_length),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
+            }
+        else:
+            return None
 
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""

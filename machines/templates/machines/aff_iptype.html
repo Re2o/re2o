@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra|tick }}</td>
 	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
-	    <td>{{ type.prefix_v6 }}</td>
+            <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
 	    <td>{{ type.dnssec_reverse_v4|tick }}/{{ type.dnssec_reverse_v6|tick }}</td>
             <td>{{ type.vlan }}</td>
             <td>{{ type.ouverture_ports }}</td>
