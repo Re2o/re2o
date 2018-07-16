@@ -33,13 +33,11 @@ un {{ users.class_name | lower}}</span>{% else %}<span class="label label-danger
 non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
 <span class="label label-success">active</span>{% else %}<span class="label label-danger">désactivée</span>{% endif %}.</p>
 {% if user_solde %}
-<p>Votre solde est de <span class="badge">{{ user.solde }}€</span>.
-{% if allow_online_payment %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:recharge' %}">
+<p>Votre solde est de <span class="badge">{{ users.solde }}€</span>.
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
     <i class="fa fa-euro-sign"></i>
     Recharger
 </a>
-{% endif %}
 </p>
 {% endif %}
 
@@ -166,8 +164,8 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <tr>
                         <th>Solde</th>
                         <td>{{ users.solde }} €
-                        {% if allow_online_payment %}
-                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:recharge' %}">
+                        {% if user_solde %}
+                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
                                 <i class="fa fa-euro-sign"></i>
                                 Recharger
                         </a>
@@ -283,12 +281,8 @@ non adhérent</span>{% endif %} et votre connexion est {% if users.has_access %}
                     <i class="fa fa-euro-sign"></i>
                     Modifier le solde
                 </a>
-                {% endif%}{% acl_else %}
-                {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new_facture_solde' user.id %}">
-                    <i class="fa fa-euro-sign"></i>
-                    Ajouter une cotisation par solde</a>{% endif %}{% acl_end %}
-                </a>
+                {% endif%}
+                {% acl_end %}
             </div>
             <div class="panel-body">
                 {% if facture_list %}

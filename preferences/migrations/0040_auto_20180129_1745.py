@@ -3,7 +3,10 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import preferences.aes_field
+try:
+    import preferences.aes_field as aes_field
+except ImportError:
+    import re2o.aes_field as aes_field
 
 
 class Migration(migrations.Migration):
@@ -16,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='assooption',
             name='payment_pass',
-            field=preferences.aes_field.AESEncryptedField(blank=True, max_length=255, null=True),
+            field=aes_field.AESEncryptedField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
             model_name='assooption',

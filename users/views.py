@@ -49,9 +49,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
 
-from cotisations.models import Facture
+from cotisations.models import Facture, Paiement
 from machines.models import Machine
-from preferences.models import OptionalUser, GeneralOption, AssoOption
+from preferences.models import GeneralOption
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
@@ -67,6 +67,7 @@ from re2o.acl import (
     can_view_all,
     can_change
 )
+from cotisations.utils import find_payment_method
 
 from .serializers import MailingSerializer, MailingMemberSerializer
 from .models import (
@@ -246,7 +247,8 @@ def state(request, user, userid):
 @can_edit(User, 'groups')
 def groups(request, user, userid):
     """ View to edit the groups of a user """
-    group_form = GroupForm(request.POST or None, instance=user, user=request.user)
+    group_form = GroupForm(request.POST or None,
+                           instance=user, user=request.user)
     if group_form.is_valid():
         if group_form.changed_data:
             group_form.save()
@@ -404,23 +406,23 @@ def edit_ban(request, ban_instance, **_kwargs):
         request
     )
 
+
 @login_required
 @can_delete(Ban)
 def del_ban(request, ban, **_kwargs):
-        """ Supprime un banissement"""
-        if request.method == "POST":
-            ban.delete()
-            messages.success(request, "Le banissement a été supprimé")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': str(ban.user.id)}
-                ))
-        return form(
-            {'objet': ban, 'objet_name': 'ban'},
-            'users/delete.html',
-            request
-        )
-
+    """ Supprime un banissement"""
+    if request.method == "POST":
+        ban.delete()
+        messages.success(request, "Le banissement a été supprimé")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(ban.user.id)}
+        ))
+    return form(
+        {'objet': ban, 'objet_name': 'ban'},
+        'users/delete.html',
+        request
+    )
 
 
 @login_required
@@ -481,19 +483,20 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
 @login_required
 @can_delete(Whitelist)
 def del_whitelist(request, whitelist, **_kwargs):
-        """ Supprime un acces gracieux"""
-        if request.method == "POST":
-            whitelist.delete()
-            messages.success(request, "L'accés gracieux a été supprimé")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': str(whitelist.user.id)}
-                ))
-        return form(
-            {'objet': whitelist, 'objet_name': 'whitelist'},
-            'users/delete.html',
-            request
-        )
+    """ Supprime un acces gracieux"""
+    if request.method == "POST":
+        whitelist.delete()
+        messages.success(request, "L'accés gracieux a été supprimé")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(whitelist.user.id)}
+        ))
+    return form(
+        {'objet': whitelist, 'objet_name': 'whitelist'},
+        'users/delete.html',
+        request
+    )
+
 
 @login_required
 @can_create(School)
@@ -852,7 +855,7 @@ def mon_profil(request):
     return redirect(reverse(
         'users:profil',
         kwargs={'userid': str(request.user.id)}
-        ))
+    ))
 
 
 @login_required
@@ -896,20 +899,26 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.USERS_INDEX_WHITE
     )
-    user_solde = OptionalUser.get_cached_value('user_solde')
-    allow_online_payment = AssoOption.get_cached_value('payment') != 'NONE'
+    try:
+        balance = find_payment_method(Paiement.objects.get(is_balance=True))
+    except Paiement.DoesNotExist:
+        user_solde = False
+    else:
+        user_solde = (
+            balance is not None
+            and balance.can_credit_balance(request.user)
+        )
     return render(
         request,
         'users/profil.html',
         {
             'users': users,
             'machines_list': machines,
-            'nb_machines' : nb_machines,
+            'nb_machines': nb_machines,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,
             'user_solde': user_solde,
-            'allow_online_payment': allow_online_payment,
         }
     )
 
@@ -974,6 +983,7 @@ def process_passwd(request, req):
 
 class JSONResponse(HttpResponse):
     """ Framework Rest """
+
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'

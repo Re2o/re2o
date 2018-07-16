@@ -5,6 +5,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,75 +42,49 @@ from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
+from django.shortcuts import get_object_or_404
 
-from preferences.models import OptionalUser
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from .models import Article, Paiement, Facture, Banque
+from .payment_methods import balance
 
 
-class NewFactureForm(FormRevMixin, ModelForm):
+class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """
-    Form used to create a new invoice by using a payment method, a bank and a
-    cheque number.
+    Form used to manage and create an invoice and its fields.
     """
-    def __init__(self, *args, **kwargs):
+
+    def __init__(self, *args, creation=False, **kwargs):
+        user = kwargs['user']
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewFactureForm, self).__init__(*args, prefix=prefix, **kwargs)
-        # TODO : remove the use of cheque and banque and paiement
-        #        for something more generic or at least in English
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = _("Cheque number")
-        self.fields['banque'].empty_label = _("Not specified")
+        super(FactureForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['paiement'].empty_label = \
             _("Select a payment method")
-        paiement_list = Paiement.objects.filter(type_paiement=1)
-        if paiement_list:
-            self.fields['paiement'].widget\
-                .attrs['data-cheque'] = paiement_list.first().id
+        self.fields['paiement'].queryset = Paiement.find_allowed_payments(user)
+        if not creation:
+            self.fields['user'].label = _("Member")
+            self.fields['user'].empty_label = \
+                _("Select the proprietary member")
+            self.fields['valid'].label = _("Validated invoice")
+        else:
+            self.fields = {'paiement': self.fields['paiement']}
 
     class Meta:
         model = Facture
-        fields = ['paiement', 'banque', 'cheque']
+        fields = '__all__'
 
     def clean(self):
-        cleaned_data = super(NewFactureForm, self).clean()
+        cleaned_data = super(FactureForm, self).clean()
         paiement = cleaned_data.get('paiement')
-        cheque = cleaned_data.get('cheque')
-        banque = cleaned_data.get('banque')
         if not paiement:
             raise forms.ValidationError(
                 _("A payment method must be specified.")
             )
-        elif paiement.type_paiement == 'check' and not (cheque and banque):
-            raise forms.ValidationError(
-                _("A cheque number and a bank must be specified.")
-            )
         return cleaned_data
 
 
-class CreditSoldeForm(NewFactureForm):
-    """
-    Form used to make some operations on the user's balance if the option is
-    activated.
-    """
-    class Meta(NewFactureForm.Meta):
-        model = Facture
-        fields = ['paiement', 'banque', 'cheque']
-
-    def __init__(self, *args, **kwargs):
-        super(CreditSoldeForm, self).__init__(*args, **kwargs)
-        # TODO : change solde to balance
-        self.fields['paiement'].queryset = Paiement.objects.exclude(
-            moyen='solde'
-        ).exclude(moyen='Solde')
-
-    montant = forms.DecimalField(max_digits=5, decimal_places=2, required=True)
-
-
-class SelectUserArticleForm(
-        FormRevMixin, Form):
+class SelectUserArticleForm(FormRevMixin, Form):
     """
     Form used to select an article during the creation of an invoice for a
     member.
@@ -126,6 +101,11 @@ class SelectUserArticleForm(
         validators=[MinValueValidator(1)],
         required=True
     )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super(SelectUserArticleForm, self).__init__(*args, **kwargs)
+        self.fields['article'].queryset = Article.find_allowed_articles(user)
 
 
 class SelectClubArticleForm(Form):
@@ -146,6 +126,10 @@ class SelectClubArticleForm(Form):
         required=True
     )
 
+    def __init__(self, user, *args, **kwargs):
+        super(SelectClubArticleForm, self).__init__(*args, **kwargs)
+        self.fields['article'].queryset = Article.find_allowed_articles(user)
+
 
 # TODO : change Facture to Invoice
 class NewFactureFormPdf(Form):
@@ -165,26 +149,6 @@ class NewFactureFormPdf(Form):
         max_length=10,
         label=_l("Address")
     )
-
-
-# TODO : change Facture to Invoice
-class EditFactureForm(FieldPermissionFormMixin, NewFactureForm):
-    """
-    Form used to edit an invoice and its fields : payment method, bank,
-    user associated, ...
-    """
-    class Meta(NewFactureForm.Meta):
-        # TODO : change Facture to Invoice
-        model = Facture
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        # TODO : change Facture to Invoice
-        super(EditFactureForm, self).__init__(*args, **kwargs)
-        self.fields['user'].label = _("Member")
-        self.fields['user'].empty_label = \
-            _("Select the proprietary member")
-        self.fields['valid'].label = _("Validated invoice")
 
 
 class ArticleForm(FormRevMixin, ModelForm):
@@ -231,17 +195,12 @@ class PaiementForm(FormRevMixin, ModelForm):
     class Meta:
         model = Paiement
         # TODO : change moyen to method and type_paiement to payment_type
-        fields = ['moyen', 'type_paiement']
+        fields = ['moyen', 'available_for_everyone']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(PaiementForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['moyen'].label = _("Payment method name")
-        self.fields['type_paiement'].label = _("Payment type")
-        self.fields['type_paiement'].help_text = \
-            _("The payement type is used for specific behaviour.\
-            The \"cheque\" type means a cheque number and a bank name\
-            may be added when using this payment method.")
 
 
 # TODO : change paiement to payment
@@ -304,56 +263,6 @@ class DelBanqueForm(FormRevMixin, Form):
             self.fields['banques'].queryset = Banque.objects.all()
 
 
-# TODO : change facture to Invoice
-class NewFactureSoldeForm(NewFactureForm):
-    """
-    Form used to create an invoice
-    """
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(NewFactureSoldeForm, self).__init__(
-            *args,
-            prefix=prefix,
-            **kwargs
-        )
-        self.fields['cheque'].required = False
-        self.fields['banque'].required = False
-        self.fields['cheque'].label = _('Cheque number')
-        self.fields['banque'].empty_label = _("Not specified")
-        self.fields['paiement'].empty_label = \
-            _("Select a payment method")
-        # TODO : change paiement to payment
-        paiement_list = Paiement.objects.filter(type_paiement=1)
-        if paiement_list:
-            self.fields['paiement'].widget\
-                .attrs['data-cheque'] = paiement_list.first().id
-
-    class Meta:
-        # TODO : change facture to invoice
-        model = Facture
-        # TODO : change paiement to payment and baque to bank
-        fields = ['paiement', 'banque']
-
-    def clean(self):
-        cleaned_data = super(NewFactureSoldeForm, self).clean()
-        # TODO : change paiement to payment
-        paiement = cleaned_data.get("paiement")
-        cheque = cleaned_data.get("cheque")
-        # TODO : change banque to bank
-        banque = cleaned_data.get("banque")
-        # TODO : change paiement to payment
-        if not paiement:
-            raise forms.ValidationError(
-                _("A payment method must be specified.")
-            )
-        # TODO : change paiement and banque to payment and bank
-        elif paiement.type_paiement == "check" and not (cheque and banque):
-            raise forms.ValidationError(
-                _("A cheque number and a bank must be specified.")
-            )
-        return cleaned_data
-
-
 # TODO : Better name and docstring
 class RechargeForm(FormRevMixin, Form):
     """
@@ -364,34 +273,31 @@ class RechargeForm(FormRevMixin, Form):
         min_value=0.01,
         validators=[]
     )
+    payment = forms.ModelChoiceField(
+        queryset=Paiement.objects.none(),
+        label=_l("Payment method")
+    )
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
         super(RechargeForm, self).__init__(*args, **kwargs)
+        self.fields['payment'].empty_label = \
+            _("Select a payment method")
+        self.fields['payment'].queryset = Paiement.find_allowed_payments(user)
 
-    def clean_value(self):
+    def clean(self):
         """
-        Returns a cleaned vlaue from the received form by validating
+        Returns a cleaned value from the received form by validating
         the value is well inside the possible limits
         """
         value = self.cleaned_data['value']
-        if value < OptionalUser.get_cached_value('min_online_payment'):
-            raise forms.ValidationError(
-                _("Requested amount is too small. Minimum amount possible : \
-                %(min_online_amount)s €.") % {
-                    'min_online_amount': OptionalUser.get_cached_value(
-                        'min_online_payment'
-                    )
-                }
-            )
-        if value + self.user.solde > \
-                OptionalUser.get_cached_value('max_solde'):
+        balance_method = get_object_or_404(balance.PaymentMethod)
+        if balance_method.maximum_balance is not None and \
+           value + self.user.solde > balance_method.maximum_balance:
             raise forms.ValidationError(
                 _("Requested amount is too high. Your balance can't exceed \
                 %(max_online_balance)s €.") % {
-                    'max_online_balance': OptionalUser.get_cached_value(
-                        'max_solde'
-                    )
+                    'max_online_balance': balance_method.maximum_balance
                 }
             )
-        return value
+        return self.cleaned_data
