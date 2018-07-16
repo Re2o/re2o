@@ -682,6 +682,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         else:
             return str(self.mailalias_set.get(valeur=self.pseudo))
 
+    @cached_property
+    def get_mail_aliases(self):
+        if self.internal_address:
+            return self.mailalias_set.all()
+        return None
+
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
         this user by trying "pseudo0", "pseudo1", "pseudo2", ...

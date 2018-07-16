@@ -102,6 +102,8 @@ router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 # Switches config
 router.register_view(r'switchs/ports-config', views.SwitchPortView),
 router.register_view(r'switchs/role', views.RoleView),
+# Mail config
+router.register_view(r'mail/alias', views.UserMailAliasView),
 # Reminder
 router.register_view(r'reminder/get-users', views.ReminderView),
 # Firewall

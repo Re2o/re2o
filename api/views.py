@@ -521,6 +521,17 @@ class RoleView(generics.ListAPIView):
     serializer_class = serializers.RoleSerializer
 
 
+# Server mail config
+
+
+class UserMailAliasView(generics.ListAPIView):
+    """Expose all the aliases of the users that activated the internal address
+    """
+
+    queryset = users.User.objects.filter(internal_address=True)
+    serializer_class = serializers.UserMailAliasSerializer
+
+
 # Rappel fin adhésion
 
 class ReminderView(generics.ListAPIView):
