@@ -959,12 +959,12 @@ def process(request, token):
 
     if req.type == Request.PASSWD:
         user = req.user
-        user.mail_verification = True
+        user.verified = True
         user.save()
         return process_passwd(request, req)
     elif req.type == Request.EMAIL:
         user = req.user
-        user.mail_verification = True
+        user.verified= True
         user.save()
         return redirect(reverse('login'))
     else:
