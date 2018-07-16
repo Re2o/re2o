@@ -42,6 +42,7 @@ from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _l
+from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin

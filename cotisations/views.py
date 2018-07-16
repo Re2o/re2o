@@ -463,9 +463,11 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         creation=False
     )
 
-    if payment.is_valid() and payment_method.is_valid():
+    if payment.is_valid() and \
+       (payment_method is None or payment_method.is_valid()):
         payment.save()
-        payment_method.save()
+        if payment_method is not None:
+            payment_method.save()
         messages.success(
             request,
             _("The payement method has been successfully edited.")

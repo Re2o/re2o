@@ -30,7 +30,7 @@ def payment_method_factory(payment, *args, creation=True, **kwargs):
 
     If the payment has a payment method, returns a ModelForm of it. Else if
     it is the creation of the payment, a `PaymentMethodForm`.
-    Else an empty form.
+    Else `None`.
 
     Args:
         payment: The payment
@@ -39,7 +39,7 @@ def payment_method_factory(payment, *args, creation=True, **kwargs):
         **kwargs: passed to the form
 
     Returns:
-        A form
+        A form or None
     """
     payment_method = kwargs.pop('instance', find_payment_method(payment))
     if payment_method is not None:
@@ -50,8 +50,6 @@ def payment_method_factory(payment, *args, creation=True, **kwargs):
         )
     elif creation:
         return PaymentMethodForm(*args, **kwargs)
-    else:
-        return forms.Form()
 
 
 class PaymentMethodForm(forms.Form):
