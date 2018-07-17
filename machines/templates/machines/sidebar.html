@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 
 {% block sidebar %}
     {% can_view_all Machine %}
@@ -71,7 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% can_view_all Role %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-role" %}">
         <i class="fa fa-list-ul"></i>
-        Roles des serveurs
+        {% trans "Server roles" %}
     </a>
     {% acl_end %}
     {% can_view_all OuverturePortList %}

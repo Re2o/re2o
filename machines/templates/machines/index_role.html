@@ -25,15 +25,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
 {% block title %}Machines{% endblock %}
 
 {% block content %}
-  <h2>Liste des roles</h2>
+<h2>{% trans "Roles list" %}</h2>
   {% can_create Role %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-role'  %}"><i class="fa fa-plus"></i> Ajouter un role</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-role'  %}"><i class="fa fa-plus"></i> {% trans "Add role"%}</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-role'  %}"><i class="fa fa-trash"></i> Supprimer un ou plusieurs role</a>
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-role'  %}"><i class="fa fa-trash"></i> {% trans "Delete one or several roles" %}</a>
   {%  include "machines/aff_role.html" with  role_list=role_list %}
   <br />
   <br />
