@@ -37,6 +37,7 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
+from django.utils.translation import ugettext_lazy as _l
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
@@ -499,7 +500,7 @@ class DelNasForm(FormRevMixin, Form):
 
 
 class RoleForm(FormRevMixin, ModelForm):
-    """Ajout et edition d'un role"""
+    """Add and edit role."""
     class Meta:
         model = Role
         fields = '__all__'
@@ -514,10 +515,10 @@ class RoleForm(FormRevMixin, ModelForm):
 
 
 class DelRoleForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs service"""
+    """Deletion of one or several roles."""
     role = forms.ModelMultipleChoiceField(
         queryset=Role.objects.none(),
-        label="Roles actuels",
+        label=_l("Current roles"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -527,9 +528,7 @@ class DelRoleForm(FormRevMixin, Form):
         if instances:
             self.fields['role'].queryset = instances
         else:
-            self.fields['role'].queryset = role.objects.all()
-
-
+            self.fields['role'].queryset = Role.objects.all()
 
 
 class ServiceForm(FormRevMixin, ModelForm):

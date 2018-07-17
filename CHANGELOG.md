@@ -121,7 +121,7 @@ in their own Payment models.
 
 To have a closer look on how the payments works, please go to the wiki.
 
-## MR xxx: Add role models
+## MR 182: Add role models
 
 Adds the Role model.
 You need to ensure that your database character set is utf-8.
