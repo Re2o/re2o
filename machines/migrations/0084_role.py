@@ -19,10 +19,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('role_type', models.CharField(max_length=255, unique=True)),
                 ('servers', models.ManyToManyField(to='machines.Interface')),
+                ('specific_role', models.CharField(blank=True, choices=[('dhcp-server', 'DHCP server'), ('switch-conf-server', 'Switches configuration server'), ('dns-recursif-server', 'Recursive DNS server'), ('ntp-server', 'NTP server'), ('radius-server', 'Radius server'), ('log-server', 'Log server'), ('ldap-master-server', 'LDAP master server'), ('ldap-backup-server', 'LDAP backup server'), ('smtp-server', 'SMTP server'), ('postgresql-server', 'postgreSQL server'), ('mysql-server', 'mySQL server'), ('sql-client', 'SQL client'), ('gateway', 'Gatewaw')], max_length=32, null=True))
             ],
-            options={
-                'permissions': (('view_role', 'Peut voir un objet service'),),
-            },
+            options={'permissions': (('view_role', 'Can view a role.'),), 'verbose_name': 'Server role'},
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
     ]
