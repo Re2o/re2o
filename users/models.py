@@ -48,6 +48,7 @@ from __future__ import unicode_literals
 import re
 import uuid
 import datetime
+from pytz import timezone
 
 from django.db import models
 from django.db.models import Q
@@ -413,8 +414,9 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             return True
 
     def has_access(self):
-        """ Renvoie si un utilisateur a accès à internet """
-        if(OptionalUser.get_cached_value('mail_verification') and not self.verified and self.verification_deadline is not None and datetime.datetime.now() > self.verification_deadline):
+        """ Renvoie si un utilisateur a accès à internet """ 
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if(OptionalUser.get_cached_value('mail_verification') and not self.verified and self.verification_deadline is not None and now > self.verification_deadline):
             verified = False
         else:
             verified = True
@@ -589,7 +591,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
         return
 
-def send_verification_mail(self, request):
+    def send_verification_mail(self, request):
         """ Prend en argument un request, envoie un mail de
         vérification"""
         req = Request()
@@ -610,7 +612,7 @@ def send_verification_mail(self, request):
             ) + ' heures',
         }
         send_mail(
-            'Changement du compte de %(name)s / Account verification for '
+            'Vérification du compte de %(name)s / Account verification for '
             '%(name)s' % {'name': AssoOption.get_cached_value('name')},
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
@@ -653,7 +655,7 @@ def send_verification_mail(self, request):
     def verification_message(self):
         if(OptionalUser.get_cached_value('mail_verification') and not self.verified):
             if(self.verification_deadline is not None):
-                message = 'Votre adresse mail n\'est pas vérifiée. Si vous ne vérifiez pas votre adresse mail, toute connexion sera intérrompu le ' + self.verification_deadline
+                message = 'Votre adresse mail n\'est pas vérifiée. Si vous ne vérifiez pas votre adresse mail, toute connexion sera intérrompu le ' + str(self.verification_deadline)
             else:
                 message = 'Votre adresse mail n\'est pas vérifiée.'
             return message

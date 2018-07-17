@@ -34,6 +34,7 @@ des whitelist, des services users et des écoles
 """
 
 from __future__ import unicode_literals
+import datetime
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -113,7 +114,8 @@ def new_user(request):
     if user.is_valid():
         password = user.cleaned_data['password2']
         user = user.save(commit=False)
-        if(OptionalUser.get_cached_value('mail_verification'):
+        user.save()
+        if(OptionalUser.get_cached_value('mail_verification')):
             user.send_verification_mail(request)
             messages.warning(request, "Un mail pour vérifier l'adresse a été envoyé")
             if(OptionalUser.get_cached_value('verification_time')>0):
@@ -961,11 +963,13 @@ def process(request, token):
         user = req.user
         user.verified = True
         user.save()
+        messages.success(request, "Le compte a bien été vérifié")
         return process_passwd(request, req)
     elif req.type == Request.EMAIL:
         user = req.user
         user.verified= True
         user.save()
+        messages.success(request, "Le compte a bien été vérifié")
         return redirect(reverse('login'))
     else:
         messages.error(request, "Entrée incorrecte, contactez un admin")
