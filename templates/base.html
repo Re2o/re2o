@@ -195,7 +195,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <div class="panel-heading">
                                 <h4>{{ request_user.name }} {{ request_user.surname }}</h4>
                             </div>
-                            <table class="table">
+			    <div class="table-responsive">
+                            <table class="table table-sm">
                                 <tr>
                                     <th scope="row">{% trans "Username" %}</th>
                                     <td class="text-right">{{ request_user.pseudo }}</td>
@@ -225,6 +226,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </td>
                                 </tr>
                             </table>
+			    </div>
                             <div class="list-group">
                                 <a class="list-group-item list-group-item-info" role="button"href="{% url "users:mon-profil" %}">
                                     <i class="fa fa-user-circle"></i>
@@ -238,16 +240,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% if request_user.is_authenticated %}
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} machine active{% plural %}{{ nb }} machines active{% endblocktrans %}</h4>
+				    <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} machine active{% plural %}{{ nb }} machines active{% endblocktrans %}</h4>
                             </div>
-                            <ul class="list-group">
-                            {% for interface in interfaces|slice:":5" %}
-                                <div class="list-group-item">{{interface}}</div>
-                            {% endfor %}
-                            {% if interfaces|length > 5 %}
+			    <div class="table-responsive">
+                            <table class="table table-sm">
+                                {% for interface in interfaces %}
+			        <tr>
+				        <td>{{interface}}</td>
+			        </tr>
+                                {% endfor %}
+			    </table>
+			    </div>
+			    {% if interfaces %}
                                 <a class="list-group-item list-group-item-info" role="button" href="{% url "users:mon-profil" %}">
                                     <i class="fa fa-plus"></i>
-                                    {% trans "See my machines" %}
+                                    {% trans "Machines informations" %}
                                 </a>
                             {% endif %}
                             </ul>
