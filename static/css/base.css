@@ -134,11 +134,12 @@ margin-bottom: 20px;
 
 .panel-heading.dashboard{
 	text-align: center;
+	min-height: 43px;
 }
 
 .panel-body.dashboard{
 	text-align: center;
-	height: 60px;
+	height: 70px;
 	vertical-align:middle;
 }
 #grad_red {
