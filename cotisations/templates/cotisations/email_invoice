@@ -1,0 +1,8 @@
+Dear {{name}},
+
+Thank you for your purchase. Here is your invoice.
+
+Should you need extra information, you can email us at {{contact_mail}}.
+
+Best regards,
+	{{ asso_name }}'s team

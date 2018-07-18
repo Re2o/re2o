@@ -61,11 +61,9 @@ def render_invoice(_request, ctx={}):
     return r
 
 
-def render_tex(_request, template, ctx={}):
+def create_pdf(template, ctx={}):
     """
-    Creates a PDF from a LaTex templates using pdflatex.
-    Writes it in a temporary directory and send back an HTTP response for
-    accessing this file.
+    Creates and returns a PDF from a LaTeX template using pdflatex.
     """
     context = Context(ctx)
     template = get_template(template)
@@ -81,6 +79,17 @@ def render_tex(_request, template, ctx={}):
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
+
+    return pdf
+
+
+def render_tex(_request, template, ctx={}):
+    """
+    Creates a PDF from a LaTex templates using pdflatex.
+    Writes it in a temporary directory and send back an HTTP response for
+    accessing this file.
+    """
+    pdf = create_pdf(template, ctx={})
     r = HttpResponse(content_type='application/pdf')
     r.write(pdf)
     return r
