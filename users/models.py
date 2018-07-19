@@ -479,16 +479,19 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 interface.save()
 
     def archive(self):
-        """ Archive l'user : appelle unassign_ips() puis passe state à
-        ARCHIVE"""
+        """ Archive l'user"""
         self.unassign_ips()
-        self.state = User.STATE_ARCHIVE
 
     def unarchive(self):
-        """ Désarchive l'user : réassigne ses ip et le passe en state
-        ACTIVE"""
+        """ Désarchive l'user"""
         self.assign_ips()
-        self.state = User.STATE_ACTIVE
+
+    def state_sync(self):
+        """Archive, or unarchive, if the user was not active/or archived before"""
+        if self.__original_state != self.STATE_ACTIVE and self.state == self.STATE_ACTIVE:
+            self.unarchive()
+        elif self.__original_state != self.STATE_ARCHIVE and self.state == self.STATE_ARCHIVE:
+            self.archive()
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True,
                   group_refresh=False):
@@ -879,6 +882,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
         }
+        self.__original_state = self.state
 
     def __str__(self):
         return self.pseudo
@@ -1007,6 +1011,7 @@ def user_post_save(**kwargs):
     user = kwargs['instance']
     if is_created:
         user.notif_inscription()
+    user.state_sync()
     user.ldap_sync(
         base=True,
         access_refresh=True,
