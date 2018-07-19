@@ -27,90 +27,90 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="table-responsive" style="font-size: 12px">
     <table class="table table-bordered text-center text-nowrap">
         <thead>
-        <tr>
+            <tr>
 
-        {% for port in port_list|slice:"::2" %}
-            <td class="bg-primary text-white">{{ port.port }}</td>
-        {% endfor %}
+                {% for port in port_list|slice:"::2" %}
+                <td class="bg-primary text-white">{{ port.port }}</td>
+                {% endfor %}
 
-        </tr>
-        <tr>
+            </tr>
+            <tr>
 
-        {% for port in port_list|slice:"::2" %}
-            {% if port.room %}
-            <td class="p-3 mb-2 bg-success text-dark">
-                {{ port.room }}
-            </td>
-            {% elif port.machine_interface %}
-            <td class="p-3 mb-2 bg-warning text-dark">
-                {% can_view port.machine_interface.machine.user %}
-                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                {% for port in port_list|slice:"::2" %}
+                {% if port.room %}
+                <td class="p-3 mb-2 bg-success text-dark">
+                    {{ port.room }}
+                </td>
+                {% elif port.machine_interface %}
+                <td class="p-3 mb-2 bg-warning text-dark">
+                    {% can_view port.machine_interface.machine.user %}
+                    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                        {{ port.machine_interface }}
+                    </a>
+                    {% acl_else %}
                     {{ port.machine_interface }}
-		</a>
-                {% acl_else %}
-                {{ port.machine_interface }}
-                {% acl_end %}
-            </td>
-            {% elif port.related%}
-	    <td class="p-3 mb-2 bg-danger text-dark">
-                {% can_view port.related.switch %}
-                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                    {% acl_end %}
+                </td>
+                {% elif port.related%}
+                <td class="p-3 mb-2 bg-danger text-dark">
+                    {% can_view port.related.switch %}
+                    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                        {{ port.related }}
+                    </a>
+                    {% acl_else %}
                     {{ port.related }}
-                </a>
-                {% acl_else %}
-                {{ port.related }}
-                {% acl_end %}
-            </td>
-            {% else %}
-	    <td class="p-3 mb-2 bg-info text-dark">
-                Vide
-            </td>
-            {% endif %}
-        {% endfor %}
-        
-        </tr>
+                    {% acl_end %}
+                </td>
+                {% else %}
+                <td class="p-3 mb-2 bg-info text-dark">
+                    Vide
+                </td>
+                {% endif %}
+                {% endfor %}
 
-        <tr>
+            </tr>
 
-        {% for port in port_list|slice:"1::2" %}
-            <td class="bg-primary text-white">{{ port.port }}</td>
-        {% endfor %}
+            <tr>
 
-        </tr>
-        <tr>
+                {% for port in port_list|slice:"1::2" %}
+                <td class="bg-primary text-white">{{ port.port }}</td>
+                {% endfor %}
 
-        {% for port in port_list|slice:"1::2" %}
-            {% if port.room %}
-            <td class="p-3 mb-2 bg-success text-dark">
-                {{ port.room }}
-            </td>
-            {% elif port.machine_interface %}
-            <td class="p-3 mb-2 bg-warning text-dark">
-                {% can_view port.machine_interface.machine.user %}
-                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+            </tr>
+            <tr>
+
+                {% for port in port_list|slice:"1::2" %}
+                {% if port.room %}
+                <td class="p-3 mb-2 bg-success text-dark">
+                    {{ port.room }}
+                </td>
+                {% elif port.machine_interface %}
+                <td class="p-3 mb-2 bg-warning text-dark">
+                    {% can_view port.machine_interface.machine.user %}
+                    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                        {{ port.machine_interface }}
+                    </a>
+                    {% acl_else %}
                     {{ port.machine_interface }}
-		</a>
-                {% acl_else %}
-                {{ port.machine_interface }}
-                {% acl_end %}
-            </td>
-            {% elif port.related%}
-	    <td class="p-3 mb-2 bg-danger text-dark">
-                {% can_view port.related.switch %}
-                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                    {% acl_end %}
+                </td>
+                {% elif port.related%}
+                <td class="p-3 mb-2 bg-danger text-dark">
+                    {% can_view port.related.switch %}
+                    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                        {{ port.related }}
+                    </a>
+                    {% acl_else %}
                     {{ port.related }}
-                </a>
-                {% acl_else %}
-                {{ port.related }}
-                {% acl_end %}
-            </td>
-            {% else %}
-	    <td class="p-3 mb-2 bg-info text-dark">
-                Vide
-            </td>
-            {% endif %}
-        {% endfor %}
-        
-        </tr>
+                    {% acl_end %}
+                </td>
+                {% else %}
+                <td class="p-3 mb-2 bg-info text-dark">
+                    Vide
+                </td>
+                {% endif %}
+                {% endfor %}
+
+            </tr>
     </table>
 </div>

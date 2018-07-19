@@ -23,20 +23,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load i18n %}
+{% load logs_extra %}
 
 {% if superusers.count %}
 <div class="panel panel-default">
     <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_superuser">
-            <div class="pull-right">
-                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_superuser">
-                    {{superusers.count}} <i class="fa fa-user"></i>
-                </a>
-            </div>
-            <h4 class="text-danger">
-                <i class="fa fa-address-book"></i>
-                {% trans "Superuser" %}
-            </h4>
-            {% trans "Django's specific pre-defined right that supersed any other rights." %}
+        <div class="pull-right">
+            <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_superuser">
+                {{superusers.count}} <i class="fa fa-user"></i>
+            </a>
+        </div>
+        <h4 class="text-danger">
+            <i class="fa fa-address-book"></i>
+            {% trans "Superuser" %}
+        </h4>
+        {% trans "Django's specific pre-defined right that supersed any other rights." %}
     </div>
     <div class="panel-collapse collapse" id="collapse_superuser">
         <div class="panel-body">
@@ -106,24 +107,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% for right, users in rights.items %}
 <div class="panel panel-default">
     <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_{{right.id}}">
-            <div class="pull-right">
-                {% if users %}
-                <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_{{right.id}}">
+        <div class="pull-right">
+            {% if users %}
+            <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_{{right.id}}">
                 {% else %}
                 <a type="button" class="btn btn-sm btn-default" disabled="disabled">
-                {% endif %}
+                    {% endif %}
                     {{users.count}} <i class="fa fa-user"></i>
                 </a>
                 {% include 'buttons/edit.html' with href='users:edit-listright' id=right.id %}
-                {% include 'buttons/history.html' with href='users:history' name='listright' id=right.id %}
-            </div>
-            <h4 class="{% if right.critical %}text-danger{% endif %}">
-                <i class="fa fa-address-book"></i>
-                {% blocktrans trimmed with right.name as right_name and right.gid as right_gid %}
-                {{ right_name }} (gid: {{ right_gid }})
-                {% endblocktrans %}
-            </h4>
-            {{ right.details }}
+                {% history_button right %}
+        </div>
+        <h4 class="{% if right.critical %}text-danger{% endif %}">
+            <i class="fa fa-address-book"></i>
+            {% blocktrans trimmed with right.name as right_name and right.gid as right_gid %}
+            {{ right_name }} (gid: {{ right_gid }})
+            {% endblocktrans %}
+        </h4>
+        {{ right.details }}
     </div>
     <div class="panel-collapse collapse" id="collapse_{{right.id}}">
         <div class="panel-body">

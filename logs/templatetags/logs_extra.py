@@ -33,3 +33,15 @@ register = template.Library()
 def classname(obj):
     """ Returns the object class name """
     return obj.__class__.__name__
+
+
+@register.inclusion_tag('buttons/history.html')
+def history_button(instance, text=None, html_class=None):
+    """Creates the correct history button for an instance."""
+    return {
+        'application': instance._meta.app_label,
+        'name': instance._meta.model_name,
+        'id': instance.id,
+        'text': text,
+        'class': html_class,
+    }

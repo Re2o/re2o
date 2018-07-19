@@ -27,7 +27,6 @@ The defined URLs for the Cotisations app
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-import re2o
 from . import views
 
 urlpatterns = [
@@ -119,10 +118,6 @@ urlpatterns = [
     url(r'^edit_nas/(?P<nasid>[0-9]+)$', views.edit_nas, name='edit-nas'),
     url(r'^del_nas/$', views.del_nas, name='del-nas'),
     url(r'^index_nas/$', views.index_nas, name='index-nas'),
-    url(r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'machines'}),
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/regen-achieved/$',

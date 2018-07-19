@@ -2,9 +2,10 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Gabriel Détraz
+# Copyright © 2018  Goulven Kermarec
+# Copyright © 2018  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,12 +37,15 @@ nombre d'objets par models, nombre d'actions par user, etc
 """
 
 from __future__ import unicode_literals
+from itertools import chain
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from django.db.models import Count, Max, F
+from django.apps import apps
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -453,3 +457,61 @@ def stats_actions(request):
         },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
+
+
+def history(request, application, object_name, object_id):
+    """Render history for a model.
+
+    The model is determined using the `HISTORY_BIND` dictionnary if none is
+    found, raises a Http404. The view checks if the user is allowed to see the
+    history using the `can_view` method of the model.
+
+    Args:
+        request: The request sent by the user.
+        application: Name of the application.
+        object_name: Name of the model.
+        object_id: Id of the object you want to acces history.
+
+    Returns:
+        The rendered page of history if access is granted, else the user is
+        redirected to their profile page, with an error message.
+
+    Raises:
+        Http404: This kind of models doesn't have history.
+    """
+    try:
+        model = apps.get_model(application, object_name)
+    except LookupError:
+        raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
+    object_name_id = object_name + 'id'
+    kwargs = {object_name_id: object_id}
+    try:
+        instance = model.get_instance(**kwargs)
+    except model.DoesNotExist:
+        messages.error(request, u"Entrée inexistante")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    can, msg = instance.can_view(request.user)
+    if not can:
+        messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    reversions = Version.objects.get_for_object(instance)
+    if hasattr(instance, 'linked_objects'):
+        for related_object in chain(instance.linked_objects()):
+            reversions = (reversions |
+                          Version.objects.get_for_object(related_object))
+    reversions = re2o_paginator(request, reversions, pagination_number)
+    return render(
+        request,
+        're2o/history.html',
+        {'reversions': reversions, 'object': instance}
+    )
+
+
+

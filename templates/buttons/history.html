@@ -21,7 +21,8 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-<a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url href name id %}">
-    <i class="fa fa-history"></i>
+{% load i18n %}
+<a class="{{ class |default_if_none:"btn btn-info btn-sm"}}" role="button" title="Historique" href="{% url 'logs:history' application name id %}">
+	<i class="fa fa-history"></i> {% if text %}{% trans text %}{% endif %}
 </a>
 

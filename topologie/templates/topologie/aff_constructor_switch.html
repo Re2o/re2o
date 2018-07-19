@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 {% if constructor_switch_list.paginator %}
 {% include "pagination.html" with list=constructor_switch_list %}
@@ -34,27 +35,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='constructor-switch' col='name' text='Constructeur' %}</th>
             <th></th>
         </tr>
-   </thead>
-   {% for constructor_switch in constructor_switch_list %}
-   <tr>
-       <td>{{constructor_switch}}</td>
+    </thead>
+    {% for constructor_switch in constructor_switch_list %}
+    <tr>
+        <td>{{constructor_switch}}</td>
         <td class="text-right">
-            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'constructorswitch' constructor_switch.pk %}">
-                <i class="fa fa-history"></i>
-            </a>
-        {% can_edit constructor_switch %}
+            {% history_button constructor_switch %}
+            {% can_edit constructor_switch %}
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-constructor-switch' constructor_switch.id %}">
                 <i class="fa fa-edit"></i>
             </a>
-	{% acl_end %}
-	{% can_delete constructor_switch %}
+            {% acl_end %}
+            {% can_delete constructor_switch %}
             <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-constructor-switch' constructor_switch.id %}">
                 <i class="fa fa-trash"></i>
             </a>
-        {% acl_end %}
+            {% acl_end %}
         </td>
-   </tr>
-   {% endfor %}
+    </tr>
+    {% endfor %}
 </table>
 
 {% if constructor_switch_list.paginator %}

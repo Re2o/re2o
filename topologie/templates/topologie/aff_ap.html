@@ -23,52 +23,51 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
-	{% if ap_list.paginator %}
-	{% include "pagination.html" with list=ap_list %}
-	{% endif %}
+    {% if ap_list.paginator %}
+    {% include "pagination.html" with list=ap_list %}
+    {% endif %}
 
 
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>{% include "buttons/sort.html" with prefix='ap' col='name' text='Borne' %}</th>
-				<th>{% include "buttons/sort.html" with prefix='ap' col='mac' text='Addresse mac' %}</th>
-				<th>{% include "buttons/sort.html" with prefix='ap' col='ip' text='Ipv4' %}</th>
-				<th>Commentaire</th>
-				<th>Localisation</th> 
-				<th></th>
-			</tr>
-		</thead>
-		{% for ap in ap_list %}
-		<tr>
-			<td>{{ap.interface_set.first}}</td>
-			<td>{{ap.interface_set.first.mac_address}}</td>
-			<td>{{ap.interface_set.first.ipv4}}</td>
-			<td>{{ap.interface_set.first.details}}</td>
-			<td>{{ap.location}}</td>
-			<td class="text-right">
-				<a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'accesspoint' ap.pk %}">
-					<i class="fa fa-history"></i>
-				</a>
-				{% can_edit ap %}
-				<a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-ap' ap.id %}">
-					<i class="fa fa-edit"></i>
-				</a>
-				{% acl_end %}
-				{% can_delete ap %}
-				<a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'machines:del-machine' ap.id %}">
-					<i class="fa fa-trash"></i>
-				</a>
-				{% acl_end %}
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{% include "buttons/sort.html" with prefix='ap' col='name' text='Borne' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='ap' col='mac' text='Addresse mac' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='ap' col='ip' text='Ipv4' %}</th>
+                <th>Commentaire</th>
+                <th>Localisation</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for ap in ap_list %}
+        <tr>
+            <td>{{ap.interface_set.first}}</td>
+            <td>{{ap.interface_set.first.mac_address}}</td>
+            <td>{{ap.interface_set.first.ipv4}}</td>
+            <td>{{ap.interface_set.first.details}}</td>
+            <td>{{ap.location}}</td>
+            <td class="text-right">
+                {% history_button ap %}
+                {% can_edit ap %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-ap' ap.id %}">
+                    <i class="fa fa-edit"></i>
+                </a>
+                {% acl_end %}
+                {% can_delete ap %}
+                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'machines:del-machine' ap.id %}">
+                    <i class="fa fa-trash"></i>
+                </a>
+                {% acl_end %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
 
-	{% if ap_list.paginator %}
-{% include "pagination.html" with list=ap_list %}
-{% endif %}
+    {% if ap_list.paginator %}
+    {% include "pagination.html" with list=ap_list %}
+    {% endif %}
 </div>
