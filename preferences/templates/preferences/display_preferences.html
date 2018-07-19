@@ -25,11 +25,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load design %}
 
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
-    <h4>Préférences utilisateur</h4>
+    <h4>Préférences utilisateur</h4> 
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
         <i class="fa fa-edit"></i>
             Editer
@@ -39,15 +40,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <tr>
             <th>Téléphone obligatoirement requis</th>
-            <td>{{ useroptions.is_tel_mandatory }}</td>
+            <td>{{ useroptions.is_tel_mandatory|tick }}</td>
+	    <th>Auto inscription</th>
+            <td>{{ useroptions.self_adhesion|tick }}</td>
+        </tr>
+        <tr>
             <th>Champ gpg fingerprint</th>
-            <td>{{ useroptions.gpg_fingerprint }}</td>
+            <td>{{ useroptions.gpg_fingerprint|tick }}</td>
+ 	    <th>Shell par défaut des utilisateurs</th>
+            <td>{{ useroptions.shell_default }}</td>
         </tr>
         <tr>
             <th>Creations d'adhérents par tous</th>
-            <td>{{ useroptions.all_can_create_adherent }}</td>
-            <th>Creations de clubs par tous</th>
-            <td>{{ useroptions.all_can_create_club }}</td>
+            <td>{{ useroptions.all_can_create_adherent|tick }}</td>
+	    <th>Creations de clubs par tous</th>
+	    <td>{{ useroptions.all_can_create_club|tick }}</td>
         </tr>
         <tr>
         <th>Auto inscription</th>
@@ -56,6 +63,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ useroptions.shell_default }}</td>
     </tr>
     </table>
+
+    <h5>{% if useroptions.mail_accounts %}<span class="label label-success">Comptes mails{% else %}<span class="label label-danger">Comptes mails{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Gestion des comptes mails</th>
+		<td>{{ useroptions.mail_accounts|tick }}</td>
+		<th>Extension mail interne</th>
+		<td>{{ useroptions.mail_extension }}</td>
+	</tr>
+	<tr>
+		<th>Nombre d'alias maximum</th>
+		<td>{{ useroption.max_mail_alias }}<td>
+	</tr>
+    </table>
+
     <h4>Préférences machines</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
             <i class="fa fa-edit"></i>
