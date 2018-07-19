@@ -44,8 +44,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.db.models import Count, Max, F
+from django.db.models import Count
 from django.apps import apps
+from django.utils.translation import ugettext as _
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -146,7 +147,7 @@ def index(request):
                 'comment': version.revision.comment,
                 'datetime': version.revision.date_created.strftime(
                     '%d/%m/%y %H:%M:%S'
-                    ),
+                ),
                 'username':
                     version.revision.user.get_username()
                     if version.revision.user else '?',
@@ -177,7 +178,7 @@ def stats_logs(request):
     revisions = re2o_paginator(request, revisions, pagination_number)
     return render(request, 'logs/stats_logs.html', {
         'revisions_list': revisions
-        })
+    })
 
 
 @login_required
@@ -195,7 +196,7 @@ def revert_action(request, revision_id):
     return form({
         'objet': revision,
         'objet_name': revision.__class__.__name__
-        }, 'logs/delete.html', request)
+    }, 'logs/delete.html', request)
 
 
 @login_required
@@ -482,20 +483,20 @@ def history(request, application, object_name, object_id):
     try:
         model = apps.get_model(application, object_name)
     except LookupError:
-        raise Http404(u"Il n'existe pas d'historique pour ce modèle.")
+        raise Http404(_("No model found."))
     object_name_id = object_name + 'id'
     kwargs = {object_name_id: object_id}
     try:
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
-        messages.error(request, u"Entrée inexistante")
+        messages.error(request, _("No entry found."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
     can, msg = instance.can_view(request.user)
     if not can:
-        messages.error(request, msg or "Vous ne pouvez pas accéder à ce menu")
+        messages.error(request, msg or _("You cannot acces to this menu"))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
@@ -512,6 +513,3 @@ def history(request, application, object_name, object_id):
         're2o/history.html',
         {'reversions': reversions, 'object': instance}
     )
-
-
-
