@@ -274,8 +274,12 @@ class Switch(AclMixin, Machine):
         """ Returns the 'main' interface of the switch """
         return self.interface_set.first()
 
+    @cached_property
+    def get_name(self):
+        return self.name or self.main_interface().domain.name
+
     def __str__(self):
-        return str(self.main_interface())
+        return str(self.get_name)
 
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):

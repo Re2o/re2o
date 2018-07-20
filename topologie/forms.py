@@ -87,15 +87,7 @@ class EditPortForm(FormRevMixin, ModelForm):
         self.fields['machine_interface'].queryset = (
             Interface.objects.all().select_related('domain__extension')
         )
-        self.fields['related'].queryset = (
-            Port.objects.all()
-            .prefetch_related(Prefetch(
-                'switch__interface_set',
-                queryset=(Interface.objects
-                          .select_related('ipv4__ip_type__extension')
-                          .select_related('domain__extension'))
-            ))
-        )
+        self.fields['related'].queryset = Port.objects.all().prefetch_related('switch__machine_ptr__interface_set__domain__extension')
 
 
 class AddPortForm(FormRevMixin, ModelForm):
