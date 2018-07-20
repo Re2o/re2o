@@ -479,11 +479,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 interface.save()
 
     def archive(self):
-        """ Archive l'user"""
+        """ Filling the user; no more active"""
         self.unassign_ips()
 
     def unarchive(self):
-        """ Désarchive l'user"""
+        """Unfilling the user"""
         self.assign_ips()
 
     def state_sync(self):
