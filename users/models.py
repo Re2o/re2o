@@ -321,6 +321,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         si il n'est pas défini"""
         return self.shell or OptionalUser.get_cached_value('shell_default')
 
+    @cached_property
+    def get_shadow_expire(self):
+        """Return the shadow_expire value for the user"""
+        if self.state == self.STATE_DISABLED:
+            return str(0)
+        else:
+            return None
+
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
         cotisation"""
@@ -522,10 +530,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
             if self.get_shell:
                 user_ldap.login_shell = str(self.get_shell)
-            if self.state == self.STATE_DISABLED:
-                user_ldap.shadowexpire = str(0)
-            else:
-                user_ldap.shadowexpire = None
+            user_ldap.shadowexpire = self.get_shadow_expire
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
