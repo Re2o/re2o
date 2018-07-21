@@ -50,6 +50,7 @@ from django.contrib.auth import views as auth_views
 from .views import index, about_page
 
 handler500 = 're2o.views.handler500'
+handler404 = 're2o.views.handler404'
 
 urlpatterns = [
     url(r'^$', index, name='index'),
