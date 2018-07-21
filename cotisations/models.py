@@ -55,80 +55,11 @@ from cotisations.utils import find_payment_method
 from cotisations.validators import check_no_balance
 
 
-# TODO : change facture to invoice
-class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
-    """
-    The model for an invoice. It reprensents the fact that a user paid for
-    something (it can be multiple article paid at once).
-
-    An invoice is linked to :
-        * one or more purchases (one for each article sold that time)
-        * a user (the one who bought those articles)
-        * a payment method (the one used by the user)
-        * (if applicable) a bank
-        * (if applicable) a cheque number.
-    Every invoice is dated throught the 'date' value.
-    An invoice has a 'controlled' value (default : False) which means that
-    someone with high enough rights has controlled that invoice and taken it
-    into account. It also has a 'valid' value (default : True) which means
-    that someone with high enough rights has decided that this invoice was not
-    valid (thus it's like the user never paid for his articles). It may be
-    necessary in case of non-payment.
-    """
-
-    user = models.ForeignKey('users.User', on_delete=models.PROTECT)
-    # TODO : change paiement to payment
-    paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
-    # TODO : change banque to bank
-    banque = models.ForeignKey(
-        'Banque',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-    # TODO : maybe change to cheque nummber because not evident
-    cheque = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name=_l("Cheque number")
-    )
+class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     date = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_l("Date")
     )
-    # TODO : change name to validity for clarity
-    valid = models.BooleanField(
-        default=True,
-        verbose_name=_l("Validated")
-    )
-    # TODO : changed name to controlled for clarity
-    control = models.BooleanField(
-        default=False,
-        verbose_name=_l("Controlled")
-    )
-
-    class Meta:
-        abstract = False
-        permissions = (
-            # TODO : change facture to invoice
-            ('change_facture_control',
-             _l("Can change the \"controlled\" state")),
-            # TODO : seems more likely to be call create_facture_pdf
-            # or create_invoice_pdf
-            ('change_facture_pdf',
-             _l("Can create a custom PDF invoice")),
-            ('view_facture',
-             _l("Can see an invoice's details")),
-            ('change_all_facture',
-             _l("Can edit all the previous invoices")),
-        )
-        verbose_name = _l("Invoice")
-        verbose_name_plural = _l("Invoices")
-
-    def linked_objects(self):
-        """Return linked objects : machine and domain.
-        Usefull in history display"""
-        return self.vente_set.all()
 
     # TODO : change prix to price
     def prix(self):
@@ -166,6 +97,78 @@ class Facture(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             facture=self
         ).values_list('name', flat=True))
         return name
+
+
+# TODO : change facture to invoice
+class Facture(BaseInvoice):
+    """
+    The model for an invoice. It reprensents the fact that a user paid for
+    something (it can be multiple article paid at once).
+
+    An invoice is linked to :
+        * one or more purchases (one for each article sold that time)
+        * a user (the one who bought those articles)
+        * a payment method (the one used by the user)
+        * (if applicable) a bank
+        * (if applicable) a cheque number.
+    Every invoice is dated throught the 'date' value.
+    An invoice has a 'controlled' value (default : False) which means that
+    someone with high enough rights has controlled that invoice and taken it
+    into account. It also has a 'valid' value (default : True) which means
+    that someone with high enough rights has decided that this invoice was not
+    valid (thus it's like the user never paid for his articles). It may be
+    necessary in case of non-payment.
+    """
+
+    user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+    # TODO : change paiement to payment
+    paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
+    # TODO : change banque to bank
+    banque = models.ForeignKey(
+        'Banque',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    # TODO : maybe change to cheque nummber because not evident
+    cheque = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_l("Cheque number")
+    )
+    # TODO : change name to validity for clarity
+    valid = models.BooleanField(
+        default=True,
+        verbose_name=_l("Validated")
+    )
+    # TODO : changed name to controlled for clarity
+    control = models.BooleanField(
+        default=False,
+        verbose_name=_l("Controlled")
+    )
+
+    class Meta:
+        abstract = False
+        permissions = (
+            # TODO : change facture to invoice
+            ('change_facture_control',
+             _l("Can change the \"controlled\" state")),
+            # TODO : seems more likely to be call create_facture_pdf
+            # or create_invoice_pdf
+            ('change_facture_pdf',
+             _l("Can create a custom PDF invoice")),
+            ('view_facture',
+             _l("Can see an invoice's details")),
+            ('change_all_facture',
+             _l("Can edit all the previous invoices")),
+        )
+        verbose_name = _l("Invoice")
+        verbose_name_plural = _l("Invoices")
+
+    def linked_objects(self):
+        """Return linked objects : machine and domain.
+        Usefull in history display"""
+        return self.vente_set.all()
 
     def can_edit(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.change_facture'):
@@ -265,6 +268,28 @@ def facture_post_delete(**kwargs):
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
+class CustomInvoice(BaseInvoice):
+    class Meta:
+        permissions = (
+            ('view_custom_invoice', _l("Can view a custom invoice")),
+        )
+    recipient = models.CharField(
+        max_length=255,
+        verbose_name=_l("Recipient")
+    )
+    payment = models.CharField(
+        max_length=255,
+        verbose_name=_l("Payment type")
+    )
+    address = models.CharField(
+        max_length=255,
+        verbose_name=_l("Address")
+    )
+    paid = models.BooleanField(
+        verbose_name="Paid"
+    )
+
+
 # TODO : change Vente to Purchase
 class Vente(RevMixin, AclMixin, models.Model):
     """
@@ -288,7 +313,7 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     # TODO : change facture to invoice
     facture = models.ForeignKey(
-        'Facture',
+        'BaseInvoice',
         on_delete=models.CASCADE,
         verbose_name=_l("Invoice")
     )
@@ -355,6 +380,10 @@ class Vente(RevMixin, AclMixin, models.Model):
         cotisation_type defined (which means the article sold represents
         a cotisation)
         """
+        try:
+            invoice = self.facture.facture
+        except Facture.DoesNotExist:
+            return
         if not hasattr(self, 'cotisation') and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
@@ -362,7 +391,7 @@ class Vente(RevMixin, AclMixin, models.Model):
                 end_cotisation = Cotisation.objects.filter(
                     vente__in=Vente.objects.filter(
                         facture__in=Facture.objects.filter(
-                            user=self.facture.user
+                            user=invoice.user
                         ).exclude(valid=False))
                 ).filter(
                     Q(type_cotisation='All') |
@@ -371,9 +400,9 @@ class Vente(RevMixin, AclMixin, models.Model):
                     date_start__lt=date_start
                 ).aggregate(Max('date_end'))['date_end__max']
             elif self.type_cotisation == "Adhesion":
-                end_cotisation = self.facture.user.end_adhesion()
+                end_cotisation = invoice.user.end_adhesion()
             else:
-                end_cotisation = self.facture.user.end_connexion()
+                end_cotisation = invoice.user.end_connexion()
             date_start = date_start or timezone.now()
             end_cotisation = end_cotisation or date_start
             date_max = max(end_cotisation, date_start)
@@ -445,6 +474,10 @@ def vente_post_save(**kwargs):
     LDAP user when a purchase has been saved.
     """
     purchase = kwargs['instance']
+    try:
+        purchase.facture.facture
+    except Facture.DoesNotExist:
+        return
     if hasattr(purchase, 'cotisation'):
         purchase.cotisation.vente = purchase
         purchase.cotisation.save()
@@ -462,8 +495,12 @@ def vente_post_delete(**kwargs):
     Synchronise the LDAP user after a purchase has been deleted.
     """
     purchase = kwargs['instance']
+    try:
+        invoice = purchase.facture.facture
+    except Facture.DoesNotExist:
+        return
     if purchase.type_cotisation:
-        user = purchase.facture.user
+        user = invoice.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
