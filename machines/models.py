@@ -39,7 +39,7 @@ from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from macaddress.fields import MACAddressField
 
@@ -343,6 +343,13 @@ class IpType(RevMixin, AclMixin, models.Model):
         null=True,
         blank=True
     )
+    prefix_v6_length = models.IntegerField(
+        default=64,
+        validators=[
+            MaxValueValidator(128),
+            MinValueValidator(0)
+        ]
+        )
     dnssec_reverse_v6 = models.BooleanField(
             default=False,
             help_text="Activer DNSSEC sur le reverse DNS IPv6",
@@ -405,7 +412,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             return {
                 'network' : str(self.prefix_v6),
                 'netmask' : 'ffff:ffff:ffff:ffff::',
-                'netmask_cidr' : '64',
+                'netmask_cidr' : str(self.prefix_v6_length),
                 'vlan': str(self.vlan),
                 'vlan_id': self.vlan.vlan_id
             }
@@ -459,6 +466,17 @@ class IpType(RevMixin, AclMixin, models.Model):
                     )
                 ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
+
+    def get_associated_ptr_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
+                .filter(type__ip_type=self)
+                .filter(ipv4__isnull=False))
+
+    def get_associated_ptr_v6_records(self):
+        from re2o.utils import all_active_interfaces
+        return (all_active_interfaces(full=True)
+                .filter(type__ip_type=self))
 
     def clean(self):
         """ Nettoyage. Vérifie :

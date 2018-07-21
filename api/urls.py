@@ -106,8 +106,11 @@ router.register_view(r'switchs/role', views.RoleView),
 router.register_view(r'mail/alias', views.UserMailAliasView),
 # Reminder
 router.register_view(r'reminder/get-users', views.ReminderView),
+# Firewall
+router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
+router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
 # MAILING
 router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),

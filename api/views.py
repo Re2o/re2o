@@ -552,6 +552,12 @@ class HostMacIpView(generics.ListAPIView):
     serializer_class = serializers.HostMacIpSerializer
 
 
+#Firewall
+
+class SubnetPortsOpenView(generics.ListAPIView):
+    queryset = machines.IpType.objects.all()
+    serializer_class = serializers.SubnetPortsOpenSerializer
+
 # DNS
 
 class DNSZonesView(generics.ListAPIView):
@@ -567,6 +573,15 @@ class DNSZonesView(generics.ListAPIView):
                 .prefetch_related('srv_set').prefetch_related('srv_set__target')
                 .all())
     serializer_class = serializers.DNSZonesSerializer
+
+class DNSReverseZonesView(generics.ListAPIView):
+    """Exposes the detailed information about each extension (hostnames, 
+    IPs, DNS records, etc.) in order to build the DNS zone files.
+    """
+    queryset = (machines.IpType.objects.all())
+    serializer_class = serializers.DNSReverseZonesSerializer
+
+
 
 
 # MAILING

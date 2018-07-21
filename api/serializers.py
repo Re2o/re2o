@@ -746,6 +746,30 @@ class SwitchPortSerializer(serializers.ModelSerializer):
                   'interfaces_subnet', 'interfaces6_subnet', 'automatic_provision', 'rest_enabled',
                   'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value')
 
+#Firewall
+
+class FirewallPortListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = machines.OuverturePort
+        fields = ('begin', 'end', 'protocole', 'io')
+
+class FirewallOuverturePortListSerializer(serializers.ModelSerializer):
+    tcp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    tcp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.OuverturePortList
+        fields = ('tcp_ports_in', 'udp_ports_in', 'tcp_ports_out', 'udp_ports_out')
+
+class SubnetPortsOpenSerializer(serializers.ModelSerializer):
+    ouverture_ports = FirewallOuverturePortListSerializer(read_only=True)
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'prefix_v6', 'ouverture_ports')
+
 # DHCP
 
 
@@ -877,6 +901,27 @@ class DNSZonesSerializer(serializers.ModelSerializer):
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
                   'aaaa_records', 'cname_records')
+
+
+class DNSReverseZonesSerializer(serializers.ModelSerializer):
+    """Serialize the data about DNS Zones.
+    """
+    soa = SOARecordSerializer(source='extension.soa')
+    extension = serializers.CharField(source='extension.name', read_only=True)
+    cidrs = serializers.ListField(child=serializers.CharField(), source='ip_set_cidrs_as_str', read_only=True)
+    ns_records = NSRecordSerializer(many=True, source='extension.ns_set')
+    mx_records = MXRecordSerializer(many=True, source='extension.mx_set')
+    txt_records = TXTRecordSerializer(many=True, source='extension.txt_set')
+    ptr_records = ARecordSerializer(many=True, source='get_associated_ptr_records')
+    ptr_v6_records = AAAARecordSerializer(many=True, source='get_associated_ptr_v6_records')
+
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
+                  'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
+                  'prefix_v6')
+
 
 #REMINDER
 
