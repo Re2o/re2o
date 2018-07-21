@@ -46,6 +46,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
@@ -119,7 +120,7 @@ def new_user(request):
             user.send_verification_mail(request)
             messages.warning(request, "Un mail pour vérifier l'adresse a été envoyé")
             if(OptionalUser.get_cached_value('verification_time')>0):
-                user.verification_deadline = datetime.datetime.now() + datetime.timedelta(hours=OptionalUser.get_cached_value('verification_time'))
+                user.verification_deadline = timezone.now() + datetime.timedelta(hours=OptionalUser.get_cached_value('verification_time'))
         user.save()
         if(password != ""):
             user.set_password(password)
@@ -1070,3 +1071,11 @@ def ml_club_members(request, ml_name):
     )
     seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)
+
+@login_required
+def resend_verification_mail(request):
+    if(OptionalUser.get_cached_value('mail_verification')):
+        request.user.send_verification_mail(request)
+        messages.success(request, "Un nouveau mail a été envoyé")
+    return redirect(reverse('users:profil', kwargs={'userid': str(request.user.id)}))
+         

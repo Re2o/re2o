@@ -1,0 +1,33 @@
+Bonjour {{ name }},
+
+Vous trouverez ci-dessous une url permetant dé vérifier compte votre
+compte {{ site_name }}. Celui-ci vous permet de gérer l'ensemble de vos équipements
+connectés, votre compte, vos factures, et tous les services proposés sur le réseau.
+
+    {{ url }}
+
+Contactez les administrateurs si vous n'êtes pas à l'origine de cette requête.
+
+Ce lien expirera dans {{ expire_in }}.
+
+Cordialement,
+
+L'équipe de {{ asso }} (contact : {{ asso_mail }}).
+
+----------------------
+
+Hi {{ name }},
+
+You will find a link allowing you to validate your account on {{ site_name }}.
+On this website you will then be able to manage your devices on the {{ asso }}.
+
+    {{ url }}
+
+This link will expire in {{ expire_in }}.
+
+Send an email at {{ asso_mail }} if you didn't request this or if you have
+any other question.
+
+Thanks
+
+The team of {{ asso }} (contact : {{ asso_mail }}).

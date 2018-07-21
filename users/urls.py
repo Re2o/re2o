@@ -116,4 +116,5 @@ urlpatterns = [
     url(r'^rest/ml/club/member/(?P<ml_name>\w+)/$',
         views.ml_club_members,
         name='ml-club-members'),
+    url(r'^resend_verification_mail$', views.resend_verification_mail, name="resend_verification_mail'),
 ]
