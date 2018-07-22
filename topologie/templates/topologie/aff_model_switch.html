@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 {% if model_switch_list.paginator %}
 {% include "pagination.html" with list=model_switch_list %}
@@ -33,30 +34,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% include "buttons/sort.html" with prefix='model-switch' col='reference' text='Référence' %}</th>
             <th>{% include "buttons/sort.html" with prefix='model-switch' col='constructor' text='Constructeur' %}</th>
-	    <th></th>
+            <th></th>
         </tr>
-   </thead>
-   {% for model_switch in model_switch_list %}
-   <tr>
-       <td>{{model_switch.reference}}</td>
-       <td>{{model_switch.constructor}}</td>
-       <td class="text-right">
-            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'modelswitch' model_switch.pk %}">
-                <i class="fa fa-history"></i>
-            </a>
-        {% can_edit model_switch %}
+    </thead>
+    {% for model_switch in model_switch_list %}
+    <tr>
+        <td>{{model_switch.reference}}</td>
+        <td>{{model_switch.constructor}}</td>
+        <td class="text-right">
+            {% history_button model_switch %}
+            {% can_edit model_switch %}
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-model-switch' model_switch.id %}">
                 <i class="fa fa-edit"></i>
             </a>
-	{% acl_end %}
-	{% can_delete model_switch %}
+            {% acl_end %}
+            {% can_delete model_switch %}
             <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-model-switch' model_switch.id %}">
                 <i class="fa fa-trash"></i>
             </a>
-        {% acl_end %}
+            {% acl_end %}
         </td>
-   </tr>
-   {% endfor %}
+    </tr>
+    {% endfor %}
 </table>
 
 {% if model_switch_list.paginator %}

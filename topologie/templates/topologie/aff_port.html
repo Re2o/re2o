@@ -23,68 +23,67 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
-<table class="table table-striped">
-    <thead>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{% include "buttons/sort.html" with prefix='port' col='port' text='Port' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='port' col='radius' text='Radius' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='port' col='vlan' text='Vlan forcé' %}</th>
+                <th>Détails</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for port in port_list %}
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='port' col='port' text='Port' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='radius' text='Radius' %}</th>
-	    <th>{% include "buttons/sort.html" with prefix='port' col='vlan' text='Vlan forcé' %}</th>
-            <th>Détails</th>
-            <th></th>
-        </tr>
-   </thead>
-   {% for port in port_list %}
-   <tr>
-        <td>{{ port.port }}</td>
-        <td>
-            {% if port.room %}{{ port.room }}{% endif %}
-        </td>
-        <td>
-            {% if port.machine_interface %}
-            {% can_view port.machine_interface.machine.user %}
-            <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+            <td>{{ port.port }}</td>
+            <td>
+                {% if port.room %}{{ port.room }}{% endif %}
+            </td>
+            <td>
+                {% if port.machine_interface %}
+                {% can_view port.machine_interface.machine.user %}
+                <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                    {{ port.machine_interface }}
+                </a>
+                {% acl_else %}
                 {{ port.machine_interface }}
-            </a>
-            {% acl_else %}
-            {{ port.machine_interface }}
-            {% acl_end %}
-            {% endif %}
-        </td>
-        <td>
-            {% if port.related %}
-            {% can_view port.related.switch %}
-            <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                {% acl_end %}
+                {% endif %}
+            </td>
+            <td>
+                {% if port.related %}
+                {% can_view port.related.switch %}
+                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                    {{ port.related }}
+                </a>
+                {% acl_else %}
                 {{ port.related }}
-            </a>
-            {% acl_else %}
-            {{ port.related }}
-            {% acl_end %}
-            {% endif %}
-        </td>
-        <td>{{ port.radius }}</td>
-	<td>{% if not port.vlan_force %}Aucun{% else %}{{ port.vlan_force }}{% endif %}</td>
-        <td>{{ port.details }}</td>
-        <td class="text-right">
-            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'port' port.pk %}">
-                <i class="fa fa-history"></i>
-            </a>
-            {% can_edit port %}
-            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
-	    {% acl_end %}
-            {% can_delete port %}
-	    <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
-                   <i class="fa fa-trash"></i>
-           </a>
-           {% acl_end %}
-        </td>
-   </tr>
-   {% endfor %}
-</table>
+                {% acl_end %}
+                {% endif %}
+            </td>
+            <td>{{ port.radius }}</td>
+            <td>{% if not port.vlan_force %}Aucun{% else %}{{ port.vlan_force }}{% endif %}</td>
+            <td>{{ port.details }}</td>
+            <td class="text-right">
+                {% history_button port %}
+                {% can_edit port %}
+                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
+                    <i class="fa fa-edit"></i>
+                </a>
+                {% acl_end %}
+                {% can_delete port %}
+                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
+                    <i class="fa fa-trash"></i>
+                </a>
+                {% acl_end %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>

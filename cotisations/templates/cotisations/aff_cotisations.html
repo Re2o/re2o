@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load i18n %}
+{% load logs_extra %}
 
 <div class="table-responsive">
 {% if facture_list.paginator %}
@@ -86,9 +87,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </li>
                         {% acl_end %}
                         <li>
-                            <a href="{% url 'cotisations:history' 'facture' facture.id %}">
-                                <i class="fa fa-history"></i> {% trans "Historique" %}
-                            </a>
+                            {% history_button facture text=True html_class=False%}
                         </li>
                     </ul>
                 </div>

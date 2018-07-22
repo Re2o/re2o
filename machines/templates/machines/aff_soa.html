@@ -23,36 +23,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-		    <th>Nom</th>
-		    <th>Mail</th>
-		    <th>Refresh</th>
-		    <th>Retry</th>
-		    <th>Expire</th>
-		    <th>TTL</th>
-		    <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for soa in soa_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ soa.name }}</td>
-	    <td>{{ soa.mail }}</td>
-	    <td>{{ soa.refresh }}</td>
-	    <td>{{ soa.retry }}</td>
-	    <td>{{ soa.expire }}</td>
-	    <td>{{ soa.ttl }}</td>
-            <td class="text-right">
+            <th>Nom</th>
+            <th>Mail</th>
+            <th>Refresh</th>
+            <th>Retry</th>
+            <th>Expire</th>
+            <th>TTL</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for soa in soa_list %}
+    <tr>
+        <td>{{ soa.name }}</td>
+        <td>{{ soa.mail }}</td>
+        <td>{{ soa.refresh }}</td>
+        <td>{{ soa.retry }}</td>
+        <td>{{ soa.expire }}</td>
+        <td>{{ soa.ttl }}</td>
+        <td class="text-right">
             {% can_edit soa %}
             {% include 'buttons/edit.html' with href='machines:edit-soa' id=soa.id %}
-	    {% acl_end %}
-            {% include 'buttons/history.html' with href='machines:history' name='soa' id=soa.id %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% acl_end %}
+            {% history_button soa %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
 

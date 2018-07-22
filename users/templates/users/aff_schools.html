@@ -22,18 +22,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
 
-{% if school_list.paginator %}
-{% include "pagination.html" with list=school_list %}
-{% endif %}
+    {% if school_list.paginator %}
+    {% include "pagination.html" with list=school_list %}
+    {% endif %}
 
 
     <table class="table table-striped">
         <thead>
             <tr>
-	        <th>{% include "buttons/sort.html" with prefix='school' col='name' text='Etablissement' %}</th>
+                <th>{% include "buttons/sort.html" with prefix='school' col='name' text='Etablissement' %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -44,14 +45,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_edit school %}
                 {% include 'buttons/edit.html' with href='users:edit-school' id=school.id %}
                 {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='school' id=school.id %}
+                {% history_button school %}
             </td>
         </tr>
         {% endfor %}
     </table>
 
-{% if school_list.paginator %}
-{% include "pagination.html" with list=school_list %}
-{% endif %}
+    {% if school_list.paginator %}
+    {% include "pagination.html" with list=school_list %}
+    {% endif %}
 </div>
 

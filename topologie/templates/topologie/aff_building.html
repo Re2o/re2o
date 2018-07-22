@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 {% if building_list.paginator %}
 {% include "pagination.html" with list=building_list %}
@@ -34,27 +35,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include "buttons/sort.html" with prefix='building' col='name' text='Bâtiment' %}</th>
             <th></th>
         </tr>
-   </thead>
-   {% for building in building_list %}
-   <tr>
-       <td>{{building.name}}</td>
+    </thead>
+    {% for building in building_list %}
+    <tr>
+        <td>{{building.name}}</td>
         <td class="text-right">
-            <a class="btn btn-info btn-sm" role="button" title="Historique" href="{% url 'topologie:history' 'building' building.pk %}">
-                <i class="fa fa-history"></i>
-            </a>
-        {% can_edit building %}
+            {% history_button building %}
+            {% can_edit building %}
             <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-building' building.id %}">
                 <i class="fa fa-edit"></i>
             </a>
-	{% acl_end %}
-	{% can_delete building %}
+            {% acl_end %}
+            {% can_delete building %}
             <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-building' building.id %}">
                 <i class="fa fa-trash"></i>
             </a>
-        {% acl_end %}
+            {% acl_end %}
         </td>
-   </tr>
-   {% endfor %}
+    </tr>
+    {% endfor %}
 </table>
 
 {% if building_list.paginator %}

@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load i18n %}
+{% load logs_extra %}
 
     <table class="table table-striped">
         <thead>
@@ -47,9 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <i class="fa fa-edit"></i>
                 </a>
                 {% acl_end %}
-                <a class="btn btn-info btn-sm" role="button" title="{% trans "Historique" %}" href="{% url 'cotisations:history' 'paiement' paiement.id %}">
-                    <i class="fa fa-history"></i>
-                </a>
+                {% history_button paiement %}
             </td>
         </tr>
         {% endfor %}

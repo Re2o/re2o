@@ -22,20 +22,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                {% for right in right_list %}
-                <th>{{ right }}</th>
-                <th></th>
-                {% endfor %}
-            </tr>
-        </thead>
-        {% for user_right in user_right_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td> {{ user_right }}</td>
+            {% for right in right_list %}
+            <th>{{ right }}</th>
+            <th></th>
+            {% endfor %}
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for user_right in user_right_list %}
+    <tr>
+        <td> {{ user_right }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
 

@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-import re2o
 from . import views
 from . import payment_methods
 
@@ -121,12 +120,6 @@ urlpatterns = [
         r'^index_paiement/$',
         views.index_paiement,
         name='index-paiement'
-    ),
-    url(
-        r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'cotisations'},
     ),
     url(
         r'^control/$',

@@ -22,30 +22,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Rôle</th>
-                <th>Commentaire</th>
-		<th></th>
-            </tr>
-        </thead>
-        {% for serviceuser in serviceusers_list %}
+{% load logs_extra %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ serviceuser.pseudo }}</td>
-            <td>{{ serviceuser.access_group }}</td>
-            <td>{{ serviceuser.comment }}</td>
-            <td class="text-right">
-                {% can_delete serviceuser %}
-                {% include 'buttons/suppr.html' with href='users:del-serviceuser' id=serviceuser.id %}
-                {% acl_end %}
-                {% can_edit serviceuser %}
-                {% include 'buttons/edit.html' with href='users:edit-serviceuser' id=serviceuser.id %}
-                {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='serviceuser' id=serviceuser.id %}
-            </td>
+            <th>Nom</th>
+            <th>Rôle</th>
+            <th>Commentaire</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for serviceuser in serviceusers_list %}
+    <tr>
+        <td>{{ serviceuser.pseudo }}</td>
+        <td>{{ serviceuser.access_group }}</td>
+        <td>{{ serviceuser.comment }}</td>
+        <td class="text-right">
+            {% can_delete serviceuser %}
+            {% include 'buttons/suppr.html' with href='users:del-serviceuser' id=serviceuser.id %}
+            {% acl_end %}
+            {% can_edit serviceuser %}
+            {% include 'buttons/edit.html' with href='users:edit-serviceuser' id=serviceuser.id %}
+            {% acl_end %}
+            {% history_button serviceuser %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

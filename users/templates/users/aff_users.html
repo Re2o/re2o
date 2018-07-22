@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 <div class="table-responsive">
-{% if users_list.paginator %}
-{% include "pagination.html" with list=users_list %}
-{% endif %}
+    {% if users_list.paginator %}
+    {% include "pagination.html" with list=users_list %}
+    {% endif %}
 
     <table class="table table-striped">
         <thead>
@@ -57,7 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 
-{% if users_list.paginator %}
-{% include "pagination.html" with list=users_list %}
-{% endif %}
+    {% if users_list.paginator %}
+    {% include "pagination.html" with list=users_list %}
+    {% endif %}
 </div>

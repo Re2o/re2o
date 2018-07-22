@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-import re2o
 from . import views
 
 urlpatterns = [
@@ -95,10 +94,6 @@ urlpatterns = [
     url(r'^process/(?P<token>[a-z0-9]{32})/$', views.process, name='process'),
     url(r'^reset_password/$', views.reset_password, name='reset-password'),
     url(r'^mass_archive/$', views.mass_archive, name='mass-archive'),
-    url(r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'users'}),
     url(r'^$', views.index, name='index'),
     url(r'^index_clubs/$', views.index_clubs, name='index-clubs'),
     url(r'^rest/ml/std/$',
