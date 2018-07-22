@@ -221,15 +221,10 @@ def edit_info(request, user, userid):
 @login_required
 @can_edit(User, 'state')
 def state(request, user, userid):
-    """ Changer l'etat actif/desactivé/archivé d'un user,
-    need droit bureau """
+    """ Change the state (active/unactive/archived) of a user"""
     state_form = StateForm(request.POST or None, instance=user)
     if state_form.is_valid():
         if state_form.changed_data:
-            if state_form.cleaned_data['state'] == User.STATE_ARCHIVE:
-                user.archive()
-            elif state_form.cleaned_data['state'] == User.STATE_ACTIVE:
-                user.unarchive()
             state_form.save()
             messages.success(request, "Etat changé avec succès")
         return redirect(reverse(
