@@ -1,3 +1,17 @@
+=== English version below ===
+
+Bonjour {{name}},
+
+Nous vous remercions pour votre achat auprès de {{asso_name}} et nous vous en joignons la facture.
+
+En cas de question, n’hésitez pas à nous contacter par mail à {{contact_mail}}.
+
+Cordialement,
+L’équipe de {{asso_name}}
+
+
+=== English version ===
+
 Dear {{name}},
 
 Thank you for your purchase. Here is your invoice.

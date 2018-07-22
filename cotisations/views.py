@@ -40,8 +40,6 @@ from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.core.mail import EmailMessage
-from django.template.loader import get_template
 
 # Import des models, forms et fonctions re2o
 from reversion import revisions as reversion
@@ -74,9 +72,9 @@ from .forms import (
     SelectClubArticleForm,
     RechargeForm
 )
-from .tex import create_pdf, render_invoice
+from .tex import render_invoice
 from .payment_methods.forms import payment_method_factory
-from .utils import find_payment_method
+from .utils import find_payment_method, send_mail_invoice
 
 
 @login_required
@@ -149,47 +147,7 @@ def new_facture(request, user, userid):
                     p.facture = new_invoice_instance
                     p.save()
 
-                facture = new_invoice_instance # BErk
-                purchases_info = []
-                for purchase in facture.vente_set.all():
-                    purchases_info.append({
-                        'name': purchase.name,
-                        'price': purchase.prix,
-                        'quantity': purchase.number,
-                        'total_price': purchase.prix_total
-                    })
-                ctx = {
-                    'paid': True,
-                    'fid': facture.id,
-                    'DATE': facture.date,
-                    'recipient_name': "{} {}".format(
-                         facture.user.name,
-                         facture.user.surname
-                     ),
-                     'address': facture.user.room,
-                     'article': purchases_info,
-                     'total': facture.prix_total(),
-                     'asso_name': AssoOption.get_cached_value('name'),
-                     'line1': AssoOption.get_cached_value('adresse1'),
-                     'line2': AssoOption.get_cached_value('adresse2'),
-                     'siret': AssoOption.get_cached_value('siret'),
-                     'email': AssoOption.get_cached_value('contact'),
-                     'phone': AssoOption.get_cached_value('telephone'),
-                     'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-                }
-
-                pdf = create_pdf('cotisations/factures.tex', ctx)
-
-                template = get_template('cotisations/email_invoice')
-
-                mail = EmailMessage(
-                    _('Your invoice'),
-                    template.render(ctx),
-                    GeneralOption.get_cached_value('email_from'),
-                    [new_invoice_instance.user.email],
-                    attachments = [('invoice.pdf', pdf, 'application/pdf')]
-                )
-                mail.send()
+                send_mail_invoice(new_invoice_instance)
 
                 return new_invoice_instance.paiement.end_payment(
                     new_invoice_instance,
@@ -791,6 +749,9 @@ def credit_solde(request, user, **_kwargs):
                 prix=refill_form.cleaned_data['value'],
                 number=1
             )
+
+            send_mail_invoice(invoice)
+
             return invoice.paiement.end_payment(invoice, request)
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
