@@ -23,32 +23,33 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-		<th>Type du nas</th>
-                <th>Type de machine reliées au nas</th>
-		<th>Mode d'accès</th>
-		<th>Autocapture mac</th>
-    		<th></th>
-            </tr>
-        </thead>
-        {% for nas in nas_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ nas.name }}</td>
-            <td>{{ nas.nas_type  }}</td>
-	    <td>{{ nas.machine_type }}</td>
-	    <td>{{ nas.port_access_mode }}</td>
-	    <td>{{ nas.autocapture_mac }}</td>
-	    <td class="text-right">
-            {% can_edit nas %}
-                {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
-            {% acl_end %}
-                {% include 'buttons/history.html' with href='machines:history' name='nas' id=nas.id %}
-            </td>
+            <th>Nom</th>
+            <th>Type du nas</th>
+            <th>Type de machine reliées au nas</th>
+            <th>Mode d'accès</th>
+            <th>Autocapture mac</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for nas in nas_list %}
+    <tr>
+        <td>{{ nas.name }}</td>
+        <td>{{ nas.nas_type  }}</td>
+        <td>{{ nas.machine_type }}</td>
+        <td>{{ nas.port_access_mode }}</td>
+        <td>{{ nas.autocapture_mac }}</td>
+        <td class="text-right">
+            {% can_edit nas %}
+            {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
+            {% acl_end %}
+            {% history_button nas %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

@@ -2,9 +2,10 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Gabriel Détraz
+# Copyright © 2018  Goulven Kermarec
+# Copyright © 2018  Augustin Lemesle
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,12 +37,16 @@ nombre d'objets par models, nombre d'actions par user, etc
 """
 
 from __future__ import unicode_literals
+from itertools import chain
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Max, F
+from django.http import Http404
+from django.db.models import Count
+from django.apps import apps
+from django.utils.translation import ugettext as _
 
 from reversion.models import Revision
 from reversion.models import Version, ContentType
@@ -142,7 +147,7 @@ def index(request):
                 'comment': version.revision.comment,
                 'datetime': version.revision.date_created.strftime(
                     '%d/%m/%y %H:%M:%S'
-                    ),
+                ),
                 'username':
                     version.revision.user.get_username()
                     if version.revision.user else '?',
@@ -173,7 +178,7 @@ def stats_logs(request):
     revisions = re2o_paginator(request, revisions, pagination_number)
     return render(request, 'logs/stats_logs.html', {
         'revisions_list': revisions
-        })
+    })
 
 
 @login_required
@@ -191,7 +196,7 @@ def revert_action(request, revision_id):
     return form({
         'objet': revision,
         'objet_name': revision.__class__.__name__
-        }, 'logs/delete.html', request)
+    }, 'logs/delete.html', request)
 
 
 @login_required
@@ -453,3 +458,58 @@ def stats_actions(request):
         },
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
+
+
+def history(request, application, object_name, object_id):
+    """Render history for a model.
+
+    The model is determined using the `HISTORY_BIND` dictionnary if none is
+    found, raises a Http404. The view checks if the user is allowed to see the
+    history using the `can_view` method of the model.
+
+    Args:
+        request: The request sent by the user.
+        application: Name of the application.
+        object_name: Name of the model.
+        object_id: Id of the object you want to acces history.
+
+    Returns:
+        The rendered page of history if access is granted, else the user is
+        redirected to their profile page, with an error message.
+
+    Raises:
+        Http404: This kind of models doesn't have history.
+    """
+    try:
+        model = apps.get_model(application, object_name)
+    except LookupError:
+        raise Http404(_("No model found."))
+    object_name_id = object_name + 'id'
+    kwargs = {object_name_id: object_id}
+    try:
+        instance = model.get_instance(**kwargs)
+    except model.DoesNotExist:
+        messages.error(request, _("No entry found."))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    can, msg = instance.can_view(request.user)
+    if not can:
+        messages.error(request, msg or _("You cannot acces to this menu"))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    reversions = Version.objects.get_for_object(instance)
+    if hasattr(instance, 'linked_objects'):
+        for related_object in chain(instance.linked_objects()):
+            reversions = (reversions |
+                          Version.objects.get_for_object(related_object))
+    reversions = re2o_paginator(request, reversions, pagination_number)
+    return render(
+        request,
+        're2o/history.html',
+        {'reversions': reversions, 'object': instance}
+    )

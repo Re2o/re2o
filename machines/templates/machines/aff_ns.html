@@ -23,28 +23,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-		    <th>Zone concernée</th>
-		    <th>Interface autoritaire de la zone</th>
-		    <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for ns in ns_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ ns.zone }}</td>
-	    <td>{{ ns.ns }}</td>
-            <td class="text-right">
+            <th>Zone concernée</th>
+            <th>Interface autoritaire de la zone</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for ns in ns_list %}
+    <tr>
+        <td>{{ ns.zone }}</td>
+        <td>{{ ns.ns }}</td>
+        <td class="text-right">
             {% can_edit ns %}
             {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
-	    {% acl_end %}
-            {% include 'buttons/history.html' with href='machines:history' name='ns' id=ns.id %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% acl_end %}
+            {% history_button ns %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
 

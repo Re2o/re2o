@@ -28,36 +28,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% include "buttons/sort.html" with prefix='club' col="surname" text="Nom" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text="Pseudo" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='club' col="room" text="Chambre" %}</th>
-                <th>Fin de cotisation le</th>
-                <th>Connexion</th>
-                <th>Profil</th>
-            </tr>
-        </thead>
-        {% for club in clubs_list %}
-	{% can_view club %}
-	<tr>
-            <td>{{ club.surname }}</td>
-            <td>{{ club.pseudo }}</td>
-            <td>{{ club.room }}</td>
-            <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
-            <td>{% if club.has_access == True %}
-                <i class="text-success">Active</i>
-                {% else %}
-                <i class="text-danger">Désactivée</i>
-                {% endif %}
-            </td>
-            <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
-            </td>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% include "buttons/sort.html" with prefix='club' col="surname" text="Nom" %}</th>
+            <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text="Pseudo" %}</th>
+            <th>{% include "buttons/sort.html" with prefix='club' col="room" text="Chambre" %}</th>
+            <th>Fin de cotisation le</th>
+            <th>Connexion</th>
+            <th>Profil</th>
         </tr>
-	{% acl_end %}
-        {% endfor %}
-    </table>
+    </thead>
+    {% for club in clubs_list %}
+    {% can_view club %}
+    <tr>
+        <td>{{ club.surname }}</td>
+        <td>{{ club.pseudo }}</td>
+        <td>{{ club.room }}</td>
+        <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
+        <td>{% if club.has_access == True %}
+            <i class="text-success">Active</i>
+            {% else %}
+            <i class="text-danger">Désactivée</i>
+            {% endif %}
+        </td>
+        <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
+        </td>
+    </tr>
+    {% acl_end %}
+    {% endfor %}
+</table>
 
 {% if clubs_list.paginator %}
 {% include "pagination.html" with list=clubs_list %}

@@ -22,42 +22,43 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
+{% load logs_extra %}
 {% if ban_list.paginator %}
 {% include "pagination.html" with list=ban_list %}
 {% endif %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% include "buttons/sort.html" with prefix='ban' col="user" text="Utilisateur" %}</th>
-                <th>Raison</th>
-                <th>{% include "buttons/sort.html" with prefix='ban' col="start" text="Date de début" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='ban' col="end" text="Date de fin" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for ban in ban_list %}
-        {% if ban.is_active %}
-        <tr class="danger">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% include "buttons/sort.html" with prefix='ban' col="user" text="Utilisateur" %}</th>
+            <th>Raison</th>
+            <th>{% include "buttons/sort.html" with prefix='ban' col="start" text="Date de début" %}</th>
+            <th>{% include "buttons/sort.html" with prefix='ban' col="end" text="Date de fin" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for ban in ban_list %}
+    {% if ban.is_active %}
+    <tr class="danger">
         {% else %}
         <tr>
-        {% endif %}
+            {% endif %}
             <td>{{ ban.user }}</td>
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
             <td class="text-right">
-	    {% can_delete ban %}
-	    	{% include 'buttons/suppr.html' with href='users:del-ban' id=ban.id %}
-	    {% acl_end %}
-            {% can_edit ban %}
+                {% can_delete ban %}
+                {% include 'buttons/suppr.html' with href='users:del-ban' id=ban.id %}
+                {% acl_end %}
+                {% can_edit ban %}
                 {% include 'buttons/edit.html' with href='users:edit-ban' id=ban.id %}
-            {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='ban' id=ban.id %}
+                {% acl_end %}
+                {% history_button ban %}
             </td>
         </tr>
         {% endfor %}
-    </table>
+</table>
 
 {% if ban_list.paginator %}
 {% include "pagination.html" with list=ban_list %}
