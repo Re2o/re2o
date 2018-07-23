@@ -29,7 +29,6 @@ from django.conf.urls import url
 
 from . import views
 
-
 urlpatterns = [
     url(
         r'^edit_options/(?P<section>OptionalUser)$',
@@ -72,6 +71,6 @@ urlpatterns = [
         views.edit_service,
         name='edit-service'
         ),
-    url(r'^del_services/$', views.del_services, name='del-services'),
+    url(r'^del_services/$', views.del_service, name='del-service'),
     url(r'^$', views.display_options, name='display-options'),
 ]
