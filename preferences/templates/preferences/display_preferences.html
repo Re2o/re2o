@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Création et modification des préférences{% endblock %}
 
 {% block content %}
-<h4>Préférences utilisateur</h4> 
+<h4>Préférences utilisateur</h4>
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
         <i class="fa fa-edit"></i>
         Editer
@@ -56,12 +56,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>Creations de clubs par tous</th>
                 <td>{{ useroptions.all_can_create_club|tick }}</td>
         </tr>
-        <tr>
-                <th>Auto inscription</th>
-                <td>{{ useroptions.self_adhesion }}</td>
-                <th>Shell par défaut des utilisateurs</th>
-                <td>{{ useroptions.shell_default }}</td>
-        </tr>
 </table>
 
 
@@ -75,7 +69,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
         <tr>
                 <th>Mot de passe par machine</th>
-                <td>{{ machineoptions.password_machine }}</td>
+                <td>{{ machineoptions.password_machine|tick }}</td>
                 <th>Machines/interfaces autorisées par utilisateurs</th>
                 <td>{{ machineoptions.max_lambdauser_interfaces }}</td>
         </tr>
@@ -87,7 +81,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         <tr>
                 <th>Creation de machines</th>
-                <td>{{ machineoptions.create_machine }}</td>
+                <td>{{ machineoptions.create_machine|tick }}</td>
         </tr>
 </table>
 <h4>Préférences topologie</h4>
