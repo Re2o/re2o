@@ -25,17 +25,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load i18n %}
 {% load logs_extra %}
+{% load design %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Payment type" %}</th>
-                <th>{% trans "Is available for everyone" %}</th>
-                <th>{% trans "Custom payment method" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for paiement in paiement_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
             <td>{{ paiement.moyen }}</td>
             <td>{{ paiement.available_for_everyone }}</td>
@@ -50,7 +43,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% acl_end %}
                 {% history_button paiement %}
             </td>
+            <th>{% trans "Payment type" %}</th>
+            <th>{% trans "Is available for everyone" %}</th>
+            <th>{% trans "Custom payment method" %}</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for paiement in paiement_list %}
+    <tr>
+        <td>{{ paiement.moyen }}</td>
+        <td>{{ paiement.available_for_everyone|tick }}</td>
+        <td>
+            {{paiement.get_payment_method_name}}
+        </td>
+        <td class="text-right">
+            {% can_edit paiement %}
+            <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-paiement' paiement.id %}">
+                <i class="fa fa-edit"></i>
+            </a>
+            {% acl_end %}
+            <a class="btn btn-info btn-sm" role="button" title="{% trans "Historique" %}" href="{% url 'cotisations:history' 'paiement' paiement.id %}">
+                <i class="fa fa-history"></i>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

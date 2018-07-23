@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load design %}
 
 <div class="table-responsive">
     <table class="table table-striped">
@@ -42,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for extension in extension_list %}
         <tr>
             <td>{{ extension.name }}</td>
-            <td>{{ extension.need_infra }}</td>
+            <td>{{ extension.need_infra|tick }}</td>
             <td>{{ extension.soa}}</td>
             <td>{{ extension.origin }}</td>
             {% if ipv6_enabled %}
@@ -53,6 +54,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
                 {% acl_end %}
                 {% history_button extension %}
+                {% include 'buttons/history.html' with href='machines:history' name='extension' id=extension.id %}
             </td>
         </tr>
         {% endfor %}
