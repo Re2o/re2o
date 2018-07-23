@@ -27,13 +27,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Machines{% endblock %}
 
 {% block content %}
-  <h2>Liste des fingerprint ssh</h2>
-  {% can_create SshFingerprint machine_id %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-sshfingerprint' machine_id  %}"><i class="fa fa-plus"></i> Ajouter une fingerprint ssh</a>
-  {% acl_end %}
-  {%  include "machines/aff_sshfingerprint.html" with sshfingerprint_list=sshfingerprint_list %}
-  <br />
-  <br />
-  <br />
+<h2>SSH fingerprints</h2>
+{% can_create SshFingerprint machine_id %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-sshfingerprint' machine_id %}">
+    <i class="fa fa-plus"></i> Add an SSH fingerprint
+</a>
+{% acl_end %}
+{%  include "machines/aff_sshfingerprint.html" with sshfingerprint_list=sshfingerprint_list %}
 {% endblock %}
 

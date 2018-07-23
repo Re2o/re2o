@@ -10,7 +10,7 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0083_role'),
+        ('machines', '0083_remove_duplicate_rights'),
     ]
 
     operations = [
@@ -18,11 +18,15 @@ class Migration(migrations.Migration):
             name='SshFingerprint',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('hash_entry', models.TextField(max_length=512)),
-                ('comment', models.CharField(blank=True, max_length=255, null=True)),
+                ('pub_key_entry', models.TextField(help_text='SSH public key', max_length=2048)),
+                ('comment', models.CharField(blank=True, help_text='Comment', max_length=255, null=True)),
+                ('algo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.SshFprAlgo')),
+                ('machine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.Machine')),
             ],
             options={
-                'permissions': (('view_sshfingerprint', 'Peut voir un objet sshfingerprint'),),
+                'permissions': (('view_sshfingerprint', 'Can see an SSH fingerprint'),),
+                'verbose_name': 'SSH fingerprint',
+                'verbose_name_plural': 'SSH fingerprints'
             },
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
@@ -30,21 +34,13 @@ class Migration(migrations.Migration):
             name='SshFprAlgo',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField(max_length=256)),
+                ('name', models.CharField(max_length=256)),
             ],
             options={
-                'permissions': (('view_sshfpralgo', 'Peut voir un algo de chiffrement'),),
+                'permissions': (('view_sshfpralgo', 'Can see an SSH fingerprint algorithm'),),
+                'verbose_name': 'SSH fingerprint algorithm',
+                'verbose_name_plural': 'SSH fingerprint algorithms'
             },
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
-        ),
-        migrations.AddField(
-            model_name='sshfingerprint',
-            name='algo',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.SshFprAlgo'),
-        ),
-        migrations.AddField(
-            model_name='sshfingerprint',
-            name='machine',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.Machine'),
         ),
     ]

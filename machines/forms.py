@@ -600,7 +600,7 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
 
         
 class SshFingerprintForm(FormRevMixin, ModelForm):
-    """Edition d'une sshfingerprint"""
+    """Edits a SSH fingerprint."""
     class Meta:
         model = SshFingerprint
         exclude = ('machine',)
@@ -615,7 +615,7 @@ class SshFingerprintForm(FormRevMixin, ModelForm):
 
 
 class SshFprAlgoForm(FormRevMixin, ModelForm):
-    """Edition de la liste des algo pour sshfpr"""
+    """Edits a SSH fingerprint algorithm."""
     class Meta:
         model = SshFprAlgo
         fields = '__all__'

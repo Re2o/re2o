@@ -21,27 +21,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-		<th>Nom de l'algo</th>
-		<th></th>
-            </tr>
-        </thead>
-        {% for sshfpralgo in sshfpralgo_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ sshfpralgo.name }}</td>
-	    <td class="text-right">
-		    {% can_edit sshfpralgo %}
-		    {% include 'buttons/edit.html' with href='machines:edit-sshfpralgo' id=sshfpralgo.id %}
-		    {% acl_end %}
-	            {% can_delete sshfpralgo %}
-	            {% include 'buttons/suppr.html' with href='machines:del-sshfpralgo' id=sshfpralgo.id %}
-		    {% acl_end %}
-		    {% include 'buttons/history.html' with href='machines:history' name='sshfpralgo' id=sshfpralgo.id %}
-            </td>
+            <th>Algorithm name</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
-
+    </thead>
+    {% for sshfpralgo in sshfpralgo_list %}
+    <tr>
+        <td>{{ sshfpralgo.name }}</td>
+        <td class="text-right">
+            {% can_edit sshfpralgo %}
+            {% include 'buttons/edit.html' with href='machines:edit-sshfpralgo' id=sshfpralgo.id %}
+            {% acl_end %}
+            {% can_delete sshfpralgo %}
+            {% include 'buttons/suppr.html' with href='machines:del-sshfpralgo' id=sshfpralgo.id %}
+            {% acl_end %}
+            {% history_button sshfpralgo %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>

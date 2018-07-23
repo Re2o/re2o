@@ -201,14 +201,10 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
 class SshFingerprint(RevMixin, AclMixin, models.Model):
-    """Stockage de la clef ssh publique d'une machine
-    et calcul de ses hash"""
-
-    PRETTY_NAME = "Clef publique ssh"
-
+    """A fingerpirnt of an SSH public key"""
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     pub_key_entry = models.TextField(
-        help_text="Clef publique ssh",
+        help_text="SSH public key",
         max_length=2048
     )
     algo = models.ForeignKey(
@@ -216,7 +212,7 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
         on_delete=models.PROTECT
     )
     comment = models.CharField(
-        help_text="Commentaire",
+        help_text="Comment",
         max_length=255,
         null=True,
         blank=True
@@ -224,8 +220,10 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_sshfingerprint", "Peut voir un objet sshfingerprint"),
+            ("view_sshfingerprint", "Can see an SSH fingerprint"),
         )
+        verbose_name = "SSH fingerprint"
+        verbose_name_plural = "SSH fingerprints"
 
     def can_view(self, user_request, *_args, **_kwargs):
         return self.machine.can_view(user_request, *_args, **_kwargs)
@@ -241,15 +239,15 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
 
 
 class SshFprAlgo(RevMixin, AclMixin, models.Model):
-    """Un aglorithme de création de la fingerprint ssh"""
-    PRETTY_NAME = "Algo de clef ssh"
-
+    """An algorithm to compute SSH fingerprints"""
     name = models.CharField(max_length=256)
 
     class Meta:
         permissions = (
-            ("view_sshfpralgo", "Peut voir un algo de chiffrement"),
+            ("view_sshfpralgo", "Can see an SSH fingerprint algorithm"),
         )
+        verbose_name = "SSH fingerprint algorithm"
+        verbose_name_plural = "SSH fingerprint algorithms"
 
     def  __str__(self):
        return str(self.name)
