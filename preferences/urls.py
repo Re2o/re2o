@@ -80,11 +80,5 @@ urlpatterns = [
         name='edit-mailcontact'
         ),
     url(r'^del_mailcontact/$', views.del_mailcontact, name='del-mailcontact'),
-    url(
-        r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'preferences'},
-        ),
     url(r'^$', views.display_options, name='display-options'),
 ]
