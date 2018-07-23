@@ -410,8 +410,9 @@ class DelTxtForm(FormRevMixin, Form):
         else:
             self.fields['txt'].queryset = Txt.objects.all()
 
+
 class DNameForm(FormRevMixin, ModelForm):
-    """Ajout d'un DName pour une zone"""
+    """Add a DNAME entry for a zone"""
     class Meta:
         model = DName
         fields = '__all__'
@@ -422,10 +423,10 @@ class DNameForm(FormRevMixin, ModelForm):
 
 
 class DelDNameForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs DName"""
+    """Delete a set of DNAME entries"""
     dnames = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.none(),
-        label="Enregistrements DName actuels",
+        label="Existing DNAME entries",
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -436,7 +437,6 @@ class DelDNameForm(FormRevMixin, Form):
             self.fields['dnames'].queryset = instances
         else:
             self.fields['dnames'].queryset = DName.objects.all()
-
 
 
 class SrvForm(FormRevMixin, ModelForm):

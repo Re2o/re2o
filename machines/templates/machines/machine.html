@@ -54,11 +54,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if nsform %}
     {% bootstrap_form_errors nsform %}
 {% endif %}
-{% if dnameform %}
-    {% bootstrap_form_errors dnameform %}
-{% endif %}
 {% if txtform %}
     {% bootstrap_form_errors txtform %}
+{% endif %}
+{% if dnameform %}
+    {% bootstrap_form_errors dnameform %}
 {% endif %}
 {% if srvform %}
     {% bootstrap_form_errors srvform %}
@@ -126,7 +126,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% bootstrap_form txtform %}
     {% endif %}
     {% if dnameform %}
-        <h3>Enregistrement DName</h3>
+        <h3>DNAME record</h3>
         {% bootstrap_form dnameform %}
     {% endif %}
     {% if srvform %}

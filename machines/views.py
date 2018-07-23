@@ -826,10 +826,10 @@ def add_dname(request):
     dname = DNameForm(request.POST or None)
     if dname.is_valid():
         dname.save()
-        messages.success(request, "Cet enregistrement DName a été ajouté")
+        messages.success(request, "This DNAME record has been added")
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': 'Créer'},
+        {'dnameform': dname, 'action_name': "Create"},
         'machines/machine.html',
         request
     )
@@ -843,10 +843,10 @@ def edit_dname(request, dname_instance, **_kwargs):
     if dname.is_valid():
         if dname.changed_data:
             dname.save()
-            messages.success(request, "DName modifié")
+            messages.success(request, "DName successfully edited")
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': 'Editer'},
+        {'dnameform': dname, 'action_name': "Edit"},
         'machines/machine.html',
         request
     )
@@ -862,16 +862,16 @@ def del_dname(request, instances):
         for dname_del in dname_dels:
             try:
                 dname_del.delete()
-                messages.success(request, "Le dname a été supprimé")
+                messages.success(request,
+                                 "The DNAME %s has been deleted" % dname_del)
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le dname suivant %s ne peut être supprimé"
-                     % dname_del)
+                    "The DNAME %s can not be deleted" % dname_del
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': 'Supprimer'},
+        {'dnameform': dname, 'action_name': 'Delete'},
         'machines/machine.html',
         request
     )

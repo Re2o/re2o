@@ -10,7 +10,7 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0087_merge_20180624_1648'),
+        ('machines', '0083_remove_duplicate_rights'),
     ]
 
     operations = [
@@ -22,7 +22,9 @@ class Migration(migrations.Migration):
                 ('zone', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.Extension')),
             ],
             options={
-                'permissions': (('view_dname', 'Peut voir un objet dname'),),
+                'permissions': (('view_dname', 'Can see a dname object'),),
+                'verbose_name': 'DNAME entry',
+                'verbose_name_plural': 'DNAME entries'
             },
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
