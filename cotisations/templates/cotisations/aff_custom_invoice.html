@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 {% load i18n %}
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
     {% if custom_invoice_list.paginator %}
@@ -86,9 +87,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </li>
                         {% acl_end %}
                         <li>
-                            <a href="{% url 'cotisations:history' 'custominvoice' invoice.id %}">
-                                <i class="fa fa-history"></i> {% trans "Historique" %}
-                            </a>
+                            {% history_button invoice text=True html_class=False %}
                         </li>
                     </ul>
                 </div>
