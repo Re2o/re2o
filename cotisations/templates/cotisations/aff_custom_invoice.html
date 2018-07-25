@@ -25,6 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 {% load acl %}
 {% load logs_extra %}
+{% load design %}
 
 <div class="table-responsive">
     {% if custom_invoice_list.paginator %}
@@ -65,7 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ invoice.payment }}</td>
             <td>{{ invoice.date }}</td>
             <td>{{ invoice.id }}</td>
-            <td>{{ invoice.paid }}</td>
+            <td>{{ invoice.paid|tick }}</td>
             <td>
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="editinvoice" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
