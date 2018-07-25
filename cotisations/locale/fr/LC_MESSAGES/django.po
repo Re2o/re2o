@@ -184,13 +184,8 @@ msgid "You cannot buy this Article."
 msgstr "Vous ne pouvez pas acheter cet article."
 
 #: models.py:713 payment_methods/comnpay/views.py:63
-#, fuzzy, python-format
-#| msgid ""
-#| "The cotisation of %(member_name)s has been                     extended "
-#| "to %(end_date)s."
 msgid ""
-"The cotisation of %(member_name)s has been                 extended to "
-"%(end_date)s."
+"The cotisation of %(member_name)s has been extended to %(end_date)s."
 msgstr "La cotisation de %(member_name)s a été étendu jusqu'à %(end_date)s."
 
 #: models.py:723
@@ -724,71 +719,14 @@ msgstr "Vous n'êtes pas autorisé à créditer votre solde."
 msgid "Refill your balance"
 msgstr "Créditer votre solde"
 
-#~ msgid "Cheque number"
-#~ msgstr "Numéro de chèque"
+msgid "Cheque number"
+msgstr "Numéro de chèque"
 
-#~ msgid "Not specified"
-#~ msgstr "Non renseigné"
+msgid "Not specified"
+msgstr "Non renseigné"
 
-#~ msgid "A cheque number and a bank must be specified."
-#~ msgstr "Un numéro de chèqe et une banque doivent être renseignés."
-
-#~ msgid ""
-#~ "The payement type is used for specific behaviour.            The \"cheque"
-#~ "\" type means a cheque number and a bank name            may be added "
-#~ "when using this payment method."
-#~ msgstr ""
-#~ "Le type de paiement est utilisé pour des comportements spécifiques. Le "
-#~ "type \"chèque\" permet de spécifier un numéro de chèque et une banque "
-#~ "lors de  l'utilisation de cette méthode."
-
-#~ msgid ""
-#~ "Requested amount is too small. Minimum amount possible :                 "
-#~ "%(min_online_amount)s €."
-#~ msgstr ""
-#~ "Montant demandé est trop faible. Montant minimal possible :          "
-#~ "%(min_online_amount)s €"
-
-#~ msgid "You cannot have multiple payment method of type cheque"
-#~ msgstr "Vous ne pouvez avoir plusieurs moyens de paiement de type chèque"
-
-#~ msgid "Historique"
-#~ msgstr "Historique"
-
-#~ msgid ""
-#~ "\n"
-#~ "        User's balance : %(user.solde)s €\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "        Solde de l'utilisateur : %(user.solde)s €\n"
-#~ "        "
-
-#~ msgid ""
-#~ "\n"
-#~ "        Balance : <span class=\"label label-default\">%(request.user."
-#~ "solde)s €</span>\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "        Solde : <span class=\"label label-default\">%(request.user."
-#~ "solde)s €</span>\n"
-#~ "        "
-
-#~ msgid "Balance successfully updated."
-#~ msgstr "Solde mis à jour avec succès."
-
-#~ msgid "The balance is too low for this operation."
-#~ msgstr "Le solde est trop faible pour cette opération."
-
-#~ msgid ""
-#~ "The cotisation of %(member_name)s has been "
-#~ "successfully                     extended to %(end_date)s."
-#~ msgstr ""
-#~ "La cotisation de %(member_name)s a été prolongée jusqu'à %(end_date)s."
-
-#~ msgid "Online payment is disabled."
-#~ msgstr "Le paiement en ligne est désactivé."
+msgid "A cheque number and a bank must be specified."
+msgstr "Un numéro de chèqe et une banque doivent être renseignés."
 
 #~ msgid "Invoice number"
 #~ msgstr "Numéro de facture"
@@ -796,83 +734,83 @@ msgstr "Créditer votre solde"
 #~ msgid "Amount"
 #~ msgstr "Montant"
 
-#~ msgid "Can change the \"controlled\" state"
-#~ msgstr "Peut modifier l'état \"controllé\""
+msgid "Can change the \"controlled\" state"
+msgstr "Peut modifier l'état \"controllé\""
 
-#~ msgid "Can create a custom PDF invoice"
-#~ msgstr "Peut crée une facture PDF personnalisée"
+msgid "Can create a custom PDF invoice"
+msgstr "Peut crée une facture PDF personnalisée"
 
-#~ msgid "Can see an invoice's details"
-#~ msgstr "Peut voir les détails d'une facture"
+msgid "Can see an invoice's details"
+msgstr "Peut voir les détails d'une facture"
 
-#~ msgid "Can edit all the previous invoices"
-#~ msgstr "Peut modifier toutes les factures existantes"
+msgid "Can edit all the previous invoices"
+msgstr "Peut modifier toutes les factures existantes"
 
-#~ msgid "Connexion"
-#~ msgstr "Connexion"
+msgid "Connexion"
+msgstr "Connexion"
 
-#~ msgid "Membership"
-#~ msgstr "Adhésion"
+msgid "Membership"
+msgstr "Adhésion"
 
-#~ msgid "Both of them"
-#~ msgstr "Les deux"
+msgid "Both of them"
+msgstr "Les deux"
 
-#~ msgid "Duration (in whole month)"
-#~ msgstr "Durée (en mois entiers)"
+msgid "Duration (in whole month)"
+msgstr "Durée (en mois entiers)"
 
-#~ msgid "Type of cotisation"
-#~ msgstr "Type de cotisation"
+msgid "Type of cotisation"
+msgstr "Type de cotisation"
 
-#~ msgid "Can see a purchase's details"
-#~ msgstr "Peut voir les détails d'un achat"
+msgid "Can see a purchase's details"
+msgstr "Peut voir les détails d'un achat"
 
-#~ msgid "Can edit all the previous purchases"
-#~ msgstr "Peut voir les achats existants"
+msgid "Can edit all the previous purchases"
+msgstr "Peut voir les achats existants"
 
-#~ msgid "Purchase"
-#~ msgstr "Achat"
+msgid "Purchase"
+msgstr "Achat"
 
-#~ msgid "Purchases"
-#~ msgstr "Achat"
+msgid "Purchases"
+msgstr "Achat"
 
-#~ msgid "Club"
-#~ msgstr "Club"
+msgid "Club"
+msgstr "Club"
 
-#~ msgid "Unitary price"
-#~ msgstr "Prix unitaire"
+msgid "Unitary price"
+msgstr "Prix unitaire"
 
-#~ msgid "Type of users concerned"
-#~ msgstr "Type d'utilisateurs concernés"
+msgid "Type of users concerned"
+msgstr "Type d'utilisateurs concernés"
 
-#~ msgid "Can see an article's details"
-#~ msgstr "Peut voir les détails d'un article"
+msgid "Can see an article's details"
+msgstr "Peut voir les détails d'un article"
 
-#~ msgid "Name"
-#~ msgstr "Nom"
+msgid "Name"
+msgstr "Nom"
 
-#~ msgid "Can see a bank's details"
-#~ msgstr "Peut voir les détails d'une banque"
+msgid "Can see a bank's details"
+msgstr "Peut voir les détails d'une banque"
 
-#~ msgid "Standard"
-#~ msgstr "Standard"
+msgid "Standard"
+msgstr "Standard"
 
-#~ msgid "Cheque"
-#~ msgstr "Chèque"
+msgid "Cheque"
+msgstr "Chèque"
 
-#~ msgid "Method"
-#~ msgstr "Moyen"
+msgid "Method"
+msgstr "Moyen"
 
-#~ msgid "Can see a payement's details"
-#~ msgstr "Peut voir les détails d'un paiement"
+msgid "Can see a payement's details"
+msgstr "Peut voir les détails d'un paiement"
 
-#~ msgid "Starting date"
-#~ msgstr "Date de début"
+msgid "Starting date"
+msgstr "Date de début"
 
-#~ msgid "Ending date"
-#~ msgstr "Date de fin"
+msgid "Ending date"
+msgstr "Date de fin"
 
-#~ msgid "Can see a cotisation's details"
-#~ msgstr "Peut voir les détails d'une cotisation"
+msgid "Can see a cotisation's details"
+msgstr "Peut voir les détails d'une cotisation"
 
-#~ msgid "Can edit the previous cotisations"
-#~ msgstr "Peut voir les cotisations existantes"
+msgid "Can edit the previous cotisations"
+msgstr "Peut voir les cotisations existantes"
