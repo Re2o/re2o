@@ -35,11 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </div>
 <div class="dashboard_container">
     <div class="row">
-        {% if solde_activated %}
-        <div class="col-sm-6 col-md-4">
-        {% else %}
-        <div class="col-sm-6 col-md-6">
-        {% endif %}
+        <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
             {% if users.is_ban%}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">Your account has been banned</div>
@@ -78,10 +74,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-4">
-        {% else %}
-        <div class="col-sm-6 col-md-6">
         {% endif %}
+        <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col-md-6{% endif %}">
             {% if nb_machines %}
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
