@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 <div align="center">
-    <h2>Bienvenue {{users.name}} {{ users.surname }}</h2>
+    <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
 </div>
 <div class="dashboard_container">
     <div class="row">
@@ -42,25 +42,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
             {% if users.is_ban%}
             <div class="panel panel-danger">
-                <div class="panel-heading dashboard">Votre compte est banni</div>
+                <div class="panel-heading dashboard">Your account has been banned</div>
                 <div class="panel-body dashboard">
-                    <i class="text-danger">Fin du ban : {{user.end_ban|date:"d M Y"}}</i>
+                    <i class="text-danger">End of the ban: {{ user.end_ban | date:"SHORT_DATE_FORMAT" }}</i>
                 </div>
             </div>
-            {% elif not users.is_adherent%}
+            {% elif not users.is_adherent %}
             <div class="panel panel-danger">
-                <div class="panel-heading dashboard">Non Connécté</div>
+                <div class="panel-heading dashboard">Not connected</div>
                 <div class="panel-body dashboard"> 
                     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                        <i class="fas fa-sign-in-alt"></i> Adhérer
+                        <i class="fas fa-sign-in-alt"></i> Pay for a connexion
                     </a>
                 </div>
             </div>
             {% else %}
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">Connécté</div>
+                <div class="panel-heading dashboard">Connected</div>
                 <div class="panel-body dashboard">
-                    <i class="text-success">Fin de connexion: {{user.end_adhesion|date:"d M Y"}}</i>
+                    <i class="text-success">End of connexion: {{ user.end_adhesion | date:"SHORT_DATE_FORMAT"}}</i>
                 </div>
             </div>
             {% endif %}
@@ -69,11 +69,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    {{user.solde}} <i class="fas fa-euro-sign"></i>
+                    € {{ user.solde }}
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                        <i class="fa fa-euro-sign"></i> Modifier le solde
+                        <i class="fa fa-euro-sign"></i> Pay for the balance
                     </a>
                 </div>
             </div>
@@ -82,29 +82,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% else %}
         <div class="col-sm-6 col-md-6">
         {% endif %}
-            <div class="col-12">
-                {% if nb_machines %}
-                <div class="panel panel-info">
-                    <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
-                        <span class="badge">{{nb_machines}}</span> Machines <i class="fa fa-desktop"></i>
-                    </div>
-                    <div class="panel-body dashboard">
-                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                            <i class="fa fa-desktop"></i> Ajouter une machine
-                        </a>
-                    </div>
+            {% if nb_machines %}
+            <div class="panel panel-info">
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+                    <i class="fa fa-desktop"></i> Machines <span class="badge">{{ nb_machines }}</span>
                 </div>
-                {% else %}
-                <div class="panel panel-warning">
-                    <div class="panel-heading dashboard">Aucune machine</div>
-                    <div class="panel-body dashboard">
-                        <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                            <i class="fa fa-desktop"></i> Ajouter une machine
-                        </a>
-                    </div>
+                <div class="panel-body dashboard">
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
+                        <i class="fa fa-desktop"></i> Add a machine
+                    </a>
                 </div>
-                {% endif %}
             </div>
+            {% else %}
+            <div class="panel panel-warning">
+                <div class="panel-heading dashboard">No machines</div>
+                <div class="panel-body dashboard">
+                    <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
+                        <i class="fa fa-desktop"></i> Add a machine
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div> 
 </div>
