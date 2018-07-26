@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.contrib.auth.management import create_permissions
 import re2o.field_permissions
 import re2o.mixins
 
@@ -16,6 +17,30 @@ def reattribute_ids(apps, schema_editor):
         base = BaseInvoice.objects.create(id=f.pk, date=f.date)
         f.baseinvoice_ptr = base
         f.save()
+
+
+def update_rights(apps, schema_editor):
+    Permission = apps.get_model('auth', 'Permission')
+
+    # creates needed permissions
+    app = apps.get_app_config('cotisations')
+    app.models_module = True
+    create_permissions(app)
+    app.models_module = False
+
+    former = Permission.objects.get(codename='change_facture_pdf')
+    new_1 = Permission.objects.get(codename='add_custominvoice')
+    new_2 = Permission.objects.get(codename='change_custominvoice')
+    new_3 = Permission.objects.get(codename='view_custominvoice')
+    new_4 = Permission.objects.get(codename='delete_custominvoice')
+    for group in former.group_set.all():
+        group.permissions.remove(former)
+        group.permissions.add(new_1)
+        group.permissions.add(new_2)
+        group.permissions.add(new_3)
+        group.permissions.add(new_4)
+        group.save()
+
 
 class Migration(migrations.Migration):
 
@@ -42,7 +67,7 @@ class Migration(migrations.Migration):
                 ('paid', models.BooleanField(verbose_name='Paid')),
             ],
             bases=('cotisations.baseinvoice',),
-            options={'permissions': (('view_custom_invoice', 'Can view a custom invoice'),)},
+            options={'permissions': (('view_custominvoice', 'Can view a custom invoice'),)},
         ),
         migrations.AddField(
             model_name='facture',
@@ -68,5 +93,10 @@ class Migration(migrations.Migration):
             model_name='facture',
             name='baseinvoice_ptr',
             field=models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='cotisations.BaseInvoice'),
-        )
+        ),
+        migrations.RunPython(update_rights),
+        migrations.AlterModelOptions(
+            name='facture',
+            options={'permissions': (('change_facture_control', 'Can change the "controlled" state'), ('view_facture', "Can see an invoice's details"), ('change_all_facture', 'Can edit all the previous invoices')), 'verbose_name': 'Invoice', 'verbose_name_plural': 'Invoices'},
+        ),
     ]

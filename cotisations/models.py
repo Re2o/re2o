@@ -153,10 +153,6 @@ class Facture(BaseInvoice):
             # TODO : change facture to invoice
             ('change_facture_control',
              _l("Can change the \"controlled\" state")),
-            # TODO : seems more likely to be call create_facture_pdf
-            # or create_invoice_pdf
-            ('change_facture_pdf',
-             _l("Can create a custom PDF invoice")),
             ('view_facture',
              _l("Can see an invoice's details")),
             ('change_all_facture',
@@ -216,14 +212,6 @@ class Facture(BaseInvoice):
         )
 
     @staticmethod
-    def can_change_pdf(user_request, *_args, **_kwargs):
-        """ Returns True if the user can change this invoice """
-        return (
-            user_request.has_perm('cotisations.change_facture_pdf'),
-            _("You don't have the right to edit an invoice.")
-        )
-
-    @staticmethod
     def can_create(user_request, *_args, **_kwargs):
         """Check if a user can create an invoice.
 
@@ -271,7 +259,7 @@ def facture_post_delete(**kwargs):
 class CustomInvoice(BaseInvoice):
     class Meta:
         permissions = (
-            ('view_custom_invoice', _l("Can view a custom invoice")),
+            ('view_custominvoice', _l("Can view a custom invoice")),
         )
     recipient = models.CharField(
         max_length=255,
