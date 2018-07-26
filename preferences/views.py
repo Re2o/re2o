@@ -36,13 +36,16 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import ProtectedError
 from django.db import transaction
+from django.utils.translation import ugettext as _
 
 from reversion import revisions as reversion
 
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
 
-from .forms import ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm
+from .forms import (
+    ServiceForm, DelServiceForm, MailContactForm, DelMailContactForm
+)
 from .models import (
     Service,
     MailContact,
@@ -197,17 +200,14 @@ def del_service(request, instances):
 @login_required
 @can_create(MailContact)
 def add_mailcontact(request):
-    """Ajout d'une adresse de contact"""
+    """Add a contact email adress."""
     mailcontact = MailContactForm(
         request.POST or None,
         request.FILES or None
     )
     if mailcontact.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            mailcontact.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        messages.success(request, "Cette adresse a été ajoutée")
+        mailcontact.save()
+        messages.success(request, _("The adress was created."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': mailcontact, 'action_name': 'Ajouter'},
@@ -219,21 +219,18 @@ def add_mailcontact(request):
 @login_required
 @can_edit(MailContact)
 def edit_mailcontact(request, mailcontact_instance, **_kwargs):
-    """Edition des adresses de contacte affichées"""
+    """Edit contact email adress."""
     mailcontact = MailContactForm(
         request.POST or None,
         request.FILES or None,
         instance=mailcontact_instance
     )
     if mailcontact.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            mailcontact.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Modification")
-        messages.success(request, "Adresse modifiée")
+        mailcontact.save()
+        messages.success(request, _("Email adress updated."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': mailcontact, 'action_name': 'Editer'},
+        {'preferenceform': mailcontact, 'action_name': _('Edit')},
         'preferences/preferences.html',
         request
     )
@@ -242,7 +239,7 @@ def edit_mailcontact(request, mailcontact_instance, **_kwargs):
 @login_required
 @can_delete_set(MailContact)
 def del_mailcontact(request, instances):
-    """Suppression d'une adresse de contact"""
+    """Delete an email adress"""
     mailcontacts = DelMailContactForm(
         request.POST or None,
         instances=instances
@@ -250,17 +247,11 @@ def del_mailcontact(request, instances):
     if mailcontacts.is_valid():
         mailcontacts_dels = mailcontacts.cleaned_data['mailcontacts']
         for mailcontacts_del in mailcontacts_dels:
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    mailcontacts_del.delete()
-                    reversion.set_user(request.user)
-                messages.success(request, "L'adresse a été supprimée")
-            except ProtectedError:
-                messages.error(request, "Erreur le service\
-                suivant %s ne peut être supprimé" % mailcontacts_del)
+            mailcontacts_del.delete()
+            messages.success(request, _("The email adress was deleted."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': mailcontacts, 'action_name': 'Supprimer'},
+        {'preferenceform': mailcontacts, 'action_name': _('Delete')},
         'preferences/preferences.html',
         request
     )

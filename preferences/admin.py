@@ -67,7 +67,7 @@ class ServiceAdmin(VersionAdmin):
 
 
 class MailContactAdmin(VersionAdmin):
-    """Class admin gestion des adresses mail de contact"""
+    """Admin class for contact email adresses"""
     pass
 
 

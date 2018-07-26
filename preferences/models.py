@@ -31,6 +31,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.forms import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 from re2o.mixins import AclMixin
@@ -268,17 +269,18 @@ class Service(AclMixin, models.Model):
         return str(self.name)
 
 class MailContact(AclMixin, models.Model):
-    """Addresse mail de contact associée à un commentaire descriptif"""
+    """Contact email adress with a commentary."""
 
     address = models.EmailField(
         default = "contact@example.org",
-        help_text = "Adresse mail de contact"
+        help_text = _("Contact email adress")
     )
 
     commentary = models.CharField(
         blank = True,
         null = True,
-        help_text = "Description de l'utilisation de l'adresse mail associée",
+        help_text = _(
+            "Description of the associated email adress."),
         max_length = 256
     )
 
@@ -288,7 +290,7 @@ class MailContact(AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_mailcontact", "Peut voir les mails de contact"),
+            ("view_mailcontact", _("Can see contact email")),
         )
 
     def __str__(self):

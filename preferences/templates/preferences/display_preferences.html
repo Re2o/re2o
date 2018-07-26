@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 {% load design %}
+{% load i18n %}
 
 {% block title %}Création et modification des préférences{% endblock %}
 
@@ -222,10 +223,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </a>
 
 <h4>Liste des adresses mail de contact</h4>
+  <h2>{% trans "Contact email adresses list" %}</h2>
   {% can_create preferences.MailContact%}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>Ajouter une adresse</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an adress" %}</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>Supprimer une ou plusieurs adresses</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or multiple adresses" %}</a>
   {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
 <p>
 

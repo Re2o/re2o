@@ -27,6 +27,8 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
+
+from re2o.mixins import FormRevMixin
 from .models import (
     OptionalUser,
     OptionalMachine,
@@ -229,8 +231,8 @@ class DelServiceForm(Form):
         else:
             self.fields['services'].queryset = Service.objects.all()
 
-class MailContactForm(ModelForm):
-    """Edition, ajout d'adresse de contact"""
+class MailContactForm(FormRevMixin, ModelForm):
+    """Edit and add contact email adress"""
     class Meta:
         model = MailContact
         fields = '__all__'
@@ -241,7 +243,7 @@ class MailContactForm(ModelForm):
 
 
 class DelMailContactForm(Form):
-    """Suppression d'adresse de contact"""
+    """Delete contact email adress"""
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
         label="Enregistrements adresses actuels",

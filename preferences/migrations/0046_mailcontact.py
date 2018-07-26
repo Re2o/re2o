@@ -17,11 +17,11 @@ class Migration(migrations.Migration):
             name='MailContact',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.EmailField(default='contact@example.org', help_text='Adresse mail de contact', max_length=254)),
-                ('commentary', models.CharField(blank=True, help_text="Description de l'utilisation de l'adresse mail associée", max_length=256, null=True)),
+                ('address', models.EmailField(default='contact@example.org', help_text="Contact email adress", max_length=254)),
+                ('commentary', models.CharField(blank=True, help_text="Description of the associated email adress.", max_length=256, null=True)),
             ],
             options={
-                'permissions': (('view_mailcontact', 'Peut voir les mails de contact'),),
+                'permissions': (('view_mailcontact', "Can see contact email"),),
             },
             bases=(re2o.mixins.AclMixin, models.Model),
         ),
