@@ -9,7 +9,7 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0037_optionaluser_max_mail_alias'),
+        ('preferences', '0045_remove_unused_payment_fields'),
     ]
 
     operations = [
