@@ -95,11 +95,11 @@ def get_model(model_name):
     try:
         if app_label is not None:
             content_type = ContentType.objects.get(
-                model=name,
+                model=name.lower(),
                 app_label=app_label
             )
         else:
-            content_type = ContentType.objects.get(model=name)
+            content_type = ContentType.objects.get(model=name.lower())
     except ContentType.DoesNotExist:
         raise template.TemplateSyntaxError(
             "%r is not a valid model for an acl tag" % model_name
