@@ -15,6 +15,19 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='SshFprAlgo',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=256)),
+            ],
+            options={
+                'permissions': (('view_sshfpralgo', 'Can see an SSH fingerprint algorithm'),),
+                'verbose_name': 'SSH fingerprint algorithm',
+                'verbose_name_plural': 'SSH fingerprint algorithms'
+            },
+            bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
+        ),
+        migrations.CreateModel(
             name='SshFingerprint',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -27,19 +40,6 @@ class Migration(migrations.Migration):
                 'permissions': (('view_sshfingerprint', 'Can see an SSH fingerprint'),),
                 'verbose_name': 'SSH fingerprint',
                 'verbose_name_plural': 'SSH fingerprints'
-            },
-            bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
-        ),
-        migrations.CreateModel(
-            name='SshFprAlgo',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-            ],
-            options={
-                'permissions': (('view_sshfpralgo', 'Can see an SSH fingerprint algorithm'),),
-                'verbose_name': 'SSH fingerprint algorithm',
-                'verbose_name_plural': 'SSH fingerprint algorithms'
             },
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
