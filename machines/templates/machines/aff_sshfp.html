@@ -33,19 +33,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th></th>
             </tr>
         </thead>
-        {% for sshfpr in sshfingerprint_list %}
+        {% for sshfp in sshfp_list %}
         <tr>
-            <td class="long_text">{{ sshfpr.pub_key_entry }}</td>
-            <td>{{ sshfpr.algo }}</td>
-            <td>{{ sshfpr.comment }}</td>
+            <td class="long_text">{{ sshfp.pub_key_entry }}</td>
+            <td>{{ sshfp.algo }}</td>
+            <td>{{ sshfp.comment }}</td>
             <td class="text-right">
-                {% can_edit sshfpr %}
-                {% include 'buttons/edit.html' with href='machines:edit-sshfingerprint' id=sshfpr.id %}
+                {% can_edit sshfp %}
+                {% include 'buttons/edit.html' with href='machines:edit-sshfp' id=sshfp.id %}
                 {% acl_end %}
-                {% can_delete sshfpr %}
-                {% include 'buttons/suppr.html' with href='machines:del-sshfingerprint' id=sshfpr.id %}
+                {% can_delete sshfp %}
+                {% include 'buttons/suppr.html' with href='machines:del-sshfp' id=sshfp.id %}
                 {% acl_end %}
-                {% history_button sshfpr %}
+                {% history_button sshfp %}
             </td>
         </tr>
         {% endfor %}

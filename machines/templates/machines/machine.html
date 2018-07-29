@@ -33,12 +33,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if machineform %}
     {% bootstrap_form_errors machineform %}
 {% endif %}
-{% if sshfingerprintform %}
-    {% bootstrap_form_errors sshfingerprintform %}
-{% endif %}
-{% if sshfpralgoform  %}
-    {% bootstrap_form_errors sshfpralgoform %}
-{% endif %}
 {% if interfaceform %}
     {% bootstrap_form_errors interfaceform %}
 {% endif %}
@@ -75,6 +69,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if serviceform %}
     {% bootstrap_form_errors serviceform %}
 {% endif %}
+{% if sshfpform %}
+    {% bootstrap_form_errors sshfpform %}
+{% endif %}
 {% if vlanform %}
     {% bootstrap_form_errors vlanform %}
 {% endif %}
@@ -90,14 +87,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if machineform %}
         <h3>Machine</h3>
         {% massive_bootstrap_form machineform 'user' %}
-    {% endif %}
-    {% if sshfingerprintform %}
-        <h3>SSH fingerprint</h3>
-        {% bootstrap_form sshfingerprintform %}
-    {% endif %}
-    {% if sshfpralgoform %}
-        <h3>SSH fingerprint algorithm</h3>
-        {% bootstrap_form sshfpralgoform %}
     {% endif %}
     {% if interfaceform %}
         <h3>Interface</h3>
@@ -146,6 +135,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if srvform %}
         <h3>Enregistrement SRV</h3>
         {% massive_bootstrap_form srvform 'target'  %}
+    {% endif %}
+    {% if sshfpform %}
+        <h3>SSHFP record</h3>
+        {% bootstrap_form sshfpform %}
     {% endif %}
     {% if aliasform %}
         <h3>Alias</h3>

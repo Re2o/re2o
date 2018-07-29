@@ -119,9 +119,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         </a>
                                     </li>
                                     {% acl_end %}
-                                    {% can_create SshFingerprint interface.machine.id %}
+                                    {% can_create SshFp interface.machine.id %}
                                     <li>
-                                        <a href="{% url 'machines:index-sshfingerprint' interface.machine.id %}">
+                                        <a href="{% url 'machines:index-sshfp' interface.machine.id %}">
                                             <i class="fa fa-edit"></i> Manage the SSH fingerprints
                                         </a>
                                     </li>

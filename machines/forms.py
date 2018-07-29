@@ -56,11 +56,11 @@ from .models import (
     Service,
     Vlan,
     Srv,
+    SshFp,
     Nas,
     IpType,
     OuverturePortList,
     Ipv6List,
-    SshFingerprint,
 )
 
 
@@ -598,15 +598,15 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
         )
 
         
-class SshFingerprintForm(FormRevMixin, ModelForm):
-    """Edits a SSH fingerprint."""
+class SshFpForm(FormRevMixin, ModelForm):
+    """Edits a SSHFP record."""
     class Meta:
-        model = SshFingerprint
+        model = SshFp
         exclude = ('machine',)
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(SshFingerprintForm, self).__init__(
+        super(SshFpForm, self).__init__(
             *args,
             prefix=prefix,
             **kwargs

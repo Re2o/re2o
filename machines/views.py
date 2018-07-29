@@ -103,6 +103,7 @@ from .forms import (
     DelVlanForm,
     ServiceForm,
     DelServiceForm,
+    SshFpForm,
     NasForm,
     DelNasForm,
     SrvForm,
@@ -110,7 +111,6 @@ from .forms import (
     Ipv6ListForm,
     EditOuverturePortListForm,
     EditOuverturePortConfigForm,
-    SshFingerprintForm,
 )
 from .models import (
     IpType,
@@ -129,10 +129,10 @@ from .models import (
     Txt,
     DName,
     Srv,
+    SshFp,
     OuverturePortList,
     OuverturePort,
     Ipv6List,
-    SshFingerprint,
 )
 
 
@@ -464,66 +464,66 @@ def del_ipv6list(request, ipv6list, **_kwargs):
 
 
 @login_required
-@can_create(SshFingerprint)
+@can_create(SshFp)
 @can_edit(Machine)
-def new_sshfingerprint(request, machine, **_kwargs):
-    """Creates an SSH fingerprint"""
-    sshfingerprint_instance = SshFingerprint(machine=machine)
-    sshfingerprint = SshFingerprintForm(
+def new_sshfp(request, machine, **_kwargs):
+    """Creates an SSHFP record associated with a machine"""
+    sshfp_instance = SshFp(machine=machine)
+    sshfp = SshFpForm(
         request.POST or None,
-        instance=sshfingerprint_instance
+        instance=sshfp_instance
     )
-    if sshfingerprint.is_valid():
-        sshfingerprint.save()
-        messages.success(request, "The SSH fingerprint was added")
+    if sshfp.is_valid():
+        sshfp.save()
+        messages.success(request, "The SSHFP record was added")
         return redirect(reverse(
-            'machines:index-sshfingerprint',
+            'machines:index-sshfp',
             kwargs={'machineid': str(machine.id)}
         ))
     return form(
-        {'sshfingerprintform': sshfingerprint, 'action_name': 'Create'},
+        {'sshfpform': sshfp, 'action_name': 'Create'},
         'machines/machine.html',
         request
     )
 
 
 @login_required
-@can_edit(SshFingerprint)
-def edit_sshfingerprint(request, sshfingerprint_instance, **_kwargs):
-    """Edits an SSH fingerprint"""
-    sshfingerprint = SshFingerprintForm(
+@can_edit(SshFp)
+def edit_sshfp(request, sshfp_instance, **_kwargs):
+    """Edits an SSHFP record"""
+    sshfp = SshFpForm(
         request.POST or None,
-        instance=sshfingerprint_instance
+        instance=sshfp_instance
     )
-    if sshfingerprint.is_valid():
-        if sshfingerprint.changed_data:
-            sshfingerprint.save()
-            messages.success(request, "The SSH fingerprint was edited")
+    if sshfp.is_valid():
+        if sshfp.changed_data:
+            sshfp.save()
+            messages.success(request, "The SSHFP record was edited")
         return redirect(reverse(
-            'machines:index-sshfingerprint',
-            kwargs={'machineid': str(sshfingerprint_instance.machine.id)}
+            'machines:index-sshfp',
+            kwargs={'machineid': str(sshfp_instance.machine.id)}
         ))
     return form(
-        {'sshfingerprintform': sshfingerprint, 'action_name': 'Edit'},
+        {'sshfpform': sshfp, 'action_name': 'Edit'},
         'machines/machine.html',
         request
     )
 
 
 @login_required
-@can_delete(SshFingerprint)
-def del_sshfingerprint(request, sshfingerprint, **_kwargs):
-    """Deletes an SSH fingerprint"""
+@can_delete(SshFp)
+def del_sshfp(request, sshfp, **_kwargs):
+    """Deletes an SSHFP record"""
     if request.method == "POST":
-        machineid = sshfingerprint.machine.id
-        sshfingerprint.delete()
-        messages.success(request, "The SSH fingerprint was deleted")
+        machineid = sshfp.machine.id
+        sshfp.delete()
+        messages.success(request, "The SSHFP record was deleted")
         return redirect(reverse(
-            'machines:index-sshfingerprint',
+            'machines:index-sshfp',
             kwargs={'machineid': str(machineid)}
         ))
     return form(
-        {'objet': sshfingerprint, 'objet_name': 'sshfingerprint'},
+        {'objet': sshfp, 'objet_name': 'sshfp'},
         'machines/delete.html',
         request
     )
@@ -1458,13 +1458,14 @@ def index_alias(request, interface, interfaceid):
 
 @login_required
 @can_view(Machine)
-def index_sshfingerprint(request, machine, machineid):
-    """View used to display the list of existing SSH fingerprint of a machine"""
-    sshfingerprint_list = SshFingerprint.objects.filter(machine=machine)
+def index_sshfp(request, machine, machineid):
+    """View used to display the list of existing SSHFP records associated
+    with a machine"""
+    sshfp_list = SshFp.objects.filter(machine=machine)
     return render(
         request,
-        'machines/index_sshfingerprint.html',
-        {'sshfingerprint_list': sshfingerprint_list, 'machine_id': machineid}
+        'machines/index_sshfp.html',
+        {'sshfp_list': sshfp_list, 'machine_id': machineid}
     )
 
 

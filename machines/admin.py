@@ -39,12 +39,12 @@ from .models import (
     Txt,
     DName,
     Srv,
+    SshFp,
     Nas,
     Service,
     OuverturePort,
     Ipv6List,
     OuverturePortList,
-    SshFingerprint,
 )
 
 
@@ -107,6 +107,11 @@ class SrvAdmin(VersionAdmin):
     pass
 
 
+class SshFpAdmin(VersionAdmin):
+    """ Admin view of a SSHFP object """
+    pass
+
+
 class NasAdmin(VersionAdmin):
     """ Admin view of a Nas object """
     pass
@@ -142,10 +147,6 @@ class ServiceAdmin(VersionAdmin):
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
 
 
-class SshFingerprintAdmin(VersionAdmin):
-    """ Admin view of a SshFprAlgo object """
-    pass
-
 admin.site.register(Machine, MachineAdmin)
 admin.site.register(MachineType, MachineTypeAdmin)
 admin.site.register(IpType, IpTypeAdmin)
@@ -156,6 +157,7 @@ admin.site.register(Ns, NsAdmin)
 admin.site.register(Txt, TxtAdmin)
 admin.site.register(DName, DNameAdmin)
 admin.site.register(Srv, SrvAdmin)
+admin.site.register(SshFp, SshFpAdmin)
 admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
@@ -165,4 +167,3 @@ admin.site.register(Ipv6List, Ipv6ListAdmin)
 admin.site.register(Nas, NasAdmin)
 admin.site.register(OuverturePort, OuverturePortAdmin)
 admin.site.register(OuverturePortList, OuverturePortListAdmin)
-admin.site.register(SshFingerprint, SshFingerprintAdmin)
