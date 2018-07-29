@@ -51,6 +51,7 @@ from .models import (
     SOA,
     Mx,
     Txt,
+    DName,
     Ns,
     Service,
     Vlan,
@@ -408,6 +409,34 @@ class DelTxtForm(FormRevMixin, Form):
             self.fields['txt'].queryset = instances
         else:
             self.fields['txt'].queryset = Txt.objects.all()
+
+
+class DNameForm(FormRevMixin, ModelForm):
+    """Add a DNAME entry for a zone"""
+    class Meta:
+        model = DName
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(DNameForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelDNameForm(FormRevMixin, Form):
+    """Delete a set of DNAME entries"""
+    dnames = forms.ModelMultipleChoiceField(
+        queryset=Txt.objects.none(),
+        label="Existing DNAME entries",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelDNameForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['dnames'].queryset = instances
+        else:
+            self.fields['dnames'].queryset = DName.objects.all()
 
 
 class SrvForm(FormRevMixin, ModelForm):

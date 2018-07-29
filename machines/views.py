@@ -3,10 +3,11 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
+# Copyright © 2016-2018  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
-# Copyright © 2017  Maël Kervella
+# Copyright © 2017-2018  Maël Kervella
+# Copyright © 2018  Charlie Jacomme
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,6 +94,8 @@ from .forms import (
     DelNsForm,
     TxtForm,
     DelTxtForm,
+    DNameForm,
+    DelDNameForm,
     MxForm,
     DelMxForm,
     VlanForm,
@@ -122,6 +125,7 @@ from .models import (
     Vlan,
     Nas,
     Txt,
+    DName,
     Srv,
     OuverturePortList,
     OuverturePort,
@@ -815,6 +819,63 @@ def del_ns(request, instances):
         request
     )
 
+@login_required
+@can_create(DName)
+def add_dname(request):
+    """ View used to add a DName object """
+    dname = DNameForm(request.POST or None)
+    if dname.is_valid():
+        dname.save()
+        messages.success(request, "This DNAME record has been added")
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': "Create"},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(DName)
+def edit_dname(request, dname_instance, **_kwargs):
+    """ View used to edit a DName object """
+    dname = DNameForm(request.POST or None, instance=dname_instance)
+    if dname.is_valid():
+        if dname.changed_data:
+            dname.save()
+            messages.success(request, "DName successfully edited")
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': "Edit"},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete_set(DName)
+def del_dname(request, instances):
+    """ View used to delete a DName object """
+    dname = DelDNameForm(request.POST or None, instances=instances)
+    if dname.is_valid():
+        dname_dels = dname.cleaned_data['dname']
+        for dname_del in dname_dels:
+            try:
+                dname_del.delete()
+                messages.success(request,
+                                 "The DNAME %s has been deleted" % dname_del)
+            except ProtectedError:
+                messages.error(
+                    request,
+                    "The DNAME %s can not be deleted" % dname_del
+                )
+        return redirect(reverse('machines:index-extension'))
+    return form(
+        {'dnameform': dname, 'action_name': 'Delete'},
+        'machines/machine.html',
+        request
+    )
+
 
 @login_required
 @can_create(Txt)
@@ -1272,7 +1333,7 @@ def index_nas(request):
 
 
 @login_required
-@can_view_all(SOA, Mx, Ns, Txt, Srv, Extension)
+@can_view_all(SOA, Mx, Ns, Txt, DName, Srv, Extension)
 def index_extension(request):
     """ View displaying the list of existing extensions, the list of
     existing SOA records, the list of existing MX records , the list of
@@ -1292,6 +1353,7 @@ def index_extension(request):
                .select_related('zone')
                .select_related('ns__extension'))
     txt_list = Txt.objects.all().select_related('zone')
+    dname_list = DName.objects.all().select_related('zone')
     srv_list = (Srv.objects
                 .all()
                 .select_related('extension')
@@ -1305,6 +1367,7 @@ def index_extension(request):
             'mx_list': mx_list,
             'ns_list': ns_list,
             'txt_list': txt_list,
+            'dname_list': dname_list,
             'srv_list': srv_list
         }
     )

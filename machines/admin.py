@@ -37,6 +37,7 @@ from .models import (
     Ns,
     Vlan,
     Txt,
+    DName,
     Srv,
     Nas,
     Service,
@@ -95,6 +96,10 @@ class TxtAdmin(VersionAdmin):
     """ Admin view of a TXT object """
     pass
 
+class DNameAdmin(VersionAdmin):
+    """ Admin view of a DName object """
+    pass
+
 
 class SrvAdmin(VersionAdmin):
     """ Admin view of a SRV object """
@@ -144,6 +149,7 @@ admin.site.register(SOA, SOAAdmin)
 admin.site.register(Mx, MxAdmin)
 admin.site.register(Ns, NsAdmin)
 admin.site.register(Txt, TxtAdmin)
+admin.site.register(DName, DNameAdmin)
 admin.site.register(Srv, SrvAdmin)
 admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
