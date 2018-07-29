@@ -54,6 +54,7 @@ from re2o.utils import (
 from re2o.acl import (
     can_create,
     can_edit,
+    can_view,
     can_delete,
     can_view_all,
     can_delete_set,
@@ -110,7 +111,6 @@ from .forms import (
     EditOuverturePortListForm,
     EditOuverturePortConfigForm,
     SshFingerprintForm,
-    SshFprAlgoForm,
 )
 from .models import (
     IpType,
@@ -133,7 +133,6 @@ from .models import (
     OuverturePort,
     Ipv6List,
     SshFingerprint,
-    SshFprAlgo,
 )
 
 
@@ -525,72 +524,6 @@ def del_sshfingerprint(request, sshfingerprint, **_kwargs):
         ))
     return form(
         {'objet': sshfingerprint, 'objet_name': 'sshfingerprint'},
-        'machines/delete.html',
-        request
-    )
-
-
-@login_required
-@can_create(SshFprAlgo)
-def new_sshfpralgo(request, **_kwargs):
-    """Creates an SSH fingeprint algorithm"""
-    sshfpralgo = SshFprAlgoForm(
-        request.POST or None,
-    )
-    if sshfpralgo.is_valid():
-        sshfpralgo.save()
-        messages.success(request, "The SSH fingerprint algorithm was added")
-        return redirect(reverse(
-            'machines:index-sshfpralgo'
-        ))
-    return form(
-        {'sshfpralgoform': sshfpralgo, 'action_name': 'Create'},
-        'machines/machine.html',
-        request
-    )
-
-
-@login_required
-@can_edit(SshFprAlgo)
-def edit_sshfpralgo(request, sshfpralgo_instance, **_kwargs):
-    """Edits an SSH fingerprint algorithm"""
-    sshfpralgo = SshFprAlgoForm(
-        request.POST or None,
-        instance=sshfpralgo_instance
-    )
-    if sshfpralgo.is_valid():
-        if sshfpralgo.changed_data:
-            sshfpralgo.save()
-            messages.success(request, "The SSH fingerprint algorithm was edited")
-        return redirect(reverse(
-            'machines:index-sshfpralgo'
-        ))
-    return form(
-        {'sshfpralgoform': sshfpralgo, 'action_name': 'Edit'},
-        'machines/machine.html',
-        request
-    )
-
-
-@login_required
-@can_delete(SshFprAlgo)
-def del_sshfpralgo(request, sshfpralgo, **_kwargs):
-    """Deletes an SSH fingerprint algorithm"""
-    if request.method == "POST":
-        try:
-            sshfpralgo.delete()
-            messages.success(request, "The SSH fingerprint algorithm was deleted")
-        except ProtectedError:
-            messages.error(
-                request,
-                ("This SSH fingerprint algorithm is used by at least one SSH"
-                 "fingerprint and thus can not be deleted.")
-            )
-        return redirect(reverse(
-            'machines:index-sshfpralgo'
-        ))
-    return form(
-        {'objet': sshfpralgo, 'objet_name': 'sshfpralgo'},
         'machines/delete.html',
         request
     )
@@ -1524,7 +1457,7 @@ def index_alias(request, interface, interfaceid):
 
 
 @login_required
-@can_view_all(Machine)
+@can_view(Machine)
 def index_sshfingerprint(request, machine, machineid):
     """View used to display the list of existing SSH fingerprint of a machine"""
     sshfingerprint_list = SshFingerprint.objects.filter(machine=machine)
@@ -1532,18 +1465,6 @@ def index_sshfingerprint(request, machine, machineid):
         request,
         'machines/index_sshfingerprint.html',
         {'sshfingerprint_list': sshfingerprint_list, 'machine_id': machineid}
-    )
-
-
-@login_required
-@can_view_all(SshFprAlgo)
-def index_sshfpralgo(request):
-    """View used to display the list of existing SSH fingerprint algorithm"""
-    sshfpralgo_list = SshFprAlgo.objects.all()
-    return render(
-        request,
-        'machines/index_sshfpralgo.html',
-        {'sshfpralgo_list': sshfpralgo_list}
     )
 
 

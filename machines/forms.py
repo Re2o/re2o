@@ -61,7 +61,6 @@ from .models import (
     OuverturePortList,
     Ipv6List,
     SshFingerprint,
-    SshFprAlgo
 )
 
 
@@ -608,21 +607,6 @@ class SshFingerprintForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(SshFingerprintForm, self).__init__(
-            *args,
-            prefix=prefix,
-            **kwargs
-        )
-
-
-class SshFprAlgoForm(FormRevMixin, ModelForm):
-    """Edits a SSH fingerprint algorithm."""
-    class Meta:
-        model = SshFprAlgo
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(SshFprAlgoForm, self).__init__(
             *args,
             prefix=prefix,
             **kwargs

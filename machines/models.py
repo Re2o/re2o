@@ -200,16 +200,27 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     def __str__(self):
         return str(self.user) + ' - ' + str(self.id) + ' - ' + str(self.name)
 
+
 class SshFingerprint(RevMixin, AclMixin, models.Model):
     """A fingerpirnt of an SSH public key"""
+
+    ALGO = (
+        ("ssh-rsa", "ssh-rsa"),
+        ("ssh-ed25519", "ssh-ed25519"),
+        ("ecdsa-sha2-nistp256", "ecdsa-sha2-nistp256"),
+        ("ecdsa-sha2-nistp384", "ecdsa-sha2-nistp384"),
+        ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
+        ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
+    )
+
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     pub_key_entry = models.TextField(
         help_text="SSH public key",
         max_length=2048
     )
-    algo = models.ForeignKey(
-        'SshFprAlgo',
-        on_delete=models.PROTECT
+    algo = models.CharField(
+        choices=ALGO,
+        max_length=32
     )
     comment = models.CharField(
         help_text="Comment",
@@ -236,21 +247,6 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
 
     def __str__(self):
         return str(self.algo) + ' ' + str(self.hash_entry) + ' ' + str(self.comment)
-
-
-class SshFprAlgo(RevMixin, AclMixin, models.Model):
-    """An algorithm to compute SSH fingerprints"""
-    name = models.CharField(max_length=256)
-
-    class Meta:
-        permissions = (
-            ("view_sshfpralgo", "Can see an SSH fingerprint algorithm"),
-        )
-        verbose_name = "SSH fingerprint algorithm"
-        verbose_name_plural = "SSH fingerprint algorithms"
-
-    def  __str__(self):
-       return str(self.name)
 
 
 class MachineType(RevMixin, AclMixin, models.Model):

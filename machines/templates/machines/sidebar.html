@@ -44,12 +44,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         Extensions et zones
     </a>
     {% acl_end %}
-    {% can_view_all SshFprAlgo %}
-    <a class="list-group-item list-group-item-info" href="{% url "machines:index-sshfpralgo" %}">
-        <i class="fa fa-list-ul"></i>
-        SSH fingerprint algorithm
-    </a>
-    {% acl_end %}
     {% can_view_all IpType %}
     <a class="list-group-item list-group-item-info" href="{% url "machines:index-iptype" %}">
         <i class="fa fa-list-ul"></i>
