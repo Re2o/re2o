@@ -32,6 +32,8 @@ import re
 from ipaddress import IPv6Address
 from itertools import chain
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+import hashlib
+import base64
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -229,6 +231,25 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
         blank=True
     )
 
+    @cached_property
+    def algo_id(self):
+        """Return the id of the algorithme for this key"""
+        if "ecdsa" in self.algo:
+            return 3
+        elif "rsa" in self.algo:
+            return 1
+        else:
+            return 2
+
+    @cached_property
+    def hash(self):
+        """Return the hashs for the pub key with correct id
+        cf RFC, 1 is sha1 , 2 sha256"""
+        return {
+            "1" : hashlib.sha1(base64.b64decode(self.pub_key_entry)).hexdigest(),
+            "2" : hashlib.sha256(base64.b64decode(self.pub_key_entry)).hexdigest(),
+        }
+
     class Meta:
         permissions = (
             ("view_sshfingerprint", "Can see an SSH fingerprint"),
@@ -246,7 +267,7 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
         return self.machine.can_delete(user_request, *args, **kwargs)
 
     def __str__(self):
-        return str(self.algo) + ' ' + str(self.hash_entry) + ' ' + str(self.comment)
+        return str(self.algo) + ' ' + str(self.comment)
 
 
 class MachineType(RevMixin, AclMixin, models.Model):
@@ -610,6 +631,12 @@ class Extension(RevMixin, AclMixin, models.Model):
                 entry += "\n"
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
+
+    def get_associated_sshfpr(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
+                .filter(type__ip_type__extension=self)
+                .filter(machine))
 
     def get_associated_a_records(self):
         from re2o.utils import all_active_assigned_interfaces
