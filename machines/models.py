@@ -689,7 +689,7 @@ class DName(RevMixin, AclMixin, models.Model):
     @cached_property
     def dns_entry(self):
         """Returns the DNAME record for the DNS zone file."""
-        return str(self.alias) + " IN  DNAME   " + str(self.zone)
+        return str(self.alias).ljust(15) + " IN  DNAME   " + str(self.zone)
 
 
 class Srv(RevMixin, AclMixin, models.Model):
