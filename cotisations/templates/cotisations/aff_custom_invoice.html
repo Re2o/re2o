@@ -3,9 +3,6 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
-Copyright © 2017  Augustin Lemesle
 Copyright © 2018  Hugo Levy-Falk
 
 This program is free software; you can redistribute it and/or modify
@@ -53,7 +50,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% trans "Invoice id" as tr_invoice_id %}
                     {% include 'buttons/sort.html' with prefix='invoice' col='id' text=tr_invoice_id %}
                 </th>
-                <th>{% trans "Paid" %}</th>
+                <th>
+                    {% trans "Paid" as tr_invoice_paid%}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='paid' text=tr_invoice_paid %}
+                </th>
                 <th></th>
                 <th></th>
             </tr>
@@ -68,32 +68,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ invoice.id }}</td>
             <td>{{ invoice.paid|tick }}</td>
             <td>
-                <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="editinvoice" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {% trans "Edit" %}<span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="editinvoice">
-                        {% can_edit invoice %}
-                        <li>
-                            <a href="{% url 'cotisations:edit-custom-invoice' invoice.id %}">
-                                <i class="fa fa-dollar-sign"></i> {% trans "Edit" %}
-                            </a>
-                        </li>
-                        {% acl_end %}
-                        {% can_delete invoice %}
-                        <li>
-                            <a href="{% url 'cotisations:del-custom-invoice' invoice.id %}">
-                                <i class="fa fa-trash"></i> {% trans "Delete" %}
-                            </a>
-                        </li>
-                        {% acl_end %}
-                        <li>
-                            {% history_button invoice text=True html_class=False %}
-                        </li>
-                    </ul>
-                </div>
-            </td>
-            <td>
+                {% can_edit invoice %}
+                {% include 'buttons/edit.html' with href='cotisations:edit-custom-invoice' id=invoice.id %}
+                {% acl_end %}
+                {% can_delete invoice %}
+                {% include 'buttons/suppr.html' with href='cotisations:del-custom-invoice' id=invoice.id %}
+                {% acl_end %}
+                {% history_button invoice %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:custom-invoice-pdf' invoice.id %}">
                     <i class="fa fa-file-pdf"></i> {% trans "PDF" %}
                 </a>

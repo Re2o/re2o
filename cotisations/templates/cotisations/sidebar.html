@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    {% can_change Facture pdf %}
+    {% can_create CustomInvoice %}
     <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-custom-invoice" %}">
         <i class="fa fa-plus"></i> {% trans "Create an invoice" %}
     </a>

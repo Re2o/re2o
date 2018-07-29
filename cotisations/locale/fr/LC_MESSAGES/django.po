@@ -23,7 +23,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-07-25 23:22+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
-"Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
+"Last-Translator: Hugo Levy-Falk <me@klafyvel.me>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -546,11 +546,6 @@ msgid "Balance refill"
 msgstr "Rechargement de solde"
 
 #: templates/cotisations/payment.html:34
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        Refill of %(amount)s €\n"
-#| "        "
 msgid ""
 "\n"
 "        Pay %(amount)s €\n"
@@ -719,6 +714,7 @@ msgstr "Vous n'êtes pas autorisé à créditer votre solde."
 msgid "Refill your balance"
 msgstr "Créditer votre solde"
 
+#: models.py:137
 msgid "Cheque number"
 msgstr "Numéro de chèque"
 
@@ -728,89 +724,105 @@ msgstr "Non renseigné"
 msgid "A cheque number and a bank must be specified."
 msgstr "Un numéro de chèqe et une banque doivent être renseignés."
 
-#~ msgid "Invoice number"
-#~ msgstr "Numéro de facture"
-
-#~ msgid "Amount"
-#~ msgstr "Montant"
-
+#: models.py:155
 msgid "Can change the \"controlled\" state"
 msgstr "Peut modifier l'état \"controllé\""
 
-msgid "Can create a custom PDF invoice"
-msgstr "Peut crée une facture PDF personnalisée"
-
+#: models.py:157
 msgid "Can see an invoice's details"
 msgstr "Peut voir les détails d'une facture"
 
+#: models.py:159
 msgid "Can edit all the previous invoices"
 msgstr "Peut modifier toutes les factures existantes"
 
+#: models.py:297
 msgid "Connexion"
 msgstr "Connexion"
 
+#: models.py:336
 msgid "Membership"
 msgstr "Adhésion"
 
+#: models.py:299
 msgid "Both of them"
 msgstr "Les deux"
 
+#: models.py:328
 msgid "Duration (in whole month)"
 msgstr "Durée (en mois entiers)"
 
+#: models.py:336
 msgid "Type of cotisation"
 msgstr "Type de cotisation"
 
+#: models.py:341
 msgid "Can see a purchase's details"
 msgstr "Peut voir les détails d'un achat"
 
+#: models.py:342
 msgid "Can edit all the previous purchases"
 msgstr "Peut voir les achats existants"
 
+#: models.py:344
 msgid "Purchase"
 msgstr "Achat"
 
+#: models.py:345
 msgid "Purchases"
 msgstr "Achat"
 
+#: models.py:512
 msgid "Club"
 msgstr "Club"
 
+#: models.py:530
 msgid "Unitary price"
 msgstr "Prix unitaire"
 
+#: models.py:538
 msgid "Type of users concerned"
 msgstr "Type d'utilisateurs concernés"
 
+#: models.py:561
 msgid "Can see an article's details"
 msgstr "Peut voir les détails d'un article"
 
+#: models.py:621
 msgid "Name"
 msgstr "Nom"
 
+#: models.py:626
 msgid "Can see a bank's details"
 msgstr "Peut voir les détails d'une banque"
 
+#: models.py:344
 msgid "Standard"
 msgstr "Standard"
 
 msgid "Cheque"
 msgstr "Chèque"
 
+#: models.py:647
 msgid "Method"
 msgstr "Moyen"
 
+#: models.py:663
 msgid "Can see a payement's details"
 msgstr "Peut voir les détails d'un paiement"
 
+#: models.py:785
 msgid "Starting date"
 msgstr "Date de début"
 
+#: models.py:788
 msgid "Ending date"
 msgstr "Date de fin"
 
+#: models.py:793
 msgid "Can see a cotisation's details"
 msgstr "Peut voir les détails d'une cotisation"
 
+#: models.py:794
 msgid "Can edit the previous cotisations"
 msgstr "Peut voir les cotisations existantes"
