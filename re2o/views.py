@@ -64,7 +64,7 @@ def index(request):
     return form({
         'services_urls': services,
         'twitter_url': twitter_url,
-        'twitter_account_name' : twitter_account_name,
+        'twitter_account_name': twitter_account_name,
         'facebook_url': facebook_url,
         'asso_name': asso_name
     }, 're2o/index.html', request)
