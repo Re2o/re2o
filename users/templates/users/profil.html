@@ -26,100 +26,83 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 {% load logs_extra %}
-{% block title %}Profil{% endblock %}
-{% block content %}
 
+{% block title %}Profil{% endblock %}
+
+{% block content %}
 <div align="center">
-<h2>Bienvenue {{users.name}} {{ users.surname }}</h2>
+    <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
 </div>
 <div class="dashboard_container">
-<div class="row">
-    {% if solde_activated %}
-    <div class="col-sm-6 col-md-4">
-    {% else %}
-    <div class="col-sm-6 col-md-6">
-    {% endif %}
-          <div class="col-12">
-        {% if users.is_ban%}
-        <div class="panel panel-danger">
-            <div class="panel-heading dashboard">Votre compte est banni</div>
-            <div class="panel-body dashboard">
-            <i class="text-danger">Fin du ban : {{user.end_ban|date:"d M Y"}}</i>
-        </div>
-        </div>
-        {% elif not users.is_adherent%}
-        <div class="panel panel-danger">
-            <div class="panel-heading dashboard">Non Connécté</div>
+    <div class="row">
+        <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
+            {% if users.is_ban%}
+            <div class="panel panel-danger">
+                <div class="panel-heading dashboard">Your account has been banned</div>
+                <div class="panel-body dashboard">
+                    <i class="text-danger">End of the ban: {{ user.end_ban | date:"SHORT_DATE_FORMAT" }}</i>
+                </div>
+            </div>
+            {% elif not users.is_adherent %}
+            <div class="panel panel-danger">
+                <div class="panel-heading dashboard">Not connected</div>
                 <div class="panel-body dashboard"> 
-                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Adhérer
-                        </a>
+                    {% can_create Facture %}
+                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                        <i class="fas fa-sign-in-alt"></i> Pay for a connexion
+                    </a>
+                    {% acl_else %}
+                    Ask for someone with the correct rights to pay for a connexion
+                    {% acl_end %}
+                </div>
             </div>
             {% else %}
-        <div class="panel panel-success">
-        <div class="panel-heading dashboard">Connécté</div>
-        <div class="panel-body dashboard">
-            <i class="text-success">Fin de connexion: {{user.end_adhesion|date:"d M Y"}}</i>
-        </div>
-        </div>
+            <div class="panel panel-success">
+                <div class="panel-heading dashboard">Connected</div>
+                <div class="panel-body dashboard">
+                    <i class="text-success">End of connexion: {{ user.end_adhesion | date:"SHORT_DATE_FORMAT"}}</i>
+                </div>
+            </div>
             {% endif %}
-    </div>
-    </div>
-    {% if solde_activated %}
-    <div class="col-sm-6 col-md-4">
-        <div class="col-12">
-            <div class="col-12">
+        </div>
+        {% if solde_activated %}
+        <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-
-                {{user.solde}} <i class="fas fa-euro-sign"></i>
-            </div>
+                    € {{ user.solde }}
+                </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                            <i class="fa fa-euro-sign"></i>
-                            Modifier le solde
-                        </a>
-            </div>
-            </div>
+                        <i class="fa fa-euro-sign"></i> Pay for the balance
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    {% endif %}
-    {% if solde_activated %}
-    <div class="col-sm-6 col-md-4">
-    {% else %}
-    <div class="col-sm-6 col-md-6">
-    {% endif %}
-        <div class="col-12">
-        {% if nb_machines %}
-        <div class="panel panel-info">
-            <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
-                    <span class="badge">{{nb_machines}}</span>
-                    Machines
-             <i class="fa fa-desktop"></i>
-            </div>
-            <div class="panel-body dashboard">
+        {% endif %}
+        <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col-md-6{% endif %}">
+            {% if nb_machines %}
+            <div class="panel panel-info">
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+                    <i class="fa fa-desktop"></i> Machines <span class="badge">{{ nb_machines }}</span>
+                </div>
+                <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                    <i class="fa fa-desktop"></i>
-                    Ajouter une machine
+                        <i class="fa fa-desktop"></i> Add a machine
                     </a>
+                </div>
             </div>
-        </div>
             {% else %}
-        <div class="panel panel-warning">
-            <div class="panel-heading dashboard">Aucune machine</div>
-            <div class="panel-body dashboard">
+            <div class="panel panel-warning">
+                <div class="panel-heading dashboard">No machines</div>
+                <div class="panel-body dashboard">
                     <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                    <i class="fa fa-desktop"></i>
-                    Ajouter une machine
+                        <i class="fa fa-desktop"></i> Add a machine
                     </a>
+                </div>
             </div>
-        </div>
             {% endif %}
         </div>
-    </div>
-</div> 
+    </div> 
 </div>
 
 
@@ -131,7 +114,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <i class="fa fa-user"></i> Informations détaillées
             </h3>
         </div>
-        <div class="panel-collapse collapse in" id="collapse1">
+        <div class="panel-collapse collapse" id="collapse1">
             <div class="panel-body">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
                     <i class="fa fa-edit"></i>
