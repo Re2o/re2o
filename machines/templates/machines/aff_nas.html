@@ -49,7 +49,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
             {% acl_end %}
             {% history_button nas %}
-            {% include 'buttons/history.html' with href='machines:history' name='nas' id=nas.id %}
         </td>
     </tr>
     {% endfor %}

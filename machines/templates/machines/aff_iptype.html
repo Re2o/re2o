@@ -55,7 +55,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
                 {% acl_end %}
                 {% history_button type %}
-                {% include 'buttons/history.html' with href='machines:history' name='iptype' id=type.id %}
             </td>
         </tr>
         {% endfor %}
