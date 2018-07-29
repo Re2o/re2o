@@ -62,12 +62,12 @@ def index(request):
     twitter_account_name = HomeOption.get_cached_value('twitter_account_name')
     asso_name = AssoOption.get_cached_value('pseudo')
     return form({
-         'services_urls': services,
-         'twitter_url': twitter_url,
-         'twitter_account_name' : twitter_account_name,
-         'facebook_url': facebook_url,
-         'asso_name': asso_name
-         }, 're2o/index.html', request)
+        'services_urls': services,
+        'twitter_url': twitter_url,
+        'twitter_account_name' : twitter_account_name,
+        'facebook_url': facebook_url,
+        'asso_name': asso_name
+    }, 're2o/index.html', request)
 
 
 @cache_page(7 * 24 * 60 * 60)
