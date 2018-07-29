@@ -212,7 +212,6 @@ class SshFingerprint(RevMixin, AclMixin, models.Model):
         ("ecdsa-sha2-nistp256", "ecdsa-sha2-nistp256"),
         ("ecdsa-sha2-nistp384", "ecdsa-sha2-nistp384"),
         ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
-        ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
     )
 
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
