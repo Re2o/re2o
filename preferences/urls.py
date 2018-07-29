@@ -71,6 +71,6 @@ urlpatterns = [
         views.edit_service,
         name='edit-service'
         ),
-    url(r'^del_services/$', views.del_service, name='del-service'),
+    url(r'^del_services/$', views.del_services, name='del-services'),
     url(r'^$', views.display_options, name='display-options'),
 ]
