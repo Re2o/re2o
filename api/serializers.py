@@ -222,6 +222,13 @@ class SrvSerializer(NamespacedHMSerializer):
         fields = ('service', 'protocole', 'extension', 'ttl', 'priority',
                   'weight', 'port', 'target', 'api_url')
 
+class SshFpSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.SSHFP` objects.
+    """
+    class Meta:
+        model = machines.SshFp
+        field = ('machine', 'pub_key_entry', 'algo', 'comment', 'api_url')
+
 
 class InterfaceSerializer(NamespacedHMSerializer):
     """Serialize `machines.models.Interface` objects.
@@ -679,6 +686,26 @@ class SRVRecordSerializer(SrvSerializer):
         fields = ('service', 'protocole', 'ttl', 'priority', 'weight', 'port', 'target')
 
 
+class SSHFPRecordSerializer(SshFpSerializer):
+    """Serialize `machines.models.SshFp` objects with the data needed to
+    generate a SSHFP DNS record.
+    """
+    class Meta(SshFpSerializer.Meta):
+        fields = ('algo_id', 'hash')
+
+
+class SSHFPInterfaceSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Domain` objects with the data needed to
+    generate a CNAME DNS record.
+    """
+    hostname = serializers.CharField(source='domain.name', read_only=True)
+    sshfp = SSHFPRecordSerializer(source='machine.sshfp_set', many=True, read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('hostname', 'sshfp')
+
+
 class ARecordSerializer(serializers.ModelSerializer):
     """Serialize `machines.models.Interface` objects with the data needed to
     generate a A DNS record.
@@ -729,12 +756,13 @@ class DNSZonesSerializer(serializers.ModelSerializer):
     a_records = ARecordSerializer(many=True, source='get_associated_a_records')
     aaaa_records = AAAARecordSerializer(many=True, source='get_associated_aaaa_records')
     cname_records = CNAMERecordSerializer(many=True, source='get_associated_cname_records')
+    sshfp_records = SSHFPInterfaceSerializer(many=True, source='get_associated_sshfp_records')
 
     class Meta:
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records')
+                  'aaaa_records', 'cname_records', 'sshfp_records')
 
 
 # MAILING

@@ -32,6 +32,8 @@ import re
 from ipaddress import IPv6Address
 from itertools import chain
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+import hashlib
+import base64
 
 from django.db import models
 from django.db.models.signals import post_save, post_delete
@@ -563,6 +565,12 @@ class Extension(RevMixin, AclMixin, models.Model):
             entry += "@               IN  AAAA    " + str(self.origin_v6)
         return entry
 
+    def get_associated_sshfp_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        return (all_active_assigned_interfaces()
+                .filter(type__ip_type__extension=self)
+                .filter(machine__id__in=SshFp.objects.values('machine')))
+
     def get_associated_a_records(self):
         from re2o.utils import all_active_assigned_interfaces
         return (all_active_assigned_interfaces()
@@ -753,6 +761,73 @@ class Srv(RevMixin, AclMixin, models.Model):
             str(self.extension) + '. ' + str(self.ttl) + ' IN SRV ' +\
             str(self.priority) + ' ' + str(self.weight) + ' ' +\
             str(self.port) + ' ' + str(self.target) + '.'
+
+
+class SshFp(RevMixin, AclMixin, models.Model):
+    """A fingerprint of an SSH public key"""
+
+    ALGO = (
+        ("ssh-rsa", "ssh-rsa"),
+        ("ssh-ed25519", "ssh-ed25519"),
+        ("ecdsa-sha2-nistp256", "ecdsa-sha2-nistp256"),
+        ("ecdsa-sha2-nistp384", "ecdsa-sha2-nistp384"),
+        ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
+    )
+
+    machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
+    pub_key_entry = models.TextField(
+        help_text="SSH public key",
+        max_length=2048
+    )
+    algo = models.CharField(
+        choices=ALGO,
+        max_length=32
+    )
+    comment = models.CharField(
+        help_text="Comment",
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    @cached_property
+    def algo_id(self):
+        """Return the id of the algorithm for this key"""
+        if "ecdsa" in self.algo:
+            return 3
+        elif "rsa" in self.algo:
+            return 1
+        else:
+            return 2
+
+    @cached_property
+    def hash(self):
+        """Return the hashess for the pub key with correct id
+        cf RFC, 1 is sha1 , 2 sha256"""
+        return {
+            "1" : hashlib.sha1(base64.b64decode(self.pub_key_entry)).hexdigest(),
+            "2" : hashlib.sha256(base64.b64decode(self.pub_key_entry)).hexdigest(),
+        }
+
+    class Meta:
+        permissions = (
+            ("view_sshfp", "Can see an SSHFP record"),
+        )
+        verbose_name = "SSHFP record"
+        verbose_name_plural = "SSHFP records"
+
+    def can_view(self, user_request, *_args, **_kwargs):
+        return self.machine.can_view(user_request, *_args, **_kwargs)
+
+    def can_edit(self, user_request, *args, **kwargs):
+        return self.machine.can_edit(user_request, *args, **kwargs)
+
+    def can_delete(self, user_request, *args, **kwargs):
+        return self.machine.can_delete(user_request, *args, **kwargs)
+
+    def __str__(self):
+        return str(self.algo) + ' ' + str(self.comment)
+
 
 
 class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):

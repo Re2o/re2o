@@ -56,6 +56,7 @@ from .models import (
     Service,
     Vlan,
     Srv,
+    SshFp,
     Nas,
     IpType,
     OuverturePortList,
@@ -591,6 +592,21 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditOuverturePortListForm, self).__init__(
+            *args,
+            prefix=prefix,
+            **kwargs
+        )
+
+        
+class SshFpForm(FormRevMixin, ModelForm):
+    """Edits a SSHFP record."""
+    class Meta:
+        model = SshFp
+        exclude = ('machine',)
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SshFpForm, self).__init__(
             *args,
             prefix=prefix,
             **kwargs

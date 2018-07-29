@@ -54,6 +54,7 @@ from re2o.utils import (
 from re2o.acl import (
     can_create,
     can_edit,
+    can_view,
     can_delete,
     can_view_all,
     can_delete_set,
@@ -102,13 +103,14 @@ from .forms import (
     DelVlanForm,
     ServiceForm,
     DelServiceForm,
+    SshFpForm,
     NasForm,
     DelNasForm,
     SrvForm,
     DelSrvForm,
     Ipv6ListForm,
     EditOuverturePortListForm,
-    EditOuverturePortConfigForm
+    EditOuverturePortConfigForm,
 )
 from .models import (
     IpType,
@@ -127,6 +129,7 @@ from .models import (
     Txt,
     DName,
     Srv,
+    SshFp,
     OuverturePortList,
     OuverturePort,
     Ipv6List,
@@ -455,6 +458,72 @@ def del_ipv6list(request, ipv6list, **_kwargs):
         ))
     return form(
         {'objet': ipv6list, 'objet_name': 'ipv6'},
+        'machines/delete.html',
+        request
+    )
+
+
+@login_required
+@can_create(SshFp)
+@can_edit(Machine)
+def new_sshfp(request, machine, **_kwargs):
+    """Creates an SSHFP record associated with a machine"""
+    sshfp_instance = SshFp(machine=machine)
+    sshfp = SshFpForm(
+        request.POST or None,
+        instance=sshfp_instance
+    )
+    if sshfp.is_valid():
+        sshfp.save()
+        messages.success(request, "The SSHFP record was added")
+        return redirect(reverse(
+            'machines:index-sshfp',
+            kwargs={'machineid': str(machine.id)}
+        ))
+    return form(
+        {'sshfpform': sshfp, 'action_name': 'Create'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(SshFp)
+def edit_sshfp(request, sshfp_instance, **_kwargs):
+    """Edits an SSHFP record"""
+    sshfp = SshFpForm(
+        request.POST or None,
+        instance=sshfp_instance
+    )
+    if sshfp.is_valid():
+        if sshfp.changed_data:
+            sshfp.save()
+            messages.success(request, "The SSHFP record was edited")
+        return redirect(reverse(
+            'machines:index-sshfp',
+            kwargs={'machineid': str(sshfp_instance.machine.id)}
+        ))
+    return form(
+        {'sshfpform': sshfp, 'action_name': 'Edit'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete(SshFp)
+def del_sshfp(request, sshfp, **_kwargs):
+    """Deletes an SSHFP record"""
+    if request.method == "POST":
+        machineid = sshfp.machine.id
+        sshfp.delete()
+        messages.success(request, "The SSHFP record was deleted")
+        return redirect(reverse(
+            'machines:index-sshfp',
+            kwargs={'machineid': str(machineid)}
+        ))
+    return form(
+        {'objet': sshfp, 'objet_name': 'sshfp'},
         'machines/delete.html',
         request
     )
@@ -1388,7 +1457,20 @@ def index_alias(request, interface, interfaceid):
 
 
 @login_required
-@can_edit(Interface)
+@can_view(Machine)
+def index_sshfp(request, machine, machineid):
+    """View used to display the list of existing SSHFP records associated
+    with a machine"""
+    sshfp_list = SshFp.objects.filter(machine=machine)
+    return render(
+        request,
+        'machines/index_sshfp.html',
+        {'sshfp_list': sshfp_list, 'machine_id': machineid}
+    )
+
+
+@login_required
+@can_view_all(Interface)
 def index_ipv6(request, interface, interfaceid):
     """ View used to display the list of existing IPv6 of an interface """
     ipv6_list = Ipv6List.objects.filter(interface=interface)

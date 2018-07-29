@@ -177,6 +177,13 @@ class SrvViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SrvSerializer
 
 
+class SshFpViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.SshFp` objects.
+    """
+    queryset = machines.SshFp.objects.all()
+    serializer_class = serializers.SshFpSerializer
+
+
 class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `machines.models.Interface` objects.
     """

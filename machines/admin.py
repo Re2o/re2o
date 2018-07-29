@@ -39,11 +39,12 @@ from .models import (
     Txt,
     DName,
     Srv,
+    SshFp,
     Nas,
     Service,
     OuverturePort,
     Ipv6List,
-    OuverturePortList
+    OuverturePortList,
 )
 
 
@@ -106,6 +107,11 @@ class SrvAdmin(VersionAdmin):
     pass
 
 
+class SshFpAdmin(VersionAdmin):
+    """ Admin view of a SSHFP object """
+    pass
+
+
 class NasAdmin(VersionAdmin):
     """ Admin view of a Nas object """
     pass
@@ -151,6 +157,7 @@ admin.site.register(Ns, NsAdmin)
 admin.site.register(Txt, TxtAdmin)
 admin.site.register(DName, DNameAdmin)
 admin.site.register(Srv, SrvAdmin)
+admin.site.register(SshFp, SshFpAdmin)
 admin.site.register(IpList, IpListAdmin)
 admin.site.register(Interface, InterfaceAdmin)
 admin.site.register(Domain, DomainAdmin)
