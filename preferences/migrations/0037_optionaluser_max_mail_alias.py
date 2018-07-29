@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='optionaluser',
             name='max_mail_alias',
-            field=models.IntegerField(default=15, help_text="Nombre maximal d'alias pour un utilisateur lambda"),
+            field=models.IntegerField(default=15, help_text="Max alias mail for a lambda user"),
         ),
     ]

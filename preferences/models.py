@@ -87,16 +87,16 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
     mail_accounts = models.BooleanField(
         default=False,
-        help_text="Activation des comptes mails pour les utilisateurs"
+        help_text="Enable mail accounts for users"
     )
     mail_extension = models.CharField(
         max_length = 32,
         default = "@example.org",
-        help_text="Extension principale pour les mails internes",
+        help_text="Main extension for internal address",
     )
     max_mail_alias = models.IntegerField(
         default = 15,
-        help_text = "Nombre maximal d'alias pour un utilisateur lambda"
+        help_text = "Max alias mail for a lambda user"
     )
 
     class Meta:
@@ -105,12 +105,11 @@ class OptionalUser(AclMixin, PreferencesModel):
         )
 
     def clean(self):
-        """Clean du model:
-        Creation du mode de paiement par solde
-        Vérifie que l'extension mail commence bien par @
+        """Clean model:
+        Check the mail_extension
         """
         if self.mail_extension[0] != "@":
-            raise ValidationError("L'extension mail doit commencer par un @")
+            raise ValidationError("Mail extension must begin with @")
     
 
 @receiver(post_save, sender=OptionalUser)

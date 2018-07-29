@@ -499,7 +499,7 @@ def del_whitelist(request, whitelist, **_kwargs):
 @can_create(MailAlias)
 @can_edit(User)
 def add_mailalias(request, user, userid):
-    """ Créer un alias """
+    """ Create a new alias"""
     mailalias_instance = MailAlias(user=user)
     mailalias = MailAliasForm(
         request.POST or None,
@@ -507,13 +507,13 @@ def add_mailalias(request, user, userid):
     )
     if mailalias.is_valid():
         mailalias.save()
-        messages.success(request, "Alias créé")
+        messages.success(request, "Alias created")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': mailalias, 'action_name': 'Ajouter un alias mail'},
+        {'userform': mailalias, 'action_name': 'Add an alias mail'},
         'users/user.html',
         request
     )
@@ -521,7 +521,7 @@ def add_mailalias(request, user, userid):
 @login_required
 @can_edit(MailAlias)
 def edit_mailalias(request, mailalias_instance, **_kwargs):
-    """ Editer un alias mail"""
+    """ Edit a mailalias"""
     mailalias = MailAliasForm(
         request.POST or None,
         instance=mailalias_instance
@@ -529,13 +529,13 @@ def edit_mailalias(request, mailalias_instance, **_kwargs):
     if mailalias.is_valid():
         if mailalias.changed_data:
             mailalias.save()
-            messages.success(request, "Alias modifiée")
+            messages.success(request, "Alias modified")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(mailalias_instance.user.id)}
         ))
     return form(
-        {'userform': mailalias, 'action_name': 'Editer un alias mail'},
+        {'userform': mailalias, 'action_name': 'Edit a mailalias'},
         'users/user.html',
         request
     )
@@ -543,10 +543,10 @@ def edit_mailalias(request, mailalias_instance, **_kwargs):
 @login_required
 @can_delete(MailAlias)
 def del_mailalias(request, mailalias, **_kwargs):
-        """ Supprime un alias mail"""
+        """Delete a mail alias"""
         if request.method == "POST":
             mailalias.delete()
-            messages.success(request, "L'alias a été supprimé")
+            messages.success(request, "Alias deleted")
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid': str(mailalias.user.id)}
@@ -1002,7 +1002,6 @@ def profil(request, users, **_kwargs):
             'white_list': whitelists,
             'user_solde': user_solde,
             'solde_activated': Paiement.objects.filter(is_balance=True).exists(),
-            'asso_name': AssoOption.objects.first().name
             'allow_online_payment': allow_online_payment,
             'asso_name': AssoOption.objects.first().name,
             'alias_list': users.mailalias_set.all(),

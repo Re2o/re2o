@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='optionaluser',
             name='mail_extension',
-            field=models.CharField(default='@example.org', help_text='Extension principale pour les mails internes', max_length=32),
+            field=models.CharField(default='@example.org', help_text='Main extension for internal address', max_length=32),
         ),
     ]

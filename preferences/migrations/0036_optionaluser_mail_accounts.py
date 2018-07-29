@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='optionaluser',
             name='mail_accounts',
-            field=models.BooleanField(default=False, help_text='Activation des comptes mails pour les utilisateurs'),
+            field=models.BooleanField(default=False, help_text='Enable mail accounts for users'),
         ),
     ]

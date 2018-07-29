@@ -591,26 +591,26 @@ class WhitelistForm(FormRevMixin, ModelForm):
 
 
 class MailAliasForm(FormRevMixin, ModelForm):
-    """Creation, edition d'un objet alias mail"""
+    """Create and edit a mailalias"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailAliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['valeur'].label = "Prefixe de l'alias mail. Ne peut contenir de @"
+        self.fields['valeur'].label = "Prefix of mailalias. Can't contain @"
 
     class Meta:
         model = MailAlias
         exclude = ['user']
 
 class MailForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Creation, edition des paramètres mail"""
+    """Edit mail settings"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['external_mail'].label = 'Adresse mail externe'
+        self.fields['external_mail'].label = 'External mail address'
         if 'redirection' in self.fields:
-            self.fields['redirection'].label = 'Activation de la redirection vers l\'adress externe'
+            self.fields['redirection'].label = 'Enable redirect to external address'
         if 'internal_address' in self.fields:
-            self.fields['internal_address'].label = 'Adresse mail interne'
+            self.fields['internal_address'].label = 'Internal mail address'
 
     class Meta:
         model = User
