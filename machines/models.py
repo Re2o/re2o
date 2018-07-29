@@ -3,9 +3,10 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
+# Copyright © 2016-2018  Gabriel Détraz
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2018  Charlie Jacomme
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -668,6 +669,27 @@ class Txt(RevMixin, AclMixin, models.Model):
     def dns_entry(self):
         """Renvoie l'enregistrement TXT complet pour le fichier de zone"""
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
+
+
+class DName(RevMixin, AclMixin, models.Model):
+    """A DNAME entry for the DNS."""
+    zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
+    alias = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ("view_dname", "Can see a dname object"),
+        )
+        verbose_name = "DNAME entry"
+        verbose_name_plural = "DNAME entries"
+
+    def __str__(self):
+        return str(self.zone) + " : " + str(self.alias)
+
+    @cached_property
+    def dns_entry(self):
+        """Returns the DNAME record for the DNS zone file."""
+        return str(self.alias).ljust(15) + " IN  DNAME   " + str(self.zone)
 
 
 class Srv(RevMixin, AclMixin, models.Model):
@@ -1684,6 +1706,18 @@ def text_post_save(**_kwargs):
 @receiver(post_delete, sender=Txt)
 def text_post_delete(**_kwargs):
     """Regeneration dns après modification d'un TX"""
+    regen('dns')
+
+
+@receiver(post_save, sender=DName)
+def dname_post_save(**_kwargs):
+    """Updates the DNS regen after modification of a DName object."""
+    regen('dns')
+
+
+@receiver(post_delete, sender=DName)
+def dname_post_delete(**_kwargs):
+    """Updates the DNS regen after deletion of a DName object."""
     regen('dns')
 
 

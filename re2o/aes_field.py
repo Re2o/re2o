@@ -7,6 +7,7 @@
 # Copyright © 2017  Goulven Kermarec
 # Copyright © 2017  Augustin Lemesle
 # Copyright © 2018  Maël Kervella
+# Copyright © 2018  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,10 +23,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# App de gestion des machines pour re2o
-# Gabriel Détraz, Augustin Lemesle
-# Gplv2
-"""preferences.aes_field
+"""
 Module defining a AESEncryptedField object that can be used in forms
 to handle the use of properly encrypting and decrypting AES keys
 """
@@ -36,6 +34,7 @@ from random import choice
 from Crypto.Cipher import AES
 
 from django.db import models
+from django import forms
 from django.conf import settings
 
 EOD = '`%EofD%`'  # This should be something that will not occur in strings
@@ -66,18 +65,35 @@ def decrypt(key, s):
     return ss.split(bytes(EOD, 'utf-8'))[0]
 
 
+class AESEncryptedFormField(forms.CharField):
+    widget = forms.PasswordInput(render_value=True)
+
+
 class AESEncryptedField(models.CharField):
     """ A Field that can be used in forms for adding the support
     of AES ecnrypted fields """
+
     def save_form_data(self, instance, data):
-        setattr(instance, self.name,
-                binascii.b2a_base64(encrypt(settings.AES_KEY, data)))
+        setattr(instance, self.name, binascii.b2a_base64(
+            encrypt(settings.AES_KEY, data)).decode('utf-8'))
 
     def to_python(self, value):
         if value is None:
             return None
-        return decrypt(settings.AES_KEY,
-                       binascii.a2b_base64(value)).decode('utf-8')
+        try:
+            return decrypt(settings.AES_KEY,
+                           binascii.a2b_base64(value)).decode('utf-8')
+        except Exception as e:
+            raise ValueError(value)
+
+    def from_db_value(self, value, *args, **kwargs):
+        if value is None:
+            return value
+        try:
+            return decrypt(settings.AES_KEY,
+                           binascii.a2b_base64(value)).decode('utf-8')
+        except Exception as e:
+            raise ValueError(value)
 
     def get_prep_value(self, value):
         if value is None:
@@ -85,4 +101,9 @@ class AESEncryptedField(models.CharField):
         return binascii.b2a_base64(encrypt(
             settings.AES_KEY,
             value
-        ))
+        )).decode('utf-8')
+
+    def formfield(self, **kwargs):
+        defaults = {'form_class': AESEncryptedFormField}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)

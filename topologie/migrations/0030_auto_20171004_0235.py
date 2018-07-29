@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('topologie', '0029_auto_20171002_0334'),
+        ('machines', '0049_vlan'),
     ]
 
     operations = [

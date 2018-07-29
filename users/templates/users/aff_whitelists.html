@@ -26,38 +26,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=white_list %}
 {% endif %}
 {% load acl %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% include "buttons/sort.html" with prefix='white' col="user" text="Utilisateur" %}</th>
-                <th>Raison</th>
-                <th>{% include "buttons/sort.html" with prefix='white' col="start" text="Date de début" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='white' col="end" text="Date de fin" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for whitelist in white_list %}
-        {% if whitelist.is_active %}
-        <tr class="success">
+{% load logs_extra %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% include "buttons/sort.html" with prefix='white' col="user" text="Utilisateur" %}</th>
+            <th>Raison</th>
+            <th>{% include "buttons/sort.html" with prefix='white' col="start" text="Date de début" %}</th>
+            <th>{% include "buttons/sort.html" with prefix='white' col="end" text="Date de fin" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for whitelist in white_list %}
+    {% if whitelist.is_active %}
+    <tr class="success">
         {% else %}
         <tr>
-        {% endif %}
+            {% endif %}
             <td>{{ whitelist.user }}</td>
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
             <td class="text-right">
-	    {% can_delete whitelist %}
+                {% can_delete whitelist %}
                 {% include 'buttons/suppr.html' with href='users:del-whitelist' id=whitelist.id %}
-            {% acl_end %}
-            {% can_edit whitelist %}
+                {% acl_end %}
+                {% can_edit whitelist %}
                 {% include 'buttons/edit.html' with href='users:edit-whitelist' id=whitelist.id %}
-            {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='whitelist' id=whitelist.id %}
+                {% acl_end %}
+                {% history_button whitelist %}
             </td>
         </tr>
         {% endfor %}
-    </table>
+</table>
 
 {% if white_list.paginator %}
 {% include "pagination.html" with list=white_list %}

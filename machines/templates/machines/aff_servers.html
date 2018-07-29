@@ -22,26 +22,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom du service</th>
-                <th>Serveur</th>
-                <th>Dernière régénération</th>
-		<th>Régénération nécessaire</th>
-		<th>Régénération activée</th>
-            </tr>
-        </thead>
-        {% for server in servers_list %}
+{% load design %}
+
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ server.service }}</td>
-            <td>{{ server.server }}</td>
-            <td>{{ server.last_regen }}</td>
-	    <td>{{ server.asked_regen }}</td>
-            <td>{{ server.need_regen }}</td>
-            <td class="text-right">
-            </td>
+            <th>Nom du service</th>
+            <th>Serveur</th>
+            <th>Dernière régénération</th>
+            <th>Régénération nécessaire</th>
+            <th>Régénération activée</th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for server in servers_list %}
+    <tr>
+        <td>{{ server.service }}</td>
+        <td>{{ server.server }}</td>
+        <td>{{ server.last_regen }}</td>
+        <td>{{ server.asked_regen| tick }}</td>
+        <td>{{ server.need_regen | tick }}</td>
+        <td class="text-right">
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

@@ -30,7 +30,6 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-import re2o
 from . import views
 
 urlpatterns = [
@@ -51,10 +50,6 @@ urlpatterns = [
     url(r'^switch/(?P<switchid>[0-9]+)$',
         views.index_port,
         name='index-port'),
-    url(r'^history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'topologie'}),
     url(r'^edit_port/(?P<portid>[0-9]+)$', views.edit_port, name='edit-port'),
     url(r'^new_port/(?P<switchid>[0-9]+)$', views.new_port, name='new-port'),
     url(r'^del_port/(?P<portid>[0-9]+)$', views.del_port, name='del-port'),

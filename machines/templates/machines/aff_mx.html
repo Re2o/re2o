@@ -23,30 +23,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-		    <th>Zone concernée</th>
-		    <th>Priorité</th>
-		    <th>Enregistrement</th>
-		    <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for mx in mx_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ mx.zone }}</td>
-	    <td>{{ mx.priority }}</td>
-	    <td>{{ mx.name }}</td>
-            <td class="text-right">
+            <th>Zone concernée</th>
+            <th>Priorité</th>
+            <th>Enregistrement</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for mx in mx_list %}
+    <tr>
+        <td>{{ mx.zone }}</td>
+        <td>{{ mx.priority }}</td>
+        <td>{{ mx.name }}</td>
+        <td class="text-right">
             {% can_edit mx %}
             {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
-	    {% acl_end %}
-            {% include 'buttons/history.html' with href='machines:history' name='mx' id=mx.id %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% acl_end %}
+            {% history_button mx %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
 

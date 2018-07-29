@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -51,6 +52,7 @@ router.register_viewset(r'machines/extension', views.ExtensionViewSet)
 router.register_viewset(r'machines/mx', views.MxViewSet)
 router.register_viewset(r'machines/ns', views.NsViewSet)
 router.register_viewset(r'machines/txt', views.TxtViewSet)
+router.register_viewset(r'machines/dname', views.DNameViewSet)
 router.register_viewset(r'machines/srv', views.SrvViewSet)
 router.register_viewset(r'machines/interface', views.InterfaceViewSet)
 router.register_viewset(r'machines/ipv6list', views.Ipv6ListViewSet)

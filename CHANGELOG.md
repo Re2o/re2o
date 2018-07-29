@@ -1,7 +1,7 @@
 ## MR 160: Datepicker
 
 Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
-```
+```bash
 apt-get -y install \
     libjs-jquery \
     libjs-jquery-ui \
@@ -10,12 +10,12 @@ apt-get -y install \
     javascript-common
 ```
 Enable javascript-common conf
-```
+```bash
 a2enconf javascript-common
 ```
 
 Delete old jquery files :
-```
+```bash
 rm -r static_files/js/jquery-ui-*
 rm static_files/js/jquery-2.2.4.min.js
 rm static/css/jquery-ui-timepicker-addon.css
@@ -42,6 +42,7 @@ Refactored install_re2o.sh script.
 ```
 install_re2o.sh help
 ```
+
 * The installation templates (LDIF files and `re2o/settings_locale.example.py`) have been changed to use `example.net` instead of `example.org` (more neutral and generic)
 
 
@@ -75,7 +76,6 @@ OPTIONAL_APPS = (
 ```
 
 
-
 ## MR 177: Add django-debug-toolbar support
 
 Add the possibility to enable `django-debug-toolbar` in debug mode. First install the APT package:
@@ -94,3 +94,29 @@ If you to restrict the IP which can see the debug, use the `INTERNAL_IPS` option
 ```
 INTERNAL_IPS = ["10.0.0.1", "10.0.0.2"]
 ```
+
+## MR 145: Fix #117 : Use unix_name instead of name for ldap groups
+
+Fix a mixing between unix_name and name for groups
+After this modification you need to:
+* Double-check your defined groups' unix-name only contain small letters 
+* Run the following commands to rebuild your ldap's groups:
+  ```shell
+  python3 manage.py ldap_rebuild
+  ```
+
+* You may need to force your nslcd cache to be reloaded on some servers (else you will have to wait for the cache to be refreshed):
+  ```bash
+  sudo nslcd -i groups
+  ```
+
+## MR 174 : Fix online payment + allow users to pay their subscription
+
+Add the possibility to use custom payment methods. There is also a boolean field on the 
+Payments allowing every user to use some kinds of payment. You have to add the rights `cotisations.use_every_payment` and `cotisations.buy_every_article`
+to the staff members so they can use every type of payment to buy anything.
+
+Don't forget to run migrations, several settings previously in the `preferences` app ar now
+in their own Payment models.
+
+To have a closer look on how the payments works, please go to the wiki.

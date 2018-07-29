@@ -52,7 +52,7 @@ import datetime
 from django.db import models
 from django.db.models import Q
 from django import forms
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.template import Context, loader
@@ -321,6 +321,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         si il n'est pas défini"""
         return self.shell or OptionalUser.get_cached_value('shell_default')
 
+    @cached_property
+    def get_shadow_expire(self):
+        """Return the shadow_expire value for the user"""
+        if self.state == self.STATE_DISABLED:
+            return str(0)
+        else:
+            return None
+
     def end_adhesion(self):
         """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
         cotisation"""
@@ -426,36 +434,31 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     @cached_property
     def solde(self):
-        """ Renvoie le solde d'un user. Vérifie que l'option solde est
-        activé, retourne 0 sinon.
+        """ Renvoie le solde d'un user.
         Somme les crédits de solde et retire les débit payés par solde"""
-        user_solde = OptionalUser.get_cached_value('user_solde')
-        if user_solde:
-            solde_objects = Paiement.objects.filter(moyen='Solde')
-            somme_debit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(
-                    user=self,
-                    paiement__in=solde_objects,
-                    valid=True
-                )
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total'] or 0
-            somme_credit = Vente.objects.filter(
-                facture__in=Facture.objects.filter(user=self, valid=True),
-                name="solde"
-            ).aggregate(
-                total=models.Sum(
-                    models.F('prix')*models.F('number'),
-                    output_field=models.FloatField()
-                )
-            )['total'] or 0
-            return somme_credit - somme_debit
-        else:
-            return 0
+        solde_objects = Paiement.objects.filter(is_balance=True)
+        somme_debit = Vente.objects.filter(
+            facture__in=Facture.objects.filter(
+                user=self,
+                paiement__in=solde_objects,
+                valid=True
+            )
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total'] or 0
+        somme_credit = Vente.objects.filter(
+            facture__in=Facture.objects.filter(user=self, valid=True),
+            name="solde"
+        ).aggregate(
+            total=models.Sum(
+                models.F('prix')*models.F('number'),
+                output_field=models.FloatField()
+            )
+        )['total'] or 0
+        return somme_credit - somme_debit
 
     def user_interfaces(self, active=True):
         """ Renvoie toutes les interfaces dont les machines appartiennent à
@@ -484,16 +487,19 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 interface.save()
 
     def archive(self):
-        """ Archive l'user : appelle unassign_ips() puis passe state à
-        ARCHIVE"""
+        """ Filling the user; no more active"""
         self.unassign_ips()
-        self.state = User.STATE_ARCHIVE
 
     def unarchive(self):
-        """ Désarchive l'user : réassigne ses ip et le passe en state
-        ACTIVE"""
+        """Unfilling the user"""
         self.assign_ips()
-        self.state = User.STATE_ACTIVE
+
+    def state_sync(self):
+        """Archive, or unarchive, if the user was not active/or archived before"""
+        if self.__original_state != self.STATE_ACTIVE and self.state == self.STATE_ACTIVE:
+            self.unarchive()
+        elif self.__original_state != self.STATE_ARCHIVE and self.state == self.STATE_ARCHIVE:
+            self.archive()
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True,
                   group_refresh=False):
@@ -527,10 +533,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
             if self.get_shell:
                 user_ldap.login_shell = str(self.get_shell)
-            if self.state == self.STATE_DISABLED:
-                user_ldap.shadowexpire = str(0)
-            else:
-                user_ldap.shadowexpire = None
+            user_ldap.shadowexpire = self.get_shadow_expire
         if access_refresh:
             user_ldap.dialupAccess = str(self.has_access())
         if mac_refresh:
@@ -538,7 +541,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 machine__user=self
             ).values_list('mac_address', flat=True).distinct()]
         if group_refresh:
-            for group in self.groups.all():
+            # Need to refresh all groups because we don't know which groups
+            # were updated during edition of groups and the user may no longer
+            # be part of the updated group (case of group removal)
+            for group in Group.objects.all():
                 if hasattr(group, 'listright'):
                     group.listright.ldap_sync()
         user_ldap.save()
@@ -881,6 +887,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
         }
+        self.__original_state = self.state
 
     def __str__(self):
         return self.pseudo
@@ -1009,6 +1016,7 @@ def user_post_save(**kwargs):
     user = kwargs['instance']
     if is_created:
         user.notif_inscription()
+    user.state_sync()
     user.ldap_sync(
         base=True,
         access_refresh=True,
@@ -1017,6 +1025,16 @@ def user_post_save(**kwargs):
     )
     regen('mailing')
 
+
+@receiver(m2m_changed, sender=User.groups.through)
+def user_group_relation_changed(**kwargs):
+    action = kwargs['action']
+    if action in ('post_add', 'post_remove', 'post_clear'):
+        user = kwargs['instance']
+        user.ldap_sync(base=False,
+                       access_refresh=False,
+                       mac_refresh=False,
+                       group_refresh=True)
 
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
@@ -1175,7 +1193,7 @@ class ListRight(RevMixin, AclMixin, Group):
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
-        group_ldap.name = self.listright
+        group_ldap.name = self.unix_name
         group_ldap.members = [user.pseudo for user
                               in self.user_set.all()]
         group_ldap.save()

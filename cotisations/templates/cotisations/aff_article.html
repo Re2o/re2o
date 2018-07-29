@@ -24,36 +24,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load i18n %}
+{% load logs_extra %}
+{% load design %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Article" %}</th>
-                <th>{% trans "Price" %}</th>
-                <th>{% trans "Cotisation type" %}</th>
-                <th>{% trans "Duration (month)" %}</th>
-                <th>{% trans "Concerned users" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for article in article_list %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ article.name }}</td>
-            <td>{{ article.prix }}</td>
-            <td>{{ article.type_cotisation }}</td>
-            <td>{{ article.duration }}</td>
-	    <td>{{ article.type_user }}</td>
-            <td class="text-right">
-	    {% can_edit article %}
-                <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-article' article.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
-	    {% acl_end %}
-                <a class="btn btn-info btn-sm" role="button" title="{% trans "Historique" %}" href="{% url 'cotisations:history' 'article' article.id %}">
-                    <i class="fa fa-history"></i>
-                </a>
-            </td>
+            <th>{% trans "Article" %}</th>
+            <th>{% trans "Price" %}</th>
+            <th>{% trans "Cotisation type" %}</th>
+            <th>{% trans "Duration (month)" %}</th>
+            <th>{% trans "Concerned users" %}</th>
+            <th>{% trans "Available for everyone" | tick %}</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for article in article_list %}
+    <tr>
+        <td>{{ article.name }}</td>
+        <td>{{ article.prix }}</td>
+        <td>{{ article.type_cotisation }}</td>
+        <td>{{ article.duration }}</td>
+        <td>{{ article.type_user }}</td>
+        <td>{{ article.available_for_everyone }}</td>
+        <td class="text-right">
+            {% can_edit article %}
+            <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-article' article.id %}">
+                <i class="fa fa-edit"></i>
+            </a>
+            {% acl_end %}
+            {% history_button article %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

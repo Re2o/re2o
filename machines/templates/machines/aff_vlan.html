@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
     <table class="table table-striped">
@@ -30,22 +31,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>Id</th>
                 <th>Nom</th>
-		<th>Commentaire</th>
+                <th>Commentaire</th>
                 <th>Ranges ip</th>
-    		<th></th>
+                <th></th>
             </tr>
         </thead>
         {% for vlan in vlan_list %}
         <tr>
             <td>{{ vlan.vlan_id }}</td>
             <td>{{ vlan.name  }}</td>
-	    <td>{{ vlan.comment }}</td>
+            <td>{{ vlan.comment }}</td>
             <td>{% for range in vlan.iptype_set.all %}{{ range }}, {% endfor%}</td>
-	    <td class="text-right">
-		{% can_edit vlan %}
+            <td class="text-right">
+                {% can_edit vlan %}
                 {% include 'buttons/edit.html' with href='machines:edit-vlan' id=vlan.id %}
-		{% acl_end %}
-                {% include 'buttons/history.html' with href='machines:history' name='vlan' id=vlan.id %}
+                {% acl_end %}
+                {% history_button vlan %}
             </td>
         </tr>
         {% endfor %}

@@ -501,7 +501,7 @@ class ShellForm(FormRevMixin, ModelForm):
 
 class ListRightForm(FormRevMixin, ModelForm):
     """Edition, d'un groupe , équivalent à un droit
-    Ne peremet pas d'editer le gid, car il sert de primary key"""
+    Ne permet pas d'editer le gid, car il sert de primary key"""
     permissions = forms.ModelMultipleChoiceField(
         Permission.objects.all().select_related('content_type'),
         widget=forms.CheckboxSelectMultiple,
@@ -510,23 +510,24 @@ class ListRightForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = ListRight
-        fields = ['name', 'unix_name', 'critical', 'permissions', 'details']
+        fields = ('name', 'unix_name', 'critical', 'permissions', 'details')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['unix_name'].label = 'Nom du droit/groupe'
+        self.fields['unix_name'].label = 'Nom UNIX du groupe'
 
 
 class NewListRightForm(ListRightForm):
     """Ajout d'un groupe/list de droit """
     class Meta(ListRightForm.Meta):
-        fields = '__all__'
+        fields = ('name', 'unix_name', 'gid', 'critical', 'permissions',
+                  'details')
 
     def __init__(self, *args, **kwargs):
         super(NewListRightForm, self).__init__(*args, **kwargs)
-        self.fields['gid'].label = 'Gid, attention, cet attribut ne doit\
-        pas être modifié après création'
+        self.fields['gid'].label = ("Gid, attention, cet attribut ne doit "
+                                    "pas être modifié après création")
 
 
 class DelListRightForm(Form):

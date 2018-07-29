@@ -22,26 +22,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Shell</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for shell in shell_list %}
+{% load logs_extra %}
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ shell.shell }}</td>
-            <td class="text-right">
-                {% can_delete shell %}
-		{% include 'buttons/suppr.html' with href='users:del-shell' id=shell.id %}
-	        {% acl_end %}
-                {% can_edit shell %}
-                {% include 'buttons/edit.html' with href='users:edit-shell' id=shell.id %}
-                {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='listshell' id=shell.id %}
-            </td>
+            <th>Shell</th>
+            <th></th>
         </tr>
-        {% endfor %}
-    </table>
+    </thead>
+    {% for shell in shell_list %}
+    <tr>
+        <td>{{ shell.shell }}</td>
+        <td class="text-right">
+            {% can_delete shell %}
+            {% include 'buttons/suppr.html' with href='users:del-shell' id=shell.id %}
+            {% acl_end %}
+            {% can_edit shell %}
+            {% include 'buttons/edit.html' with href='users:edit-shell' id=shell.id %}
+            {% acl_end %}
+            {% history_button shell %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 

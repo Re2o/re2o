@@ -27,7 +27,6 @@ The defined URLs for the Cotisations app
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-import re2o
 from . import views
 
 urlpatterns = [
@@ -74,6 +73,9 @@ urlpatterns = [
     url(r'^add_txt/$', views.add_txt, name='add-txt'),
     url(r'^edit_txt/(?P<txtid>[0-9]+)$', views.edit_txt, name='edit-txt'),
     url(r'^del_txt/$', views.del_txt, name='del-txt'),
+    url(r'^add_dname/$', views.add_dname, name='add-dname'),
+    url(r'^edit_dname/(?P<dnameid>[0-9]+)$', views.edit_dname, name='edit-dname'),
+    url(r'^del_dname/$', views.del_dname, name='del-dname'),
     url(r'^add_ns/$', views.add_ns, name='add-ns'),
     url(r'^edit_ns/(?P<nsid>[0-9]+)$', views.edit_ns, name='edit-ns'),
     url(r'^del_ns/$', views.del_ns, name='del-ns'),
@@ -119,10 +121,6 @@ urlpatterns = [
     url(r'^edit_nas/(?P<nasid>[0-9]+)$', views.edit_nas, name='edit-nas'),
     url(r'^del_nas/$', views.del_nas, name='del-nas'),
     url(r'^index_nas/$', views.index_nas, name='index-nas'),
-    url(r'history/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$',
-        re2o.views.history,
-        name='history',
-        kwargs={'application': 'machines'}),
     url(r'^$', views.index, name='index'),
     url(r'^rest/mac-ip/$', views.mac_ip, name='mac-ip'),
     url(r'^rest/regen-achieved/$',
