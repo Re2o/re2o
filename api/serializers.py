@@ -716,6 +716,21 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
         fields = ('alias', 'hostname', 'extension')
 
 
+class SSHFPRRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = machines.SshFingerprint
+        fields = ('algo_id', 'hash')
+
+
+class SSHFPRInterfaceSerializer(serializers.ModelSerializer):
+    hostname = serializers.CharField(source='domain.name', read_only=True)
+    sshfpr = SSHFPRRecordSerializer(source='machine.sshfingerprint_set', many=True, read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('hostname', 'sshfpr')
+
+
 class DNSZonesSerializer(serializers.ModelSerializer):
     """Serialize the data about DNS Zones.
     """
@@ -729,12 +744,13 @@ class DNSZonesSerializer(serializers.ModelSerializer):
     a_records = ARecordSerializer(many=True, source='get_associated_a_records')
     aaaa_records = AAAARecordSerializer(many=True, source='get_associated_aaaa_records')
     cname_records = CNAMERecordSerializer(many=True, source='get_associated_cname_records')
+    sshfpr_records = SSHFPRInterfaceSerializer(many=True, source='get_associated_sshfpr')
 
     class Meta:
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records')
+                  'aaaa_records', 'cname_records', 'sshfpr_records')
 
 
 # MAILING

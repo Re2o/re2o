@@ -636,7 +636,9 @@ class Extension(RevMixin, AclMixin, models.Model):
         from re2o.utils import all_active_assigned_interfaces
         return (all_active_assigned_interfaces()
                 .filter(type__ip_type__extension=self)
-                .filter(machine))
+                .filter(
+                    machine__id__in=SshFingerprint.objects.values('machine')
+                ))
 
     def get_associated_a_records(self):
         from re2o.utils import all_active_assigned_interfaces
