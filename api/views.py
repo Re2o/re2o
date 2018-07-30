@@ -469,11 +469,19 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.WhitelistSerializer
 
 
-class MailAliasViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.MailAlias` objects.
+class LocalEmailAccountViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.LocalEmailAccount` objects.
     """
-    queryset = users.MailAlias.objects.all()
-    serializer_class = serializers.MailAliasSerializer
+    serializer_class = serializers.LocalEmailAccountSerializer
+    queryset = users.LocalEmailAccount.objects.none()
+
+    def get_queryset(self):
+        if preferences.OptionalUser.get_cached_value(
+            'local_email_accounts_enabled'):
+            return (users.LocalEmailAccount.objects
+                    .filter(user__local_email_enabled=True))
+        else:
+            return users.LocalEmailAccount.objects.none()
 
 
 # SERVICE REGEN
@@ -496,18 +504,25 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-# Server mail config
+# LOCAL EMAILS
 
 
-class UserMailAliasView(generics.ListAPIView):
-    """Expose all the aliases of the users that activated the internal address
+class LocalEmailUsersView(generics.ListAPIView):
+    """Exposes all the aliases of the users that activated the internal address
     """
+    serializer_class = serializers.LocalEmailUsersSerializer
 
-    queryset = users.User.objects.filter(internal_address=True)
-    serializer_class = serializers.UserMailAliasSerializer
+    def get_queryset(self):
+        if preferences.OptionalUser.get_cached_value(
+            'local_email_accounts_enabled'):
+            return (users.User.objects
+                    .filter(local_email_enabled=True))
+        else:
+            return users.User.objects.none()
 
 
 # DHCP
+
 
 class HostMacIpView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
@@ -518,6 +533,7 @@ class HostMacIpView(generics.ListAPIView):
 
 
 # DNS
+
 
 class DNSZonesView(generics.ListAPIView):
     """Exposes the detailed information about each extension (hostnames, 

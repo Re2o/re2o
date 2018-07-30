@@ -21,32 +21,36 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+
 {% load acl %}
-{% if alias_list.paginator %}
+{% load logs_extra %}
+
+{% if localemailaccount_list.paginator %}
 {% include "pagination.html" with list=alias_list %}
 {% endif %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Alias</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for alias in alias_list %}
-            <td>{{ alias }}</td>
-            <td class="text-right">
-	    {% can_delete alias %}
-	    	{% include 'buttons/suppr.html' with href='users:del-mailalias' id=alias.id %}
-	    {% acl_end %}
-            {% can_edit alias %}
-                {% include 'buttons/edit.html' with href='users:edit-mailalias' id=alias.id %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Local email address</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for localemailaccount in localemailaccount_list %}
+        <td>{{ localemailaccount.complete_email_address }}</td>
+        <td class="text-right">
+            {% can_delete localemailaccount %}
+            {% include 'buttons/suppr.html' with href='users:del-localemailaccount' id=localemailaccount.id %}
             {% acl_end %}
-                {% include 'buttons/history.html' with href='users:history' name='mailalias' id=alias.id %}
+            {% can_edit localemailaccount %}
+            {% include 'buttons/edit.html' with href='users:edit-localemailaccount' id=localemailaccount.id %}
+            {% acl_end %}
+            {% history_button localemailaccount %}
             </td>
         </tr>
         {% endfor %}
     </table>
 
-{% if alias_list.paginator %}
+{% if localemailaccount_list.paginator %}
 {% include "pagination.html" with list=alias_list %}
 {% endif %}

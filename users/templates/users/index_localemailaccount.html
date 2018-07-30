@@ -25,13 +25,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 
-{% block title %}Users{% endblock %}
+{% block title %}Local email accounts{% endblock %}
 
 {% block content %}
-  <h2>Alias</h2>
-  {%  include "users/aff_alias.html" with  alias_list=alias_list %}
-  <br />
-  <br />
-  <br />
+  <h2>Local email accounts</h2>
+  {% include "users/aff_localemailaccounts.html" with  localemailaccount_list=localemailaccount_list %}
 {% endblock %}
 

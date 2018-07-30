@@ -30,9 +30,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
-
 from django.forms import ValidationError
-import cotisations.models
+
 import machines.models
 from re2o.mixins import AclMixin
 
@@ -85,18 +84,18 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
-    mail_accounts = models.BooleanField(
+    local_email_accounts_enabled = models.BooleanField(
         default=False,
-        help_text="Enable mail accounts for users"
+        help_text="Enable local email accounts for users"
     )
-    mail_extension = models.CharField(
+    local_email_domain = models.CharField(
         max_length = 32,
         default = "@example.org",
-        help_text="Main extension for internal address",
+        help_text="Domain to use for local email accounts",
     )
-    max_mail_alias = models.IntegerField(
+    max_local_email_accounts = models.IntegerField(
         default = 15,
-        help_text = "Max alias mail for a lambda user"
+        help_text = "Maximum number of local email accounts for a standard user"
     )
 
     class Meta:
@@ -108,9 +107,9 @@ class OptionalUser(AclMixin, PreferencesModel):
         """Clean model:
         Check the mail_extension
         """
-        if self.mail_extension[0] != "@":
-            raise ValidationError("Mail extension must begin with @")
-    
+        if self.local_email_domain[0] != "@":
+            raise ValidationError("Mail domain must begin with @")
+
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(**kwargs):

@@ -81,13 +81,13 @@ from .models import (
     Adherent,
     Club,
     ListShell,
-    MailAlias,
+    LocalEmailAccount,
 )
 from .forms import (
     BanForm,
     WhitelistForm,
-    MailAliasForm,
-    MailForm,
+    LocalEmailAccountForm,
+    EmailSettingsForm,
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
@@ -496,89 +496,99 @@ def del_whitelist(request, whitelist, **_kwargs):
 
 
 @login_required
-@can_create(MailAlias)
+@can_create(LocalEmailAccount)
 @can_edit(User)
-def add_mailalias(request, user, userid):
-    """ Create a new alias"""
-    mailalias_instance = MailAlias(user=user)
-    mailalias = MailAliasForm(
+def add_localemailaccount(request, user, userid):
+    """ Create a new local email account"""
+    localemailaccount_instance = LocalEmailAccount(user=user)
+    localemailaccount = LocalEmailAccountForm(
         request.POST or None,
-        instance=mailalias_instance
+        instance=localemailaccount_instance
     )
-    if mailalias.is_valid():
-        mailalias.save()
-        messages.success(request, "Alias created")
+    if localemailaccount.is_valid():
+        localemailaccount.save()
+        messages.success(request, "Local email account created")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': mailalias, 'action_name': 'Add an alias mail'},
+        {'userform': localemailaccount,
+         'showCGU': False,
+         'action_name': 'Add a local email account'},
         'users/user.html',
         request
     )
 
+
 @login_required
-@can_edit(MailAlias)
-def edit_mailalias(request, mailalias_instance, **_kwargs):
-    """ Edit a mailalias"""
-    mailalias = MailAliasForm(
+@can_edit(LocalEmailAccount)
+def edit_localemailaccount(request, localemailaccount_instance, **_kwargs):
+    """ Edit a local email account"""
+    localemailaccount = LocalEmailAccountForm(
         request.POST or None,
-        instance=mailalias_instance
+        instance=localemailaccount_instance
     )
-    if mailalias.is_valid():
-        if mailalias.changed_data:
-            mailalias.save()
-            messages.success(request, "Alias modified")
+    if localemailaccount.is_valid():
+        if localemailaccount.changed_data:
+            localemailaccount.save()
+            messages.success(request, "Local email account modified")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid': str(mailalias_instance.user.id)}
+            kwargs={'userid': str(localemailaccount_instance.user.id)}
         ))
     return form(
-        {'userform': mailalias, 'action_name': 'Edit a mailalias'},
+        {'userform': localemailaccount,
+         'showCGU': False,
+         'action_name': 'Edit a local email account'},
         'users/user.html',
         request
     )
 
+
 @login_required
-@can_delete(MailAlias)
-def del_mailalias(request, mailalias, **_kwargs):
-        """Delete a mail alias"""
-        if request.method == "POST":
-            mailalias.delete()
-            messages.success(request, "Alias deleted")
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': str(mailalias.user.id)}
-                ))
-        return form(
-            {'objet': mailalias, 'objet_name': 'mailalias'},
-            'users/delete.html',
-            request
-        )
+@can_delete(LocalEmailAccount)
+def del_localemailaccount(request, localemailaccount, **_kwargs):
+    """Delete a local email account"""
+    if request.method == "POST":
+        localemailaccount.delete()
+        messages.success(request, "Local email account deleted")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(localemailaccount.user.id)}
+            ))
+    return form(
+        {'objet': localemailaccount, 'objet_name': 'localemailaccount'},
+        'users/delete.html',
+        request
+    )
+
 
 @login_required
 @can_edit(User)
-def edit_mail(request, user_instance, **_kwargs):
-    """ Editer un compte mail"""
-    mail = MailForm(
+def edit_email_settings(request, user_instance, **_kwargs):
+    """Edit the email settings of a user"""
+    email_settings = EmailSettingsForm(
         request.POST or None,
         instance=user_instance,
         user=request.user
     )
-    if mail.is_valid():
-        if mail.changed_data:
-            mail.save()
-            messages.success(request, "Option mail modifiée")
+    if email_settings.is_valid():
+        if email_settings.changed_data:
+            email_settings.save()
+            messages.success(request, "Email settings updated")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user_instance.id)}
             ))
     return form(
-        {'userform': mail, 'action_name': 'Editer les options mail'},
+        {'userform': email_settings,
+         'showCGU': False,
+         'action_name': 'Edit the email settings'},
         'users/user.html',
         request
     )
+
 
 @login_required
 @can_create(School)
@@ -1002,10 +1012,11 @@ def profil(request, users, **_kwargs):
             'white_list': whitelists,
             'user_solde': user_solde,
             'solde_activated': Paiement.objects.filter(is_balance=True).exists(),
-            'allow_online_payment': allow_online_payment,
             'asso_name': AssoOption.objects.first().name,
-            'alias_list': users.mailalias_set.all(),
-            'mail_accounts': OptionalUser.objects.first().mail_accounts 
+            'localemailaccount_list': users.local_email_accounts,
+            'local_email_accounts_enabled': (
+                OptionalUser.objects.first().local_email_accounts_enabled
+            ) 
         }
     )
 

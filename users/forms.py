@@ -53,7 +53,7 @@ from .models import (
     School,
     ListRight,
     Whitelist,
-    MailAlias,
+    LocalEmailAccount,
     ListShell,
     Ban,
     Adherent,
@@ -140,7 +140,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
 
     class Meta:
         model = Adherent
-        fields = ('pseudo', 'surname')
+        fields = ('pseudo', 'surname', 'email')
 
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques"""
@@ -306,6 +306,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = 'Chambre'
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
+
     class Meta:
         model = Adherent
         fields = [
@@ -590,28 +591,37 @@ class WhitelistForm(FormRevMixin, ModelForm):
         widgets = {'date_end':DateTimePicker}
 
 
-class MailAliasForm(FormRevMixin, ModelForm):
-    """Create and edit a mailalias"""
+class LocalEmailAccountForm(FormRevMixin, ModelForm):
+    """Create and edit a local email account"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(MailAliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['valeur'].label = "Prefix of mailalias. Can't contain @"
+        super(LocalEmailAccountForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['local_part'].label = "Local part of the email"
+        self.fields['local_part'].help_text = "Can't contain @"
 
     class Meta:
-        model = MailAlias
+        model = LocalEmailAccount
         exclude = ['user']
 
-class MailForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Edit mail settings"""
+
+class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
+    """Edit email-related settings"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(MailForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['external_mail'].label = 'External mail address'
-        if 'redirection' in self.fields:
-            self.fields['redirection'].label = 'Enable redirect to external address'
-        if 'internal_address' in self.fields:
-            self.fields['internal_address'].label = 'Internal mail address'
+        super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['email'].label = "Contact email address"
+        if 'local_email_redirect' in self.fields:
+            self.fields['local_email_redirect'].label = "Redirect local emails"
+            self.fields['local_email_redirect'].help_text = (
+                "Enable the automated redirection of the local email address "
+                "to the contact email address"
+            )
+        if 'local_email_enabled' in self.fields:
+            self.fields['local_email_enabled'].label = "Use local emails"
+            self.fields['local_email_enabled'].help_text = (
+                "Enable the use of the local email account"
+            )
 
     class Meta:
         model = User
-        fields = ['external_mail', 'redirection', 'internal_address']
+        fields = ['email', 'local_email_redirect', 'local_email_enabled']
