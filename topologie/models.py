@@ -40,21 +40,17 @@ from __future__ import unicode_literals
 import itertools
 
 from django.db import models
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.db.models.signals import post_save, post_delete
 from django.utils.functional import cached_property
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
-
-from os.path import isfile 
-from os import remove
-
-
 
 
 class Stack(AclMixin, RevMixin, models.Model):
@@ -122,7 +118,10 @@ class AccessPoint(AclMixin, Machine):
         )
 
     def building(self):
-        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        """
+        Return the building of the AP/Server (building of the switchs
+        connected to...)
+        """
         return Building.objects.filter(
             switchbay__switch=self.switch()
         )
@@ -134,14 +133,18 @@ class AccessPoint(AclMixin, Machine):
     @classmethod
     def all_ap_in(cls, building_instance):
         """Get a building as argument, returns all ap of a building"""
-        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance)
+        return cls.objects.filter(
+            interface__port__switch__switchbay__building=building_instance
+        )
 
     def __str__(self):
         return str(self.interface_set.first())
 
 
 class Server(Machine):
-    """Dummy class, to retrieve servers of a building, or get switch of a server"""
+    """
+    Dummy class, to retrieve servers of a building, or get switch of a server
+    """
 
     class Meta:
         proxy = True
@@ -159,7 +162,10 @@ class Server(Machine):
         )
 
     def building(self):
-        """Return the building of the AP/Server (building of the switchs connected to...)"""
+        """
+        Return the building of the AP/Server
+        (building of the switchs connected to...)
+        """
         return Building.objects.filter(
             switchbay__switch=self.switch()
         )
@@ -171,7 +177,9 @@ class Server(Machine):
     @classmethod
     def all_server_in(cls, building_instance):
         """Get a building as argument, returns all server of a building"""
-        return cls.objects.filter(interface__port__switch__switchbay__building=building_instance).exclude(accesspoint__isnull=False)
+        return cls.objects.filter(
+            interface__port__switch__switchbay__building=building_instance
+        ).exclude(accesspoint__isnull=False)
 
     def __str__(self):
         return str(self.interface_set.first())
@@ -199,7 +207,7 @@ class Switch(AclMixin, Machine):
         blank=True,
         null=True,
         on_delete=models.SET_NULL
-        )
+    )
     stack_member_id = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -237,7 +245,7 @@ class Switch(AclMixin, Machine):
                     raise ValidationError(
                         {'stack_member_id': "L'id de ce switch est en\
                             dehors des bornes permises pas la stack"}
-                        )
+                    )
             else:
                 raise ValidationError({'stack_member_id': "L'id dans la stack\
                     ne peut être nul"})
@@ -369,12 +377,6 @@ class Port(AclMixin, RevMixin, models.Model):
     de forcer un port sur un vlan particulier. S'additionne à la politique
     RADIUS"""
     PRETTY_NAME = "Port de switch"
-    STATES = (
-        ('NO', 'NO'),
-        ('STRICT', 'STRICT'),
-        ('BLOQ', 'BLOQ'),
-        ('COMMON', 'COMMON'),
-        )
 
     switch = models.ForeignKey(
         'Switch',
@@ -387,26 +389,30 @@ class Port(AclMixin, RevMixin, models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True
-        )
+    )
     machine_interface = models.ForeignKey(
         'machines.Interface',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
-        )
+    )
     related = models.OneToOneField(
         'self',
         null=True,
         blank=True,
         related_name='related_port'
-        )
-    radius = models.CharField(max_length=32, choices=STATES, default='NO')
-    vlan_force = models.ForeignKey(
-        'machines.Vlan',
-        on_delete=models.SET_NULL,
+    )
+    custom_profile = models.ForeignKey(
+        'PortProfile',
+        on_delete=models.PROTECT,
         blank=True,
         null=True
-        )
+    )
+    state = models.BooleanField(
+        default=True,
+        help_text='Port state Active',
+        verbose_name=_("Port State Active")
+    )
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:
@@ -414,6 +420,37 @@ class Port(AclMixin, RevMixin, models.Model):
         permissions = (
             ("view_port", "Peut voir un objet port"),
         )
+
+    @cached_property
+    def get_port_profile(self):
+        """Return the config profile for this port
+        :returns: the profile of self (port)"""
+        def profile_or_nothing(profile):
+            port_profile = PortProfile.objects.filter(
+                profile_default=profile).first()
+            if port_profile:
+                return port_profile
+            else:
+                nothing_profile, _created = PortProfile.objects.get_or_create(
+                    profile_default='nothing',
+                    name='nothing',
+                    radius_type='NO'
+                )
+                return nothing_profile
+
+        if self.custom_profile:
+            return self.custom_profile
+        elif self.related:
+            return profile_or_nothing('uplink')
+        elif self.machine_interface:
+            if hasattr(self.machine_interface.machine, 'accesspoint'):
+                return profile_or_nothing('access_point')
+            else:
+                return profile_or_nothing('asso_machine')
+        elif self.room:
+            return profile_or_nothing('room')
+        else:
+            return profile_or_nothing('nothing')
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):
@@ -492,11 +529,152 @@ class Room(AclMixin, RevMixin, models.Model):
         return self.name
 
 
+class PortProfile(AclMixin, RevMixin, models.Model):
+    """Contains the information of the ports' configuration for a switch"""
+    TYPES = (
+        ('NO', 'NO'),
+        ('802.1X', '802.1X'),
+        ('MAC-radius', 'MAC-radius'),
+    )
+    MODES = (
+        ('STRICT', 'STRICT'),
+        ('COMMON', 'COMMON'),
+    )
+    SPEED = (
+        ('10-half', '10-half'),
+        ('100-half', '100-half'),
+        ('10-full', '10-full'),
+        ('100-full', '100-full'),
+        ('1000-full', '1000-full'),
+        ('auto', 'auto'),
+        ('auto-10', 'auto-10'),
+        ('auto-100', 'auto-100'),
+    )
+    PROFIL_DEFAULT = (
+        ('room', 'room'),
+        ('accespoint', 'accesspoint'),
+        ('uplink', 'uplink'),
+        ('asso_machine', 'asso_machine'),
+        ('nothing', 'nothing'),
+    )
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    profil_default = models.CharField(
+        max_length=32,
+        choices=PROFIL_DEFAULT,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name=_("profil default")
+    )
+    vlan_untagged = models.ForeignKey(
+        'machines.Vlan',
+        related_name='vlan_untagged',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name=_("VLAN untagged")
+    )
+    vlan_tagged = models.ManyToManyField(
+        'machines.Vlan',
+        related_name='vlan_tagged',
+        blank=True,
+        verbose_name=_("VLAN(s) tagged")
+    )
+    radius_type = models.CharField(
+        max_length=32,
+        choices=TYPES,
+        help_text="Type of radius auth : inactive, mac-address or 802.1X",
+        verbose_name=_("RADIUS type")
+    )
+    radius_mode = models.CharField(
+        max_length=32,
+        choices=MODES,
+        default='COMMON',
+        help_text="In case of mac-auth : mode common or strict on this port",
+        verbose_name=_("RADIUS mode")
+    )
+    speed = models.CharField(
+        max_length=32,
+        choices=SPEED,
+        default='auto',
+        help_text='Port speed limit',
+        verbose_name=_("Speed")
+    )
+    mac_limit = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Limit of mac-address on this port',
+        verbose_name=_("Mac limit")
+    )
+    flow_control = models.BooleanField(
+        default=False,
+        help_text='Flow control',
+        verbose_name=_("Flow control")
+    )
+    dhcp_snooping = models.BooleanField(
+        default=False,
+        help_text='Protect against rogue dhcp',
+        verbose_name=_("Dhcp snooping")
+    )
+    dhcpv6_snooping = models.BooleanField(
+        default=False,
+        help_text='Protect against rogue dhcpv6',
+        verbose_name=_("Dhcpv6 snooping")
+    )
+    arp_protect = models.BooleanField(
+        default=False,
+        help_text='Check if ip is dhcp assigned',
+        verbose_name=_("Arp protect")
+    )
+    ra_guard = models.BooleanField(
+        default=False,
+        help_text='Protect against rogue ra',
+        verbose_name=_("Ra guard")
+    )
+    loop_protect = models.BooleanField(
+        default=False,
+        help_text='Protect again loop',
+        verbose_name=_("Loop Protect")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_port_profile", _("Can view a port profile object")),
+        )
+        verbose_name = _("Port profile")
+        verbose_name_plural = _("Port profiles")
+
+    security_parameters_fields = [
+        'loop_protect',
+        'ra_guard',
+        'arp_protect',
+        'dhcpv6_snooping',
+        'dhcp_snooping',
+        'flow_control'
+    ]
+
+    @cached_property
+    def security_parameters_enabled(self):
+        return [
+            parameter
+            for parameter in self.security_parameters_fields
+            if getattr(self, parameter)
+        ]
+
+    @cached_property
+    def security_parameters_as_str(self):
+        return ','.join(self.security_parameters_enabled)
+
+    def __str__(self):
+        return self.name
+
+
 @receiver(post_save, sender=AccessPoint)
 def ap_post_save(**_kwargs):
     """Regeneration des noms des bornes vers le controleur"""
     regen('unifi-ap-names')
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=AccessPoint)
 def ap_post_delete(**_kwargs):
@@ -504,38 +682,47 @@ def ap_post_delete(**_kwargs):
     regen('unifi-ap-names')
     regen("graph_topo")
 
+
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(**_kwargs):
     """Vide les id des switches membres d'une stack supprimée"""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
 
+
 @receiver(post_save, sender=Port)
 def port_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Port)
 def port_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=ModelSwitch)
 def modelswitch_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=ModelSwitch)
 def modelswitch_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=Building)
 def building_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Building)
 def building_post_delete(**_kwargs):
     regen("graph_topo")
 
+
 @receiver(post_save, sender=Switch)
 def switch_post_save(**_kwargs):
     regen("graph_topo")
+
 
 @receiver(post_delete, sender=Switch)
 def switch_post_delete(**_kwargs):
