@@ -38,7 +38,8 @@ from .models import (
     ConstructorSwitch,
     AccessPoint,
     SwitchBay,
-    Building
+    Building,
+    PortProfile,
 )
 
 
@@ -86,6 +87,9 @@ class BuildingAdmin(VersionAdmin):
     """Administration d'un batiment"""
     pass
 
+class PortProfileAdmin(VersionAdmin):
+    """Administration of a port profile"""
+    pass
 
 admin.site.register(Port, PortAdmin)
 admin.site.register(AccessPoint, AccessPointAdmin)
@@ -96,3 +100,4 @@ admin.site.register(ModelSwitch, ModelSwitchAdmin)
 admin.site.register(ConstructorSwitch, ConstructorSwitchAdmin)
 admin.site.register(Building, BuildingAdmin)
 admin.site.register(SwitchBay, SwitchBayAdmin)
+admin.site.register(PortProfile, PortProfileAdmin)
