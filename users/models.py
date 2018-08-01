@@ -148,7 +148,7 @@ class UserManager(BaseUserManager):
             pseudo=pseudo,
             surname=surname,
             name=surname,
-            email=self.normalize_email(email),
+            email=self.normalize_email(mail),
         )
 
         user.set_password(password)
@@ -195,6 +195,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         validators=[linux_user_validator]
     )
     email = models.EmailField()
+    local_email_redirect = models.BooleanField(
+        default=False,
+        help_text="Whether or not to redirect the local email messages to the main email."
+    )
+    local_email_enabled = models.BooleanField(
+        default=False,
+        help_text="Wether or not to enable the local email account."
+    )
     school = models.ForeignKey(
         'School',
         on_delete=models.PROTECT,
@@ -674,6 +682,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         self.pwd_ntlm = hashNT(password)
         return
 
+    @cached_property
+    def email_address(self):
+        if (OptionalUser.get_cached_value('local_email_accounts_enabled')
+                and self.local_email_enabled):
+            return self.emailaddress_set.all()
+        return EMailAddress.objects.none()
+
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
         this user by trying "pseudo0", "pseudo1", "pseudo2", ...
@@ -793,6 +808,32 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
 
     @staticmethod
+    def can_change_local_email_redirect(user_request, *_args, **_kwargs):
+        """ Check if a user can change local_email_redirect.
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a redirection
+        """
+        return (
+            OptionalUser.get_cached_value('local_email_accounts_enabled'),
+            "La gestion des comptes mails doit être activée"
+        )
+
+    @staticmethod
+    def can_change_local_email_enabled(user_request, *_args, **_kwargs):
+        """ Check if a user can change internal address .
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change internal address
+        """
+        return (
+            OptionalUser.get_cached_value('local_email_accounts_enabled'),
+            "La gestion des comptes mails doit être activée"
+        )
+
+    @staticmethod
     def can_change_force(user_request, *_args, **_kwargs):
         """ Check if a user can change a force
 
@@ -886,8 +927,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'shell': self.can_change_shell,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
+            'local_email_redirect': self.can_change_local_email_redirect,
+            'local_email_enabled' : self.can_change_local_email_enabled,
         }
         self.__original_state = self.state
+
+    def clean(self, *args, **kwargs):
+        """Check if this pseudo is already used by any mailalias.
+        Better than raising an error in post-save and catching it"""
+        if (EMailAddress.objects
+                .filter(local_part=self.pseudo)
+                .exclude(user=self)):
+            raise ValidationError("This pseudo is already in use.")
 
     def __str__(self):
         return self.pseudo
@@ -1011,9 +1062,11 @@ class Club(User):
 @receiver(post_save, sender=User)
 def user_post_save(**kwargs):
     """ Synchronisation post_save : envoie le mail de bienvenue si creation
+    Synchronise le pseudo, en créant un alias mail correspondant
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
+    EMailAddress.objects.get_or_create(local_part=user.pseudo, user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
@@ -1593,3 +1646,124 @@ class LdapServiceUserGroup(ldapdb.models.Model):
 
     def __str__(self):
         return self.name
+
+
+class EMailAddress(RevMixin, AclMixin, models.Model):
+    """Defines a local email account for a user
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        help_text="User of the local email",
+    )
+    local_part = models.CharField(
+        unique=True,
+        max_length=128,
+        help_text="Local part of the email address"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_emailaddress", "Can see a local email account object"),
+        )
+        verbose_name = "Local email account"
+        verbose_name_plural = "Local email accounts"
+
+    def __str__(self):
+        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+
+    @cached_property
+    def complete_email_address(self):
+        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+
+    @staticmethod
+    def can_create(user_request, userid, *_args, **_kwargs):
+        """Check if a user can create a `EMailAddress` object.
+
+        Args:
+            user_request: The user who wants to create the object.
+            userid: The id of the user to whom the account is to be created
+
+        Returns:
+            a message and a boolean which is True if the user can create
+            a local email account.
+        """
+        if user_request.has_perm('users.add_emailaddress'):
+            return True, None
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return False, "The local email accounts are not enabled."
+        if int(user_request.id) != int(userid):
+            return False, "You don't have the right to add a local email account to another user."
+        elif user_request.email_address.count() >= OptionalUser.get_cached_value('max_email_address'):
+            return False, "You have reached the limit of {} local email account.".format(
+                OptionalUser.get_cached_value('max_email_address')
+            )
+        return True, None
+
+    def can_view(self, user_request, *_args, **_kwargs):
+        """Check if a user can view the local email account
+
+        Args:
+            user_request: The user who wants to view the object.
+
+        Returns:
+            a message and a boolean which is True if the user can see
+            the local email account.
+        """
+        if user_request.has_perm('users.view_emailaddress'):
+            return True, None
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return False, "The local email accounts are not enabled."
+        if user_request == self.user:
+            return True, None
+        return False, "You don't have the right to edit someone else's local email account."
+
+    def can_delete(self, user_request, *_args, **_kwargs):
+        """Check if a user can delete the alias
+
+        Args:
+            user_request: The user who wants to delete the object.
+
+        Returns:
+            a message and a boolean which is True if the user can delete
+            the local email account.
+        """
+        if self.local_part == self.user.pseudo:
+            return False, ("You cannot delete a local email account whose "
+                           "local part is the same as the username.")
+        if user_request.has_perm('users.delete_emailaddress'): 
+            return True, None
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return False, "The local email accounts are not enabled."
+        if user_request == self.user:
+            return True, None
+        return False, ("You don't have the right to delete someone else's "
+                       "local email account")
+
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """Check if a user can edit the alias
+
+        Args:
+            user_request: The user who wants to edit the object.
+
+        Returns:
+            a message and a boolean which is True if the user can edit
+            the local email account.
+        """
+        if self.local_part == self.user.pseudo:
+            return False, ("You cannot edit a local email account whose "
+                           "local part is the same as the username.")
+        if user_request.has_perm('users.change_emailaddress'):
+            return True, None
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return False, "The local email accounts are not enabled."
+        if user_request == self.user:
+            return True, None
+        return False, ("You don't have the right to edit someone else's "
+                       "local email account")
+
+    def clean(self, *args, **kwargs):
+        if "@" in self.local_part:
+            raise ValidationError("The local part cannot contain a @")
+        super(EMailAddress, self).clean(*args, **kwargs)
+

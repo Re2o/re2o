@@ -469,6 +469,21 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.WhitelistSerializer
 
 
+class EMailAddressViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.EMailAddress` objects.
+    """
+    serializer_class = serializers.EMailAddressSerializer
+    queryset = users.EMailAddress.objects.none()
+
+    def get_queryset(self):
+        if preferences.OptionalUser.get_cached_value(
+            'local_email_accounts_enabled'):
+            return (users.EMailAddress.objects
+                    .filter(user__local_email_enabled=True))
+        else:
+            return users.EMailAddress.objects.none()
+
+
 # SERVICE REGEN
 
 
@@ -489,7 +504,25 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+# LOCAL EMAILS
+
+
+class LocalEmailUsersView(generics.ListAPIView):
+    """Exposes all the aliases of the users that activated the internal address
+    """
+    serializer_class = serializers.LocalEmailUsersSerializer
+
+    def get_queryset(self):
+        if preferences.OptionalUser.get_cached_value(
+            'local_email_accounts_enabled'):
+            return (users.User.objects
+                    .filter(local_email_enabled=True))
+        else:
+            return users.User.objects.none()
+
+
 # DHCP
+
 
 class HostMacIpView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
@@ -500,6 +533,7 @@ class HostMacIpView(generics.ListAPIView):
 
 
 # DNS
+
 
 class DNSZonesView(generics.ListAPIView):
     """Exposes the detailed information about each extension (hostnames, 

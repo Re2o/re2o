@@ -495,7 +495,8 @@ class UserSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = users.User
-        fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
+        fields = ('surname', 'pseudo', 'email', 'local_email_redirect',
+                  'local_email_enabled', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'solde', 'access',
                   'end_access', 'uid', 'class_name', 'api_url')
         extra_kwargs = {
@@ -512,7 +513,8 @@ class ClubSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = users.Club
-        fields = ('name', 'pseudo', 'email', 'school', 'shell', 'comment',
+        fields = ('name', 'pseudo', 'email', 'local_email_redirect',
+                  'local_email_enabled', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'solde', 'room',
                   'access', 'end_access', 'administrators', 'members',
                   'mailing', 'uid', 'api_url')
@@ -529,9 +531,10 @@ class AdherentSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = users.Adherent
-        fields = ('name', 'surname', 'pseudo', 'email', 'school', 'shell',
-                  'comment', 'state', 'registered', 'telephone', 'room',
-                  'solde', 'access', 'end_access', 'uid', 'api_url')
+        fields = ('name', 'surname', 'pseudo', 'email', 'local_email_redirect',
+                  'local_email_enabled', 'school', 'shell', 'comment',
+                  'state', 'registered', 'telephone', 'room', 'solde',
+                  'access', 'end_access', 'uid', 'api_url')
         extra_kwargs = {
             'shell': {'view_name': 'shell-detail'}
         }
@@ -593,6 +596,15 @@ class WhitelistSerializer(NamespacedHMSerializer):
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
 
 
+class EMailAddressSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.EMailAddress` objects.
+    """
+
+    class Meta:
+        model = users.EMailAddress
+        fields = ('user', 'local_part', 'complete_email_address', 'api_url')
+
+
 # SERVICE REGEN
 
 
@@ -609,6 +621,21 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
         extra_kwargs = {
             'api_url': {'view_name': 'serviceregen-detail'}
         }
+
+
+# LOCAL EMAILS
+
+
+class LocalEmailUsersSerializer(NamespacedHMSerializer):
+    email_address = EMailAddressSerializer(
+        read_only=True,
+        many=True
+    )
+
+    class Meta:
+        model = users.User
+        fields = ('local_email_enabled', 'local_email_redirect',
+                  'email_address')
 
 
 # DHCP

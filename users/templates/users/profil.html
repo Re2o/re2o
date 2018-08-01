@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load acl %}
 {% load logs_extra %}
+{% load design %}
 
 {% block title %}Profil{% endblock %}
 
@@ -406,8 +407,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
+    <h3 class="panel-title pull-left">
+        <i class="fa fa-envelope"></i> Email settings
+    </h3>
+        </div>
+        <div id="collapse7" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% can_edit users %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-email-settings' users.id %}">
+                    <i class="fa fa-pencil-alt"></i> Edit email settings
+                </a>
+                {% acl_end %}
+            </div>
+            <div class="panel-body">
+                {% if local_email_accounts_enabled %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th colspan="2">Contact email address</th>
+                            <td colspan="2">{{ users.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Enable the local email account</th>
+                            <td>{{ users.local_email_enabled | tick }}</td>
+                            <th>Enable the local email redirection</th>
+			    <td>{{ users.local_email_redirect | tick }}</td>
+			</tr>
+		    </table>
+		</div>
+		{% if users.local_email_enabled %}
+                {% can_create EMailAddress users.id %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-emailaddress' users.id %}">
+                    <i class="fa fa-plus-square"></i> Add an email address
+                </a>
+                {% acl_end %}
+                {% if emailaddress_list %}
+                {% include "users/aff_emailaddress.html" with emailaddress_list=emailaddress_list %}
+                {% endif %}
+                {% endif %}
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>Contact email address</th>
+                            <td>{{ users.email }}</td>
+                        </tr>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
-<br />
-<br />
-<br />
 {% endblock %}

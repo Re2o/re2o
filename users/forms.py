@@ -53,6 +53,7 @@ from .models import (
     School,
     ListRight,
     Whitelist,
+    EMailAddress,
     ListShell,
     Ban,
     Adherent,
@@ -219,7 +220,7 @@ class UserChangeForm(FormRevMixin, forms.ModelForm):
 
     class Meta:
         model = Adherent
-        fields = ('pseudo', 'password', 'surname', 'email')
+        fields = ('pseudo', 'password', 'surname')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -312,7 +313,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'name',
             'surname',
             'pseudo',
-            'email',
             'school',
             'comment',
             'room',
@@ -364,7 +364,6 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         fields = [
             'surname',
             'pseudo',
-            'email',
             'school',
             'comment',
             'room',
@@ -590,3 +589,39 @@ class WhitelistForm(FormRevMixin, ModelForm):
         model = Whitelist
         exclude = ['user']
         widgets = {'date_end':DateTimePicker}
+
+
+class EMailAddressForm(FormRevMixin, ModelForm):
+    """Create and edit a local email address"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['local_part'].label = "Local part of the email"
+        self.fields['local_part'].help_text = "Can't contain @"
+
+    class Meta:
+        model = EMailAddress
+        exclude = ['user']
+
+
+class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
+    """Edit email-related settings"""
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['email'].label = "Contact email address"
+        if 'local_email_redirect' in self.fields:
+            self.fields['local_email_redirect'].label = "Redirect local emails"
+            self.fields['local_email_redirect'].help_text = (
+                "Enable the automated redirection of the local email address "
+                "to the contact email address"
+            )
+        if 'local_email_enabled' in self.fields:
+            self.fields['local_email_enabled'].label = "Use local emails"
+            self.fields['local_email_enabled'].help_text = (
+                "Enable the use of the local email account"
+            )
+
+    class Meta:
+        model = User
+        fields = ['email', 'local_email_redirect', 'local_email_enabled']

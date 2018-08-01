@@ -81,10 +81,13 @@ from .models import (
     Adherent,
     Club,
     ListShell,
+    EMailAddress,
 )
 from .forms import (
     BanForm,
     WhitelistForm,
+    EMailAddressForm,
+    EmailSettingsForm,
     DelSchoolForm,
     DelListRightForm,
     NewListRightForm,
@@ -488,6 +491,101 @@ def del_whitelist(request, whitelist, **_kwargs):
     return form(
         {'objet': whitelist, 'objet_name': 'whitelist'},
         'users/delete.html',
+        request
+    )
+
+
+@login_required
+@can_create(EMailAddress)
+@can_edit(User)
+def add_emailaddress(request, user, userid):
+    """ Create a new local email account"""
+    emailaddress_instance = EMailAddress(user=user)
+    emailaddress = EMailAddressForm(
+        request.POST or None,
+        instance=emailaddress_instance
+    )
+    if emailaddress.is_valid():
+        emailaddress.save()
+        messages.success(request, "Local email account created")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(userid)}
+        ))
+    return form(
+        {'userform': emailaddress,
+         'showCGU': False,
+         'action_name': 'Add a local email account'},
+        'users/user.html',
+        request
+    )
+
+
+@login_required
+@can_edit(EMailAddress)
+def edit_emailaddress(request, emailaddress_instance, **_kwargs):
+    """ Edit a local email account"""
+    emailaddress = EMailAddressForm(
+        request.POST or None,
+        instance=emailaddress_instance
+    )
+    if emailaddress.is_valid():
+        if emailaddress.changed_data:
+            emailaddress.save()
+            messages.success(request, "Local email account modified")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(emailaddress_instance.user.id)}
+        ))
+    return form(
+        {'userform': emailaddress,
+         'showCGU': False,
+         'action_name': 'Edit a local email account'},
+        'users/user.html',
+        request
+    )
+
+
+@login_required
+@can_delete(EMailAddress)
+def del_emailaddress(request, emailaddress, **_kwargs):
+    """Delete a local email account"""
+    if request.method == "POST":
+        emailaddress.delete()
+        messages.success(request, "Local email account deleted")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(emailaddress.user.id)}
+            ))
+    return form(
+        {'objet': emailaddress, 'objet_name': 'emailaddress'},
+        'users/delete.html',
+        request
+    )
+
+
+@login_required
+@can_edit(User)
+def edit_email_settings(request, user_instance, **_kwargs):
+    """Edit the email settings of a user"""
+    email_settings = EmailSettingsForm(
+        request.POST or None,
+        instance=user_instance,
+        user=request.user
+    )
+    if email_settings.is_valid():
+        if email_settings.changed_data:
+            email_settings.save()
+            messages.success(request, "Email settings updated")
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(user_instance.id)}
+            ))
+    return form(
+        {'userform': email_settings,
+         'showCGU': False,
+         'action_name': 'Edit the email settings'},
+        'users/user.html',
         request
     )
 
@@ -914,7 +1012,11 @@ def profil(request, users, **_kwargs):
             'white_list': whitelists,
             'user_solde': user_solde,
             'solde_activated': Paiement.objects.filter(is_balance=True).exists(),
-            'asso_name': AssoOption.objects.first().name
+            'asso_name': AssoOption.objects.first().name,
+            'emailaddress_list': users.email_address,
+            'local_email_accounts_enabled': (
+                OptionalUser.objects.first().local_email_accounts_enabled
+            ) 
         }
     )
 
