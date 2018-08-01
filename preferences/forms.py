@@ -27,6 +27,8 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
+
+from re2o.mixins import FormRevMixin
 from .models import (
     OptionalUser,
     OptionalMachine,
@@ -35,7 +37,8 @@ from .models import (
     AssoOption,
     MailMessageOption,
     HomeOption,
-    Service
+    Service,
+    MailContact
 )
 
 
@@ -227,3 +230,30 @@ class DelServiceForm(Form):
             self.fields['services'].queryset = instances
         else:
             self.fields['services'].queryset = Service.objects.all()
+
+class MailContactForm(FormRevMixin, ModelForm):
+    """Edit and add contact email adress"""
+    class Meta:
+        model = MailContact
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(MailContactForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelMailContactForm(Form):
+    """Delete contact email adress"""
+    mailcontacts = forms.ModelMultipleChoiceField(
+        queryset=MailContact.objects.none(),
+        label="Enregistrements adresses actuels",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelMailContactForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['mailcontacts'].queryset = instances
+        else:
+            self.fields['mailcontacts'].queryset = MailContact.objects.all()

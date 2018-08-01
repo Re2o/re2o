@@ -34,6 +34,7 @@ from .models import (
     OptionalTopologie,
     GeneralOption,
     Service,
+    MailContact,
     AssoOption,
     MailMessageOption,
     HomeOption
@@ -65,6 +66,11 @@ class ServiceAdmin(VersionAdmin):
     pass
 
 
+class MailContactAdmin(VersionAdmin):
+    """Admin class for contact email adresses"""
+    pass
+
+
 class AssoOptionAdmin(VersionAdmin):
     """Class admin options de l'asso"""
     pass
@@ -86,5 +92,6 @@ admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
 admin.site.register(GeneralOption, GeneralOptionAdmin)
 admin.site.register(HomeOption, HomeOptionAdmin)
 admin.site.register(Service, ServiceAdmin)
+admin.site.register(MailContact, MailContactAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)

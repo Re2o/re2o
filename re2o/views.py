@@ -36,6 +36,8 @@ from django.views.decorators.cache import cache_page
 
 from preferences.models import (
     Service,
+    MailContact,
+    GeneralOption,
     AssoOption,
     HomeOption
 )
@@ -103,6 +105,21 @@ def about_page(request):
             'git_info_commit': git_info_commit,
             'git_info_commit_date': git_info_commit_date,
             'dependencies': dependencies
+        }
+    )
+
+def contact_page(request):
+    """The view for the contact page
+    Send all the objects MailContact
+    """
+    address = MailContact.objects.all()
+
+    return render(
+        request,
+        "re2o/contact.html",
+        {
+            'contacts': address,
+            'asso_name': AssoOption.objects.first().name
         }
     )
 

@@ -31,6 +31,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.forms import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 from re2o.mixins import AclMixin
@@ -266,6 +267,34 @@ class Service(AclMixin, models.Model):
 
     def __str__(self):
         return str(self.name)
+
+class MailContact(AclMixin, models.Model):
+    """Contact email adress with a commentary."""
+
+    address = models.EmailField(
+        default = "contact@example.org",
+        help_text = _("Contact email adress")
+    )
+
+    commentary = models.CharField(
+        blank = True,
+        null = True,
+        help_text = _(
+            "Description of the associated email adress."),
+        max_length = 256
+    )
+
+    @cached_property
+    def get_name(self):
+        return self.address.split("@")[0]
+
+    class Meta:
+        permissions = (
+            ("view_mailcontact", _("Can see contact email")),
+        )
+
+    def __str__(self):
+        return(self.address)
 
 
 class AssoOption(AclMixin, PreferencesModel):

@@ -72,6 +72,13 @@ urlpatterns = [
         views.edit_service,
         name='edit-service'
         ),
-    url(r'^del_services/$', views.del_services, name='del-services'),
+    url(r'^del_service/$', views.del_service, name='del-service'),
+    url(r'^add_mailcontact/$', views.add_mailcontact, name='add-mailcontact'),
+    url(
+        r'^edit_mailcontact/(?P<mailcontactid>[0-9]+)$',
+        views.edit_mailcontact,
+        name='edit-mailcontact'
+        ),
+    url(r'^del_mailcontact/$', views.del_mailcontact, name='del-mailcontact'),
     url(r'^$', views.display_options, name='display-options'),
 ]
