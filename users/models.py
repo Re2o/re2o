@@ -683,11 +683,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         return
 
     @cached_property
-    def local_email_accounts(self):
+    def email_address(self):
         if (OptionalUser.get_cached_value('local_email_accounts_enabled')
                 and self.local_email_enabled):
-            return self.localemailaccount_set.all()
-        return LocalEmailAccount.objects.none()
+            return self.emailaddress_set.all()
+        return EMailAddress.objects.none()
 
     def get_next_domain_name(self):
         """Look for an available name for a new interface for
@@ -935,7 +935,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def clean(self, *args, **kwargs):
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
-        if (LocalEmailAccount.objects
+        if (EMailAddress.objects
                 .filter(local_part=self.pseudo)
                 .exclude(user=self)):
             raise ValidationError("This pseudo is already in use.")
@@ -1066,7 +1066,7 @@ def user_post_save(**kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    LocalEmailAccount.objects.get_or_create(local_part=user.pseudo, user=user)
+    EMailAddress.objects.get_or_create(local_part=user.pseudo, user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
@@ -1648,7 +1648,7 @@ class LdapServiceUserGroup(ldapdb.models.Model):
         return self.name
 
 
-class LocalEmailAccount(RevMixin, AclMixin, models.Model):
+class EMailAddress(RevMixin, AclMixin, models.Model):
     """Defines a local email account for a user
     """
     user = models.ForeignKey(
@@ -1664,7 +1664,7 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_localemailaccount", "Can see a local email account object"),
+            ("view_emailaddress", "Can see a local email account object"),
         )
         verbose_name = "Local email account"
         verbose_name_plural = "Local email accounts"
@@ -1678,7 +1678,7 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
 
     @staticmethod
     def can_create(user_request, userid, *_args, **_kwargs):
-        """Check if a user can create a `LocalEmailAccount` object.
+        """Check if a user can create a `EMailAddress` object.
 
         Args:
             user_request: The user who wants to create the object.
@@ -1688,15 +1688,15 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can create
             a local email account.
         """
-        if user_request.has_perm('users.add_localemailaccount'):
+        if user_request.has_perm('users.add_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, "The local email accounts are not enabled."
         if int(user_request.id) != int(userid):
             return False, "You don't have the right to add a local email account to another user."
-        elif user_request.local_email_accounts.count() >= OptionalUser.get_cached_value('max_local_email_accounts'):
+        elif user_request.email_address.count() >= OptionalUser.get_cached_value('max_email_address'):
             return False, "You have reached the limit of {} local email account.".format(
-                OptionalUser.get_cached_value('max_local_email_accounts')
+                OptionalUser.get_cached_value('max_email_address')
             )
         return True, None
 
@@ -1710,7 +1710,7 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can see
             the local email account.
         """
-        if user_request.has_perm('users.view_localemailaccount'):
+        if user_request.has_perm('users.view_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, "The local email accounts are not enabled."
@@ -1731,7 +1731,7 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
         if self.local_part == self.user.pseudo:
             return False, ("You cannot delete a local email account whose "
                            "local part is the same as the username.")
-        if user_request.has_perm('users.delete_localemailaccount'): 
+        if user_request.has_perm('users.delete_emailaddress'): 
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, "The local email accounts are not enabled."
@@ -1753,7 +1753,7 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
         if self.local_part == self.user.pseudo:
             return False, ("You cannot edit a local email account whose "
                            "local part is the same as the username.")
-        if user_request.has_perm('users.change_localemailaccount'):
+        if user_request.has_perm('users.change_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, "The local email accounts are not enabled."
@@ -1765,5 +1765,5 @@ class LocalEmailAccount(RevMixin, AclMixin, models.Model):
     def clean(self, *args, **kwargs):
         if "@" in self.local_part:
             raise ValidationError("The local part cannot contain a @")
-        super(LocalEmailAccount, self).clean(*args, **kwargs)
+        super(EMailAddress, self).clean(*args, **kwargs)
 

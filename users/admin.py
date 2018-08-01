@@ -34,7 +34,7 @@ from reversion.admin import VersionAdmin
 
 from .models import (
     User,
-    LocalEmailAccount,
+    EMailAddress,
     ServiceUser,
     School,
     ListRight,
@@ -109,7 +109,7 @@ class BanAdmin(VersionAdmin):
     pass
 
 
-class LocalEmailAccountAdmin(VersionAdmin):
+class EMailAddressAdmin(VersionAdmin):
     """Gestion des alias mail"""
     pass
 
@@ -219,7 +219,7 @@ admin.site.register(School, SchoolAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)
-admin.site.register(LocalEmailAccount, LocalEmailAccountAdmin)
+admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
 # Now register the new UserAdmin...

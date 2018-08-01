@@ -93,9 +93,9 @@ class OptionalUser(AclMixin, PreferencesModel):
         default = "@example.org",
         help_text="Domain to use for local email accounts",
     )
-    max_local_email_accounts = models.IntegerField(
+    max_email_address = models.IntegerField(
         default = 15,
-        help_text = "Maximum number of local email accounts for a standard user"
+        help_text = "Maximum number of local email address for a standard user"
     )
 
     class Meta:

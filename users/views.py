@@ -81,12 +81,12 @@ from .models import (
     Adherent,
     Club,
     ListShell,
-    LocalEmailAccount,
+    EMailAddress,
 )
 from .forms import (
     BanForm,
     WhitelistForm,
-    LocalEmailAccountForm,
+    EMailAddressForm,
     EmailSettingsForm,
     DelSchoolForm,
     DelListRightForm,
@@ -496,24 +496,24 @@ def del_whitelist(request, whitelist, **_kwargs):
 
 
 @login_required
-@can_create(LocalEmailAccount)
+@can_create(EMailAddress)
 @can_edit(User)
-def add_localemailaccount(request, user, userid):
+def add_emailaddress(request, user, userid):
     """ Create a new local email account"""
-    localemailaccount_instance = LocalEmailAccount(user=user)
-    localemailaccount = LocalEmailAccountForm(
+    emailaddress_instance = EMailAddress(user=user)
+    emailaddress = EMailAddressForm(
         request.POST or None,
-        instance=localemailaccount_instance
+        instance=emailaddress_instance
     )
-    if localemailaccount.is_valid():
-        localemailaccount.save()
+    if emailaddress.is_valid():
+        emailaddress.save()
         messages.success(request, "Local email account created")
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': localemailaccount,
+        {'userform': emailaddress,
          'showCGU': False,
          'action_name': 'Add a local email account'},
         'users/user.html',
@@ -522,23 +522,23 @@ def add_localemailaccount(request, user, userid):
 
 
 @login_required
-@can_edit(LocalEmailAccount)
-def edit_localemailaccount(request, localemailaccount_instance, **_kwargs):
+@can_edit(EMailAddress)
+def edit_emailaddress(request, emailaddress_instance, **_kwargs):
     """ Edit a local email account"""
-    localemailaccount = LocalEmailAccountForm(
+    emailaddress = EMailAddressForm(
         request.POST or None,
-        instance=localemailaccount_instance
+        instance=emailaddress_instance
     )
-    if localemailaccount.is_valid():
-        if localemailaccount.changed_data:
-            localemailaccount.save()
+    if emailaddress.is_valid():
+        if emailaddress.changed_data:
+            emailaddress.save()
             messages.success(request, "Local email account modified")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid': str(localemailaccount_instance.user.id)}
+            kwargs={'userid': str(emailaddress_instance.user.id)}
         ))
     return form(
-        {'userform': localemailaccount,
+        {'userform': emailaddress,
          'showCGU': False,
          'action_name': 'Edit a local email account'},
         'users/user.html',
@@ -547,18 +547,18 @@ def edit_localemailaccount(request, localemailaccount_instance, **_kwargs):
 
 
 @login_required
-@can_delete(LocalEmailAccount)
-def del_localemailaccount(request, localemailaccount, **_kwargs):
+@can_delete(EMailAddress)
+def del_emailaddress(request, emailaddress, **_kwargs):
     """Delete a local email account"""
     if request.method == "POST":
-        localemailaccount.delete()
+        emailaddress.delete()
         messages.success(request, "Local email account deleted")
         return redirect(reverse(
             'users:profil',
-            kwargs={'userid': str(localemailaccount.user.id)}
+            kwargs={'userid': str(emailaddress.user.id)}
             ))
     return form(
-        {'objet': localemailaccount, 'objet_name': 'localemailaccount'},
+        {'objet': emailaddress, 'objet_name': 'emailaddress'},
         'users/delete.html',
         request
     )
@@ -1013,7 +1013,7 @@ def profil(request, users, **_kwargs):
             'user_solde': user_solde,
             'solde_activated': Paiement.objects.filter(is_balance=True).exists(),
             'asso_name': AssoOption.objects.first().name,
-            'localemailaccount_list': users.local_email_accounts,
+            'emailaddress_list': users.email_address,
             'local_email_accounts_enabled': (
                 OptionalUser.objects.first().local_email_accounts_enabled
             ) 

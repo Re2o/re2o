@@ -433,18 +433,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <th>Enable the local email account</th>
                             <td>{{ users.local_email_enabled | tick }}</td>
                             <th>Enable the local email redirection</th>
-                            <td>{{ users.local_email_redirect | tick }}</td>
-                        </tr>
-                    </table>
-                </div>
-                {% if users.local_email_enabled %}
-                {% can_create LocalEmailAccount users.id %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-localemailaccount' users.id %}">
-                    <i class="fa fa-plus-square"></i> Add a local email account
+			    <td>{{ users.local_email_redirect | tick }}</td>
+			</tr>
+		    </table>
+		</div>
+		{% if users.local_email_enabled %}
+                {% can_create EMailAddress users.id %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-emailaddress' users.id %}">
+                    <i class="fa fa-plus-square"></i> Add an email address
                 </a>
                 {% acl_end %}
-                {% if localemailaccount_list %}
-                {% include "users/aff_localemailaccounts.html" with localemailaccount_list=localemailaccount_list %}
+                {% if emailaddress_list %}
+                {% include "users/aff_emailaddress.html" with emailaddress_list=emailaddress_list %}
                 {% endif %}
                 {% endif %}
                 {% else %}

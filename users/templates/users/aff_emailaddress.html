@@ -1,4 +1,3 @@
-{% extends "users/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,12 +22,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
+{% load acl %}
+{% load logs_extra %}
 
-{% block title %}Local email accounts{% endblock %}
+{% if emailaddress_list.paginator %}
+{% include "pagination.html" with list=emailaddress_list %}
+{% endif %}
 
-{% block content %}
-  <h2>Local email accounts</h2>
-  {% include "users/aff_localemailaccounts.html" with  localemailaccount_list=localemailaccount_list %}
-{% endblock %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Email address</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for emailaddress in emailaddress_list %}
+        <td>{{ emailaddress.complete_email_address }}</td>
+        <td class="text-right">
+            {% can_delete emailaddress %}
+            {% include 'buttons/suppr.html' with href='users:del-emailaddress' id=emailaddress.id %}
+            {% acl_end %}
+            {% can_edit emailaddress %}
+            {% include 'buttons/edit.html' with href='users:edit-emailaddress' id=emailaddress.id %}
+            {% acl_end %}
+            {% history_button emailaddress %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
+{% if emailaddress_list.paginator %}
+{% include "pagination.html" with list=emailaddress_list %}
+{% endif %}

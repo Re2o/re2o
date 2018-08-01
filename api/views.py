@@ -469,19 +469,19 @@ class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.WhitelistSerializer
 
 
-class LocalEmailAccountViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.LocalEmailAccount` objects.
+class EMailAddressViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.EMailAddress` objects.
     """
-    serializer_class = serializers.LocalEmailAccountSerializer
-    queryset = users.LocalEmailAccount.objects.none()
+    serializer_class = serializers.EMailAddressSerializer
+    queryset = users.EMailAddress.objects.none()
 
     def get_queryset(self):
         if preferences.OptionalUser.get_cached_value(
             'local_email_accounts_enabled'):
-            return (users.LocalEmailAccount.objects
+            return (users.EMailAddress.objects
                     .filter(user__local_email_enabled=True))
         else:
-            return users.LocalEmailAccount.objects.none()
+            return users.EMailAddress.objects.none()
 
 
 # SERVICE REGEN

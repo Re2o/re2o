@@ -596,12 +596,12 @@ class WhitelistSerializer(NamespacedHMSerializer):
         fields = ('user', 'raison', 'date_start', 'date_end', 'active', 'api_url')
 
 
-class LocalEmailAccountSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.LocalEmailAccount` objects.
+class EMailAddressSerializer(NamespacedHMSerializer):
+    """Serialize `users.models.EMailAddress` objects.
     """
 
     class Meta:
-        model = users.LocalEmailAccount
+        model = users.EMailAddress
         fields = ('user', 'local_part', 'complete_email_address', 'api_url')
 
 
@@ -627,7 +627,7 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
 
 
 class LocalEmailUsersSerializer(NamespacedHMSerializer):
-    local_email_accounts = LocalEmailAccountSerializer(
+    email_address = EMailAddressSerializer(
         read_only=True,
         many=True
     )
@@ -635,7 +635,7 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.User
         fields = ('local_email_enabled', 'local_email_redirect',
-                  'local_email_accounts')
+                  'email_address')
 
 
 # DHCP

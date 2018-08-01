@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='optionaluser',
-            name='max_local_email_accounts',
-            field=models.IntegerField(default=15, help_text='Maximum number of local email accounts for a standard user'),
+            name='max_email_address',
+            field=models.IntegerField(default=15, help_text='Maximum number of local email address for a standard user'),
         ),
     ]

@@ -53,7 +53,7 @@ from .models import (
     School,
     ListRight,
     Whitelist,
-    LocalEmailAccount,
+    EMailAddress,
     ListShell,
     Ban,
     Adherent,
@@ -591,16 +591,16 @@ class WhitelistForm(FormRevMixin, ModelForm):
         widgets = {'date_end':DateTimePicker}
 
 
-class LocalEmailAccountForm(FormRevMixin, ModelForm):
-    """Create and edit a local email account"""
+class EMailAddressForm(FormRevMixin, ModelForm):
+    """Create and edit a local email address"""
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(LocalEmailAccountForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['local_part'].label = "Local part of the email"
         self.fields['local_part'].help_text = "Can't contain @"
 
     class Meta:
-        model = LocalEmailAccount
+        model = EMailAddress
         exclude = ['user']
 
 
