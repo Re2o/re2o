@@ -624,15 +624,6 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
         }
 
 
-class ProfilSerializer(NamespacedHMSerializer):
-    vlan_untagged = VlanSerializer(read_only=True)
-    vlan_tagged = VlanPortSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = topologie.PortProfile
-        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged', 'vlan_tagged')
-
-
 # LOCAL EMAILS
 
 

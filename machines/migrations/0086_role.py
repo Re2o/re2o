@@ -9,7 +9,7 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0083_remove_duplicate_rights'),
+        ('machines', '0085_sshfingerprint'),
     ]
 
     operations = [
