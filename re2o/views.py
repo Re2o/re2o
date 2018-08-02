@@ -37,7 +37,6 @@ from django.views.decorators.cache import cache_page
 from preferences.models import (
     Service,
     MailContact,
-    GeneralOption,
     AssoOption,
     HomeOption
 )
@@ -107,6 +106,7 @@ def about_page(request):
             'dependencies': dependencies
         }
     )
+
 
 def contact_page(request):
     """The view for the contact page
