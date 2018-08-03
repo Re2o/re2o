@@ -652,7 +652,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
             return False, error
-        return True, "Ok"
+        return interface_cible, "Ok"
 
     def notif_auto_newmachine(self, interface):
         """Notification mail lorsque une machine est automatiquement
