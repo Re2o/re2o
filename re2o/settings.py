@@ -126,6 +126,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 're2o.context_processors.context_user',
                 're2o.context_processors.date_now',
+                're2o.context_processors.context_printer',
             ],
         },
     },
