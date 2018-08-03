@@ -63,6 +63,7 @@ from preferences.models import OptionalTopologie
 options, created = OptionalTopologie.objects.get_or_create()
 VLAN_NOK = options.vlan_decision_nok.vlan_id
 VLAN_OK = options.vlan_decision_ok.vlan_id
+RADIUS_POLICY = options.radius_general_policy
 
 #: Serveur radius de test (pas la prod)
 TEST_SERVER = bool(os.getenv('DBG_FREERADIUS', False))
@@ -460,13 +461,16 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
                             VLAN_NOK)
                 # Sinon on capture et on laisse passer sur le bon vlan
                 else:
-                    result, reason = (room_user
+                    interface, reason = (room_user
                                       .first()
                                       .autoregister_machine(
                                           mac_address,
                                           nas_type
                                       ))
-                    if result:
+                    if interface:
+                        ## Si on choisi de placer les machines sur le vlan correspondant à leur type :
+                        if RADIUS_POLICY == 'MACHINE':
+                            DECISION_VLAN = interface.type.ip_type.vlan.vlan_id
                         return (sw_name,
                                 room,
                                 u'Access Ok, Capture de la mac: ' + extra_log,
@@ -488,7 +492,10 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
                         room,
                         u'Machine non active / adherent non cotisant',
                         VLAN_NOK)
-            elif not interface.ipv4:
+            ## Si on choisi de placer les machines sur le vlan correspondant à leur type :
+            if RADIUS_POLICY == 'MACHINE':
+                DECISION_VLAN = interface.type.ip_type.vlan.vlan_id
+            if not interface.ipv4:
                 interface.assign_ipv4()
                 return (sw_name,
                         room,
