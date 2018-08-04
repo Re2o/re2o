@@ -470,10 +470,10 @@ class SwitchPortSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'radius', 'vlan_force', 'details', 'api_url')
+                  'custom_profile', 'state', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
-            'api_url': {'view_name': 'switchport-detail'}
+            'api_url': {'view_name': 'switchport-detail'},
         }
 
 
@@ -483,6 +483,18 @@ class RoomSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Room
         fields = ('name', 'details', 'api_url')
+
+
+class PortProfileSerializer(NamespacedHMSerializer):
+    vlan_untagged = VlanSerializer(read_only=True)
+
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged',
+                  'radius_type', 'radius_mode', 'speed', 'mac_limit',
+                  'flow_control', 'dhcp_snooping', 'dhcpv6_snooping',
+                  'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged',
+                  'vlan_tagged')
 
 
 # USERS
