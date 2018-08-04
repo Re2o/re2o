@@ -639,6 +639,30 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
                   'email_address')
 
 
+#Firewall
+
+class FirewallPortListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = machines.OuverturePort
+        fields = ('begin', 'end', 'protocole', 'io')
+
+class FirewallOuverturePortListSerializer(serializers.ModelSerializer):
+    tcp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    tcp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.OuverturePortList
+        fields = ('tcp_ports_in', 'udp_ports_in', 'tcp_ports_out', 'udp_ports_out')
+
+class SubnetPortsOpenSerializer(serializers.ModelSerializer):
+    ouverture_ports = FirewallOuverturePortListSerializer(read_only=True)
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'prefix_v6', 'ouverture_ports')
+
 # DHCP
 
 
