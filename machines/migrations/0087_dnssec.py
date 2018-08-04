@@ -8,18 +8,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0089_auto_20180625_1700'),
+        ('machines', '0086_role'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='extension',
-            name='dnssec_reverse_v4',
-        ),
-        migrations.RemoveField(
-            model_name='extension',
-            name='dnssec_reverse_v6',
-        ),
         migrations.AddField(
             model_name='iptype',
             name='dnssec_reverse_v4',
