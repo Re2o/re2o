@@ -33,8 +33,10 @@ import binascii
 import os
 from base64 import encodestring
 from base64 import decodestring
+from base64 import b64encode
+from base64 import b64decode
 from collections import OrderedDict
-
+import crypt
 from django.contrib.auth import hashers
 
 
@@ -71,6 +73,117 @@ def checkPassword(challenge_password, password):
         valid_password &= i == j
     return valid_password
 
+
+def hash_password_salt(hashed_password):
+    """ Extract the salt from a given hashed password """
+    if hashed_password.upper().startswith('{CRYPT}'):
+        hashed_password = hashed_password[7:]
+        if hashed_password.startswith('$'):
+            return '$'.join(hashed_password.split('$')[:-1])
+        else:
+            return hashed_password[:2]
+    elif hashed_password.upper().startswith('{SSHA}'):
+        try:
+            digest = b64decode(hashed_password[6:])
+        except TypeError as error:
+            raise ValueError("b64 error for `hashed_password` : %s" % error)
+        if len(digest) < 20:
+            raise ValueError("`hashed_password` too short")
+        return digest[20:]
+    elif hashed_password.upper().startswith('{SMD5}'):
+        try:
+            digest = b64decode(hashed_password[7:])
+        except TypeError as error:
+            raise ValueError("b64 error for `hashed_password` : %s" % error)
+        if len(digest) < 16:
+            raise ValueError("`hashed_password` too short")
+        return digest[16:]
+    else:
+        raise ValueError("`hashed_password` should start with '{SSHA}' or '{CRYPT}' or '{SMD5}'")
+
+
+
+class CryptPasswordHasher(hashers.BasePasswordHasher):
+    """
+    Crypt password hashing to allow for LDAP auth compatibility
+    We do not encode, this should bot be used !
+    """
+
+    algorithm = "{crypt}"
+
+    def encode(self, password, salt):
+        pass
+
+    def verify(self, password, encoded):
+        """
+        Check password against encoded using SSHA algorithm
+        """
+        assert encoded.startswith(self.algorithm)
+        salt = hash_password_salt(challenge_password)
+        return crypt.crypt(password.encode(), salt) == challenge.encode()
+
+    def safe_summary(self, encoded):
+        """
+        Provides a safe summary of the password
+        """
+        assert encoded.startswith(self.algorithm)
+        hash_str = encoded[7:]
+        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
+        return OrderedDict([
+            ('algorithm', self.algorithm),
+            ('iterations', 0),
+            ('salt', hashers.mask_hash(hash_str[2*DIGEST_LEN:], show=2)),
+            ('hash', hashers.mask_hash(hash_str[:2*DIGEST_LEN])),
+        ])
+
+    def harden_runtime(self, password, encoded):
+        """
+        Method implemented to shut up BasePasswordHasher warning
+
+        As we are not using multiple iterations the method is pretty useless
+        """
+        pass
+
+class MD5PasswordHasher(hashers.BasePasswordHasher):
+    """
+    MD5 password hashing to allow for LDAP auth compatibility
+    We do not encode, this should bot be used !
+    """
+
+    algorithm = "{SMD5}"
+
+    def encode(self, password, salt):
+        pass
+
+    def verify(self, password, encoded):
+        """
+        Check password against encoded using SSHA algorithm
+        """
+        assert encoded.startswith(self.algorithm)
+        salt = hash_password_salt(encoded)
+        return b64encode(hashlib.md5(password.encode() + salt).digest() + salt) == encoded.encode()
+
+    def safe_summary(self, encoded):
+        """
+        Provides a safe summary of the password
+        """
+        assert encoded.startswith(self.algorithm)
+        hash_str = encoded[7:]
+        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
+        return OrderedDict([
+            ('algorithm', self.algorithm),
+            ('iterations', 0),
+            ('salt', hashers.mask_hash(hash_str[2*DIGEST_LEN:], show=2)),
+            ('hash', hashers.mask_hash(hash_str[:2*DIGEST_LEN])),
+        ])
+
+    def harden_runtime(self, password, encoded):
+        """
+        Method implemented to shut up BasePasswordHasher warning
+
+        As we are not using multiple iterations the method is pretty useless
+        """
+        pass
 
 class SSHAPasswordHasher(hashers.BasePasswordHasher):
     """
