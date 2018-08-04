@@ -403,6 +403,12 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.RoomSerializer
 
 
+class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.PortProfile` objects.
+    """
+    queryset = topologie.PortProfile.objects.all()
+    serializer_class = serializers.PortProfileSerializer
+
 # USER
 
 
@@ -542,7 +548,7 @@ class SubnetPortsOpenView(generics.ListAPIView):
 
 
 class DNSZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.Extension.objects
