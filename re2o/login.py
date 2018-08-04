@@ -35,6 +35,7 @@ import os
 from base64 import encodestring, decodestring, b64encode, b64decode
 from collections import OrderedDict
 from django.contrib.auth import hashers
+from hmac import compare_digest as constant_time_compare
 
 
 ALGO_NAME = "{SSHA}"
@@ -63,12 +64,7 @@ def checkPassword(challenge_password, password):
     salt = challenge_bytes[DIGEST_LEN:]
     hr = hashlib.sha1(password.encode())
     hr.update(salt)
-    valid_password = True
-    # La comparaison est volontairement en temps constant
-    # (pour éviter les timing-attacks)
-    for i, j in zip(digest, hr.digest()):
-        valid_password &= i == j
-    return valid_password
+    return constant_time_compare(digest, hr.digest())
 
 
 def hash_password_salt(hashed_password):
@@ -118,7 +114,8 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         salt = hash_password_salt(challenge_password)
-        return crypt.crypt(password.encode(), salt) == challenge.encode()
+        return constant_time_compare(crypt.crypt(password.encode(), salt),
+                                     challenge.encode())
 
     def safe_summary(self, encoded):
         """
@@ -159,7 +156,9 @@ class MD5PasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         salt = hash_password_salt(encoded)
-        return b64encode(hashlib.md5(password.encode() + salt).digest() + salt) == encoded.encode()
+        return constant_time_compare(
+            b64encode(hashlib.md5(password.encode() + salt).digest() + salt),
+            encoded.encode())
 
     def safe_summary(self, encoded):
         """
