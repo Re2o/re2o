@@ -547,7 +547,7 @@ class AdherentSerializer(NamespacedHMSerializer):
         fields = ('name', 'surname', 'pseudo', 'email', 'local_email_redirect',
                   'local_email_enabled', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'room', 'solde',
-                  'access', 'end_access', 'uid', 'api_url')
+                  'access', 'end_access', 'uid', 'api_url','gid')
         extra_kwargs = {
             'shell': {'view_name': 'shell-detail'}
         }
