@@ -28,15 +28,12 @@
 Module in charge of handling the login process and verifications
 """
 
-import hashlib
 import binascii
-import os
-from base64 import encodestring
-from base64 import decodestring
-from base64 import b64encode
-from base64 import b64decode
-from collections import OrderedDict
 import crypt
+import hashlib
+import os
+from base64 import encodestring, decodestring, b64encode, b64decode
+from collections import OrderedDict
 from django.contrib.auth import hashers
 
 
@@ -107,6 +104,7 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
     """
     Crypt password hashing to allow for LDAP auth compatibility
     We do not encode, this should bot be used !
+    The actual implementation may depend on the OS.
     """
 
     algorithm = "{crypt}"
@@ -116,7 +114,7 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
 
     def verify(self, password, encoded):
         """
-        Check password against encoded using SSHA algorithm
+        Check password against encoded using CRYPT algorithm
         """
         assert encoded.startswith(self.algorithm)
         salt = hash_password_salt(challenge_password)
@@ -146,7 +144,7 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
 
 class MD5PasswordHasher(hashers.BasePasswordHasher):
     """
-    MD5 password hashing to allow for LDAP auth compatibility
+    Salted MD5 password hashing to allow for LDAP auth compatibility
     We do not encode, this should bot be used !
     """
 
@@ -157,7 +155,7 @@ class MD5PasswordHasher(hashers.BasePasswordHasher):
 
     def verify(self, password, encoded):
         """
-        Check password against encoded using SSHA algorithm
+        Check password against encoded using SMD5 algorithm
         """
         assert encoded.startswith(self.algorithm)
         salt = hash_password_salt(encoded)
@@ -187,7 +185,7 @@ class MD5PasswordHasher(hashers.BasePasswordHasher):
 
 class SSHAPasswordHasher(hashers.BasePasswordHasher):
     """
-    SSHA password hashing to allow for LDAP auth compatibility
+    Salted SHA-1 password hashing to allow for LDAP auth compatibility
     """
 
     algorithm = ALGO_NAME
