@@ -120,3 +120,11 @@ Don't forget to run migrations, several settings previously in the `preferences`
 in their own Payment models.
 
 To have a closer look on how the payments works, please go to the wiki.
+
+## MR 182: Add role models
+
+Adds the Role model.
+You need to ensure that your database character set is utf-8.
+```sql
+ALTER DATABASE re2o CHARACTER SET utf8;
+```

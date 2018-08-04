@@ -42,6 +42,7 @@ from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
+from django.utils.translation import ugettext_lazy as _l
 
 from macaddress.fields import MACAddressField
 
@@ -158,7 +159,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -176,7 +177,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -338,10 +339,10 @@ class IpType(RevMixin, AclMixin, models.Model):
             return
         else:
             for ipv6 in Ipv6List.objects.filter(
-                    interface__in=Interface.objects.filter(
-                        type__in=MachineType.objects.filter(ip_type=self)
-                    )
-                ):
+                interface__in=Interface.objects.filter(
+                    type__in=MachineType.objects.filter(ip_type=self)
+                )
+            ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
 
     def clean(self):
@@ -713,7 +714,7 @@ class Srv(RevMixin, AclMixin, models.Model):
         choices=(
             (TCP, 'TCP'),
             (UDP, 'UDP'),
-            ),
+        ),
         default=TCP,
     )
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
@@ -1047,7 +1048,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -1064,7 +1065,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -1165,7 +1166,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -1182,7 +1183,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         user_request,
                         *args,
                         **kwargs
-                    )[0]):
+            )[0]):
                 return False, (u"Vous ne pouvez pas éditer une machine "
                                "d'un autre user que vous sans droit")
         return True, None
@@ -1358,11 +1359,11 @@ class Domain(RevMixin, AclMixin, models.Model):
                 return False, (u"Vous ne pouvez pas ajouter un alias à une "
                                "machine d'un autre user que vous sans droit")
             if Domain.objects.filter(
-                    cname__in=Domain.objects.filter(
-                        interface_parent__in=(interface.machine.user
-                                              .user_interfaces())
-                    )
-                ).count() >= max_lambdauser_aliases:
+                cname__in=Domain.objects.filter(
+                    interface_parent__in=(interface.machine.user
+                                          .user_interfaces())
+                )
+            ).count() >= max_lambdauser_aliases:
                 return False, (u"Vous avez atteint le maximum d'alias "
                                "autorisés que vous pouvez créer vous même "
                                "(%s) " % max_lambdauser_aliases)
@@ -1441,6 +1442,75 @@ class IpList(RevMixin, AclMixin, models.Model):
         return self.ipv4
 
 
+class Role(RevMixin, AclMixin, models.Model):
+    """Define the role of a machine.
+    Allow automated generation of the server configuration.
+    """
+
+    ROLE = (
+        ('dhcp-server', _l('DHCP server')),
+        ('switch-conf-server', _l('Switches configuration server')),
+        ('dns-recursif-server', _l('Recursive DNS server')),
+        ('ntp-server', _l('NTP server')),
+        ('radius-server', _l('Radius server')),
+        ('log-server', _l('Log server')),
+        ('ldap-master-server', _l('LDAP master server')),
+        ('ldap-backup-server', _l('LDAP backup server')),
+        ('smtp-server', _l('SMTP server')),
+        ('postgresql-server', _l('postgreSQL server')),
+        ('mysql-server', _l('mySQL server')),
+        ('sql-client', _l('SQL client')),
+        ('gateway', _l('Gatewaw')),
+    )
+
+    role_type = models.CharField(max_length=255, unique=True)
+    servers = models.ManyToManyField('Interface')
+    specific_role = models.CharField(
+        choices=ROLE,
+        null=True,
+        blank=True,
+        max_length=32,
+    )
+
+    class Meta:
+        permissions = (
+            ("view_role", _l("Can view a role.")),
+        )
+        verbose_name = _l("Server role")
+
+    @classmethod
+    def get_instance(cls, roleid, *_args, **_kwargs):
+        """Get the Role instance with roleid.
+
+        Args:
+            roleid: The id
+
+        Returns:
+            The role.
+        """
+        return cls.objects.get(pk=roleid)
+
+    @classmethod
+    def interface_for_roletype(cls, roletype):
+        """Return interfaces for a roletype"""
+        return Interface.objects.filter(
+            role=cls.objects.filter(specific_role=roletype)
+        )
+
+    @classmethod
+    def all_interfaces_for_roletype(cls, roletype):
+        """Return all interfaces for a roletype"""
+        return Interface.objects.filter(
+            machine__interface__role=cls.objects.filter(specific_role=roletype)
+        )
+
+    def save(self, *args, **kwargs):
+        super(Role, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.role_type)
+
+
 class Service(RevMixin, AclMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
     PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
@@ -1471,8 +1541,8 @@ class Service(RevMixin, AclMixin, models.Model):
         """ Django ne peut créer lui meme les relations manytomany avec table
         intermediaire explicite"""
         for serv in servers.exclude(
-                pk__in=Interface.objects.filter(service=self)
-            ):
+            pk__in=Interface.objects.filter(service=self)
+        ):
             link = Service_link(service=self, server=serv)
             link.save()
         Service_link.objects.filter(service=self).exclude(server__in=servers)\
@@ -1630,7 +1700,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
         choices=(
             (TCP, 'TCP'),
             (UDP, 'UDP'),
-            ),
+        ),
         default=TCP,
     )
     io = models.CharField(
@@ -1638,7 +1708,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
         choices=(
             (IN, 'IN'),
             (OUT, 'OUT'),
-            ),
+        ),
         default=OUT,
     )
 

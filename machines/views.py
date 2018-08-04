@@ -40,6 +40,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
 from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.translation import ugettext as _
 
 from rest_framework.renderers import JSONRenderer
 
@@ -101,6 +102,8 @@ from .forms import (
     DelMxForm,
     VlanForm,
     DelVlanForm,
+    RoleForm,
+    DelRoleForm,
     ServiceForm,
     DelServiceForm,
     SshFpForm,
@@ -122,6 +125,7 @@ from .models import (
     Mx,
     Ns,
     Domain,
+    Role,
     Service,
     Service_link,
     Vlan,
@@ -178,14 +182,14 @@ def generate_ipv4_engine(is_type_tt):
     """
     return (
         'new Bloodhound( {{'
-            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
-            'queryTokenizer: Bloodhound.tokenizers.whitespace,'
-            'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
-            'identify: function( obj ) {{ return obj.key; }}'
+        'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
+        'queryTokenizer: Bloodhound.tokenizers.whitespace,'
+        'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
+        'identify: function( obj ) {{ return obj.key; }}'
         '}} )'
-        ).format(
-            type_id=f_type_id(is_type_tt)
-        )
+    ).format(
+        type_id=f_type_id(is_type_tt)
+    )
 
 
 def generate_ipv4_match_func(is_type_tt):
@@ -193,17 +197,17 @@ def generate_ipv4_match_func(is_type_tt):
     """
     return (
         'function(q, sync) {{'
-            'if (q === "") {{'
-                'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
-                'first = first.map( function (obj) {{ return obj.key; }} );'
-                'sync(engine_ipv4.get(first));'
-            '}} else {{'
-                'engine_ipv4.search(q, sync);'
-            '}}'
+        'if (q === "") {{'
+        'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
+        'first = first.map( function (obj) {{ return obj.key; }} );'
+        'sync(engine_ipv4.get(first));'
+        '}} else {{'
+        'engine_ipv4.search(q, sync);'
         '}}'
-        ).format(
-            type_id=f_type_id(is_type_tt)
-        )
+        '}}'
+    ).format(
+        type_id=f_type_id(is_type_tt)
+    )
 
 
 def generate_ipv4_mbf_param(form_obj, is_type_tt):
@@ -1142,6 +1146,65 @@ def del_alias(request, interface, interfaceid):
 
 
 @login_required
+@can_create(Role)
+def add_role(request):
+    """ View used to add a Role object """
+    role = RoleForm(request.POST or None)
+    if role.is_valid():
+        role.save()
+        messages.success(request, "Cet enregistrement role a été ajouté")
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': 'Créer'},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(Role)
+def edit_role(request, role_instance, **_kwargs):
+    """ View used to edit a Role object """
+    role = RoleForm(request.POST or None, instance=role_instance)
+    if role.is_valid():
+        if role.changed_data:
+            role.save()
+            messages.success(request, _("Role updated"))
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': _('Edit')},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete_set(Role)
+def del_role(request, instances):
+    """ View used to delete a Service object """
+    role = DelRoleForm(request.POST or None, instances=instances)
+    if role.is_valid():
+        role_dels = role.cleaned_data['role']
+        for role_del in role_dels:
+            try:
+                role_del.delete()
+                messages.success(request, _("The role has been deleted."))
+            except ProtectedError:
+                messages.error(
+                    request,
+                    (_("Error: The following role cannot be deleted: %(role)")
+                        % {'role': role_del}
+                     )
+                )
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': _('Delete')},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
 @can_create(Service)
 def add_service(request):
     """ View used to add a Service object """
@@ -1482,6 +1545,21 @@ def index_ipv6(request, interface, interfaceid):
 
 
 @login_required
+@can_view_all(Role)
+def index_role(request):
+    """ View used to display the list of existing roles """
+    role_list = (Role.objects
+                 .prefetch_related(
+                     'servers__domain__extension'
+                 ).all())
+    return render(
+        request,
+        'machines/index_role.html',
+        {'role_list': role_list}
+    )
+
+
+@login_required
 @can_view_all(Service)
 def index_service(request):
     """ View used to display the list of existing services """
@@ -1570,12 +1648,12 @@ def add_portlist(request):
     """ View used to add a port policy """
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
-            OuverturePort,
-            fields=('begin', 'end', 'protocole', 'io'),
-            extra=0,
-            can_delete=True,
-            min_num=1,
-            validate_min=True,
+        OuverturePort,
+        fields=('begin', 'end', 'protocole', 'io'),
+        extra=0,
+        can_delete=True,
+        min_num=1,
+        validate_min=True,
     )(request.POST or None, queryset=OuverturePort.objects.none())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
@@ -1622,11 +1700,12 @@ def configure_ports(request, interface_instance, **_kwargs):
     )
 
 
-## Framework Rest
+# Framework Rest
 
 
 class JSONResponse(HttpResponse):
     """ Class to build a JSON response. Used for API """
+
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'

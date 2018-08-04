@@ -72,6 +72,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if sshfpform %}
     {% bootstrap_form_errors sshfpform %}
 {% endif %}
+{% if roleform %}
+    {% bootstrap_form_errors roleform %}
+{% endif %}
 {% if vlanform %}
     {% bootstrap_form_errors vlanform %}
 {% endif %}
@@ -147,6 +150,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if serviceform %}
         <h3>Service</h3>
         {% massive_bootstrap_form serviceform 'servers' %}
+    {% endif %}
+    {% if roleform %}
+        <h3>Role</h3>
+        {% massive_bootstrap_form roleform 'servers' %}
     {% endif %}
     {% if vlanform %}
         <h3>Vlan</h3>

@@ -37,6 +37,7 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
+from django.utils.translation import ugettext_lazy as _l
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
@@ -53,6 +54,7 @@ from .models import (
     Txt,
     DName,
     Ns,
+    Role,
     Service,
     Vlan,
     Srv,
@@ -495,6 +497,38 @@ class DelNasForm(FormRevMixin, Form):
             self.fields['nas'].queryset = instances
         else:
             self.fields['nas'].queryset = Nas.objects.all()
+
+
+class RoleForm(FormRevMixin, ModelForm):
+    """Add and edit role."""
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RoleForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['servers'].queryset = (Interface.objects.all()
+                                           .select_related(
+                                               'domain__extension'
+                                           ))
+
+
+class DelRoleForm(FormRevMixin, Form):
+    """Deletion of one or several roles."""
+    role = forms.ModelMultipleChoiceField(
+        queryset=Role.objects.none(),
+        label=_l("Current roles"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelRoleForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['role'].queryset = instances
+        else:
+            self.fields['role'].queryset = Role.objects.all()
 
 
 class ServiceForm(FormRevMixin, ModelForm):

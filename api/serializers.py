@@ -338,6 +338,7 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 class OptionalTopologieSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalTopologie` objects.
     """
+
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
