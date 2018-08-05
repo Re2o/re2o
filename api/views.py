@@ -544,6 +544,10 @@ class SubnetPortsOpenView(generics.ListAPIView):
     queryset = machines.IpType.objects.all()
     serializer_class = serializers.SubnetPortsOpenSerializer
 
+class InterfacePortsOpenView(generics.ListAPIView):
+    queryset = machines.Interface.objects.filter(port_lists__isnull=False).distinct()
+    serializer_class = serializers.InterfacePortsOpenSerializer
+
 # DNS
 
 

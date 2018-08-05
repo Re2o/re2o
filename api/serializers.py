@@ -675,6 +675,15 @@ class SubnetPortsOpenSerializer(serializers.ModelSerializer):
         model = machines.IpType
         fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
 
+class InterfacePortsOpenSerializer(serializers.ModelSerializer):
+    port_lists = FirewallOuverturePortListSerializer(read_only=True, many=True)
+    ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
+    ipv6 = Ipv6ListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('port_lists', 'ipv4', 'ipv6')
+
 # DHCP
 
 

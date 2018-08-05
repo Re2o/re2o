@@ -103,6 +103,7 @@ router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 router.register_view(r'localemail/users', views.LocalEmailUsersView),
 # Firewall
 router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
+router.register_view(r'firewall/interface-ports', views.InterfacePortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
