@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "Cotisation type" %}</th>
             <th>{% trans "Duration (month)" %}</th>
             <th>{% trans "Concerned users" %}</th>
-            <th>{% trans "Available for everyone" | tick %}</th>
+            <th>{% trans "Available for everyone" %}</th>
             <th></th>
         </tr>
     </thead>
@@ -46,7 +46,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ article.type_cotisation }}</td>
         <td>{{ article.duration }}</td>
         <td>{{ article.type_user }}</td>
-        <td>{{ article.available_for_everyone }}</td>
+        <td>{{ article.available_for_everyone|tick }}</td>
         <td class="text-right">
             {% can_edit article %}
             <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-article' article.id %}">
