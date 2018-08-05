@@ -284,6 +284,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             raise NotImplementedError("Type inconnu")
 
     @cached_property
+    def gid_number(self):
+        """renvoie le gid par défaut des users"""
+        return int(LDAP['user_gid'])
+
+    @cached_property
     def is_class_club(self):
         """ Returns True if the object is a Club (subclassing User) """
         # TODO : change to isinstance (cleaner)

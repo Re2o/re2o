@@ -552,6 +552,15 @@ class AdherentSerializer(NamespacedHMSerializer):
             'shell': {'view_name': 'shell-detail'}
         }
 
+class HomeCreationSerializer(NamespacedHMSerializer):
+    """Serialize 'users.models.User' minimal infos to create home
+    """
+    uid = serializers.IntegerField(source='uid_number')
+    gid = serializers.IntegerField(source='gid_number')
+
+    class Meta:
+        model = users.User
+        fields = ('pseudo', 'uid', 'gid')
 
 class ServiceUserSerializer(NamespacedHMSerializer):
     """Serialize `users.models.ServiceUser` objects.
