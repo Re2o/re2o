@@ -63,21 +63,20 @@ class PreferencesModel(models.Model):
 class OptionalUser(AclMixin, PreferencesModel):
     """Options pour l'user : obligation ou nom du telephone,
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
-    PRETTY_NAME = "Options utilisateur"
 
     is_tel_mandatory = models.BooleanField(default=True)
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create_club = models.BooleanField(
         default=False,
-        help_text="Les users peuvent créer un club"
+        help_text=_("Users can create a club")
     )
     all_can_create_adherent = models.BooleanField(
         default=False,
-        help_text="Les users peuvent créer d'autres adhérents",
+        help_text=_("Users can create a member"),
     )
     self_adhesion = models.BooleanField(
         default=False,
-        help_text="Un nouvel utilisateur peut se créer son compte sur re2o"
+        help_text=_("A new user can create their account on Re2o")
     )
     shell_default = models.OneToOneField(
         'users.ListShell',
@@ -87,33 +86,35 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
     self_change_shell = models.BooleanField(
         default=False,
-        help_text="Users can change their shell"
+        help_text=_("Users can edit their shell")
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False,
-        help_text="Enable local email accounts for users"
+        help_text=_("Enable local email accounts for users")
     )
     local_email_domain = models.CharField(
-        max_length = 32,
-        default = "@example.org",
-        help_text="Domain to use for local email accounts",
+        max_length=32,
+        default="@example.org",
+        help_text=_("Domain to use for local email accounts")
     )
     max_email_address = models.IntegerField(
-        default = 15,
-        help_text = "Maximum number of local email address for a standard user"
+        default=15,
+        help_text=_("Maximum number of local email addresses for a standard"
+                    " user")
     )
 
     class Meta:
         permissions = (
-            ("view_optionaluser", "Peut voir les options de l'user"),
+            ("view_optionaluser", _("Can view the user options")),
         )
+        verbose_name = _("user options")
 
     def clean(self):
         """Clean model:
         Check the mail_extension
         """
         if self.local_email_domain[0] != "@":
-            raise ValidationError("Mail domain must begin with @")
+            raise ValidationError(_("Email domain must begin with @"))
 
 
 @receiver(post_save, sender=OptionalUser)
@@ -126,15 +127,14 @@ def optionaluser_post_save(**kwargs):
 class OptionalMachine(AclMixin, PreferencesModel):
     """Options pour les machines : maximum de machines ou d'alias par user
     sans droit, activation de l'ipv6"""
-    PRETTY_NAME = "Options machines"
 
     SLAAC = 'SLAAC'
     DHCPV6 = 'DHCPV6'
     DISABLED = 'DISABLED'
     CHOICE_IPV6 = (
-        (SLAAC, 'Autoconfiguration par RA'),
-        (DHCPV6, 'Attribution des ip par dhcpv6'),
-        (DISABLED, 'Désactivé'),
+        (SLAAC, _("Autoconfiguration by RA")),
+        (DHCPV6, _("IP addresses assigning by DHCPv6")),
+        (DISABLED, _("Disabled")),
     )
 
     password_machine = models.BooleanField(default=False)
@@ -146,8 +146,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
         default='DISABLED'
     )
     create_machine = models.BooleanField(
-        default=True,
-        help_text="Permet à l'user de créer une machine"
+        default=True
     )
 
     @cached_property
@@ -157,8 +156,9 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
     class Meta:
         permissions = (
-            ("view_optionalmachine", "Peut voir les options de machine"),
+            ("view_optionalmachine", _("Can view the machine options")),
         )
+        verbose_name = _("machine options")
 
 
 @receiver(post_save, sender=OptionalMachine)
@@ -174,13 +174,11 @@ def optionalmachine_post_save(**kwargs):
 class OptionalTopologie(AclMixin, PreferencesModel):
     """Reglages pour la topologie : mode d'accès radius, vlan où placer
     les machines en accept ou reject"""
-    PRETTY_NAME = "Options topologie"
     MACHINE = 'MACHINE'
     DEFINED = 'DEFINED'
     CHOICE_RADIUS = (
-        (MACHINE, 'Sur le vlan de la plage ip machine'),
-        (DEFINED, 'Prédéfini dans "Vlan où placer les machines\
-            après acceptation RADIUS"'),
+        (MACHINE, _("On the IP range's VLAN of the machine")),
+        (DEFINED, _("Preset in 'VLAN for machines accepted by RADIUS'")),
     )
 
     radius_general_policy = models.CharField(
@@ -205,8 +203,9 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     class Meta:
         permissions = (
-            ("view_optionaltopologie", "Peut voir les options de topologie"),
+            ("view_optionaltopologie", _("Can view the topology options")),
         )
+        verbose_name = _("topology options")
 
 
 @receiver(post_save, sender=OptionalTopologie)
@@ -219,17 +218,18 @@ def optionaltopologie_post_save(**kwargs):
 class GeneralOption(AclMixin, PreferencesModel):
     """Options générales : nombre de resultats par page, nom du site,
     temps où les liens sont valides"""
-    PRETTY_NAME = "Options générales"
 
     general_message_fr = models.TextField(
         default="",
         blank=True,
-        help_text="Message général affiché sur le site (maintenance, etc)"
+        help_text=_("General message displayed on the French version of the"
+                    " website (e.g. in case of maintenance)")
     )
     general_message_en = models.TextField(
         default="",
         blank=True,
-        help_text="General message displayed on the English version of the website."
+        help_text=_("General message displayed on the English version of the"
+                    " website (e.g. in case of maintenance)")
     )
     search_display_page = models.IntegerField(default=15)
     pagination_number = models.IntegerField(default=25)
@@ -250,8 +250,9 @@ class GeneralOption(AclMixin, PreferencesModel):
 
     class Meta:
         permissions = (
-            ("view_generaloption", "Peut voir les options générales"),
+            ("view_generaloption", _("Can view the general options")),
         )
+        verbose_name = _("general options")
 
 
 @receiver(post_save, sender=GeneralOption)
@@ -271,8 +272,10 @@ class Service(AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_service", "Peut voir les options de service"),
+            ("view_service", _("Can view the service options")),
         )
+        verbose_name = _("service")
+        verbose_name_plural =_("services")
 
     def __str__(self):
         return str(self.name)
@@ -282,14 +285,14 @@ class MailContact(AclMixin, models.Model):
 
     address = models.EmailField(
         default = "contact@example.org",
-        help_text = _("Contact email adress")
+        help_text = _("Contact email address")
     )
 
     commentary = models.CharField(
         blank = True,
         null = True,
         help_text = _(
-            "Description of the associated email adress."),
+            "Description of the associated email address."),
         max_length = 256
     )
 
@@ -299,8 +302,10 @@ class MailContact(AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_mailcontact", _("Can see contact email")),
+            ("view_mailcontact", _("Can view a contact email address object")),
         )
+        verbose_name = _("contact email address")
+        verbose_name_plural = _("contact email addresses")
 
     def __str__(self):
         return(self.address)
@@ -308,18 +313,17 @@ class MailContact(AclMixin, models.Model):
 
 class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""
-    PRETTY_NAME = "Options de l'association"
 
     name = models.CharField(
-        default="Association réseau école machin",
+        default=_("Networking organisation school Something"),
         max_length=256
     )
     siret = models.CharField(default="00000000000000", max_length=32)
-    adresse1 = models.CharField(default="1 Rue de exemple", max_length=128)
-    adresse2 = models.CharField(default="94230 Cachan", max_length=128)
+    adresse1 = models.CharField(default=_("Threadneedle Street"), max_length=128)
+    adresse2 = models.CharField(default=_("London EC2R 8AH"), max_length=128)
     contact = models.EmailField(default="contact@example.org")
     telephone = models.CharField(max_length=15, default="0000000000")
-    pseudo = models.CharField(default="Asso", max_length=32)
+    pseudo = models.CharField(default=_("Organisation"), max_length=32)
     utilisateur_asso = models.OneToOneField(
         'users.User',
         on_delete=models.PROTECT,
@@ -333,8 +337,9 @@ class AssoOption(AclMixin, PreferencesModel):
 
     class Meta:
         permissions = (
-            ("view_assooption", "Peut voir les options de l'asso"),
+            ("view_assooption", _("Can view the organisation options")),
         )
+        verbose_name = _("organisation options")
 
 
 @receiver(post_save, sender=AssoOption)
@@ -346,29 +351,26 @@ def assooption_post_save(**kwargs):
 
 class HomeOption(AclMixin, PreferencesModel):
     """Settings of the home page (facebook/twitter etc)"""
-    PRETTY_NAME = "Options de la page d'accueil"
 
     facebook_url = models.URLField(
         null=True,
-        blank=True,
-        help_text="Url du compte facebook"
+        blank=True
     )
     twitter_url = models.URLField(
         null=True,
-        blank=True,
-        help_text="Url du compte twitter"
+        blank=True
     )
     twitter_account_name = models.CharField(
         max_length=32,
         null=True,
-        blank=True,
-        help_text="Nom du compte à afficher"
+        blank=True
     )
 
     class Meta:
         permissions = (
-            ("view_homeoption", "Peut voir les options de l'accueil"),
+            ("view_homeoption", _("Can view the homepage options")),
         )
+        verbose_name = _("homepage options")
 
 
 @receiver(post_save, sender=HomeOption)
@@ -380,12 +382,14 @@ def homeoption_post_save(**kwargs):
 
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
-    PRETTY_NAME = "Options de corps de mail"
 
     welcome_mail_fr = models.TextField(default="")
     welcome_mail_en = models.TextField(default="")
 
     class Meta:
         permissions = (
-            ("view_mailmessageoption", "Peut voir les options de mail"),
+            ("view_mailmessageoption", _("Can view the email message"
+                                         " options")),
         )
+        verbose_name = _("email message options")
+
