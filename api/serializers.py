@@ -656,7 +656,7 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
 class FirewallPortListSerializer(serializers.ModelSerializer):
     class Meta:
         model = machines.OuverturePort
-        fields = ('begin', 'end', 'protocole', 'io')
+        fields = ('begin', 'end', 'protocole', 'io', 'show_port')
 
 class FirewallOuverturePortListSerializer(serializers.ModelSerializer):
     tcp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
