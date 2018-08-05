@@ -23,14 +23,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load i18n %}
 
 {% block sidebar %}
     <a class="list-group-item list-group-item-warning" href="{% url "search:search" %}">
         <i class="fa fa-search"></i>
-        Recherche simple
+        {% trans "Simple search" %}
     </a>
     <a class="list-group-item list-group-item-warning" href="{% url "search:searchp" %}">
         <i class="fa fa-search-plus"></i>
-        Recherche avancée
+        {% trans "Advanced search" %}
     </a>
 {% endblock %}
+
