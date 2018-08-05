@@ -188,10 +188,10 @@ def revert_action(request, revision_id):
     try:
         revision = Revision.objects.get(id=revision_id)
     except Revision.DoesNotExist:
-        messages.error(request, u"Revision inexistante")
+        messages.error(request, _("Nonexistent revision."))
     if request.method == "POST":
         revision.revert()
-        messages.success(request, "L'action a été supprimée")
+        messages.success(request, _("The action was deleted."))
         return redirect(reverse('logs:index'))
     return form({
         'objet': revision,
@@ -224,14 +224,14 @@ def stats_general(request):
     stats = [
         [   # First set of data (about users)
             [   # Headers
-                "Categorie",
-                "Nombre d'utilisateurs (total club et adhérents)",
-                "Nombre d'adhérents",
-                "Nombre de clubs"
+                _("Category"),
+                _("Number of users (members and clubs)"),
+                _("Number of members"),
+                _("Number of clubs")
             ],
             {   # Data
                 'active_users': [
-                    "Users actifs",
+                    _("Activated users"),
                     User.objects.filter(state=User.STATE_ACTIVE).count(),
                     (Adherent.objects
                      .filter(state=Adherent.STATE_ACTIVE)
@@ -239,7 +239,7 @@ def stats_general(request):
                     Club.objects.filter(state=Club.STATE_ACTIVE).count()
                 ],
                 'inactive_users': [
-                    "Users désactivés",
+                    _("Disabled users"),
                     User.objects.filter(state=User.STATE_DISABLED).count(),
                     (Adherent.objects
                      .filter(state=Adherent.STATE_DISABLED)
@@ -247,7 +247,7 @@ def stats_general(request):
                     Club.objects.filter(state=Club.STATE_DISABLED).count()
                 ],
                 'archive_users': [
-                    "Users archivés",
+                    _("Archived users"),
                     User.objects.filter(state=User.STATE_ARCHIVE).count(),
                     (Adherent.objects
                      .filter(state=Adherent.STATE_ARCHIVE)
@@ -255,31 +255,31 @@ def stats_general(request):
                     Club.objects.filter(state=Club.STATE_ARCHIVE).count()
                 ],
                 'adherent_users': [
-                    "Cotisant à l'association",
+                    _("Contributing members"),
                     _all_adherent.count(),
                     _all_adherent.exclude(adherent__isnull=True).count(),
                     _all_adherent.exclude(club__isnull=True).count()
                 ],
                 'connexion_users': [
-                    "Utilisateurs bénéficiant d'une connexion",
+                    _("Users benefiting from a connection"),
                     _all_has_access.count(),
                     _all_has_access.exclude(adherent__isnull=True).count(),
                     _all_has_access.exclude(club__isnull=True).count()
                 ],
                 'ban_users': [
-                    "Utilisateurs bannis",
+                    _("Banned users"),
                     _all_baned.count(),
                     _all_baned.exclude(adherent__isnull=True).count(),
                     _all_baned.exclude(club__isnull=True).count()
                 ],
                 'whitelisted_user': [
-                    "Utilisateurs bénéficiant d'une connexion gracieuse",
+                    _("Users benefiting from a free connection"),
                     _all_whitelisted.count(),
                     _all_whitelisted.exclude(adherent__isnull=True).count(),
                     _all_whitelisted.exclude(club__isnull=True).count()
                 ],
                 'actives_interfaces': [
-                    "Interfaces actives (ayant accès au reseau)",
+                    _("Active interfaces (with access to the network)"),
                     _all_active_interfaces_count.count(),
                     (_all_active_interfaces_count
                      .exclude(machine__user__adherent__isnull=True)
@@ -289,7 +289,7 @@ def stats_general(request):
                      .count())
                 ],
                 'actives_assigned_interfaces': [
-                    "Interfaces actives et assignées ipv4",
+                    _("Active interfaces assigned IPv4"),
                     _all_active_assigned_interfaces_count.count(),
                     (_all_active_assigned_interfaces_count
                      .exclude(machine__user__adherent__isnull=True)
@@ -302,12 +302,12 @@ def stats_general(request):
         ],
         [   # Second set of data (about ip adresses)
             [   # Headers
-                "Range d'ip",
-                "Vlan",
-                "Nombre d'ip totales",
-                "Ip assignées",
-                "Ip assignées à une machine active",
-                "Ip non assignées"
+                _("IP range"),
+                _("VLAN"),
+                _("Total number of IP addresses"),
+                _("Number of assigned IP addresses"),
+                _("Number of IP address assigned to an activated machine"),
+                _("Number of nonassigned IP addresses")
             ],
             ip_dict  # Data already prepared
         ]
@@ -322,79 +322,87 @@ def stats_models(request):
     nombre d'users, d'écoles, de droits, de bannissements,
     de factures, de ventes, de banque, de machines, etc"""
     stats = {
-        'Users': {
-            'users': [User.PRETTY_NAME, User.objects.count()],
-            'adherents': [Adherent.PRETTY_NAME, Adherent.objects.count()],
-            'clubs': [Club.PRETTY_NAME, Club.objects.count()],
-            'serviceuser': [ServiceUser.PRETTY_NAME,
+        _("Users"): {
+            'users': [User._meta.verbose_name, User.objects.count()],
+            'adherents': [Adherent._meta.verbose_name, Adherent.objects.count()],
+            'clubs': [Club._meta.verbose_name, Club.objects.count()],
+            'serviceuser': [ServiceUser._meta.verbose_name,
                             ServiceUser.objects.count()],
-            'school': [School.PRETTY_NAME, School.objects.count()],
-            'listright': [ListRight.PRETTY_NAME, ListRight.objects.count()],
-            'listshell': [ListShell.PRETTY_NAME, ListShell.objects.count()],
-            'ban': [Ban.PRETTY_NAME, Ban.objects.count()],
-            'whitelist': [Whitelist.PRETTY_NAME, Whitelist.objects.count()]
+            'school': [School._meta.verbose_name, School.objects.count()],
+            'listright': [ListRight._meta.verbose_name, ListRight.objects.count()],
+            'listshell': [ListShell._meta.verbose_name, ListShell.objects.count()],
+            'ban': [Ban._meta.verbose_name, Ban.objects.count()],
+            'whitelist': [Whitelist._meta.verbose_name, Whitelist.objects.count()]
         },
-        'Cotisations': {
+        _("Subscriptions"): {
             'factures': [
-                Facture._meta.verbose_name.title(),
+                Facture._meta.verbose_name,
                 Facture.objects.count()
             ],
             'vente': [
-                Vente._meta.verbose_name.title(),
+                Vente._meta.verbose_name,
                 Vente.objects.count()
             ],
             'cotisation': [
-                Cotisation._meta.verbose_name.title(),
+                Cotisation._meta.verbose_name,
                 Cotisation.objects.count()
             ],
             'article': [
-                Article._meta.verbose_name.title(),
+                Article._meta.verbose_name,
                 Article.objects.count()
             ],
             'banque': [
-                Banque._meta.verbose_name.title(),
+                Banque._meta.verbose_name,
                 Banque.objects.count()
             ],
         },
-        'Machines': {
-            'machine': [Machine.PRETTY_NAME, Machine.objects.count()],
-            'typemachine': [MachineType.PRETTY_NAME,
+        _("Machines"): {
+            'machine': [Machine._meta.verbose_name,
+                        Machine.objects.count()],
+            'typemachine': [MachineType._meta.verbose_name,
                             MachineType.objects.count()],
-            'typeip': [IpType.PRETTY_NAME, IpType.objects.count()],
-            'extension': [Extension.PRETTY_NAME, Extension.objects.count()],
-            'interface': [Interface.PRETTY_NAME, Interface.objects.count()],
-            'alias': [Domain.PRETTY_NAME,
+            'typeip': [IpType._meta.verbose_name,
+                       IpType.objects.count()],
+            'extension': [Extension._meta.verbose_name,
+                          Extension.objects.count()],
+            'interface': [Interface._meta.verbose_name,
+                          Interface.objects.count()],
+            'alias': [Domain._meta.verbose_name,
                       Domain.objects.exclude(cname=None).count()],
-            'iplist': [IpList.PRETTY_NAME, IpList.objects.count()],
-            'service': [Service.PRETTY_NAME, Service.objects.count()],
+            'iplist': [IpList._meta.verbose_name,
+                       IpList.objects.count()],
+            'service': [Service._meta.verbose_name,
+                        Service.objects.count()],
             'ouvertureportlist': [
-                OuverturePortList.PRETTY_NAME,
+                OuverturePortList._meta.verbose_name,
                 OuverturePortList.objects.count()
             ],
-            'vlan': [Vlan.PRETTY_NAME, Vlan.objects.count()],
-            'SOA': [SOA.PRETTY_NAME, SOA.objects.count()],
-            'Mx': [Mx.PRETTY_NAME, Mx.objects.count()],
-            'Ns': [Ns.PRETTY_NAME, Ns.objects.count()],
-            'nas': [Nas.PRETTY_NAME, Nas.objects.count()],
+            'vlan': [Vlan._meta.verbose_name, Vlan.objects.count()],
+            'SOA': [SOA._meta.verbose_name, SOA.objects.count()],
+            'Mx': [Mx._meta.verbose_name, Mx.objects.count()],
+            'Ns': [Ns._meta.verbose_name, Ns.objects.count()],
+            'nas': [Nas._meta.verbose_name, Nas.objects.count()],
         },
-        'Topologie': {
-            'switch': [Switch.PRETTY_NAME, Switch.objects.count()],
-            'bornes': [AccessPoint.PRETTY_NAME, AccessPoint.objects.count()],
-            'port': [Port.PRETTY_NAME, Port.objects.count()],
-            'chambre': [Room.PRETTY_NAME, Room.objects.count()],
-            'stack': [Stack.PRETTY_NAME, Stack.objects.count()],
+        _("Topology"): {
+            'switch': [Switch._meta.verbose_name,
+                       Switch.objects.count()],
+            'bornes': [AccessPoint._meta.verbose_name,
+                       AccessPoint.objects.count()],
+            'port': [Port._meta.verbose_name, Port.objects.count()],
+            'chambre': [Room._meta.verbose_name, Room.objects.count()],
+            'stack': [Stack._meta.verbose_name, Stack.objects.count()],
             'modelswitch': [
-                ModelSwitch.PRETTY_NAME,
+                ModelSwitch._meta.verbose_name,
                 ModelSwitch.objects.count()
             ],
             'constructorswitch': [
-                ConstructorSwitch.PRETTY_NAME,
+                ConstructorSwitch._meta.verbose_name,
                 ConstructorSwitch.objects.count()
             ],
         },
-        'Actions effectuées sur la base':
+        _("Actions performed"):
         {
-            'revision': ["Nombre d'actions", Revision.objects.count()],
+            'revision': [_("Number of actions"), Revision.objects.count()],
         },
     }
     return render(request, 'logs/stats_models.html', {'stats_list': stats})
@@ -408,35 +416,35 @@ def stats_users(request):
     de moyens de paiements par user, de banque par user,
     de bannissement par user, etc"""
     stats = {
-        'Utilisateur': {
-            'Machines': User.objects.annotate(
+        _("User"): {
+            _("Machines"): User.objects.annotate(
                 num=Count('machine')
             ).order_by('-num')[:10],
-            'Facture': User.objects.annotate(
+            _("Invoice"): User.objects.annotate(
                 num=Count('facture')
             ).order_by('-num')[:10],
-            'Bannissement': User.objects.annotate(
+            _("Ban"): User.objects.annotate(
                 num=Count('ban')
             ).order_by('-num')[:10],
-            'Accès gracieux': User.objects.annotate(
+            _("Whitelist"): User.objects.annotate(
                 num=Count('whitelist')
             ).order_by('-num')[:10],
-            'Droits': User.objects.annotate(
+            _("Rights"): User.objects.annotate(
                 num=Count('groups')
             ).order_by('-num')[:10],
         },
-        'Etablissement': {
-            'Utilisateur': School.objects.annotate(
+        _("School"): {
+            _("User"): School.objects.annotate(
                 num=Count('user')
             ).order_by('-num')[:10],
         },
-        'Moyen de paiement': {
-            'Utilisateur': Paiement.objects.annotate(
+        _("Payment method"): {
+            _("User"): Paiement.objects.annotate(
                 num=Count('facture')
             ).order_by('-num')[:10],
         },
-        'Banque': {
-            'Utilisateur': Banque.objects.annotate(
+        _("Bank"): {
+            _("User"): Banque.objects.annotate(
                 num=Count('facture')
             ).order_by('-num')[:10],
         },
@@ -451,8 +459,8 @@ def stats_actions(request):
     utilisateurs.
     Affiche le nombre de modifications aggrégées par utilisateurs"""
     stats = {
-        'Utilisateur': {
-            'Action': User.objects.annotate(
+        _("User"): {
+            _("Action"): User.objects.annotate(
                 num=Count('revision')
             ).order_by('-num')[:40],
         },
@@ -489,14 +497,14 @@ def history(request, application, object_name, object_id):
     try:
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
-        messages.error(request, _("No entry found."))
+        messages.error(request, _("Nonexistent entry."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
     can, msg = instance.can_view(request.user)
     if not can:
-        messages.error(request, msg or _("You cannot acces to this menu"))
+        messages.error(request, msg or _("You don't have the right to access this menu."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
@@ -513,3 +521,4 @@ def history(request, application, object_name, object_id):
         're2o/history.html',
         {'reversions': reversions, 'object': instance}
     )
+
