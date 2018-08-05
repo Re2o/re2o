@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 {% if switch_bay_list.paginator %}
 {% include "pagination.html" with list=switch_bay_list %}
@@ -32,36 +33,45 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='name' text='Baie' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='building' text='Bâtiment' %}</th>
-            <th>Info particulières</th>
-            <th>Switchs de la baie</th>
+            {% trans "Switch bay" as tr_bay %}
+            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='name' text=tr_bay %}</th>
+            {% trans "Building" as tr_building %}
+            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='building' text=tr_building %}</th>
+            <th>{% trans "Information" %}</th>
+            <th>{% trans "Switches of the bay" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for switch_bay in switch_bay_list %}
-    <tr>
-        <td>{{switch_bay.name}}</td>
-        <td>{{switch_bay.building}}</td>
-        <td>{{switch_bay.info}}</td>
-        <td>{% for switch in switch_bay.switch_set.all %}<a href="{% url 'topologie:index-port' switch.pk %}">{{switch }} </a>{% endfor %}</td>
-        <td class="text-right">
-            {% history_button switch_bay %}
-            {% can_edit switch_bay %}
-            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-switch-bay' switch_bay.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
-            {% acl_end %}
-            {% can_delete switch_bay %}
-            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-switch-bay' switch_bay.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
-            {% acl_end %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ switch_bay.name }}</td>
+            <td>{{ switch_bay.building }}</td>
+            <td>{{ switch_bay.info }}</td>
+            <td>
+                {% for switch in switch_bay.switch_set.all %}
+                <a href="{% url 'topologie:index-port' switch.pk %}">
+                    {{ switch }}
+                </a>
+                {% endfor %}
+            </td>
+            <td class="text-right">
+                {% can_edit switch_bay %}
+                <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-switch-bay' switch_bay.id %}">
+                    <i class="fa fa-edit"></i>
+                </a>
+                {% acl_end %}
+                {% history_button switch_bay %}
+                {% can_delete switch_bay %}
+                <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-switch-bay' switch_bay.id %}">
+                    <i class="fa fa-trash"></i>
+                </a>
+                {% acl_end %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
 
 {% if switch_bay_list.paginator %}
 {% include "pagination.html" with list=switch_bay_list %}
 {% endif %}
+

@@ -25,15 +25,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Ports du switch{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
-<h2>Switch {{ nom_switch }}</h2>
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-switch'  id_switch %}"><i class="fa fa-edit"></i> Editer</a>
+<h2>{% trans "Switch:"%} {{ nom_switch }}</h2>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-switch'  id_switch %}"><i class="fa fa-edit"></i>{% trans " Edit" %}</a>
 {% can_create Port %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port'  id_switch %}"><i class="fa fa-plus"></i> Ajouter un port</a>
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:create-ports'  id_switch %}"><i class="fa fa-plus"></i> Ajouter des ports</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port'  id_switch %}"><i class="fa fa-plus"></i>{% trans " Add a port" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:create-ports'  id_switch %}"><i class="fa fa-plus"></i>{% trans " Add ports" %}</a>
 {% acl_end %}
 <hr>
 {% include "topologie/aff_repr_switch.html" with port_list=port_list %}
@@ -42,3 +43,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <br />
     <br />
 {% endblock %}
+

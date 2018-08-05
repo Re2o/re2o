@@ -25,8 +25,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Switchs{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
 
@@ -51,7 +52,7 @@ function toggle_graph() {
 
 
 <button class="btn btn-primary" type="button" onclick="toggle_graph()">
-Topologie des Switchs
+{% trans "Topology of the switches" %}
 </button>
 
 <a target="_blank" href="/media/images/switchs.png" class="btn btn-primary">
@@ -62,9 +63,9 @@ Topologie des Switchs
 <img id="zoom_01" src="/media/images/switchs.png" href="/media/images/switchs.png" target="_blank" data-zoom-image="/media/images/switchs.png" width=100% />
 </div>
 
-<h2>Switchs</h2>
+<h2>{% trans "Switches" %}</h2>
 {% can_create Switch %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i> Ajouter un switch</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i>{% trans " Add a switch" %}</a>
 <hr>
 {% acl_end %}
     {% include "topologie/aff_switch.html" with switch_list=switch_list %}
@@ -73,3 +74,4 @@ Topologie des Switchs
     <br />
 
 {% endblock %}
+

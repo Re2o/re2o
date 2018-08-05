@@ -23,30 +23,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load i18n %}
 
 {% block sidebar %}
     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-room" %}">
         <i class="fa fa-home"></i>
-        Chambres et locaux
+	{% trans "Rooms and premises" %}
     </a>
      <a class="list-group-item list-group-item-info" href="{% url "topologie:index" %}">
         <i class="fa fa-microchip"></i>
-        Switchs
+	{% trans "Switches" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-port-profile" %}">
         <i class="fa fa-cogs"></i>
-        Config des ports switchs
+	{% trans "Port profiles" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-ap" %}">
         <i class="fa fa-wifi"></i>
-        Bornes WiFi
+	{% trans "Access points" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-physical-grouping" %}">
         <i class="fa fa-list-ul"></i>
-        Groupements physiques
+	{% trans "Physical grouping" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "topologie:index-model-switch" %}">
         <i class="fa fa-list-ul"></i>
-        Modèles switches et constructeurs
+	{% trans "Switch models and constructors" %}
     </a>
 {% endblock %}
+

@@ -314,7 +314,7 @@ def new_port(request, switchid):
     try:
         switch = Switch.objects.get(pk=switchid)
     except Switch.DoesNotExist:
-        messages.error(request, u"Switch inexistant")
+        messages.error(request, _("Nonexistent switch."))
         return redirect(reverse('topologie:index'))
     port = AddPortForm(request.POST or None)
     if port.is_valid():
@@ -322,15 +322,15 @@ def new_port(request, switchid):
         port.switch = switch
         try:
             port.save()
-            messages.success(request, "Port ajouté")
+            messages.success(request, _("The port was added."))
         except IntegrityError:
-            messages.error(request, "Ce port existe déjà")
+            messages.error(request, _("The port already exists."))
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': switchid}
         ))
     return form(
-        {'id_switch': switchid, 'topoform': port, 'action_name': 'Ajouter'},
+        {'id_switch': switchid, 'topoform': port, 'action_name': _("Add")},
         'topologie/topo.html',
         request)
 
@@ -345,7 +345,7 @@ def edit_port(request, port_object, **_kwargs):
     if port.is_valid():
         if port.changed_data:
             port.save()
-            messages.success(request, "Le port a bien été modifié")
+            messages.success(request, _("The port was edited."))
         return redirect(reverse(
             'topologie:index-port',
             kwargs={'switchid': str(port_object.switch.id)}
@@ -354,7 +354,7 @@ def edit_port(request, port_object, **_kwargs):
         {
             'id_switch': str(port_object.switch.id),
             'topoform': port,
-            'action_name': 'Editer'
+            'action_name': _("Edit")
         },
         'topologie/topo.html',
         request
@@ -368,12 +368,12 @@ def del_port(request, port, **_kwargs):
     if request.method == "POST":
         try:
             port.delete()
-            messages.success(request, "Le port a été détruit")
+            messages.success(request, _("The port was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("Le port %s est affecté à un autre objet, impossible "
-                 "de le supprimer" % port)
+                (_("The port %s is used by another object, impossible to"
+                   " delete it.") % port)
             )
         return redirect(reverse(
             'topologie:index-port',
@@ -389,10 +389,10 @@ def new_stack(request):
     stack = StackForm(request.POST or None)
     if stack.is_valid():
         stack.save()
-        messages.success(request, "Stack crée")
+        messages.success(request, _("The stack was created."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': stack, 'action_name': 'Créer'},
+        {'topoform': stack, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -408,7 +408,7 @@ def edit_stack(request, stack, **_kwargs):
             stack.save()
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': stack, 'action_name': 'Editer'},
+        {'topoform': stack, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -421,12 +421,12 @@ def del_stack(request, stack, **_kwargs):
     if request.method == "POST":
         try:
             stack.delete()
-            messages.success(request, "La stack a eté détruite")
+            messages.success(request, _("The stack was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("La stack %s est affectée à un autre objet, impossible "
-                 "de la supprimer" % stack)
+                (_("The stack %s is used by another object, impossible to"
+                   " deleted it.") % stack)
             )
         return redirect(reverse('topologie:index-physical-grouping'))
     return form({'objet': stack}, 'topologie/delete.html', request)
@@ -467,8 +467,8 @@ def new_switch(request):
         if not user:
             messages.error(
                 request,
-                ("L'user association n'existe pas encore, veuillez le "
-                 "créer ou le linker dans preferences")
+                (_("The organisation's user doesn't exist yet, please create"
+                   " or link it in the preferences."))
             )
             return redirect(reverse('topologie:index'))
         new_switch_obj = switch.save(commit=False)
@@ -482,7 +482,7 @@ def new_switch(request):
             new_interface_obj.save()
             new_domain_obj.interface_parent = new_interface_obj
             new_domain_obj.save()
-            messages.success(request, "Le switch a été créé")
+            messages.success(request, _("The switch was created."))
             return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
@@ -505,7 +505,7 @@ def create_ports(request, switchid):
     try:
         switch = Switch.objects.get(pk=switchid)
     except Switch.DoesNotExist:
-        messages.error(request, u"Switch inexistant")
+        messages.error(request, _("Nonexistent switch"))
         return redirect(reverse('topologie:index'))
 
     s_begin = s_end = 0
@@ -525,7 +525,7 @@ def create_ports(request, switchid):
         end = port_form.cleaned_data['end']
         try:
             switch.create_ports(begin, end)
-            messages.success(request, "Ports créés.")
+            messages.success(request, _("The ports were created."))
         except ValidationError as e:
             messages.error(request, ''.join(e))
         return redirect(reverse(
@@ -569,7 +569,7 @@ def edit_switch(request, switch, switchid):
             new_interface_obj.save()
         if domain_form.changed_data:
             new_domain_obj.save()
-        messages.success(request, "Le switch a bien été modifié")
+        messages.success(request, _("The switch was edited."))
         return redirect(reverse('topologie:index'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
@@ -608,8 +608,8 @@ def new_ap(request):
         if not user:
             messages.error(
                 request,
-                ("L'user association n'existe pas encore, veuillez le "
-                 "créer ou le linker dans preferences")
+                (_("The organisation's user doesn't exist yet, please create"
+                   " or link it in the preferences."))
             )
             return redirect(reverse('topologie:index'))
         new_ap_obj = ap.save(commit=False)
@@ -623,7 +623,7 @@ def new_ap(request):
             new_interface_obj.save()
             new_domain_obj.interface_parent = new_interface_obj
             new_domain_obj.save()
-            messages.success(request, "La borne a été créé")
+            messages.success(request, _("The access point was created."))
             return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
@@ -663,8 +663,8 @@ def edit_ap(request, ap, **_kwargs):
         if not user:
             messages.error(
                 request,
-                ("L'user association n'existe pas encore, veuillez le "
-                 "créer ou le linker dans preferences")
+                (_("The organisation's user doesn't exist yet, please create"
+                   " or link it in the preferences."))
             )
             return redirect(reverse('topologie:index-ap'))
         new_ap_obj = ap_form.save(commit=False)
@@ -676,7 +676,7 @@ def edit_ap(request, ap, **_kwargs):
             new_interface_obj.save()
         if domain_form.changed_data:
             new_domain_obj.save()
-        messages.success(request, "La borne a été modifiée")
+        messages.success(request, _("The access point was edited."))
         return redirect(reverse('topologie:index-ap'))
     i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
@@ -699,10 +699,10 @@ def new_room(request):
     room = EditRoomForm(request.POST or None)
     if room.is_valid():
         room.save()
-        messages.success(request, "La chambre a été créé")
+        messages.success(request, _("The room was created."))
         return redirect(reverse('topologie:index-room'))
     return form(
-        {'topoform': room, 'action_name': 'Ajouter'},
+        {'topoform': room, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )
@@ -716,10 +716,10 @@ def edit_room(request, room, **_kwargs):
     if room.is_valid():
         if room.changed_data:
             room.save()
-            messages.success(request, "La chambre a bien été modifiée")
+            messages.success(request, _("The room was edited."))
         return redirect(reverse('topologie:index-room'))
     return form(
-        {'topoform': room, 'action_name': 'Editer'},
+        {'topoform': room, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -732,16 +732,16 @@ def del_room(request, room, **_kwargs):
     if request.method == "POST":
         try:
             room.delete()
-            messages.success(request, "La chambre/prise a été détruite")
+            messages.success(request, _("The room was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("La chambre %s est affectée à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % room)
+                (_("The room %s is used by another object, impossible to"
+                   " deleted it.") % room)
             )
         return redirect(reverse('topologie:index-room'))
     return form(
-        {'objet': room, 'objet_name': 'Chambre'},
+        {'objet': room, 'objet_name': _("Room")},
         'topologie/delete.html',
         request
     )
@@ -754,10 +754,10 @@ def new_model_switch(request):
     model_switch = EditModelSwitchForm(request.POST or None)
     if model_switch.is_valid():
         model_switch.save()
-        messages.success(request, "Le modèle a été créé")
+        messages.success(request, _("The swich model was created."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': model_switch, 'action_name': 'Ajouter'},
+        {'topoform': model_switch, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )
@@ -775,10 +775,10 @@ def edit_model_switch(request, model_switch, **_kwargs):
     if model_switch.is_valid():
         if model_switch.changed_data:
             model_switch.save()
-            messages.success(request, "Le modèle a bien été modifié")
+            messages.success(request, _("The switch model was edited."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': model_switch, 'action_name': 'Editer'},
+        {'topoform': model_switch, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -791,16 +791,16 @@ def del_model_switch(request, model_switch, **_kwargs):
     if request.method == "POST":
         try:
             model_switch.delete()
-            messages.success(request, "Le modèle a été détruit")
+            messages.success(request, _("The switch model was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("Le modèle %s est affectée à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % model_switch)
+                (_("The switch model %s is used by another object,"
+                   " impossible to delete it.") % model_switch)
             )
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'objet': model_switch, 'objet_name': 'Modèle de switch'},
+        {'objet': model_switch, 'objet_name': _("Switch model")},
         'topologie/delete.html',
         request
     )
@@ -813,10 +813,10 @@ def new_switch_bay(request):
     switch_bay = EditSwitchBayForm(request.POST or None)
     if switch_bay.is_valid():
         switch_bay.save()
-        messages.success(request, "La baie a été créé")
+        messages.success(request, _("The switch bay was created."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': switch_bay, 'action_name': 'Ajouter'},
+        {'topoform': switch_bay, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )
@@ -830,10 +830,10 @@ def edit_switch_bay(request, switch_bay, **_kwargs):
     if switch_bay.is_valid():
         if switch_bay.changed_data:
             switch_bay.save()
-            messages.success(request, "Le switch a bien été modifié")
+            messages.success(request, _("The switch bay was edited."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': switch_bay, 'action_name': 'Editer'},
+        {'topoform': switch_bay, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -846,16 +846,16 @@ def del_switch_bay(request, switch_bay, **_kwargs):
     if request.method == "POST":
         try:
             switch_bay.delete()
-            messages.success(request, "La baie a été détruite")
+            messages.success(request, _("The switch bay was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("La baie %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % switch_bay)
+                (_("The switch bay %s is used by another object,"
+                   " impossible to delete it.") % switch_bay)
             )
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'objet': switch_bay, 'objet_name': 'Baie de switch'},
+        {'objet': switch_bay, 'objet_name': _("Switch bay")},
         'topologie/delete.html',
         request
     )
@@ -868,10 +868,10 @@ def new_building(request):
     building = EditBuildingForm(request.POST or None)
     if building.is_valid():
         building.save()
-        messages.success(request, "Le batiment a été créé")
+        messages.success(request, _("The building was created."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': building, 'action_name': 'Ajouter'},
+        {'topoform': building, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )
@@ -885,10 +885,10 @@ def edit_building(request, building, **_kwargs):
     if building.is_valid():
         if building.changed_data:
             building.save()
-            messages.success(request, "Le batiment a bien été modifié")
+            messages.success(request, _("The building was edited."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': building, 'action_name': 'Editer'},
+        {'topoform': building, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -901,16 +901,16 @@ def del_building(request, building, **_kwargs):
     if request.method == "POST":
         try:
             building.delete()
-            messages.success(request, "La batiment a été détruit")
+            messages.success(request, _("The building was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("Le batiment %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % building)
+                (_("The building %s is used by another object, impossible"
+                   " to delete it.") % building)
             )
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'objet': building, 'objet_name': 'Bâtiment'},
+        {'objet': building, 'objet_name': _("Building")},
         'topologie/delete.html',
         request
     )
@@ -923,10 +923,10 @@ def new_constructor_switch(request):
     constructor_switch = EditConstructorSwitchForm(request.POST or None)
     if constructor_switch.is_valid():
         constructor_switch.save()
-        messages.success(request, "Le constructeur a été créé")
+        messages.success(request, _("The switch constructor was created."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': constructor_switch, 'action_name': 'Ajouter'},
+        {'topoform': constructor_switch, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )
@@ -944,10 +944,10 @@ def edit_constructor_switch(request, constructor_switch, **_kwargs):
     if constructor_switch.is_valid():
         if constructor_switch.changed_data:
             constructor_switch.save()
-            messages.success(request, "Le modèle a bien été modifié")
+            messages.success(request, _("The switch constructor was edited."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': constructor_switch, 'action_name': 'Editer'},
+        {'topoform': constructor_switch, 'action_name': _("Edit")},
         'topologie/topo.html',
         request
     )
@@ -960,17 +960,17 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
     if request.method == "POST":
         try:
             constructor_switch.delete()
-            messages.success(request, "Le constructeur a été détruit")
+            messages.success(request, _("The switch constructor was deleted."))
         except ProtectedError:
             messages.error(
                 request,
-                ("Le constructeur %s est affecté à un autre objet, impossible "
-                 "de la supprimer (switch ou user)" % constructor_switch)
+                (_("The switch constructor %s is used by another object,"
+                   " impossible to delete it.") % constructor_switch)
             )
         return redirect(reverse('topologie:index-model-switch'))
     return form({
         'objet': constructor_switch,
-        'objet_name': 'Constructeur de switch'
+        'objet_name': _("Switch constructor")
     }, 'topologie/delete.html', request)
 
 
@@ -981,7 +981,7 @@ def new_port_profile(request):
     port_profile = EditPortProfileForm(request.POST or None)
     if port_profile.is_valid():
         port_profile.save()
-        messages.success(request, _("Port profile created"))
+        messages.success(request, _("The port profile was created."))
         return redirect(reverse('topologie:index'))
     return form(
         {'topoform': port_profile, 'action_name': _("Create")},
@@ -999,7 +999,7 @@ def edit_port_profile(request, port_profile, **_kwargs):
     if port_profile.is_valid():
         if port_profile.changed_data:
             port_profile.save()
-            messages.success(request, _("Port profile modified"))
+            messages.success(request, _("The port profile was edited."))
         return redirect(reverse('topologie:index'))
     return form(
         {'topoform': port_profile, 'action_name': _("Edit")},
@@ -1016,10 +1016,10 @@ def del_port_profile(request, port_profile, **_kwargs):
         try:
             port_profile.delete()
             messages.success(request,
-                             _("The port profile was successfully deleted"))
+                             _("The port profile was deleted."))
         except ProtectedError:
             messages.success(request,
-                             _("Impossible to delete the port profile"))
+                             _("Impossible to delete the port profile."))
         return redirect(reverse('topologie:index'))
     return form(
         {'objet': port_profile, 'objet_name': _("Port profile")},
@@ -1139,9 +1139,8 @@ def generate_dot(data, template):
     t = loader.get_template(template)
     if not isinstance(t, Template) and \
        not (hasattr(t, 'template') and isinstance(t.template, Template)):
-        raise Exception("Le template par défaut de Django n'est pas utilisé."
-                        "Cela peut mener à des erreurs de rendu."
-                        "Vérifiez les paramètres")
+        raise Exception(_("The default Django template isn't used. This can"
+                          " lead to rendering errors. Check the parameters."))
     c = Context(data).flatten()
     dot = t.render(c)
     return(dot)
@@ -1183,3 +1182,4 @@ def recursive_switchs(switch_start, switch_before, detected):
                 if link:
                     links_return.append(link)
     return (links_return, detected)
+
