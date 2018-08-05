@@ -148,7 +148,7 @@ class UserManager(BaseUserManager):
             pseudo=pseudo,
             surname=surname,
             name=surname,
-            email=self.normalize_email(mail),
+            email=self.normalize_email(email),
         )
 
         user.set_password(password)
