@@ -537,7 +537,16 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.given_name = self.surname.lower() + '_'\
                 + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
-            user_ldap.user_password = self.password[:6] + self.password[7:]
+            if '{SSHA}' in self.password or '{SMD5}' in self.password:
+                # We remove the extra $ added at import from ldap
+                user_ldap.user_password = self.password[:6] + self.password[7:]
+            elif '{crypt}' in self.password:
+                # depending on the length, we need to remove or not a $
+                if len(self.password)==41:
+                    user_ldap.user_password = self.password
+                else: 
+                    user_ldap.user_password = self.password[:7] + self.password[8:]
+
             user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
             if self.get_shell:
                 user_ldap.login_shell = str(self.get_shell)
