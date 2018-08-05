@@ -220,7 +220,7 @@ class UserChangeForm(FormRevMixin, forms.ModelForm):
 
     class Meta:
         model = Adherent
-        fields = ('pseudo', 'password', 'surname')
+        fields = ('pseudo', 'password', 'surname', 'email')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -313,6 +313,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'name',
             'surname',
             'pseudo',
+            'email',
             'school',
             'comment',
             'room',
