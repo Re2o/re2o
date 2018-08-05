@@ -46,6 +46,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Auth definition
 PASSWORD_HASHERS = (
     're2o.login.SSHAPasswordHasher',
+    're2o.login.MD5PasswordHasher',
+    're2o.login.CryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 AUTH_USER_MODEL = 'users.User'  # The class to use for authentication
