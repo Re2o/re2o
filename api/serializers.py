@@ -673,7 +673,7 @@ class SubnetPortsOpenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.IpType
-        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'prefix_v6', 'ouverture_ports')
+        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
 
 # DHCP
 
