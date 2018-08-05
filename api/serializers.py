@@ -552,6 +552,15 @@ class AdherentSerializer(NamespacedHMSerializer):
             'shell': {'view_name': 'shell-detail'}
         }
 
+class HomeCreationSerializer(NamespacedHMSerializer):
+    """Serialize 'users.models.User' minimal infos to create home
+    """
+    uid = serializers.IntegerField(source='uid_number')
+    gid = serializers.IntegerField(source='gid_number')
+
+    class Meta:
+        model = users.User
+        fields = ('pseudo', 'uid', 'gid')
 
 class ServiceUserSerializer(NamespacedHMSerializer):
     """Serialize `users.models.ServiceUser` objects.
@@ -656,7 +665,7 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
 class FirewallPortListSerializer(serializers.ModelSerializer):
     class Meta:
         model = machines.OuverturePort
-        fields = ('begin', 'end', 'protocole', 'io')
+        fields = ('begin', 'end', 'protocole', 'io', 'show_port')
 
 class FirewallOuverturePortListSerializer(serializers.ModelSerializer):
     tcp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
@@ -673,7 +682,16 @@ class SubnetPortsOpenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.IpType
-        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'prefix_v6', 'ouverture_ports')
+        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
+
+class InterfacePortsOpenSerializer(serializers.ModelSerializer):
+    port_lists = FirewallOuverturePortListSerializer(read_only=True, many=True)
+    ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
+    ipv6 = Ipv6ListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('port_lists', 'ipv4', 'ipv6')
 
 # DHCP
 

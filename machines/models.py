@@ -358,6 +358,11 @@ class IpType(RevMixin, AclMixin, models.Model):
         else:
             return None
 
+    @cached_property
+    def complete_prefixv6(self):
+        """Return the complete prefix v6 as cidr"""
+        return str(self.prefix_v6) + "/" + str(self.prefix_v6_length)
+
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""
         return IpList.objects.filter(ip_type=self)

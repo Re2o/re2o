@@ -86,6 +86,7 @@ router.register_viewset(r'topologie/room', views.RoomViewSet)
 router.register(r'topologie/portprofile', views.PortProfileViewSet)
 # USERS
 router.register_viewset(r'users/user', views.UserViewSet)
+router.register_viewset(r'users/homecreation', views.HomeCreationViewSet)
 router.register_viewset(r'users/club', views.ClubViewSet)
 router.register_viewset(r'users/adherent', views.AdherentViewSet)
 router.register_viewset(r'users/serviceuser', views.ServiceUserViewSet)
@@ -103,6 +104,7 @@ router.register_view(r'dhcp/hostmacip', views.HostMacIpView),
 router.register_view(r'localemail/users', views.LocalEmailUsersView),
 # Firewall
 router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
+router.register_view(r'firewall/interface-ports', views.InterfacePortsOpenView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),

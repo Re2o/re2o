@@ -418,6 +418,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.User.objects.all()
     serializer_class = serializers.UserSerializer
 
+class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes infos of `users.models.Users` objects to create homes.
+    """
+    queryset = users.User.objects.all()
+    serializer_class = serializers.HomeCreationSerializer
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `users.models.Club` objects.
@@ -543,6 +548,10 @@ class HostMacIpView(generics.ListAPIView):
 class SubnetPortsOpenView(generics.ListAPIView):
     queryset = machines.IpType.objects.all()
     serializer_class = serializers.SubnetPortsOpenSerializer
+
+class InterfacePortsOpenView(generics.ListAPIView):
+    queryset = machines.Interface.objects.filter(port_lists__isnull=False).distinct()
+    serializer_class = serializers.InterfacePortsOpenSerializer
 
 # DNS
 
