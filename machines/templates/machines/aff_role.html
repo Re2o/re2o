@@ -38,14 +38,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </thead>
     {% for role in role_list %}
-    <tr>
-        <td>{{ role.role_type }}</td>
-        <td>{{ role.specific_role }}</td>
-        <td>{% for serv in role.servers.all %}{{ serv }}, {% endfor %}</td>
-        <td class="text-right">
-        {% can_edit role %}
+        <tr>
+            <td>{{ role.role_type }}</td>
+            <td>{{ role.specific_role }}</td>
+            <td>{% for serv in role.servers.all %}{{ serv }}, {% endfor %}</td>
+            <td class="text-right">
+            {% can_edit role %}
             {% include 'buttons/edit.html' with href='machines:edit-role' id=role.id %}
-        {% acl_end %}
+            {% acl_end %}
             {% history_button role %}
         </td>
     </tr>

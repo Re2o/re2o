@@ -23,16 +23,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Machines{% endblock %}
+{% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-<h2>SSH fingerprints</h2>
-{% can_create SshFp machine_id %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-sshfp' machine_id %}">
-    <i class="fa fa-plus"></i> Add an SSH fingerprint
-</a>
-{% acl_end %}
-{%  include "machines/aff_sshfp.html" with sshfp_list=sshfp_list %}
+    <h2>{% trans "SSH fingerprints" %}</h2>
+    {% can_create SshFp machine_id %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-sshfp' machine_id %}">
+        <i class="fa fa-plus"></i>{% trans " Add an SSH fingerprint" %}
+    </a>
+    {% acl_end %}
+    {%  include "machines/aff_sshfp.html" with sshfp_list=sshfp_list %}
 {% endblock %}
 

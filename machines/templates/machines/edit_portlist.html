@@ -24,8 +24,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Création et modification de machines{% endblock %}
+{% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors port_list %}
@@ -46,10 +47,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 
     <p>
-        <input class="btn btn-primary btn-sm" role="button" value="Ajouter un port" id="add_one">
+        {% trans "Add a port" as value %}
+        <input class="btn btn-primary btn-sm" role="button" value=value id="add_one">
     </p>
-
-    {% bootstrap_button "Créer ou modifier" button_type="submit" icon="star" %}
+    {% trans "Create or edit" as tr_create_or_edit %}
+    {% bootstrap_button tr_create_or_edit button_type="submit" icon="star" %}
 </form>
 <script type="text/javascript">
     var template = `{{ports.empty_form}}`;
@@ -67,3 +69,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 </script>
 {% endblock %}
+

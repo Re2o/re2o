@@ -24,11 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Machines{% endblock %}
+{% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-  <h2>Machines</h2>
+  <h2>{% trans "Machines" %}</h2>
   {%  include "machines/aff_machines.html" with  machines_list=machines_list %}
   <br />
   <br />
