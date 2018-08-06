@@ -1192,7 +1192,6 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     ipv6 = models.GenericIPAddressField(
         protocol='IPv6',
-        unique=True
     )
     interface = models.ForeignKey(
         'Interface',
