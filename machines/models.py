@@ -278,6 +278,20 @@ class IpType(RevMixin, AclMixin, models.Model):
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
+    domaine_ip_network = models.GenericIPAddressField(
+        protocol='IPv4',
+        null=True,
+        blank=True,
+        help_text="Network containing the ipv4 range domain ip start/stop. Optional"
+    )
+    domaine_ip_netmask = models.IntegerField(
+        default=24,
+        validators=[
+            MaxValueValidator(31),
+            MinValueValidator(8)
+        ],
+        help_text="Netmask for the ipv4 range domain"
+    )
     dnssec_reverse_v4 = models.BooleanField(
             default=False, 
             help_text="Activer DNSSEC sur le reverse DNS IPv4",
@@ -332,6 +346,11 @@ class IpType(RevMixin, AclMixin, models.Model):
         return [str(x) for x in self.ip_set]
 
     @cached_property
+    def ip_set_cidrs_as_str(self):
+        """Renvoie la liste des cidrs du range en str"""
+        return [str(ip_range) for ip_range in self.ip_set.iter_cidrs()]
+
+    @cached_property
     def ip_set_full_info(self):
         """Iter sur les range cidr, et renvoie network, broacast , etc"""
         return [
@@ -357,6 +376,24 @@ class IpType(RevMixin, AclMixin, models.Model):
             }
         else:
             return None
+
+    @cached_property
+    def ip_network(self):
+        """Renvoie le network parent du range start-stop, si spécifié
+        Différent de ip_set_cidrs ou iP_set, car lui est supérieur ou égal"""
+        if self.domaine_ip_network:
+            return IPNetwork(str(self.domaine_ip_network) + '/' + str(self.domaine_ip_netmask))
+        return None
+
+    @cached_property
+    def ip_net_full_info(self):
+        """Renvoie les infos du network contenant du range"""
+        return {
+            'network' : str(self.ip_network.network),
+            'netmask' : str(self.ip_network.netmask),
+            'broadcast' : str(self.ip_network.broadcast),
+            'netmask_cidr' : str(self.ip_network.prefixlen),
+        }
 
     @cached_property
     def complete_prefixv6(self):
@@ -442,6 +479,11 @@ class IpType(RevMixin, AclMixin, models.Model):
         # On formate le prefix v6
         if self.prefix_v6:
             self.prefix_v6 = str(IPNetwork(self.prefix_v6 + '/64').network)
+        # On vérifie qu'un domaine network/netmask contiens bien le domaine ip start-stop
+        if self.domaine_ip_network:
+            if not self.domaine_ip_start in self.ip_network or not self.domaine_ip_stop in self.ip_network:
+                raise ValidationError("If you specify a domaine ip network/netmask, it\
+                    must contain domaine ipstart-stop range")
         return
 
     def save(self, *args, **kwargs):
