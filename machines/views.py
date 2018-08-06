@@ -1533,7 +1533,7 @@ def index_sshfp(request, machine, machineid):
 
 
 @login_required
-@can_view_all(Interface)
+@can_view(Interface)
 def index_ipv6(request, interface, interfaceid):
     """ View used to display the list of existing IPv6 of an interface """
     ipv6_list = Ipv6List.objects.filter(interface=interface)
