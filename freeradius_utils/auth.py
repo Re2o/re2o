@@ -39,6 +39,7 @@ import os
 import sys
 import logging
 import radiusd  # Module magique freeradius (radiusd.py is dummy)
+import json
 
 from django.core.wsgi import get_wsgi_application
 from django.db.models import Q
@@ -68,6 +69,7 @@ RADIUS_POLICY = options.radius_general_policy
 #: Serveur radius de test (pas la prod)
 TEST_SERVER = bool(os.getenv('DBG_FREERADIUS', False))
 
+LEGACY_WIFI_PASSWORDS = json.load(open('/etc/freeradius/3.0/wifi_passwords', 'r'))
 
 # Logging
 class RadiusdHandler(logging.Handler):
@@ -156,6 +158,34 @@ def authorize(data):
         user = data.get('User-Name', '').decode('utf-8', errors='replace')
         user = user.split('@', 1)[0]
         mac = data.get('Calling-Station-Id', '')
+
+        #### Legacy, anciens login/mdp des machines
+        if user in LEGACY_WIFI_PASSWORDS:
+            logger.info(u"Legacy auth for login %s" % user.encode('utf-8'))
+
+            interface = Interface.objects.filter(domain__name=user, mac_address=mac).first()
+            if not interface:
+                logger.info(u"Rejet, Interface introuvable, mac et user login differents")
+                return radiusd.RLM_MODULE_REJECT
+
+            if not interface.is_active:
+                logger.info(u"Rejet, interface desactivee")
+                return radiusd.RLM_MODULE_REJECT
+
+            user_object = interface.machine.user
+            if not user_object.has_access():
+                logger.info(u"Adherent non connecte/cotisant")
+                return radiusd.RLM_MODULE_REJECT
+
+            return (
+                radiusd.RLM_MODULE_UPDATED,
+                (),
+                (
+                    (str("Cleartext-Password"), str(LEGACY_WIFI_PASSWORDS[user])),
+                ),
+            )
+
+
         result, log, password = check_user_machine_and_register(
             nas_type,
             user,
