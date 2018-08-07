@@ -864,7 +864,7 @@ class DNSReverseZonesSerializer(serializers.ModelSerializer):
         model = machines.IpType
         fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
                   'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
-                  'prefix_v6')
+                  'prefix_v6', 'prefix_v6_length')
 
 # MAILING
 
