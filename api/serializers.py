@@ -634,7 +634,7 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = users.User
-        fields = ('local_email_enabled', 'local_email_redirect',
+        fields = ('pseudo', 'local_email_enabled', 'local_email_redirect',
                   'email_address')
 
 
