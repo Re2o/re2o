@@ -348,7 +348,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
     if not nas_machine:
         return ('?', u'Chambre inconnue', u'Nas inconnu', VLAN_OK)
 
-    sw_name = str(nas_machine)
+    sw_name = str(getattr(nas_machine, 'short_name', str(nas_machine)))
 
     port = (Port.objects
             .filter(

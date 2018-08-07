@@ -427,7 +427,7 @@ class Port(AclMixin, RevMixin, models.Model):
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
             port_profile = PortProfile.objects.filter(
-                profile_default=profile).first()
+                profil_default=profile).first()
             if port_profile:
                 return port_profile
             else:
