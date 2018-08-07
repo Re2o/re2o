@@ -1078,6 +1078,11 @@ def user_post_save(**kwargs):
     )
     regen('mailing')
 
+@reciever(post_save, sender=EmailAddress)
+def EmailAddress_post_save():
+    """set the mail-server service to be regenerated"""
+    regen('mail-server')
+
 
 @receiver(m2m_changed, sender=User.groups.through)
 def user_group_relation_changed(**kwargs):
