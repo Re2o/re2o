@@ -292,9 +292,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         ],
         help_text="Netmask for the ipv4 range domain"
     )
-    dnssec_reverse_v4 = models.BooleanField(
+    reverse_v4 = models.BooleanField(
             default=False, 
-            help_text="Activer DNSSEC sur le reverse DNS IPv4",
+            help_text="Enable reverse DNS for IPv4",
     )
     prefix_v6 = models.GenericIPAddressField(
         protocol='IPv6',
@@ -308,9 +308,9 @@ class IpType(RevMixin, AclMixin, models.Model):
             MinValueValidator(0)
         ]
         )
-    dnssec_reverse_v6 = models.BooleanField(
+    reverse_v6 = models.BooleanField(
             default=False,
-            help_text="Activer DNSSEC sur le reverse DNS IPv6",
+            help_text="Enable reverse DNS for IPv6",
     )
     vlan = models.ForeignKey(
         'Vlan',
@@ -450,14 +450,20 @@ class IpType(RevMixin, AclMixin, models.Model):
 
     def get_associated_ptr_records(self):
         from re2o.utils import all_active_assigned_interfaces
-        return (all_active_assigned_interfaces()
-                .filter(type__ip_type=self)
-                .filter(ipv4__isnull=False))
+        if self.reverse_v4:
+            return (all_active_assigned_interfaces()
+                    .filter(type__ip_type=self)
+                    .filter(ipv4__isnull=False))
+        else:
+            return None
 
     def get_associated_ptr_v6_records(self):
         from re2o.utils import all_active_interfaces
-        return (all_active_interfaces(full=True)
-                .filter(type__ip_type=self))
+        if self.reverse_v6:
+            return (all_active_interfaces(full=True)
+                    .filter(type__ip_type=self))
+        else:
+            return None
 
     def clean(self):
         """ Nettoyage. Vérifie :

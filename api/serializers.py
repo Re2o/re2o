@@ -734,7 +734,7 @@ class NSRecordSerializer(NsSerializer):
     """Serialize `machines.models.Ns` objects with the data needed to
     generate a NS DNS record.
     """
-    target = serializers.CharField(source='ns.name', read_only=True)
+    target = serializers.CharField(source='ns', read_only=True)
 
     class Meta(NsSerializer.Meta):
         fields = ('target',)
@@ -744,7 +744,7 @@ class MXRecordSerializer(MxSerializer):
     """Serialize `machines.models.Mx` objects with the data needed to
     generate a MX DNS record.
     """
-    target = serializers.CharField(source='name.name', read_only=True)
+    target = serializers.CharField(source='name', read_only=True)
 
     class Meta(MxSerializer.Meta):
         fields = ('target', 'priority')
@@ -864,7 +864,7 @@ class DNSReverseZonesSerializer(serializers.ModelSerializer):
         model = machines.IpType
         fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
                   'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
-                  'prefix_v6')
+                  'prefix_v6', 'prefix_v6_length')
 
 # MAILING
 
