@@ -740,8 +740,8 @@ class Mx(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Enregistrements MX"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    priority = models.PositiveIntegerField(unique=True)
-    name = models.OneToOneField('Domain', on_delete=models.PROTECT)
+    priority = models.PositiveIntegerField()
+    name = models.ForeignKey('Domain', on_delete=models.PROTECT)
 
     class Meta:
         permissions = (
