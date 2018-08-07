@@ -30,6 +30,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
+from django.core.validators import RegexValidator
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -101,7 +102,11 @@ class OptionalUser(AclMixin, PreferencesModel):
     default_home_path = models.CharField(
         max_length = 256,
         default = "/home/{0}",
-        help_text = "Chemin par défaut du home des utilisateurs, formaté avec le pseudo"
+        help_text = "Chemin par défaut du home des utilisateurs, où {0} est remplacé par le pseudo",
+        validators=[RegexValidator(
+            r'^/.*\{0\}.*$',
+            message=("Le chemin doit commencer par un / et contenir \"{0}\"")
+        )]
     )
 
     class Meta:
