@@ -537,7 +537,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.name = self.pseudo
             user_ldap.sn = self.pseudo
             user_ldap.dialupAccess = str(self.has_access())
-            user_ldap.home_directory = '/home/' + self.pseudo
+            user_ldap.home_directory = OptionalUser.get_cached_value('default_home_path').format(self.pseudo)
             user_ldap.mail = self.email
             user_ldap.given_name = self.surname.lower() + '_'\
                 + self.name.lower()[:3]

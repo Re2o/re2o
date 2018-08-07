@@ -98,6 +98,11 @@ class OptionalUser(AclMixin, PreferencesModel):
         default = 15,
         help_text = "Maximum number of local email address for a standard user"
     )
+    default_home_path = models.CharField(
+        max_length = 256,
+        default = "/home/{0}",
+        help_text = "Chemin par défaut du home des utilisateurs, formaté avec le pseudo"
+    )
 
     class Meta:
         permissions = (
