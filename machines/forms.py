@@ -231,7 +231,7 @@ class EditIpTypeForm(IpTypeForm):
     class Meta(IpTypeForm.Meta):
         fields = ['extension', 'type', 'need_infra', 'domaine_ip_network', 'domaine_ip_netmask',
                   'prefix_v6', 'prefix_v6_length',
-                  'vlan', 'dnssec_reverse_v4', 'dnssec_reverse_v6',
+                  'vlan', 'reverse_v4', 'reverse_v6',
                   'ouverture_ports']
 
 

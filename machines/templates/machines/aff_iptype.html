@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.need_infra|tick }}</td>
 	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </b></u>{{ type.ip_network }}{% endif %}</td>
             <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
-	    <td>{{ type.dnssec_reverse_v4|tick }}/{{ type.dnssec_reverse_v6|tick }}</td>
+	    <td>{{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}</td>
             <td>{{ type.vlan }}</td>
             <td>{{ type.ouverture_ports }}</td>
             <td class="text-right">
