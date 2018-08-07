@@ -621,7 +621,7 @@ class WhitelistSerializer(NamespacedHMSerializer):
 class EMailAddressSerializer(NamespacedHMSerializer):
     """Serialize `users.models.EMailAddress` objects.
     """
-
+    user = serializers.CharField(source='user.pseudo', read_only=True)
     class Meta:
         model = users.EMailAddress
         fields = ('user', 'local_part', 'complete_email_address', 'api_url')
@@ -657,7 +657,7 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.User
         fields = ('local_email_enabled', 'local_email_redirect',
-                  'email_address')
+                  'email_address', 'email')
 
 
 #Firewall
