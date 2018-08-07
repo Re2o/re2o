@@ -292,9 +292,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         ],
         help_text="Netmask for the ipv4 range domain"
     )
-    dnssec_reverse_v4 = models.BooleanField(
+    reverse_v4 = models.BooleanField(
             default=False, 
-            help_text="Activer DNSSEC sur le reverse DNS IPv4",
+            help_text="Enable reverse DNS for IPv4",
     )
     prefix_v6 = models.GenericIPAddressField(
         protocol='IPv6',
@@ -308,9 +308,9 @@ class IpType(RevMixin, AclMixin, models.Model):
             MinValueValidator(0)
         ]
         )
-    dnssec_reverse_v6 = models.BooleanField(
+    reverse_v6 = models.BooleanField(
             default=False,
-            help_text="Activer DNSSEC sur le reverse DNS IPv6",
+            help_text="Enable reverse DNS for IPv6",
     )
     vlan = models.ForeignKey(
         'Vlan',
