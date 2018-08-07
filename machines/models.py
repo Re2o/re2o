@@ -450,14 +450,20 @@ class IpType(RevMixin, AclMixin, models.Model):
 
     def get_associated_ptr_records(self):
         from re2o.utils import all_active_assigned_interfaces
-        return (all_active_assigned_interfaces()
-                .filter(type__ip_type=self)
-                .filter(ipv4__isnull=False))
+        if self.reverse_v4:
+            return (all_active_assigned_interfaces()
+                    .filter(type__ip_type=self)
+                    .filter(ipv4__isnull=False))
+        else:
+            return None
 
     def get_associated_ptr_v6_records(self):
         from re2o.utils import all_active_interfaces
-        return (all_active_interfaces(full=True)
-                .filter(type__ip_type=self))
+        if self.reverse_v6:
+            return (all_active_interfaces(full=True)
+                    .filter(type__ip_type=self))
+        else:
+            return None
 
     def clean(self):
         """ Nettoyage. Vérifie :
