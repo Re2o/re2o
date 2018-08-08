@@ -1838,7 +1838,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
     def __str__(self):
         if self.begin == self.end:
             return str(self.begin)
-        return '-'.join([str(self.begin), str(self.end)])
+        return ':'.join([str(self.begin), str(self.end)])
 
     def show_port(self):
         """Formatage plus joli, alias pour str"""
