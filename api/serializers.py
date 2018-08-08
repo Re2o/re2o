@@ -816,13 +816,12 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
     """Serialize `machines.models.Domain` objects with the data needed to
     generate a CNAME DNS record.
     """
-    alias = serializers.CharField(source='cname.name', read_only=True)
+    alias = serializers.CharField(source='cname', read_only=True)
     hostname = serializers.CharField(source='name', read_only=True)
-    extension = serializers.CharField(source='extension.name', read_only=True)
 
     class Meta:
         model = machines.Domain
-        fields = ('alias', 'hostname', 'extension')
+        fields = ('alias', 'hostname')
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):

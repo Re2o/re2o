@@ -712,8 +712,7 @@ class Extension(RevMixin, AclMixin, models.Model):
         from re2o.utils import all_active_assigned_interfaces
         return (Domain.objects
                 .filter(extension=self)
-                .filter(cname__isnull=False)
-                .filter(interface_parent__in=all_active_assigned_interfaces())
+                .filter(cname__interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
 
     @staticmethod
