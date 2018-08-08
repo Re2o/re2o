@@ -274,6 +274,20 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             raise NotImplementedError("Type inconnu")
 
     @cached_property
+    def get_mail_addresses(self):
+        if self.local_email_enabled:
+            return self.emailaddress_set.all()
+        return None
+
+    @cached_property
+    def get_mail(self):
+        """Return the mail address choosen by the user"""
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled') or not self.local_email_enabled or self.local_email_redirect:
+            return str(self.email)
+        else:
+            return str(self.emailaddress_set.get(local_part=self.pseudo))
+
+    @cached_property
     def class_name(self):
         """Renvoie si il s'agit d'un adhérent ou d'un club"""
         if hasattr(self, 'adherent'):
@@ -538,7 +552,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.sn = self.pseudo
             user_ldap.dialupAccess = str(self.has_access())
             user_ldap.home_directory = '/home/' + self.pseudo
-            user_ldap.mail = self.email
+            user_ldap.mail = self.get_mail
             user_ldap.given_name = self.surname.lower() + '_'\
                 + self.name.lower()[:3]
             user_ldap.gid = LDAP['user_gid']
@@ -1684,11 +1698,11 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         verbose_name_plural = "Local email accounts"
 
     def __str__(self):
-        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+        return str(self.local_part) + OptionalUser.get_cached_value('local_email_domain')
 
     @cached_property
     def complete_email_address(self):
-        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+        return str(self.local_part) + OptionalUser.get_cached_value('local_email_domain')
 
     @staticmethod
     def can_create(user_request, userid, *_args, **_kwargs):
