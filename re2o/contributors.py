@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 """re2o.contributors
 A list of the proud contributors to Re2o
 """
