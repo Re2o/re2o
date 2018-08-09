@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>Temps minimum avant nouvelle régénération</th>
             <th>Temps avant nouvelle génération obligatoire (max)</th>
             <th>Serveurs inclus</th>
-            <th></th>
+	    <th>Demander la regeneration</th>
             <th></th>
         </tr>
     </thead>
@@ -41,7 +41,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ service.service_type }}</td>
         <td>{{ service.min_time_regen }}</td>
         <td>{{ service.regular_time_regen }}</td>
-        <td>{% for serv in service.servers.all %}{{ serv }}, {% endfor %}</td>
+	<td>{% for serv in service.servers.all %}{{ serv }}, {% endfor %}</td>
+	<td><a role="button" class="btn btn-danger" href="{% url 'machines:regen-service' service.id %}"><i class="fas fa-sync"></i></a></td>
         <td class="text-right">
             {% can_edit service %}
             {% include 'buttons/edit.html' with href='machines:edit-service' id=service.id %}

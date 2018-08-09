@@ -124,6 +124,7 @@ urlpatterns = [
         views.edit_service,
         name='edit-service'),
     url(r'^del_service/$', views.del_service, name='del-service'),
+    url(r'^regen_service/(?P<serviceid>[0-9]+)$', views.regen_service, name='regen-service'),
     url(r'^index_service/$', views.index_service, name='index-service'),
     url(r'^add_role/$', views.add_role, name='add-role'),
     url(r'^edit_role/(?P<roleid>[0-9]+)$',
