@@ -786,7 +786,7 @@ class Txt(RevMixin, AclMixin, models.Model):
     PRETTY_NAME = "Enregistrement TXT"
 
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    field1 = models.CharField(max_length=255)
+    field1 = models.CharField(max_length=255, blank=True)
     field2 = models.TextField(max_length=2047)
 
     class Meta:
