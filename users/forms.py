@@ -620,6 +620,9 @@ class EMailAddressForm(FormRevMixin, ModelForm):
         super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['local_part'].label = "Local part of the email"
         self.fields['local_part'].help_text = "Can't contain @"
+    
+    def clean_local_part(self):
+        return self.cleaned_data.get('local_part').lower()
 
     def clean_local_part(self):
         return self.cleaned_data.get('local_part').lower()
@@ -639,6 +642,12 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['local_email_redirect'].label = "Redirect local emails"
         if 'local_email_enabled' in self.fields:
             self.fields['local_email_enabled'].label = "Use local emails"
+
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError("Vous ne pouvez pas utiliser une addresse {}".format(OptionalUser.objects.first().local_email_domain))
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
