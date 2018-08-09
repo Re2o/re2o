@@ -1157,6 +1157,7 @@ olcDbIndex: dc eq
 olcDbIndex: entryCSN eq
 olcDbIndex: entryUUID eq
 olcDbIndex: radiusCallingStationId eq
+olcSizeLimit: 50000
 structuralObjectClass: olcHdbConfig
 entryUUID: fc8fa138-514b-1034-9c36-0faf5bc7ead5
 creatorsName: cn=admin,cn=config
