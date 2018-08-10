@@ -104,14 +104,6 @@ def linux_user_validator(login):
             params={'label': login},
         )
 
-def pseudo_taken(login):
-    """ Retourne une erreur de validation si le login ne respecte
-    pas les contraintes unix (maj, min, chiffres ou tiret)"""
-    if (EMailAddress.objects
-            .filter(local_part=login.lower())):
-        raise forms.ValidationError('Pseudo is already taken')
-
-
 def get_fresh_user_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
     uids = list(range(
@@ -202,7 +194,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         max_length=32,
         unique=True,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
-        validators=[linux_user_validator, pseudo_taken]
+        validators=[linux_user_validator]
     )
     email = models.EmailField(
         blank=True,
@@ -1745,9 +1737,6 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
 
     def __str__(self):
         return str(self.local_part) + OptionalUser.get_cached_value('local_email_domain')
-
-    def clean(self):
-        self.local_part = self.local_part.lower()
 
     @cached_property
     def complete_email_address(self):
