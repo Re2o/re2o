@@ -70,7 +70,6 @@ def index(request):
     }, 're2o/index.html', request)
 
 
-@cache_page(7 * 24 * 60 * 60)
 def about_page(request):
     """ The view for the about page.
     Fetch some info about the configuration of the project. If it can't
@@ -107,7 +106,6 @@ def about_page(request):
             'dependencies': dependencies
         }
     )
-
 
 def contact_page(request):
     """The view for the contact page
