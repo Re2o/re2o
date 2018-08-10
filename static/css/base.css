@@ -138,3 +138,8 @@ th.long_text{
     color: black;
 }
 
+/* add padding under title in profile */
+.title-dashboard{
+	padding-bottom: 30px;
+}
+
