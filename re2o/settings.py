@@ -96,6 +96,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
 )
+
+AUTHENTICATION_BACKENDS = ['re2o.login.RecryptBackend']
+
 # Include debug_toolbar middleware if activated
 if 'debug_toolbar' in INSTALLED_APPS:
     # Include this middleware at the beggining
