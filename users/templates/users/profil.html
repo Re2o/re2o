@@ -32,7 +32,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 <div align="center">
-    <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
+    {% if user == users %}
+        <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
+    {% else %}
+        <h2>Profil de {{ users.name }} {{ users.surname }}</h2>
+    {% endif %}
 </div>
 <div class="dashboard_container">
     <div class="row">
@@ -70,7 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    € {{ user.solde }}
+                    € {{ users.solde }}
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
