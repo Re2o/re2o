@@ -103,6 +103,13 @@ def linux_user_validator(login):
             params={'label': login},
         )
 
+def pseudo_taken(login):
+    """ Retourne une erreur de validation si le login ne respecte
+    pas les contraintes unix (maj, min, chiffres ou tiret)"""
+    if (EMailAddress.objects
+            .filter(local_part=login.lower())):
+        raise forms.ValidationError('Pseudo is already taken')
+
 
 def get_fresh_user_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
@@ -193,7 +200,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         max_length=32,
         unique=True,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
-        validators=[linux_user_validator]
+        validators=[linux_user_validator, pseudo_taken]
     )
     email = models.EmailField()
     local_email_redirect = models.BooleanField(
@@ -966,8 +973,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
         if (EMailAddress.objects
-                .filter(local_part=self.pseudo)
-                .exclude(user=self)):
+                .filter(local_part=self.pseudo.lower()).exclude(user=self)
+            ):
             raise ValidationError("This pseudo is already in use.")
 
     def __str__(self):
@@ -1106,7 +1113,7 @@ def user_post_save(**kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    EMailAddress.objects.get_or_create(local_part=user.pseudo, user=user)
+    EMailAddress.objects.get_or_create(local_part=user.pseudo.lower(), user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
@@ -1803,6 +1810,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
                        "local email account")
 
     def clean(self, *args, **kwargs):
+        self.local_part = self.local_part.lower()
         if "@" in self.local_part:
             raise ValidationError("The local part cannot contain a @")
         super(EMailAddress, self).clean(*args, **kwargs)
