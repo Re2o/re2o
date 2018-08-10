@@ -76,15 +76,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
-                            {% if request.user.is_authenticated %}
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
-                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
-                                </ul>
-                            </li>
-                            {% endif %}
                             {% can_view_any_app users machines cotisations %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Members" %}<span class="caret"></span></a>
@@ -115,8 +106,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> {% trans "Statistics" %}</a></li>
                             {% acl_end %}
-                        </ul>
-                        <ul class="nav navbar-nav navbar-right">
                             {% can_view_app preferences %}
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
@@ -124,6 +113,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </a>
                             </li>
                             {% acl_end %}
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "Info" %}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -158,6 +149,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </form>
                                 </li>
 			    {% acl_end %}
+                            {% endif %}
+                            {% if request.user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
+                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
+                                </ul>
+                            </li>
                             {% endif %}
                             <li>
                                 {% include 'buttons/setlang.html' %}
