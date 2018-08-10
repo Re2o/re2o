@@ -33,6 +33,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from users.models import User, Adherent, Club, Ban, Whitelist
 from machines.models import Machine
+from cotisations.models import Cotisation
 from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
 from preferences.models import GeneralOption
@@ -44,6 +45,7 @@ from search.forms import (
     initial_choices
 )
 from re2o.utils import SortTable
+from re2o.acl import can_view_all
 
 
 def is_int(variable):
@@ -347,6 +349,7 @@ def get_words(query):
     return words
 
 
+@can_view_all(User, Machine, Cotisation)
 def get_results(query, request, params):
     """The main function of the search procedure. It gather the filters for
     each of the different words of the query and concatenate them into a
