@@ -48,6 +48,7 @@ from __future__ import unicode_literals
 import re
 import uuid
 import datetime
+import sys
 
 from django.db import models
 from django.db.models import Q
@@ -67,7 +68,7 @@ from django.contrib.auth.models import (
     Group
 )
 from django.core.validators import RegexValidator
-
+import traceback
 from reversion import revisions as reversion
 
 import ldapdb.models
@@ -539,51 +540,52 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        self.refresh_from_db()
-        try:
-            user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
-        except LdapUser.DoesNotExist:
-            user_ldap = LdapUser(uidNumber=self.uid_number)
-            base = True
-            access_refresh = True
-            mac_refresh = True
-        if base:
-            user_ldap.name = self.pseudo
-            user_ldap.sn = self.pseudo
-            user_ldap.dialupAccess = str(self.has_access())
-            user_ldap.home_directory = '/home/' + self.pseudo
-            user_ldap.mail = self.get_mail
-            user_ldap.given_name = self.surname.lower() + '_'\
-                + self.name.lower()[:3]
-            user_ldap.gid = LDAP['user_gid']
-            if '{SSHA}' in self.password or '{SMD5}' in self.password:
-                # We remove the extra $ added at import from ldap
-                user_ldap.user_password = self.password[:6] + self.password[7:]
-            elif '{crypt}' in self.password:
-                # depending on the length, we need to remove or not a $
-                if len(self.password)==41:
-                    user_ldap.user_password = self.password
-                else: 
-                    user_ldap.user_password = self.password[:7] + self.password[8:]
+        if sys.version_info[0] >= 3:
+            self.refresh_from_db()
+            try:
+                user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
+            except LdapUser.DoesNotExist:
+                user_ldap = LdapUser(uidNumber=self.uid_number)
+                base = True
+                access_refresh = True
+                mac_refresh = True
+            if base:
+                user_ldap.name = self.pseudo
+                user_ldap.sn = self.pseudo
+                user_ldap.dialupAccess = str(self.has_access())
+                user_ldap.home_directory = '/home/' + self.pseudo
+                user_ldap.mail = self.get_mail
+                user_ldap.given_name = self.surname.lower() + '_'\
+                    + self.name.lower()[:3]
+                user_ldap.gid = LDAP['user_gid']
+                if '{SSHA}' in self.password or '{SMD5}' in self.password:
+                    # We remove the extra $ added at import from ldap
+                    user_ldap.user_password = self.password[:6] + self.password[7:]
+                elif '{crypt}' in self.password:
+                    # depending on the length, we need to remove or not a $
+                    if len(self.password)==41:
+                        user_ldap.user_password = self.password
+                    else: 
+                        user_ldap.user_password = self.password[:7] + self.password[8:]
 
-            user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
-            if self.get_shell:
-                user_ldap.login_shell = str(self.get_shell)
-            user_ldap.shadowexpire = self.get_shadow_expire
-        if access_refresh:
-            user_ldap.dialupAccess = str(self.has_access())
-        if mac_refresh:
-            user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
-                machine__user=self
-            ).values_list('mac_address', flat=True).distinct()]
-        if group_refresh:
-            # Need to refresh all groups because we don't know which groups
-            # were updated during edition of groups and the user may no longer
-            # be part of the updated group (case of group removal)
-            for group in Group.objects.all():
-                if hasattr(group, 'listright'):
-                    group.listright.ldap_sync()
-        user_ldap.save()
+                user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
+                if self.get_shell:
+                    user_ldap.login_shell = str(self.get_shell)
+                user_ldap.shadowexpire = self.get_shadow_expire
+            if access_refresh:
+                user_ldap.dialupAccess = str(self.has_access())
+            if mac_refresh:
+                user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
+                    machine__user=self
+                ).values_list('mac_address', flat=True).distinct()]
+            if group_refresh:
+                # Need to refresh all groups because we don't know which groups
+                # were updated during edition of groups and the user may no longer
+                # be part of the updated group (case of group removal)
+                for group in Group.objects.all():
+                    if hasattr(group, 'listright'):
+                        group.listright.ldap_sync()
+            user_ldap.save()
 
     def ldap_del(self):
         """ Supprime la version ldap de l'user"""
@@ -679,7 +681,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             domain.save()
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
-            return False, error
+            return False,  traceback.format_exc()
         return interface_cible, "Ok"
 
     def notif_auto_newmachine(self, interface):

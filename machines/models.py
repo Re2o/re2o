@@ -1005,7 +1005,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     @cached_property
     def gen_ipv6_dhcpv6(self):
         """Cree une ip, à assigner avec dhcpv6 sur une machine"""
-        prefix_v6 = self.type.ip_type.prefix_v6
+        prefix_v6 = self.type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return None
         return IPv6Address(
@@ -1331,14 +1331,14 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def check_and_replace_prefix(self, prefix=None):
         """Si le prefixe v6 est incorrect, on maj l'ipv6"""
-        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6
+        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return
-        if (IPv6Address(self.ipv6).exploded[:20] !=
+        if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                 IPv6Address(prefix_v6).exploded[:20]):
             self.ipv6 = IPv6Address(
                 IPv6Address(prefix_v6).exploded[:20] +
-                IPv6Address(self.ipv6).exploded[20:]
+                IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[20:]
             )
             self.save()
 
@@ -1347,9 +1347,9 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                               .filter(interface=self.interface, slaac_ip=True)
                               .exclude(id=self.id)):
             raise ValidationError("Une ip slaac est déjà enregistrée")
-        prefix_v6 = self.interface.type.ip_type.prefix_v6
+        prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
         if prefix_v6:
-            if (IPv6Address(self.ipv6).exploded[:20] !=
+            if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                     IPv6Address(prefix_v6).exploded[:20]):
                 raise ValidationError(
                     "Le prefixv6 est incorrect et ne correspond pas au type "
@@ -1850,7 +1850,7 @@ def machine_post_save(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une machine"""
     user = kwargs['instance'].user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    #user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     regen('dhcp')
     regen('mac_ip_list')
 
