@@ -1850,7 +1850,7 @@ def machine_post_save(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une machine"""
     user = kwargs['instance'].user
-    #user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     regen('dhcp')
     regen('mac_ip_list')
 
