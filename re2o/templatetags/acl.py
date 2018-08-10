@@ -227,7 +227,9 @@ def acl_history_filter(parser, token):
 def acl_app_filter(parser, token):
     """Templatetag for acl checking on applications."""
     try:
-        tag_name, *app_name = token.split_contents()
+        contents = token.split_contents()
+        tag_name = contents[0]
+        app_name = contents[1:]
     except ValueError:
         raise template.TemplateSyntaxError(
             "%r tag require 1 argument: an application"
