@@ -53,6 +53,7 @@ import sys
 from django.db import models
 from django.db.models import Q
 from django import forms
+from django.forms import ValidationError
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
@@ -102,14 +103,6 @@ def linux_user_validator(login):
             ", ce pseudo ('%(label)s') contient des carractères interdits",
             params={'label': login},
         )
-
-def pseudo_taken(login):
-    """ Retourne une erreur de validation si le login ne respecte
-    pas les contraintes unix (maj, min, chiffres ou tiret)"""
-    if (EMailAddress.objects
-            .filter(local_part=login.lower())):
-        raise forms.ValidationError('Pseudo is already taken')
-
 
 def get_fresh_user_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
@@ -200,9 +193,9 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         max_length=32,
         unique=True,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
-        validators=[linux_user_validator, pseudo_taken]
+        validators=[linux_user_validator]
     )
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     local_email_redirect = models.BooleanField(
         default=False,
         help_text="Whether or not to redirect the local email messages to the main email."
@@ -293,7 +286,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         if not OptionalUser.get_cached_value('local_email_accounts_enabled') or not self.local_email_enabled or self.local_email_redirect:
             return str(self.email)
         else:
-            return str(self.emailaddress_set.get(local_part=self.pseudo))
+            return str(self.emailaddress_set.get(local_part=self.pseudo.lower()))
 
     @cached_property
     def class_name(self):
@@ -973,7 +966,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
         if (EMailAddress.objects
-                .filter(local_part=self.pseudo.lower()).exclude(user=self)
+                .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
             raise ValidationError("This pseudo is already in use.")
 
@@ -1775,7 +1768,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can delete
             the local email account.
         """
-        if self.local_part == self.user.pseudo:
+        if self.local_part == self.user.pseudo.lower():
             return False, ("You cannot delete a local email account whose "
                            "local part is the same as the username.")
         if user_request.has_perm('users.delete_emailaddress'): 
@@ -1797,7 +1790,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can edit
             the local email account.
         """
-        if self.local_part == self.user.pseudo:
+        if self.local_part == self.user.pseudo.lower():
             return False, ("You cannot edit a local email account whose "
                            "local part is the same as the username.")
         if user_request.has_perm('users.change_emailaddress'):
