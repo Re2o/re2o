@@ -349,7 +349,6 @@ def get_words(query):
     return words
 
 
-@can_view_all(User, Machine, Cotisation)
 def get_results(query, request, params):
     """The main function of the search procedure. It gather the filters for
     each of the different words of the query and concatenate them into a
@@ -408,6 +407,7 @@ def get_results(query, request, params):
 
 
 @login_required
+@can_view_all(User, Machine, Cotisation)
 def search(request):
     """ La page de recherche standard """
     search_form = SearchForm(request.GET or None)
@@ -425,6 +425,7 @@ def search(request):
 
 
 @login_required
+@can_view_all(User, Machine, Cotisation)
 def searchp(request):
     """ La page de recherche avancée """
     search_form = SearchFormPlus(request.GET or None)
