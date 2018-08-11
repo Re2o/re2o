@@ -102,7 +102,7 @@ def mac_from_ip(ip):
 
 def portail_login(request):
     """ Check for authentication. If success, register the current machine for the user."""
-    login_form = AuthenticationForm(data=request.POST)
+    login_form = AuthenticationForm(data=request.POST or None)
     success = False
     if login_form.is_valid():
         remote_ip = get_ip(request)
