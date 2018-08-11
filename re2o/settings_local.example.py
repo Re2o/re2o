@@ -110,3 +110,6 @@ GID_RANGES = {
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = ()
+
+CAPTIVE_IP_RANGE = "10.51.0.0/16"
+
