@@ -239,6 +239,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </a>
                                     {% endif %}
                                 </td>
+                                {% if users.adherent.gpg_fingerprint %}
+                                <th>Empreinte GPG</th>
+                                <td>{{ users.gpg_fingerprint }}</td>
+                                {% endif %}
+                            </tr>
+                            <tr>
                                 {% if users.shell %}
                                 <th>Shell</th>
                                 <td>{{ users.shell }}</td>
