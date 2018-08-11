@@ -28,12 +28,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Machine non reconnue{% endblock %}
 
 {% block content %}
+
+
+<div class="alert alert-success">
+  <h4 class="alert-heading">Création d'une machine fillaire</h4>
+  <p>Pour créer une machine fillaire, connectez vous puis débranchez et rebranchez votre cable Ethernet</p>
+</div>
+
 {% bootstrap_form_errors loginform %}
 
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form loginform %}
-    {% bootstrap_button action_name button_type="submit" icon="star" %}
+    <button type="submit" class="btn btn-success">Login</button>
 </form>
 
 
