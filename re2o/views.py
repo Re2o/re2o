@@ -34,6 +34,11 @@ from django.template.context_processors import csrf
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
+
+import subprocess
+import ipaddress
 
 from preferences.models import (
     Service,
@@ -41,9 +46,10 @@ from preferences.models import (
     AssoOption,
     HomeOption
 )
+from machines.models import Nas
 
 from .contributors import CONTRIBUTORS
-
+from re2o.settings import CAPTIVE_IP_RANGE
 
 def form(ctx, template, request):
     """Form générique, raccourci importé par les fonctions views du site"""
@@ -68,6 +74,60 @@ def index(request):
         'facebook_url': facebook_url,
         'asso_name': asso_name
     }, 're2o/index.html', request)
+
+def get_ip(request):
+    """Returns the IP of the request, accounting for the possibility of being
+    behind a proxy.
+    """
+    ip = request.META.get("HTTP_X_FORWARDED_FOR", None)
+    if ip:
+        # X_FORWARDED_FOR returns client1, proxy1, proxy2,...
+        ip = ip.split(", ")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR", "")
+    return ip
+
+def apply(cmd):
+    return subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+def mac_from_ip(ip):
+    cmd = ['/usr/sbin/arp','-na',ip]
+    p = apply(cmd)
+    output, errors = p.communicate()
+    if output is not None :
+        mac_addr = output.decode().split()[3]
+        return str(mac_addr)
+    else:
+        return None
+
+def portail_login(request):
+    """ Check for authentication. If success, register the current machine for the user."""
+    login_form = AuthenticationForm(data=request.POST)
+    success = False
+    if login_form.is_valid():
+        remote_ip = get_ip(request)
+        if ipaddress.ip_address(remote_ip) in ipaddress.ip_network(CAPTIVE_IP_RANGE):
+            mac_addr = mac_from_ip(remote_ip)
+            if mac_addr:
+                nas_type = Nas.objects.get(name="Switches")
+                result, reason = login_form.user_cache.autoregister_machine(mac_addr, nas_type)
+                if result:
+                    success=True
+                else:
+                    messages.error(request, "Erreur dans l'enregistrement de la machine : %s" % reason, '') 
+            else:
+                messages.error(request, "Erreur dans la récupération de la MAC")
+        else:
+            messages.error(request, "Merci de vous connecter en filaire pour enregistrer une machine")
+    return form(
+        {
+            'loginform': login_form,
+            'success' : success
+        },
+        're2o/portail_login.html',
+        request
+    )
+
 
 
 @cache_page(7 * 24 * 60 * 60)

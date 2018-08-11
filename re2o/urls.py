@@ -48,7 +48,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from .views import index, about_page, contact_page
+from .views import index, about_page, contact_page, portail_login
 
 handler500 = 're2o.views.handler500'
 handler404 = 're2o.views.handler404'
@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^about/$', about_page, name='about'),
     url(r'^contact/$', contact_page, name='contact'),
     url('^logout/', auth_views.logout, {'next_page': '/'}),
+    url(r'^portail_login/$', portail_login, name='portail_login'),
     url('^', include('django.contrib.auth.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include(admin.site.urls)),
