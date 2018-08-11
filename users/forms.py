@@ -301,6 +301,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['name'].label = 'Prénom'
         self.fields['surname'].label = 'Nom'
+        self.fields['email'].label = 'Adresse mail'
         self.fields['school'].label = 'Établissement'
         self.fields['comment'].label = 'Commentaire'
         self.fields['room'].label = 'Chambre'
@@ -319,6 +320,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'room',
             'shell',
             'telephone',
+            'gpg_fingerprint'
         ]
 
     def clean_telephone(self):
@@ -330,6 +332,12 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 "Un numéro de téléphone valide est requis"
             )
         return telephone
+
+    def clean_gpg_fingerprint(self):
+        """Format the GPG fingerprint"""
+        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
+        if gpg_fingerprint:
+            return gpg_fingerprint.replace(' ', '').upper()
 
     force = forms.BooleanField(
         label="Forcer le déménagement ?",
