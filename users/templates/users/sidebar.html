@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             Créer un club/association
         </a>
    {% acl_end %}
-   {% can_create Adherent %}
+   {% can_create User %}
         <a class="list-group-item list-group-item-success" href="{% url "users:new-user" %}">
             <i class="fa fa-user-plus"></i>
             Créer un adhérent
