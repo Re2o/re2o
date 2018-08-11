@@ -74,7 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    € {{ users.solde }}
+                  {{ users.solde }} <i class="fas fa-euro-sign"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
