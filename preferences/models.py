@@ -217,10 +217,15 @@ class GeneralOption(AclMixin, PreferencesModel):
     temps où les liens sont valides"""
     PRETTY_NAME = "Options générales"
 
-    general_message = models.TextField(
+    general_message_fr = models.TextField(
         default="",
         blank=True,
-        help_text="Message général affiché sur le site (maintenance, etc"
+        help_text="Message général affiché sur le site (maintenance, etc)"
+    )
+    general_message_en = models.TextField(
+        default="",
+        blank=True,
+        help_text="General message displayed on the English version of the website."
     )
     search_display_page = models.IntegerField(default=15)
     pagination_number = models.IntegerField(default=25)
