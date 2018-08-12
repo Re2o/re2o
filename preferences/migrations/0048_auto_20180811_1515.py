@@ -12,16 +12,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='generaloption',
-            name='general_message',
+            old_name='general_message',
+            new_name='general_message_fr',
         ),
         migrations.AddField(
             model_name='generaloption',
             name='general_message_en',
             field=models.TextField(blank=True, default='', help_text='General message displayed on the English version of the website.'),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='generaloption',
             name='general_message_fr',
             field=models.TextField(blank=True, default='', help_text='Message général affiché sur le site (maintenance, etc)'),
