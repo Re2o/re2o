@@ -33,6 +33,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from users.models import User, Adherent, Club, Ban, Whitelist
 from machines.models import Machine
+from cotisations.models import Cotisation
 from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
 from preferences.models import GeneralOption
@@ -44,6 +45,7 @@ from search.forms import (
     initial_choices
 )
 from re2o.utils import SortTable
+from re2o.acl import can_view_all
 
 
 def is_int(variable):
@@ -405,6 +407,7 @@ def get_results(query, request, params):
 
 
 @login_required
+@can_view_all(User, Machine, Cotisation)
 def search(request):
     """ La page de recherche standard """
     search_form = SearchForm(request.GET or None)
@@ -422,6 +425,7 @@ def search(request):
 
 
 @login_required
+@can_view_all(User, Machine, Cotisation)
 def searchp(request):
     """ La page de recherche avancée """
     search_form = SearchFormPlus(request.GET or None)

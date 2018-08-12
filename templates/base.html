@@ -76,15 +76,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
-                            {% if request.user.is_authenticated %}
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
-                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
-                                </ul>
-                            </li>
-                            {% endif %}
                             {% can_view_any_app users machines cotisations %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Members" %}<span class="caret"></span></a>
@@ -115,15 +106,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> {% trans "Statistics" %}</a></li>
                             {% acl_end %}
-                        </ul>
-                        <ul class="nav navbar-nav navbar-right">
                             {% can_view_app preferences %}
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
-                                    <i class="fa fa-cogs"></i> {% trans "Preferences" %}
+                                    <i class="fa fa-cogs"></i> {% trans "Administration" %}
                                 </a>
                             </li>
                             {% acl_end %}
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "Info" %}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -132,29 +123,40 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 </ul>
                             </li>
                             {% if not request.user.is_authenticated %}
-                            {% if var_sa %}
-                            <li>
-                                <a href="{% url 'users:new-user' %}">
-                                    <i class="fa fa-user-plus"></i> {% trans "Sign in" %}
-                                </a>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <a id="toggle_login" href="{% url 'login' %}">
-                                    <i class="fa fa-sign-in-alt"></i> {% trans "Log in" %}
-                                </a>
-                            </li>
+                                {% if var_sa %}
+                                <li>
+                                    <a href="{% url 'users:new-user' %}">
+                                        <i class="fa fa-user-plus"></i> {% trans "Sign in" %}
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a id="toggle_login" href="{% url 'login' %}">
+                                        <i class="fa fa-sign-in-alt"></i> {% trans "Log in" %}
+                                    </a>
+                                </li>
                             {% else %}
-                            <li>
-                                <form action="{% url "search:search"%}" class="navbar-form" role="search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                                            <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
+                            {% can_view_any_app users machines cotisations %}
+                                <li>
+                                    <form action="{% url "search:search"%}" class="navbar-form" role="search">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                                <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </li>
+			    {% acl_end %}
+                            {% endif %}
+                            {% if request.user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
+                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
+                                </ul>
                             </li>
                             {% endif %}
                             <li>
@@ -252,7 +254,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <footer class="navbar">
             <div class="containerfluid text-center">
-                <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella, Hugo Levy-Falk</p>
+                <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> </p>
             </div>
         </footer>
         {# Read the documentation for more information #}

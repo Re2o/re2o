@@ -146,7 +146,7 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'can_view_app':
         return acl_fct(
             lambda x: (
-                not any(not sys.modules[o].can_view(x) for o in obj),
+                not any(not sys.modules[o].can_view(x)[0] for o in obj),
                 None
             ),
             False
@@ -154,7 +154,7 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_app':
         return acl_fct(
             lambda x: (
-                not any(not sys.modules[o].can_view(x) for o in obj),
+                not any(not sys.modules[o].can_view(x)[0] for o in obj),
                 None
             ),
             True
@@ -171,12 +171,12 @@ def get_callback(tag_name, obj=None):
         )
     if tag_name == 'can_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
             False
         )
     if tag_name == 'cannot_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
             True
         )
 

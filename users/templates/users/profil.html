@@ -31,8 +31,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<div align="center">
-    <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
+<div align="center" class="title-dashboard">
+    {% if user == users %}
+        <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
+    {% else %}
+        <h2>Profil de {{ users.name }} {{ users.surname }}</h2>
+    {% endif %}
 </div>
 <div class="dashboard_container">
     <div class="row">
@@ -41,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">Your account has been banned</div>
                 <div class="panel-body dashboard">
-                    <i class="text-danger">End of the ban: {{ user.end_ban | date:"SHORT_DATE_FORMAT" }}</i>
+                    <i class="text-danger">End of the ban: {{ users.end_ban | date:"SHORT_DATE_FORMAT" }}</i>
                 </div>
             </div>
             {% elif not users.is_adherent %}
@@ -61,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel panel-success">
                 <div class="panel-heading dashboard">Connected</div>
                 <div class="panel-body dashboard">
-                    <i class="text-success">End of connexion: {{ user.end_adhesion | date:"SHORT_DATE_FORMAT"}}</i>
+                    <i class="text-success">End of connexion: {{ users.end_adhesion | date:"SHORT_DATE_FORMAT"}}</i>
                 </div>
             </div>
             {% endif %}
@@ -70,11 +74,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    € {{ user.solde }}
+                  {{ users.solde }} <i class="fas fa-euro-sign"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                        <i class="fa fa-euro-sign"></i> Pay for the balance
+                        <i class="fa fa-euro-sign"></i> Recharger
                     </a>
                 </div>
             </div>
@@ -110,7 +114,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="panel-group" id="accordion">
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
             <h3 class="panel-title pull-left" >
                 <i class="fa fa-user"></i> Informations détaillées
             </h3>
@@ -303,7 +307,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     {% endif %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-desktop"></i>
                 Machines
@@ -327,7 +331,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-euro-sign"></i>
                 Cotisations
@@ -358,7 +362,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-ban"></i>
                 Bannissements
@@ -383,7 +387,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-check-circle"></i>
                 Accès à titre gracieux
@@ -408,7 +412,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
     <h3 class="panel-title pull-left">
         <i class="fa fa-envelope"></i> Email settings
     </h3>

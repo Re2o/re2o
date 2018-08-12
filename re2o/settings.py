@@ -179,7 +179,7 @@ STATIC_URL = '/static/'
 # Directory where the media files served by the server are stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 # The URL to access the static files
-MEDIA_URL = '/media/'
+MEDIA_URL = os.path.join(BASE_DIR,'/media/')
 
 # Models to use for graphs
 GRAPH_MODELS = {

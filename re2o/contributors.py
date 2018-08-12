@@ -27,5 +27,7 @@ CONTRIBUTORS = [
     'Hugo "Shaka" Hervieux',
     '"Mikachu"',
     'Thomas "Nymous" Gaudin',
-    '"Esum"'
+    'Benjamin "Esum" Graillot',
+    'Gabriel "Boudy" Le Bouder',
+    'Charlie "Le membre" Jacomme',
 ]
