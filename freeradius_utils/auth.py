@@ -124,7 +124,7 @@ def radius_event(fun):
             return fun(data)
         except Exception as err:
             logger.error('Failed %r on data %r' % (err, auth_data))
-            raise
+            return radiusd.RLM_MODULE_FAIL
 
     return new_f
 
