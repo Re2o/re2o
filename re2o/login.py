@@ -35,6 +35,7 @@ import os
 from base64 import encodestring, decodestring, b64encode, b64decode
 from collections import OrderedDict
 from django.contrib.auth import hashers
+from django.contrib.auth.backends import ModelBackend
 from hmac import compare_digest as constant_time_compare
 
 
@@ -226,3 +227,19 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
         As we are not using multiple iterations the method is pretty useless
         """
         pass
+
+
+class RecryptBackend(ModelBackend):
+    def authenticate(self, username=None, password=None):
+        # we obtain from the classical auth backend the user
+        user = super(RecryptBackend, self).authenticate(username, password)
+        if user:
+            if not(user.pwd_ntlm):
+                # if we dont have NT hash, we create it
+                user.pwd_ntlm = hashNT(password)
+                user.save()
+            if not("SSHA" in user.password):
+                # if the hash is too old, we update it
+                user.password = makeSecret(password)
+                user.save()
+        return user
