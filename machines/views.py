@@ -33,7 +33,7 @@ The views for the Machines app
 from __future__ import unicode_literals
 
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -128,6 +128,7 @@ from .models import (
     Role,
     Service,
     Service_link,
+    regen,
     Vlan,
     Nas,
     Txt,
@@ -1260,6 +1261,15 @@ def del_service(request, instances):
         'machines/machine.html',
         request
     )
+
+@login_required
+@can_edit(Service)
+def regen_service(request,service, **_kwargs):
+    """Ask for a regen of the service"""
+
+    regen(service)
+    return index_service(request)
+
 
 
 @login_required
