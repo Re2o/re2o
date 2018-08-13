@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-23 18:26+0200\n"
+"POT-Creation-Date: 2018-08-13 16:18+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
 "Language-Team: \n"
@@ -30,24 +30,51 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: settings.py:140
+#: re2o/settings.py:152
 msgid "English"
 msgstr "Anglais"
 
-#: settings.py:141
+#: re2o/settings.py:153
 msgid "French"
 msgstr "Français"
 
-#: templates/re2o/about.html:29 templates/re2o/about.html:35
+#: re2o/templates/re2o/about.html:29 re2o/templates/re2o/about.html:35
 msgid "About Re2o"
 msgstr "A propos de Re2o"
 
-#: templates/re2o/about.html:32
+#: re2o/templates/re2o/about.html:32
 #, python-format
 msgid "About %(AssoName)s"
 msgstr "A propos de %(AssoName)s"
 
-#: templates/re2o/about.html:36
+#: re2o/templates/re2o/about.html:36
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        Re2o is an administration tool initiated by\n"
+#| "        <a href=\"https://rezometz.org/\">Rezo Supelec Metz</a> and a "
+#| "few\n"
+#| "        members of other <a href=\"https://federez.net\">FedeRez</a> "
+#| "associations\n"
+#| "        around the summer 2016.<br />\n"
+#| "        It is intended to be a tool independant from any network "
+#| "infrastructure\n"
+#| "        so it can be setup in \"a few steps\". This tool is entirely free "
+#| "and\n"
+#| "        available under a GNU Public License v2 (GPLv2) license on\n"
+#| "        <a href=\"https://gitlab.federez.net/federez/re2o/\">FedeRez "
+#| "gitlab</a>.<br />\n"
+#| "        Re2o's mainteners are proud volunteers mainly from French "
+#| "engineering\n"
+#| "        schools (but not limited to) who have given a lot of their time "
+#| "to make\n"
+#| "        this project possible. So please be kind with them.<br />\n"
+#| "        If you want to get involved in the development process, we will "
+#| "be glad to\n"
+#| "        welcome you so do not hesitate to contact us and come help us "
+#| "build the\n"
+#| "        future of Re2o.\n"
+#| "        "
 msgid ""
 "\n"
 "        Re2o is an administration tool initiated by\n"
@@ -62,11 +89,7 @@ msgid ""
 "        available under a GNU Public License v2 (GPLv2) license on\n"
 "        <a href=\"https://gitlab.federez.net/federez/re2o/\">FedeRez gitlab</"
 "a>.<br />\n"
-"        Re2o's mainteners are proud volunteers mainly from French "
-"engineering\n"
-"        schools (but not limited to) who have given a lot of their time to "
-"make\n"
-"        this project possible. So please be kind with them.<br />\n"
+"\t\tRe2o's mainteners are volunteers mainly from French schools. <br />\n"
 "        If you want to get involved in the development process, we will be "
 "glad to\n"
 "        welcome you so do not hesitate to contact us and come help us build "
@@ -99,15 +122,15 @@ msgstr ""
 "        futur de Re2o.\n"
 "        "
 
-#: templates/re2o/about.html:57
+#: re2o/templates/re2o/about.html:55
 msgid "Contributors list"
 msgstr "Liste des contributeurs"
 
-#: templates/re2o/about.html:66
+#: re2o/templates/re2o/about.html:64
 msgid "Version informations"
 msgstr "Informations de versions"
 
-#: templates/re2o/about.html:68
+#: re2o/templates/re2o/about.html:66
 #, python-format
 msgid ""
 "\n"
@@ -118,7 +141,7 @@ msgstr ""
 "                    <b>URL distante</b> : %(git_info_remote)s\n"
 "                "
 
-#: templates/re2o/about.html:71
+#: re2o/templates/re2o/about.html:69
 #, python-format
 msgid ""
 "\n"
@@ -129,7 +152,7 @@ msgstr ""
 "                    <b>Branche</b> : %(git_info_branch)s\n"
 "                "
 
-#: templates/re2o/about.html:74
+#: re2o/templates/re2o/about.html:72
 #, python-format
 msgid ""
 "\n"
@@ -140,7 +163,7 @@ msgstr ""
 "                    <b>Commit</b> : %(git_info_commit)s\n"
 "                "
 
-#: templates/re2o/about.html:77
+#: re2o/templates/re2o/about.html:75
 #, python-format
 msgid ""
 "\n"
@@ -151,23 +174,33 @@ msgstr ""
 "                    <b>Date du commit</b> : %(git_info_commit_date)s\n"
 "                "
 
-#: templates/re2o/about.html:82
+#: re2o/templates/re2o/about.html:80
 msgid "Dependencies"
 msgstr "Dépendances"
 
-#: templates/re2o/index.html:30
+#: re2o/templates/re2o/contact.html:29
+msgid "Contact"
+msgstr "Contact"
+
+#: re2o/templates/re2o/contact.html:32
+#, fuzzy, python-format
+#| msgid "Contacter l'association %(asso_name)s"
+msgid "Contact organisation %(asso_name)s"
+msgstr "Contacter l'association %(asso_name)s"
+
+#: re2o/templates/re2o/index.html:30
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/re2o/index.html:33
+#: re2o/templates/re2o/index.html:33
 #, python-format
 msgid "Welcome to %(name_website)s !"
 msgstr "Bienvenue sur %(name_website)s !"
 
-#: templates/re2o/index.html:47
+#: re2o/templates/re2o/index.html:47
 msgid "Go there"
 msgstr "Accéder"
 
-#: views.py:205
+#: re2o/views.py:87
 msgid "Unable to get the information"
 msgstr "Impossible d'obtenir l'information"
