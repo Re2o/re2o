@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-23 18:44+0200\n"
+"POT-Creation-Date: 2018-08-13 15:20+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
 "Language-Team: \n"
@@ -30,145 +30,377 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: api/acl.py:74
+msgid "You cannot see this application."
+msgstr "Vous ne pouvez pas voir cette application."
+
+#: api/authentication.py:47
+msgid "Token has expired"
+msgstr "Le jeton a expiré."
+
+#: logs/views.py:486
+msgid "No model found."
+msgstr "Aucun modèle trouvé."
+
+#: logs/views.py:492
+msgid "No entry found."
+msgstr "Aucun résultat trouvé."
+
+#: logs/views.py:499
+msgid "You cannot acces to this menu"
+msgstr "Vous n'avez pas accès à ce menu."
+
+#: machines/templates/machines/aff_role.html:33
+msgid "Role name"
+msgstr "Nom du rôle"
+
+#: machines/templates/machines/aff_role.html:34
+msgid "Specific role"
+msgstr "Rôle particluier"
+
+#: machines/templates/machines/aff_role.html:35
+msgid "Servers"
+msgstr "Serveurs"
+
+#: machines/templates/machines/index_extension.html:69
+msgid "Add a DNAME record"
+msgstr "Ajouter un enregistrement DNAME."
+
+#: machines/templates/machines/index_extension.html:73
+msgid "Delete DNAME records"
+msgstr "Supprimer un enregistrement DNAME."
+
+#: machines/templates/machines/index_role.html:33
+msgid "Roles list"
+msgstr "Liste des rôles"
+
+#: machines/templates/machines/index_role.html:35
+msgid "Add role"
+msgstr "Ajouter un rôle"
+
+#: machines/templates/machines/index_role.html:37
+msgid "Delete one or several roles"
+msgstr "Supprimer un ou plusieurs rôles"
+
+#: machines/templates/machines/sidebar.html:75
+msgid "Server roles"
+msgstr "Rôles des serveurs"
+
+#: machines/views.py:1172
+msgid "Role updated"
+msgstr "Rôle mis à jour"
+
+#: machines/views.py:1175 topologie/views.py:1005
+msgid "Edit"
+msgstr "Modifier"
+
+#: machines/views.py:1191
+msgid "The role has been deleted."
+msgstr "Le rôle a bien été supprimé."
+
+#: machines/views.py:1195
+msgid "Error: The following role cannot be deleted: %(role)"
+msgstr "Erreur: Le rôle suivant ne peut pas être supprimé: %(role)"
+
+#: machines/views.py:1201
+msgid "Delete"
+msgstr "Supprimer"
+
 #: templates/base.html:59
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/base.html:83
-msgid "My profile"
-msgstr "Mon profil"
-
-#: templates/base.html:84
-msgid "Log out"
-msgstr "Se déconnecter"
-
-#: templates/base.html:90
+#: templates/base.html:81
 msgid "Members"
 msgstr "Adhérents"
 
-#: templates/base.html:93
+#: templates/base.html:84
 msgid "Manage members"
 msgstr "Gérer les adhérents"
 
-#: templates/base.html:94
+#: templates/base.html:85
 msgid "Manage clubs"
 msgstr "Gérer les clubs"
 
-#: templates/base.html:97
+#: templates/base.html:88
 msgid "Manage machines"
 msgstr "Gérer les machines"
 
-#: templates/base.html:100
+#: templates/base.html:91
 msgid "Manage cotisations"
 msgstr "Gérer les cotisations"
 
-#: templates/base.html:107
+#: templates/base.html:98
 msgid "Topology"
 msgstr "Topologie"
 
-#: templates/base.html:109
+#: templates/base.html:100
 msgid "Switches"
 msgstr "Commutateurs"
 
-#: templates/base.html:110
+#: templates/base.html:101
 msgid "Wi-Fi access points"
 msgstr "Bornes Wi-Fi"
 
-#: templates/base.html:111
+#: templates/base.html:102
 msgid "Rooms"
 msgstr "Chambres & locaux"
 
-#: templates/base.html:116
+#: templates/base.html:107
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/base.html:123
-msgid "Preferences"
-msgstr "Préférences"
+#: templates/base.html:112
+msgid "Administration"
+msgstr "Administration"
 
-#: templates/base.html:128
+#: templates/base.html:119
+msgid "Info"
+msgstr "Info"
+
+#: templates/base.html:121
 msgid "About"
 msgstr "A propos"
 
-#: templates/base.html:134
-msgid "Sign in"
+#: templates/base.html:122
+msgid "Contact"
+msgstr "Contact"
+
+#: templates/base.html:129
+#, fuzzy
+#| msgid "Sign in"
+msgid "Sign up"
 msgstr "Créer un compte"
 
-#: templates/base.html:140
+#: templates/base.html:135
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/base.html:188
+#: templates/base.html:157
+msgid "My profile"
+msgstr "Mon profil"
+
+#: templates/base.html:158
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#: templates/base.html:194
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:192
+#: templates/base.html:198
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:196
+#: templates/base.html:202
 msgid "Connexion"
 msgstr "Connexion"
 
-#: templates/base.html:199 templates/base.html:209
+#: templates/base.html:205 templates/base.html:215
 #, python-format
 msgid "Until %(date)s"
 msgstr "Jusqu'à %(date)s"
 
-#: templates/base.html:201
+#: templates/base.html:207
 msgid "Deactivated"
 msgstr "Désactivée"
 
-#: templates/base.html:206
+#: templates/base.html:212
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:211
+#: templates/base.html:217
 msgid "Not a member"
 msgstr "Non adhérent"
 
-#: templates/base.html:219
+#: templates/base.html:225
 msgid "See my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:223
+#: templates/base.html:229
 msgid "You are not logged in"
 msgstr "Vous n'êtes pas connecté"
 
-#: templates/base.html:229
-#, python-format
+#: templates/base.html:235
+#, fuzzy, python-format
+#| msgid "%(nb)s machine active"
 msgid "%(nb)s machine active"
-msgstr "%(nb)s machine actives"
+msgid_plural "%(nb)s machines active"
+msgstr[0] "%(nb)s machine actives"
+msgstr[1] "%(nb)s machine actives"
 
-#: templates/base.html:229
-#, python-format
-msgid "%(nb)s machines active"
-msgstr "%(nb)s machines actives"
-
-#: templates/base.html:238
+#: templates/base.html:244
 msgid "See my machines"
 msgstr "Voir mes machines"
+
+#: templates/buttons/history.html:25 templates/buttons/history.html:26
+msgid "History"
+msgstr "Historique"
 
 #: templates/buttons/setlang.html:34
 msgid "Translation in development"
 msgstr "Traduction en développement"
 
-#: users/widgets.py:35
-msgid "Close"
-msgstr "Fermer"
+#: templates/errors/404.html:125
+msgid "Score :"
+msgstr "Score :"
 
-#: users/widgets.py:36
-msgid "Today"
-msgstr "Aujourd'hui"
+#: templates/errors/404.html:133
+msgid "YOU LOST"
+msgstr "Perdu !"
 
-#: users/widgets.py:44
-msgid "Next"
-msgstr "Suivant"
+#: templates/errors/404.html:220
+msgid "Yup, that's a 404 error."
+msgstr "Yup, c'est une erreur 404."
 
-#: users/widgets.py:45
-msgid "Previous"
-msgstr "Précédent"
+#: templates/errors/404.html:220
+msgid "(Go to a known place)"
+msgstr "(Retourner en terrain connu)"
 
-#: users/widgets.py:46
-msgid "Wk"
-msgstr "Sem"
+#: templates/errors/404.html:222
+msgid "Your browser does not support the HTML5 canvas tag."
+msgstr "Votre navigateur ne semble pas supporter le canvas HTML5."
+
+#: topologie/models.py:414
+msgid "Port State Active"
+msgstr "Etat du port"
+
+#: topologie/models.py:560
+#: topologie/templates/topologie/aff_port_profile.html:37
+msgid "Name"
+msgstr "Nom"
+
+#: topologie/models.py:567
+msgid "profil default"
+msgstr ""
+
+#: topologie/models.py:575
+msgid "VLAN untagged"
+msgstr "VLAN non taggé"
+
+#: topologie/models.py:581
+msgid "VLAN(s) tagged"
+msgstr "VLAN(s) taggué(s)"
+
+#: topologie/models.py:587
+msgid "RADIUS type"
+msgstr "type RADIUS"
+
+#: topologie/models.py:594
+msgid "RADIUS mode"
+msgstr "mode RADIUS"
+
+#: topologie/models.py:601
+#: topologie/templates/topologie/aff_port_profile.html:41
+msgid "Speed"
+msgstr "Vitesse"
+
+#: topologie/models.py:607
+msgid "Mac limit"
+msgstr "Limite d'addresses MAC"
+
+#: topologie/models.py:612
+msgid "Flow control"
+msgstr "Contrôle de flux"
+
+#: topologie/models.py:617
+msgid "Dhcp snooping"
+msgstr "Dhcp snooping"
+
+#: topologie/models.py:622
+msgid "Dhcpv6 snooping"
+msgstr "Dhcpv6 snooping"
+
+#: topologie/models.py:627
+msgid "Arp protect"
+msgstr "Arp protect"
+
+#: topologie/models.py:632
+msgid "Ra guard"
+msgstr "RA guard"
+
+#: topologie/models.py:637
+msgid "Loop Protect"
+msgstr "Protection anti-boucle"
+
+#: topologie/models.py:642
+msgid "Can view a port profile object"
+msgstr "Peut voir un objet 'Profile de Port'"
+
+#: topologie/models.py:644 topologie/views.py:1025
+#, fuzzy
+#| msgid "My profile"
+msgid "My profile"
+msgstr "Mon profil"
+
+#: topologie/models.py:645
+#: topologie/templates/topologie/index_portprofile.html:33
+#, fuzzy
+#| msgid "My profile"
+msgid "Port profiles"
+msgstr "Mon profil"
+
+#: topologie/templates/topologie/aff_port_profile.html:38
+msgid "Default for"
+msgstr ""
+
+#: topologie/templates/topologie/aff_port_profile.html:39
+msgid "VLANs"
+msgstr "VLANs"
+
+#: topologie/templates/topologie/aff_port_profile.html:40
+msgid "RADIUS settings"
+msgstr "Paramètres RADIUS"
+
+#: topologie/templates/topologie/aff_port_profile.html:42
+msgid "Mac address limit"
+msgstr "Limite d'addresses MAC"
+
+#: topologie/templates/topologie/aff_port_profile.html:43
+msgid "Security"
+msgstr "Sécurité"
+
+#: topologie/templates/topologie/index_portprofile.html:35
+msgid " Add a port profile"
+msgstr "Ajouter un Profile de Port"
+
+#: topologie/views.py:984
+msgid "Port profile created"
+msgstr "Profile de Port créé"
+
+#: topologie/views.py:987
+msgid "Create"
+msgstr "Créer"
+
+#: topologie/views.py:1002
+msgid "Port profile modified"
+msgstr "Profile de Port modifié"
+
+#: topologie/views.py:1019
+msgid "The port profile was successfully deleted"
+msgstr "Le Profile de Port a bien été supprimé"
+
+#: topologie/views.py:1022
+msgid "Impossible to delete the port profile"
+msgstr "Impossible de détruire ce Profile de Port"
+
+#~ msgid "Preferences"
+#~ msgstr "Préférences"
+
+#~ msgid "%(nb)s machines active"
+#~ msgstr "%(nb)s machines actives"
+
+#~ msgid "Close"
+#~ msgstr "Fermer"
+
+#~ msgid "Today"
+#~ msgstr "Aujourd'hui"
+
+#~ msgid "Next"
+#~ msgstr "Suivant"
+
+#~ msgid "Previous"
+#~ msgstr "Précédent"
+
+#~ msgid "Wk"
+#~ msgstr "Sem"
