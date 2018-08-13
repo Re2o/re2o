@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-26 21:49+0200\n"
+"POT-Creation-Date: 2018-08-13 15:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: \n"
@@ -17,54 +17,54 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: models.py:256
+#: preferences/models.py:281
 msgid "Contact email adress"
 msgstr "Adresse email de contact"
 
-#: models.py:263
+#: preferences/models.py:288
 msgid "Description of the associated email adress."
 msgstr "Description de l'adresse mail associée."
 
-#: models.py:273
+#: preferences/models.py:298
 msgid "Can see contact email"
 msgstr "Peut voir un mail de contact"
 
-#: templates/preferences/aff_mailcontact.html:30
+#: preferences/templates/preferences/aff_mailcontact.html:30
 msgid "Adress"
 msgstr "Adresse"
 
-#: templates/preferences/aff_mailcontact.html:31
+#: preferences/templates/preferences/aff_mailcontact.html:31
 msgid "Remark"
 msgstr "Commentaire"
 
-#: templates/preferences/display_preferences.html:205
+#: preferences/templates/preferences/display_preferences.html:225
 msgid "Contact email adresses list"
 msgstr "Liste des adresses email de contact"
 
-#: templates/preferences/display_preferences.html:207
+#: preferences/templates/preferences/display_preferences.html:227
 msgid "Add an adress"
 msgstr "Ajouter une adresse"
 
-#: templates/preferences/display_preferences.html:209
+#: preferences/templates/preferences/display_preferences.html:229
 msgid "Delete one or multiple adresses"
 msgstr "Supprimer une ou plusieurs adresses"
 
-#: views.py:210
+#: preferences/views.py:210
 msgid "The adress was created."
 msgstr "L'adresse a été créée."
 
-#: views.py:230
+#: preferences/views.py:230
 msgid "Email adress updated."
 msgstr "L'adresse email a été mise à jour."
 
-#: views.py:233
+#: preferences/views.py:233
 msgid "Edit"
 msgstr "Éditer"
 
-#: views.py:251
+#: preferences/views.py:251
 msgid "The email adress was deleted."
 msgstr "L'adresse email a été supprimée."
 
-#: views.py:254
+#: preferences/views.py:254
 msgid "Delete"
 msgstr "Supprimer"
