@@ -327,12 +327,6 @@ msgstr "Protection anti-boucle"
 msgid "Can view a port profile object"
 msgstr "Peut voir un objet 'Profile de Port'"
 
-#: topologie/models.py:644 topologie/views.py:1025
-#, fuzzy
-#| msgid "My profile"
-msgid "My profile"
-msgstr "Mon profil"
-
 #: topologie/models.py:645
 #: topologie/templates/topologie/index_portprofile.html:33
 #, fuzzy
