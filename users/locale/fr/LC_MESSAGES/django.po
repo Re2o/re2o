@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-28 00:06+0200\n"
+"POT-Creation-Date: 2018-08-13 16:18+0200\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Maël Kervella <dev@maelkervella.eu>\n"
 "Language-Team: \n"
@@ -31,93 +31,102 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/users/aff_listright.html:37
+#: users/templates/users/aff_listright.html:38
 msgid "Superuser"
 msgstr "Superuser"
 
-#: templates/users/aff_listright.html:39
+#: users/templates/users/aff_listright.html:40
 msgid "Django's specific pre-defined right that supersed any other rights."
 msgstr ""
 "Droit prédéfini spécifique à Django qui outrepasse tous les autres droits."
 
-#: templates/users/aff_listright.html:43
+#: users/templates/users/aff_listright.html:44
 msgid "Total: All permissions"
 msgstr "Total: Toutes les permissions"
 
-#: templates/users/aff_listright.html:55
+#: users/templates/users/aff_listright.html:56
 msgid "Users in Superuser"
 msgstr "Utilisateurs dans Superuser"
 
-#: templates/users/aff_listright.html:62 templates/users/aff_listright.html:167
+#: users/templates/users/aff_listright.html:63
+#: users/templates/users/aff_listright.html:168
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/users/aff_listright.html:63 templates/users/aff_listright.html:168
+#: users/templates/users/aff_listright.html:64
+#: users/templates/users/aff_listright.html:169
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/users/aff_listright.html:64 templates/users/aff_listright.html:169
+#: users/templates/users/aff_listright.html:65
+#: users/templates/users/aff_listright.html:170
 msgid "Last seen"
 msgstr "Dernière connexion"
 
-#: templates/users/aff_listright.html:65 templates/users/aff_listright.html:170
+#: users/templates/users/aff_listright.html:66
+#: users/templates/users/aff_listright.html:171
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/users/aff_listright.html:66 templates/users/aff_listright.html:171
+#: users/templates/users/aff_listright.html:67
+#: users/templates/users/aff_listright.html:172
 msgid "Last action"
 msgstr "Dernière action"
 
-#: templates/users/aff_listright.html:74 templates/users/aff_listright.html:179
+#: users/templates/users/aff_listright.html:75
+#: users/templates/users/aff_listright.html:180
 msgid "Member"
 msgstr "Adhérent"
 
-#: templates/users/aff_listright.html:76 templates/users/aff_listright.html:181
+#: users/templates/users/aff_listright.html:77
+#: users/templates/users/aff_listright.html:182
 msgid "No membership records"
 msgstr "Aucune adhésion"
 
-#: templates/users/aff_listright.html:79 templates/users/aff_listright.html:184
+#: users/templates/users/aff_listright.html:80
+#: users/templates/users/aff_listright.html:185
 #, python-format
 msgid "Not since %(end_date)s"
 msgstr "Plus depuis %(end_date)s"
 
-#: templates/users/aff_listright.html:87 templates/users/aff_listright.html:192
+#: users/templates/users/aff_listright.html:88
+#: users/templates/users/aff_listright.html:193
 msgid "Never"
 msgstr "Jamais"
 
-#: templates/users/aff_listright.html:122
+#: users/templates/users/aff_listright.html:123
 #, python-format
 msgid "%(right_name)s (gid: %(right_gid)s)"
 msgstr "%(right_name)s (gid: %(right_gid)s)"
 
-#: templates/users/aff_listright.html:131
+#: users/templates/users/aff_listright.html:132
 #, python-format
 msgid "Total: %(perm_count)s permission"
 msgid_plural "Total: %(perm_count)s permissions"
 msgstr[0] "Total: %(perm_count)s permission"
 msgstr[1] "Total: %(perm_count)s permissions"
 
-#: templates/users/aff_listright.html:157
+#: users/templates/users/aff_listright.html:158
 #, python-format
 msgid "Users in %(right_name)s"
 msgstr "Utilisateurs dans %(right_name)s"
 
-#: widgets.py:35
+#: users/widgets.py:35
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
-#: widgets.py:36
+#: users/widgets.py:36
 msgid "Today"
-msgstr ""
+msgstr "Aujourd'hui"
 
-#: widgets.py:44
+#: users/widgets.py:44
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
-#: widgets.py:45
+#: users/widgets.py:45
 msgid "Previous"
-msgstr ""
+msgstr "Précédent"
 
-#: widgets.py:46
+#: users/widgets.py:46
 msgid "Wk"
-msgstr ""
+msgstr "Wk"
