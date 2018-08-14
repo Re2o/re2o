@@ -620,7 +620,7 @@ class EMailAddressForm(FormRevMixin, ModelForm):
         super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['local_part'].label = "Local part of the email"
         self.fields['local_part'].help_text = "Can't contain @"
- 
+
     def clean_local_part(self):
         return self.cleaned_data.get('local_part').lower()
 
@@ -634,18 +634,11 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['email'].label = "Contact email address"
+        self.fields['email'].label = "Main email address"
         if 'local_email_redirect' in self.fields:
             self.fields['local_email_redirect'].label = "Redirect local emails"
-            self.fields['local_email_redirect'].help_text = (
-                "Enable the automated redirection of the local email address "
-                "to the contact email address"
-            )
         if 'local_email_enabled' in self.fields:
             self.fields['local_email_enabled'].label = "Use local emails"
-            self.fields['local_email_enabled'].help_text = (
-                "Enable the use of the local email account"
-            )
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -655,4 +648,4 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'local_email_redirect', 'local_email_enabled']
+        fields = ['email','local_email_enabled', 'local_email_redirect']

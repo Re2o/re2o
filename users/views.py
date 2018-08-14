@@ -541,7 +541,8 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
     return form(
         {'userform': emailaddress,
          'showCGU': False,
-         'action_name': 'Edit a local email account'},
+         'action_name': 'Edit a local email account',
+        },
         'users/user.html',
         request
     )
@@ -585,6 +586,7 @@ def edit_email_settings(request, user_instance, **_kwargs):
     return form(
         {'userform': email_settings,
          'showCGU': False,
+         'load_js_file': '/static/js/email_address.js',
          'action_name': 'Edit the email settings'},
         'users/user.html',
         request
@@ -1017,7 +1019,7 @@ def profil(request, users, **_kwargs):
             'emailaddress_list': users.email_address,
             'local_email_accounts_enabled': (
                 OptionalUser.objects.first().local_email_accounts_enabled
-            ) 
+            )
         }
     )
 

@@ -27,15 +27,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load logs_extra %}
 {% load design %}
+{% load i18n %}
 
 {% block title %}Profil{% endblock %}
 
 {% block content %}
 <div align="center" class="title-dashboard">
     {% if user == users %}
-        <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
+    <h2>Welcome {{ users.name }} {{ users.surname }}</h2>
     {% else %}
-        <h2>Profil de {{ users.name }} {{ users.surname }}</h2>
+    <h2>Profil de {{ users.name }} {{ users.surname }}</h2>
     {% endif %}
 </div>
 <div class="dashboard_container">
@@ -74,7 +75,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                  {{ users.solde }} <i class="fas fa-euro-sign"></i>
+                    {{ users.solde }} <i class="fas fa-euro-sign"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
@@ -419,9 +420,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
-    <h3 class="panel-title pull-left">
-        <i class="fa fa-envelope"></i> Email settings
-    </h3>
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-envelope"></i> Email settings
+            </h3>
         </div>
         <div id="collapse7" class="panel-collapse collapse">
             <div class="panel-body">
@@ -437,17 +438,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <table class="table">
                         <tr>
                             <th colspan="2">Contact email address</th>
-                            <td colspan="2">{{ users.email }}</td>
+                            <td colspan="2">{{ users.get_mail }}</td>
                         </tr>
                         <tr>
                             <th>Enable the local email account</th>
                             <td>{{ users.local_email_enabled | tick }}</td>
                             <th>Enable the local email redirection</th>
-			    <td>{{ users.local_email_redirect | tick }}</td>
-			</tr>
-		    </table>
-		</div>
-		{% if users.local_email_enabled %}
+                            <td>{{ users.local_email_redirect | tick }}</td>
+                        </tr>
+                    </table>
+                    <p>{% blocktrans %}The Contact email is the email address where we send email to contact you. If you would like to use your external email address for that, you can either disable your local email address or enable the local email redirection.{% endblocktrans %}</p>
+                </div>
+                {% if users.local_email_enabled %}
                 {% can_create EMailAddress users.id %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-emailaddress' users.id %}">
                     <i class="fa fa-plus-square"></i> Add an email address
@@ -462,7 +464,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <table class="table">
                         <tr>
                             <th>Contact email address</th>
-                            <td>{{ users.email }}</td>
+                            <td>{{ users.get_mail }}</td>
                         </tr>
                     </table>
                 </div>

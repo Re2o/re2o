@@ -195,14 +195,17 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
         validators=[linux_user_validator]
     )
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        blank=True,
+        help_text="External email address allowing us to contact you."
+    )
     local_email_redirect = models.BooleanField(
         default=False,
-        help_text="Whether or not to redirect the local email messages to the main email."
+        help_text="Enable redirection of the local email messages to the main email."
     )
     local_email_enabled = models.BooleanField(
         default=False,
-        help_text="Wether or not to enable the local email account."
+        help_text="Enable the local email account."
     )
     school = models.ForeignKey(
         'School',
@@ -565,7 +568,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                     # depending on the length, we need to remove or not a $
                     if len(self.password)==41:
                         user_ldap.user_password = self.password
-                    else: 
+                    else:
                         user_ldap.user_password = self.password[:7] + self.password[8:]
 
                 user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
@@ -1771,7 +1774,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if self.local_part == self.user.pseudo.lower():
             return False, ("You cannot delete a local email account whose "
                            "local part is the same as the username.")
-        if user_request.has_perm('users.delete_emailaddress'): 
+        if user_request.has_perm('users.delete_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, "The local email accounts are not enabled."
