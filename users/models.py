@@ -104,6 +104,7 @@ def linux_user_validator(login):
             params={'label': login},
         )
 
+
 def get_fresh_user_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
     uids = list(range(
@@ -131,6 +132,7 @@ def get_fresh_gid():
 
 class UserManager(BaseUserManager):
     """User manager basique de django"""
+
     def _create_user(
             self,
             pseudo,
@@ -197,6 +199,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     )
     email = models.EmailField(
         blank=True,
+        null=True,
         help_text="External email address allowing us to contact you."
     )
     local_email_redirect = models.BooleanField(
@@ -563,13 +566,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 user_ldap.gid = LDAP['user_gid']
                 if '{SSHA}' in self.password or '{SMD5}' in self.password:
                     # We remove the extra $ added at import from ldap
-                    user_ldap.user_password = self.password[:6] + self.password[7:]
+                    user_ldap.user_password = self.password[:6] + \
+                        self.password[7:]
                 elif '{crypt}' in self.password:
                     # depending on the length, we need to remove or not a $
-                    if len(self.password)==41:
+                    if len(self.password) == 41:
                         user_ldap.user_password = self.password
                     else:
-                        user_ldap.user_password = self.password[:7] + self.password[8:]
+                        user_ldap.user_password = self.password[:7] + \
+                            self.password[8:]
 
                 user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
                 if self.get_shell:
@@ -614,7 +619,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
                 'name': AssoOption.get_cached_value('name')
-                },
+            },
             '',
             GeneralOption.get_cached_value('email_from'),
             [self.email],
@@ -657,8 +662,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
         if all_interfaces.count() > OptionalMachine.get_cached_value(
-                'max_lambdauser_interfaces'
-            ):
+            'max_lambdauser_interfaces'
+        ):
             return False, "Maximum de machines enregistrees atteinte"
         if not nas_type:
             return False, "Re2o ne sait pas à quel machinetype affecter cette\
@@ -961,7 +966,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
             'local_email_redirect': self.can_change_local_email_redirect,
-            'local_email_enabled' : self.can_change_local_email_enabled,
+            'local_email_enabled': self.can_change_local_email_enabled,
         }
         self.__original_state = self.state
 
@@ -969,9 +974,22 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
         if (EMailAddress.objects
-                .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
+            .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
             raise ValidationError("This pseudo is already in use.")
+        if not self.local_email_enabled and not self.email:
+            raise ValidationError(
+                {'email': (
+                    'There is neither a local email address nor an external'
+                    ' email address for this user.'
+                ), }
+            )
+        if self.local_email_redirect and not self.email:
+            raise ValidationError(
+                {'local_email_redirect': (
+                'You cannot redirect your local email if no external email '
+                'has been set.'), }
+            )
 
     def __str__(self):
         return self.pseudo
@@ -1109,7 +1127,8 @@ def user_post_save(**kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    EMailAddress.objects.get_or_create(local_part=user.pseudo.lower(), user=user)
+    EMailAddress.objects.get_or_create(
+        local_part=user.pseudo.lower(), user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
@@ -1131,6 +1150,7 @@ def user_group_relation_changed(**kwargs):
                        access_refresh=False,
                        mac_refresh=False,
                        group_refresh=True)
+
 
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
@@ -1520,7 +1540,7 @@ class Request(models.Model):
                                    hours=GeneralOption.get_cached_value(
                                        'req_expire_hrs'
                                    )
-                               ))
+            ))
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()
@@ -1810,4 +1830,3 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if "@" in self.local_part:
             raise ValidationError("The local part cannot contain a @")
         super(EMailAddress, self).clean(*args, **kwargs)
-

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='email',
-            field=models.EmailField(blank=True, help_text='External email address allowing us to contact you.', max_length=254),
+            field=models.EmailField(blank=True, null=True, help_text='External email address allowing us to contact you.', max_length=254),
         ),
         migrations.AlterField(
             model_name='user',
