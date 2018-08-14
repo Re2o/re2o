@@ -128,3 +128,11 @@ You need to ensure that your database character set is utf-8.
 ```sql
 ALTER DATABASE re2o CHARACTER SET utf8;
 ```
+
+## MR 247: Fix des comptes mails
+
+Fix several issues with email accounts, you need to collect the static files.
+
+```bash
+./manage.py collectstatic
+```

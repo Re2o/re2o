@@ -138,6 +138,12 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError("You can't use an internal address as your external address.")
+
     class Meta:
         model = Adherent
         fields = ('pseudo', 'surname', 'email')
@@ -308,6 +314,12 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].empty_label = "Pas de chambre"
         self.fields['school'].empty_label = "Séléctionner un établissement"
 
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError("Vous ne pouvez pas utiliser une addresse {}".format(OptionalUser.objects.first().local_email_domain))
+
     class Meta:
         model = Adherent
         fields = [
@@ -322,6 +334,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'telephone',
             'gpg_fingerprint'
         ]
+
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -608,6 +621,9 @@ class EMailAddressForm(FormRevMixin, ModelForm):
         self.fields['local_part'].label = "Local part of the email"
         self.fields['local_part'].help_text = "Can't contain @"
 
+    def clean_local_part(self):
+        return self.cleaned_data.get('local_part').lower()
+
     class Meta:
         model = EMailAddress
         exclude = ['user']
@@ -618,19 +634,18 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['email'].label = "Contact email address"
+        self.fields['email'].label = "Main email address"
         if 'local_email_redirect' in self.fields:
             self.fields['local_email_redirect'].label = "Redirect local emails"
-            self.fields['local_email_redirect'].help_text = (
-                "Enable the automated redirection of the local email address "
-                "to the contact email address"
-            )
         if 'local_email_enabled' in self.fields:
             self.fields['local_email_enabled'].label = "Use local emails"
-            self.fields['local_email_enabled'].help_text = (
-                "Enable the use of the local email account"
-            )
+
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError("Vous ne pouvez pas utiliser une addresse {}".format(OptionalUser.objects.first().local_email_domain))
 
     class Meta:
         model = User
-        fields = ['email', 'local_email_redirect', 'local_email_enabled']
+        fields = ['email','local_email_enabled', 'local_email_redirect']
