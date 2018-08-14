@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='adherent',
             name='gpg_fingerprint',
-            field=models.CharField(blank=True, max_length=40, null=True, validators=[django.core.validators.RegexValidator('^[0-9A-F]{40}$', message='Une fingerprint GPG doit contenit 40 caractères hexadécimaux')]),
+            field=models.CharField(blank=True, max_length=40, null=True, validators=[django.core.validators.RegexValidator('^[0-9A-F]{40}$', message='Une fingerprint GPG doit contenir 40 caractères hexadécimaux')]),
         ),
     ]
