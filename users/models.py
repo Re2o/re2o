@@ -985,6 +985,16 @@ class Adherent(User):
         blank=True,
         null=True
     )
+    gpg_fingerprint = models.CharField(
+        max_length=40,
+        blank=True,
+        null=True,
+        validators=[RegexValidator(
+            '^[0-9A-F]{40}$',
+            message="Une fingerprint GPG doit contenir 40 "
+                    "caractères hexadécimaux"
+        )]
+    )
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):

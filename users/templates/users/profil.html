@@ -51,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% elif not users.is_adherent %}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">Not connected</div>
-                <div class="panel-body dashboard"> 
+                <div class="panel-body dashboard">
                     {% can_create Facture %}
                     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
                         <i class="fas fa-sign-in-alt"></i> Pay for a connexion
@@ -107,7 +107,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% endif %}
         </div>
-    </div> 
+    </div>
 </div>
 
 
@@ -239,6 +239,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </a>
                                     {% endif %}
                                 </td>
+                                {% if users.adherent.gpg_fingerprint %}
+                                <th>Empreinte GPG</th>
+                                <td>{{ users.adherent.gpg_fingerprint }}</td>
+                                {% endif %}
+                            </tr>
+                            <tr>
                                 {% if users.shell %}
                                 <th>Shell</th>
                                 <td>{{ users.shell }}</td>
