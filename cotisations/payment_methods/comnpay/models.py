@@ -65,6 +65,16 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         decimal_places=2,
         default=1,
     )
+    production = models.BooleanField(
+        default=True,
+        verbose_name=_l("Production mode enabled (production url, instead of homologation)"),
+    )
+
+    def return_url_comnpay(self):
+        if self.production:
+            return 'https://secure.comnpay.com'
+        else:
+            return 'https://secure.homologation.comnpay.com'
 
     def end_payment(self, invoice, request):
         """
@@ -87,8 +97,9 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
             "",
             "D"
         )
+
         r = {
-            'action': 'https://secure.homologation.comnpay.com',
+            'action': self.return_url_comnpay(),
             'method': 'POST',
             'content': p.buildSecretHTML(
                 _("Pay invoice no : ")+str(invoice.id),
