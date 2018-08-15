@@ -105,7 +105,7 @@ def render_tex(_request, template, ctx={}):
     Returns:
         An HttpResponse with type `application/pdf` containing the PDF file.
     """
-    pdf = create_pdf(template, ctx={})
+    pdf = create_pdf(template, ctx)
     r = HttpResponse(content_type='application/pdf')
     r.write(pdf)
     return r

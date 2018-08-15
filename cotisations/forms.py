@@ -46,7 +46,7 @@ from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-from .models import Article, Paiement, Facture, Banque
+from .models import Article, Paiement, Facture, Banque, CustomInvoice
 from .payment_methods import balance
 
 
@@ -131,24 +131,13 @@ class SelectClubArticleForm(Form):
         self.fields['article'].queryset = Article.find_allowed_articles(user)
 
 
-# TODO : change Facture to Invoice
-class NewFactureFormPdf(Form):
+class CustomInvoiceForm(FormRevMixin, ModelForm):
     """
-    Form used to create a custom PDF invoice.
+    Form used to create a custom invoice.
     """
-    paid = forms.BooleanField(label=_l("Paid"), required=False)
-    # TODO : change dest field to recipient
-    dest = forms.CharField(
-        required=True,
-        max_length=255,
-        label=_l("Recipient")
-    )
-    # TODO : change chambre field to address
-    chambre = forms.CharField(
-        required=False,
-        max_length=10,
-        label=_l("Address")
-    )
+    class Meta:
+        model = CustomInvoice
+        fields = '__all__'
 
 
 class ArticleForm(FormRevMixin, ModelForm):

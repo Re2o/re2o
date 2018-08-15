@@ -250,6 +250,14 @@ class SortTable:
         'cotis_id': ['id'],
         'default': ['-date']
     }
+    COTISATIONS_CUSTOM = {
+        'invoice_date': ['date'],
+        'invoice_id': ['id'],
+        'invoice_recipient': ['recipient'],
+        'invoice_address': ['address'],
+        'invoice_payment': ['payment'],
+        'default': ['-date']
+    }
     COTISATIONS_CONTROL = {
         'control_name': ['user__adherent__name'],
         'control_surname': ['user__surname'],

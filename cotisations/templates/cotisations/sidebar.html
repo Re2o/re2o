@@ -27,8 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    {% can_change Facture pdf %}
-    <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-facture-pdf" %}">
+    {% can_create CustomInvoice %}
+    <a class="list-group-item list-group-item-success" href="{% url "cotisations:new-custom-invoice" %}">
         <i class="fa fa-plus"></i> {% trans "Create an invoice" %}
     </a>
     <a class="list-group-item list-group-item-warning" href="{% url "cotisations:control" %}">
@@ -38,6 +38,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% can_view_all Facture %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index" %}">
         <i class="fa fa-list-ul"></i> {% trans "Invoices" %}
+    </a>
+    {% acl_end %}
+    {% can_view_all CustomInvoice %}
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-custom-invoice" %}">
+        <i class="fa fa-list-ul"></i> {% trans "Custom invoices" %}
     </a>
     {% acl_end %}
     {% can_view_all Article %}
