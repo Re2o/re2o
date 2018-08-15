@@ -839,7 +839,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a shell
         """
-        if not ((self == user_request and OptionalUser.get_cached_value('self_change_shell'))
+        if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_shell'))
             or user_request.has_perm('users.change_user_shell')):
             return False, u"Droit requis pour changer le shell"
         else:
