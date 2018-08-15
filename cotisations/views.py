@@ -74,7 +74,7 @@ from .forms import (
 )
 from .tex import render_invoice
 from .payment_methods.forms import payment_method_factory
-from .utils import find_payment_method
+from .utils import find_payment_method, send_mail_invoice
 
 
 @login_required
@@ -147,6 +147,8 @@ def new_facture(request, user, userid):
                     p.facture = new_invoice_instance
                     p.save()
 
+                send_mail_invoice(new_invoice_instance)
+
                 return new_invoice_instance.paiement.end_payment(
                     new_invoice_instance,
                     request
@@ -161,6 +163,7 @@ def new_facture(request, user, userid):
         balance = user.solde
     else:
         balance = None
+
     return form(
         {
             'factureform': invoice_form,
@@ -746,6 +749,9 @@ def credit_solde(request, user, **_kwargs):
                 prix=refill_form.cleaned_data['value'],
                 number=1
             )
+
+            send_mail_invoice(invoice)
+
             return invoice.paiement.end_payment(invoice, request)
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
