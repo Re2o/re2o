@@ -45,7 +45,7 @@ def update_rights(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cotisations', '0030_custom_payment'),
+        ('cotisations', '0031_comnpaypayment_production'),
     ]
 
     operations = [
