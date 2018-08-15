@@ -24,11 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
-  <h2>Bannissements</h2>
+<h2>{% trans "Bans" %}</h2>
   {%  include "users/aff_bans.html" with  ban_list=ban_list %}
   <br />
   <br />

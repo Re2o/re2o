@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load i18n %}
+
 {% if clubs_list.paginator %}
 {% include "pagination.html" with list=clubs_list %}
 {% endif %}
@@ -31,29 +33,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='club' col="surname" text="Nom" %}</th>
-            <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text="Pseudo" %}</th>
-            <th>{% include "buttons/sort.html" with prefix='club' col="room" text="Chambre" %}</th>
-            <th>Fin de cotisation le</th>
-            <th>Connexion</th>
-            <th>Profil</th>
+            {% trans "Name" as tr_name %}
+            <th>{% include "buttons/sort.html" with prefix='club' col="surname" text=tr_name %}</th>
+            {% trans "Username" as tr_username %}
+            <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text=tr_username %}</th>
+            {% trans "Room" as tr_room %}
+            <th>{% include "buttons/sort.html" with prefix='club' col="room" text=tr_room %}</th>
+            <th>{% trans "End of subscription on" %}</th>
+            <th>{% trans "Internet access" %}</th>
+            <th>{% trans "Profile" %}</th>
         </tr>
     </thead>
     {% for club in clubs_list %}
     {% can_view club %}
-    <tr>
-        <td>{{ club.surname }}</td>
-        <td>{{ club.pseudo }}</td>
-        <td>{{ club.room }}</td>
-        <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
-        <td>{% if club.has_access == True %}
-            <i class="text-success">Active</i>
-            {% else %}
-            <i class="text-danger">Désactivée</i>
-            {% endif %}
-        </td>
-        <td><a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
-        </td>
+        <tr>
+            <td>{{ club.surname }}</td>
+            <td>{{ club.pseudo }}</td>
+            <td>{{ club.room }}</td>
+            <td>{% if club.is_adherent %}{{ club.end_adhesion }}{% else %}{% trans "Not a member" %}{% endif %}</td>
+            <td>{% if club.has_access == True %}
+                <i class="text-success">{% trans "Active" %}</i>
+                {% else %}
+                <i class="text-danger">{% trans "Disabled" %}</i>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button">
+                    <i class="fa fa-user"></i>
+                </a>
+            </td>
     </tr>
     {% acl_end %}
     {% endfor %}
@@ -62,3 +70,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if clubs_list.paginator %}
 {% include "pagination.html" with list=clubs_list %}
 {% endif %}
+

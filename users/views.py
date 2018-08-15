@@ -46,6 +46,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.translation import ugettext as _
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
@@ -118,8 +119,8 @@ def new_user(request):
     if user.is_valid():
         user = user.save()
         user.reset_passwd_mail(request)
-        messages.success(request, "L'utilisateur %s a été crée, un mail\
-        pour l'initialisation du mot de passe a été envoyé" % user.pseudo)
+        messages.success(request, _("The user %s was created, an email to set"
+                                    " the password was sent.") % user.pseudo)
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user.id)}
@@ -130,7 +131,7 @@ def new_user(request):
             'GTU_sum_up': GTU_sum_up,
             'GTU': GTU,
             'showCGU': True,
-            'action_name': 'Créer un utilisateur'
+            'action_name': _("Create a user")
         },
         'users/user.html',
         request
@@ -147,14 +148,14 @@ def new_club(request):
         club = club.save(commit=False)
         club.save()
         club.reset_passwd_mail(request)
-        messages.success(request, "L'utilisateur %s a été crée, un mail\
-        pour l'initialisation du mot de passe a été envoyé" % club.pseudo)
+        messages.success(request, _("The club %s was created, an email to set"
+                                    " the password was sent.") % club.pseudo)
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(club.id)}
         ))
     return form(
-        {'userform': club, 'showCGU': False, 'action_name': 'Créer un club'},
+        {'userform': club, 'showCGU': False, 'action_name': _("Create a club")},
         'users/user.html',
         request
     )
@@ -172,7 +173,7 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
     if club.is_valid():
         if club.changed_data:
             club.save()
-            messages.success(request, "Le club a bien été modifié")
+            messages.success(request, _("The club was edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(club_instance.id)}
@@ -181,7 +182,7 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
         {
             'userform': club,
             'showCGU': False,
-            'action_name': 'Editer les admin et membres'
+            'action_name': _("Edit the admins and members")
         },
         'users/user.html',
         request
@@ -209,13 +210,13 @@ def edit_info(request, user, userid):
     if user_form.is_valid():
         if user_form.changed_data:
             user_form.save()
-            messages.success(request, "L'user a bien été modifié")
+            messages.success(request, _("The user was edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': user_form, 'action_name': "Editer l'utilisateur"},
+        {'userform': user_form, 'action_name': _("Edit the user")},
         'users/user.html',
         request
     )
@@ -229,13 +230,13 @@ def state(request, user, userid):
     if state_form.is_valid():
         if state_form.changed_data:
             state_form.save()
-            messages.success(request, "Etat changé avec succès")
+            messages.success(request, _("The state was edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': state_form, 'action_name': "Editer l'état"},
+        {'userform': state_form, 'action_name': _("Edit the state")},
         'users/user.html',
         request
     )
@@ -250,13 +251,13 @@ def groups(request, user, userid):
     if group_form.is_valid():
         if group_form.changed_data:
             group_form.save()
-            messages.success(request, "Groupes changés avec succès")
+            messages.success(request, _("The groups were edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': group_form, 'action_name': 'Editer les groupes'},
+        {'userform': group_form, 'action_name': _("Edit the groups")},
         'users/user.html',
         request
     )
@@ -272,13 +273,13 @@ def password(request, user, userid):
     if u_form.is_valid():
         if u_form.changed_data:
             u_form.save()
-            messages.success(request, "Le mot de passe a changé")
+            messages.success(request, _("The password was changed."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
         ))
     return form(
-        {'userform': u_form, 'action_name': 'Changer le mot de passe'},
+        {'userform': u_form, 'action_name': _("Change the password")},
         'users/user.html',
         request
     )
@@ -290,7 +291,7 @@ def del_group(request, user, listrightid, **_kwargs):
     """ View used to delete a group """
     user.groups.remove(ListRight.objects.get(id=listrightid))
     user.save()
-    messages.success(request, "Droit supprimé à %s" % user)
+    messages.success(request, _("%s was removed from the group.") % user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -300,7 +301,7 @@ def del_superuser(request, user, **_kwargs):
     """Remove the superuser right of an user."""
     user.is_superuser = False
     user.save()
-    messages.success(request, "%s n'est plus superuser" % user)
+    messages.success(request, _("%s is no longer superuser.") % user)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -313,11 +314,11 @@ def new_serviceuser(request):
         user.save()
         messages.success(
             request,
-            "L'utilisateur a été crée"
+            _("The service user was created.")
         )
         return redirect(reverse('users:index-serviceusers'))
     return form(
-        {'userform': user, 'action_name': 'Créer un serviceuser'},
+        {'userform': user, 'action_name': _("Create a service user")},
         'users/user.html',
         request
     )
@@ -334,10 +335,10 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
     if serviceuser.is_valid():
         if serviceuser.changed_data:
             serviceuser.save()
-        messages.success(request, "L'user a bien été modifié")
+        messages.success(request, _("The service user was edited."))
         return redirect(reverse('users:index-serviceusers'))
     return form(
-        {'userform': serviceuser, 'action_name': 'Editer un serviceuser'},
+        {'userform': serviceuser, 'action_name': _("Edit a service user")},
         'users/user.html',
         request
     )
@@ -349,10 +350,10 @@ def del_serviceuser(request, serviceuser, **_kwargs):
     """Suppression d'un ou plusieurs serviceusers"""
     if request.method == "POST":
         serviceuser.delete()
-        messages.success(request, "L'user a été détruit")
+        messages.success(request, _("The service user was deleted."))
         return redirect(reverse('users:index-serviceusers'))
     return form(
-        {'objet': serviceuser, 'objet_name': 'serviceuser'},
+        {'objet': serviceuser, 'objet_name': 'service user'},
         'users/delete.html',
         request
     )
@@ -369,7 +370,7 @@ def add_ban(request, user, userid):
     ban = BanForm(request.POST or None, instance=ban_instance)
     if ban.is_valid():
         ban.save()
-        messages.success(request, "Bannissement ajouté")
+        messages.success(request, _("The ban was added."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
@@ -377,10 +378,10 @@ def add_ban(request, user, userid):
     if user.is_ban():
         messages.error(
             request,
-            "Attention, cet utilisateur a deja un bannissement actif"
+            _("Warning: this user already has an active ban.")
         )
     return form(
-        {'userform': ban, 'action_name': 'Ajouter un ban'},
+        {'userform': ban, 'action_name': _("Add a ban")},
         'users/user.html',
         request
     )
@@ -396,10 +397,10 @@ def edit_ban(request, ban_instance, **_kwargs):
     if ban.is_valid():
         if ban.changed_data:
             ban.save()
-            messages.success(request, "Bannissement modifié")
+            messages.success(request, _("The ban was edited."))
         return redirect(reverse('users:index'))
     return form(
-        {'userform': ban, 'action_name': 'Editer un ban'},
+        {'userform': ban, 'action_name': _("Edit a ban")},
         'users/user.html',
         request
     )
@@ -411,7 +412,7 @@ def del_ban(request, ban, **_kwargs):
     """ Supprime un banissement"""
     if request.method == "POST":
         ban.delete()
-        messages.success(request, "Le banissement a été supprimé")
+        messages.success(request, _("The ban was deleted."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(ban.user.id)}
@@ -438,7 +439,7 @@ def add_whitelist(request, user, userid):
     )
     if whitelist.is_valid():
         whitelist.save()
-        messages.success(request, "Accès à titre gracieux accordé")
+        messages.success(request, _("The whitelist was added."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
@@ -446,10 +447,10 @@ def add_whitelist(request, user, userid):
     if user.is_whitelisted():
         messages.error(
             request,
-            "Attention, cet utilisateur a deja un accès gracieux actif"
+            _("Warning: this user already has an active whitelist.")
         )
     return form(
-        {'userform': whitelist, 'action_name': 'Ajouter une whitelist'},
+        {'userform': whitelist, 'action_name': _("Add a whitelist")},
         'users/user.html',
         request
     )
@@ -469,10 +470,10 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
     if whitelist.is_valid():
         if whitelist.changed_data:
             whitelist.save()
-            messages.success(request, "Whitelist modifiée")
+            messages.success(request, _("The whitelist was edited."))
         return redirect(reverse('users:index'))
     return form(
-        {'userform': whitelist, 'action_name': 'Editer une whitelist'},
+        {'userform': whitelist, 'action_name': _("Edit a whitelist")},
         'users/user.html',
         request
     )
@@ -484,7 +485,7 @@ def del_whitelist(request, whitelist, **_kwargs):
     """ Supprime un acces gracieux"""
     if request.method == "POST":
         whitelist.delete()
-        messages.success(request, "L'accés gracieux a été supprimé")
+        messages.success(request, _("The whitelist was deleted."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(whitelist.user.id)}
@@ -508,7 +509,7 @@ def add_emailaddress(request, user, userid):
     )
     if emailaddress.is_valid():
         emailaddress.save()
-        messages.success(request, "Local email account created")
+        messages.success(request, _("The local email account was created."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(userid)}
@@ -516,7 +517,7 @@ def add_emailaddress(request, user, userid):
     return form(
         {'userform': emailaddress,
          'showCGU': False,
-         'action_name': 'Add a local email account'},
+         'action_name': _("Add a local email account")},
         'users/user.html',
         request
     )
@@ -533,7 +534,7 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
     if emailaddress.is_valid():
         if emailaddress.changed_data:
             emailaddress.save()
-            messages.success(request, "Local email account modified")
+            messages.success(request, _("The local email account was edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(emailaddress_instance.user.id)}
@@ -541,8 +542,7 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
     return form(
         {'userform': emailaddress,
          'showCGU': False,
-         'action_name': 'Edit a local email account',
-        },
+         'action_name': _("Edit a local email account")},
         'users/user.html',
         request
     )
@@ -554,7 +554,7 @@ def del_emailaddress(request, emailaddress, **_kwargs):
     """Delete a local email account"""
     if request.method == "POST":
         emailaddress.delete()
-        messages.success(request, "Local email account deleted")
+        messages.success(request, _("The local email account was deleted."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(emailaddress.user.id)}
@@ -578,7 +578,7 @@ def edit_email_settings(request, user_instance, **_kwargs):
     if email_settings.is_valid():
         if email_settings.changed_data:
             email_settings.save()
-            messages.success(request, "Email settings updated")
+            messages.success(request, _("The email settings were edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user_instance.id)}
@@ -587,7 +587,7 @@ def edit_email_settings(request, user_instance, **_kwargs):
         {'userform': email_settings,
          'showCGU': False,
          'load_js_file': '/static/js/email_address.js',
-         'action_name': 'Edit the email settings'},
+         'action_name': _("Edit the email settings")},
         'users/user.html',
         request
     )
@@ -601,10 +601,10 @@ def add_school(request):
     school = SchoolForm(request.POST or None)
     if school.is_valid():
         school.save()
-        messages.success(request, "L'établissement a été ajouté")
+        messages.success(request, _("The school was added."))
         return redirect(reverse('users:index-school'))
     return form(
-        {'userform': school, 'action_name': 'Ajouter'},
+        {'userform': school, 'action_name': _("Add a school")},
         'users/user.html',
         request
     )
@@ -619,10 +619,10 @@ def edit_school(request, school_instance, **_kwargs):
     if school.is_valid():
         if school.changed_data:
             school.save()
-            messages.success(request, "Établissement modifié")
+            messages.success(request, _("The school was edited."))
         return redirect(reverse('users:index-school'))
     return form(
-        {'userform': school, 'action_name': 'Editer'},
+        {'userform': school, 'action_name': _("Edit a school")},
         'users/user.html',
         request
     )
@@ -641,15 +641,15 @@ def del_school(request, instances):
         for school_del in school_dels:
             try:
                 school_del.delete()
-                messages.success(request, "L'établissement a été supprimé")
+                messages.success(request, _("The school was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    "L'établissement %s est affecté à au moins un user, \
-                        vous ne pouvez pas le supprimer" % school_del)
+                    _("The school %s is assigned to at least one user,"
+                      " impossible to delete it.") % school_del)
         return redirect(reverse('users:index-school'))
     return form(
-        {'userform': school, 'action_name': 'Supprimer'},
+        {'userform': school, 'action_name': _("Delete")},
         'users/user.html',
         request
     )
@@ -662,10 +662,10 @@ def add_shell(request):
     shell = ShellForm(request.POST or None)
     if shell.is_valid():
         shell.save()
-        messages.success(request, "Le shell a été ajouté")
+        messages.success(request, _("The shell was added."))
         return redirect(reverse('users:index-shell'))
     return form(
-        {'userform': shell, 'action_name': 'Ajouter'},
+        {'userform': shell, 'action_name': _("Add a shell")},
         'users/user.html',
         request
     )
@@ -679,10 +679,10 @@ def edit_shell(request, shell_instance, **_kwargs):
     if shell.is_valid():
         if shell.changed_data:
             shell.save()
-            messages.success(request, "Le shell a été modifié")
+            messages.success(request, _("The shell was edited."))
         return redirect(reverse('users:index-shell'))
     return form(
-        {'userform': shell, 'action_name': 'Editer'},
+        {'userform': shell, 'action_name': _("Edit a shell")},
         'users/user.html',
         request
     )
@@ -694,7 +694,7 @@ def del_shell(request, shell, **_kwargs):
     """Destruction d'un shell"""
     if request.method == "POST":
         shell.delete()
-        messages.success(request, "Le shell a été détruit")
+        messages.success(request, _("The shell was deleted."))
         return redirect(reverse('users:index-shell'))
     return form(
         {'objet': shell, 'objet_name': 'shell'},
@@ -711,10 +711,10 @@ def add_listright(request):
     listright = NewListRightForm(request.POST or None)
     if listright.is_valid():
         listright.save()
-        messages.success(request, "Le droit/groupe a été ajouté")
+        messages.success(request, _("The group of rights was added."))
         return redirect(reverse('users:index-listright'))
     return form(
-        {'userform': listright, 'action_name': 'Ajouter'},
+        {'userform': listright, 'action_name': _("Add a group of rights")},
         'users/user.html',
         request
     )
@@ -732,10 +732,10 @@ def edit_listright(request, listright_instance, **_kwargs):
     if listright.is_valid():
         if listright.changed_data:
             listright.save()
-            messages.success(request, "Droit modifié")
+            messages.success(request, _("The group of rights was edited."))
         return redirect(reverse('users:index-listright'))
     return form(
-        {'userform': listright, 'action_name': 'Editer'},
+        {'userform': listright, 'action_name': _("Edit a group of rights")},
         'users/user.html',
         request
     )
@@ -752,15 +752,16 @@ def del_listright(request, instances):
         for listright_del in listright_dels:
             try:
                 listright_del.delete()
-                messages.success(request, "Le droit/groupe a été supprimé")
+                messages.success(request, _("The group of rights was"
+                                            " deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    "Le groupe %s est affecté à au moins un user, \
-                        vous ne pouvez pas le supprimer" % listright_del)
+                    _("The group of rights %s is assigned to at least one"
+                      " user, impossible to delete it.") % listright_del)
         return redirect(reverse('users:index-listright'))
     return form(
-        {'userform': listright, 'action_name': 'Supprimer'},
+        {'userform': listright, 'action_name': _("Delete")},
         'users/user.html',
         request
     )
@@ -784,8 +785,8 @@ def mass_archive(request):
                 with transaction.atomic(), reversion.create_revision():
                     user.archive()
                     user.save()
-                    reversion.set_comment("Archivage")
-            messages.success(request, "%s users ont été archivés" % len(
+                    reversion.set_comment(_("Archiving"))
+            messages.success(request, _("%s users were archived.") % len(
                 to_archive_list
             ))
             return redirect(reverse('users:index'))
@@ -1034,18 +1035,17 @@ def reset_password(request):
                 email=userform.cleaned_data['email']
             )
         except User.DoesNotExist:
-            messages.error(request, "Cet utilisateur n'existe pas")
+            messages.error(request, _("The user doesn't exist."))
             return form(
-                {'userform': userform, 'action_name': 'Réinitialiser'},
+                {'userform': userform, 'action_name': _("Reset")},
                 'users/user.html',
                 request
             )
         user.reset_passwd_mail(request)
-        messages.success(request, "Un mail pour l'initialisation du mot\
-        de passe a été envoyé")
+        messages.success(request, _("An email to reset the password was sent."))
         redirect(reverse('index'))
     return form(
-        {'userform': userform, 'action_name': 'Réinitialiser'},
+        {'userform': userform, 'action_name': _("Reset")},
         'users/user.html',
         request
     )
@@ -1059,7 +1059,7 @@ def process(request, token):
     if req.type == Request.PASSWD:
         return process_passwd(request, req)
     else:
-        messages.error(request, "Entrée incorrecte, contactez un admin")
+        messages.error(request, _("Error: please contact an admin."))
         redirect(reverse('index'))
 
 
@@ -1071,12 +1071,12 @@ def process_passwd(request, req):
     if u_form.is_valid():
         with transaction.atomic(), reversion.create_revision():
             u_form.save()
-            reversion.set_comment("Réinitialisation du mot de passe")
+            reversion.set_comment(_("Password reset"))
         req.delete()
-        messages.success(request, "Le mot de passe a changé")
+        messages.success(request, _("The password was changed."))
         return redirect(reverse('index'))
     return form(
-        {'userform': u_form, 'action_name': 'Changer le mot de passe'},
+        {'userform': u_form, 'action_name': _("Change the password")},
         'users/user.html',
         request
     )
@@ -1111,7 +1111,7 @@ def ml_std_members(request, ml_name):
         members = all_has_access().values('email').distinct()
     # Unknown mailing
     else:
-        messages.error(request, "Cette mailing n'existe pas")
+        messages.error(request, _("The mailing list doesn't exist."))
         return redirect(reverse('index'))
     seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)
@@ -1135,7 +1135,7 @@ def ml_club_admins(request, ml_name):
     try:
         club = Club.objects.get(mailing=True, pseudo=ml_name)
     except Club.DoesNotExist:
-        messages.error(request, "Cette mailing n'existe pas")
+        messages.error(request, _("The mailing list doesn't exist."))
         return redirect(reverse('index'))
     members = club.administrators.all().values('email').distinct()
     seria = MailingMemberSerializer(members, many=True)
@@ -1150,7 +1150,7 @@ def ml_club_members(request, ml_name):
     try:
         club = Club.objects.get(mailing=True, pseudo=ml_name)
     except Club.DoesNotExist:
-        messages.error(request, "Cette mailing n'existe pas")
+        messages.error(request, _("The mailing list doesn't exist."))
         return redirect(reverse('index'))
     members = (
         club.administrators.all().values('email').distinct() |
@@ -1158,3 +1158,4 @@ def ml_club_members(request, ml_name):
     )
     seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)
+
