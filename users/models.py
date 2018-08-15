@@ -832,18 +832,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             "Droit requis pour changer l'état"
         )
 
-    @staticmethod
-    def can_change_shell(user_request, *_args, **_kwargs):
+    def can_change_shell(self, user_request, *_args, **_kwargs):
         """ Check if a user can change a shell
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
         the right to change a shell
         """
-        return (
-            user_request.has_perm('users.change_user_shell'),
-            "Droit requis pour changer le shell"
-        )
+        if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_shell'))
+            or user_request.has_perm('users.change_user_shell')):
+            return False, u"Droit requis pour changer le shell"
+        else:
+            return True, None
 
     @staticmethod
     def can_change_local_email_redirect(user_request, *_args, **_kwargs):

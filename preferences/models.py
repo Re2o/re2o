@@ -85,6 +85,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    self_change_shell = models.BooleanField(
+        default=False,
+        help_text="Users can change their shell"
+    )
     local_email_accounts_enabled = models.BooleanField(
         default=False,
         help_text="Enable local email accounts for users"

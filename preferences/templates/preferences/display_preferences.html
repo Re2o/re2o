@@ -45,16 +45,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ useroptions.self_adhesion|tick }}</td>
     </tr>
     <tr>
-        <th>Champ gpg fingerprint</th>
-        <td>{{ useroptions.gpg_fingerprint|tick }}</td>
+
         <th>Shell par défaut des utilisateurs</th>
         <td>{{ useroptions.shell_default }}</td>
+        <th>Les utilisateurs peuvent changer leur shell</th>
+        <td>{{ useroptions.self_change_shell|tick }}</td>
     </tr>
     <tr>
         <th>Creations d'adhérents par tous</th>
         <td>{{ useroptions.all_can_create_adherent|tick }}</td>
         <th>Creations de clubs par tous</th>
         <td>{{ useroptions.all_can_create_club|tick }}</td>
+    </tr>
+    <tr>
+        <th>Champ gpg fingerprint</th>
+        <td>{{ useroptions.gpg_fingerprint|tick }}</td>
     </tr>
 </table>
 
