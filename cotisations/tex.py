@@ -62,15 +62,23 @@ def render_invoice(_request, ctx={}):
 
 
 def create_pdf(template, ctx={}):
-    """
-    Creates and returns a PDF from a LaTeX template using pdflatex.
+    """Creates and returns a PDF from a LaTeX template using pdflatex.
+
+    It create a temporary file for the PDF then read it to return its content.
+
+    Args:
+        template: Path to the LaTeX template.
+        ctx: Dict with the context for rendering the template.
+
+    Returns:
+        The content of the temporary PDF file generated.
     """
     context = Context(ctx)
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
 
     with tempfile.TemporaryDirectory() as tempdir:
-        for i in range(2):
+        for _ in range(2):
             process = Popen(
                 ['pdflatex', '-output-directory', tempdir],
                 stdin=PIPE,
@@ -84,10 +92,18 @@ def create_pdf(template, ctx={}):
 
 
 def render_tex(_request, template, ctx={}):
-    """
-    Creates a PDF from a LaTex templates using pdflatex.
-    Writes it in a temporary directory and send back an HTTP response for
+    """Creates a PDF from a LaTex templates using pdflatex.
+
+    Calls `create_pdf` and send back an HTTP response for
     accessing this file.
+
+    Args:
+        _request: Unused, but allow using this function as a Django view.
+        template: Path to the LaTeX template.
+        ctx: Dict with the context for rendering the template.
+
+    Returns:
+        An HttpResponse with type `application/pdf` containing the PDF file.
     """
     pdf = create_pdf(template, ctx={})
     r = HttpResponse(content_type='application/pdf')
