@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% else %}
         <tr>
             {% endif %}
-            <td>{{ whitelist.user }}</td>
+            <td><a href="{% url "users:profil" whitelist.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ whitelist.user }}</a></td>
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
