@@ -349,6 +349,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie seulement le nom"""
         return self.surname
 
+    @cached_property
+    def gid(self):
+        """return the default gid of user"""
+        return LDAP['user_gid']
+
     @property
     def get_shell(self):
         """ A utiliser de préférence, prend le shell par défaut
