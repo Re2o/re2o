@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% else %}
         <tr>
             {% endif %}
-            <td>{{ ban.user }}</td>
+            <td><a href="{% url "users:profil" ban.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ ban.user }}</a></td>
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
