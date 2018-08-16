@@ -872,7 +872,7 @@ class MailingMemberSerializer(UserSerializer):
     """Serialize the data about a mailing member.
     """
     class Meta(UserSerializer.Meta):
-        fields = ('name', 'pseudo', 'email')
+        fields = ('name', 'pseudo', 'get_mail')
 
 class MailingSerializer(ClubSerializer):
     """Serialize the data about a mailing.
