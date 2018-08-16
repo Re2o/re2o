@@ -272,7 +272,7 @@ class RechargeForm(FormRevMixin, Form):
         super(RechargeForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
             _("Select a payment method")
-        self.fields['payment'].queryset = Paiement.find_allowed_payments(user)
+        self.fields['payment'].queryset = Paiement.find_allowed_payments(user).exclude(is_balance=True)
 
     def clean(self):
         """
