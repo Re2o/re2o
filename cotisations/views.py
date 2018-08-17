@@ -868,7 +868,7 @@ def credit_solde(request, user, **_kwargs):
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
         'factureform': refill_form,
-        'balance': request.user.solde,
+        'balance': user.solde,
         'title': _("Refill your balance"),
         'action_name': _("Pay"),
         'max_balance': p.payment_method.maximum_balance,
