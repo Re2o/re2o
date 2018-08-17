@@ -616,13 +616,19 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
         })
+
+        if GeneralOption.get_cached_value('all_mail_redirect'):
+            address = GeneralOption.get_cached_value('redirect_address')
+        else:
+            address = self.email
+
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
                 'name': AssoOption.get_cached_value('name')
             },
             '',
             GeneralOption.get_cached_value('email_from'),
-            [self.email],
+            [address],
             html_message=template.render(context)
         )
         return
@@ -647,12 +653,18 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 GeneralOption.get_cached_value('req_expire_hrs')
             ) + ' heures',
         }
+
+        if GeneralOption.get_cached_value('all_mail_redirect'):
+             address = GeneralOption.get_cached_value('redirect_address')
+         else:
+             address = req.user.email
+
         send_mail(
             'Changement de mot de passe du %(name)s / Password renewal for '
             '%(name)s' % {'name': AssoOption.get_cached_value('name')},
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
-            [req.user.email],
+            [address],
             fail_silently=False
         )
         return
@@ -704,11 +716,17 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'asso_email': AssoOption.get_cached_value('contact'),
             'pseudo': self.pseudo,
         })
+
+        if GeneralOption.get_cached_value('all_mail_redirect'):
+             address = GeneralOption.get_cached_value('redirect_address')
+         else:
+             address = self.email
+
         send_mail(
             "Ajout automatique d'une machine / New machine autoregistered",
             '',
             GeneralOption.get_cached_value('email_from'),
-            [self.email],
+            [address],
             html_message=template.render(context)
         )
         return
@@ -1391,11 +1409,17 @@ class Ban(RevMixin, AclMixin, models.Model):
             'date_end': self.date_end,
             'asso_name': AssoOption.get_cached_value('name'),
         })
+        
+        if GeneralOption.get_cached_value('all_mail_redirect'):
+             address = GeneralOption.get_cached_value('redirect_address')
+         else:
+             address = self.user.email
+
         send_mail(
             'Deconnexion disciplinaire',
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
-            [self.user.email],
+            [address],
             fail_silently=False
         )
         return

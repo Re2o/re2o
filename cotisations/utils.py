@@ -84,12 +84,17 @@ def send_mail_invoice(invoice):
         'contact_mail': AssoOption.get_cached_value('contact'),
         'asso_name': AssoOption.get_cached_value('name')
     }
+    
+    if GeneralOption.get_cached_value('all_mail_redirect'):
+         address = GeneralOption.get_cached_value('redirect_address')
+     else:
+         address = invoice.user.email
 
     mail = EmailMessage(
         'Votre facture / Your invoice',
         template.render(ctx),
         GeneralOption.get_cached_value('email_from'),
-        [invoice.user.email],
+        [address],
         attachments=[('invoice.pdf', pdf, 'application/pdf')]
     )
     mail.send()
