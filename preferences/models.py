@@ -237,6 +237,8 @@ class GeneralOption(AclMixin, PreferencesModel):
     req_expire_hrs = models.IntegerField(default=48)
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@example.com")
+    all_mail_redirect = models.BooleanField(default=True, help_text="Redirect all sent mail to the choosen address")
+    redirect_address = models.EmailField(default="no-reply@example.com", help_text="Where to redirect all mails")
     GTU_sum_up = models.TextField(
         default="",
         blank=True,

@@ -160,6 +160,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <th>CGU</th>
         <td>{{generaloptions.GTU}}</th>
     </tr>
+    </tr>
+        <th>Redirection des mails envoyés</th>
+        <td>{{ generaloptions.all_mail_redirect|tick }}</td>
+        {% if generaloptions.all_mail_redirect %}
+        <th> Adresse mail de redirection <th>
+        <td>{{ generaloptions.redirect_address }}</td>
+        {% endif %}
+    </tr>
 </table>
 
 

@@ -126,6 +126,8 @@ class EditGeneralOptionForm(ModelForm):
         self.fields['email_from'].label = "Adresse mail d\
         'expedition automatique"
         self.fields['GTU_sum_up'].label = "Résumé des CGU"
+        self.fields['all_mail_redirect'].label = "Redirection de tout les mails"
+        self.fields['redirect_address'].label = 'Adresse de redirection'
 
 
 class EditAssoOptionForm(ModelForm):
