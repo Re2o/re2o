@@ -30,7 +30,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Home" %}{% endblock %}
 
 {% block content %}
-<h1>{% blocktrans %}Welcome to {{ name_website }}!{% endblocktrans %}</h1>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h1>{% blocktrans %}Welcome to {{ name_website }} !{% endblocktrans %}</h1>
+    </div>
+    <div class="panel-body">
+{% if request.user.is_authenticated %}
+Vous trouverez ci-dessous les principaux services proposés par le {{ assoname }}. Pour toute action concernant l'administration de votre adhésion/connexion ou de vos machines, rendez vous sur votre <a href="{% url "users:mon-profil" %}">profil</a>.
+{% else %}
+Pour bénéficier d'une connexion internet et profiter des services de l'association, connectez vous avec vos identifiants. Si vous n'avez pas de compte, créez en un.
+{% endif %}
+    </div>
+</div>
 
 <div class="row">
 {% for service_list in services_urls %}
