@@ -30,20 +30,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Home" %}{% endblock %}
 
 {% block content %}
-
-<div class="panel panel-info">
-    <div class="panel-heading">
-        <h1>{% blocktrans %}Welcome to {{ name_website }} !{% endblocktrans %}</h1>
+<div class="panel-heading">
+    <h2>{% blocktrans %}Welcome to {{ name_website }}{% endblocktrans %}</h2>
+</div>
+{% if not request.user.is_authenticated %}
+<div class="row">
+    <div class="col-sm-6 col-md-6">
+        <div class="col-12">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>Inscription</h3>
+                    <p>Si vous n'avez pas encore de compte et que vous souhaitez accéder à internet et aux services de l'association, créez votre espace personnel</p>
+                    <p><a href="{% url 'users:new-user' %}" class="btn btn-primary" role="button">Inscription</a></p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="panel-body">
-{% if request.user.is_authenticated %}
-Vous trouverez ci-dessous les principaux services proposés par le {{ assoname }}. Pour toute action concernant l'administration de votre adhésion/connexion ou de vos machines, rendez vous sur votre <a href="{% url "users:mon-profil" %}">profil</a>.
+    <div class="col-sm-6 col-md-6">
+        <div class="col-12">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>Indentification</h3>
+                    <p>Si avez déjà un compte, identifiez-vous. Vous pouvez gérer votre cotisation à l'association, vos machines, et l'ensemble de vos services</p>
+                    <p><a href="{% url 'login' %}" class="btn btn-primary" role="button">Identification</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% else %}
-Pour bénéficier d'une connexion internet et profiter des services de l'association, connectez vous avec vos identifiants. Si vous n'avez pas de compte, créez en un.
-{% endif %}
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="col-12">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>Mon profil</h3>
+                    <p>Pour gérer votre cotisation, vos machines et l'ensemble de vos services, accédez à votre profil</p>
+                    <p><a href="{% url 'users:mon-profil' %}" class="btn btn-primary" role="button">Accéder à mon profil</a></p>
+                </div>
+            </div>
+        </div>
     </div>
+{% endif %}
 </div>
 
+<div class="panel-heading">
+    <h2>{% blocktrans %}Les services de l'association{% endblocktrans %}</h2>
+</div>
 <div class="row">
 {% for service_list in services_urls %}
     <div class="col-sm-6 col-md-4">
