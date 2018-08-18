@@ -316,6 +316,8 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = _("Room")
         self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
+        self.fields['shell'].empty_label = _("Shell par défaut")
+        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Laissez vide si vous ne disposez pas de clef GPG")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -334,9 +336,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'email',
             'school',
             'comment',
+            'telephone',
             'room',
             'shell',
-            'telephone',
             'gpg_fingerprint'
         ]
 
