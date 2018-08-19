@@ -40,8 +40,8 @@ from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _l
+
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
@@ -93,11 +93,11 @@ class SelectUserArticleForm(FormRevMixin, Form):
         queryset=Article.objects.filter(
             Q(type_user='All') | Q(type_user='Adherent')
         ),
-        label=_l("Article"),
+        label=_("Article"),
         required=True
     )
     quantity = forms.IntegerField(
-        label=_l("Quantity"),
+        label=_("Quantity"),
         validators=[MinValueValidator(1)],
         required=True
     )
@@ -117,11 +117,11 @@ class SelectClubArticleForm(Form):
         queryset=Article.objects.filter(
             Q(type_user='All') | Q(type_user='Club')
         ),
-        label=_l("Article"),
+        label=_("Article"),
         required=True
     )
     quantity = forms.IntegerField(
-        label=_l("Quantity"),
+        label=_("Quantity"),
         validators=[MinValueValidator(1)],
         required=True
     )
@@ -161,7 +161,7 @@ class DelArticleForm(FormRevMixin, Form):
     """
     articles = forms.ModelMultipleChoiceField(
         queryset=Article.objects.none(),
-        label=_l("Existing articles"),
+        label=_("Available articles"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -201,7 +201,7 @@ class DelPaiementForm(FormRevMixin, Form):
     # TODO : change paiement to payment
     paiements = forms.ModelMultipleChoiceField(
         queryset=Paiement.objects.none(),
-        label=_l("Existing payment method"),
+        label=_("Available payment methods"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -239,7 +239,7 @@ class DelBanqueForm(FormRevMixin, Form):
     # TODO : change banque to bank
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
-        label=_l("Existing banks"),
+        label=_("Available banks"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -258,13 +258,13 @@ class RechargeForm(FormRevMixin, Form):
     Form used to refill a user's balance
     """
     value = forms.FloatField(
-        label=_l("Amount"),
+        label=_("Amount"),
         min_value=0.01,
         validators=[]
     )
     payment = forms.ModelChoiceField(
         queryset=Paiement.objects.none(),
-        label=_l("Payment method")
+        label=_("Payment method")
     )
 
     def __init__(self, *args, user=None, **kwargs):
@@ -290,3 +290,4 @@ class RechargeForm(FormRevMixin, Form):
                 }
             )
         return self.cleaned_data
+

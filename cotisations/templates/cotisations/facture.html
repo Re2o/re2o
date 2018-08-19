@@ -27,20 +27,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load staticfiles%}
 {% load i18n %}
 
-{% block title %}{% trans "Invoices creation and edition" %}{% endblock %}
+{% block title %}{% trans "Creation and editing of invoices" %}{% endblock %}
 
 {% block content %}
+
 {% if title %}
-<h3>{{title}}</h3>
+<h3>{{ title }}</h3>
 {% else %}
 <h3>{% trans "New invoice" %}</h3>
 {% endif %}
 {% if max_balance %}
-<h4>{% trans "Maximum allowed balance : "%}{{max_balance}} €</h4>
+<h4>{% blocktrans %}Maximum allowed balance: {{ max_balance }} €{% endblocktrans %}</h4>
 {% endif %}
 {% if balance is not None %}
 <p>
-    {% trans "Current balance :" %} {{ balance }} €
+{% blocktrans %}Current balance: {{ balance }} €{% endblocktrans %}
 </p>
 {% endif %}
 
@@ -68,9 +69,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add an article"%}" id="add_one">
     <p>
-        {% blocktrans %}
-        Total price : <span id="total_price">0,00</span> €
-        {% endblocktrans %}
+        {% blocktrans %}Total price: <span id="total_price">0,00</span> €{% endblocktrans %}
     </p>
     {% endif %}
     {% bootstrap_button action_name button_type='submit' icon='star' %}
@@ -183,3 +182,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 
 {% endblock %}
+

@@ -24,11 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
-  <h2>Clubs</h2>
+<h2>{% trans "Clubs" %}</h2>
   {%  include "users/aff_clubs.html" with  clubs_list=clubs_list %}
   <br />
   <br />

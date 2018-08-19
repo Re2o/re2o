@@ -24,40 +24,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Service</th>
-            <th>Protocole</th>
-            <th>Extension</th>
-            <th>TTL</th>
-            <th>Priorité</th>
-            <th>Poids</th>
-            <th>Port</th>
-            <th>Cible</th>
-            <th></th>
+            <th>{% trans "Service" %}</th>
+            <th>{% trans "Protocol" %}</th>
+            <th>{% trans "Extension" %}</th>
+            <th>{% trans "TTL" %}</th>
+            <th>{% trans "Priority" %}</th>
+            <th>{% trans "Weight" %}</th>
+            <th>{% trans "Port" %}</th>
+            <th>{% trans "Target" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for srv in srv_list %}
-    <tr>
-        <td>{{ srv.service }}</td>
-        <td>{{ srv.protocole }}</td>
-        <td>{{ srv.extension }}</td>
-        <td>{{ srv.ttl }}</td>
-        <td>{{ srv.priority }}</td>
-        <td>{{ srv.weight }}</td>
-        <td>{{ srv.port }}</td>
-        <td>{{ srv.target }}</td>
-        <td class="text-right">
-            {% can_edit srv %}
-            {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
-            {% acl_end %}
-            {% history_button srv %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ srv.service }}</td>
+            <td>{{ srv.protocole }}</td>
+            <td>{{ srv.extension }}</td>
+            <td>{{ srv.ttl }}</td>
+            <td>{{ srv.priority }}</td>
+            <td>{{ srv.weight }}</td>
+            <td>{{ srv.port }}</td>
+            <td>{{ srv.target }}</td>
+            <td class="text-right">
+                {% can_edit srv %}
+                {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
+                {% acl_end %}
+                {% history_button srv %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
-
 

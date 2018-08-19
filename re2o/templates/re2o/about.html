@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {{ description | safe }}
 
     <h2>{% trans "About Re2o" %}</h2>
-    <p>{% blocktrans %}
+    <p>{% blocktrans trimmed %}
         Re2o is an administration tool initiated by
         <a href="https://rezometz.org/">Rezo Supelec Metz</a> and a few
         members of other <a href="https://federez.net">FedeRez</a> associations
@@ -61,18 +61,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
 
         <div class="col-md-6">
-            <h3>{% trans "Version informations" %}</h3>
+            <h3>{% trans "Version information" %}</h3>
             <ul>
-                <li>{% blocktrans %}
+                <li>{% blocktrans trimmed %}
                     <b>Remote URL</b>: {{ git_info_remote }}
                 {% endblocktrans %}</li>
-                <li>{% blocktrans %}
+                <li>{% blocktrans trimmed %}
                     <b>Branch</b>: {{ git_info_branch }}
                 {% endblocktrans %}</li>
-                <li>{% blocktrans %}
+                <li>{% blocktrans trimmed %}
                     <b>Commit</b>: {{ git_info_commit }}
                 {% endblocktrans %}</li>
-                <li>{% blocktrans %}
+                <li>{% blocktrans trimmed %}
                     <b>Commit date</b>: {{ git_info_commit_date }}
                 {% endblocktrans %}</li>
             </ul>

@@ -26,18 +26,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
+
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Type d'ip</th>
-                <th>Extension</th>
-                <th>Nécessite l'autorisation infra</th>
-                <th>Plage ipv4</th>
-		<th>Préfixe v6</th>
-		<th>DNSSEC reverse v4/v6</th>
-                <th>Sur vlan</th>
-                <th>Ouverture ports par défault</th>
+                <th>{% trans "IP type" %}</th>
+                <th>{% trans "Extension" %}</th>
+                <th>{% trans "'infra' right required" %}</th>
+                <th>{% trans "IPv4 range" %}</th>
+                <th>{% trans "v6 prefix" %}</th>
+                <th>{% trans "DNSSEC reverse v4/v6" %}</th>
+                <th>{% trans "On VLAN(s)" %}</th>
+                <th>{% trans "Default ports opening" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -61,3 +63,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 </div>
+

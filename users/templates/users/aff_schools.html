@@ -21,20 +21,21 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+
+{% load i18n %}
 {% load acl %}
 {% load logs_extra %}
 
 <div class="table-responsive">
-
     {% if school_list.paginator %}
     {% include "pagination.html" with list=school_list %}
     {% endif %}
 
-
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% include "buttons/sort.html" with prefix='school' col='name' text='Etablissement' %}</th>
+                {% trans "School" as tr_school %}
+	        <th>{% include "buttons/sort.html" with prefix='school' col='name' text=tr_school %}</th>
                 <th></th>
             </tr>
         </thead>

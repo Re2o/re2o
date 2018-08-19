@@ -38,39 +38,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Default for" %}</th>
                 <th>{% trans "VLANs" %}</th>
                 <th>{% trans "RADIUS settings" %}</th>
-                <th>{% trans "Speed" %}</th>
-                <th>{% trans "Mac address limit" %}</th>
+                <th>{% trans "Speed limit" %}</th>
+                <th>{% trans "MAC address limit" %}</th>
                 <th>{% trans "Security" %}</th>
                 <th></th>
             </tr>
         </thead>
         {% for port_profile in port_profile_list %}
         <tr>
-            <td>{{port_profile.name}}</td>
-            <td>{{port_profile.profil_default}}</td>
+            <td>{{ port_profile.name }}</td>
+            <td>{{ port_profile.profil_default }}</td>
             <td>
                 {% if port_profile.vlan_untagged %}
-                <b>Untagged : </b>{{port_profile.vlan_untagged}}
+                <b>{% trans "Untagged: " %}</b>{{ port_profile.vlan_untagged }}
                 <br>
                 {% endif %}
                 {% if port_profile.vlan_tagged.all %}
-                <b>Tagged : </b>{{port_profile.vlan_tagged.all|join:", "}}
+                <b>{% trans "Tagged: " %}</b>{{ port_profile.vlan_tagged.all|join:", " }}
                 {% endif %}
             </td>
             <td>
-                <b>Type : </b>{{port_profile.radius_type}}
+                <b>{% trans "RADIUS type: " %}</b>{{ port_profile.radius_type }}
                 {% if port_profile.radius_type == "MAC-radius" %}
                 <br>
-                <b>Mode : </b>{{port_profile.radius_mode}}</td>
+                <b>{% trans "RADIUS mode: " %}</b>{{ port_profile.radius_mode }}</td>
             {% endif %}
-            <td>{{port_profile.speed}}</td>
-            <td>{{port_profile.mac_limit}}</td>
-            <td>{{port_profile.security_parameters_enabled|join:"<br>"}}</td>
+            <td>{{ port_profile.speed }}</td>
+            <td>{{ port_profile.mac_limit }}</td>
+            <td>{{ port_profile.security_parameters_enabled|join:"<br>" }}</td>
             <td class="text-right">
-                {% history_button port_profile %}
                 {% can_edit port_profile %}
                 {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.pk %}
                 {% acl_end %}
+                {% history_button port_profile %}
                 {% can_delete port_profile %}
                 {% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.pk %}
                 {% acl_end %}
@@ -84,3 +84,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
 
 </div>
+

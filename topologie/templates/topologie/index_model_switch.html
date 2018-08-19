@@ -25,25 +25,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Modèles de switches{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
-    <h2>Modèles de switches</h2>
+    <h2>{% trans "Switch models" %}</h2>
     {% can_create ModelSwitch %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-model-switch' %}">
-        <i class="fa fa-plus"></i> Ajouter un modèle
+	<i class="fa fa-plus"></i>{% trans " Add a switch model" %}
     </a>
     <hr>
     {% acl_end %}
     {% include "topologie/aff_model_switch.html" with model_switch_list=model_switch_list %}
 
-    <h2>Constructeurs de switches</h2>
+    <h2>{% trans "Switch constructors" %}</h2>
     {% can_create ConstructorSwitch %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-constructor-switch' %}">
-        <i class="fa fa-plus"></i> Ajouter un constructeur
+	<i class="fa fa-plus"></i>{% trans " Add a switch constructor" %}
     </a>
     <hr>
     {% acl_end %}
     {% include "topologie/aff_constructor_switch.html" with constructor_switch_list=constructor_switch_list %}
 {% endblock %}
+

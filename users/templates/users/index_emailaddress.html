@@ -24,11 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Local email accounts{% endblock %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
-  <h2>Local email accounts</h2>
-  {% include "users/aff_emailaddress.html" with  emailaddress_list=emailaddress_list %}
+    <h2>{% trans "Local email accounts" %}</h2>
+    {% include "users/aff_emailaddress.html" with  emailaddress_list=emailaddress_list %}
 {% endblock %}
 

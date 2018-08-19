@@ -43,8 +43,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if language.code == LANGUAGE_CODE %}
             <i class="fa fa-check"></i>
             {% endif %}
-            {{ language.name_local | title }} ({{ language.code }})
+            {{ language.name_local|title }} ({{ language.code }})
         </button>
         {% endfor %}
     </form>
 </div>
+

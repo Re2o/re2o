@@ -24,18 +24,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %} Utilisateurs à archiver{% endblock %}
+{% block title %}{% trans "Users to archive" %}{% endblock %}
 
 {% block content %}
 <form class="form" method="post">
     {% csrf_token %}
     {% bootstrap_form userform %}
-    <input type="submit" name="chercher" value="Chercher" class="btn btn-primary" id="submit-id-submit">
-    <input type="submit" name="valider" value="Valider définitivement" class="btn btn-primary" id="submit-id-submit">
+    <input type="submit" name="chercher" value={% trans "Search" %} class="btn btn-primary" id="submit-id-submit">
+    <input type="submit" name="valider" value={% trans "Confirm" %} class="btn btn-primary" id="submit-id-submit">
 </form>
 
-<h3>Les utilisateurs suivant seront archivés ({{ to_archive_list|length }}):</h3>
+<h3>{% blocktrans %}The following users will be archived ({{ to_archive_list|length }}):{% endblocktrans %}</h3>
 {%  include "users/aff_users.html" with  users_list=to_archive_list %}
 <br />
 <br />

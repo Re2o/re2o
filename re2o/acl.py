@@ -34,6 +34,7 @@ from django.db.models import Model
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 
 
 def acl_base_decorator(method_name, *targets, on_instance=True):
@@ -138,7 +139,7 @@ ModelC)
                         target = target.get_instance(*args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
-                        yield False, u"Entrée inexistante"
+                        yield False, _("Nonexistent entry.")
                         return
                 if hasattr(target, method_name):
                     can_fct = getattr(target, method_name)
@@ -155,7 +156,8 @@ ModelC)
             if error_messages:
                 for msg in error_messages:
                     messages.error(
-                        request, msg or "Vous ne pouvez pas accéder à ce menu")
+                        request, msg or _("You don't have the right to access"
+                                          " this menu."))
                 return redirect(reverse(
                     'users:profil',
                     kwargs={'userid': str(request.user.id)}
@@ -219,7 +221,8 @@ def can_delete_set(model):
             instances = model.objects.filter(id__in=instances_id)
             if not instances:
                 messages.error(
-                    request, "Vous ne pouvez pas accéder à ce menu")
+                    request, _("You don't have the right to access this menu.")
+                )
                 return redirect(reverse(
                     'users:profil',
                     kwargs={'userid': str(request.user.id)}
@@ -268,10 +271,11 @@ def can_edit_history(view):
             return view(request, *args, **kwargs)
         messages.error(
             request,
-            "Vous ne pouvez pas éditer l'historique."
+            _("You don't have the right to edit the history.")
         )
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
     return wrapper
+

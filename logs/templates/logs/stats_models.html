@@ -24,13 +24,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Statistiques des objets base de données{% endblock %}
+{% block title %}{% trans "Statistics" %}{% endblock %}
 
 {% block content %}
-  <h2>Statistiques bdd</h2>
-  {%  include "logs/aff_stats_models.html" with stats_list=stats_list %}
-  <br />
-  <br />
-  <br />
- {% endblock %}
+<h2>{% trans "Database statistics" %}</h2>
+    {%  include "logs/aff_stats_models.html" with stats_list=stats_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
+

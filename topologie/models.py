@@ -57,7 +57,6 @@ class Stack(AclMixin, RevMixin, models.Model):
     """Un objet stack. Regrouppe des switchs en foreign key
     ,contient une id de stack, un switch id min et max dans
     le stack"""
-    PRETTY_NAME = "Stack de switchs"
 
     name = models.CharField(max_length=32, blank=True, null=True)
     stack_id = models.CharField(max_length=32, unique=True)
@@ -67,8 +66,10 @@ class Stack(AclMixin, RevMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_stack", "Peut voir un objet stack"),
+            ("view_stack", _("Can view a stack object")),
         )
+        verbose_name = _("switches stack")
+        verbose_name_plural = _("switches stacks")
 
     def __str__(self):
         return " ".join([self.name, self.stack_id])
@@ -82,8 +83,10 @@ class Stack(AclMixin, RevMixin, models.Model):
     def clean(self):
         """ Verification que l'id_max < id_min"""
         if self.member_id_max < self.member_id_min:
-            raise ValidationError({'member_id_max': "L'id maximale est\
-                inférieure à l'id minimale"})
+            raise ValidationError(
+                    {'member_id_max': _("The maximum ID is less than the"
+                                        " minimum ID.")}
+            )
 
 
 class AccessPoint(AclMixin, Machine):
@@ -91,19 +94,20 @@ class AccessPoint(AclMixin, Machine):
 
     Definition pour une borne wifi , hérite de machines.interfaces
     """
-    PRETTY_NAME = "Borne WiFi"
 
     location = models.CharField(
         max_length=255,
-        help_text="Détails sur la localisation de l'AP",
+        help_text=_("Details about the AP's location"),
         blank=True,
         null=True
     )
 
     class Meta:
         permissions = (
-            ("view_accesspoint", "Peut voir une borne"),
+            ("view_accesspoint", _("Can view an access point object")),
         )
+        verbose_name = _("access point")
+        verbose_name_plural = _("access points")
 
     def port(self):
         """Return the queryset of ports for this device"""
@@ -197,10 +201,9 @@ class Switch(AclMixin, Machine):
 
     Validation au save que l'id du stack est bien dans le range id_min
     id_max de la stack parente"""
-    PRETTY_NAME = "Switch / Commutateur"
 
     number = models.PositiveIntegerField(
-        help_text="Nombre de ports"
+        help_text=_("Number of ports")
     )
     stack = models.ForeignKey(
         'topologie.Stack',
@@ -210,29 +213,29 @@ class Switch(AclMixin, Machine):
     )
     stack_member_id = models.PositiveIntegerField(
         blank=True,
-        null=True,
-        help_text="Baie de brassage du switch"
+        null=True
     )
     model = models.ForeignKey(
         'topologie.ModelSwitch',
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text="Modèle du switch"
+        help_text=_("Switch model")
     )
     switchbay = models.ForeignKey(
         'topologie.SwitchBay',
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text="Baie de brassage du switch"
     )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
         permissions = (
-            ("view_switch", "Peut voir un objet switch"),
+            ("view_switch", _("Can view a switch object")),
         )
+        verbose_name = _("switch")
+        verbose_name_plural = _("switches")
 
     def clean(self):
         """ Verifie que l'id stack est dans le bon range
@@ -243,12 +246,14 @@ class Switch(AclMixin, Machine):
                 if (self.stack_member_id > self.stack.member_id_max) or\
                         (self.stack_member_id < self.stack.member_id_min):
                     raise ValidationError(
-                        {'stack_member_id': "L'id de ce switch est en\
-                            dehors des bornes permises pas la stack"}
-                    )
+                        {'stack_member_id': _("The switch ID exceeds the"
+                                              " limits allowed by the stack.")}
+                        )
             else:
-                raise ValidationError({'stack_member_id': "L'id dans la stack\
-                    ne peut être nul"})
+                raise ValidationError(
+                        {'stack_member_id': _("The stack member ID can't be"
+                                              " void.")}
+                )
 
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
@@ -262,9 +267,10 @@ class Switch(AclMixin, Machine):
             s_end = ports.last().get('port')
 
         if end < begin:
-            raise ValidationError("Port de fin inférieur au port de début !")
+            raise ValidationError(_("The end port is less than the start"
+                                    " port."))
         if end - begin > self.number:
-            raise ValidationError("Ce switch ne peut avoir autant de ports.")
+            raise ValidationError(_("This switch can't have that many ports."))
         begin_range = range(begin, s_begin)
         end_range = range(s_end+1, end+1)
         for i in itertools.chain(begin_range, end_range):
@@ -274,9 +280,9 @@ class Switch(AclMixin, Machine):
             try:
                 with transaction.atomic(), reversion.create_revision():
                     port.save()
-                    reversion.set_comment("Création")
+                    reversion.set_comment(_("Creation"))
             except IntegrityError:
-                ValidationError("Création d'un port existant.")
+                ValidationError(_("Creation of an existing port."))
 
     def main_interface(self):
         """ Returns the 'main' interface of the switch """
@@ -292,7 +298,7 @@ class Switch(AclMixin, Machine):
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
-    PRETTY_NAME = "Modèle de switch"
+
     reference = models.CharField(max_length=255)
     constructor = models.ForeignKey(
         'topologie.ConstructorSwitch',
@@ -301,8 +307,10 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_modelswitch", "Peut voir un objet modelswitch"),
+            ("view_modelswitch", _("Can view a switch model object")),
         )
+        verbose_name = _("switch model")
+        verbose_name_plural = _("switch models")
 
     def __str__(self):
         return str(self.constructor) + ' ' + self.reference
@@ -310,13 +318,16 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
     """Un constructeur de switch"""
-    PRETTY_NAME = "Constructeur de switch"
+
     name = models.CharField(max_length=255)
 
     class Meta:
         permissions = (
-            ("view_constructorswitch", "Peut voir un objet constructorswitch"),
+            ("view_constructorswitch", _("Can view a switch constructor"
+                                         " object")),
         )
+        verbose_name = _("switch constructor")
+        verbose_name_plural = ("switch constructors")
 
     def __str__(self):
         return self.name
@@ -324,7 +335,7 @@ class ConstructorSwitch(AclMixin, RevMixin, models.Model):
 
 class SwitchBay(AclMixin, RevMixin, models.Model):
     """Une baie de brassage"""
-    PRETTY_NAME = "Baie de brassage"
+
     name = models.CharField(max_length=255)
     building = models.ForeignKey(
         'Building',
@@ -333,14 +344,15 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
     info = models.CharField(
         max_length=255,
         blank=True,
-        null=True,
-        help_text="Informations particulières"
+        null=True
     )
 
     class Meta:
         permissions = (
-            ("view_switchbay", "Peut voir un objet baie de brassage"),
+            ("view_switchbay", _("Can view a switch bay object")),
         )
+        verbose_name = _("switch bay")
+        verbose_name_plural = _("switch bays")
 
     def __str__(self):
         return self.name
@@ -348,13 +360,15 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
 
 class Building(AclMixin, RevMixin, models.Model):
     """Un batiment"""
-    PRETTY_NAME = "Batiment"
+
     name = models.CharField(max_length=255)
 
     class Meta:
         permissions = (
-            ("view_building", "Peut voir un objet batiment"),
+            ("view_building", _("Can view a building object")),
         )
+        verbose_name = _("building")
+        verbose_name_plural = _("buildings")
 
     def __str__(self):
         return self.name
@@ -376,7 +390,6 @@ class Port(AclMixin, RevMixin, models.Model):
     - vlan_force : override la politique générale de placement vlan, permet
     de forcer un port sur un vlan particulier. S'additionne à la politique
     RADIUS"""
-    PRETTY_NAME = "Port de switch"
 
     switch = models.ForeignKey(
         'Switch',
@@ -411,15 +424,17 @@ class Port(AclMixin, RevMixin, models.Model):
     state = models.BooleanField(
         default=True,
         help_text='Port state Active',
-        verbose_name=_("Port State Active")
+        verbose_name=_("Port state Active")
     )
     details = models.CharField(max_length=255, blank=True)
 
     class Meta:
         unique_together = ('switch', 'port')
         permissions = (
-            ("view_port", "Peut voir un objet port"),
+            ("view_port", _("Can view a port object")),
         )
+        verbose_name = _("port")
+        verbose_name_plural = _("ports")
 
     @cached_property
     def get_port_profile(self):
@@ -486,22 +501,21 @@ class Port(AclMixin, RevMixin, models.Model):
         if hasattr(self, 'switch'):
             if self.port > self.switch.number:
                 raise ValidationError(
-                    "Ce port ne peut exister, numero trop élevé"
+                    _("The port can't exist, its number is too great.")
                 )
         if (self.room and self.machine_interface or
                 self.room and self.related or
                 self.machine_interface and self.related):
             raise ValidationError(
-                "Chambre, interface et related_port sont mutuellement "
-                "exclusifs"
+                _("Room, interface and related port are mutually exclusive.")
             )
         if self.related == self:
-            raise ValidationError("On ne peut relier un port à lui même")
+            raise ValidationError(_("A port can't be related to itself."))
         if self.related and not self.related.related:
             if self.related.machine_interface or self.related.room:
                 raise ValidationError(
-                    "Le port relié est déjà occupé, veuillez le libérer "
-                    "avant de créer une relation"
+                    _("The related port is already used, please clear it"
+                      " before creating the relation.")
                 )
             else:
                 self.make_port_related()
@@ -514,7 +528,6 @@ class Port(AclMixin, RevMixin, models.Model):
 
 class Room(AclMixin, RevMixin, models.Model):
     """Une chambre/local contenant une prise murale"""
-    PRETTY_NAME = "Chambre/ Prise murale"
 
     name = models.CharField(max_length=255, unique=True)
     details = models.CharField(max_length=255, blank=True)
@@ -522,8 +535,10 @@ class Room(AclMixin, RevMixin, models.Model):
     class Meta:
         ordering = ['name']
         permissions = (
-            ("view_room", "Peut voir un objet chambre"),
+            ("view_room", _("Can view a room object")),
         )
+        verbose_name = _("room")
+        verbose_name_plural = _("rooms")
 
     def __str__(self):
         return self.name
@@ -564,7 +579,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         blank=True,
         null=True,
         unique=True,
-        verbose_name=_("profil default")
+        verbose_name=_("Default profile")
     )
     vlan_untagged = models.ForeignKey(
         'machines.Vlan',
@@ -583,66 +598,66 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     radius_type = models.CharField(
         max_length=32,
         choices=TYPES,
-        help_text="Type of radius auth : inactive, mac-address or 802.1X",
+        help_text=_("Type of RADIUS authentication : inactive, MAC-address or"
+                    " 802.1X"),
         verbose_name=_("RADIUS type")
     )
     radius_mode = models.CharField(
         max_length=32,
         choices=MODES,
         default='COMMON',
-        help_text="In case of mac-auth : mode common or strict on this port",
+        help_text=_("In case of MAC-authentication : mode COMMON or STRICT on"
+                    " this port"),
         verbose_name=_("RADIUS mode")
     )
     speed = models.CharField(
         max_length=32,
         choices=SPEED,
         default='auto',
-        help_text='Port speed limit',
-        verbose_name=_("Speed")
+        help_text=_("Port speed limit"),
     )
     mac_limit = models.IntegerField(
         null=True,
         blank=True,
-        help_text='Limit of mac-address on this port',
-        verbose_name=_("Mac limit")
+        help_text=_("Limit of MAC-address on this port"),
+        verbose_name=_("MAC limit")
     )
     flow_control = models.BooleanField(
         default=False,
-        help_text='Flow control',
-        verbose_name=_("Flow control")
+        help_text=_("Flow control"),
     )
     dhcp_snooping = models.BooleanField(
         default=False,
-        help_text='Protect against rogue dhcp',
-        verbose_name=_("Dhcp snooping")
+        help_text=_("Protect against rogue DHCP"),
+        verbose_name=_("DHCP snooping")
     )
     dhcpv6_snooping = models.BooleanField(
         default=False,
-        help_text='Protect against rogue dhcpv6',
-        verbose_name=_("Dhcpv6 snooping")
+        help_text=_("Protect against rogue DHCPv6"),
+        verbose_name=_("DHCPv6 snooping")
     )
     arp_protect = models.BooleanField(
         default=False,
-        help_text='Check if ip is dhcp assigned',
-        verbose_name=_("Arp protect")
+        help_text=_("Check if IP adress is DHCP assigned"),
+        verbose_name=_("ARP protection")
     )
     ra_guard = models.BooleanField(
         default=False,
-        help_text='Protect against rogue ra',
-        verbose_name=_("Ra guard")
+        help_text=_("Protect against rogue RA"),
+        verbose_name=_("RA guard")
     )
     loop_protect = models.BooleanField(
         default=False,
-        help_text='Protect again loop',
-        verbose_name=_("Loop Protect")
+        help_text=_("Protect against loop"),
+        verbose_name=_("Loop protection")
     )
 
     class Meta:
         permissions = (
             ("view_port_profile", _("Can view a port profile object")),
         )
-        verbose_name = _("Port profile")
-        verbose_name_plural = _("Port profiles")
+        verbose_name = _("port profile")
+        verbose_name_plural = _("port profiles")
 
     security_parameters_fields = [
         'loop_protect',
@@ -727,3 +742,4 @@ def switch_post_save(**_kwargs):
 @receiver(post_delete, sender=Switch)
 def switch_post_delete(**_kwargs):
     regen("graph_topo")
+

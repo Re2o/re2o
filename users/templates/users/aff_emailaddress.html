@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 {% load logs_extra %}
 
 {% if emailaddress_list.paginator %}
@@ -32,20 +33,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Email address</th>
+            <th>{% trans "Email address" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for emailaddress in emailaddress_list %}
-        <td>{{ emailaddress.complete_email_address }}</td>
-        <td class="text-right">
-            {% can_delete emailaddress %}
-            {% include 'buttons/suppr.html' with href='users:del-emailaddress' id=emailaddress.id %}
-            {% acl_end %}
-            {% can_edit emailaddress %}
-            {% include 'buttons/edit.html' with href='users:edit-emailaddress' id=emailaddress.id %}
-            {% acl_end %}
-            {% history_button emailaddress %}
+            <td>{{ emailaddress.complete_email_address }}</td>
+            <td class="text-right">
+                {% can_delete emailaddress %}
+                {% include 'buttons/suppr.html' with href='users:del-emailaddress' id=emailaddress.id %}
+                {% acl_end %}
+                {% history_button emailaddress %}
+                {% can_edit emailaddress %}
+                {% include 'buttons/edit.html' with href='users:edit-emailaddress' id=emailaddress.id %}
+                {% acl_end %}
             </td>
         </tr>
         {% endfor %}
@@ -54,3 +55,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if emailaddress_list.paginator %}
 {% include "pagination.html" with list=emailaddress_list %}
 {% endif %}
+

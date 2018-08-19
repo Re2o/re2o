@@ -24,62 +24,83 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
-            <th>{% include "buttons/sort.html" with prefix='port' col='port' text='Port' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='room' text='Room' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='interface' text='Interface machine' %}</th>
-            <th>{% include "buttons/sort.html" with prefix='port' col='related' text='Related' %}</th>
-            <th>Etat du port</th>
-            <th>Profil du port</th>
-            <th>Détails</th>
-            <th></th>
-        </tr>
-   </thead>
-   {% for port in port_list %}
-   <tr>
-        <td>{{ port.port }}</td>
-        <td>
-            {% if port.room %}{{ port.room }}{% endif %}
-        </td>
-        <td>
-            {% if port.machine_interface %}
-            {% can_view port.machine_interface.machine.user %}
-            <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
-                {{ port.machine_interface }}
-                {% acl_end %}
-                {% endif %}
-            </td>
-            <td>
-                {% if port.related %}
-                {% can_view port.related.switch %}
-                <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+            <tr>
+                {% trans "Port" as tr_port %}
+                <th>{% include "buttons/sort.html" with prefix='port' col='port' text=tr_port %}</th>
+                {% trans "Room" as tr_room %}
+                <th>{% include "buttons/sort.html" with prefix='port' col='room' text=tr_room %}</th>
+                {% trans "Interface" as tr_interface %}
+                <th>{% include "buttons/sort.html" with prefix='port' col='interface' text=tr_interface %}</th>
+                {% trans "Related port" as tr_related_port %}
+                <th>{% include "buttons/sort.html" with prefix='port' col='related' text=tr_related_port %}</th>
+                <th>{% trans "Port state" %}</th>
+                <th>{% trans "Port profile" %}</th>
+                <th>{% trans "Details" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+       {% for port in port_list %}
+            <tr>
+                <td>{{ port.port }}</td>
+                <td>
+                    {% if port.room %}
+                    {{ port.room }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if port.machine_interface %}
+                    {% can_view port.machine_interface.machine.user %}
+                    <a href="{% url 'users:profil' userid=port.machine_interface.machine.user.id %}">
+                        {{ port.machine_interface }}
+                    </a>
+                    {% acl_end %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if port.related %}
+                    {% can_view port.related.switch %}
+                    <a href="{% url 'topologie:index-port' switchid=port.related.switch.id %}">
+                        {{ port.related }}
+                    </a>
+                    {% acl_else %}
                     {{ port.related }}
-                </a>
-                {% acl_else %}
-                {{ port.related }}
-                {% acl_end %}
-                {% endif %}
-            </td>
-            <td>{% if port.state %} <i class="text-success">Actif</i>{% else %}<i class="text-danger">Désactivé</i>{% endif %}</td>
-            <td>{% if not port.custom_profil %}<u>Par défaut</u> : {% endif %}{{port.get_port_profil}}</td>
-            <td>{{ port.details }}</td>
-            <td class="text-right">
-                {% history_button port %}
-                {% can_edit port %}
-                <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-port' port.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
-                {% acl_end %}
-                {% can_delete port %}
-                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-port' port.pk %}">
-                    <i class="fa fa-trash"></i>
-                </a>
-                {% acl_end %}
-            </td>
-        </tr>
+                    {% acl_end %}
+                    {% endif %}
+                </td>
+		<td>
+                    {% if port.state %}
+                    <i class="text-success">{% trans "Active" %}</i>
+                    {% else %}
+                    <i class="text-danger">{% trans "Disabled" %}</i>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not port.custom_profil %}
+                    <u>{% trans "Default: " %}</u>
+                    {% endif %}
+                    {{ port.get_port_profil }}
+                </td>
+                <td>{{ port.details }}</td>
+                <td class="text-right">
+                    {% can_edit port %}
+                    <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-port' port.id %}">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    {% acl_end %}
+                    {% history_button port %}
+                    {% can_delete port %}
+                    <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-port' port.pk %}">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                    {% acl_end %}
+                </td>
+            </tr>
         {% endfor %}
     </table>
 </div>
+

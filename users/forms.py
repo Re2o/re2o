@@ -39,6 +39,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
+from django.utils.translation import ugettext_lazy as _
 
 from preferences.models import OptionalUser
 from re2o.utils import remove_user_room, get_input_formats_help_text
@@ -66,18 +67,18 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
     nouveaux mots de passe renseignés sont identiques et respectent
     une norme"""
     selfpasswd = forms.CharField(
-        label=u'Saisir le mot de passe existant',
+        label=_("Current password"),
         max_length=255,
         widget=forms.PasswordInput
     )
     passwd1 = forms.CharField(
-        label=u'Nouveau mot de passe',
+        label=_("New password"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput
     )
     passwd2 = forms.CharField(
-        label=u'Saisir à nouveau le mot de passe',
+        label=_("New password confirmation"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput
@@ -94,7 +95,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         password2 = self.cleaned_data.get("passwd2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(
-                "Les 2 nouveaux mots de passe sont différents"
+                _("The new passwords don't match.")
             )
         return password2
 
@@ -103,7 +104,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         if not self.instance.check_password(
                 self.cleaned_data.get("selfpasswd")
             ):
-            raise forms.ValidationError("Le mot de passe actuel est incorrect")
+            raise forms.ValidationError(_("The current password is incorrect."))
         return
 
     def save(self, commit=True):
@@ -121,18 +122,18 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
     l'admin, lors de la creation d'un user par admin. Inclu tous les
     champs obligatoires"""
     password1 = forms.CharField(
-        label='Password',
+        label=_("Password"),
         widget=forms.PasswordInput,
         validators=[MinLengthValidator(8)],
         max_length=255
     )
     password2 = forms.CharField(
-        label='Password confirmation',
+        label=_("Password confirmation"),
         widget=forms.PasswordInput,
         validators=[MinLengthValidator(8)],
         max_length=255
     )
-    is_admin = forms.BooleanField(label='is admin')
+    is_admin = forms.BooleanField(label=_("Is admin"))
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -142,7 +143,8 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
             return self.cleaned_data.get('email').lower()
         else:
-            raise forms.ValidationError("You can't use an internal address as your external address.")
+            raise forms.ValidationError(_("You can't use an internal address"
+                                          " as your external address."))
 
     class Meta:
         model = Adherent
@@ -154,7 +156,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
+            raise forms.ValidationError(_("The passwords don't match."))
         return password2
 
     def save(self, commit=True):
@@ -173,13 +175,13 @@ class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
     Formulaire pour la creation de nouveaux serviceusers.
     Requiert seulement un mot de passe; et un pseudo"""
     password1 = forms.CharField(
-        label='Password',
+        label=_("Password"),
         widget=forms.PasswordInput,
         min_length=8,
         max_length=255
     )
     password2 = forms.CharField(
-        label='Password confirmation',
+        label=_("Password confirmation"),
         widget=forms.PasswordInput,
         min_length=8,
         max_length=255
@@ -203,7 +205,7 @@ class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
+            raise forms.ValidationError(_("The passwords don't match."))
         return password2
 
     def save(self, commit=True):
@@ -222,7 +224,7 @@ class UserChangeForm(FormRevMixin, forms.ModelForm):
     Formulaire pour la modification d'un user coté admin
     """
     password = ReadOnlyPasswordHashField()
-    is_admin = forms.BooleanField(label='is admin', required=False)
+    is_admin = forms.BooleanField(label=_("Is admin"), required=False)
 
     class Meta:
         model = Adherent
@@ -231,7 +233,7 @@ class UserChangeForm(FormRevMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(UserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        print("User is admin : %s" % kwargs['instance'].is_admin)
+        print(_("User is admin: %s") % kwargs['instance'].is_admin)
         self.initial['is_admin'] = kwargs['instance'].is_admin
 
     def clean_password(self):
@@ -279,7 +281,7 @@ class ServiceUserChangeForm(FormRevMixin, forms.ModelForm):
 class ResetPasswordForm(forms.Form):
     """Formulaire de demande de reinitialisation de mot de passe,
     mdp oublié"""
-    pseudo = forms.CharField(label=u'Pseudo', max_length=255)
+    pseudo = forms.CharField(label=_("Username"), max_length=255)
     email = forms.EmailField(max_length=255)
 
 
@@ -294,8 +296,9 @@ class MassArchiveForm(forms.Form):
         date = cleaned_data.get("date")
         if date:
             if date > timezone.now():
-                raise forms.ValidationError("Impossible d'archiver des\
-                utilisateurs dont la fin d'accès se situe dans le futur !")
+                raise forms.ValidationError(_("Impossible to archive users"
+                                              " whose end access date is in"
+                                              " the future."))
 
 
 class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
@@ -305,20 +308,22 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = 'Prénom'
-        self.fields['surname'].label = 'Nom'
-        self.fields['email'].label = 'Adresse mail'
-        self.fields['school'].label = 'Établissement'
-        self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Chambre'
-        self.fields['room'].empty_label = "Pas de chambre"
-        self.fields['school'].empty_label = "Séléctionner un établissement"
+        self.fields['name'].label = _("First name")
+        self.fields['surname'].label = _("Surname")
+        self.fields['email'].label = _("Email address")
+        self.fields['school'].label = _("School")
+        self.fields['comment'].label = _("Comment")
+        self.fields['room'].label = _("Room")
+        self.fields['room'].empty_label = _("No room")
+        self.fields['school'].empty_label = _("Select a school")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
             return self.cleaned_data.get('email').lower()
         else:
-            raise forms.ValidationError("Vous ne pouvez pas utiliser une addresse {}".format(OptionalUser.objects.first().local_email_domain))
+            raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain))
 
     class Meta:
         model = Adherent
@@ -342,7 +347,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         telephone = self.cleaned_data['telephone']
         if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
-                "Un numéro de téléphone valide est requis"
+                _("A valid telephone number is required.")
             )
         return telephone
 
@@ -353,7 +358,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             return gpg_fingerprint.replace(' ', '').upper()
 
     force = forms.BooleanField(
-        label="Forcer le déménagement ?",
+        label=_("Force the move?"),
         initial=False,
         required=False
     )
@@ -373,13 +378,13 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ClubForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['surname'].label = 'Nom'
-        self.fields['school'].label = 'Établissement'
-        self.fields['comment'].label = 'Commentaire'
-        self.fields['room'].label = 'Local'
-        self.fields['room'].empty_label = "Pas de chambre"
-        self.fields['school'].empty_label = "Séléctionner un établissement"
-        self.fields['mailing'].label = 'Utiliser une mailing'
+        self.fields['surname'].label = _("Name")
+        self.fields['school'].label = _("School")
+        self.fields['comment'].label = _("Comment")
+        self.fields['room'].label = _("Room")
+        self.fields['room'].empty_label = _("No room")
+        self.fields['school'].empty_label = _("Select a school")
+        self.fields['mailing'].label = _("Use a mailing list")
 
     class Meta:
         model = Club
@@ -400,7 +405,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         telephone = self.cleaned_data['telephone']
         if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
             raise forms.ValidationError(
-                "Un numéro de téléphone valide est requis"
+                _("A valid telephone number is required.")
             )
         return telephone
 
@@ -436,7 +441,7 @@ class PasswordForm(FormRevMixin, ModelForm):
 class ServiceUserForm(FormRevMixin, ModelForm):
     """ Modification d'un service user"""
     password = forms.CharField(
-        label=u'Nouveau mot de passe',
+        label=_("New password"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
@@ -493,7 +498,7 @@ class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(GroupForm, self).__init__(*args, prefix=prefix, **kwargs)
         if 'is_superuser' in self.fields:
-            self.fields['is_superuser'].label = "Superuser"
+            self.fields['is_superuser'].label = _("Superuser")
 
 
 class SchoolForm(FormRevMixin, ModelForm):
@@ -505,7 +510,7 @@ class SchoolForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(SchoolForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = 'Établissement'
+        self.fields['name'].label = _("School")
 
 
 class ShellForm(FormRevMixin, ModelForm):
@@ -517,7 +522,7 @@ class ShellForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ShellForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['shell'].label = 'Nom du shell'
+        self.fields['shell'].label = _("Shell name")
 
 
 class ListRightForm(FormRevMixin, ModelForm):
@@ -536,7 +541,7 @@ class ListRightForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ListRightForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['unix_name'].label = 'Nom UNIX du groupe'
+        self.fields['unix_name'].label = _("Name of the group of rights")
 
 
 class NewListRightForm(ListRightForm):
@@ -547,15 +552,15 @@ class NewListRightForm(ListRightForm):
 
     def __init__(self, *args, **kwargs):
         super(NewListRightForm, self).__init__(*args, **kwargs)
-        self.fields['gid'].label = ("Gid, attention, cet attribut ne doit "
-                                    "pas être modifié après création")
+        self.fields['gid'].label = _("GID. Warning: this field must not be"
+                                     " edited after creation.")
 
 
 class DelListRightForm(Form):
     """Suppression d'un ou plusieurs groupes"""
     listrights = forms.ModelMultipleChoiceField(
         queryset=ListRight.objects.none(),
-        label="Droits actuels",
+        label=_("Current groups of rights"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -572,7 +577,7 @@ class DelSchoolForm(Form):
     """Suppression d'une ou plusieurs écoles"""
     schools = forms.ModelMultipleChoiceField(
         queryset=School.objects.none(),
-        label="Etablissements actuels",
+        label=_("Current schools"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -590,7 +595,7 @@ class BanForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].label = _("End date")
         self.fields['date_end'].localize = False
 
     class Meta:
@@ -604,7 +609,7 @@ class WhitelistForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['date_end'].label = 'Date de fin'
+        self.fields['date_end'].label = _("End date")
         self.fields['date_end'].localize = False
 
     class Meta:
@@ -618,8 +623,8 @@ class EMailAddressForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['local_part'].label = "Local part of the email"
-        self.fields['local_part'].help_text = "Can't contain @"
+        self.fields['local_part'].label = _("Local part of the email address")
+        self.fields['local_part'].help_text = _("Can't contain @")
 
     def clean_local_part(self):
         return self.cleaned_data.get('local_part').lower()
@@ -634,18 +639,21 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['email'].label = "Main email address"
+        self.fields['email'].label = _("Main email address")
         if 'local_email_redirect' in self.fields:
-            self.fields['local_email_redirect'].label = "Redirect local emails"
+            self.fields['local_email_redirect'].label = _("Redirect local emails")
         if 'local_email_enabled' in self.fields:
-            self.fields['local_email_enabled'].label = "Use local emails"
+            self.fields['local_email_enabled'].label = _("Use local emails")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
             return self.cleaned_data.get('email').lower()
         else:
-            raise forms.ValidationError("Vous ne pouvez pas utiliser une addresse {}".format(OptionalUser.objects.first().local_email_domain))
+            raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain))
 
     class Meta:
         model = User
         fields = ['email','local_email_enabled', 'local_email_redirect']
+

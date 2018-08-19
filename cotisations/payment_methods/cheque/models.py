@@ -21,7 +21,7 @@
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import ugettext_lazy as _
 
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
@@ -33,7 +33,7 @@ class ChequePayment(PaymentMethodMixin, models.Model):
     """
 
     class Meta:
-        verbose_name = _l("Cheque")
+        verbose_name = _("Cheque")
 
     payment = models.OneToOneField(
         Paiement,
@@ -52,3 +52,4 @@ class ChequePayment(PaymentMethodMixin, models.Model):
             'cotisations:cheque:validate',
             kwargs={'invoice_pk': invoice.pk}
         ))
+

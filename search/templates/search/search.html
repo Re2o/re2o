@@ -24,8 +24,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Recherche{% endblock %}
+{% block title %}{% trans "Search" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors search_form %}
@@ -44,7 +45,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if search_form.e %}
     {% bootstrap_field search_form.e %}
     {% endif %}
-    {% bootstrap_button "Search" button_type="submit" icon="search" %}
+    {% trans "Search" as tr_search %}
+    {% bootstrap_button tr_search button_type="submit" icon="search" %}
 </form>
 <br />
 <br />
@@ -52,3 +54,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <br />
 <br />
 {% endblock %}
+

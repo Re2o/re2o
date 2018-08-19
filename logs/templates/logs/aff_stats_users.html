@@ -22,24 +22,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    {% for key_dict, stats_dict in stats_list.items %}
+{% load i18n %}
+
+{% for key_dict, stats_dict in stats_list.items %}
     {% for key, stats in stats_dict.items %}
-    <table class="table table-striped">
-        <thead>
-	<h4>Statistiques par {{ key_dict }} de {{ key }}</h4>
-            <tr>
-		<th>{{ key_dict }}</th>
-		<th>Nombre de {{ key }} par {{ key_dict }}</th>
-		<th>Rang</th>
-            </tr>
-        </thead>
-       {% for stat in stats %}
-        <tr>
-            <td>{{ stat|truncatechars:25 }}</td>
-            <td>{{ stat.num }}</td>
-	    <td>{{ forloop.counter }}</td>
-	</tr>
-        {% endfor %}
-    </table>
-        {% endfor %}
-	{% endfor %}
+        <table class="table table-striped">
+            <thead>
+                <h4>{% blocktrans %}Statistics per {{ key_dict }} of {{ key }}{% endblocktrans %}</h4>
+                <tr>
+                    <th>{{ key_dict }}</th>
+                    <th>{% blocktrans %}Number of {{ key }} per {{ key_dict }}{% endblocktrans %}</th>
+                    <th>{% trans "Rank" %}</th>
+                </tr>
+            </thead>
+            {% for stat in stats %}
+                <tr>
+                    <td>{{ stat|truncatechars:25 }}</td>
+                    <td>{{ stat.num }}</td>
+                    <td>{{ forloop.counter }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+{% endfor %}
+

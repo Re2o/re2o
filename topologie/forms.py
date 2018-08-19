@@ -176,8 +176,8 @@ class EditRoomForm(FormRevMixin, ModelForm):
 
 class CreatePortsForm(forms.Form):
     """Permet de créer une liste de ports pour un switch."""
-    begin = forms.IntegerField(label="Début :", min_value=0)
-    end = forms.IntegerField(label="Fin :", min_value=0)
+    begin = forms.IntegerField(label=_("Start:"), min_value=0)
+    end = forms.IntegerField(label=_("End:"), min_value=0)
 
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):

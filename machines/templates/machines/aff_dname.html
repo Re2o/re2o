@@ -22,16 +22,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Target zone</th>
-                <th>Record</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for dname in dname_list %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Target zone" %}</th>
+            <th>{% trans "Record" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for dname in dname_list %}
         <tr>
             <td>{{ dname.zone }}</td>
             <td>{{ dname.dns_entry }}</td>
@@ -39,10 +40,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_edit dname %}
                 {% include 'buttons/edit.html' with href='machines:edit-dname' id=dname.id %}
                 {% acl_end %}
-		{% history_button dname %}
+                {% history_button dname %}
             </td>
         </tr>
-        {% endfor %}
-    </table>
-
+    {% endfor %}
+</table>
 

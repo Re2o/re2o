@@ -225,7 +225,7 @@ def new_custom_invoice(request):
                 )
         messages.success(
             request,
-            _('The custom invoice was successfully created.')
+            _("The custom invoice was created.")
         )
         return redirect(reverse('cotisations:index-custom-invoice'))
 
@@ -313,7 +313,7 @@ def edit_facture(request, facture, **_kwargs):
         purchase_form.save()
         messages.success(
             request,
-            _("The invoice has been successfully edited.")
+            _("The invoice was edited.")
         )
         return redirect(reverse('cotisations:index'))
     return form({
@@ -333,7 +333,7 @@ def del_facture(request, facture, **_kwargs):
         facture.delete()
         messages.success(
             request,
-            _("The invoice has been successfully deleted.")
+            _("The invoice was deleted.")
         )
         return redirect(reverse('cotisations:index'))
     return form({
@@ -367,7 +367,7 @@ def edit_custom_invoice(request, invoice, **kwargs):
         purchase_form.save()
         messages.success(
             request,
-            _("The invoice has been successfully edited.")
+            _("The invoice was edited.")
         )
         return redirect(reverse('cotisations:index-custom-invoice'))
 
@@ -427,7 +427,7 @@ def del_custom_invoice(request, invoice, **_kwargs):
         invoice.delete()
         messages.success(
             request,
-            _("The invoice has been successfully deleted.")
+            _("The invoice was deleted.")
         )
         return redirect(reverse('cotisations:index-custom-invoice'))
     return form({
@@ -453,7 +453,7 @@ def add_article(request):
         article.save()
         messages.success(
             request,
-            _("The article has been successfully created.")
+            _("The article was created.")
         )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -475,7 +475,7 @@ def edit_article(request, article_instance, **_kwargs):
             article.save()
             messages.success(
                 request,
-                _("The article has been successfully edited.")
+                _("The article was edited.")
             )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -497,7 +497,7 @@ def del_article(request, instances):
         article_del.delete()
         messages.success(
             request,
-            _("The article(s) have been successfully deleted.")
+            _("The articles were deleted.")
         )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -525,7 +525,7 @@ def add_paiement(request):
         payment_method.save(payment)
         messages.success(
             request,
-            _("The payment method has been successfully created.")
+            _("The payment method was created.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -561,8 +561,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         if payment_method is not None:
             payment_method.save()
         messages.success(
-            request,
-            _("The payement method has been successfully edited.")
+            request,_("The payment method was edited.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -588,8 +587,7 @@ def del_paiement(request, instances):
                 payment_del.delete()
                 messages.success(
                     request,
-                    _("The payment method %(method_name)s has been \
-                    successfully deleted.") % {
+                    _("The payment method %(method_name)s was deleted.") % {
                         'method_name': payment_del
                     }
                 )
@@ -621,7 +619,7 @@ def add_banque(request):
         bank.save()
         messages.success(
             request,
-            _("The bank has been successfully created.")
+            _("The bank was created.")
         )
         return redirect(reverse('cotisations:index-banque'))
     return form({
@@ -644,7 +642,7 @@ def edit_banque(request, banque_instance, **_kwargs):
             bank.save()
             messages.success(
                 request,
-                _("The bank has been successfully edited")
+                _("The bank was edited.")
             )
         return redirect(reverse('cotisations:index-banque'))
     return form({
@@ -669,8 +667,7 @@ def del_banque(request, instances):
                 bank_del.delete()
                 messages.success(
                     request,
-                    _("The bank %(bank_name)s has been successfully \
-                    deleted.") % {
+                    _("The bank %(bank_name)s was deleted.") % {
                         'bank_name': bank_del
                     }
                 )
@@ -873,3 +870,4 @@ def credit_solde(request, user, **_kwargs):
         'action_name': _("Pay"),
         'max_balance': p.payment_method.maximum_balance,
     }, 'cotisations/facture.html', request)
+

@@ -26,23 +26,24 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.forms import Form
+from django.utils.translation import ugettext_lazy as _
 from re2o.utils import get_input_formats_help_text
 
 CHOICES_USER = (
-    ('0', 'Actifs'),
-    ('1', 'Désactivés'),
-    ('2', 'Archivés'),
+    ('0', _("Active")),
+    ('1', _("Disabled")),
+    ('2', _("Archived")),
 )
 
 CHOICES_AFF = (
-    ('0', 'Utilisateurs'),
-    ('1', 'Machines'),
-    ('2', 'Factures'),
-    ('3', 'Bannissements'),
-    ('4', 'Accès à titre gracieux'),
-    ('5', 'Chambres'),
-    ('6', 'Ports'),
-    ('7', 'Switchs'),
+    ('0', _("Users")),
+    ('1', _("Machines")),
+    ('2', _("Invoices")),
+    ('3', _("Bans")),
+    ('4', _("Whitelists")),
+    ('5', _("Rooms")),
+    ('6', _("Ports")),
+    ('7', _("Switches")),
 )
 
 
@@ -55,11 +56,11 @@ def initial_choices(choice_set):
 class SearchForm(Form):
     """The form for a simple search"""
     q = forms.CharField(
-        label='Recherche',
+        label=_("Search"),
         help_text=(
-            'Utilisez « » et «,» pour spécifier différents mots, «"query"» '
-            'pour une recherche exacte et «\\» pour échapper un caractère.'
-        ),
+            _("Use « » and «,» to specify distinct words, «\"query\"» for"
+              " an exact search and «\\» to escape a character.")
+            ),
         max_length=100
     )
 
@@ -67,23 +68,23 @@ class SearchForm(Form):
 class SearchFormPlus(Form):
     """The form for an advanced search (with filters)"""
     q = forms.CharField(
-        label='Recherche',
+        label=_("Search"),
         help_text=(
-            'Utilisez « » et «,» pour spécifier différents mots, «"query"» '
-            'pour une recherche exacte et «\\» pour échapper un caractère.'
+            _("Use « » and «,» to specify distinct words, «\"query\"» for"
+              " an exact search and «\\» to escape a character.")
         ),
         max_length=100,
         required=False
     )
     u = forms.MultipleChoiceField(
-        label="Filtre utilisateurs",
+        label=_("Users filter"),
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES_USER,
         initial=initial_choices(CHOICES_USER)
     )
     a = forms.MultipleChoiceField(
-        label="Filtre affichage",
+        label=_("Display filter"),
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES_AFF,
@@ -91,11 +92,11 @@ class SearchFormPlus(Form):
     )
     s = forms.DateField(
         required=False,
-        label="Date de début",
+        label=_("Start date"),
     )
     e = forms.DateField(
         required=False,
-        label="Date de fin"
+        label=_("End date")
     )
 
     def __init__(self, *args, **kwargs):
@@ -106,3 +107,4 @@ class SearchFormPlus(Form):
         self.fields['e'].help_text = get_input_formats_help_text(
             self.fields['e'].input_formats
         )
+

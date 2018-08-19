@@ -24,24 +24,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 {% load acl %}
 {% load logs_extra %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Adress" %}</th>
-                <th>{% trans "Remark" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for mailcontact in mailcontact_list %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Address" %}</th>
+            <th>{% trans "Comment" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for mailcontact in mailcontact_list %}
         <tr>
             <td>{{ mailcontact.address }}</td>
             <td>{{ mailcontact.commentary }}</td>
             <td class="text-right">
-            {% can_edit mailcontact %}
-            {% include 'buttons/edit.html' with href='preferences:edit-mailcontact' id=mailcontact.id %}
-            {% acl_end %}
-            {% history_button mailcontact %}
+                {% can_edit mailcontact %}
+                {% include 'buttons/edit.html' with href='preferences:edit-mailcontact' id=mailcontact.id %}
+                {% acl_end %}
+                {% history_button mailcontact %}
             </td>
         </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>
+

@@ -27,17 +27,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load i18n %}
 
-{% block title %}{% trans "Payments" %}{% endblock %}
+{% block title %}{% trans "Payment methods" %}{% endblock %}
 
 {% block content %}
-    <h2>{% trans "Payment types list" %}</h2>
+    <h2>{% trans "List of payment methods" %}</h2>
     {% can_create Paiement %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-paiement' %}">
-        <i class="fa fa-cart-plus"></i> {% trans "Add a payment type" %}
+        <i class="fa fa-cart-plus"></i> {% trans "Add a payment method" %}
     </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-paiement' %}">
-        <i class="fa fa-trash"></i> {% trans "Delete payment types" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several payment methods" %}
     </a>
     {%  include 'cotisations/aff_paiement.html' with  paiement_list=paiement_list %}
 {% endblock %}

@@ -1,70 +1,609 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
 #
-#, fuzzy
+# Copyright © 2018 Maël Kervella
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-26 21:49+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: \n"
+"POT-Creation-Date: 2018-08-18 13:26+0200\n"
+"PO-Revision-Date: 2018-06-24 15:54+0200\n"
+"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: models.py:256
-msgid "Contact email adress"
-msgstr "Adresse email de contact"
+#: acl.py:42
+msgid "You don't have the right to view this application."
+msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: models.py:263
-msgid "Description of the associated email adress."
+#: forms.py:59 templates/preferences/display_preferences.html:41
+msgid "Telephone number required"
+msgstr "Numéro de téléphone requis"
+
+#: forms.py:61
+msgid "GPG fingerprint"
+msgstr "Empreinte GPG"
+
+#: forms.py:62
+msgid "All can create a club"
+msgstr "Tous peuvent créer un club"
+
+#: forms.py:63
+msgid "All can create a member"
+msgstr "Tous peuvent créer un adhérent"
+
+#: forms.py:64 templates/preferences/display_preferences.html:43
+msgid "Self registration"
+msgstr "Autoinscription"
+
+#: forms.py:65
+msgid "Default shell"
+msgstr "Interface système par défaut"
+
+#: forms.py:81
+msgid "Possibility to set a password per machine"
+msgstr "Possibilité de mettre un mot de passe par machine"
+
+#: forms.py:83 templates/preferences/display_preferences.html:87
+msgid "Maximum number of interfaces allowed for a standard user"
+msgstr "Nombre maximum d'interfaces autorisé pour un utilisateur standard"
+
+#: forms.py:87 templates/preferences/display_preferences.html:91
+msgid "Maximum number of DNS aliases allowed for a standard user"
+msgstr "Nombre maximum d'alias DNS autorisé pour un utilisateur standard"
+
+#: forms.py:90
+msgid "IPv6 mode"
+msgstr "Mode IPv6"
+
+#: forms.py:91
+msgid "Can create a machine"
+msgstr "Peut créer une machine"
+
+#: forms.py:107
+msgid "RADIUS general policy"
+msgstr "Politique générale de RADIUS"
+
+#: forms.py:108 templates/preferences/display_preferences.html:116
+msgid "VLAN for machines accepted by RADIUS"
+msgstr "VLAN pour les machines acceptées par RADIUS"
+
+#: forms.py:110 templates/preferences/display_preferences.html:118
+msgid "VLAN for machines rejected by RADIUS"
+msgstr "VLAN pour les machines rejetées par RADIUS"
+
+#: forms.py:127
+msgid "General message"
+msgstr "Message général"
+
+#: forms.py:128 templates/preferences/display_preferences.html:137
+msgid "Number of results displayed when searching"
+msgstr "Nombre de résultats affichés lors de la recherche"
+
+#: forms.py:131
+msgid "Number of items per page, standard size (e.g. users)"
+msgstr "Nombre d'éléments par page, taille standard (ex : utilisateurs)"
+
+#: forms.py:134
+msgid "Number of items per page, large size (e.g. machines)"
+msgstr "Nombre d'éléments par page, taille importante (ex : machines)"
+
+#: forms.py:137 templates/preferences/display_preferences.html:145
+msgid "Time before expiration of the reset password link (in hours)"
+msgstr ""
+"Temps avant expiration du lien de réinitialisation de mot de passe (en "
+"heures)"
+
+#: forms.py:140 templates/preferences/display_preferences.html:131
+msgid "Website name"
+msgstr "Nom du site"
+
+#: forms.py:141 templates/preferences/display_preferences.html:133
+msgid "Email address for automatic emailing"
+msgstr "Adresse mail pour les mails automatiques"
+
+#: forms.py:143 templates/preferences/display_preferences.html:151
+msgid "Summary of the General Terms of Use"
+msgstr "Résumé des Conditions Générales d'Utilisation"
+
+#: forms.py:145 templates/preferences/display_preferences.html:155
+msgid "General Terms of Use"
+msgstr "Conditions Générales d'Utilisation"
+
+#: forms.py:161
+msgid "Organisation name"
+msgstr "Nom de l'association"
+
+#: forms.py:162 templates/preferences/display_preferences.html:170
+msgid "SIRET number"
+msgstr "Numéro SIRET"
+
+#: forms.py:163
+msgid "Address (line 1)"
+msgstr "Adresse (ligne 1)"
+
+#: forms.py:164
+msgid "Address (line 2)"
+msgstr "Adresse (ligne 2)"
+
+#: forms.py:165 models.py:288
+#: templates/preferences/display_preferences.html:178
+msgid "Contact email address"
+msgstr "Adresse mail de contact"
+
+#: forms.py:166 templates/preferences/display_preferences.html:182
+msgid "Telephone number"
+msgstr "Numéro de téléphone"
+
+#: forms.py:167 templates/preferences/display_preferences.html:184
+msgid "Usual name"
+msgstr "Nom d'usage"
+
+#: forms.py:168
+msgid "Account used for editing from /admin"
+msgstr "Compte utilisé pour les modifications depuis /admin"
+
+#: forms.py:170
+msgid "Payment"
+msgstr "Paiement"
+
+#: forms.py:171
+msgid "Payment ID"
+msgstr "ID de paiement"
+
+#: forms.py:172
+msgid "Payment password"
+msgstr "Mot de passe de paiement"
+
+#: forms.py:173 forms.py:224 templates/preferences/aff_service.html:33
+msgid "Description"
+msgstr "Description"
+
+#: forms.py:189
+msgid "Message for the French welcome email"
+msgstr "Message pour le mail de bienvenue en français"
+
+#: forms.py:191
+msgid "Message for the English welcome email"
+msgstr "Message pour le mail de bienvenue en anglais"
+
+#: forms.py:208
+msgid "Facebook URL"
+msgstr "URL du compte Facebook"
+
+#: forms.py:209
+msgid "Twitter URL"
+msgstr "URL du compte Twitter"
+
+#: forms.py:210 templates/preferences/display_preferences.html:233
+msgid "Twitter account name"
+msgstr "Nom du compte Twitter"
+
+#: forms.py:222 templates/preferences/aff_service.html:31
+#: templates/preferences/display_preferences.html:168
+msgid "Name"
+msgstr "Nom"
+
+#: forms.py:223 templates/preferences/aff_service.html:32
+msgid "URL"
+msgstr "URL"
+
+#: forms.py:225 templates/preferences/aff_service.html:34
+msgid "Image"
+msgstr "Image"
+
+#: forms.py:232
+msgid "Current services"
+msgstr "Services actuels"
+
+#: models.py:71
+msgid "Users can create a club"
+msgstr "Les utilisateurs peuvent créer un club"
+
+#: models.py:75
+msgid "Users can create a member"
+msgstr "Les utilisateurs peuvent créer un adhérent"
+
+#: models.py:79
+msgid "A new user can create their account on Re2o"
+msgstr "Un nouvel utilisateur peut créer son compte sur Re2o"
+
+#: models.py:89 templates/preferences/display_preferences.html:49
+msgid "Users can edit their shell"
+msgstr "Les utilisateurs peuvent modifier leur interface système"
+
+#: models.py:93
+msgid "Enable local email accounts for users"
+msgstr "Active les comptes mail locaux pour les utilisateurs"
+
+#: models.py:98
+msgid "Domain to use for local email accounts"
+msgstr "Domaine à utiliser pour les comptes mail locaux"
+
+#: models.py:102
+msgid "Maximum number of local email addresses for a standard user"
+msgstr ""
+"Nombre maximum d'adresses mail locales autorisé pour un utilisateur standard"
+
+#: models.py:108
+msgid "Can view the user options"
+msgstr "Peut voir les options d'utilisateur"
+
+#: models.py:110
+msgid "user options"
+msgstr "options d'utilisateur"
+
+#: models.py:117
+msgid "Email domain must begin with @"
+msgstr "Un domaine mail doit commencer par @"
+
+#: models.py:135
+msgid "Autoconfiguration by RA"
+msgstr "Configuration automatique par RA"
+
+#: models.py:136
+msgid "IP addresses assigning by DHCPv6"
+msgstr "Attribution d'adresses IP par DHCPv6"
+
+#: models.py:137
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: models.py:159
+msgid "Can view the machine options"
+msgstr "Peut voir les options de machine"
+
+#: models.py:161
+msgid "machine options"
+msgstr "options de machine"
+
+#: models.py:180
+msgid "On the IP range's VLAN of the machine"
+msgstr "Sur le VLAN de la plage d'IP de la machine"
+
+#: models.py:181
+msgid "Preset in 'VLAN for machines accepted by RADIUS'"
+msgstr "Prédéfinie dans 'VLAN pour les machines acceptées par RADIUS'"
+
+#: models.py:206
+msgid "Can view the topology options"
+msgstr "Peut voir les options de topologie"
+
+#: models.py:208
+msgid "topology options"
+msgstr "options de topologie"
+
+#: models.py:225
+msgid ""
+"General message displayed on the French version of the website (e.g. in case "
+"of maintenance)"
+msgstr ""
+"Message général affiché sur la version française du site (ex : en cas de "
+"maintenance)"
+
+#: models.py:231
+msgid ""
+"General message displayed on the English version of the website (e.g. in "
+"case of maintenance)"
+msgstr ""
+"Message général affiché sur la version anglaise du site (ex : en cas de "
+"maintenance)"
+
+#: models.py:253
+msgid "Can view the general options"
+msgstr "Peut voir les options générales"
+
+#: models.py:255
+msgid "general options"
+msgstr "options générales"
+
+#: models.py:275
+msgid "Can view the service options"
+msgstr "Peut voir les options de service"
+
+#: models.py:277
+msgid "service"
+msgstr "service"
+
+#: models.py:278
+msgid "services"
+msgstr "services"
+
+#: models.py:295
+msgid "Description of the associated email address."
 msgstr "Description de l'adresse mail associée."
 
-#: models.py:273
-msgid "Can see contact email"
-msgstr "Peut voir un mail de contact"
+#: models.py:305
+msgid "Can view a contact email address object"
+msgstr "Peut voir un objet adresse mail de contact"
 
-#: templates/preferences/aff_mailcontact.html:30
-msgid "Adress"
-msgstr "Adresse"
+#: models.py:307
+msgid "contact email address"
+msgstr "adresse mail de contact"
+
+#: models.py:308
+msgid "contact email addresses"
+msgstr "adresses mail de contact"
+
+#: models.py:318
+msgid "Networking organisation school Something"
+msgstr "Association de réseau de l'école Machin"
+
+#: models.py:322
+msgid "Threadneedle Street"
+msgstr "1 rue de la Vrillière"
+
+#: models.py:323
+msgid "London EC2R 8AH"
+msgstr "75001 Paris"
+
+#: models.py:326
+msgid "Organisation"
+msgstr "Association"
+
+#: models.py:340
+msgid "Can view the organisation options"
+msgstr "Peut voir les options d'association"
+
+#: models.py:342
+msgid "organisation options"
+msgstr "options d'association"
+
+#: models.py:371
+msgid "Can view the homepage options"
+msgstr "Peut voir les options de page d'accueil"
+
+#: models.py:373
+msgid "homepage options"
+msgstr "options de page d'accueil"
+
+#: models.py:391
+msgid "Can view the email message options"
+msgstr "Peut voir les options de message pour les mails"
+
+#: models.py:394
+msgid "email message options"
+msgstr "options de messages pour les mails"
 
 #: templates/preferences/aff_mailcontact.html:31
-msgid "Remark"
+#: templates/preferences/display_preferences.html:174
+msgid "Address"
+msgstr "Adresse"
+
+#: templates/preferences/aff_mailcontact.html:32
+msgid "Comment"
 msgstr "Commentaire"
 
-#: templates/preferences/display_preferences.html:205
-msgid "Contact email adresses list"
-msgstr "Liste des adresses email de contact"
+#: templates/preferences/display_preferences.html:31
+#: templates/preferences/edit_preferences.html:30
+#: templates/preferences/preferences.html:29
+msgid "Preferences"
+msgstr "Préférences"
+
+#: templates/preferences/display_preferences.html:34
+msgid "User preferences"
+msgstr "Préférences d'utilisateur"
+
+#: templates/preferences/display_preferences.html:37
+#: templates/preferences/display_preferences.html:79
+#: templates/preferences/display_preferences.html:104
+#: templates/preferences/display_preferences.html:125
+#: templates/preferences/display_preferences.html:162
+#: templates/preferences/display_preferences.html:197
+#: templates/preferences/display_preferences.html:219
+#: templates/preferences/edit_preferences.html:40 views.py:170 views.py:234
+msgid "Edit"
+msgstr "Modifier"
+
+#: templates/preferences/display_preferences.html:47
+msgid "Default shell for users"
+msgstr "Interface système par défaut pour les utilisateurs"
+
+#: templates/preferences/display_preferences.html:53
+msgid "Creation of members by everyone"
+msgstr "Création d'adhérents par tous"
+
+#: templates/preferences/display_preferences.html:55
+msgid "Creation of clubs by everyone"
+msgstr "Création de clubs par tous"
+
+#: templates/preferences/display_preferences.html:59
+msgid "GPG fingerprint field"
+msgstr "Champ empreinte GPG"
+
+#: templates/preferences/display_preferences.html:63
+msgid "Email accounts preferences"
+msgstr "Préférences de comptes mail"
+
+#: templates/preferences/display_preferences.html:66
+msgid "Local email accounts enabled"
+msgstr "Comptes mail locaux activés"
+
+#: templates/preferences/display_preferences.html:68
+msgid "Local email domain"
+msgstr "Domaine de mail local"
+
+#: templates/preferences/display_preferences.html:72
+msgid "Maximum number of email aliases allowed"
+msgstr "Nombre maximum d'alias mail autorisé pour un utilisateur standard"
+
+#: templates/preferences/display_preferences.html:76
+msgid "Machines preferences"
+msgstr "Préférences de machines"
+
+#: templates/preferences/display_preferences.html:85
+msgid "Password per machine"
+msgstr "Mot de passe par machine"
+
+#: templates/preferences/display_preferences.html:93
+msgid "IPv6 support"
+msgstr "Support de l'IPv6"
+
+#: templates/preferences/display_preferences.html:97
+msgid "Creation of machines"
+msgstr "Création de machines"
+
+#: templates/preferences/display_preferences.html:101
+msgid "Topology preferences"
+msgstr "Préférences de topologie"
+
+#: templates/preferences/display_preferences.html:110
+msgid "General policy for VLAN setting"
+msgstr "Politique générale pour le placement sur un VLAN"
+
+#: templates/preferences/display_preferences.html:112
+msgid ""
+"This setting defines the VLAN policy after acceptance by RADIUS: either on "
+"the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines "
+"accepted by RADIUS'"
+msgstr ""
+"Ce réglage définit la politique de placement sur un VLAN après acceptation "
+"par RADIUS: soit sur le VLAN de la plage d'IP de la machine, soit sur le "
+"VLAN prédéfini dans 'VLAN pour les machines acceptées par RADIUS'"
+
+#: templates/preferences/display_preferences.html:122
+msgid "General preferences"
+msgstr "Préférences générales"
+
+#: templates/preferences/display_preferences.html:139
+msgid "Number of items per page (standard size)"
+msgstr "Nombre d'éléments par page (taille standard)"
+
+#: templates/preferences/display_preferences.html:143
+msgid "Number of items per page (large size)"
+msgstr "Nombre d'éléments par page (taille importante)"
+
+#: templates/preferences/display_preferences.html:149
+msgid "General message displayed on the website"
+msgstr "Message général affiché sur le site"
+
+#: templates/preferences/display_preferences.html:159
+msgid "Information about the organisation"
+msgstr "Informations sur l'association"
+
+#: templates/preferences/display_preferences.html:188
+msgid "User object of the organisation"
+msgstr "Objet utilisateur de l'association"
+
+#: templates/preferences/display_preferences.html:190
+msgid "Description of the organisation"
+msgstr "Description de l'association"
+
+#: templates/preferences/display_preferences.html:194
+msgid "Custom email message"
+msgstr "Message personnalisé pour les mails"
+
+#: templates/preferences/display_preferences.html:203
+msgid "Welcome email (in French)"
+msgstr "Mail de bienvenue (en français)"
 
 #: templates/preferences/display_preferences.html:207
-msgid "Add an adress"
+msgid "Welcome email (in English)"
+msgstr "Mail de bienvenue (en anglais)"
+
+#: templates/preferences/display_preferences.html:211
+msgid "List of services and homepage preferences"
+msgstr "Liste des services et préférences de page d'accueil"
+
+#: templates/preferences/display_preferences.html:213
+msgid " Add a service"
+msgstr " Ajouter un service"
+
+#: templates/preferences/display_preferences.html:215
+msgid " Delete one or several services"
+msgstr " Supprimer un ou plusieurs services"
+
+#: templates/preferences/display_preferences.html:221
+msgid "List of contact email addresses"
+msgstr "Liste des adresses mail de contact"
+
+#: templates/preferences/display_preferences.html:223
+msgid "Add an address"
 msgstr "Ajouter une adresse"
 
-#: templates/preferences/display_preferences.html:209
-msgid "Delete one or multiple adresses"
-msgstr "Supprimer une ou plusieurs adresses"
+#: templates/preferences/display_preferences.html:225
+msgid "Delete one or several addresses"
+msgstr " Supprimer une ou plusieurs adresses"
 
-#: views.py:210
-msgid "The adress was created."
-msgstr "L'adresse a été créée."
+#: templates/preferences/display_preferences.html:231
+msgid "Twitter account URL"
+msgstr "URL du compte Twitter"
 
-#: views.py:230
-msgid "Email adress updated."
-msgstr "L'adresse email a été mise à jour."
+#: templates/preferences/display_preferences.html:237
+msgid "Facebook account URL"
+msgstr "URL du compte Facebook"
 
-#: views.py:233
-msgid "Edit"
-msgstr "Éditer"
+#: templates/preferences/edit_preferences.html:35
+msgid "Editing of preferences"
+msgstr "Modification des préférences"
 
-#: views.py:251
-msgid "The email adress was deleted."
-msgstr "L'adresse email a été supprimée."
+#: views.py:98
+msgid "Unknown object"
+msgstr "Objet inconnu"
 
-#: views.py:254
+#: views.py:104
+msgid "You don't have the right to edit this option."
+msgstr "Vous n'avez pas le droit de modifier cette option."
+
+#: views.py:121
+msgid "The preferences were edited."
+msgstr "Les préférences ont été modifiées."
+
+#: views.py:140
+msgid "The service was added."
+msgstr "Le service a été ajouté."
+
+#: views.py:143
+msgid "Add a service"
+msgstr " Ajouter un service"
+
+#: views.py:167
+msgid "The service was edited."
+msgstr "Le service a été modifié."
+
+#: views.py:188
+msgid "The service was deleted."
+msgstr "Le service a été supprimé."
+
+#: views.py:190
+#, python-format
+msgid "Error: the service %s can't be deleted."
+msgstr "Erreur : le service %s ne peut pas être supprimé."
+
+#: views.py:194 views.py:256
 msgid "Delete"
 msgstr "Supprimer"
+
+#: views.py:210
+msgid "The contact email address was created."
+msgstr "L'adresse mail de contact a été supprimée."
+
+#: views.py:214
+msgid "Add a contact email address"
+msgstr "Ajouter une adresse mail de contact"
+
+#: views.py:231
+msgid "The contact email address was edited."
+msgstr "L'adresse mail de contact a été modifiée."
+
+#: views.py:253
+msgid "The contact email adress was deleted."
+msgstr "L'adresse mail de contact a été supprimée."

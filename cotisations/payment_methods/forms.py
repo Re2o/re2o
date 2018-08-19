@@ -19,8 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from django import forms
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import ugettext_lazy as _
 
 from . import PAYMENT_METHODS
 from cotisations.utils import find_payment_method
@@ -58,8 +57,8 @@ class PaymentMethodForm(forms.Form):
     """
 
     payment_method = forms.ChoiceField(
-        label=_l("Special payment method"),
-        help_text=_l("Warning : You will not be able to change the payment "
+        label=_("Special payment method"),
+        help_text=_("Warning: you will not be able to change the payment "
                      "method later. But you will be allowed to edit the other "
                      "options."
         ),
@@ -70,7 +69,7 @@ class PaymentMethodForm(forms.Form):
         super(PaymentMethodForm, self).__init__(*args, **kwargs)
         prefix = kwargs.get('prefix', None)
         self.fields['payment_method'].choices = [(i,p.NAME) for (i,p) in enumerate(PAYMENT_METHODS)]
-        self.fields['payment_method'].choices.insert(0, ('', _l('no')))
+        self.fields['payment_method'].choices.insert(0, ('', _('no')))
         self.fields['payment_method'].widget.attrs = {
             'id': 'paymentMethodSelect'
         }

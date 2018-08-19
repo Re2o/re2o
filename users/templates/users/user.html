@@ -26,7 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
 {% load static %}
-{% block title %}Création et modification d'utilisateur{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors userform %}
@@ -41,11 +42,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 <br>
 {% if showCGU %}
-<p>En cliquant sur Créer ou modifier, l'utilisateur s'engage à respecter les <a href="/media/{{ GTU }}" download="CGU" >règles d'utilisation du réseau</a>.</p>
-<h3>Résumé des règles d'utilisations</h3>
+<p>{% trans "By clicking 'Create or edit', the user commits to respect the " %}<a href="/media/{{ GTU }}" download="CGU" >{% trans "General Terms of Use" %}</a>.</p>
+<h3>{% trans "Summary of the General Terms of Use" %}</h3>
 <p>{{ GTU_sum_up }}</p>
 {% endif %}
 <br/>
 <br/>
 <br/>
 {% endblock %}
+

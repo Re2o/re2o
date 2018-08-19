@@ -24,11 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
-  <h2>Accès à titre gracieux</h2>
+  <h2>{% trans "Whitelists" %}</h2>
   {%  include "users/aff_whitelists.html" with  white_list=white_list %}
   <br />
   <br />
