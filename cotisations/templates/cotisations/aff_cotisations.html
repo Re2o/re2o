@@ -73,7 +73,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_delete facture %}
 		{% include 'buttons/suppr.html' with href='cotisations:del-facture' id=facture.id %}
                 {% acl_end %}
-		{% history_button facture text=True html_class=False %}
+		{% history_button facture %}
             </td>
             <td>
                 {% if facture.valid %}
