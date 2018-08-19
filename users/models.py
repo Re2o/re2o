@@ -1027,21 +1027,7 @@ class Adherent(User):
         )]
     )
 
-    class Meta:
-        permissions = (
-            ("change_user_password",
-             _("Can change the password of a user")),
-            ("change_user_state", _("Can edit the state of a user")),
-            ("change_user_force", _("Can force the move")),
-            ("change_user_shell", _("Can edit the shell of a user")),
-            ("change_user_groups",
-             _("Can edit the groups of rights of a user (critical"
-               " permission)")),
-            ("change_all_users",
-             _("Can edit all users, including those with rights.")),
-            ("view_user",
-             _("Can view a user object")),
-        )
+    class Meta(User.Meta):
         verbose_name = _("member")
         verbose_name_plural = _("members")
 
@@ -1100,21 +1086,7 @@ class Club(User):
         default=False
     )
 
-    class Meta:
-        permissions = (
-            ("change_user_password",
-             _("Can change the password of a user")),
-            ("change_user_state", _("Can edit the state of a user")),
-            ("change_user_force", _("Can force the move")),
-            ("change_user_shell", _("Can edit the shell of a user")),
-            ("change_user_groups",
-             _("Can edit the groups of rights of a user (critical"
-               " permission)")),
-            ("change_all_users",
-             _("Can edit all users, including those with rights.")),
-            ("view_user",
-             _("Can view a user object")),
-        )
+    class Meta(User.Meta):
         verbose_name = _("club")
         verbose_name_plural = _("clubs")
 
@@ -1847,7 +1819,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if self.local_part == self.user.pseudo.lower():
             return False, _("You can't delete a local email account whose"
                             " local part is the same as the username.")
-        if user_request.has_perm('users.delete_emailaddress'): 
+        if user_request.has_perm('users.delete_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
             return False, _("The local email accounts are not enabled.")

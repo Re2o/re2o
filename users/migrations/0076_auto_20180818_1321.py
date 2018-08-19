@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='adherent',
-            options={'permissions': (('change_user_password', 'Can change the password of a user'), ('change_user_state', 'Can edit the state of a user'), ('change_user_force', 'Can force the move'), ('change_user_shell', 'Can edit the shell of a user'), ('change_user_groups', 'Can edit the groups of rights of a user (critical permission)'), ('change_all_users', 'Can edit all users, including those with rights.'), ('view_user', 'Can view a user object')), 'verbose_name': 'member', 'verbose_name_plural': 'members'},
+            options={'verbose_name': 'member', 'verbose_name_plural': 'members'},
         ),
         migrations.AlterModelOptions(
             name='ban',
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='club',
-            options={'permissions': (('change_user_password', 'Can change the password of a user'), ('change_user_state', 'Can edit the state of a user'), ('change_user_force', 'Can force the move'), ('change_user_shell', 'Can edit the shell of a user'), ('change_user_groups', 'Can edit the groups of rights of a user (critical permission)'), ('change_all_users', 'Can edit all users, including those with rights.'), ('view_user', 'Can view a user object')), 'verbose_name': 'club', 'verbose_name_plural': 'clubs'},
+            options={'verbose_name': 'club', 'verbose_name_plural': 'clubs'},
         ),
         migrations.AlterModelOptions(
             name='emailaddress',
