@@ -827,7 +827,7 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(request.POST or None, user=request.user)
+    refill_form = RechargeForm(request.POST or None, user=user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
