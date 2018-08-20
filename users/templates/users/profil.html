@@ -66,7 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel panel-success">
                 <div class="panel-heading dashboard">{% trans "Connection" %}</div>
                 <div class="panel-body dashboard">
-                    <i class="text-success">{% blocktrans with end_connection=user.end_adhesion|date:"SHORT_DATE_FORMAT" %}End of connection: {{ end_connection }}{% endblocktrans %}</i>
+                    <i class="text-success">{% blocktrans with end_connection=users.end_adhesion|date:"SHORT_DATE_FORMAT" %}End of connection: {{ end_connection }}{% endblocktrans %}</i>
                 </div>
             </div>
             {% endif %}
