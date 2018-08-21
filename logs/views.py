@@ -529,11 +529,11 @@ def stats_unoccupied_rooms(request):
     """Vue qui affiche les chambres inoccupées
     pour des fins de contrôle des cotisations"""
     stats = {
-        'Nombre de chambres Innocupées': {
-            'Action': Room.objects.filter(adherent__isnull=True).count()
+        _("Unoccupied rooms count"): {
+            _("Action"): Room.objects.filter(adherent__isnull=True).count()
         },
-         'Chambres Innocupées': {
-            'Action': Room.objects.filter(
+         _("Unoccupied rooms"): {
+            _("Action"): Room.objects.filter(
                 adherent__isnull=True
             ).order_by('-num')[:40],
         },
