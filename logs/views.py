@@ -525,7 +525,7 @@ def history(request, application, object_name, object_id):
 
 @login_required
 @can_view_app('users')
-def stats_unoccupied_rooms(request):
+def stats_rooms(request):
     """Vue qui affiche les chambres inoccupées
     pour des fins de contrôle des cotisations"""
     stats = {
