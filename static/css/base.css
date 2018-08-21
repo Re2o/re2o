@@ -147,3 +147,8 @@ th.long_text{
 .dashboard{
     text-align: center;
 }
+
+.table-borderless td,
+.table-borderless th {
+    border: none !important;
+}
