@@ -535,7 +535,7 @@ def stats_rooms(request):
          _("Unoccupied rooms"): {
             _("Action"): Room.objects.filter(
                 adherent__isnull=True
-            ).order_by('Room.objects.name')[:40],
+            ).order_by('Room.name')[:40],
         },
     }
     return render(request, 'logs/stats_rooms.html', {'stats_list': stats})
