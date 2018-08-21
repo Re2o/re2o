@@ -524,8 +524,8 @@ def history(request, application, object_name, object_id):
 
 
 @login_required
-@permission_required('cableur')
-def stats_unoccupuied_rooms(request):
+@can_view_app('users')
+def stats_unoccupied_rooms(request):
     """Vue qui affiche les chambres inoccupées
     pour des fins de contrôle des cotisations"""
     stats = {
