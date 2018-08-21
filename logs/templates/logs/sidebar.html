@@ -52,6 +52,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-users"></i>
         {% trans "Users" %}
     </a>
+    <a class="list-group-item list-group-item-info" href="{% url "logs:stats-rooms" %}">
+        <i class="fa fa-rooms"></i>
+        {% trans "Users" %}
+    </a>
     {% acl_end %}
 {% endblock %}
-
