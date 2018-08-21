@@ -35,83 +35,48 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
-    {# {% bootstrap_form userform %} #}
+
 	<h3>Informations générales</h3>
-	<div class="table-responsive">
-	<table class="table table-borderless">
-		<tr>
-			<th>
-                {{ userform.name.label_tag }}
-			</th>
-			<th>
-                {{ userform.surname.label_tag }}
-			</th>
-			<th>
-                {{ userform.pseudo.label_tag }}
-			</th>
-        </tr>
-        <tr>
-            <td>
-                {% render_field userform.name class="form-control" placeholder=userform.name.label %}
-			</td>
-			<td>
-                {% render_field userform.surname class="form-control" placeholder=userform.surname.label %}
-			</td>
-			<td>
-                {% render_field userform.pseudo class="form-control" placeholder=userform.pseudo.label %}
-			</td>
-		</tr>
-        <tr>
-            <td>
-                {{userform.name.help_text}}
-            </td>
-            <td>
-                {{userform.surname.help_text}}
-            </td>
-            <td>
-                {{userform.pseudo.help_text}}
-            <td>
-	</table>
-	</div>
-    <div class="table-responsive">
-    <table class="table table-borderless">
-        <tr>
-            <th>
-            {{ userform.email.label_tag }}
-            </th>
-            <td>
-            {% render_field userform.email class="form-control" placeholder=userform.email.label %}
-            </td>
-        </tr>
-        <tr>
-            <th>
-            {{ userform.comment.label_tag }}
-            </th>
-            <td>
-            {% render_field userform.comment class="form-control" placeholder=userform.comment.label %}
-            </td>
-        </tr>
-        <tr>
-            <th>
-            {{ userform.school.label_tag }}
-            </th>
-            <td>
-            {% render_field userform.school class="form-control" placeholder=userform.school.label %}
-            </td>
-        </tr>
-        <tr>
-            <th>
-            {{ userform.room.label_tag }}
-            </th>
-            <td>
-            {% render_field userform.room class="form-control" placeholder=userform.room.label %}
-            </td>
-        </tr>
-	</table>
-	</div>
 
+    <div class="form-row">
+    	<div class="form-group col-md-4">
+        	{{ userform.name.label_tag }}
+        	{% render_field userform.name class="form-control" %}
+        </div>
+        <div class="form-group col-md-4">
+        	{{ userform.surname.label_tag }}
+        	{% render_field userform.surname class="form-control" %}
+        </div>
+        <div class="form-group col-md-4">
+        	{{ userform.pseudo.label_tag }}
+        	{% render_field userform.pseudo class="form-control" %}
+        </div>
+    </div>
+	
+	<div class="form-row">
+	<div class="form-group col-md-6">
+		{{ userform.email.label_tag }}
+		{% render_field userform.email class="form-control" %}
+  	</div>
+  	<div class="form-group col-md-6">
+		{{ userform.telephone.label_tag }}
+		{% render_field userform.telephone class="form-control" %}
+  	</div>
+	</div>
+	<div class="form-group">
+		{{ userform.school.label_tag }}
+		{% render_field userform.school class="form-control" %}
+  	</div>
+  	<div class="form-group">
+		{{ userform.room.label_tag }}
+		{% render_field userform.room class="form-control" %}
+  	</div>
+  	<div class="form-group">
+		{{ userform.comment.label_tag }}
+		{% render_field userform.comment class="form-control" %}
+  	</div>
 
-    <h3>Informations avancées</h3>
+    <h3>Informations avancées (facultatif)</h3>
     <div class="table-responsive">
     <table class="table table-borderless">
         <tr>
@@ -133,8 +98,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
 	</table>
 	</div>
-    {# {% massive_bootstrap_form userform 'room,school,administrators,members' %} #}
-    {% bootstrap_button action_name button_type="submit" icon="star" %}
+    
+    <button class="btn btn-success" type="submit">Créer un Utilisateur</button>
+
 </form>
 {% if load_js_file %}
 <script src="{{ load_js_file }}"></script>
