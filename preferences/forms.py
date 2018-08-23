@@ -124,7 +124,8 @@ class EditGeneralOptionForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['general_message'].label = _("General message")
+        self.fields['general_message_fr'].label = _("General message in French")
+        self.fields['general_message_en'].label = _("General message in English")
         self.fields['search_display_page'].label = _("Number of results"
                                                      " displayed when"
                                                      " searching")
