@@ -40,9 +40,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-12">
             <div class="thumbnail">
                 <div class="caption">
-                    <h3>{% blocktrans %}Inscription{% endblocktrans %}</h3>
-                    <p>{% blocktrans %}Si vous n'avez pas encore de compte et que vous souhaitez accéder à internet et aux services de l'association, créez votre espace personnel{% endblocktrans %}</p>
-                    <p><a href="{% url 'users:new-user' %}" class="btn btn-primary" role="button">{% blocktrans %}Inscription{% endblocktrans %}</a></p>
+                    <h3>{% trans "Registration" %}</h3>
+                    <p>{% trans "If you don't have an account yet and you want to access the Internet and the organisation's services, create your own personal account." %}</p>
+                    <p><a href="{% url 'users:new-user' %}" class="btn btn-primary" role="button">{% trans "Registration" %}</a></p>
                 </div>
             </div>
         </div>
@@ -52,9 +52,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-12">
             <div class="thumbnail">
                 <div class="caption">
-                    <h3>{% blocktrans %}Indentification{% endblocktrans %}</h3>
-                    <p>{% blocktrans %}Si avez déjà un compte, identifiez-vous. Vous pouvez gérer votre cotisation à l'association, vos machines, et l'ensemble de vos services{% endblocktrans %}</p>
-                    <p><a href="{% url 'login' %}" class="btn btn-primary" role="button">{% blocktrans %}Indentification{% endblocktrans %}</a></p>
+                    <h3>{% trans "Logging in" %}</h3>
+                    <p>{% trans "If you already have an account, log in. You can manage your subscription to the organisation, your machines and all your services." %}</p>
+                    <p><a href="{% url 'login' %}" class="btn btn-primary" role="button">{% trans "Logging in" %}</a></p>
                 </div>
             </div>
         </div>
@@ -65,9 +65,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-12">
             <div class="thumbnail">
                 <div class="caption">
-                    <h3>{% blocktrans %}Mon profil{% endblocktrans %}</h3>
-                    <p>{% blocktrans %}Pour gérer votre cotisation, vos machines et l'ensemble de vos services, accédez à votre profil{% endblocktrans %}</p>
-                    <p><a href="{% url 'users:mon-profil' %}" class="btn btn-primary" role="button">{% blocktrans %}Accéder à mon profil{% endblocktrans %}</a></p>
+                    <h3>{% trans "My profile" %}</h3>
+                    <p>{% trans "To manage your subscription, your machines and all your services, access your profile." %}</p>
+                    <p><a href="{% url 'users:mon-profil' %}" class="btn btn-primary" role="button">{% trans "Access my profile" %}</a></p>
                 </div>
             </div>
         </div>
@@ -76,7 +76,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </div>
 
 <div class="panel-heading">
-    <h2>{% blocktrans %}Les services de l'association{% endblocktrans %}</h2>
+    <h2>{% trans "Services of the organisation" %}</h2>
 </div>
 <div class="row">
 {% for service_list in services_urls %}
