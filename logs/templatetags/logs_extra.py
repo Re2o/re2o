@@ -19,7 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 021}10-1301 USA.
 """logs.templatetags.logs_extra
 A templatetag to get the class name for a given object
 """
@@ -34,6 +34,10 @@ def classname(obj):
     """ Returns the object class name """
     return obj.__class__.__name__
 
+@register.filter
+def is_facture(baseinvoice):
+    """Returns True if a baseinvoice has a `Facture` child."""
+    return hasattr(baseinvoice, 'facture')
 
 @register.inclusion_tag('buttons/history.html')
 def history_button(instance, text=False, html_class=True):
