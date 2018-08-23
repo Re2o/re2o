@@ -110,11 +110,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ v.datetime }}</td>
             <td>
-                {% blocktrans with username=v.username number=v.version.object.number name=v.version.object.name %}{{ username }} has sold {{ number }}x {{ name }} to{% endblocktrans %}
-                <a href="{% url 'users:profil' v.version.object.facture.user_id %}">{{ v.version.object.facture.user.get_username }}</a>
+                {% blocktrans with username=v.username number=v.version.object.number name=v.version.object.name %}{{ username }} has sold {{ number }}x {{ name }}{% endblocktrans %}
+                {% with invoice=v.version.object.facture %}
+                {% if invoice|is_facture %}
+                {% trans " to" %}
+                <a href="{% url 'users:profil' v.version.object.facture.facture.user_id %}">{{ v.version.object.facture.facture.user.get_username }}</a>
                 {% if v.version.object.iscotisation %}
                     (<i>{% blocktrans with duration=v.version.object.duration %}+{{ duration }} months{% endblocktrans %}</i>)
                 {% endif %}
+                {% endif %}
+                {% endwith %}
             </td>
             {% can_edit_history %}
             <td>
