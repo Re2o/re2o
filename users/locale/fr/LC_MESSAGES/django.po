@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-23 15:10+0200\n"
+"POT-Creation-Date: 2018-08-23 15:36+0200\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -39,7 +39,7 @@ msgstr "Vous n'avez pas le droit de voir cette application."
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
-#: forms.py:75 forms.py:446
+#: forms.py:75 forms.py:447
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
@@ -109,104 +109,104 @@ msgstr "Nom"
 msgid "Email address"
 msgstr "Adresse mail"
 
-#: forms.py:314 forms.py:384 forms.py:515 templates/users/aff_schools.html:37
+#: forms.py:314 forms.py:385 forms.py:516 templates/users/aff_schools.html:37
 #: templates/users/profil.html:181
 msgid "School"
 msgstr "Établissement"
 
-#: forms.py:315 forms.py:385 models.py:1204
+#: forms.py:315 forms.py:386 models.py:1204
 #: templates/users/aff_serviceusers.html:34 templates/users/profil.html:183
 msgid "Comment"
 msgstr "Commentaire"
 
-#: forms.py:316 forms.py:386 templates/users/aff_clubs.html:40
+#: forms.py:316 forms.py:387 templates/users/aff_clubs.html:40
 #: templates/users/aff_users.html:41 templates/users/profil.html:175
 msgid "Room"
 msgstr "Chambre"
 
-#: forms.py:317 forms.py:387
+#: forms.py:317 forms.py:388
 msgid "No room"
 msgstr "Pas de chambre"
 
-#: forms.py:318 forms.py:388
+#: forms.py:318 forms.py:389
 msgid "Select a school"
 msgstr "Sélectionnez un établissement"
 
 #: forms.py:319
-msgid "Default shell"
-msgstr "Interface système par défaut"
-
-#: forms.py:320
 msgid "Leave empty if you don't have any GPG key."
 msgstr "Laissez vide si vous n'avez pas de clé GPG."
 
-#: forms.py:327 forms.py:655
+#: forms.py:321
+msgid "Default shell"
+msgstr "Interface système par défaut"
+
+#: forms.py:328 forms.py:656
 msgid "You can't use a {} address."
 msgstr "Vous ne pouvez pas utiliser une adresse {}."
 
-#: forms.py:352 forms.py:410
+#: forms.py:353 forms.py:411
 msgid "A valid telephone number is required."
 msgstr "Un numéro de téléphone valide est requis."
 
-#: forms.py:363
+#: forms.py:364
 msgid "Force the move?"
 msgstr "Forcer le déménagement ?"
 
-#: forms.py:383 templates/users/aff_clubs.html:36
+#: forms.py:384 templates/users/aff_clubs.html:36
 #: templates/users/aff_serviceusers.html:32
 msgid "Name"
 msgstr "Nom"
 
-#: forms.py:389
+#: forms.py:390
 msgid "Use a mailing list"
 msgstr "Utiliser une liste de diffusion"
 
-#: forms.py:503 templates/users/aff_listright.html:38
+#: forms.py:504 templates/users/aff_listright.html:38
 msgid "Superuser"
 msgstr "Superutilisateur"
 
-#: forms.py:527
+#: forms.py:528
 msgid "Shell name"
 msgstr "Nom de l'interface système"
 
-#: forms.py:546
+#: forms.py:547
 msgid "Name of the group of rights"
 msgstr "Nom du groupe de droits"
 
-#: forms.py:557
+#: forms.py:558
 msgid "GID. Warning: this field must not be edited after creation."
 msgstr "GID. Attention : ce champ ne doit pas être modifié après création."
 
-#: forms.py:565
+#: forms.py:566
 msgid "Current groups of rights"
 msgstr "Groupes de droits actuels"
 
-#: forms.py:582
+#: forms.py:583
 msgid "Current schools"
 msgstr "Établissements actuels"
 
-#: forms.py:600 forms.py:614 templates/users/aff_bans.html:41
+#: forms.py:601 forms.py:615 templates/users/aff_bans.html:41
 #: templates/users/aff_whitelists.html:41
 msgid "End date"
 msgstr "Date de fin"
 
-#: forms.py:628 models.py:1748
+#: forms.py:629 models.py:1748
 msgid "Local part of the email address"
 msgstr "Partie locale de l'adresse mail"
 
-#: forms.py:629
+#: forms.py:630
 msgid "Can't contain @"
 msgstr "Ne peut pas contenir @"
 
-#: forms.py:644
+#: forms.py:645
 msgid "Main email address"
 msgstr "Adresse mail principale"
 
-#: forms.py:646
+#: forms.py:647
 msgid "Redirect local emails"
 msgstr "Rediriger les mails locaux"
 
-#: forms.py:648
+#: forms.py:649
 msgid "Use local emails"
 msgstr "Utiliser les mails locaux"
 
