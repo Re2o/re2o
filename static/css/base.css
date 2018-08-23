@@ -152,3 +152,8 @@ th.long_text{
 .table-borderless th {
     border: none !important;
 }
+
+/* nicer forms */
+.form-control {
+    height: auto;
+}

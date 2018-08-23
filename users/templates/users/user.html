@@ -33,6 +33,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 {% bootstrap_form_errors userform %}
 
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" type="text/css">
+
+<script type='text/javascript'>
+
+function submitBday() {
+	var field = document.getElementById("file");
+    var Bdate = document.getElementById('bday').value;
+    var Bday = +new Date(Bdate);
+	var age = ((Date.now() - Bday) / (31557600000));
+	
+	if (age < 18){
+    	field.style.display = "block";
+	}
+	else{
+		field.style.display = "none";
+	}
+
+}
+</script> 
+
 <form class="form" method="post">
     {% csrf_token %}
 
@@ -41,7 +62,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="form-row">
     	<div class="form-group col-md-4">
         	{{ userform.name.label_tag }}
-        	{% render_field userform.name class="form-control" %}
+        	{% render_field userform.name class="form-control" requiered=True %}
         </div>
         <div class="form-group col-md-4">
         	{{ userform.surname.label_tag }}
@@ -54,16 +75,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 	
 	<div class="form-row">
-	<div class="form-group col-md-6">
-		{{ userform.email.label_tag }}
-		{% render_field userform.email class="form-control" %}
-  	</div>
-  	<div class="form-group col-md-6">
-		{{ userform.telephone.label_tag }}
-		{% render_field userform.telephone class="form-control" %}
-  	</div>
+	    <div class="form-group col-md-4">
+		    {{ userform.email.label_tag }}
+		    {% render_field userform.email class="form-control" %}
+  	    </div>
+  	    <div class="form-group col-md-4">
+		    {{ userform.telephone.label_tag }}
+		    {% render_field userform.telephone class="form-control" %}
+  	    </div>
+        <div class="form-group col-md-4">
+            <label>Date de naissance</label>
+            <input class="form-control" id="bday" name="bday" date-date-format="dd-mm-yy" placeholder="Date de naissance" type="date" onchange="submitBday()">
+        </div>
 	</div>
-	<div class="form-group">
+
+    <div class="form-group">
+        <div id="file" style="display:none;">
+            {{ userform.disclaimer.label_tag }}
+            {% render_field userform.disclaimer class="form-control" %}
+        </div>
+	</div>
+	
+    <div class="form-group">
 		{{ userform.school.label_tag }}
 		{% render_field userform.school class="form-control" %}
   	</div>

@@ -334,6 +334,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'email',
             'school',
             'comment',
+            'disclaimer',
             'room',
             'shell',
             'telephone',
