@@ -49,7 +49,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <i class="text-danger">{% blocktrans with end_ban=users.end_ban|date:"SHORT_DATE_FORMAT" %}End of the ban: {{ end_ban }}{% endblocktrans %}</i>
                 </div>
             </div>
-            {% elif not users.is_adherent %}
+            {% elif not users.has_access %}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">{% trans "No connection" %}</div>
                 <div class="panel-body dashboard"> 
@@ -64,9 +64,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% else %}
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">{% trans "Connection" %}</div>
+                <div class="panel-heading dashboard">{% blocktrans with end_connection=user.end_access|date:"SHORT_DATE_FORMAT" %}Connection (until {{ end_connection }} ){% endblocktrans %}</div>
                 <div class="panel-body dashboard">
-                    <i class="text-success">{% blocktrans with end_connection=user.end_adhesion|date:"SHORT_DATE_FORMAT" %}End of connection: {{ end_connection }}{% endblocktrans %}</i>
+                    {% can_create Facture %}
+                    <a class="btn btn-success btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                        <i class="fas fa-sign-in-alt"></i> {% trans "Extend the connection period" %}
+                    </a>
+                    {% acl_end %}
                 </div>
             </div>
             {% endif %}
@@ -89,7 +93,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if nb_machines %}
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
-                    <i class="fa fa-desktop"></i>{% trans " Machines" %}<span class="badge">{{ nb_machines }}</span>
+                    <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
