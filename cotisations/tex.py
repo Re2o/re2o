@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -23,6 +24,7 @@
 Module in charge of rendering some LaTex templates.
 Used to generated PDF invoice.
 """
+
 
 import tempfile
 from subprocess import Popen, PIPE
