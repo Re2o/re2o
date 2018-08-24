@@ -64,7 +64,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% else %}
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">{% blocktrans with end_connection=user.end_access|date:"SHORT_DATE_FORMAT" %}Connection (until {{ end_connection }} ){% endblocktrans %}</div>
+                <div class="panel-heading dashboard">{% blocktrans with end_connection=users.end_access|date:"SHORT_DATE_FORMAT" %}Connection (until {{ end_connection }} ){% endblocktrans %}</div>
                 <div class="panel-body dashboard">
                     {% can_create Facture %}
                     <a class="btn btn-success btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
