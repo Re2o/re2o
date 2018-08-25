@@ -14,7 +14,9 @@ def reattribute_ids(apps, schema_editor):
     BaseInvoice = apps.get_model('cotisations', 'BaseInvoice')
 
     for f in Facture.objects.all():
-        base = BaseInvoice.objects.create(id=f.pk, date=f.date)
+        base = BaseInvoice.objects.create(id=f.pk)
+        base.date = f.date
+        base.save()
         f.baseinvoice_ptr = base
         f.save()
 
