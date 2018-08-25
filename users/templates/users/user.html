@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load widget_tweaks %}
 {% load massive_bootstrap_form %}
 {% load static %}
+{% load acl %}
 {% load i18n %}
 {% block title %}{% trans "Users" %}{% endblock %}
 
@@ -89,27 +90,40 @@ function submitBday() {
 	</div>
 
     <div class="form-group">
-        <div id="file" style="display:none;">
+        {% if user.is_authenticated %}
+        {% can_edit user %}
+        <div class="disclaimer" style="display:none;">
+            <input type="checkbox" id="check_disclaimer" name="box_disclaimer" requiered=True />
+            <label for="scales">Décharge parentale reçue</label>
+        {% acl_end %}
+        {% else %}
+        <div class="disclaimer" style="display:none;">
             {{ userform.disclaimer.label_tag }}
             {% render_field userform.disclaimer class="form-control" %}
         </div>
+        {% endif %}
 	</div>
 
 <script type='text/javascript'>
 function submitBday() {
-	var field = document.getElementById("file");
+	var fields = document.getElementsByClassName("disclaimer");
     var Bdate = document.getElementById('bday').value;
     var Bday = +new Date(Bdate);
 	var age = ((Date.now() - Bday) / (31557600000));
+
+    var len = fields.length;
 	
 	if (age < 18){
-    	field.style.display = "block";
-        document.getElementById("{{userform.disclaimer.auto_id}}").required = true;
+        for (i=0; i<len; ++i) {
+    	    fields[i].style.display = "block";
+            fields[i].required = true;
+        }
 	}
 	else{
-		field.style.display = "none";
-        document.getElementById("{{userform.disclaimer.auto_id}}").required = false;
-
+        for (i=0; i<len; ++i) {
+		    fields[i].style.display = "none";
+            fields[i].required = false;
+        }
     }
 
 }
