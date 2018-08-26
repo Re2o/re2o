@@ -92,38 +92,39 @@ function submitBday() {
     <div class="form-group">
         {% if user.is_authenticated %}
         {% can_edit user %}
-        <div class="disclaimer" style="display:none;">
-            <input type="checkbox" id="check_disclaimer" name="box_disclaimer" requiered=True />
+        <div class="disclaimer" style="display:none;" id="div_disclaimer">
+            <input type="checkbox" id="{{userform.disclaimer.auto_id}}" name="box_disclaimer" requiered=True />
             <label for="scales">Décharge parentale reçue</label>
+        </div>
         {% acl_end %}
         {% else %}
-        <div class="disclaimer" style="display:none;">
+        <div class="disclaimer" style="display:none;" id="div_disclaimer">
             {{ userform.disclaimer.label_tag }}
-            {% render_field userform.disclaimer class="form-control" %}
+            {% render_field userform.disclaimer class="form-control" requiered=True %}
         </div>
         {% endif %}
 	</div>
 
 <script type='text/javascript'>
 function submitBday() {
-	var fields = document.getElementsByClassName("disclaimer");
+	var div = document.getElementById("div_disclaimer");
+    var input = document.getElementById("{{userform.disclaimer.auto_id}}");
+
     var Bdate = document.getElementById('bday').value;
     var Bday = +new Date(Bdate);
 	var age = ((Date.now() - Bday) / (31557600000));
-
-    var len = fields.length;
+    
+    console.log("{{userform.disclaimer.auto_id}}");
 	
 	if (age < 18){
-        for (i=0; i<len; ++i) {
-    	    fields[i].style.display = "block";
-            fields[i].required = true;
-        }
+	    div.style.display = "block";
+        input.setAttribute("requiered", "True"); 
+        console.log(input); 
 	}
 	else{
-        for (i=0; i<len; ++i) {
-		    fields[i].style.display = "none";
-            fields[i].required = false;
-        }
+		div.style.display = "none";
+        input.removeAttribute("requiered");
+        console.log(input);
     }
 
 }
