@@ -50,7 +50,7 @@ from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method
+from cotisations.utils import send_mail_invoice, find_payment_method
 from cotisations.validators import check_no_balance
 
 
@@ -242,7 +242,10 @@ def facture_post_save(**kwargs):
     Synchronise the LDAP user after an invoice has been saved.
     """
     facture = kwargs['instance']
+    is_created = kwargs['created']
     user = facture.user
+    if is_created:
+        send_mail_invoice(facture)
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
