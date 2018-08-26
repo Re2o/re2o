@@ -380,6 +380,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ClubForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['surname'].label = _("Name")
+        self.fields['email'].label = _("Email address")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
         self.fields['room'].label = _("Room")
@@ -392,6 +393,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         fields = [
             'surname',
             'pseudo',
+            'email',
             'school',
             'comment',
             'room',

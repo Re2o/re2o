@@ -143,6 +143,11 @@ function submitBday() {
 
 }
 </script>
+    {% elif action_name == 'Create a club' %}
+    <div class="form-group">
+	    {{ userform.email.label_tag }}
+	    {% render_field userform.email class="form-control" requiered=True %}
+    </div>
     {% endif %}
 	
     <div class="form-group">
