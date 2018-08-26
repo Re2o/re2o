@@ -222,7 +222,7 @@ class Facture(BaseInvoice):
             return True, None
         if len(Paiement.find_allowed_payments(user_request)) <= 0:
             return False, _("There are no payment method which you can use.")
-        if len(Article.find_allowed_articles(user_request)) <= 0:
+        if len(Article.find_allowed_articles(user_request, user_request)) <= 0:
             return False, _("There are no article that you can buy.")
         return True, None
 
@@ -595,15 +595,24 @@ class Article(RevMixin, AclMixin, models.Model):
         )
 
     @classmethod
-    def find_allowed_articles(cls, user):
-        """Finds every allowed articles for an user.
+    def find_allowed_articles(cls, user, target_user):
+        """Finds every allowed articles for an user, on a target user.
 
         Args:
             user: The user requesting articles.
+            target_user: The user to sell articles
         """
+        if target_user.is_class_club:
+            objects_pool = cls.objects.filter(
+                Q(type_user='All') | Q(type_user='Club')
+            )
+        else:
+            objects_pool = cls.objects.filter(
+                Q(type_user='All') | Q(type_user='Adherent')
+            )
         if user.has_perm('cotisations.buy_every_article'):
-            return cls.objects.all()
-        return cls.objects.filter(available_for_everyone=True)
+            return objects_pool
+        return objects_pool.filter(available_for_everyone=True)
 
 
 class Banque(RevMixin, AclMixin, models.Model):

@@ -84,15 +84,13 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
         return cleaned_data
 
 
-class SelectUserArticleForm(FormRevMixin, Form):
+class SelectArticleForm(FormRevMixin, Form):
     """
     Form used to select an article during the creation of an invoice for a
     member.
     """
     article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(
-            Q(type_user='All') | Q(type_user='Adherent')
-        ),
+        queryset=Article.objects.none(),
         label=_("Article"),
         required=True
     )
@@ -104,31 +102,9 @@ class SelectUserArticleForm(FormRevMixin, Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
-        super(SelectUserArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.find_allowed_articles(user)
-
-
-class SelectClubArticleForm(Form):
-    """
-    Form used to select an article during the creation of an invoice for a
-    club.
-    """
-    article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(
-            Q(type_user='All') | Q(type_user='Club')
-        ),
-        label=_("Article"),
-        required=True
-    )
-    quantity = forms.IntegerField(
-        label=_("Quantity"),
-        validators=[MinValueValidator(1)],
-        required=True
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super(SelectClubArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.find_allowed_articles(user)
+        target_user = kwargs.pop('target_user')
+        super(SelectArticleForm, self).__init__(*args, **kwargs)
+        self.fields['article'].queryset = Article.find_allowed_articles(user, target_user)
 
 
 class CustomInvoiceForm(FormRevMixin, ModelForm):
