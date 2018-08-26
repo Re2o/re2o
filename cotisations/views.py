@@ -75,8 +75,7 @@ from .forms import (
     DelPaiementForm,
     BanqueForm,
     DelBanqueForm,
-    SelectUserArticleForm,
-    SelectClubArticleForm,
+    SelectArticleForm,
     RechargeForm,
     CustomInvoiceForm
 )
@@ -110,16 +109,10 @@ def new_facture(request, user, userid):
         creation=True
     )
 
-    if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
-    else:
-        article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
+    article_formset = formset_factory(SelectArticleForm)(
+        request.POST or None,
+        form_kwargs={'user': request.user, 'target_user': user}
+    )
 
     if invoice_form.is_valid() and article_formset.is_valid():
         new_invoice_instance = invoice_form.save(commit=False)
@@ -199,16 +192,12 @@ def new_custom_invoice(request):
     )
     # Building the invocie form and the article formset
     invoice_form = CustomInvoiceForm(request.POST or None)
-    if request.user.is_class_club:
-        articles_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
-    else:
-        articles_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
+
+    article_formset = formset_factory(SelectArticleForm)(
+        request.POST or None,
+        form_kwargs={'user': request.user, 'target_user': user}
+    )
+
     if invoice_form.is_valid() and articles_formset.is_valid():
         new_invoice_instance = invoice_form.save()
         for art_item in articles_formset:
