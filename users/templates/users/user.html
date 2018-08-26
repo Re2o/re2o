@@ -59,6 +59,7 @@ function submitBday() {
 
 	<h3>Informations générales</h3>
 
+    {% if action_name == 'Create a user' %}
     <div class="form-row">
     	<div class="form-group col-md-4">
         	{{ userform.name.label_tag }}
@@ -73,7 +74,20 @@ function submitBday() {
         	{% render_field userform.pseudo class="form-control" requiered=True %}
         </div>
     </div>
-	
+    {% elif action_name == 'Create a club' %}
+    <div class="form-row">
+        <div class="form-group col-md-6">
+        	{{ userform.surname.label_tag }}
+        	{% render_field userform.surname class="form-control" requiered=True %}
+        </div>
+        <div class="form-group col-md-6">
+        	{{ userform.pseudo.label_tag }}
+        	{% render_field userform.pseudo class="form-control" requiered=True %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if action_name == 'Create a user' %}
 	<div class="form-row">
 	    <div class="form-group col-md-4">
 		    {{ userform.email.label_tag }}
@@ -129,6 +143,7 @@ function submitBday() {
 
 }
 </script>
+    {% endif %}
 	
     <div class="form-group">
 		{{ userform.school.label_tag }}
@@ -142,7 +157,14 @@ function submitBday() {
 		{{ userform.comment.label_tag }}
 		{% render_field userform.comment class="form-control" %}
   	</div>
+    {% if action_name == 'Create a club' %}
+  	<div class="form-group">
+		{{ userform.mailing.label_tag }}
+        <input type="checkbox" id="{{userform.mailing.auto_id}}" name="box_mailing" />
+  	</div>
+    {% endif %}
 
+    
     <h3>Informations avancées (facultatif)</h3>
     <div class="table-responsive">
     <table class="table table-borderless">
@@ -155,6 +177,7 @@ function submitBday() {
             {% render_field userform.shell class="form-control" placeholder=userform.shell.label %}
             </td>
         </tr>
+        {% if action_name == 'Create a user' %}
         <tr>
             <th>
             {{ userform.gpg_fingerprint.label_tag }}
@@ -163,10 +186,11 @@ function submitBday() {
             {% render_field userform.gpg_fingerprint class="form-control" placeholder=userform.gpg_fingerprint.label %}
             </td>
         </tr>
+        {% endif %}
 	</table>
 	</div>
     
-    <button class="btn btn-success" type="submit">Créer un Utilisateur</button>
+    <button class="btn btn-success" type="submit">{{ action_name }}</button>
 
 </form>
 {% if load_js_file %}
