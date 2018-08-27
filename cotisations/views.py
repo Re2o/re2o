@@ -827,7 +827,7 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(request.POST or None, user=request.user)
+    refill_form = RechargeForm(request.POST or None, user=user, user_source=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
@@ -854,7 +854,7 @@ def credit_solde(request, user, **_kwargs):
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
         'factureform': refill_form,
-        'balance': request.user.solde,
+        'balance': user.solde,
         'title': _("Refill your balance"),
         'action_name': _("Pay"),
         'max_balance': p.payment_method.maximum_balance,
