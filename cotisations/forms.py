@@ -243,7 +243,7 @@ class RechargeForm(FormRevMixin, Form):
         label=_("Payment method")
     )
 
-    def __init__(self, *args, user=None, user_source, **kwargs):
+    def __init__(self, *args, user=None, user_source=None, **kwargs):
         self.user = user
         super(RechargeForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
