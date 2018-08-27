@@ -956,7 +956,7 @@ msgstr "Solde"
 
 #: templates/users/profil.html:241
 msgid "Refill"
-msgstr "Rechager"
+msgstr "Recharger"
 
 #: templates/users/profil.html:246
 msgid "GPG fingerprint"
