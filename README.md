@@ -1,10 +1,10 @@
 # Re2o
 
-Gnu public license v2.0
+GNU public license v2.0
 
 ## Avant propos 
 
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initialement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en 
 quelques clics.
 
@@ -31,15 +31,15 @@ Pour cela :
 
 ## Fonctionnement général
 
-Re2o est séparé entre les models, qui sont visible sur le schéma des 
-dépendances. Il s'agit en réalité des tables sql, et les fields etant les 
+Re2o est séparé entre les models, qui sont visibles sur le schéma des
+dépendances. Il s'agit en réalité des tables sql, et les fields étant les
 colonnes.
 Ceci dit il n'est jamais nécessaire de toucher directement au sql, django 
 procédant automatiquement à tout cela. 
 On crée donc différents models (user, right pour les droits des users, 
 interfaces, IpList pour l'ensemble des adresses ip, etc)
 
-Du coté des forms, il s'agit des formulaire d'édition des models. Il 
+Du coté des forms, il s'agit des formulaires d'édition des models. Il
 s'agit de ModelForms django, qui héritent des models très simplement, voir la 
 documentation django models forms.
 
@@ -56,12 +56,20 @@ d'accéder à ces vues, utilisé par re2o-tools.
 
 # Requète en base de donnée
 
-Pour avoir un shell, il suffit de lancer '''python3 manage.py shell'''
-Pour charger des objets, example avec User, faire : 
-''' from users.models import User'''
-Pour charger les objets django, il suffit de faire User.objects.all() 
-pour tous les users par exemple. 
-Il est ensuite aisé de faire des requètes, par exemple 
-User.objects.filter(pseudo='test')
-Des exemples et la documentation complète sur les requètes django sont 
+Pour avoir un shell, lancer :
+```.bash
+python3 manage.py shell
+```
+
+Pour charger des objets (exemple avec User), faire :
+```.python
+from users.models import User
+```
+
+Pour charger les objets django, il suffit de faire `User.objects.all()`
+pour tous les users par exemple.
+Il est ensuite aisé de faire des requêtes, par exemple
+`User.objects.filter(pseudo='test')`
+
+Des exemples et la documentation complète sur les requêtes django sont
 disponible sur le site officiel.
