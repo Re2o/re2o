@@ -153,7 +153,7 @@ def generate_ipv4_choices(form_obj):
     """
     f_ipv4 = form_obj.fields['ipv4']
     used_mtype_id = []
-    choices = '{"":[{key:"",value:'+_("Select a machine type first.},")
+    choices = '{"":[{key:"",value:"'+_("Select a machine type first.") + '"}'
     mtype_id = -1
 
     for ip in (f_ipv4.queryset
