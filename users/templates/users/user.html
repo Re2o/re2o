@@ -56,23 +56,8 @@ function submitBday() {
 
 <form class="form" method="post">
     {% csrf_token %}
-
-    {% if action_name == 'Change the password' %}
-	<div class="form-group">
-            {{ userform.selfpasswd.label_tag }}
-            {% render_field userform.selfpasswd class="form-control" requiered=True %}
-	</div>
-	<div class="form-group">
-            {{ userform.passwd1.label_tag }}
-            {% render_field userform.passwd1 class="form-control" requiered=True %}
-	</div>
-	<div class="form-group">
-            {{ userform.passwd2.label_tag }}
-            {% render_field userform.passwd2 class="form-control" requiered=True %}
-	</div>
     
-
-    {% else %}
+    {% if action_name == 'Create a user' or action_name == 'Create a club' %}
 
 	<h3>Informations générales</h3>
 
@@ -212,6 +197,8 @@ function submitBday() {
 	</table>
 	</div>
 
+    {% else %}
+    {% massive_bootstrap_form userform 'room,school,administrators,members' %}
     {% endif %}
     
     <button class="btn btn-success" type="submit">{{ action_name }}</button>
