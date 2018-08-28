@@ -688,11 +688,11 @@ class InitialRegisterForm(forms.Form):
                 self.nas_type = Nas.objects.filter(nas_type__interface__ipv4__ipv4=switch_ip).first()
         super(InitialRegisterForm, self).__init__(*args, **kwargs)
         if hasattr(self, 'new_room'):
-            self.fields['register_room'].label = _("New connection from Room %s. Is that yours ? If it is the case, type Ok" % self.new_room)
+            self.fields['register_room'].label = _("New connection from room %s. Is it yours? If that is the case, type OK." % self.new_room)
         else:
             self.fields.pop('register_room')
         if hasattr(self, 'mac_address'):
-            self.fields['register_machine'].label = _("New connection from new device. Register It ? Say Yes to get internet connection from it (mac_address : %s)" % self.mac_address)
+            self.fields['register_machine'].label = _("New connection from new device. Register it? Say Yes to get Internet access from it (MAC Address : %s)." % self.mac_address)
         else:
             self.fields.pop('register_machine')
 
