@@ -313,8 +313,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['email'].label = _("Email address")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['room'].label = _("Room")
-        self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
         self.fields['birthday'].label = _("Your birthday")
 
@@ -337,7 +335,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'comment',
             'birthday',
             'disclaimer',
-            'room',
             'shell',
             'telephone',
             'gpg_fingerprint'

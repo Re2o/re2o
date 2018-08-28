@@ -72,26 +72,26 @@ function submitBday() {
     <div class="form-row">
     	<div class="form-group col-md-4">
         	{{ userform.name.label_tag }}
-        	{% render_field userform.name class="form-control" requiered=True %}
+        	{% render_field userform.name class="form-control" %}
         </div>
         <div class="form-group col-md-4">
         	{{ userform.surname.label_tag }}
-        	{% render_field userform.surname class="form-control" requiered=True %}
+        	{% render_field userform.surname class="form-control" %}
         </div>
         <div class="form-group col-md-4">
         	{{ userform.pseudo.label_tag }}
-        	{% render_field userform.pseudo class="form-control" requiered=True %}
+        	{% render_field userform.pseudo class="form-control" %}
         </div>
     </div>
     {% elif action_name == 'Create a club' %}
     <div class="form-row">
         <div class="form-group col-md-6">
         	{{ userform.surname.label_tag }}
-        	{% render_field userform.surname class="form-control" requiered=True %}
+        	{% render_field userform.surname class="form-control" %}
         </div>
         <div class="form-group col-md-6">
         	{{ userform.pseudo.label_tag }}
-        	{% render_field userform.pseudo class="form-control" requiered=True %}
+        	{% render_field userform.pseudo class="form-control" %}
         </div>
     </div>
     {% endif %}
@@ -100,15 +100,15 @@ function submitBday() {
 	<div class="form-row">
 	    <div class="form-group col-md-4">
 		    {{ userform.email.label_tag }}
-		    {% render_field userform.email class="form-control" requiered=True %}
+		    {% render_field userform.email class="form-control" %}
   	    </div>
   	    <div class="form-group col-md-4">
 		    {{ userform.telephone.label_tag }}
-		    {% render_field userform.telephone class="form-control" requiered=True %}
+		    {% render_field userform.telephone class="form-control" %}
   	    </div>
         <div class="form-group col-md-4">
             {{ userform.birthday.label_tag}}
-            {% render_field userform.birthday class="form-control" requiered=True %}
+            {% render_field userform.birthday class="form-control" onchange='submitBday()' %}
                 {# <input class="form-control" id="bday" name="bday" date-date-format="dd-mm-yy" requiered=True placeholder="Date de naissance" type="date" onchange="submitBday()"> #}
         </div>
 	</div>
@@ -124,7 +124,7 @@ function submitBday() {
         {% else %}
         <div class="disclaimer" style="display:none;" id="div_disclaimer">
             {{ userform.disclaimer.label_tag }}
-            {% render_field userform.disclaimer class="form-control" requiered=True %}
+            {% render_field userform.disclaimer class="form-control" %}
         </div>
         {% endif %}
 	</div>
@@ -134,21 +134,18 @@ function submitBday() {
 	var div = document.getElementById("div_disclaimer");
     var input = document.getElementById("{{userform.disclaimer.auto_id}}");
 
-    var Bdate = document.getElementById('{{userform.birthday.auto_id').value;
-    var Bday = +new Date(Bdate);
+    var Bdate = document.getElementById('{{userform.birthday.auto_id}}').value;
+    var Bday = +new Date(Bdate.replace(/(\d{2})[-/](\d{2})[-/](\d+)/, "$2/$1/$3"));
 	var age = ((Date.now() - Bday) / (31557600000));
     
-    console.log("{{userform.disclaimer.auto_id}}");
 	
 	if (age < 18){
 	    div.style.display = "block";
-        input.setAttribute("requiered", "True"); 
-        console.log(input); 
+        input.setAttribute("requiered", "True");
 	}
 	else{
 		div.style.display = "none";
         input.removeAttribute("requiered");
-        console.log(input);
     }
 
 }
@@ -156,17 +153,17 @@ function submitBday() {
     {% elif action_name == 'Create a club' %}
     <div class="form-group">
 	    {{ userform.email.label_tag }}
-	    {% render_field userform.email class="form-control" requiered=True %}
+	    {% render_field userform.email class="form-control" %}
     </div>
     {% endif %}
 	
     <div class="form-group">
 		{{ userform.school.label_tag }}
-		{% render_field userform.school class="form-control" requiered=True %}
+		{% render_field userform.school class="form-control" %}
   	</div>
   	<div class="form-group">
 		{{ userform.room.label_tag }}
-		{% render_field userform.room class="form-control" requiered=True %}
+		{% render_field userform.room class="form-control" %}
   	</div>
   	<div class="form-group">
 		{{ userform.comment.label_tag }}
