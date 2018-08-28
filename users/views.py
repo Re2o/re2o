@@ -105,7 +105,8 @@ from .forms import (
     PassForm,
     ResetPasswordForm,
     ClubAdminandMembersForm,
-    GroupForm
+    GroupForm,
+    InitialRegisterForm
 )
 
 
@@ -1077,6 +1078,28 @@ def process_passwd(request, req):
         return redirect(reverse('index'))
     return form(
         {'userform': u_form, 'action_name': _("Change the password")},
+        'users/user.html',
+        request
+    )
+
+@login_required
+def initial_register(request):
+    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=request.GET.get('switch_ip', None), switch_port=request.GET.get('switch_port', None), client_mac=request.GET.get('client_mac', None))
+    if not u_form.fields:
+        messages.error(request, _("Incorrect url, or already registered device"))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    if u_form.is_valid():
+        messages.success(request, _("Successfull register ! Please plug off and plug again your cable to get internet access"))
+        return form(
+            {},
+            'users/plugin_out.html',
+            request
+        )
+    return form(
+        {'userform': u_form, 'action_name': _("Register device or room")},
         'users/user.html',
         request
     )
