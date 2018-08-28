@@ -38,6 +38,7 @@ from cotisations.models import Facture
 from .comnpay import Transaction
 from .models import ComnpayPayment
 
+from cotisations.utils import send_mail_invoice
 
 @csrf_exempt
 @login_required
@@ -132,6 +133,8 @@ def ipn(request):
 
     facture.valid = True
     facture.save()
+
+    send_mail_invoice(facture)
 
     # Everything worked we send a reponse to Comnpay indicating that
     # it's ok for them to proceed
