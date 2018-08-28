@@ -1086,13 +1086,15 @@ def process_passwd(request, req):
 def initial_register(request):
     u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=request.GET.get('switch_ip', None), switch_port=request.GET.get('switch_port', None), client_mac=request.GET.get('client_mac', None))
     if not u_form.fields:
-        messages.error(request, _("Incorrect url, or already registered device"))
+        messages.error(request, _("Incorrect URL, or already registered device"))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
     if u_form.is_valid():
-        messages.success(request, _("Successfull register ! Please plug off and plug again your cable to get internet access"))
+        messages.success(request, _("Successful registration! Please"
+                                    " disconnect and reconnect your Ethernet"
+                                    " cable to get Internet access."))
         return form(
             {},
             'users/plugin_out.html',

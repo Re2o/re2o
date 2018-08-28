@@ -232,7 +232,7 @@ msgstr "Accéder à mon profil"
 
 #: templates/re2o/index.html:79
 msgid "Services of the organisation"
-msgstr "Serices de l'association"
+msgstr "Services de l'association"
 
 #: templates/re2o/index.html:93
 msgid "Go there"

@@ -27,11 +27,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load massive_bootstrap_form %}
 {% load static %}
 {% load i18n %}
+
 {% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
 
-<h3>Votre machine et votre chambre ont bien été enregistrées. Merci de débrancher et rebrancher votre cable RJ45 pour bénéficier d'une connexion filaire</h3>
+<h3>{% trans "Your machine and your room were successfully registered. Please disconnect and reconnect your Ethernet cable to benefit from a wired connection." %}</h3>
 <center><img src="{% static '/images/rj45.gif' %}" alt="rj45_in_out"></center>
 
 <br/>
