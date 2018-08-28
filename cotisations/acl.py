@@ -42,4 +42,5 @@ def can_view(user):
     if can:
         return can, None
     else:
-        return can, _("You don't have the rights to see this application.")
+        return can, _("You don't have the right to view this application.")
+

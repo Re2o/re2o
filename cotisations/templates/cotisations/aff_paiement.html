@@ -41,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ paiement.moyen }}</td>
         <td>{{ paiement.available_for_everyone|tick }}</td>
         <td>
-            {{paiement.get_payment_method_name}}
+            {{ paiement.get_payment_method_name }}
         </td>
         <td class="text-right">
             {% can_edit paiement %}

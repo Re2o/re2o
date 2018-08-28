@@ -120,3 +120,33 @@ Don't forget to run migrations, several settings previously in the `preferences`
 in their own Payment models.
 
 To have a closer look on how the payments works, please go to the wiki.
+
+## MR 182: Add role models
+
+Adds the Role model.
+You need to ensure that your database character set is utf-8.
+```sql
+ALTER DATABASE re2o CHARACTER SET utf8;
+```
+
+## MR 247: Fix des comptes mails
+
+Fix several issues with email accounts, you need to collect the static files.
+
+```bash
+./manage.py collectstatic
+```
+
+## MR 203 Add custom invoices
+
+The custom invoices are now stored in database. You need to migrate your database :
+
+```bash
+python3 manage.py migrate
+```
+
+On some database engines (postgreSQL) you also need to update the id sequences:
+
+```bash
+python3 manage.py sqlsequencereset cotisations | python3 manage.py dbshell
+```

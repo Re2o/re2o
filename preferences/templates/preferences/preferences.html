@@ -24,8 +24,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Création et modification des preferences{% endblock %}
+{% block title %}{% trans "Preferences" %}{% endblock %}
 
 {% block content %}
 {% if preferenceform %}
@@ -44,3 +45,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <br />
   <br />
 {% endblock %}
+

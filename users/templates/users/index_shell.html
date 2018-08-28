@@ -25,13 +25,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}{% trans "Users" %}{% endblock %}
 
 {% block content %}
-  <h2>Liste des Shells</h2>
+  <h2>{% trans "List of shells" %}</h2>
   {% can_create ListShell %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-shell'  %}"><i class="fa fa-plus"></i> Ajouter un shell</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-shell'  %}"><i class="fa fa-plus"></i>{% trans " Add a shell" %}</a>
   {% acl_end %}
   {%  include "users/aff_shell.html" with shell_list=shell_list %}
   <br />

@@ -26,18 +26,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
+
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Type d'ip</th>
-                <th>Extension</th>
-                <th>Nécessite l'autorisation infra</th>
-                <th>Plage ipv4</th>
-                <th>Préfixe v6</th>
-                <th>Sur vlan</th>
-                <th>Ouverture ports par défault</th>
-                <th></th>
+                <th>{% trans "IP type" %}</th>
+                <th>{% trans "Extension" %}</th>
+                <th>{% trans "'infra' right required" %}</th>
+                <th>{% trans "IPv4 range" %}</th>
+                <th>{% trans "v6 prefix" %}</th>
+                <th>{% trans "DNSSEC reverse v4/v6" %}</th>
+                <th>{% trans "On VLAN(s)" %}</th>
+                <th>{% trans "Default ports opening" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -46,8 +48,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ type.type }}</td>
             <td>{{ type.extension }}</td>
             <td>{{ type.need_infra|tick }}</td>
-            <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}</td>
-            <td>{{ type.prefix_v6 }}</td>
+	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </b></u>{{ type.ip_network }}{% endif %}</td>
+            <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
+	    <td>{{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}</td>
             <td>{{ type.vlan }}</td>
             <td>{{ type.ouverture_ports }}</td>
             <td class="text-right">
@@ -60,3 +63,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 </div>
+

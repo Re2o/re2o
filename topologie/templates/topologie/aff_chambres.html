@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 {% if room_list.paginator %}
 {% include "pagination.html" with list=room_list %}
@@ -32,24 +33,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='room' col='name' text='Chambre' %}</th>
-            <th>Commentaire</th>
+            {% trans "Room" as tr_room %}
+            <th>{% include "buttons/sort.html" with prefix='room' col='name' text=tr_room %}</th>
+            <th>{% trans "Details" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for room in room_list %}
     <tr>
-        <td>{{room.name}}</td>
-        <td>{{room.details}}</td>
+        <td>{{ room.name }}</td>
+        <td>{{ room.details }}</td>
         <td class="text-right">
-            {% history_button room %}
             {% can_edit room %}
-            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-room' room.id %}">
+            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-room' room.id %}">
                 <i class="fa fa-edit"></i>
             </a>
             {% acl_end %}
+            {% history_button room %}
             {% can_delete room %}
-            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-room' room.id %}">
+            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-room' room.id %}">
                 <i class="fa fa-trash"></i>
             </a>
             {% acl_end %}
@@ -61,3 +63,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if room_list.paginator %}
 {% include "pagination.html" with list=room_list %}
 {% endif %}
+

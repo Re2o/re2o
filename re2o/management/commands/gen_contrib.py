@@ -41,7 +41,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Exportation Sucessfull"))
         with open("re2o/contributors.py", "w") as contrib_file:
             contrib_file.write("\"\"\"re2o.contributors\n")
-            contrib_file.write("A list of the proud contributors to Re2o\n")
+            contrib_file.write("A list of the contributors to Re2o\n")
             contrib_file.write("\"\"\"\n")
             contrib_file.write("\n")
             contrib_file.write("CONTRIBUTORS = " + str(contributeurs))

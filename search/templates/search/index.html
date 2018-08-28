@@ -24,52 +24,54 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Résultats de la recherche{% endblock %}
+{% block title %}{% trans "Search results" %}{% endblock %}
 
 {% block content %}
     {% if users %}
-    <h2>Résultats dans les utilisateurs</h2>
+        <h2>{% trans "Results among users:" %}</h2>
         {% include "users/aff_users.html" with users_list=users %}
     {% endif%}
     {% if clubs %}
-    <h2>Résultats dans les clubs</h2>
+        <h2>{% trans "Results among clubs:" %}</h2>
         {% include "users/aff_clubs.html" with clubs_list=clubs %}
     {% endif%}
     {% if machines %}
-    <h2>Résultats dans les machines : </h2>
+        <h2>{% trans "Results among machines:" %}</h2>
         {% include "machines/aff_machines.html" with machines_list=machines %}
     {% endif %}
     {% if factures %}
-    <h2>Résultats dans les factures : </h2>
+        <h2>{% trans "Results among invoices:" %}</h2>
         {% include "cotisations/aff_cotisations.html" with facture_list=factures %}
     {% endif %}
     {% if whitelists %}
-    <h2>Résultats dans les accès à titre gracieux : </h2>
+        <h2>{% trans "Results among whitelists:" %}</h2>
         {% include "users/aff_whitelists.html" with white_list=whitelists %}
     {% endif %}
     {% if bans %}
-    <h2>Résultats dans les banissements : </h2>
+        <h2>{% trans "Results among bans:" %}</h2>
         {% include "users/aff_bans.html" with ban_list=bans %}
     {% endif %}
     {% if rooms %}
-    <h2>Résultats dans les chambres : </h2>
+        <h2>{% trans "Results among rooms:" %}</h2>
         {% include "topologie/aff_chambres.html" with room_list=rooms %}
     {% endif %}
     {% if ports %}
-    <h2>Résultats dans les ports : </h2>
+        <h2>{% trans "Results among ports" %}</h2>
         {% include "topologie/aff_port.html" with port_list=ports %}
     {% endif %}
     {% if switches %}
-    <h2>Résultats dans les switchs : </h2>
+        <h2>{% trans "Results among switches" %}</h2>
         {% include "topologie/aff_switch.html" with switch_list=switches %}
     {% endif %}
     {% if not users and not machines and not factures and not whitelists and not bans and not rooms and not ports and not switches %}
-        <h3>Aucun résultat</h3>
+        <h3>{% trans "No result" %}</h3>
     {% else %}
-        <h6>(Seulement les {{ max_result }} premiers résultats sont affichés dans chaque catégorie)</h6>
+        <h6>{% blocktrans %}(Only the first {{ max_result }} results are displayed in each category){% endblocktrans %}</h6>
     {% endif %}
     <br />
     <br />
     <br />
 {% endblock %}
+

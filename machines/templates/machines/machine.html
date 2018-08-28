@@ -26,8 +26,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
+{% load i18n %}
 
-{% block title %}Création et modification de machines{% endblock %}
+{% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
 {% if machineform %}
@@ -72,6 +73,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if sshfpform %}
     {% bootstrap_form_errors sshfpform %}
 {% endif %}
+{% if roleform %}
+    {% bootstrap_form_errors roleform %}
+{% endif %}
 {% if vlanform %}
     {% bootstrap_form_errors vlanform %}
 {% endif %}
@@ -85,11 +89,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% if machineform %}
-        <h3>Machine</h3>
+    	<h3>{% trans "Machine" %}</h3>
         {% massive_bootstrap_form machineform 'user' %}
     {% endif %}
     {% if interfaceform %}
-        <h3>Interface</h3>
+    	<h3>{% trans "Interface" %}</h3>
         {% if i_mbf_param %}
             {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
         {% else %}
@@ -97,67 +101,71 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
     {% endif %}
     {% if domainform %}
-        <h3>Domaine</h3>
+    	<h3>{% trans "Domain" %}</h3>
         {% bootstrap_form domainform %}
     {% endif %}
     {% if iptypeform %}
-        <h3>Type d'IP</h3>
+    	<h3>{% trans "IP type" %}</h3>
         {% bootstrap_form iptypeform %}
     {% endif %}
     {% if machinetypeform %}
-        <h3>Type de machine</h3>
+    	<h3>{% trans "Machine type" %}</h3>
         {% bootstrap_form machinetypeform %}
     {% endif %}
     {% if extensionform %}
-        <h3>Extension</h3>
+    	<h3>{% trans "Extension" %}</h3>
         {% massive_bootstrap_form extensionform 'origin' %}
     {% endif %}
     {% if soaform %}
-        <h3>Enregistrement SOA</h3>
+    	<h3>{% trans "SOA record" %}</h3>
         {% bootstrap_form soaform %}
     {% endif %}
     {% if mxform %}
-        <h3>Enregistrement MX</h3>
+    	<h3>{% trans "MX record" %}</h3>
         {% massive_bootstrap_form mxform 'name' %}
     {% endif %}
     {% if nsform %}
-        <h3>Enregistrement NS</h3>
+    	<h3>{% trans "NS record" %}</h3>
         {% massive_bootstrap_form nsform 'ns' %}
     {% endif %}
     {% if txtform %}
-        <h3>Enregistrement TXT</h3>
+    	<h3>{% trans "TXT record" %}</h3>
         {% bootstrap_form txtform %}
     {% endif %}
     {% if dnameform %}
-        <h3>DNAME record</h3>
+        <h3>{% trans "DNAME record" %}</h3>
         {% bootstrap_form dnameform %}
     {% endif %}
     {% if srvform %}
-        <h3>Enregistrement SRV</h3>
+    	<h3>{% trans "SRV record" %}</h3>
         {% massive_bootstrap_form srvform 'target'  %}
     {% endif %}
     {% if sshfpform %}
-        <h3>SSHFP record</h3>
+        <h3>{% trans "SSHFP record" %}</h3>
         {% bootstrap_form sshfpform %}
     {% endif %}
     {% if aliasform %}
-        <h3>Alias</h3>
+    	<h3>{% trans "Alias" %}</h3>
         {% bootstrap_form aliasform %}
     {% endif %}
     {% if serviceform %}
-        <h3>Service</h3>
+    	<h3>{% trans "Service" %}</h3>
         {% massive_bootstrap_form serviceform 'servers' %}
     {% endif %}
+    {% if roleform %}
+        <h3>Role</h3>
+        {% massive_bootstrap_form roleform 'servers' %}
+    {% endif %}
     {% if vlanform %}
-        <h3>Vlan</h3>
+    	<h3>{% trans "VLAN" %}</h3>
         {% bootstrap_form vlanform %}
     {% endif %}
     {% if nasform %}
-        <h3>NAS</h3>
+    	<h3>{% trans "NAS device" %}</h3>
         {% bootstrap_form nasform %}
     {% endif %}
     {% if ipv6form %}
-        <h3>Ipv6</h3>
+    	<h3>{% trans "IPv6 address" %}</h3>
         {% bootstrap_form ipv6form %}
     {% endif %}
     {% bootstrap_button action_name button_type="submit" icon="star" %}
@@ -166,3 +174,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <br />
   <br />
 {% endblock %}
+

@@ -58,7 +58,15 @@ from re2o.acl import (
     can_change,
 )
 from preferences.models import AssoOption, GeneralOption
-from .models import Facture, Article, Vente, Paiement, Banque
+from .models import (
+    Facture,
+    Article,
+    Vente,
+    Paiement,
+    Banque,
+    CustomInvoice,
+    BaseInvoice
+)
 from .forms import (
     FactureForm,
     ArticleForm,
@@ -67,14 +75,13 @@ from .forms import (
     DelPaiementForm,
     BanqueForm,
     DelBanqueForm,
-    NewFactureFormPdf,
-    SelectUserArticleForm,
-    SelectClubArticleForm,
-    RechargeForm
+    SelectArticleForm,
+    RechargeForm,
+    CustomInvoiceForm
 )
 from .tex import render_invoice
 from .payment_methods.forms import payment_method_factory
-from .utils import find_payment_method
+from .utils import find_payment_method, send_mail_invoice
 
 
 @login_required
@@ -102,16 +109,10 @@ def new_facture(request, user, userid):
         creation=True
     )
 
-    if request.user.is_class_club:
-        article_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
-    else:
-        article_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
+    article_formset = formset_factory(SelectArticleForm)(
+        request.POST or None,
+        form_kwargs={'user': request.user, 'target_user': user}
+    )
 
     if invoice_form.is_valid() and article_formset.is_valid():
         new_invoice_instance = invoice_form.save(commit=False)
@@ -147,6 +148,8 @@ def new_facture(request, user, userid):
                     p.facture = new_invoice_instance
                     p.save()
 
+                send_mail_invoice(new_invoice_instance)
+
                 return new_invoice_instance.paiement.end_payment(
                     new_invoice_instance,
                     request
@@ -161,6 +164,7 @@ def new_facture(request, user, userid):
         balance = user.solde
     else:
         balance = None
+
     return form(
         {
             'factureform': invoice_form,
@@ -175,10 +179,10 @@ def new_facture(request, user, userid):
 
 # TODO : change facture to invoice
 @login_required
-@can_change(Facture, 'pdf')
-def new_facture_pdf(request):
+@can_create(CustomInvoice)
+def new_custom_invoice(request):
     """
-    View used to generate a custom PDF invoice. It's mainly used to
+    View used to generate a custom invoice. It's mainly used to
     get invoices that are not taken into account, for the administrative
     point of view.
     """
@@ -187,56 +191,39 @@ def new_facture_pdf(request):
         Q(type_user='All') | Q(type_user=request.user.class_name)
     )
     # Building the invocie form and the article formset
-    invoice_form = NewFactureFormPdf(request.POST or None)
-    if request.user.is_class_club:
-        articles_formset = formset_factory(SelectClubArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
-    else:
-        articles_formset = formset_factory(SelectUserArticleForm)(
-            request.POST or None,
-            form_kwargs={'user': request.user}
-        )
-    if invoice_form.is_valid() and articles_formset.is_valid():
-        # Get the article list and build an list out of it
-        # contiaining (article_name, article_price, quantity, total_price)
-        articles_info = []
-        for articles_form in articles_formset:
-            if articles_form.cleaned_data:
-                article = articles_form.cleaned_data['article']
-                quantity = articles_form.cleaned_data['quantity']
-                articles_info.append({
-                    'name': article.name,
-                    'price': article.prix,
-                    'quantity': quantity,
-                    'total_price': article.prix * quantity
-                })
-        paid = invoice_form.cleaned_data['paid']
-        recipient = invoice_form.cleaned_data['dest']
-        address = invoice_form.cleaned_data['chambre']
-        total_price = sum(a['total_price'] for a in articles_info)
+    invoice_form = CustomInvoiceForm(request.POST or None)
 
-        return render_invoice(request, {
-            'DATE': timezone.now(),
-            'recipient_name': recipient,
-            'address': address,
-            'article': articles_info,
-            'total': total_price,
-            'paid': paid,
-            'asso_name': AssoOption.get_cached_value('name'),
-            'line1': AssoOption.get_cached_value('adresse1'),
-            'line2': AssoOption.get_cached_value('adresse2'),
-            'siret': AssoOption.get_cached_value('siret'),
-            'email': AssoOption.get_cached_value('contact'),
-            'phone': AssoOption.get_cached_value('telephone'),
-            'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
-        })
+    article_formset = formset_factory(SelectArticleForm)(
+        request.POST or None,
+        form_kwargs={'user': request.user, 'target_user': user}
+    )
+
+    if invoice_form.is_valid() and articles_formset.is_valid():
+        new_invoice_instance = invoice_form.save()
+        for art_item in articles_formset:
+            if art_item.cleaned_data:
+                article = art_item.cleaned_data['article']
+                quantity = art_item.cleaned_data['quantity']
+                Vente.objects.create(
+                    facture=new_invoice_instance,
+                    name=article.name,
+                    prix=article.prix,
+                    type_cotisation=article.type_cotisation,
+                    duration=article.duration,
+                    number=quantity
+                )
+        messages.success(
+            request,
+            _("The custom invoice was created.")
+        )
+        return redirect(reverse('cotisations:index-custom-invoice'))
+
+
     return form({
         'factureform': invoice_form,
         'action_name': _("Create"),
         'articlesformset': articles_formset,
-        'articles': articles
+        'articlelist': articles
     }, 'cotisations/facture.html', request)
 
 
@@ -289,7 +276,7 @@ def facture_pdf(request, facture, **_kwargs):
 def edit_facture(request, facture, **_kwargs):
     """
     View used to edit an existing invoice.
-    Articles can be added or remove to the invoice and quantity
+    Articles can be added or removed to the invoice and quantity
     can be set as desired. This is also the view used to invalidate
     an invoice.
     """
@@ -315,7 +302,7 @@ def edit_facture(request, facture, **_kwargs):
         purchase_form.save()
         messages.success(
             request,
-            _("The invoice has been successfully edited.")
+            _("The invoice was edited.")
         )
         return redirect(reverse('cotisations:index'))
     return form({
@@ -335,11 +322,105 @@ def del_facture(request, facture, **_kwargs):
         facture.delete()
         messages.success(
             request,
-            _("The invoice has been successfully deleted.")
+            _("The invoice was deleted.")
         )
         return redirect(reverse('cotisations:index'))
     return form({
         'objet': facture,
+        'objet_name': _("Invoice")
+    }, 'cotisations/delete.html', request)
+
+
+@login_required
+@can_edit(CustomInvoice)
+def edit_custom_invoice(request, invoice, **kwargs):
+    # Building the invocie form and the article formset
+    invoice_form = CustomInvoiceForm(
+        request.POST or None,
+        instance=invoice
+    )
+    purchases_objects = Vente.objects.filter(facture=invoice)
+    purchase_form_set = modelformset_factory(
+        Vente,
+        fields=('name', 'number'),
+        extra=0,
+        max_num=len(purchases_objects)
+    )
+    purchase_form = purchase_form_set(
+        request.POST or None,
+        queryset=purchases_objects
+    )
+    if invoice_form.is_valid() and purchase_form.is_valid():
+        if invoice_form.changed_data:
+            invoice_form.save()
+        purchase_form.save()
+        messages.success(
+            request,
+            _("The invoice was edited.")
+        )
+        return redirect(reverse('cotisations:index-custom-invoice'))
+
+    return form({
+        'factureform': invoice_form,
+        'venteform': purchase_form
+    }, 'cotisations/edit_facture.html', request)
+
+
+@login_required
+@can_view(CustomInvoice)
+def custom_invoice_pdf(request, invoice, **_kwargs):
+    """
+    View used to generate a PDF file from  an existing invoice in database
+    Creates a line for each Purchase (thus article sold) and generate the
+    invoice with the total price, the payment method, the address and the
+    legal information for the user.
+    """
+    # TODO : change vente to purchase
+    purchases_objects = Vente.objects.all().filter(facture=invoice)
+    # Get the article list and build an list out of it
+    # contiaining (article_name, article_price, quantity, total_price)
+    purchases_info = []
+    for purchase in purchases_objects:
+        purchases_info.append({
+            'name': purchase.name,
+            'price': purchase.prix,
+            'quantity': purchase.number,
+            'total_price': purchase.prix_total
+        })
+    return render_invoice(request, {
+        'paid': invoice.paid,
+        'fid': invoice.id,
+        'DATE': invoice.date,
+        'recipient_name': invoice.recipient,
+        'address': invoice.address,
+        'article': purchases_info,
+        'total': invoice.prix_total(),
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
+    })
+
+
+# TODO : change facture to invoice
+@login_required
+@can_delete(CustomInvoice)
+def del_custom_invoice(request, invoice, **_kwargs):
+    """
+    View used to delete an existing invocie.
+    """
+    if request.method == "POST":
+        invoice.delete()
+        messages.success(
+            request,
+            _("The invoice was deleted.")
+        )
+        return redirect(reverse('cotisations:index-custom-invoice'))
+    return form({
+        'objet': invoice,
         'objet_name': _("Invoice")
     }, 'cotisations/delete.html', request)
 
@@ -361,7 +442,7 @@ def add_article(request):
         article.save()
         messages.success(
             request,
-            _("The article has been successfully created.")
+            _("The article was created.")
         )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -383,7 +464,7 @@ def edit_article(request, article_instance, **_kwargs):
             article.save()
             messages.success(
                 request,
-                _("The article has been successfully edited.")
+                _("The article was edited.")
             )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -405,7 +486,7 @@ def del_article(request, instances):
         article_del.delete()
         messages.success(
             request,
-            _("The article(s) have been successfully deleted.")
+            _("The articles were deleted.")
         )
         return redirect(reverse('cotisations:index-article'))
     return form({
@@ -433,7 +514,7 @@ def add_paiement(request):
         payment_method.save(payment)
         messages.success(
             request,
-            _("The payment method has been successfully created.")
+            _("The payment method was created.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -469,8 +550,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         if payment_method is not None:
             payment_method.save()
         messages.success(
-            request,
-            _("The payement method has been successfully edited.")
+            request,_("The payment method was edited.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -496,8 +576,7 @@ def del_paiement(request, instances):
                 payment_del.delete()
                 messages.success(
                     request,
-                    _("The payment method %(method_name)s has been \
-                    successfully deleted.") % {
+                    _("The payment method %(method_name)s was deleted.") % {
                         'method_name': payment_del
                     }
                 )
@@ -529,7 +608,7 @@ def add_banque(request):
         bank.save()
         messages.success(
             request,
-            _("The bank has been successfully created.")
+            _("The bank was created.")
         )
         return redirect(reverse('cotisations:index-banque'))
     return form({
@@ -552,7 +631,7 @@ def edit_banque(request, banque_instance, **_kwargs):
             bank.save()
             messages.success(
                 request,
-                _("The bank has been successfully edited")
+                _("The bank was edited.")
             )
         return redirect(reverse('cotisations:index-banque'))
     return form({
@@ -577,8 +656,7 @@ def del_banque(request, instances):
                 bank_del.delete()
                 messages.success(
                     request,
-                    _("The bank %(bank_name)s has been successfully \
-                    deleted.") % {
+                    _("The bank %(bank_name)s was deleted.") % {
                         'bank_name': bank_del
                     }
                 )
@@ -679,7 +757,30 @@ def index_banque(request):
 
 
 @login_required
+@can_view_all(CustomInvoice)
+def index_custom_invoice(request):
+    """View used to display every custom invoice."""
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    custom_invoice_list = CustomInvoice.objects.prefetch_related('vente_set')
+    custom_invoice_list = SortTable.sort(
+        custom_invoice_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_CUSTOM
+    )
+    custom_invoice_list = re2o_paginator(
+        request,
+        custom_invoice_list,
+        pagination_number,
+    )
+    return render(request, 'cotisations/index_custom_invoice.html', {
+        'custom_invoice_list': custom_invoice_list
+    })
+
+
+@login_required
 @can_view_all(Facture)
+@can_view_all(CustomInvoice)
 def index(request):
     """
     View used to display the list of all exisitng invoices.
@@ -695,7 +796,7 @@ def index(request):
     )
     invoice_list = re2o_paginator(request, invoice_list, pagination_number)
     return render(request, 'cotisations/index.html', {
-        'facture_list': invoice_list
+        'facture_list': invoice_list,
     })
 
 
@@ -726,7 +827,7 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(request.POST or None, user=request.user)
+    refill_form = RechargeForm(request.POST or None, user=user, user_source=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
@@ -746,12 +847,16 @@ def credit_solde(request, user, **_kwargs):
                 prix=refill_form.cleaned_data['value'],
                 number=1
             )
+
+            send_mail_invoice(invoice)
+
             return invoice.paiement.end_payment(invoice, request)
     p = get_object_or_404(Paiement, is_balance=True)
     return form({
         'factureform': refill_form,
-        'balance': request.user.solde,
+        'balance': user.solde,
         'title': _("Refill your balance"),
         'action_name': _("Pay"),
         'max_balance': p.payment_method.maximum_balance,
     }, 'cotisations/facture.html', request)
+

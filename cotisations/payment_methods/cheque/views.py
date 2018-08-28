@@ -44,7 +44,7 @@ def cheque(request, invoice_pk):
     if invoice.valid or not isinstance(payment_method, ChequePayment):
         messages.error(
             request,
-            _("You cannot pay this invoice with a cheque.")
+            _("You can't pay this invoice with a cheque.")
         )
         return redirect(reverse(
             'users:profil',
@@ -67,3 +67,4 @@ def cheque(request, invoice_pk):
             'amount': invoice.prix_total()
         }
     )
+

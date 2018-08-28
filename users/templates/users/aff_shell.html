@@ -21,28 +21,31 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+
+{% load i18n %}
 {% load acl %}
 {% load logs_extra %}
+
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Shell</th>
+            <th>{% trans "Shell" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for shell in shell_list %}
-    <tr>
-        <td>{{ shell.shell }}</td>
-        <td class="text-right">
-            {% can_delete shell %}
-            {% include 'buttons/suppr.html' with href='users:del-shell' id=shell.id %}
-            {% acl_end %}
-            {% can_edit shell %}
-            {% include 'buttons/edit.html' with href='users:edit-shell' id=shell.id %}
-            {% acl_end %}
-            {% history_button shell %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ shell.shell }}</td>
+            <td class="text-right">
+                {% can_delete shell %}
+                {% include 'buttons/suppr.html' with href='users:del-shell' id=shell.id %}
+                {% acl_end %}
+                {% history_button shell %}
+                {% can_edit shell %}
+                {% include 'buttons/edit.html' with href='users:edit-shell' id=shell.id %}
+                {% acl_end %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
 

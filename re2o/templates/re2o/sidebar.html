@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load i18n %}
 
 {% block sidebar %}
 
@@ -43,10 +44,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 
 {% if twitter_url %}
-<a class="twitter-timeline" data-lang="fr" data-height="500" href="{{ twitter_url }}?ref_src=twsrc%5Etfw">Tweets de @{{ twitter_account_name }}</a>
+<a class="twitter-timeline" data-lang="fr" data-height="500" href="{{ twitter_url }}?ref_src=twsrc%5Etfw">{% blocktrans %}Tweets from @{{ twitter_account_name }}{% endblocktrans %}</a>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-<a href="{{ twitter_url }}?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false"> Suivre @{{ twitter_account_name }}</a>
+<a href="{{ twitter_url }}?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">{% blocktrans %}Follow @{{ twitter_account_name }}{% endblocktrans %}</a>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endif %}
 

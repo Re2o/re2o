@@ -46,6 +46,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Auth definition
 PASSWORD_HASHERS = (
     're2o.login.SSHAPasswordHasher',
+    're2o.login.MD5PasswordHasher',
+    're2o.login.CryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 AUTH_USER_MODEL = 'users.User'  # The class to use for authentication
@@ -94,6 +96,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
 )
+
+AUTHENTICATION_BACKENDS = ['re2o.login.RecryptBackend']
+
 # Include debug_toolbar middleware if activated
 if 'debug_toolbar' in INSTALLED_APPS:
     # Include this middleware at the beggining
@@ -177,7 +182,7 @@ STATIC_URL = '/static/'
 # Directory where the media files served by the server are stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 # The URL to access the static files
-MEDIA_URL = '/media/'
+MEDIA_URL = os.path.join(BASE_DIR,'/media/')
 
 # Models to use for graphs
 GRAPH_MODELS = {

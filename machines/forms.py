@@ -37,6 +37,7 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
@@ -53,6 +54,7 @@ from .models import (
     Txt,
     DName,
     Ns,
+    Role,
     Service,
     Vlan,
     Srv,
@@ -73,7 +75,7 @@ class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditMachineForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = 'Nom de la machine'
+        self.fields['name'].label = _("Machine name")
 
 
 class NewMachineForm(EditMachineForm):
@@ -92,12 +94,11 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         user = kwargs.get('user')
         super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['mac_address'].label = 'Adresse mac'
-        self.fields['type'].label = 'Type de machine'
-        self.fields['type'].empty_label = "Séléctionner un type de machine"
+        self.fields['mac_address'].label = _("MAC address")
+        self.fields['type'].label = _("Machine type")
+        self.fields['type'].empty_label = _("Select a machine type")
         if "ipv4" in self.fields:
-            self.fields['ipv4'].empty_label = ("Assignation automatique de "
-                                               "l'ipv4")
+            self.fields['ipv4'].empty_label = _("Automatic IPv4 assignment")
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
@@ -168,7 +169,7 @@ class DelAliasForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs objets alias"""
     alias = forms.ModelMultipleChoiceField(
         queryset=Domain.objects.all(),
-        label="Alias actuels",
+        label=_("Current aliases"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -189,15 +190,15 @@ class MachineTypeForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MachineTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['type'].label = 'Type de machine à ajouter'
-        self.fields['ip_type'].label = "Type d'ip relié"
+        self.fields['type'].label = _("Machine type to add")
+        self.fields['ip_type'].label = _("Related IP type")
 
 
 class DelMachineTypeForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs machinetype"""
     machinetypes = forms.ModelMultipleChoiceField(
         queryset=MachineType.objects.none(),
-        label="Types de machines actuelles",
+        label=_("Current machine types"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -215,20 +216,21 @@ class IpTypeForm(FormRevMixin, ModelForm):
     stop après creation"""
     class Meta:
         model = IpType
-        fields = ['type', 'extension', 'need_infra', 'domaine_ip_start',
-                  'domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports']
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(IpTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['type'].label = 'Type ip à ajouter'
+        self.fields['type'].label = _("IP type to add")
 
 
 class EditIpTypeForm(IpTypeForm):
     """Edition d'un iptype. Pas d'edition du rangev4 possible, car il faudrait
     synchroniser les objets iplist"""
     class Meta(IpTypeForm.Meta):
-        fields = ['extension', 'type', 'need_infra', 'prefix_v6', 'vlan',
+        fields = ['extension', 'type', 'need_infra', 'domaine_ip_network', 'domaine_ip_netmask',
+                  'prefix_v6', 'prefix_v6_length',
+                  'vlan', 'reverse_v4', 'reverse_v6',
                   'ouverture_ports']
 
 
@@ -236,7 +238,7 @@ class DelIpTypeForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs iptype"""
     iptypes = forms.ModelMultipleChoiceField(
         queryset=IpType.objects.none(),
-        label="Types d'ip actuelles",
+        label=_("Current IP types"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -258,17 +260,17 @@ class ExtensionForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ExtensionForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = 'Extension à ajouter'
-        self.fields['origin'].label = 'Enregistrement A origin'
-        self.fields['origin_v6'].label = 'Enregistrement AAAA origin'
-        self.fields['soa'].label = 'En-tête SOA à utiliser'
+        self.fields['name'].label = _("Extension to add")
+        self.fields['origin'].label = _("A record origin")
+        self.fields['origin_v6'].label = _("AAAA record origin")
+        self.fields['soa'].label = _("SOA record to use")
 
 
 class DelExtensionForm(FormRevMixin, Form):
     """Suppression d'une ou plusieurs extensions"""
     extensions = forms.ModelMultipleChoiceField(
         queryset=Extension.objects.none(),
-        label="Extensions actuelles",
+        label=_("Current extensions"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -307,7 +309,7 @@ class DelSOAForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs SOA"""
     soa = forms.ModelMultipleChoiceField(
         queryset=SOA.objects.none(),
-        label="SOA actuels",
+        label=_("Current SOA records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -338,7 +340,7 @@ class DelMxForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs MX"""
     mx = forms.ModelMultipleChoiceField(
         queryset=Mx.objects.none(),
-        label="MX actuels",
+        label=_("Current MX records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -371,7 +373,7 @@ class DelNsForm(FormRevMixin, Form):
     """Suppresion d'un ou plusieurs NS"""
     ns = forms.ModelMultipleChoiceField(
         queryset=Ns.objects.none(),
-        label="Enregistrements NS actuels",
+        label=_("Current NS records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -399,7 +401,7 @@ class DelTxtForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs TXT"""
     txt = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.none(),
-        label="Enregistrements Txt actuels",
+        label=_("Current TXT records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -427,7 +429,7 @@ class DelDNameForm(FormRevMixin, Form):
     """Delete a set of DNAME entries"""
     dnames = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.none(),
-        label="Existing DNAME entries",
+        label=_("Current DNAME records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -455,7 +457,7 @@ class DelSrvForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs Srv"""
     srv = forms.ModelMultipleChoiceField(
         queryset=Srv.objects.none(),
-        label="Enregistrements Srv actuels",
+        label=_("Current SRV records"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -484,7 +486,7 @@ class DelNasForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs nas"""
     nas = forms.ModelMultipleChoiceField(
         queryset=Nas.objects.none(),
-        label="Enregistrements Nas actuels",
+        label=_("Current NAS devices"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -495,6 +497,38 @@ class DelNasForm(FormRevMixin, Form):
             self.fields['nas'].queryset = instances
         else:
             self.fields['nas'].queryset = Nas.objects.all()
+
+
+class RoleForm(FormRevMixin, ModelForm):
+    """Add and edit role."""
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RoleForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['servers'].queryset = (Interface.objects.all()
+                                           .select_related(
+                                               'domain__extension'
+                                           ))
+
+
+class DelRoleForm(FormRevMixin, Form):
+    """Deletion of one or several roles."""
+    role = forms.ModelMultipleChoiceField(
+        queryset=Role.objects.none(),
+        label=_("Current roles"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelRoleForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['role'].queryset = instances
+        else:
+            self.fields['role'].queryset = Role.objects.all()
 
 
 class ServiceForm(FormRevMixin, ModelForm):
@@ -525,7 +559,7 @@ class DelServiceForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs service"""
     service = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),
-        label="Services actuels",
+        label=_("Current services"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -553,7 +587,7 @@ class DelVlanForm(FormRevMixin, Form):
     """Suppression d'un ou plusieurs vlans"""
     vlan = forms.ModelMultipleChoiceField(
         queryset=Vlan.objects.none(),
-        label="Vlan actuels",
+        label=_("Current VLANs"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -611,3 +645,4 @@ class SshFpForm(FormRevMixin, ModelForm):
             prefix=prefix,
             **kwargs
         )
+

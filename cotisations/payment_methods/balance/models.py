@@ -21,8 +21,7 @@
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
 
@@ -36,7 +35,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     """
 
     class Meta:
-        verbose_name = _l("User Balance")
+        verbose_name = _("user balance")
 
     payment = models.OneToOneField(
         Paiement,
@@ -45,8 +44,8 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         editable=False
     )
     minimum_balance = models.DecimalField(
-        verbose_name=_l("Minimum balance"),
-        help_text=_l("The minimal amount of money allowed for the balance"
+        verbose_name=_("Minimum balance"),
+        help_text=_("The minimal amount of money allowed for the balance"
                      " at the end of a payment. You can specify negative "
                      "amount."
                      ),
@@ -55,8 +54,8 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         default=0,
     )
     maximum_balance = models.DecimalField(
-        verbose_name=_l("Maximum balance"),
-        help_text=_l("The maximal amount of money allowed for the balance."),
+        verbose_name=_("Maximum balance"),
+        help_text=_("The maximal amount of money allowed for the balance."),
         max_digits=5,
         decimal_places=2,
         default=50,
@@ -64,7 +63,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         null=True,
     )
     credit_balance_allowed = models.BooleanField(
-        verbose_name=_l("Allow user to credit their balance"),
+        verbose_name=_("Allow user to credit their balance"),
         default=False,
     )
 
@@ -97,7 +96,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         if len(p) > 0:
             form.add_error(
                 'payment_method',
-                _("There is already a payment type for user balance")
+                _("There is already a payment method for user balance.")
             )
 
     def alter_payment(self, payment):
@@ -118,3 +117,4 @@ class BalancePayment(PaymentMethodMixin, models.Model):
             len(Paiement.find_allowed_payments(user_request)
                 .exclude(is_balance=True)) > 0
         ) and self.credit_balance_allowed
+

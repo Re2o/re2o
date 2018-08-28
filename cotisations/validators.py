@@ -17,5 +17,6 @@ def check_no_balance(is_balance):
     p = Paiement.objects.filter(is_balance=True)
     if len(p) > 0:
         raise ValidationError(
-            _("There are already payment method(s) for user balance")
+            _("There is already a payment method for user balance.")
         )
+

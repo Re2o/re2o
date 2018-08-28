@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
 from django import forms
-
+from django.utils.translation import ugettext_lazy as _
 from re2o.mixins import FormRevMixin
 from .models import (
     OptionalUser,
@@ -56,9 +56,13 @@ class EditOptionalUserForm(ModelForm):
             **kwargs
         )
         self.fields['is_tel_mandatory'].label = (
-            'Exiger un numéro de téléphone'
+            _("Telephone number required")
         )
-        self.fields['self_adhesion'].label = 'Auto inscription'
+        self.fields['gpg_fingerprint'].label = _("GPG fingerprint")
+        self.fields['all_can_create_club'].label = _("All can create a club")
+        self.fields['all_can_create_adherent'].label = _("All can create a member")
+        self.fields['self_adhesion'].label = _("Self registration")
+        self.fields['shell_default'].label = _("Default shell")
 
 
 class EditOptionalMachineForm(ModelForm):
@@ -74,12 +78,17 @@ class EditOptionalMachineForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['password_machine'].label = "Possibilité d'attribuer\
-        un mot de passe par interface"
-        self.fields['max_lambdauser_interfaces'].label = "Maximum\
-        d'interfaces autorisées pour un user normal"
-        self.fields['max_lambdauser_aliases'].label = "Maximum d'alias\
-        dns autorisés pour un user normal"
+        self.fields['password_machine'].label = _("Possibility to set a"
+                                                  " password per machine")
+        self.fields['max_lambdauser_interfaces'].label = _("Maximum number of"
+                                                           " interfaces"
+                                                           " allowed for a"
+                                                           " standard user")
+        self.fields['max_lambdauser_aliases'].label = _("Maximum number of DNS"
+                                                        " aliases allowed for"
+                                                        " a standard user")
+        self.fields['ipv6_mode'].label = _("IPv6 mode")
+        self.fields['create_machine'].label = _("Can create a machine")
 
 
 class EditOptionalTopologieForm(ModelForm):
@@ -95,10 +104,11 @@ class EditOptionalTopologieForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['vlan_decision_ok'].label = "Vlan où placer les\
-        machines après acceptation RADIUS"
-        self.fields['vlan_decision_nok'].label = "Vlan où placer les\
-        machines après rejet RADIUS"
+        self.fields['radius_general_policy'].label = _("RADIUS general policy")
+        self.fields['vlan_decision_ok'].label = _("VLAN for machines accepted"
+                                                  " by RADIUS")
+        self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
+                                                   " by RADIUS")
 
 
 class EditGeneralOptionForm(ModelForm):
@@ -114,18 +124,26 @@ class EditGeneralOptionForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['search_display_page'].label = 'Resultats\
-        affichés dans une recherche'
-        self.fields['pagination_number'].label = 'Items par page,\
-        taille normale (ex users)'
-        self.fields['pagination_large_number'].label = 'Items par page,\
-        taille élevée (machines)'
-        self.fields['req_expire_hrs'].label = 'Temps avant expiration du lien\
-        de reinitialisation de mot de passe (en heures)'
-        self.fields['site_name'].label = 'Nom du site web'
-        self.fields['email_from'].label = "Adresse mail d\
-        'expedition automatique"
-        self.fields['GTU_sum_up'].label = "Résumé des CGU"
+        self.fields['general_message_fr'].label = _("General message in French")
+        self.fields['general_message_en'].label = _("General message in English")
+        self.fields['search_display_page'].label = _("Number of results"
+                                                     " displayed when"
+                                                     " searching")
+        self.fields['pagination_number'].label = _("Number of items per page,"
+                                                   " standard size (e.g."
+                                                   " users)")
+        self.fields['pagination_large_number'].label = _("Number of items per"
+                                                         " page, large size"
+                                                         " (e.g. machines)")
+        self.fields['req_expire_hrs'].label = _("Time before expiration of the"
+                                                " reset password link (in"
+                                                " hours)")
+        self.fields['site_name'].label = _("Website name")
+        self.fields['email_from'].label = _("Email address for automatic"
+                                            " emailing")
+        self.fields['GTU_sum_up'].label = _("Summary of the General Terms of"
+                                            " Use")
+        self.fields['GTU'].label = _("General Terms of Use")
 
 
 class EditAssoOptionForm(ModelForm):
@@ -141,33 +159,16 @@ class EditAssoOptionForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['name'].label = 'Nom de l\'asso'
-        self.fields['siret'].label = 'SIRET'
-        self.fields['adresse1'].label = 'Adresse (ligne 1)'
-        self.fields['adresse2'].label = 'Adresse (ligne 2)'
-        self.fields['contact'].label = 'Email de contact'
-        self.fields['telephone'].label = 'Numéro de téléphone'
-        self.fields['pseudo'].label = 'Pseudo d\'usage'
-        self.fields['utilisateur_asso'].label = 'Compte utilisé pour\
-        faire les modifications depuis /admin'
-
-    def clean(self):
-        cleaned_data = super().clean()
-        payment = cleaned_data.get('payment')
-
-        if payment == 'NONE':
-            return cleaned_data
-
-        if not cleaned_data.get('payment_id', ''):
-            msg = forms.ValidationError("Vous devez spécifier un identifiant \
-                                        de paiement.")
-            self.add_error('payment_id', msg)
-        if not cleaned_data.get('payment_pass', ''):
-            msg = forms.ValidationError("Vous devez spécifier un mot de passe \
-                                        de paiement.")
-            self.add_error('payment_pass', msg)
-
-        return cleaned_data
+        self.fields['name'].label = _("Organisation name")
+        self.fields['siret'].label = _("SIRET number")
+        self.fields['adresse1'].label = _("Address (line 1)")
+        self.fields['adresse2'].label = _("Address (line 2)")
+        self.fields['contact'].label = _("Contact email address")
+        self.fields['telephone'].label = _("Telephone number")
+        self.fields['pseudo'].label = _("Usual name")
+        self.fields['utilisateur_asso'].label = _("Account used for editing"
+                                                  " from /admin")
+        self.fields['description'].label = _("Description")
 
 
 class EditMailMessageOptionForm(ModelForm):
@@ -183,10 +184,10 @@ class EditMailMessageOptionForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['welcome_mail_fr'].label = 'Message dans le\
-        mail de bienvenue en français'
-        self.fields['welcome_mail_en'].label = 'Message dans le\
-        mail de bienvenue en anglais'
+        self.fields['welcome_mail_fr'].label = _("Message for the French"
+                                                 " welcome email")
+        self.fields['welcome_mail_en'].label = _("Message for the English"
+                                                 " welcome email")
 
 
 class EditHomeOptionForm(ModelForm):
@@ -202,6 +203,9 @@ class EditHomeOptionForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
+        self.fields['facebook_url'].label = _("Facebook URL")
+        self.fields['twitter_url'].label = _("Twitter URL")
+        self.fields['twitter_account_name'].label = _("Twitter account name")
 
 
 class ServiceForm(ModelForm):
@@ -213,13 +217,17 @@ class ServiceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields['name'].label = _("Name")
+        self.fields['url'].label = _("URL")
+        self.fields['description'].label = _("Description")
+        self.fields['image'].label = _("Image")
 
 
 class DelServiceForm(Form):
     """Suppression de services sur la page d'accueil"""
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),
-        label="Enregistrements service actuels",
+        label=_("Current services"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -257,3 +265,4 @@ class DelMailContactForm(Form):
             self.fields['mailcontacts'].queryset = instances
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
+

@@ -24,28 +24,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Zone concernée</th>
-            <th>Interface autoritaire de la zone</th>
-            <th></th>
+            <th>{% trans "Concerned zone" %}</th>
+            <th>{% trans "Authoritarian interface for the concerned zone" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for ns in ns_list %}
-    <tr>
-        <td>{{ ns.zone }}</td>
-        <td>{{ ns.ns }}</td>
-        <td class="text-right">
-            {% can_edit ns %}
-            {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
-            {% acl_end %}
-            {% history_button ns %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ ns.zone }}</td>
+            <td>{{ ns.ns }}</td>
+            <td class="text-right">
+                {% can_edit ns %}
+                {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
+                {% acl_end %}
+                {% history_button ns %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
-
 

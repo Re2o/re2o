@@ -25,20 +25,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
+{% load i18n %}
 
-{% block title %}Création et modification des préférences{% endblock %}
+{% block title %}{% trans "Preferences" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors options %}
 
-<h3>Edition des préférences</h3>
+<h3>{% trans "Editing of preferences" %}</h3>
 
 <form class="form" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-{% massive_bootstrap_form options 'utilisateur_asso' %}
-{% bootstrap_button "Modifier" button_type="submit" icon="star" %}
+    {% csrf_token %}
+    {% massive_bootstrap_form options 'utilisateur_asso' %}
+    {% trans "Edit" as tr_edit %}
+    {% bootstrap_button tr_edit button_type="submit" icon="star" %}
 </form>
-  <br />
-  <br />
-  <br />
+    <br />
+    <br />
+    <br />
 {% endblock %}
+

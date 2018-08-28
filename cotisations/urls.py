@@ -52,9 +52,29 @@ urlpatterns = [
         name='facture-pdf'
     ),
     url(
-        r'^new_facture_pdf/$',
-        views.new_facture_pdf,
-        name='new-facture-pdf'
+        r'^index_custom_invoice/$',
+        views.index_custom_invoice,
+        name='index-custom-invoice'
+    ),
+    url(
+        r'^new_custom_invoice/$',
+        views.new_custom_invoice,
+        name='new-custom-invoice'
+    ),
+    url(
+        r'^edit_custom_invoice/(?P<custominvoiceid>[0-9]+)$',
+        views.edit_custom_invoice,
+        name='edit-custom-invoice'
+    ),
+    url(
+        r'^custom_invoice_pdf/(?P<custominvoiceid>[0-9]+)$',
+        views.custom_invoice_pdf,
+        name='custom-invoice-pdf',
+    ),
+    url(
+        r'^del_custom_invoice/(?P<custominvoiceid>[0-9]+)$',
+        views.del_custom_invoice,
+        name='del-custom-invoice'
     ),
     url(
         r'^credit_solde/(?P<userid>[0-9]+)$',

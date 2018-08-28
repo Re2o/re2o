@@ -22,17 +22,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load i18n %}
+
  {% if reversions.paginator %}
  <ul class="pagination nav navbar-nav">
     {% if reversions.has_previous %}
-            <li><a href="?page={{ reversions.previous_page_number }}">Suivants</a></li>
+    	<li><a href="?page={{ reversions.previous_page_number }}">{% trans "Next" %}</a></li>
     {% endif %}
     {% for page in reversions.paginator.page_range %}
         <li class="{% if reversions.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
     {% endfor %}
 
     {% if reversions.has_next %}
-        <li> <a href="?page={{ reversions.next_page_number }}">Précédents</a></li>
+    	<li> <a href="?page={{ reversions.next_page_number }}">{% trans "Previous" %}</a></li>
     {% endif %}
  </ul>
  {% endif %}
@@ -40,9 +42,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Effectué par</th>
-            <th>Commentaire</th>
+	    <th>{% trans "Date" %}</th>
+	    <th>{% trans "Performed by" %}</th>
+	    <th>{% trans "Comment" %}</th>
         </tr>
    </thead>
    {% for rev in reversions %}
@@ -53,3 +55,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    </tr>
    {% endfor %}
 </table>
+

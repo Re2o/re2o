@@ -23,25 +23,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 {% load logs_extra %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Alias</th>
+            <th>{% trans "Aliases" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for alias in alias_list %}
-    <tr>
-        <td>{{ alias }}</td>
-        <td class="text-right">
-            {% can_edit alias %}
-            {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
-            {% acl_end %}
-            {% history_button alias %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ alias }}</td>
+            <td class="text-right">
+                {% can_edit alias %}
+                {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
+                {% acl_end %}
+                {% history_button alias %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
 

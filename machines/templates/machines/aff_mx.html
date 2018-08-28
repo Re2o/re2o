@@ -24,30 +24,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Zone concernée</th>
-            <th>Priorité</th>
-            <th>Enregistrement</th>
-            <th></th>
+            <th>{% trans "Concerned zone" %}</th>
+            <th>{% trans "Priority" %}</th>
+            <th>{% trans "Record" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for mx in mx_list %}
-    <tr>
-        <td>{{ mx.zone }}</td>
-        <td>{{ mx.priority }}</td>
-        <td>{{ mx.name }}</td>
-        <td class="text-right">
-            {% can_edit mx %}
-            {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
-            {% acl_end %}
-            {% history_button mx %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ mx.zone }}</td>
+            <td>{{ mx.priority }}</td>
+            <td>{{ mx.name }}</td>
+            <td class="text-right">
+                {% can_edit mx %}
+                {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
+                {% acl_end %}
+                {% history_button mx %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
-
 

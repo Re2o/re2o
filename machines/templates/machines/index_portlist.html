@@ -3,23 +3,24 @@
 {% load bootstrap3 %}
 
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Configuration de ports{% endblock %}
+{% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-  <h2>Liste des configurations de ports</h2>
+<h2>{% trans "List of ports configurations" %}</h2>
   {% can_create OuverturePortList %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}"><i class="fa fa-plus"></i>Ajouter une configuration</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}"><i class="fa fa-plus"></i>{% trans " Add a configuration" %}</a>
   {% acl_end %}
   <table class="table table-striped">
     <thead>
       <tr>
-	<th>Nom</th>
-	<th>TCP (entrée)</th>
-	<th>TCP (sortie)</th>
-	<th>UDP (entrée)</th>
-	<th>UDP (sortie)</th>
-        <th>Machines</th>
+	<th>{% trans "Name" %}</th>
+	<th>{% trans "TCP (input)" %}</th>
+	<th>{% trans "TCP (output)" %}</th>
+	<th>{% trans "UDP (input)" %}</th>
+	<th>{% trans "UDP (output)" %}</th>
+	<th>{% trans "Machines" %}</th>
 	<th></th>
       </tr>
     </thead>
@@ -48,13 +49,13 @@
 	</div>
       {% endif %}
 	<td class="text-right">
-          {% can_delete pl %}
-	  {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
-	  {% acl_end %}
 	  {% can_edit pl %}
 	  {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
 	  {% acl_end %}
-        </td>
+          {% can_delete pl %}
+	  {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
+	  {% acl_end %}
+	</td>
     </tr>
     {%endfor%}
   </table>
@@ -63,3 +64,4 @@
   <br />
 
 {% endblock %}
+

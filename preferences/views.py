@@ -95,14 +95,14 @@ def edit_options(request, section):
     model = getattr(models, section, None)
     form_instance = getattr(forms, 'Edit' + section + 'Form', None)
     if not (model or form_instance):
-        messages.error(request, "Objet  inconnu")
+        messages.error(request, _("Unknown object"))
         return redirect(reverse('preferences:display-options'))
 
     options_instance, _created = model.objects.get_or_create()
     can, msg = options_instance.can_edit(request.user)
     if not can:
-        messages.error(request, msg or "Vous ne pouvez pas éditer cette\
-                   option.")
+        messages.error(request, msg or _("You don't have the right to edit"
+                                         " this option."))
         return redirect(reverse('index'))
     options = form_instance(
         request.POST or None,
@@ -114,11 +114,11 @@ def edit_options(request, section):
             options.save()
             reversion.set_user(request.user)
             reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
+                "Field(s) edited: %s" % ', '.join(
                     field for field in options.changed_data
                 )
             )
-            messages.success(request, "Préférences modifiées")
+            messages.success(request, _("The preferences were edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'options': options},
@@ -136,11 +136,11 @@ def add_service(request):
         with transaction.atomic(), reversion.create_revision():
             service.save()
             reversion.set_user(request.user)
-            reversion.set_comment("Création")
-        messages.success(request, "Ce service a été ajouté")
+            reversion.set_comment("Creation")
+        messages.success(request, _("The service was added."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name': 'Ajouter'},
+        {'preferenceform': service, 'action_name': _("Add a service")},
         'preferences/preferences.html',
         request
         )
@@ -160,14 +160,14 @@ def edit_service(request, service_instance, **_kwargs):
             service.save()
             reversion.set_user(request.user)
             reversion.set_comment(
-                "Champs modifié(s) : %s" % ', '.join(
+                "Field(s) edited: %s" % ', '.join(
                     field for field in service.changed_data
                     )
             )
-        messages.success(request, "Service modifié")
+        messages.success(request, _("The service was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name': 'Editer'},
+        {'preferenceform': service, 'action_name': _("Edit")},
         'preferences/preferences.html',
         request
     )
@@ -185,13 +185,13 @@ def del_service(request, instances):
                 with transaction.atomic(), reversion.create_revision():
                     services_del.delete()
                     reversion.set_user(request.user)
-                messages.success(request, "Le service a été supprimé")
+                messages.success(request, _("The service was deleted."))
             except ProtectedError:
-                messages.error(request, "Erreur le service\
-                suivant %s ne peut être supprimé" % services_del)
+                messages.error(request, _("Error: the service %s can't be"
+                                          " deleted.") % services_del)
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services, 'action_name': 'Supprimer'},
+        {'preferenceform': services, 'action_name': _("Delete")},
         'preferences/preferences.html',
         request
     )
@@ -207,10 +207,11 @@ def add_mailcontact(request):
     )
     if mailcontact.is_valid():
         mailcontact.save()
-        messages.success(request, _("The adress was created."))
+        messages.success(request, _("The contact email address was created."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': mailcontact, 'action_name': 'Ajouter'},
+        {'preferenceform': mailcontact,
+            'action_name': _("Add a contact email address")},
         'preferences/preferences.html',
         request
         )
@@ -227,10 +228,10 @@ def edit_mailcontact(request, mailcontact_instance, **_kwargs):
     )
     if mailcontact.is_valid():
         mailcontact.save()
-        messages.success(request, _("Email adress updated."))
+        messages.success(request, _("The contact email address was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': mailcontact, 'action_name': _('Edit')},
+        {'preferenceform': mailcontact, 'action_name': _("Edit")},
         'preferences/preferences.html',
         request
     )
@@ -248,10 +249,12 @@ def del_mailcontact(request, instances):
         mailcontacts_dels = mailcontacts.cleaned_data['mailcontacts']
         for mailcontacts_del in mailcontacts_dels:
             mailcontacts_del.delete()
-            messages.success(request, _("The email adress was deleted."))
+            messages.success(request,
+                    _("The contact email adress was deleted."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': mailcontacts, 'action_name': _('Delete')},
+        {'preferenceform': mailcontacts, 'action_name': _("Delete")},
         'preferences/preferences.html',
         request
     )
+

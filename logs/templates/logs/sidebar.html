@@ -24,32 +24,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 
 {% block sidebar %}
     {% can_view_app logs %}
     <a class="list-group-item list-group-item-info" href="{% url "logs:index" %}">
         <i class="fa fa-clipboard-list"></i>
-        Résumé
+        {% trans "Summary" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "logs:stats-logs" %}">
         <i class="fa fa-calendar-alt"></i>
-        Évènements
+        {% trans "Events" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "logs:stats-general" %}">
         <i class="fa fa-chart-area"></i>
-        Général
+        {% trans "General" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "logs:stats-models" %}">
         <i class="fa fa-database"></i>
-        Base de données
+        {% trans "Database" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "logs:stats-actions" %}">
         <i class="fa fa-plug"></i>
-        Actions de cablage
+        {% trans "Wiring actions" %}
     </a>
     <a class="list-group-item list-group-item-info" href="{% url "logs:stats-users" %}">
         <i class="fa fa-users"></i>
-        Utilisateurs
+        {% trans "Users" %}
     </a>
     {% acl_end %}
 {% endblock %}
+

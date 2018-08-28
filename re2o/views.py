@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -37,7 +38,6 @@ from django.views.decorators.cache import cache_page
 from preferences.models import (
     Service,
     MailContact,
-    GeneralOption,
     AssoOption,
     HomeOption
 )
@@ -70,7 +70,6 @@ def index(request):
     }, 're2o/index.html', request)
 
 
-@cache_page(7 * 24 * 60 * 60)
 def about_page(request):
     """ The view for the about page.
     Fetch some info about the configuration of the project. If it can't
@@ -132,3 +131,4 @@ def handler500(request):
 def handler404(request):
     """The handler view for a 404 error"""
     return render(request, 'errors/404.html')
+

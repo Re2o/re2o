@@ -39,8 +39,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
         <meta property="og:image:type" content="image/svg"/>
         <meta property="og:image:alt" content="The Re2o logo"/>
-        <meta property="og:description" content="Site de gestion de réseau supporté par FedeRez." />
-        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+    	<meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
+    	<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
         {# Load CSS and JavaScript #}
         {% bootstrap_css %}
         <link href="/static/css/typeaheadjs.css" rel="stylesheet">
@@ -76,28 +76,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar">
                         <ul class="nav navbar-nav">
-                            {% if request.user.is_authenticated %}
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{request.user.pseudo|slice:":15"}} <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
-                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
-                                </ul>
-                            </li>
-                            {% endif %}
                             {% can_view_any_app users machines cotisations %}
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Members" %}<span class="caret"></span></a>
+				    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Users" %}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     {% can_view_app users %}
-                                    <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> {% trans "Manage members" %}</a></li>
-                                    <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> {% trans "Manage clubs" %}</a></li>
+				    <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> {% trans "Manage the users" %}</a></li>
+				    <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> {% trans "Manage the clubs" %}</a></li>
                                     {% acl_end %}                              
                                     {% can_view_app machines %}
-                                    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> {% trans "Manage machines" %}</a></li>
+				    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> {% trans "Manage the machines" %}</a></li>
                                     {% acl_end %}
                                     {% can_view_app cotisations %}
-                                    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> {% trans "Manage cotisations" %}</a></li>
+				    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> {% trans "Manage the subscriptions" %}</a></li>
                                     {% acl_end %}
                                 </ul>
                             </li>
@@ -106,55 +97,66 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sitemap"></i> {% trans "Topology" %}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
-                                    <li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> {% trans "Wi-Fi access points" %}</a></li>
-                                    <li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
+					<li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
+					<li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> {% trans "Access points" %}</a></li>
+					<li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
                                 </ul>
                             </li>
                             {% acl_end %}
                             {% can_view_app logs %}
                             <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> {% trans "Statistics" %}</a></li>
                             {% acl_end %}
-                        </ul>
-                        <ul class="nav navbar-nav navbar-right">
                             {% can_view_app preferences %}
                             <li>
                                 <a href="{% url 'preferences:display-options' %}">
-                                    <i class="fa fa-cogs"></i> {% trans "Preferences" %}
+                                    <i class="fa fa-cogs"></i> {% trans "Administration" %}
                                 </a>
                             </li>
                             {% acl_end %}
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "Info" %}<span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "More information" %}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
                                     <li><a href="{% url 'contact' %}"><i class="fas fa-at"></i> {% trans "Contact" %}</a></li>
                                 </ul>
                             </li>
                             {% if not request.user.is_authenticated %}
-                            {% if var_sa %}
-                            <li>
-                                <a href="{% url 'users:new-user' %}">
-                                    <i class="fa fa-user-plus"></i> {% trans "Sign in" %}
-                                </a>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <a id="toggle_login" href="{% url 'login' %}">
-                                    <i class="fa fa-sign-in-alt"></i> {% trans "Log in" %}
-                                </a>
-                            </li>
+                                {% if var_sa %}
+                                <li>
+                                    <a href="{% url 'users:new-user' %}">
+                                        <i class="fa fa-user-plus"></i> {% trans "Sign up" %}
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a id="toggle_login" href="{% url 'login' %}">
+                                        <i class="fa fa-sign-in-alt"></i> {% trans "Log in" %}
+                                    </a>
+                                </li>
                             {% else %}
-                            <li>
-                                <form action="{% url "search:search"%}" class="navbar-form" role="search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                                            <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
+                            {% can_view_any_app users machines cotisations %}
+                                <li>
+                                    <form action="{% url "search:search"%}" class="navbar-form" role="search">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="{% trans "Search" %}" name="q" id="search-term" {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                                <a href="{% url "search:searchp" %}" class="btn btn-default" role="button"><i class="fa fa-plus"></i></a>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </li>
+			    {% acl_end %}
+                            {% endif %}
+                            {% if request.user.is_authenticated %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{ request.user.pseudo|slice:":15" }} <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
+                                    <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
+                                </ul>
                             </li>
                             {% endif %}
                             <li>
@@ -197,12 +199,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     <td class="text-right">{{ request_user.room }}</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">{% trans "Connexion" %}</th>
+				    <th scope="row">{% trans "Internet access" %}</th>
                                     <td class="text-right">
                                     {% if request_user.has_access %}
                                         <i class="text-success">{% blocktrans with request.user.end_access|date:"d b Y" as date %}Until {{ date }}{% endblocktrans %}</i>
                                     {% else %}
-                                        <i class="text-danger">{% trans "Deactivated" %}</i>
+                                        <i class="text-danger">{% trans "Disabled" %}</i>
                                     {% endif %}
                                     </td>
                                 </tr>
@@ -220,17 +222,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <div class="list-group">
                                 <a class="list-group-item list-group-item-info" role="button"href="{% url "users:mon-profil" %}">
                                     <i class="fa fa-user-circle"></i>
-                                    {% trans "See my profile" %}
+				    {% trans "View my profile" %}
                                 </a>
                             </div>
                             {% else %}
-                            <p>{% trans "You are not logged in" %}</p>
+			    <p>{% trans "You are not logged in." %}</p>
                             {% endif %}
                         </div>
                         {% if request_user.is_authenticated %}
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} machine active{% plural %}{{ nb }} machines active{% endblocktrans %}</h4>
+                                <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} active machine{% plural %}{{ nb }} active machines{% endblocktrans %}</h4>
                             </div>
                             <ul class="list-group">
                             {% for interface in interfaces|slice:":5" %}
@@ -239,7 +241,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% if interfaces|length > 5 %}
                                 <a class="list-group-item list-group-item-info" role="button" href="{% url "users:mon-profil" %}">
                                     <i class="fa fa-plus"></i>
-                                    {% trans "See my machines" %}
+				    {% trans "View my machines" %}
                                 </a>
                             {% endif %}
                             </ul>
@@ -252,9 +254,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <footer class="navbar">
             <div class="containerfluid text-center">
-                <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> - Gabriel Détraz, <a href="https://gitlab.rezometz.org/lhark">Goulven Kermarec</a>, Augustin Lemesle, Maël Kervella, Hugo Levy-Falk</p>
+                <p> <a href="\\{{request.get_host}}/about/">Re2o 2016-2018</a> </p>
             </div>
         </footer>
         {# Read the documentation for more information #}
     </body>
 </html>
+

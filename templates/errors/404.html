@@ -32,11 +32,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
         <meta property="og:image:type" content="image/svg"/>
         <meta property="og:image:alt" content="The Re2o logo"/>
-        <meta property="og:description" content="Site de gestion de réseau supporté par FedeRez." />
+	<meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
 
         <meta charset="utf-8">
         <link rel="shortcut icon" type="image/svg" href="{% static 'images/logo_re2o.svg' %}">
-        <title>404, Page not Found</title>
+	<title>{% trans "404 error: page not found" %}</title>
         <script src="/javascript/jquery/jquery.min.js"></script>
         <script>
 var snake = [{x:0,y:0,vx:1,vy:0}];
@@ -122,7 +122,7 @@ function draw_score(){
     var ctx = document.getElementById('myCanvas').getContext('2d');
     ctx.font = '50px serif';
     ctx.fillStyle = '#2ecc71';
-    ctx.fillText("{% trans "Score :"%} " + score, 10, 60);
+    ctx.fillText("{% trans "Score: " %} " + score, 10, 60);
 }
 
 function draw_lost(){
@@ -217,9 +217,9 @@ a
 </style>
     </head>
     <body>
-        <h1>{% trans "Yup, that's a 404 error."%} <a href="/">{% trans "(Go to a known place)"%}</a></h1>
+        <h1>{% trans "Yup, that's a 404 error." %} <a href="/">{% trans "(Go back to a safe page)" %}</a></h1>
 <canvas id="myCanvas" width="800px" height="300px" style="border:1px solid #d3d3d3;">
-    {%trans "Your browser does not support the HTML5 canvas tag."%}
+    {% trans "Your browser does not support the HTML5 canvas tag." %}
 </canvas>
 
     </body>

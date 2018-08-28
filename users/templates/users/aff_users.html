@@ -21,6 +21,9 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+
+{% load i18n %}
+
 <div class="table-responsive">
     {% if users_list.paginator %}
     {% include "pagination.html" with list=users_list %}
@@ -29,31 +32,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% include "buttons/sort.html" with prefix='user' col="name" text="Prénom" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='user' col="surname" text="Nom" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='user' col="pseudo" text="Pseudo" %}</th>
-                <th>{% include "buttons/sort.html" with prefix='user' col="room" text="Chambre" %}</th>
-                <th>Fin de cotisation le</th>
-                <th>Connexion</th>
-                <th>Profil</th>
+                {% trans "Firt name" as tr_name %}
+                <th>{% include "buttons/sort.html" with prefix='user' col="name" text=tr_name %}</th>
+                {% trans "Surname" as tr_surname %}
+                <th>{% include "buttons/sort.html" with prefix='user' col="surname" text=tr_surname %}</th>
+                {% trans "Username" as tr_username %}
+                <th>{% include "buttons/sort.html" with prefix='user' col="pseudo" text=tr_username %}</th>
+                {% trans "Room" as tr_room %}
+                <th>{% include "buttons/sort.html" with prefix='user' col="room" text=tr_room %}</th>
+                <th>{% trans "End of subscription on" %}</th>
+                <th>{% trans "Internet access" %}</th>
+                <th>{% trans "Profile" %}</th>
             </tr>
         </thead>
         {% for user in users_list %}
-        <tr>
-            <td>{{ user.name }}</td>
-            <td>{{ user.surname }}</td>
-            <td>{{ user.pseudo }}</td>
-            <td>{{ user.room }}</td>
-            <td>{% if user.is_adherent %}{{ user.end_adhesion }}{% else %}Non adhérent{% endif %}</td>
-            <td>{% if user.has_access == True %}
-                <i class="text-success">Active</i>
-                {% else %}
-                <i class="text-danger">Désactivée</i>
-                {% endif %}
-            </td>
-            <td><a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i></a>
-            </td>
-        </tr>
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.surname }}</td>
+                <td>{{ user.pseudo }}</td>
+                <td>{{ user.room }}</td>
+	        <td>{% if user.is_adherent %}{{ user.end_adhesion }}{% else %}{% trans "Not a member" %}{% endif %}</td>
+                <td>
+                    {% if user.has_access == True %}
+                    <i class="text-success">{% trans "Active" %}</i>
+                    {% else %}
+                    <i class="text-danger">{% trans "Disabled" %}</i>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button">
+                        <i class="fa fa-user"></i>
+                    </a>
+                </td>
+            </tr>
         {% endfor %}
     </table>
 
@@ -61,3 +72,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% include "pagination.html" with list=users_list %}
     {% endif %}
 </div>
+

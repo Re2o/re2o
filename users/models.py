@@ -48,10 +48,12 @@ from __future__ import unicode_literals
 import re
 import uuid
 import datetime
+import sys
 
 from django.db import models
 from django.db.models import Q
 from django import forms
+from django.forms import ValidationError
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
@@ -67,6 +69,8 @@ from django.contrib.auth.models import (
     Group
 )
 from django.core.validators import RegexValidator
+import traceback
+from django.utils.translation import ugettext_lazy as _
 
 from reversion import revisions as reversion
 
@@ -98,7 +102,7 @@ def linux_user_validator(login):
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
         raise forms.ValidationError(
-            ", ce pseudo ('%(label)s') contient des carractères interdits",
+            _("The username '%(label)s' contains forbidden characters."),
             params={'label': login},
         )
 
@@ -130,6 +134,7 @@ def get_fresh_gid():
 
 class UserManager(BaseUserManager):
     """User manager basique de django"""
+
     def _create_user(
             self,
             pseudo,
@@ -139,16 +144,16 @@ class UserManager(BaseUserManager):
             su=False
     ):
         if not pseudo:
-            raise ValueError('Users must have an username')
+            raise ValueError(_("Users must have an username."))
 
         if not linux_user_check(pseudo):
-            raise ValueError('Username shall only contain [a-z0-9-]')
+            raise ValueError(_("Username should only contain [a-z0-9-]."))
 
         user = Adherent(
             pseudo=pseudo,
             surname=surname,
             name=surname,
-            email=self.normalize_email(mail),
+            email=self.normalize_email(email),
         )
 
         user.set_password(password)
@@ -177,7 +182,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     """ Definition de l'utilisateur de base.
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
-    PRETTY_NAME = "Utilisateurs (clubs et adhérents)"
+
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
@@ -191,17 +196,22 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     pseudo = models.CharField(
         max_length=32,
         unique=True,
-        help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
+        help_text=_("Must only contain letters, numerals or dashes."),
         validators=[linux_user_validator]
     )
-    email = models.EmailField()
+    email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text=_("External email address allowing us to contact you.")
+    )
     local_email_redirect = models.BooleanField(
         default=False,
-        help_text="Whether or not to redirect the local email messages to the main email."
+        help_text=_("Enable redirection of the local email messages to the"
+                    " main email address.")
     )
     local_email_enabled = models.BooleanField(
         default=False,
-        help_text="Wether or not to enable the local email account."
+        help_text=_("Enable the local email account.")
     )
     school = models.ForeignKey(
         'School',
@@ -216,7 +226,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True
     )
     comment = models.CharField(
-        help_text="Commentaire, promo",
+        help_text=_("Comment, school year"),
         max_length=255,
         blank=True
     )
@@ -242,18 +252,20 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     class Meta:
         permissions = (
             ("change_user_password",
-             "Peut changer le mot de passe d'un user"),
-            ("change_user_state", "Peut éditer l'etat d'un user"),
-            ("change_user_force", "Peut forcer un déménagement"),
-            ("change_user_shell", "Peut éditer le shell d'un user"),
+             _("Can change the password of a user")),
+            ("change_user_state", _("Can edit the state of a user")),
+            ("change_user_force", _("Can force the move")),
+            ("change_user_shell", _("Can edit the shell of a user")),
             ("change_user_groups",
-             "Peut éditer les groupes d'un user ! Permission critique"),
+             _("Can edit the groups of rights of a user (critical"
+               " permission)")),
             ("change_all_users",
-             "Peut éditer tous les users, y compris ceux dotés de droits. "
-             "Superdroit"),
+             _("Can edit all users, including those with rights.")),
             ("view_user",
-             "Peut voir un objet user quelquonque"),
+             _("Can view a user object")),
         )
+        verbose_name = _("user (member or club)")
+        verbose_name_plural = _("users (members or clubs)")
 
     @cached_property
     def name(self):
@@ -271,17 +283,36 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         elif self.is_class_club:
             return self.club.room
         else:
-            raise NotImplementedError("Type inconnu")
+            raise NotImplementedError(_("Unknown type."))
+
+    @cached_property
+    def get_mail_addresses(self):
+        if self.local_email_enabled:
+            return self.emailaddress_set.all()
+        return None
+
+    @cached_property
+    def get_mail(self):
+        """Return the mail address choosen by the user"""
+        if not OptionalUser.get_cached_value('local_email_accounts_enabled') or not self.local_email_enabled or self.local_email_redirect:
+            return str(self.email)
+        else:
+            return str(self.emailaddress_set.get(local_part=self.pseudo.lower()))
 
     @cached_property
     def class_name(self):
         """Renvoie si il s'agit d'un adhérent ou d'un club"""
         if hasattr(self, 'adherent'):
-            return "Adherent"
+            return _("Member")
         elif hasattr(self, 'club'):
-            return "Club"
+            return _("Club")
         else:
-            raise NotImplementedError("Type inconnu")
+            raise NotImplementedError(_("Unknown type."))
+
+    @cached_property
+    def gid_number(self):
+        """renvoie le gid par défaut des users"""
+        return int(LDAP['user_gid'])
 
     @cached_property
     def is_class_club(self):
@@ -322,6 +353,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def get_short_name(self):
         """ Renvoie seulement le nom"""
         return self.surname
+
+    @cached_property
+    def gid(self):
+        """return the default gid of user"""
+        return LDAP['user_gid']
 
     @property
     def get_shell(self):
@@ -482,7 +518,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             if not interface.ipv4:
                 with transaction.atomic(), reversion.create_revision():
                     interface.assign_ipv4()
-                    reversion.set_comment("Assignation ipv4")
+                    reversion.set_comment(_("IPv4 assigning"))
                     interface.save()
 
     def unassign_ips(self):
@@ -491,7 +527,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         for interface in interfaces:
             with transaction.atomic(), reversion.create_revision():
                 interface.unassign_ipv4()
-                reversion.set_comment("Désassignation ipv4")
+                reversion.set_comment(_("IPv4 unassigning"))
                 interface.save()
 
     def archive(self):
@@ -520,42 +556,54 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        self.refresh_from_db()
-        try:
-            user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
-        except LdapUser.DoesNotExist:
-            user_ldap = LdapUser(uidNumber=self.uid_number)
-            base = True
-            access_refresh = True
-            mac_refresh = True
-        if base:
-            user_ldap.name = self.pseudo
-            user_ldap.sn = self.pseudo
-            user_ldap.dialupAccess = str(self.has_access())
-            user_ldap.home_directory = '/home/' + self.pseudo
-            user_ldap.mail = self.email
-            user_ldap.given_name = self.surname.lower() + '_'\
-                + self.name.lower()[:3]
-            user_ldap.gid = LDAP['user_gid']
-            user_ldap.user_password = self.password[:6] + self.password[7:]
-            user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
-            if self.get_shell:
-                user_ldap.login_shell = str(self.get_shell)
-            user_ldap.shadowexpire = self.get_shadow_expire
-        if access_refresh:
-            user_ldap.dialupAccess = str(self.has_access())
-        if mac_refresh:
-            user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
-                machine__user=self
-            ).values_list('mac_address', flat=True).distinct()]
-        if group_refresh:
-            # Need to refresh all groups because we don't know which groups
-            # were updated during edition of groups and the user may no longer
-            # be part of the updated group (case of group removal)
-            for group in Group.objects.all():
-                if hasattr(group, 'listright'):
-                    group.listright.ldap_sync()
-        user_ldap.save()
+        if sys.version_info[0] >= 3:
+            self.refresh_from_db()
+            try:
+                user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
+            except LdapUser.DoesNotExist:
+                user_ldap = LdapUser(uidNumber=self.uid_number)
+                base = True
+                access_refresh = True
+                mac_refresh = True
+            if base:
+                user_ldap.name = self.pseudo
+                user_ldap.sn = self.pseudo
+                user_ldap.dialupAccess = str(self.has_access())
+                user_ldap.home_directory = '/home/' + self.pseudo
+                user_ldap.mail = self.get_mail
+                user_ldap.given_name = self.surname.lower() + '_'\
+                    + self.name.lower()[:3]
+                user_ldap.gid = LDAP['user_gid']
+                if '{SSHA}' in self.password or '{SMD5}' in self.password:
+                    # We remove the extra $ added at import from ldap
+                    user_ldap.user_password = self.password[:6] + \
+                        self.password[7:]
+                elif '{crypt}' in self.password:
+                    # depending on the length, we need to remove or not a $
+                    if len(self.password) == 41:
+                        user_ldap.user_password = self.password
+                    else:
+                        user_ldap.user_password = self.password[:7] + \
+                            self.password[8:]
+
+                user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
+                if self.get_shell:
+                    user_ldap.login_shell = str(self.get_shell)
+                user_ldap.shadowexpire = self.get_shadow_expire
+            if access_refresh:
+                user_ldap.dialupAccess = str(self.has_access())
+            if mac_refresh:
+                user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
+                    machine__user=self
+                ).values_list('mac_address', flat=True).distinct()]
+            if group_refresh:
+                # Need to refresh all groups because we don't know which groups
+                # were updated during edition of groups and the user may no longer
+                # be part of the updated group (case of group removal)
+                for group in Group.objects.all():
+                    if hasattr(group, 'listright'):
+                        group.listright.ldap_sync()
+            user_ldap.save()
 
     def ldap_del(self):
         """ Supprime la version ldap de l'user"""
@@ -581,7 +629,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
                 'name': AssoOption.get_cached_value('name')
-                },
+            },
             '',
             GeneralOption.get_cached_value('email_from'),
             [self.email],
@@ -624,12 +672,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
         if all_interfaces.count() > OptionalMachine.get_cached_value(
-                'max_lambdauser_interfaces'
-            ):
-            return False, "Maximum de machines enregistrees atteinte"
+            'max_lambdauser_interfaces'
+        ):
+            return False, _("Maximum number of registered machines reached.")
         if not nas_type:
-            return False, "Re2o ne sait pas à quel machinetype affecter cette\
-            machine"
+            return False, _("Re2o doesn't know wich machine type to assign.")
         machine_type_cible = nas_type.machine_type
         try:
             machine_parent = Machine()
@@ -651,8 +698,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             domain.save()
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
-            return False, error
-        return True, "Ok"
+            return False,  traceback.format_exc()
+        return interface_cible, "Ok"
 
     def notif_auto_newmachine(self, interface):
         """Notification mail lorsque une machine est automatiquement
@@ -725,7 +772,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                     user_request.adherent in self.club.administrators.all()):
                 return True, None
             else:
-                return False, u"Vous n'avez pas le droit d'éditer ce club"
+                return False, _("You don't have the right to edit this club.")
         else:
             if self == user_request:
                 return True, None
@@ -733,18 +780,19 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 return True, None
             elif user_request.has_perm('users.change_user'):
                 if self.groups.filter(listright__critical=True):
-                    return False, (u"Utilisateurs avec droits critiques, ne "
-                                   "peut etre édité")
+                    return False, (_("User with critical rights, can't be"
+                                     " edited."))
                 elif self == AssoOption.get_cached_value('utilisateur_asso'):
-                    return False, (u"Impossible d'éditer l'utilisateur asso "
-                                   "sans droit change_all_users")
+                    return False, (_("Impossible to edit the organisation's"
+                                     " user without the 'change_all_users'"
+                                     " right."))
                 else:
                     return True, None
             elif user_request.has_perm('users.change_all_users'):
                 return True, None
             else:
-                return False, (u"Vous ne pouvez éditer un autre utilisateur "
-                               "que vous même")
+                return False, (_("You don't have the right to edit another"
+                                 " user."))
 
     def can_change_password(self, user_request, *_args, **_kwargs):
         """Check if a user can change a user's password
@@ -761,7 +809,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                     user_request.adherent in self.club.administrators.all()):
                 return True, None
             else:
-                return False, u"Vous n'avez pas le droit d'éditer ce club"
+                return False, _("You don't have the right to edit this club.")
         else:
             if (self == user_request or
                     user_request.has_perm('users.change_user_groups')):
@@ -772,8 +820,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                   not self.groups.all()):
                 return True, None
             else:
-                return False, (u"Vous ne pouvez éditer un autre utilisateur "
-                               "que vous même")
+                return False, (_("You don't have the right to edit another"
+                                 " user."))
 
     def check_selfpasswd(self, user_request, *_args, **_kwargs):
         """ Returns (True, None) if user_request is self, else returns
@@ -791,21 +839,21 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_state'),
-            "Droit requis pour changer l'état"
+            _("Permission required to change the state.")
         )
 
-    @staticmethod
-    def can_change_shell(user_request, *_args, **_kwargs):
+    def can_change_shell(self, user_request, *_args, **_kwargs):
         """ Check if a user can change a shell
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
         the right to change a shell
         """
-        return (
-            user_request.has_perm('users.change_user_shell'),
-            "Droit requis pour changer le shell"
-        )
+        if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_shell'))
+            or user_request.has_perm('users.change_user_shell')):
+            return False, _("Permission required to change the shell.")
+        else:
+            return True, None
 
     @staticmethod
     def can_change_local_email_redirect(user_request, *_args, **_kwargs):
@@ -817,12 +865,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            "La gestion des comptes mails doit être activée"
+            _("Local email accounts must be enabled.")
         )
 
     @staticmethod
     def can_change_local_email_enabled(user_request, *_args, **_kwargs):
-        """ Check if a user can change internal address .
+        """ Check if a user can change internal address.
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -830,7 +878,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            "La gestion des comptes mails doit être activée"
+            _("Local email accounts must be enabled.")
         )
 
     @staticmethod
@@ -843,7 +891,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_force'),
-            "Droit requis pour forcer le déménagement"
+            _("Permission required to force the move.")
         )
 
     @staticmethod
@@ -856,7 +904,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_groups'),
-            "Droit requis pour éditer les groupes de l'user"
+            _("Permission required to edit the user's groups of rights.")
         )
 
     @staticmethod
@@ -868,7 +916,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.is_superuser,
-            "Droit superuser requis pour éditer le flag superuser"
+            _("'superuser' right required to edit the superuser flag.")
         )
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -886,14 +934,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                     user_request.adherent in self.club.members.all()):
                 return True, None
             else:
-                return False, u"Vous n'avez pas le droit de voir ce club"
+                return False, _("You don't have the right to view this club.")
         else:
             if (self == user_request or
                     user_request.has_perm('users.view_user')):
                 return True, None
             else:
-                return False, (u"Vous ne pouvez voir un autre utilisateur "
-                               "que vous même")
+                return False, (_("You don't have the right to view another"
+                                 " user."))
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -905,7 +953,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.view_user'),
-            u"Vous n'avez pas accès à la liste des utilisateurs."
+            _("You don't have the right to view the list of users.")
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
@@ -918,7 +966,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.delete_user'),
-            u"Vous ne pouvez pas supprimer cet utilisateur."
+            _("You don't have the right to delete this user.")
         )
 
     def __init__(self, *args, **kwargs):
@@ -928,7 +976,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'force': self.can_change_force,
             'selfpasswd': self.check_selfpasswd,
             'local_email_redirect': self.can_change_local_email_redirect,
-            'local_email_enabled' : self.can_change_local_email_enabled,
+            'local_email_enabled': self.can_change_local_email_enabled,
         }
         self.__original_state = self.state
 
@@ -936,9 +984,22 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
         if (EMailAddress.objects
-                .filter(local_part=self.pseudo)
-                .exclude(user=self)):
+            .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
+            ):
             raise ValidationError("This pseudo is already in use.")
+        if not self.local_email_enabled and not self.email:
+            raise ValidationError(
+                {'email': (
+                    _("There is neither a local email address nor an external"
+                      " email address for this user.")
+                ), }
+            )
+        if self.local_email_redirect and not self.email:
+            raise ValidationError(
+                {'local_email_redirect': (
+                _("You can't redirect your local emails if no external email"
+                  " address has been set.")), }
+            )
 
     def __str__(self):
         return self.pseudo
@@ -947,7 +1008,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 class Adherent(User):
     """ A class representing a member (it's a user with special
     informations) """
-    PRETTY_NAME = "Adhérents"
+
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
         'topologie.Room',
@@ -955,6 +1016,20 @@ class Adherent(User):
         blank=True,
         null=True
     )
+    gpg_fingerprint = models.CharField(
+        max_length=40,
+        blank=True,
+        null=True,
+        validators=[RegexValidator(
+            '^[0-9A-F]{40}$',
+            message=_("A GPG fingerprint must contain 40 hexadecimal"
+                      " characters.")
+        )]
+    )
+
+    class Meta(User.Meta):
+        verbose_name = _("member")
+        verbose_name_plural = _("members")
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):
@@ -983,14 +1058,14 @@ class Adherent(User):
             else:
                 return (
                     user_request.has_perm('users.add_user'),
-                    u"Vous n'avez pas le droit de créer un utilisateur"
+                    _("You don't have the right to create a user.")
                 )
 
 
 class Club(User):
     """ A class representing a club (it is considered as a user
     with special informations) """
-    PRETTY_NAME = "Clubs"
+
     room = models.ForeignKey(
         'topologie.Room',
         on_delete=models.PROTECT,
@@ -1011,6 +1086,10 @@ class Club(User):
         default=False
     )
 
+    class Meta(User.Meta):
+        verbose_name = _("club")
+        verbose_name_plural = _("clubs")
+
     @staticmethod
     def can_create(user_request, *_args, **_kwargs):
         """Check if an user can create an user object.
@@ -1027,7 +1106,7 @@ class Club(User):
             else:
                 return (
                     user_request.has_perm('users.add_user'),
-                    u"Vous n'avez pas le droit de créer un club"
+                    _("You don't have the right to create a club.")
                 )
 
     @staticmethod
@@ -1045,7 +1124,7 @@ class Club(User):
             if (user_request.adherent.club_administrator.all() or
                     user_request.adherent.club_members.all()):
                 return True, None
-        return False, u"Vous n'avez pas accès à la liste des utilisateurs."
+        return False, _("You don't have the right to view the list of users.")
 
     @classmethod
     def get_instance(cls, clubid, *_args, **_kwargs):
@@ -1066,7 +1145,8 @@ def user_post_save(**kwargs):
     Synchronise le ldap"""
     is_created = kwargs['created']
     user = kwargs['instance']
-    EMailAddress.objects.get_or_create(local_part=user.pseudo, user=user)
+    EMailAddress.objects.get_or_create(
+        local_part=user.pseudo.lower(), user=user)
     if is_created:
         user.notif_inscription()
     user.state_sync()
@@ -1089,6 +1169,7 @@ def user_group_relation_changed(**kwargs):
                        mac_refresh=False,
                        group_refresh=True)
 
+
 @receiver(post_delete, sender=Adherent)
 @receiver(post_delete, sender=Club)
 @receiver(post_delete, sender=User)
@@ -1108,12 +1189,10 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         ('usermgmt', 'usermgmt'),
     )
 
-    PRETTY_NAME = "Utilisateurs de service"
-
     pseudo = models.CharField(
         max_length=32,
         unique=True,
-        help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
+        help_text=_("Must only contain letters, numerals or dashes."),
         validators=[linux_user_validator]
     )
     access_group = models.CharField(
@@ -1122,7 +1201,7 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         max_length=32
     )
     comment = models.CharField(
-        help_text="Commentaire",
+        help_text=_("Comment"),
         max_length=255,
         blank=True
     )
@@ -1132,12 +1211,14 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
 
     class Meta:
         permissions = (
-            ("view_serviceuser", "Peut voir un objet serviceuser"),
+            ("view_serviceuser", _("Can view a service user object")),
         )
+        verbose_name = _("service user")
+        verbose_name_plural = _("service users")
 
     def get_full_name(self):
         """ Renvoie le nom complet du serviceUser formaté nom/prénom"""
-        return "ServiceUser <{name}>".format(name=self.pseudo)
+        return _("Service user <{name}>").format(name=self.pseudo)
 
     def get_short_name(self):
         """ Renvoie seulement le nom"""
@@ -1194,14 +1275,15 @@ def service_user_post_delete(**kwargs):
 
 class School(RevMixin, AclMixin, models.Model):
     """ Etablissement d'enseignement"""
-    PRETTY_NAME = "Établissements enregistrés"
 
     name = models.CharField(max_length=255)
 
     class Meta:
         permissions = (
-            ("view_school", "Peut voir un objet school"),
+            ("view_school", _("Can view a school object")),
         )
+        verbose_name = _("school")
+        verbose_name_plural = _("schools")
 
     def __str__(self):
         return self.name
@@ -1213,29 +1295,29 @@ class ListRight(RevMixin, AclMixin, Group):
     Permet de gérer facilement les accès serveurs et autres
     La clef de recherche est le gid, pour cette raison là
     il n'est plus modifiable après creation"""
-    PRETTY_NAME = "Liste des droits existants"
 
     unix_name = models.CharField(
         max_length=255,
         unique=True,
         validators=[RegexValidator(
             '^[a-z]+$',
-            message=("Les groupes unix ne peuvent contenir que des lettres "
-                     "minuscules")
+            message=(_("UNIX groups can only contain lower case letters."))
         )]
     )
     gid = models.PositiveIntegerField(unique=True, null=True)
     critical = models.BooleanField(default=False)
     details = models.CharField(
-        help_text="Description",
+        help_text=_("Description"),
         max_length=255,
         blank=True
     )
 
     class Meta:
         permissions = (
-            ("view_listright", "Peut voir un objet Group/ListRight"),
+            ("view_listright", _("Can view a group of rights object")),
         )
+        verbose_name = _("group of rights")
+        verbose_name_plural = _("groups of rights")
 
     def __str__(self):
         return self.name
@@ -1277,14 +1359,16 @@ def listright_post_delete(**kwargs):
 class ListShell(RevMixin, AclMixin, models.Model):
     """Un shell possible. Pas de check si ce shell existe, les
     admin sont des grands"""
-    PRETTY_NAME = "Liste des shells disponibles"
 
     shell = models.CharField(max_length=255, unique=True)
 
     class Meta:
         permissions = (
-            ("view_listshell", "Peut voir un objet shell quelqu'il soit"),
+            ("view_listshell", _("Can view a shell object")),
         )
+        verbose_name = _("shell")
+        verbose_name_plural = _("shells")
+
 
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
@@ -1297,15 +1381,14 @@ class ListShell(RevMixin, AclMixin, models.Model):
 class Ban(RevMixin, AclMixin, models.Model):
     """ Bannissement. Actuellement a un effet tout ou rien.
     Gagnerait à être granulaire"""
-    PRETTY_NAME = "Liste des bannissements"
 
     STATE_HARD = 0
     STATE_SOFT = 1
     STATE_BRIDAGE = 2
     STATES = (
-        (0, 'HARD (aucun accès)'),
-        (1, 'SOFT (accès local seulement)'),
-        (2, 'BRIDAGE (bridage du débit)'),
+        (0, _("HARD (no access)")),
+        (1, _("SOFT (local access only)")),
+        (2, _("RESTRICTED (speed limitation)")),
     )
 
     user = models.ForeignKey('User', on_delete=models.PROTECT)
@@ -1316,8 +1399,10 @@ class Ban(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_ban", "Peut voir un objet ban quelqu'il soit"),
+            ("view_ban", _("Can view a ban object")),
         )
+        verbose_name = _("ban")
+        verbose_name_plural = _("bans")
 
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
@@ -1351,8 +1436,8 @@ class Ban(RevMixin, AclMixin, models.Model):
         """
         if (not user_request.has_perm('users.view_ban') and
                 self.user != user_request):
-            return False, (u"Vous n'avez pas le droit de voir les "
-                           "bannissements autre que les vôtres")
+            return False, (_("You don't have the right to view bans other"
+                             " than yours."))
         else:
             return True, None
 
@@ -1391,7 +1476,6 @@ class Whitelist(RevMixin, AclMixin, models.Model):
     """Accès à titre gracieux. L'utilisateur ne paye pas; se voit
     accorder un accès internet pour une durée défini. Moins
     fort qu'un ban quel qu'il soit"""
-    PRETTY_NAME = "Liste des accès gracieux"
 
     user = models.ForeignKey('User', on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
@@ -1400,8 +1484,10 @@ class Whitelist(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_whitelist", "Peut voir un objet whitelist"),
+            ("view_whitelist", _("Can view a whitelist object")),
         )
+        verbose_name = _("whitelist (free of charge access)")
+        verbose_name_plural = _("whitelists (free of charge access)")
 
     def is_active(self):
         """ Is this whitelisting active ? """
@@ -1417,8 +1503,8 @@ class Whitelist(RevMixin, AclMixin, models.Model):
         """
         if (not user_request.has_perm('users.view_whitelist') and
                 self.user != user_request):
-            return False, (u"Vous n'avez pas le droit de voir les accès "
-                           "gracieux autre que les vôtres")
+            return False, (_("You don't have the right to view whitelists"
+                             " other than yours."))
         else:
             return True, None
 
@@ -1461,8 +1547,8 @@ class Request(models.Model):
     PASSWD = 'PW'
     EMAIL = 'EM'
     TYPE_CHOICES = (
-        (PASSWD, 'Mot de passe'),
-        (EMAIL, 'Email'),
+        (PASSWD, _("Password")),
+        (EMAIL, _("Email address")),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     token = models.CharField(max_length=32)
@@ -1477,7 +1563,7 @@ class Request(models.Model):
                                    hours=GeneralOption.get_cached_value(
                                        'req_expire_hrs'
                                    )
-                               ))
+            ))
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()
@@ -1654,27 +1740,27 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        help_text="User of the local email",
+        help_text=_("User of the local email account")
     )
     local_part = models.CharField(
         unique=True,
         max_length=128,
-        help_text="Local part of the email address"
+        help_text=_("Local part of the email address")
     )
 
     class Meta:
         permissions = (
-            ("view_emailaddress", "Can see a local email account object"),
+            ("view_emailaddress", _("Can view a local email account object")),
         )
-        verbose_name = "Local email account"
-        verbose_name_plural = "Local email accounts"
+        verbose_name = _("local email account")
+        verbose_name_plural = _("local email accounts")
 
     def __str__(self):
-        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+        return str(self.local_part) + OptionalUser.get_cached_value('local_email_domain')
 
     @cached_property
     def complete_email_address(self):
-        return self.local_part + OptionalUser.get_cached_value('local_email_domain')
+        return str(self.local_part) + OptionalUser.get_cached_value('local_email_domain')
 
     @staticmethod
     def can_create(user_request, userid, *_args, **_kwargs):
@@ -1691,11 +1777,12 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.add_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, "The local email accounts are not enabled."
+            return False, _("The local email accounts are not enabled.")
         if int(user_request.id) != int(userid):
-            return False, "You don't have the right to add a local email account to another user."
+            return False, _("You don't have the right to add a local email"
+                            " account to another user.")
         elif user_request.email_address.count() >= OptionalUser.get_cached_value('max_email_address'):
-            return False, "You have reached the limit of {} local email account.".format(
+            return False, _("You reached the limit of {} local email accounts.").format(
                 OptionalUser.get_cached_value('max_email_address')
             )
         return True, None
@@ -1713,10 +1800,11 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if user_request.has_perm('users.view_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, "The local email accounts are not enabled."
+            return False, _("The local email accounts are not enabled.")
         if user_request == self.user:
             return True, None
-        return False, "You don't have the right to edit someone else's local email account."
+        return False, _("You don't have the right to edit another user's local"
+                        " email account.")
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Check if a user can delete the alias
@@ -1728,17 +1816,17 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can delete
             the local email account.
         """
-        if self.local_part == self.user.pseudo:
-            return False, ("You cannot delete a local email account whose "
-                           "local part is the same as the username.")
-        if user_request.has_perm('users.delete_emailaddress'): 
+        if self.local_part == self.user.pseudo.lower():
+            return False, _("You can't delete a local email account whose"
+                            " local part is the same as the username.")
+        if user_request.has_perm('users.delete_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, "The local email accounts are not enabled."
+            return False, _("The local email accounts are not enabled.")
         if user_request == self.user:
             return True, None
-        return False, ("You don't have the right to delete someone else's "
-                       "local email account")
+        return False, _("You don't have the right to delete another user's"
+                       " local email account")
 
     def can_edit(self, user_request, *_args, **_kwargs):
         """Check if a user can edit the alias
@@ -1750,20 +1838,21 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             a message and a boolean which is True if the user can edit
             the local email account.
         """
-        if self.local_part == self.user.pseudo:
-            return False, ("You cannot edit a local email account whose "
-                           "local part is the same as the username.")
+        if self.local_part == self.user.pseudo.lower():
+            return False, _("You can't edit a local email account whose local"
+                            " part is the same as the username.")
         if user_request.has_perm('users.change_emailaddress'):
             return True, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, "The local email accounts are not enabled."
+            return False, _("The local email accounts are not enabled.")
         if user_request == self.user:
             return True, None
-        return False, ("You don't have the right to edit someone else's "
-                       "local email account")
+        return False, _("You don't have the right to edit another user's local"
+                        " email account.")
 
     def clean(self, *args, **kwargs):
+        self.local_part = self.local_part.lower()
         if "@" in self.local_part:
-            raise ValidationError("The local part cannot contain a @")
+            raise ValidationError(_("The local part must not contain @."))
         super(EMailAddress, self).clean(*args, **kwargs)
 

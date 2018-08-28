@@ -1,3 +1,4 @@
+# coding: utf-8
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
@@ -23,6 +24,7 @@
 Module in charge of rendering some LaTex templates.
 Used to generated PDF invoice.
 """
+
 
 import tempfile
 from subprocess import Popen, PIPE
@@ -61,18 +63,24 @@ def render_invoice(_request, ctx={}):
     return r
 
 
-def render_tex(_request, template, ctx={}):
-    """
-    Creates a PDF from a LaTex templates using pdflatex.
-    Writes it in a temporary directory and send back an HTTP response for
-    accessing this file.
+def create_pdf(template, ctx={}):
+    """Creates and returns a PDF from a LaTeX template using pdflatex.
+
+    It create a temporary file for the PDF then read it to return its content.
+
+    Args:
+        template: Path to the LaTeX template.
+        ctx: Dict with the context for rendering the template.
+
+    Returns:
+        The content of the temporary PDF file generated.
     """
     context = Context(ctx)
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
 
     with tempfile.TemporaryDirectory() as tempdir:
-        for i in range(2):
+        for _ in range(2):
             process = Popen(
                 ['pdflatex', '-output-directory', tempdir],
                 stdin=PIPE,
@@ -81,6 +89,25 @@ def render_tex(_request, template, ctx={}):
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
+
+    return pdf
+
+
+def render_tex(_request, template, ctx={}):
+    """Creates a PDF from a LaTex templates using pdflatex.
+
+    Calls `create_pdf` and send back an HTTP response for
+    accessing this file.
+
+    Args:
+        _request: Unused, but allow using this function as a Django view.
+        template: Path to the LaTeX template.
+        ctx: Dict with the context for rendering the template.
+
+    Returns:
+        An HttpResponse with type `application/pdf` containing the PDF file.
+    """
+    pdf = create_pdf(template, ctx)
     r = HttpResponse(content_type='application/pdf')
     r.write(pdf)
     return r

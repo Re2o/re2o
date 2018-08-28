@@ -35,6 +35,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Prefetch
+from django.utils.translation import ugettext_lazy as _
 
 from machines.models import Interface
 from machines.forms import (
@@ -53,6 +54,7 @@ from .models import (
     AccessPoint,
     SwitchBay,
     Building,
+    PortProfile,
 )
 
 
@@ -78,8 +80,8 @@ class EditPortForm(FormRevMixin, ModelForm):
     optimiser le temps de chargement avec select_related (vraiment
     lent sans)"""
     class Meta(PortForm.Meta):
-        fields = ['room', 'related', 'machine_interface', 'radius',
-                  'vlan_force', 'details']
+        fields = ['room', 'related', 'machine_interface', 'custom_profile',
+                  'state', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -99,8 +101,8 @@ class AddPortForm(FormRevMixin, ModelForm):
             'room',
             'machine_interface',
             'related',
-            'radius',
-            'vlan_force',
+            'custom_profile',
+            'state',
             'details'
         ]
 
@@ -174,8 +176,8 @@ class EditRoomForm(FormRevMixin, ModelForm):
 
 class CreatePortsForm(forms.Form):
     """Permet de créer une liste de ports pour un switch."""
-    begin = forms.IntegerField(label="Début :", min_value=0)
-    end = forms.IntegerField(label="Fin :", min_value=0)
+    begin = forms.IntegerField(label=_("Start:"), min_value=0)
+    end = forms.IntegerField(label=_("End:"), min_value=0)
 
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):
@@ -254,3 +256,16 @@ class EditBuildingForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+class EditPortProfileForm(FormRevMixin, ModelForm):
+    """Form to edit a port profile"""
+    class Meta:
+        model = PortProfile
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditPortProfileForm, self).__init__(*args,
+                                                  prefix=prefix,
+                                                  **kwargs)
+

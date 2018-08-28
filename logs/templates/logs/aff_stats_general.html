@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-    {% for stats in stats_list %}
+{% for stats in stats_list %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -32,11 +32,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </thead>
        {% for key, stat in stats.1.items %}
-        <tr>
-            {% for item in stat %}
-            <td>{{ item }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
+           <tr>
+               {% for item in stat %}
+               <td>{{ item }}</td>
+               {% endfor %}
+           </tr>
+       {% endfor %}
     </table>
-        {% endfor %}
+{% endfor %}
+

@@ -23,27 +23,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load design %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Nom du service</th>
-            <th>Serveur</th>
-            <th>Dernière régénération</th>
-            <th>Régénération nécessaire</th>
-            <th>Régénération activée</th>
+            <th>{% trans "Service name" %}</th>
+            <th>{% trans "Server" %}</th>
+            <th>{% trans "Last regeneration" %}</th>
+            <th>{% trans "Regeneration required" %}</th>
+            <th>{% trans "Regeneration activated" %}</th>
         </tr>
     </thead>
     {% for server in servers_list %}
-    <tr>
-        <td>{{ server.service }}</td>
-        <td>{{ server.server }}</td>
-        <td>{{ server.last_regen }}</td>
-        <td>{{ server.asked_regen| tick }}</td>
-        <td>{{ server.need_regen | tick }}</td>
-        <td class="text-right">
-        </td>
-    </tr>
+        <tr>
+            <td>{{ server.service }}</td>
+            <td>{{ server.server }}</td>
+            <td>{{ server.last_regen }}</td>
+            <td>{{ server.asked_regen|tick }}</td>
+            <td>{{ server.need_regen|tick }}</td>
+            <td class="text-right">
+            </td>
+        </tr>
     {% endfor %}
 </table>
 

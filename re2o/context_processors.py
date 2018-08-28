@@ -26,17 +26,24 @@ from __future__ import unicode_literals
 import datetime
 
 from django.contrib import messages
-
+from django.http import HttpRequest
 from preferences.models import GeneralOption, OptionalMachine
+from django.utils.translation import get_language
 
 
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
     renvoie les infos sur l'user, la liste de ses droits, ses machines"""
     user = request.user
-    global_message = GeneralOption.get_cached_value('general_message')
+    if get_language()=='fr':
+        global_message = GeneralOption.get_cached_value('general_message_fr')
+    else:
+        global_message = GeneralOption.get_cached_value('general_message_en')
     if global_message:
-        messages.warning(request, global_message)
+        if isinstance(request, HttpRequest):
+            messages.warning(request, global_message)
+        else:
+            messages.warning(request._request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
     else:

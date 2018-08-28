@@ -338,6 +338,7 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 class OptionalTopologieSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalTopologie` objects.
     """
+
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
@@ -469,10 +470,10 @@ class SwitchPortSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'radius', 'vlan_force', 'details', 'api_url')
+                  'custom_profile', 'state', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
-            'api_url': {'view_name': 'switchport-detail'}
+            'api_url': {'view_name': 'switchport-detail'},
         }
 
 
@@ -482,6 +483,18 @@ class RoomSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Room
         fields = ('name', 'details', 'api_url')
+
+
+class PortProfileSerializer(NamespacedHMSerializer):
+    vlan_untagged = VlanSerializer(read_only=True)
+
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged',
+                  'radius_type', 'radius_mode', 'speed', 'mac_limit',
+                  'flow_control', 'dhcp_snooping', 'dhcpv6_snooping',
+                  'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged',
+                  'vlan_tagged')
 
 
 # USERS
@@ -534,11 +547,20 @@ class AdherentSerializer(NamespacedHMSerializer):
         fields = ('name', 'surname', 'pseudo', 'email', 'local_email_redirect',
                   'local_email_enabled', 'school', 'shell', 'comment',
                   'state', 'registered', 'telephone', 'room', 'solde',
-                  'access', 'end_access', 'uid', 'api_url')
+                  'access', 'end_access', 'uid', 'api_url','gid')
         extra_kwargs = {
             'shell': {'view_name': 'shell-detail'}
         }
 
+class HomeCreationSerializer(NamespacedHMSerializer):
+    """Serialize 'users.models.User' minimal infos to create home
+    """
+    uid = serializers.IntegerField(source='uid_number')
+    gid = serializers.IntegerField(source='gid_number')
+
+    class Meta:
+        model = users.User
+        fields = ('pseudo', 'uid', 'gid')
 
 class ServiceUserSerializer(NamespacedHMSerializer):
     """Serialize `users.models.ServiceUser` objects.
@@ -599,7 +621,7 @@ class WhitelistSerializer(NamespacedHMSerializer):
 class EMailAddressSerializer(NamespacedHMSerializer):
     """Serialize `users.models.EMailAddress` objects.
     """
-
+    user = serializers.CharField(source='user.pseudo', read_only=True)
     class Meta:
         model = users.EMailAddress
         fields = ('user', 'local_part', 'complete_email_address', 'api_url')
@@ -635,8 +657,41 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.User
         fields = ('local_email_enabled', 'local_email_redirect',
-                  'email_address')
+                  'email_address', 'email')
 
+
+#Firewall
+
+class FirewallPortListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = machines.OuverturePort
+        fields = ('begin', 'end', 'protocole', 'io', 'show_port')
+
+class FirewallOuverturePortListSerializer(serializers.ModelSerializer):
+    tcp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_in = FirewallPortListSerializer(many=True, read_only=True)
+    tcp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+    udp_ports_out = FirewallPortListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.OuverturePortList
+        fields = ('tcp_ports_in', 'udp_ports_in', 'tcp_ports_out', 'udp_ports_out')
+
+class SubnetPortsOpenSerializer(serializers.ModelSerializer):
+    ouverture_ports = FirewallOuverturePortListSerializer(read_only=True)
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
+
+class InterfacePortsOpenSerializer(serializers.ModelSerializer):
+    port_lists = FirewallOuverturePortListSerializer(read_only=True, many=True)
+    ipv4 = serializers.CharField(source='ipv4.ipv4', read_only=True)
+    ipv6 = Ipv6ListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('port_lists', 'ipv4', 'ipv6')
 
 # DHCP
 
@@ -679,7 +734,7 @@ class NSRecordSerializer(NsSerializer):
     """Serialize `machines.models.Ns` objects with the data needed to
     generate a NS DNS record.
     """
-    target = serializers.CharField(source='ns.name', read_only=True)
+    target = serializers.CharField(source='ns', read_only=True)
 
     class Meta(NsSerializer.Meta):
         fields = ('target',)
@@ -689,7 +744,7 @@ class MXRecordSerializer(MxSerializer):
     """Serialize `machines.models.Mx` objects with the data needed to
     generate a MX DNS record.
     """
-    target = serializers.CharField(source='name.name', read_only=True)
+    target = serializers.CharField(source='name', read_only=True)
 
     class Meta(MxSerializer.Meta):
         fields = ('target', 'priority')
@@ -761,13 +816,12 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
     """Serialize `machines.models.Domain` objects with the data needed to
     generate a CNAME DNS record.
     """
-    alias = serializers.CharField(source='cname.name', read_only=True)
+    alias = serializers.CharField(source='cname', read_only=True)
     hostname = serializers.CharField(source='name', read_only=True)
-    extension = serializers.CharField(source='extension.name', read_only=True)
 
     class Meta:
         model = machines.Domain
-        fields = ('alias', 'hostname', 'extension')
+        fields = ('alias', 'hostname')
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):
@@ -792,6 +846,25 @@ class DNSZonesSerializer(serializers.ModelSerializer):
                   'aaaa_records', 'cname_records', 'sshfp_records')
 
 
+class DNSReverseZonesSerializer(serializers.ModelSerializer):
+    """Serialize the data about DNS Zones.
+    """
+    soa = SOARecordSerializer(source='extension.soa')
+    extension = serializers.CharField(source='extension.name', read_only=True)
+    cidrs = serializers.ListField(child=serializers.CharField(), source='ip_set_cidrs_as_str', read_only=True)
+    ns_records = NSRecordSerializer(many=True, source='extension.ns_set')
+    mx_records = MXRecordSerializer(many=True, source='extension.mx_set')
+    txt_records = TXTRecordSerializer(many=True, source='extension.txt_set')
+    ptr_records = ARecordSerializer(many=True, source='get_associated_ptr_records')
+    ptr_v6_records = AAAARecordSerializer(many=True, source='get_associated_ptr_v6_records')
+
+
+    class Meta:
+        model = machines.IpType
+        fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
+                  'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
+                  'prefix_v6', 'prefix_v6_length')
+
 # MAILING
 
 
@@ -799,7 +872,7 @@ class MailingMemberSerializer(UserSerializer):
     """Serialize the data about a mailing member.
     """
     class Meta(UserSerializer.Meta):
-        fields = ('name', 'pseudo', 'email')
+        fields = ('name', 'pseudo', 'get_mail')
 
 class MailingSerializer(ClubSerializer):
     """Serialize the data about a mailing.

@@ -50,7 +50,7 @@ def accept_payment(request, factureid):
     if invoice.valid:
         messages.success(
             request,
-            _("The payment of %(amount)s € has been accepted.") % {
+            _("The payment of %(amount)s € was accepted.") % {
                 'amount': invoice.prix_total()
             }
         )
@@ -60,8 +60,8 @@ def accept_payment(request, factureid):
                for purchase in invoice.vente_set.all()):
             messages.success(
                 request,
-                _("The cotisation of %(member_name)s has been \
-                extended to %(end_date)s.") % {
+                _("The subscription of %(member_name)s was extended to"
+                  " %(end_date)s.") % {
                     'member_name': request.user.pseudo,
                     'end_date': request.user.end_adhesion()
                 }
@@ -81,7 +81,7 @@ def refuse_payment(request):
     """
     messages.error(
         request,
-        _("The payment has been refused.")
+        _("The payment was refused.")
     )
     return redirect(reverse(
         'users:profil',
@@ -136,3 +136,4 @@ def ipn(request):
     # Everything worked we send a reponse to Comnpay indicating that
     # it's ok for them to proceed
     return HttpResponse("HTTP/1.0 200 OK")
+

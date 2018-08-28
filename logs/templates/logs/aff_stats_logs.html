@@ -28,39 +28,43 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load logs_extra %}
 {% load acl %}
+{% load i18n %}
 
-    <table class="table table-striped">
-        <thead>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Edited object" %}</th>
+            <th>{% trans "Object type" %}</th>
+            {% trans "Edited by" as tr_edited_by %}
+            <th>{% include "buttons/sort.html" with prefix='logs' col='author' text=tr_edited_by %}</th>
+            {% trans "Date of editing" as tr_date_of_editing %}
+            <th>{% include "buttons/sort.html" with prefix='logs' col='date' text=tr_date_of_editing %}</th>
+            <th>{% trans "Comment" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for revision in revisions_list %}
+        {% for reversion in revision.version_set.all %}
             <tr>
-                <th>Objet modifié</th>
-                <th>Type de l'objet</th>
-                <th>{% include "buttons/sort.html" with prefix='logs' col='author' text='Modification par' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='logs' col='date' text='Date de modification' %}</th>
-                <th>Commentaire</th>
-                <th></th>
+                <td>{{ reversion.object|truncatechars:20 }}</td>
+                <td>{{ reversion.object|classname }}</td>
+                <td>{{ revision.user }}</td>
+                <td>{{ revision.date_created }}</td>
+                <td>{{ revision.comment }}</td>
+                {% can_edit_history %}
+                <td>
+                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}">
+                        <i class="fa fa-times"></i>
+                        {% trans "Cancel" %}
+                    </a>
+                </td>
+                {% acl_end %}
             </tr>
-        </thead>
-        {% for revision in revisions_list %}
-        	{% for reversion in revision.version_set.all %}
-		<tr>
-            	    <td>{{ reversion.object|truncatechars:20 }}</td>
-                    <td>{{ reversion.object|classname }}</td>
-                    <td>{{ revision.user }}</td>
-                    <td>{{ revision.date_created }}</td>
-                    <td>{{ revision.comment }}</td>
-                    {% can_edit_history %}
-                    <td>
-                	<a class="btn btn-danger btn-sm" role="button" href="{% url 'logs:revert-action' revision.id %}">
-                    	<i class="fa fa-times"></i>
-                    	Annuler
-                	</a>
-            	    </td>
-            	    {% acl_end %}
-        	</tr>
-		{% endfor %}
         {% endfor %}
-    </table>
+    {% endfor %}
+</table>
 
 {% if revisions_list.paginator %}
 {% include "pagination.html" with list=revisions_list %}
 {% endif %}
+

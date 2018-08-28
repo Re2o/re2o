@@ -24,13 +24,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Statistiques{% endblock %}
+{% block title %}{% trans "Statistics" %}{% endblock %}
 
 {% block content %}
-  <h2>Actions effectuées</h2>
-  {%  include "logs/aff_stats_logs.html" with  revisions_list=revisions_list %}
-  <br />
-  <br />
-  <br />
- {% endblock %}
+<h2>{% trans "Actions performed" %}</h2>
+    {%  include "logs/aff_stats_logs.html" with  revisions_list=revisions_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
+

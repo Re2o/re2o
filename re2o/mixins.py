@@ -25,6 +25,7 @@ A set of mixins used all over the project to avoid duplicating code
 
 from reversion import revisions as reversion
 from django.db import transaction
+from django.utils.translation import ugettext as _
 
 
 class RevMixin(object):
@@ -35,14 +36,14 @@ class RevMixin(object):
         """ Creates a version of this object and save it to database """
         if self.pk is None:
             with transaction.atomic(), reversion.create_revision():
-                reversion.set_comment("Création")
+                reversion.set_comment("Creation")
                 return super(RevMixin, self).save(*args, **kwargs)
         return super(RevMixin, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """ Creates a version of this object and delete it from database """
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_comment("Suppresion")
+            reversion.set_comment("Deletion")
             return super(RevMixin, self).delete(*args, **kwargs)
 
 
@@ -58,7 +59,7 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Champs modifié(s) : %s"
+                "Field(s) altered : %s"
                 % ', '.join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
@@ -107,7 +108,8 @@ class AclMixin(object):
             user_request.has_perm(
                 cls.get_modulename() + '.add_' + cls.get_classname()
             ),
-            u"Vous n'avez pas le droit de créer un " + cls.get_classname()
+            (_("You don't have the right to create a %s object.")
+                % cls.get_classname())
         )
 
     def can_edit(self, user_request, *_args, **_kwargs):
@@ -120,7 +122,8 @@ class AclMixin(object):
             user_request.has_perm(
                 self.get_modulename() + '.change_' + self.get_classname()
             ),
-            u"Vous n'avez pas le droit d'éditer des " + self.get_classname()
+            (_("You don't have the right to edit a %s object.")
+                % self.get_classname())
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
@@ -133,7 +136,8 @@ class AclMixin(object):
             user_request.has_perm(
                 self.get_modulename() + '.delete_' + self.get_classname()
             ),
-            u"Vous n'avez pas le droit d'éditer des " + self.get_classname()
+            (_("You don't have the right to delete a %s object.")
+                % self.get_classname())
         )
 
     @classmethod
@@ -146,7 +150,8 @@ class AclMixin(object):
             user_request.has_perm(
                 cls.get_modulename() + '.view_' + cls.get_classname()
             ),
-            u"Vous n'avez pas le droit de voir des " + cls.get_classname()
+            (_("You don't have the right to view every %s object.")
+                % cls.get_classname())
         )
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -159,5 +164,7 @@ class AclMixin(object):
             user_request.has_perm(
                 self.get_modulename() + '.view_' + self.get_classname()
             ),
-            u"Vous n'avez pas le droit de voir des " + self.get_classname()
+            (_("You don't have the right to view a %s object.")
+                % self.get_classname())
         )
+

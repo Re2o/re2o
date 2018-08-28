@@ -36,12 +36,14 @@ import hashlib
 import base64
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils.functional import cached_property
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.translation import ugettext_lazy as _
 
 from macaddress.fields import MACAddressField
 
@@ -55,12 +57,10 @@ import preferences.models
 class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
-    PRETTY_NAME = "Machine"
-
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     name = models.CharField(
         max_length=255,
-        help_text="Optionnel",
+        help_text=_("Optional"),
         blank=True,
         null=True
     )
@@ -68,10 +68,12 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_machine", "Peut voir un objet machine quelquonque"),
+            ("view_machine", _("Can view a machine object")),
             ("change_machine_user",
-             "Peut changer le propriétaire d'une machine"),
+             _("Can change the user of a machine")),
         )
+        verbose_name = _("machine")
+        verbose_name_plural = _("machines")
 
     @classmethod
     def get_instance(cls, machineid, *_args, **_kwargs):
@@ -104,7 +106,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             explanation message.
         """
         return (user_request.has_perm('machines.change_machine_user'),
-                "Vous ne pouvez pas modifier l'utilisateur de la machine.")
+                _("You don't have the right to change the machine's user."))
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -113,8 +115,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_machine'):
-            return False, (u"Vous ne pouvez pas afficher l'ensemble des "
-                           "machines sans permission")
+            return False, _("You don't have the right to view all the"
+                             " machines.")
         return True, None
 
     @staticmethod
@@ -127,7 +129,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         try:
             user = users.models.User.objects.get(pk=userid)
         except users.models.User.DoesNotExist:
-            return False, u"Utilisateur inexistant"
+            return False, _("Nonexistent user.")
         max_lambdauser_interfaces = (preferences.models.OptionalMachine
                                      .get_cached_value(
                                          'max_lambdauser_interfaces'
@@ -135,14 +137,14 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         if not user_request.has_perm('machines.add_machine'):
             if not (preferences.models.OptionalMachine
                     .get_cached_value('create_machine')):
-                return False, u"Vous ne pouvez pas ajouter une machine"
+                return False, (_("You don't have the right to add a machine."))
             if user != user_request:
-                return False, (u"Vous ne pouvez pas ajouter une machine à un "
-                               "autre user que vous sans droit")
+                return False, (_("You don't have the right to add a machine"
+                                 " to another user."))
             if user.user_interfaces().count() >= max_lambdauser_interfaces:
-                return False, (u"Vous avez atteint le maximum d'interfaces "
-                               "autorisées que vous pouvez créer vous même "
-                               "(%s) " % max_lambdauser_interfaces)
+                return False, (_("You reached the maximum number of interfaces"
+                                 " that you are allowed to create yourself"
+                                 " (%s)." % max_lambdauser_interfaces))
         return True, None
 
     def can_edit(self, user_request, *args, **kwargs):
@@ -159,8 +161,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, (_("You don't have the right to edit a machine"
+                                 " of another user."))
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -177,8 +179,8 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, _("You don't have the right to delete a machine"
+                                 " of another user.")
         return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -189,9 +191,30 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_machine') and
                 self.user != user_request):
-            return False, (u"Vous n'avez pas droit de voir les machines autre "
-                           "que les vôtres")
+            return False, _("You don't have the right to view other machines"
+                             " than yours.")
         return True, None
+
+    @cached_property
+    def short_name(self):
+        """Par defaut, renvoie le nom de la première interface
+        de cette machine"""
+        return str(self.interface_set.first().domain.name)
+
+    @cached_property
+    def all_short_names(self):
+        """Renvoie de manière unique, le nom des interfaces de cette
+        machine"""
+        return Domain.objects.filter(
+            interface_parent__machine=self
+            ).values_list('name', flat=True).distinct()
+
+    @cached_property
+    def all_complete_names(self):
+        """Renvoie tous les tls complets de la machine"""
+        return [str(domain) for domain in Domain.objects.filter(
+            Q(cname__interface_parent__machine=self) | Q(interface_parent__machine=self)
+            )]
 
     def __init__(self, *args, **kwargs):
         super(Machine, self).__init__(*args, **kwargs)
@@ -205,8 +228,6 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
 
 class MachineType(RevMixin, AclMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
-    PRETTY_NAME = "Type de machine"
-
     type = models.CharField(max_length=255)
     ip_type = models.ForeignKey(
         'IpType',
@@ -217,10 +238,11 @@ class MachineType(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_machinetype", "Peut voir un objet machinetype"),
-            ("use_all_machinetype",
-             "Peut utiliser n'importe quel type de machine"),
+            ("view_machinetype", _("Can view a machine type object")),
+            ("use_all_machinetype", _("Can use all machine types")),
         )
+        verbose_name = _("machine type")
+        verbose_name_plural = _("machine types")
 
     def all_interfaces(self):
         """ Renvoie toutes les interfaces (cartes réseaux) de type
@@ -238,8 +260,8 @@ class MachineType(RevMixin, AclMixin, models.Model):
             message is acces is not allowed.
         """
         if not user_request.has_perm('machines.use_all_machinetype'):
-            return False, (u"Vous n'avez pas le droit d'utiliser tout types "
-                           "de machines")
+            return False, (_("You don't have the right to use all machine"
+                             " types."))
         return True, None
 
     def __str__(self):
@@ -248,17 +270,44 @@ class MachineType(RevMixin, AclMixin, models.Model):
 
 class IpType(RevMixin, AclMixin, models.Model):
     """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
-    PRETTY_NAME = "Type d'ip"
-
     type = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
     domaine_ip_stop = models.GenericIPAddressField(protocol='IPv4')
+    domaine_ip_network = models.GenericIPAddressField(
+        protocol='IPv4',
+        null=True,
+        blank=True,
+        help_text=_("Network containing the domain's IPv4 range (optional)")
+    )
+    domaine_ip_netmask = models.IntegerField(
+        default=24,
+        validators=[
+            MaxValueValidator(31),
+            MinValueValidator(8)
+        ],
+        help_text=_("Netmask for the domain's IPv4 range")
+    )
+    reverse_v4 = models.BooleanField(
+            default=False, 
+            help_text=_("Enable reverse DNS for IPv4"),
+    )
     prefix_v6 = models.GenericIPAddressField(
         protocol='IPv6',
         null=True,
         blank=True
+    )
+    prefix_v6_length = models.IntegerField(
+        default=64,
+        validators=[
+            MaxValueValidator(128),
+            MinValueValidator(0)
+        ]
+        )
+    reverse_v6 = models.BooleanField(
+            default=False,
+            help_text=_("Enable reverse DNS for IPv6"),
     )
     vlan = models.ForeignKey(
         'Vlan',
@@ -274,9 +323,11 @@ class IpType(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_iptype", "Peut voir un objet iptype"),
-            ("use_all_iptype", "Peut utiliser tous les iptype"),
+            ("view_iptype", _("Can view an IP type object")),
+            ("use_all_iptype", _("Can use all IP types")),
         )
+        verbose_name = _("IP type")
+        verbose_name_plural = ("IP types")
 
     @cached_property
     def ip_range(self):
@@ -293,6 +344,61 @@ class IpType(RevMixin, AclMixin, models.Model):
         """ Renvoie une liste des ip en string"""
         return [str(x) for x in self.ip_set]
 
+    @cached_property
+    def ip_set_cidrs_as_str(self):
+        """Renvoie la liste des cidrs du range en str"""
+        return [str(ip_range) for ip_range in self.ip_set.iter_cidrs()]
+
+    @cached_property
+    def ip_set_full_info(self):
+        """Iter sur les range cidr, et renvoie network, broacast , etc"""
+        return [
+            {
+                'network': str(ip_set.network),
+                'netmask': str(ip_set.netmask),
+                'netmask_cidr': str(ip_set.prefixlen),
+                'broadcast': str(ip_set.broadcast),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
+            } for ip_set in self.ip_set.iter_cidrs()
+        ]
+
+    @cached_property
+    def ip6_set_full_info(self):
+        if self.prefix_v6:
+            return {
+                'network' : str(self.prefix_v6),
+                'netmask' : 'ffff:ffff:ffff:ffff::',
+                'netmask_cidr' : str(self.prefix_v6_length),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
+            }
+        else:
+            return None
+
+    @cached_property
+    def ip_network(self):
+        """Renvoie le network parent du range start-stop, si spécifié
+        Différent de ip_set_cidrs ou iP_set, car lui est supérieur ou égal"""
+        if self.domaine_ip_network:
+            return IPNetwork(str(self.domaine_ip_network) + '/' + str(self.domaine_ip_netmask))
+        return None
+
+    @cached_property
+    def ip_net_full_info(self):
+        """Renvoie les infos du network contenant du range"""
+        return {
+            'network' : str(self.ip_network.network),
+            'netmask' : str(self.ip_network.netmask),
+            'broadcast' : str(self.ip_network.broadcast),
+            'netmask_cidr' : str(self.ip_network.prefixlen),
+        }
+
+    @cached_property
+    def complete_prefixv6(self):
+        """Return the complete prefix v6 as cidr"""
+        return str(self.prefix_v6) + "/" + str(self.prefix_v6_length)
+
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""
         return IpList.objects.filter(ip_type=self)
@@ -308,12 +414,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         crée les ip une par une. Si elles existent déjà, met à jour le type
         associé à l'ip"""
         # Creation du range d'ip dans les objets iplist
-        networks = []
-        for net in self.ip_range.cidrs():
-            networks += net.iter_hosts()
-        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in networks]
+        ip_obj = [IpList(ip_type=self, ipv4=str(ip)) for ip in self.ip_range]
         listes_ip = IpList.objects.filter(
-            ipv4__in=[str(ip) for ip in networks]
+            ipv4__in=[str(ip) for ip in self.ip_range]
         )
         # Si il n'y a pas d'ip, on les crée
         if not listes_ip:
@@ -327,8 +430,9 @@ class IpType(RevMixin, AclMixin, models.Model):
         """ Methode dépréciée, IpList est en mode cascade et supprimé
         automatiquement"""
         if Interface.objects.filter(ipv4__in=self.ip_objects()):
-            raise ValidationError("Une ou plusieurs ip du range sont\
-            affectées, impossible de supprimer le range")
+            raise ValidationError(_("One or several IP addresses from the"
+                                    " range are affected, impossible to delete"
+                                    " the range."))
         for ip in self.ip_objects():
             ip.delete()
 
@@ -338,11 +442,28 @@ class IpType(RevMixin, AclMixin, models.Model):
             return
         else:
             for ipv6 in Ipv6List.objects.filter(
-                    interface__in=Interface.objects.filter(
-                        type__in=MachineType.objects.filter(ip_type=self)
-                    )
-                ):
+                interface__in=Interface.objects.filter(
+                    type__in=MachineType.objects.filter(ip_type=self)
+                )
+            ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
+
+    def get_associated_ptr_records(self):
+        from re2o.utils import all_active_assigned_interfaces
+        if self.reverse_v4:
+            return (all_active_assigned_interfaces()
+                    .filter(type__ip_type=self)
+                    .filter(ipv4__isnull=False))
+        else:
+            return None
+
+    def get_associated_ptr_v6_records(self):
+        from re2o.utils import all_active_interfaces
+        if self.reverse_v6:
+            return (all_active_interfaces(full=True)
+                    .filter(type__ip_type=self))
+        else:
+            return None
 
     def clean(self):
         """ Nettoyage. Vérifie :
@@ -351,19 +472,25 @@ class IpType(RevMixin, AclMixin, models.Model):
         - Que le range crée ne recoupe pas un range existant
         - Formate l'ipv6 donnée en /64"""
         if IPAddress(self.domaine_ip_start) > IPAddress(self.domaine_ip_stop):
-            raise ValidationError("Domaine end doit être après start...")
+            raise ValidationError(_("Range end must be after range start..."))
         # On ne crée pas plus grand qu'un /16
         if self.ip_range.size > 65536:
-            raise ValidationError("Le range est trop gros, vous ne devez\
-            pas créer plus grand qu'un /16")
+            raise ValidationError(_("The range is too large, you can't create"
+                                    " a larger one than a /16."))
         # On check que les / ne se recoupent pas
         for element in IpType.objects.all().exclude(pk=self.pk):
             if not self.ip_set.isdisjoint(element.ip_set):
-                raise ValidationError("Le range indiqué n'est pas disjoint\
-                des ranges existants")
+                raise ValidationError(_("The specified range is not disjoint"
+                                        " from existing ranges."))
         # On formate le prefix v6
         if self.prefix_v6:
             self.prefix_v6 = str(IPNetwork(self.prefix_v6 + '/64').network)
+        # On vérifie qu'un domaine network/netmask contiens bien le domaine ip start-stop
+        if self.domaine_ip_network:
+            if not self.domaine_ip_start in self.ip_network or not self.domaine_ip_stop in self.ip_network:
+                raise ValidationError(_("If you specify a domain network or"
+                                        " netmask, it must contain the"
+                                        " domain's IP range."))
         return
 
     def save(self, *args, **kwargs):
@@ -385,16 +512,16 @@ class IpType(RevMixin, AclMixin, models.Model):
 class Vlan(RevMixin, AclMixin, models.Model):
     """ Un vlan : vlan_id et nom
     On limite le vlan id entre 0 et 4096, comme défini par la norme"""
-    PRETTY_NAME = "Vlans"
-
     vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
 
     class Meta:
         permissions = (
-            ("view_vlan", "Peut voir un objet vlan"),
+            ("view_vlan", _("Can view a VLAN object")),
         )
+        verbose_name = _("VLAN")
+        verbose_name_plural = _("VLANs")
 
     def __str__(self):
         return self.name
@@ -404,8 +531,6 @@ class Nas(RevMixin, AclMixin, models.Model):
     """ Les nas. Associé à un machine_type.
     Permet aussi de régler le port_access_mode (802.1X ou mac-address) pour
     le radius. Champ autocapture de la mac à true ou false"""
-    PRETTY_NAME = "Correspondance entre les nas et les machines connectées"
-
     default_mode = '802.1X'
     AUTH = (
         ('802.1X', '802.1X'),
@@ -432,8 +557,10 @@ class Nas(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_nas", "Peut voir un objet Nas"),
+            ("view_nas", _("Can view a NAS device object")),
         )
+        verbose_name = _("NAS device")
+        verbose_name_plural = _("NAS devices")
 
     def __str__(self):
         return self.name
@@ -445,36 +572,36 @@ class SOA(RevMixin, AclMixin, models.Model):
     Les valeurs par défault viennent des recommandations RIPE :
     https://www.ripe.net/publications/docs/ripe-203
     """
-    PRETTY_NAME = "Enregistrement SOA"
-
     name = models.CharField(max_length=255)
     mail = models.EmailField(
-        help_text='Email du contact pour la zone'
+        help_text=_("Contact email address for the zone")
     )
     refresh = models.PositiveIntegerField(
         default=86400,  # 24 hours
-        help_text='Secondes avant que les DNS secondaires doivent demander le\
-                   serial du DNS primaire pour détecter une modification'
+        help_text=_("Seconds before the secondary DNS have to ask the primary"
+                    " DNS serial to detect a modification")
     )
     retry = models.PositiveIntegerField(
         default=7200,  # 2 hours
-        help_text='Secondes avant que les DNS secondaires fassent une nouvelle\
-                   demande de serial en cas de timeout du DNS primaire'
+        help_text=_("Seconds before the secondary DNS ask the serial again in"
+                    " case of a primary DNS timeout")
     )
     expire = models.PositiveIntegerField(
         default=3600000,  # 1000 hours
-        help_text='Secondes après lesquelles les DNS secondaires arrêtent de\
-                   de répondre aux requêtes en cas de timeout du DNS primaire'
+        help_text=_("Seconds before the secondary DNS stop answering requests"
+                    " in case of primary DNS timeout")
     )
     ttl = models.PositiveIntegerField(
         default=172800,  # 2 days
-        help_text='Time To Live'
+        help_text=_("Time to Live")
     )
 
     class Meta:
         permissions = (
-            ("view_soa", "Peut voir un objet soa"),
+            ("view_soa", _("Can view an SOA record object")),
         )
+        verbose_name = _("SOA record")
+        verbose_name_plural = _("SOA records")
 
     def __str__(self):
         return str(self.name)
@@ -513,7 +640,7 @@ class SOA(RevMixin, AclMixin, models.Model):
         /!\ Ne jamais supprimer ou renommer cette fonction car elle est
         utilisée dans les migrations de la BDD. """
         return cls.objects.get_or_create(
-            name="SOA to edit",
+            name=_("SOA to edit"),
             mail="postmaser@example.com"
         )[0].pk
 
@@ -521,12 +648,10 @@ class SOA(RevMixin, AclMixin, models.Model):
 class Extension(RevMixin, AclMixin, models.Model):
     """ Extension dns type example.org. Précise si tout le monde peut
     l'utiliser, associé à un origin (ip d'origine)"""
-    PRETTY_NAME = "Extensions dns"
-
     name = models.CharField(
         max_length=255,
         unique=True,
-        help_text="Nom de la zone, doit commencer par un point (.example.org)"
+        help_text=_("Zone name, must begin with a dot (.example.org)")
     )
     need_infra = models.BooleanField(default=False)
     origin = models.ForeignKey(
@@ -534,13 +659,13 @@ class Extension(RevMixin, AclMixin, models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        help_text="Enregistrement A associé à la zone"
+        help_text=_("A record associated with the zone")
     )
     origin_v6 = models.GenericIPAddressField(
         protocol='IPv6',
         null=True,
         blank=True,
-        help_text="Enregistrement AAAA associé à la zone"
+        help_text=_("AAAA record associated with the zone")
     )
     soa = models.ForeignKey(
         'SOA',
@@ -549,9 +674,11 @@ class Extension(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_extension", "Peut voir un objet extension"),
-            ("use_all_extension", "Peut utiliser toutes les extension"),
+            ("view_extension", _("Can view an extension object")),
+            ("use_all_extension", _("Can use all extensions")),
         )
+        verbose_name = _("DNS extension")
+        verbose_name_plural = _("DNS extensions")
 
     @cached_property
     def dns_entry(self):
@@ -586,8 +713,7 @@ class Extension(RevMixin, AclMixin, models.Model):
         from re2o.utils import all_active_assigned_interfaces
         return (Domain.objects
                 .filter(extension=self)
-                .filter(cname__isnull=False)
-                .filter(interface_parent__in=all_active_assigned_interfaces())
+                .filter(cname__interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
 
     @staticmethod
@@ -603,7 +729,7 @@ class Extension(RevMixin, AclMixin, models.Model):
 
     def clean(self, *args, **kwargs):
         if self.name and self.name[0] != '.':
-            raise ValidationError("Une extension doit commencer par un point")
+            raise ValidationError(_("An extension must begin with a dot."))
         super(Extension, self).clean(*args, **kwargs)
 
 
@@ -611,16 +737,16 @@ class Mx(RevMixin, AclMixin, models.Model):
     """ Entrées des MX. Enregistre la zone (extension) associée et la
     priorité
     Todo : pouvoir associer un MX à une interface """
-    PRETTY_NAME = "Enregistrements MX"
-
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
-    priority = models.PositiveIntegerField(unique=True)
-    name = models.OneToOneField('Domain', on_delete=models.PROTECT)
+    priority = models.PositiveIntegerField()
+    name = models.ForeignKey('Domain', on_delete=models.PROTECT)
 
     class Meta:
         permissions = (
-            ("view_mx", "Peut voir un objet mx"),
+            ("view_mx", _("Can view an MX record object")),
         )
+        verbose_name = _("MX record")
+        verbose_name_plural = _("MX records")
 
     @cached_property
     def dns_entry(self):
@@ -637,15 +763,15 @@ class Mx(RevMixin, AclMixin, models.Model):
 
 class Ns(RevMixin, AclMixin, models.Model):
     """Liste des enregistrements name servers par zone considéérée"""
-    PRETTY_NAME = "Enregistrements NS"
-
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     ns = models.ForeignKey('Domain', on_delete=models.PROTECT)
 
     class Meta:
         permissions = (
-            ("view_ns", "Peut voir un objet ns"),
+            ("view_ns", _("Can view an NS record object")),
         )
+        verbose_name = _("NS record")
+        verbose_name_plural = _("NS records")
 
     @cached_property
     def dns_entry(self):
@@ -658,16 +784,16 @@ class Ns(RevMixin, AclMixin, models.Model):
 
 class Txt(RevMixin, AclMixin, models.Model):
     """ Un enregistrement TXT associé à une extension"""
-    PRETTY_NAME = "Enregistrement TXT"
-
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
     field2 = models.TextField(max_length=2047)
 
     class Meta:
         permissions = (
-            ("view_txt", "Peut voir un objet txt"),
+            ("view_txt", _("Can view a TXT record object")),
         )
+        verbose_name = _("TXT record")
+        verbose_name_plural = _("TXT records")
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.field1) + " " +\
@@ -686,10 +812,10 @@ class DName(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_dname", "Can see a dname object"),
+            ("view_dname", _("Can view a DNAME record object")),
         )
-        verbose_name = "DNAME entry"
-        verbose_name_plural = "DNAME entries"
+        verbose_name = _("DNAME record")
+        verbose_name_plural = _("DNAME records")
 
     def __str__(self):
         return str(self.zone) + " : " + str(self.alias)
@@ -702,8 +828,6 @@ class DName(RevMixin, AclMixin, models.Model):
 
 class Srv(RevMixin, AclMixin, models.Model):
     """ A SRV record """
-    PRETTY_NAME = "Enregistrement Srv"
-
     TCP = 'TCP'
     UDP = 'UDP'
 
@@ -713,41 +837,43 @@ class Srv(RevMixin, AclMixin, models.Model):
         choices=(
             (TCP, 'TCP'),
             (UDP, 'UDP'),
-            ),
+        ),
         default=TCP,
     )
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     ttl = models.PositiveIntegerField(
         default=172800,  # 2 days
-        help_text='Time To Live'
+        help_text=_("Time to Live")
     )
     priority = models.PositiveIntegerField(
         default=0,
         validators=[MaxValueValidator(65535)],
-        help_text=("La priorité du serveur cible (valeur entière non "
-                   "négative, plus elle est faible, plus ce serveur sera "
-                   "utilisé s'il est disponible)")
+        help_text=_("Priority of the target server (positive integer value,"
+                    " the lower it is, the more the server will be used if"
+                    " available)")
     )
     weight = models.PositiveIntegerField(
         default=0,
         validators=[MaxValueValidator(65535)],
-        help_text="Poids relatif pour les enregistrements de même priorité\
-            (valeur entière de 0 à 65535)"
+        help_text=_("Relative weight for records with the same priority"
+                     " (integer value between 0 and 65535)")
     )
     port = models.PositiveIntegerField(
         validators=[MaxValueValidator(65535)],
-        help_text="Port (tcp/udp)"
+        help_text=_("TCP/UDP port")
     )
     target = models.ForeignKey(
         'Domain',
         on_delete=models.PROTECT,
-        help_text="Serveur cible"
+        help_text=_("Target server")
     )
 
     class Meta:
         permissions = (
-            ("view_srv", "Peut voir un objet srv"),
+            ("view_srv", _("Can view an SRV record object")),
         )
+        verbose_name = _("SRV record")
+        verbose_name_plural = _("SRV records")
 
     def __str__(self):
         return str(self.service) + ' ' + str(self.protocole) + ' ' +\
@@ -811,10 +937,10 @@ class SshFp(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_sshfp", "Can see an SSHFP record"),
+            ("view_sshfp", _("Can view an SSHFP record object")),
         )
-        verbose_name = "SSHFP record"
-        verbose_name_plural = "SSHFP records"
+        verbose_name = _("SSHFP record")
+        verbose_name_plural = _("SSHFP records")
 
     def can_view(self, user_request, *_args, **_kwargs):
         return self.machine.can_view(user_request, *_args, **_kwargs)
@@ -838,15 +964,13 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     - le type parent associé au range ip et à l'extension
     - un objet domain associé contenant son nom
     - la liste des ports oiuvert"""
-    PRETTY_NAME = "Interface"
-
     ipv4 = models.OneToOneField(
         'IpList',
         on_delete=models.PROTECT,
         blank=True,
         null=True
     )
-    mac_address = MACAddressField(integer=False, unique=True)
+    mac_address = MACAddressField(integer=False)
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
@@ -854,10 +978,12 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_interface", "Peut voir un objet interface"),
+            ("view_interface", _("Can view an interface object")),
             ("change_interface_machine",
-             "Peut changer le propriétaire d'une interface"),
+             _("Can change the owner of an interface")),
         )
+        verbose_name = _("interface")
+        verbose_name_plural = _("interfaces")
 
     @cached_property
     def is_active(self):
@@ -880,7 +1006,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     @cached_property
     def gen_ipv6_dhcpv6(self):
         """Cree une ip, à assigner avec dhcpv6 sur une machine"""
-        prefix_v6 = self.type.ip_type.prefix_v6
+        prefix_v6 = self.type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return None
         return IPv6Address(
@@ -951,7 +1077,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             self.mac_address = str(EUI(self.mac_address))
         except:
-            raise ValidationError("La mac donnée est invalide")
+            raise ValidationError(_("The given MAC address is invalid."))
 
     def clean(self, *args, **kwargs):
         """ Formate l'addresse mac en mac_bare (fonction filter_mac)
@@ -964,7 +1090,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         # But in our case, it's impossible to create a type value so we raise
         # the error.
         if not hasattr(self, 'type'):
-            raise ValidationError("Le type d'ip choisi n'est pas valide")
+            raise ValidationError(_("The selected IP type is invalid."))
         self.filter_macaddress()
         self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
@@ -977,8 +1103,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         if free_ips:
             self.ipv4 = free_ips[0]
         else:
-            raise ValidationError("Il n'y a plus d'ip disponibles\
-            dans le slash")
+            raise ValidationError(_("There is no IP address available in the"
+                                    " slash."))
         return
 
     def unassign_ipv4(self):
@@ -995,8 +1121,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         # On verifie la cohérence en forçant l'extension par la méthode
         if self.ipv4:
             if self.type.ip_type != self.ipv4.ip_type:
-                raise ValidationError("L'ipv4 et le type de la machine ne\
-                correspondent pas")
+                raise ValidationError(_("The IPv4 address and the machine type"
+                                        " don't match."))
         super(Interface, self).save(*args, **kwargs)
 
     @staticmethod
@@ -1009,23 +1135,23 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             machine = Machine.objects.get(pk=machineid)
         except Machine.DoesNotExist:
-            return False, u"Machine inexistante"
+            return False, _("Nonexistent machine.")
         if not user_request.has_perm('machines.add_interface'):
             if not (preferences.models.OptionalMachine
                     .get_cached_value('create_machine')):
-                return False, u"Vous ne pouvez pas ajouter une machine"
+                return False, _("You can't add a machine.")
             max_lambdauser_interfaces = (preferences.models.OptionalMachine
                                          .get_cached_value(
                                              'max_lambdauser_interfaces'
                                          ))
             if machine.user != user_request:
-                return False, u"Vous ne pouvez pas ajouter une interface à une\
-                        machine d'un autre user que vous sans droit"
+                return False, _("You don't have the right to add an interface"
+                                " to a machine of another user.")
             if (machine.user.user_interfaces().count() >=
                     max_lambdauser_interfaces):
-                return False, u"Vous avez atteint le maximum d'interfaces\
-                        autorisées que vous pouvez créer vous même (%s) "\
-                        % max_lambdauser_interfaces
+                return False, (_("You reached the maximum number of interfaces"
+                                 " that you are allowed to create yourself"
+                                 " (%s)." % max_lambdauser_interfaces))
         return True, None
 
     @staticmethod
@@ -1033,7 +1159,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """Check if a user can change the machine associated with an
         Interface object """
         return (user_request.has_perm('machines.change_interface_machine'),
-                "Droit requis pour changer la machine")
+                _("Permission required to edit the machine."))
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -1048,8 +1174,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, _("You don't have the right to edit a machine of"
+                                " another user.")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1065,8 +1191,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, _("You don't have the right to edit a machine of"
+                                " another user.")
         return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1077,8 +1203,8 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_interface') and
                 self.machine.user != user_request):
-            return False, (u"Vous n'avez pas le droit de voir des machines "
-                           "autre que les vôtres")
+            return False, _("You don't have the right to view machines other"
+                            " than yours.")
         return True, None
 
     def __init__(self, *args, **kwargs):
@@ -1110,11 +1236,9 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
 class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ A list of IPv6 """
-    PRETTY_NAME = 'Enregistrements Ipv6 des machines'
 
     ipv6 = models.GenericIPAddressField(
         protocol='IPv6',
-        unique=True
     )
     interface = models.ForeignKey(
         'Interface',
@@ -1125,10 +1249,12 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_ipv6list", "Peut voir un objet ipv6"),
-            ("change_ipv6list_slaac_ip",
-             "Peut changer la valeur slaac sur une ipv6"),
+            ("view_ipv6list", _("Can view an IPv6 addresses list object")),
+            ("change_ipv6list_slaac_ip", _("Can change the SLAAC value of an"
+                                           " IPv6 addresses list")),
         )
+        verbose_name = _("IPv6 addresses list")
+        verbose_name_plural = _("IPv6 addresses lists")
 
     @staticmethod
     def can_create(user_request, interfaceid, *_args, **_kwargs):
@@ -1140,18 +1266,19 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             interface = Interface.objects.get(pk=interfaceid)
         except Interface.DoesNotExist:
-            return False, u"Interface inexistante"
+            return False, _("Nonexistent interface.")
         if not user_request.has_perm('machines.add_ipv6list'):
             if interface.machine.user != user_request:
-                return False, u"Vous ne pouvez pas ajouter un alias à une\
-                        machine d'un autre user que vous sans droit"
+                return False, _("You don't have the right to add an alias to a"
+                                " machine of another user.")
         return True, None
 
     @staticmethod
     def can_change_slaac_ip(user_request, *_args, **_kwargs):
         """ Check if a user can change the slaac value """
         return (user_request.has_perm('machines.change_ipv6list_slaac_ip'),
-                "Droit requis pour changer la valeur slaac ip")
+                _("Permission required to change the SLAAC value of an IPv6"
+                  " address"))
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -1166,8 +1293,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, _("You don't have the right to edit a machine of"
+                                " another user.")
         return True, None
 
     def can_delete(self, user_request, *args, **kwargs):
@@ -1183,8 +1310,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         *args,
                         **kwargs
                     )[0]):
-                return False, (u"Vous ne pouvez pas éditer une machine "
-                               "d'un autre user que vous sans droit")
+                return False, _("You don't have the right to edit a machine of"
+                                " another user.")
         return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1195,8 +1322,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_ipv6list') and
                 self.interface.machine.user != user_request):
-            return False, (u"Vous n'avez pas le droit de voir des machines "
-                           "autre que les vôtres")
+            return False, _("You don't have the right to view machines other"
+                            " than yours.")
         return True, None
 
     def __init__(self, *args, **kwargs):
@@ -1207,14 +1334,14 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def check_and_replace_prefix(self, prefix=None):
         """Si le prefixe v6 est incorrect, on maj l'ipv6"""
-        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6
+        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return
-        if (IPv6Address(self.ipv6).exploded[:20] !=
+        if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                 IPv6Address(prefix_v6).exploded[:20]):
             self.ipv6 = IPv6Address(
                 IPv6Address(prefix_v6).exploded[:20] +
-                IPv6Address(self.ipv6).exploded[20:]
+                IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[20:]
             )
             self.save()
 
@@ -1222,15 +1349,14 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         if self.slaac_ip and (Ipv6List.objects
                               .filter(interface=self.interface, slaac_ip=True)
                               .exclude(id=self.id)):
-            raise ValidationError("Une ip slaac est déjà enregistrée")
-        prefix_v6 = self.interface.type.ip_type.prefix_v6
+            raise ValidationError(_("A SLAAC IP address is already registered."))
+        prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
         if prefix_v6:
-            if (IPv6Address(self.ipv6).exploded[:20] !=
+            if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                     IPv6Address(prefix_v6).exploded[:20]):
-                raise ValidationError(
-                    "Le prefixv6 est incorrect et ne correspond pas au type "
-                    "associé à la machine"
-                )
+                raise ValidationError(_("The v6 prefix is incorrect and"
+                                        " doesn't match the type associated"
+                                        " with the machine."))
         super(Ipv6List, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -1246,7 +1372,6 @@ class Domain(RevMixin, AclMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
     ou cname sont remplis"""
-    PRETTY_NAME = "Domaine dns"
 
     interface_parent = models.OneToOneField(
         'Interface',
@@ -1255,7 +1380,7 @@ class Domain(RevMixin, AclMixin, models.Model):
         null=True
     )
     name = models.CharField(
-        help_text="Obligatoire et unique, ne doit pas comporter de points",
+        help_text=_("Mandatory and unique, must not contain dots."),
         max_length=255
     )
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
@@ -1269,8 +1394,10 @@ class Domain(RevMixin, AclMixin, models.Model):
     class Meta:
         unique_together = (("name", "extension"),)
         permissions = (
-            ("view_domain", "Peut voir un objet domain"),
+            ("view_domain", _("Can view a domain object")),
         )
+        verbose_name = _("domain")
+        verbose_name_plural = _("domains")
 
     def get_extension(self):
         """ Retourne l'extension de l'interface parente si c'est un A
@@ -1292,20 +1419,22 @@ class Domain(RevMixin, AclMixin, models.Model):
         if self.get_extension():
             self.extension = self.get_extension()
         if self.interface_parent and self.cname:
-            raise ValidationError("On ne peut créer à la fois A et CNAME")
+            raise ValidationError(_("You can't create a both A and CNAME"
+                                    " record."))
         if self.cname == self:
-            raise ValidationError("On ne peut créer un cname sur lui même")
+            raise ValidationError(_("You can't create a CNAME record pointing"
+                                    " to itself."))
         HOSTNAME_LABEL_PATTERN = re.compile(
             r"(?!-)[A-Z\d-]+(?<!-)$",
             re.IGNORECASE
         )
         dns = self.name.lower()
         if len(dns) > 63:
-            raise ValidationError("Le nom de domaine %s est trop long\
-            (maximum de 63 caractères)." % dns)
+            raise ValidationError(_("The domain name %s is too long (over 63"
+                                    " characters).") % dns)
         if not HOSTNAME_LABEL_PATTERN.match(dns):
-            raise ValidationError("Ce nom de domaine %s contient des\
-            carractères interdits." % dns)
+            raise ValidationError(_("The domain name %s contains forbidden"
+                                    " characters.") % dns)
         self.validate_unique()
         super(Domain, self).clean()
 
@@ -1322,7 +1451,7 @@ class Domain(RevMixin, AclMixin, models.Model):
         """ Empèche le save sans extension valide.
         Force à avoir appellé clean avant"""
         if not self.get_extension():
-            raise ValidationError("Extension invalide")
+            raise ValidationError(_("Invalid extension."))
         self.full_clean()
         super(Domain, self).save(*args, **kwargs)
 
@@ -1348,24 +1477,24 @@ class Domain(RevMixin, AclMixin, models.Model):
         try:
             interface = Interface.objects.get(pk=interfaceid)
         except Interface.DoesNotExist:
-            return False, u"Interface inexistante"
+            return False, _("Nonexistent interface.")
         if not user_request.has_perm('machines.add_domain'):
             max_lambdauser_aliases = (preferences.models.OptionalMachine
                                       .get_cached_value(
                                           'max_lambdauser_aliases'
                                       ))
             if interface.machine.user != user_request:
-                return False, (u"Vous ne pouvez pas ajouter un alias à une "
-                               "machine d'un autre user que vous sans droit")
+                return False, _("You don't have the right to add an alias to a"
+                                " machine of another user.")
             if Domain.objects.filter(
                     cname__in=Domain.objects.filter(
                         interface_parent__in=(interface.machine.user
                                               .user_interfaces())
                     )
                 ).count() >= max_lambdauser_aliases:
-                return False, (u"Vous avez atteint le maximum d'alias "
-                               "autorisés que vous pouvez créer vous même "
-                               "(%s) " % max_lambdauser_aliases)
+                return False, _("You reached the maximum number of alias that"
+                                " you are allowed to create yourself (%s). "
+                                % max_lambdauser_aliases)
         return True, None
 
     def can_edit(self, user_request, *_args, **_kwargs):
@@ -1376,8 +1505,8 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: soit True, soit False avec la raison de l'échec"""
         if (not user_request.has_perm('machines.change_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, (u"Vous ne pouvez pas editer un alias à une machine "
-                           "d'un autre user que vous sans droit")
+            return False, _("You don't have the right to edit an alias of a"
+                            " machine of another user.")
         return True, None
 
     def can_delete(self, user_request, *_args, **_kwargs):
@@ -1388,8 +1517,8 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: soit True, soit False avec la raison de l'échec"""
         if (not user_request.has_perm('machines.delete_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, (u"Vous ne pouvez pas supprimer un alias à une "
-                           "machine d'un autre user que vous sans droit")
+            return False, _("You don't have the right to delete an alias of a"
+                            " machine of another user.")
         return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1400,8 +1529,8 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, (u"Vous n'avez pas le droit de voir des machines "
-                           "autre que les vôtres")
+            return False, _("You don't have the right to view machines other"
+                            " than yours.")
         return True, None
 
     def __str__(self):
@@ -1410,15 +1539,16 @@ class Domain(RevMixin, AclMixin, models.Model):
 
 class IpList(RevMixin, AclMixin, models.Model):
     """ A list of IPv4 """
-    PRETTY_NAME = "Addresses ipv4"
 
     ipv4 = models.GenericIPAddressField(protocol='IPv4', unique=True)
     ip_type = models.ForeignKey('IpType', on_delete=models.CASCADE)
 
     class Meta:
         permissions = (
-            ("view_iplist", "Peut voir un objet iplist"),
+            ("view_iplist", _("Can view an IPv4 addresses list object")),
         )
+        verbose_name = _("IPv4 addresses list")
+        verbose_name_plural = _("IPv4 addresses lists")
 
     @cached_property
     def need_infra(self):
@@ -1429,8 +1559,8 @@ class IpList(RevMixin, AclMixin, models.Model):
     def clean(self):
         """ Erreur si l'ip_type est incorrect"""
         if not str(self.ipv4) in self.ip_type.ip_set_as_str:
-            raise ValidationError("L'ipv4 et le range de l'iptype ne\
-            correspondent pas!")
+            raise ValidationError(_("The IPv4 address and the range of the IP"
+                                    " type don't match."))
         return
 
     def save(self, *args, **kwargs):
@@ -1441,25 +1571,96 @@ class IpList(RevMixin, AclMixin, models.Model):
         return self.ipv4
 
 
+class Role(RevMixin, AclMixin, models.Model):
+    """Define the role of a machine.
+    Allow automated generation of the server configuration.
+    """
+
+    ROLE = (
+        ('dhcp-server', _("DHCP server")),
+        ('switch-conf-server', _("Switches configuration server")),
+        ('dns-recursif-server', _("Recursive DNS server")),
+        ('ntp-server', _("NTP server")),
+        ('radius-server', _("RADIUS server")),
+        ('log-server', _("Log server")),
+        ('ldap-master-server', _("LDAP master server")),
+        ('ldap-backup-server', _("LDAP backup server")),
+        ('smtp-server', _("SMTP server")),
+        ('postgresql-server', _("postgreSQL server")),
+        ('mysql-server', _("mySQL server")),
+        ('sql-client', _("SQL client")),
+        ('gateway', _("Gateway")),
+    )
+
+    role_type = models.CharField(max_length=255, unique=True)
+    servers = models.ManyToManyField('Interface')
+    specific_role = models.CharField(
+        choices=ROLE,
+        null=True,
+        blank=True,
+        max_length=32,
+    )
+
+    class Meta:
+        permissions = (
+            ("view_role", _("Can view a role object")),
+        )
+        verbose_name = _("server role")
+        verbose_name_plural = _("server roles")
+
+    @classmethod
+    def get_instance(cls, roleid, *_args, **_kwargs):
+        """Get the Role instance with roleid.
+
+        Args:
+            roleid: The id
+
+        Returns:
+            The role.
+        """
+        return cls.objects.get(pk=roleid)
+
+    @classmethod
+    def interface_for_roletype(cls, roletype):
+        """Return interfaces for a roletype"""
+        return Interface.objects.filter(
+            role=cls.objects.filter(specific_role=roletype)
+        )
+
+    @classmethod
+    def all_interfaces_for_roletype(cls, roletype):
+        """Return all interfaces for a roletype"""
+        return Interface.objects.filter(
+            machine__interface__role=cls.objects.filter(specific_role=roletype)
+        )
+
+    def save(self, *args, **kwargs):
+        super(Role, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.role_type)
+
+
 class Service(RevMixin, AclMixin, models.Model):
     """ Definition d'un service (dhcp, dns, etc)"""
-    PRETTY_NAME = "Services à générer (dhcp, dns, etc)"
 
     service_type = models.CharField(max_length=255, blank=True, unique=True)
     min_time_regen = models.DurationField(
         default=timedelta(minutes=1),
-        help_text="Temps minimal avant nouvelle génération du service"
+        help_text=_("Minimal time before regeneration of the service.")
     )
     regular_time_regen = models.DurationField(
         default=timedelta(hours=1),
-        help_text="Temps maximal avant nouvelle génération du service"
+        help_text=_("Maximal time before regeneration of the service.")
     )
     servers = models.ManyToManyField('Interface', through='Service_link')
 
     class Meta:
         permissions = (
-            ("view_service", "Peut voir un objet service"),
+            ("view_service", _("Can view a service object")),
         )
+        verbose_name = _("service to generate (DHCP, DNS, ...)")
+        verbose_name_plural = _("services to generate (DHCP, DNS, ...)")
 
     def ask_regen(self):
         """ Marque à True la demande de régénération pour un service x """
@@ -1471,8 +1672,8 @@ class Service(RevMixin, AclMixin, models.Model):
         """ Django ne peut créer lui meme les relations manytomany avec table
         intermediaire explicite"""
         for serv in servers.exclude(
-                pk__in=Interface.objects.filter(service=self)
-            ):
+            pk__in=Interface.objects.filter(service=self)
+        ):
             link = Service_link(service=self, server=serv)
             link.save()
         Service_link.objects.filter(service=self).exclude(server__in=servers)\
@@ -1497,7 +1698,6 @@ def regen(service):
 
 class Service_link(RevMixin, AclMixin, models.Model):
     """ Definition du lien entre serveurs et services"""
-    PRETTY_NAME = "Relation entre service et serveur"
 
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     server = models.ForeignKey('Interface', on_delete=models.CASCADE)
@@ -1506,8 +1706,10 @@ class Service_link(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_service_link", "Peut voir un objet service_link"),
+            ("view_service_link", _("Can view a service server link object")),
         )
+        verbose_name = _("link between service and server")
+        verbose_name_plural = _("links between service and server")
 
     def done_regen(self):
         """ Appellé lorsqu'un serveur a regénéré son service"""
@@ -1547,17 +1749,19 @@ class Service_link(RevMixin, AclMixin, models.Model):
 
 class OuverturePortList(RevMixin, AclMixin, models.Model):
     """Liste des ports ouverts sur une interface."""
-    PRETTY_NAME = "Profil d'ouverture de ports"
 
     name = models.CharField(
-        help_text="Nom de la configuration des ports.",
+        help_text=_("Name of the ports configuration"),
         max_length=255
     )
 
     class Meta:
         permissions = (
-            ("view_ouvertureportlist", "Peut voir un objet ouvertureport"),
+            ("view_ouvertureportlist", _("Can view a ports opening list"
+                                         " object")),
         )
+        verbose_name = _("ports opening list")
+        verbose_name_plural = _("ports opening lists")
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits bureau pour delete
@@ -1566,10 +1770,10 @@ class OuverturePortList(RevMixin, AclMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if not user_request.has_perm('machines.delete_ouvertureportlist'):
-            return False, (u"Vous n'avez pas le droit de supprimer une "
-                           "ouverture de port")
+            return False, _("You don't have the right to delete a ports"
+                            " opening list.")
         if self.interface_set.all():
-            return False, u"Cette liste de ports est utilisée"
+            return False, _("This ports opening list is used.")
         return True, None
 
     def __str__(self):
@@ -1613,7 +1817,6 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
 
     On limite les ports entre 0 et 65535, tels que défini par la RFC
     """
-    PRETTY_NAME = "Plage de port ouverte"
 
     TCP = 'T'
     UDP = 'U'
@@ -1630,7 +1833,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
         choices=(
             (TCP, 'TCP'),
             (UDP, 'UDP'),
-            ),
+        ),
         default=TCP,
     )
     io = models.CharField(
@@ -1638,14 +1841,18 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
         choices=(
             (IN, 'IN'),
             (OUT, 'OUT'),
-            ),
+        ),
         default=OUT,
     )
+    
+    class Meta:
+        verbose_name = _("ports opening")
+        verbose_name = _("ports openings")
 
     def __str__(self):
         if self.begin == self.end:
             return str(self.begin)
-        return '-'.join([str(self.begin), str(self.end)])
+        return ':'.join([str(self.begin), str(self.end)])
 
     def show_port(self):
         """Formatage plus joli, alias pour str"""
@@ -1806,3 +2013,4 @@ def srv_post_save(**_kwargs):
 def srv_post_delete(**_kwargs):
     """Regeneration dns après modification d'un SRV"""
     regen('dns')
+

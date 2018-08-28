@@ -40,13 +40,13 @@ from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _l
+
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-from .models import Article, Paiement, Facture, Banque
+from .models import Article, Paiement, Facture, Banque, CustomInvoice
 from .payment_methods import balance
 
 
@@ -84,71 +84,36 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
         return cleaned_data
 
 
-class SelectUserArticleForm(FormRevMixin, Form):
+class SelectArticleForm(FormRevMixin, Form):
     """
     Form used to select an article during the creation of an invoice for a
     member.
     """
     article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(
-            Q(type_user='All') | Q(type_user='Adherent')
-        ),
-        label=_l("Article"),
+        queryset=Article.objects.none(),
+        label=_("Article"),
         required=True
     )
     quantity = forms.IntegerField(
-        label=_l("Quantity"),
+        label=_("Quantity"),
         validators=[MinValueValidator(1)],
         required=True
     )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
-        super(SelectUserArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.find_allowed_articles(user)
+        target_user = kwargs.pop('target_user')
+        super(SelectArticleForm, self).__init__(*args, **kwargs)
+        self.fields['article'].queryset = Article.find_allowed_articles(user, target_user)
 
 
-class SelectClubArticleForm(Form):
+class CustomInvoiceForm(FormRevMixin, ModelForm):
     """
-    Form used to select an article during the creation of an invoice for a
-    club.
+    Form used to create a custom invoice.
     """
-    article = forms.ModelChoiceField(
-        queryset=Article.objects.filter(
-            Q(type_user='All') | Q(type_user='Club')
-        ),
-        label=_l("Article"),
-        required=True
-    )
-    quantity = forms.IntegerField(
-        label=_l("Quantity"),
-        validators=[MinValueValidator(1)],
-        required=True
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super(SelectClubArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.find_allowed_articles(user)
-
-
-# TODO : change Facture to Invoice
-class NewFactureFormPdf(Form):
-    """
-    Form used to create a custom PDF invoice.
-    """
-    paid = forms.BooleanField(label=_l("Paid"), required=False)
-    # TODO : change dest field to recipient
-    dest = forms.CharField(
-        required=True,
-        max_length=255,
-        label=_l("Recipient")
-    )
-    # TODO : change chambre field to address
-    chambre = forms.CharField(
-        required=False,
-        max_length=10,
-        label=_l("Address")
-    )
+    class Meta:
+        model = CustomInvoice
+        fields = '__all__'
 
 
 class ArticleForm(FormRevMixin, ModelForm):
@@ -172,7 +137,7 @@ class DelArticleForm(FormRevMixin, Form):
     """
     articles = forms.ModelMultipleChoiceField(
         queryset=Article.objects.none(),
-        label=_l("Existing articles"),
+        label=_("Available articles"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -212,7 +177,7 @@ class DelPaiementForm(FormRevMixin, Form):
     # TODO : change paiement to payment
     paiements = forms.ModelMultipleChoiceField(
         queryset=Paiement.objects.none(),
-        label=_l("Existing payment method"),
+        label=_("Available payment methods"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -250,7 +215,7 @@ class DelBanqueForm(FormRevMixin, Form):
     # TODO : change banque to bank
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
-        label=_l("Existing banks"),
+        label=_("Available banks"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -269,21 +234,21 @@ class RechargeForm(FormRevMixin, Form):
     Form used to refill a user's balance
     """
     value = forms.FloatField(
-        label=_l("Amount"),
+        label=_("Amount"),
         min_value=0.01,
         validators=[]
     )
     payment = forms.ModelChoiceField(
         queryset=Paiement.objects.none(),
-        label=_l("Payment method")
+        label=_("Payment method")
     )
 
-    def __init__(self, *args, user=None, **kwargs):
+    def __init__(self, *args, user=None, user_source=None, **kwargs):
         self.user = user
         super(RechargeForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
             _("Select a payment method")
-        self.fields['payment'].queryset = Paiement.find_allowed_payments(user)
+        self.fields['payment'].queryset = Paiement.find_allowed_payments(user_source).exclude(is_balance=True)
 
     def clean(self):
         """
@@ -301,3 +266,4 @@ class RechargeForm(FormRevMixin, Form):
                 }
             )
         return self.cleaned_data
+

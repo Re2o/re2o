@@ -1,0 +1,89 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2018  Hugo Levy-Falk
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+{% load i18n %}
+{% load acl %}
+{% load logs_extra %}
+{% load design %}
+
+<div class="table-responsive">
+    {% if custom_invoice_list.paginator %}
+    {% include 'pagination.html' with list=custom_invoice_list %}
+    {% endif %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    {% trans "Recipient" as tr_recip %}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='user' text=tr_user %}
+                </th>
+                <th>{% trans "Designation" %}</th>
+                <th>{% trans "Total price" %}</th>
+                <th>
+                    {% trans "Payment method" as tr_payment_method %}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='payement' text=tr_payment_method %}
+                </th>
+                <th>
+                    {% trans "Date" as tr_date %}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='date' text=tr_date %}
+                </th>
+                <th>
+                    {% trans "Invoice ID" as tr_invoice_id %}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='id' text=tr_invoice_id %}
+                </th>
+                <th>
+                    {% trans "Paid" as tr_invoice_paid%}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='paid' text=tr_invoice_paid %}
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for invoice in custom_invoice_list %}
+        <tr>
+            <td>{{ invoice.recipient }}</td>
+            <td>{{ invoice.name }}</td>
+            <td>{{ invoice.prix_total }}</td>
+            <td>{{ invoice.payment }}</td>
+            <td>{{ invoice.date }}</td>
+            <td>{{ invoice.id }}</td>
+            <td>{{ invoice.paid|tick }}</td>
+            <td>
+                {% can_edit invoice %}
+                {% include 'buttons/edit.html' with href='cotisations:edit-custom-invoice' id=invoice.id %}
+                {% acl_end %}
+                {% can_delete invoice %}
+                {% include 'buttons/suppr.html' with href='cotisations:del-custom-invoice' id=invoice.id %}
+                {% acl_end %}
+                {% history_button invoice %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:custom-invoice-pdf' invoice.id %}">
+                    <i class="fa fa-file-pdf"></i> {% trans "PDF" %}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if custom_invoice_list.paginator %}
+    {% include 'pagination.html' with list=custom_invoice_list %}
+    {% endif %}
+</div>

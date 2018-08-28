@@ -24,29 +24,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Ipv6</th>
-            <th>Slaac</th>
+            <th>{% trans "IPv6 addresses" %}</th>
+            <th>{% trans "SLAAC" %}</th>
             <th></th>
         </tr>
-    </thead>
+        </thead>
     {% for ipv6 in ipv6_list %}
-    <tr>
-        <td>{{ ipv6.ipv6 }}</td>
-        <td>{{ ipv6.slaac_ip }}</td>
-        <td class="text-right">
-            {% can_edit ipv6 %}
-            {% include 'buttons/edit.html' with href='machines:edit-ipv6list' id=ipv6.id %}
-            {% acl_end %}
-            {% can_delete ipv6 %}
-            {% include 'buttons/suppr.html' with href='machines:del-ipv6list' id=ipv6.id %}
-            {% acl_end %}
-            {% history_button ipv6 %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ ipv6.ipv6 }}</td>
+            <td>{{ ipv6.slaac_ip }}</td>
+            <td class="text-right">
+                {% can_edit ipv6 %}
+                {% include 'buttons/edit.html' with href='machines:edit-ipv6list' id=ipv6.id %}
+                {% acl_end %}
+                {% can_delete ipv6 %}
+                {% include 'buttons/suppr.html' with href='machines:del-ipv6list' id=ipv6.id %}
+                {% acl_end %}
+                {% history_button ipv6 %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
 

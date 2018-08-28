@@ -26,18 +26,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load i18n %}
 
-{% block title %}{% trans "Deletion of cotisations" %}{% endblock %}
+{% block title %}{% trans "Deletion of subscriptions" %}{% endblock %}
 
 {% block content %}
 
 <form class="form" method="post">
     {% csrf_token %}
     <h4>
-        {% blocktrans %}
-        Warning. Are you sure you really want te delete this {{ object_name }} object ( {{ objet }} ) ?
-        {% endblocktrans %}
+        {% blocktrans %}Warning: are you sure you really want to delete this {{ object_name }} object ( {{ objet }} )?{% endblocktrans %}
     </h4>
     {% trans "Confirm" as tr_confirm %}
     {% bootstrap_button tr_confirm button_type='submit' icon='trash' %}
 </form>
 {% endblock %}
+

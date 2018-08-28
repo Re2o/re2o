@@ -25,14 +25,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load massive_bootstrap_form %}
+{% load i18n %}
 
-{% block title %}Modification de la topologie{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors topoform %}
 
 {% if id_switch %}
-<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %} Aller à la liste des ports</a>
+<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %}{% trans " Go to the ports list" %}</a>
 {% endif %}
 <form class="form" method="post">
     {% csrf_token %}
@@ -43,3 +44,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <br />
   <br />
 {% endblock %}
+

@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 {% if constructor_switch_list.paginator %}
 {% include "pagination.html" with list=constructor_switch_list %}
@@ -32,22 +33,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='constructor-switch' col='name' text='Constructeur' %}</th>
+            {% trans "Switch constructor" as tr_constructor %}
+            <th>{% include "buttons/sort.html" with prefix='constructor-switch' col='name' text=tr_constructor %}</th>
             <th></th>
         </tr>
     </thead>
     {% for constructor_switch in constructor_switch_list %}
     <tr>
-        <td>{{constructor_switch}}</td>
+        <td>{{ constructor_switch }}</td>
         <td class="text-right">
-            {% history_button constructor_switch %}
             {% can_edit constructor_switch %}
-            <a class="btn btn-primary btn-sm" role="button" title="Éditer" href="{% url 'topologie:edit-constructor-switch' constructor_switch.id %}">
+            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-constructor-switch' constructor_switch.id %}">
                 <i class="fa fa-edit"></i>
             </a>
             {% acl_end %}
+            {% history_button constructor_switch %}
             {% can_delete constructor_switch %}
-            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'topologie:del-constructor-switch' constructor_switch.id %}">
+            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-constructor-switch' constructor_switch.id %}">
                 <i class="fa fa-trash"></i>
             </a>
             {% acl_end %}
@@ -59,3 +61,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if constructor_switch_list.paginator %}
 {% include "pagination.html" with list=constructor_switch_list %}
 {% endif %}
+

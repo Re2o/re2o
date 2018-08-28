@@ -129,3 +129,21 @@ td.long_text{
 th.long_text{
 	width: 60%;
 }
+
+/* change color of panel heading on hover */
+
+.panel > .profil:hover {
+    background-image: none;
+    background-color: #e6e6e6;
+    color: black;
+}
+
+/* add padding under title in profile */
+.title-dashboard{
+	padding-bottom: 30px;
+}
+
+/* center the profil boxes */
+.dashboard{
+    text-align: center;
+}

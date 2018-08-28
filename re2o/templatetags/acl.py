@@ -79,6 +79,7 @@ from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
+
 def get_model(model_name):
     """Retrieve the model object from its name"""
     splitted = model_name.split('.')
@@ -145,7 +146,7 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'can_view_app':
         return acl_fct(
             lambda x: (
-                not any(not sys.modules[o].can_view(x) for o in obj),
+                not any(not sys.modules[o].can_view(x)[0] for o in obj),
                 None
             ),
             False
@@ -153,7 +154,7 @@ def get_callback(tag_name, obj=None):
     if tag_name == 'cannot_view_app':
         return acl_fct(
             lambda x: (
-                not any(not sys.modules[o].can_view(x) for o in obj),
+                not any(not sys.modules[o].can_view(x)[0] for o in obj),
                 None
             ),
             True
@@ -170,12 +171,12 @@ def get_callback(tag_name, obj=None):
         )
     if tag_name == 'can_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
             False
         )
     if tag_name == 'cannot_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x) for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
             True
         )
 
@@ -226,7 +227,9 @@ def acl_history_filter(parser, token):
 def acl_app_filter(parser, token):
     """Templatetag for acl checking on applications."""
     try:
-        tag_name, *app_name = token.split_contents()
+        contents = token.split_contents()
+        tag_name = contents[0]
+        app_name = contents[1:]
     except ValueError:
         raise template.TemplateSyntaxError(
             "%r tag require 1 argument: an application"

@@ -403,6 +403,12 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.RoomSerializer
 
 
+class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.PortProfile` objects.
+    """
+    queryset = topologie.PortProfile.objects.all()
+    serializer_class = serializers.PortProfileSerializer
+
 # USER
 
 
@@ -412,6 +418,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.User.objects.all()
     serializer_class = serializers.UserSerializer
 
+class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes infos of `users.models.Users` objects to create homes.
+    """
+    queryset = users.User.objects.all()
+    serializer_class = serializers.HomeCreationSerializer
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `users.models.Club` objects.
@@ -532,11 +543,21 @@ class HostMacIpView(generics.ListAPIView):
     serializer_class = serializers.HostMacIpSerializer
 
 
+#Firewall
+
+class SubnetPortsOpenView(generics.ListAPIView):
+    queryset = machines.IpType.objects.all()
+    serializer_class = serializers.SubnetPortsOpenSerializer
+
+class InterfacePortsOpenView(generics.ListAPIView):
+    queryset = machines.Interface.objects.filter(port_lists__isnull=False).distinct()
+    serializer_class = serializers.InterfacePortsOpenSerializer
+
 # DNS
 
 
 class DNSZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.Extension.objects
@@ -548,6 +569,15 @@ class DNSZonesView(generics.ListAPIView):
                 .prefetch_related('srv_set').prefetch_related('srv_set__target')
                 .all())
     serializer_class = serializers.DNSZonesSerializer
+
+class DNSReverseZonesView(generics.ListAPIView):
+    """Exposes the detailed information about each extension (hostnames, 
+    IPs, DNS records, etc.) in order to build the DNS zone files.
+    """
+    queryset = (machines.IpType.objects.all())
+    serializer_class = serializers.DNSReverseZonesSerializer
+
+
 
 
 # MAILING

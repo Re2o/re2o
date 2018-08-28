@@ -33,13 +33,14 @@ The views for the Machines app
 from __future__ import unicode_literals
 
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
 from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.translation import ugettext as _
 
 from rest_framework.renderers import JSONRenderer
 
@@ -101,6 +102,8 @@ from .forms import (
     DelMxForm,
     VlanForm,
     DelVlanForm,
+    RoleForm,
+    DelRoleForm,
     ServiceForm,
     DelServiceForm,
     SshFpForm,
@@ -122,8 +125,10 @@ from .models import (
     Mx,
     Ns,
     Domain,
+    Role,
     Service,
     Service_link,
+    regen,
     Vlan,
     Nas,
     Txt,
@@ -148,7 +153,7 @@ def generate_ipv4_choices(form_obj):
     """
     f_ipv4 = form_obj.fields['ipv4']
     used_mtype_id = []
-    choices = '{"":[{key:"",value:"Choisissez d\'abord un type de machine"},'
+    choices = '{"":[{key:"",value:"'+_("Select a machine type first.") + '"}'
     mtype_id = -1
 
     for ip in (f_ipv4.queryset
@@ -178,14 +183,14 @@ def generate_ipv4_engine(is_type_tt):
     """
     return (
         'new Bloodhound( {{'
-            'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
-            'queryTokenizer: Bloodhound.tokenizers.whitespace,'
-            'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
-            'identify: function( obj ) {{ return obj.key; }}'
+        'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
+        'queryTokenizer: Bloodhound.tokenizers.whitespace,'
+        'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
+        'identify: function( obj ) {{ return obj.key; }}'
         '}} )'
-        ).format(
-            type_id=f_type_id(is_type_tt)
-        )
+    ).format(
+        type_id=f_type_id(is_type_tt)
+    )
 
 
 def generate_ipv4_match_func(is_type_tt):
@@ -193,17 +198,17 @@ def generate_ipv4_match_func(is_type_tt):
     """
     return (
         'function(q, sync) {{'
-            'if (q === "") {{'
-                'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
-                'first = first.map( function (obj) {{ return obj.key; }} );'
-                'sync(engine_ipv4.get(first));'
-            '}} else {{'
-                'engine_ipv4.search(q, sync);'
-            '}}'
+        'if (q === "") {{'
+        'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
+        'first = first.map( function (obj) {{ return obj.key; }} );'
+        'sync(engine_ipv4.get(first));'
+        '}} else {{'
+        'engine_ipv4.search(q, sync);'
         '}}'
-        ).format(
-            type_id=f_type_id(is_type_tt)
-        )
+        '}}'
+    ).format(
+        type_id=f_type_id(is_type_tt)
+    )
 
 
 def generate_ipv4_mbf_param(form_obj, is_type_tt):
@@ -250,7 +255,7 @@ def new_machine(request, user, **_kwargs):
             new_interface_obj.save()
             new_domain.interface_parent = new_interface_obj
             new_domain.save()
-            messages.success(request, "La machine a été créée")
+            messages.success(request, _("The machine was created."))
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid': str(user.id)}
@@ -262,7 +267,7 @@ def new_machine(request, user, **_kwargs):
             'interfaceform': interface,
             'domainform': domain,
             'i_mbf_param': i_mbf_param,
-            'action_name': 'Créer une machine'
+            'action_name': _("Create a machine")
         },
         'machines/machine.html',
         request
@@ -302,7 +307,7 @@ def edit_interface(request, interface_instance, **_kwargs):
             new_interface_obj.save()
         if domain_form.changed_data:
             new_domain_obj.save()
-        messages.success(request, "La machine a été modifiée")
+        messages.success(request, _("The machine was edited."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(interface_instance.machine.user.id)}
@@ -314,7 +319,7 @@ def edit_interface(request, interface_instance, **_kwargs):
             'interfaceform': interface_form,
             'domainform': domain_form,
             'i_mbf_param': i_mbf_param,
-            'action_name': 'Editer une interface'
+            'action_name': _("Edit")
         },
         'machines/machine.html',
         request
@@ -327,7 +332,7 @@ def del_machine(request, machine, **_kwargs):
     """ Supprime une machine, interfaces en mode cascade"""
     if request.method == "POST":
         machine.delete()
-        messages.success(request, "La machine a été détruite")
+        messages.success(request, _("The machine was deleted."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(machine.user.id)}
@@ -356,7 +361,7 @@ def new_interface(request, machine, **_kwargs):
             new_interface_obj.save()
             new_domain_obj.interface_parent = new_interface_obj
             new_domain_obj.save()
-            messages.success(request, "L'interface a été ajoutée")
+            messages.success(request, _("The interface was created."))
             return redirect(reverse(
                 'users:profil',
                 kwargs={'userid': str(machine.user.id)}
@@ -367,7 +372,7 @@ def new_interface(request, machine, **_kwargs):
             'interfaceform': interface_form,
             'domainform': domain_form,
             'i_mbf_param': i_mbf_param,
-            'action_name': 'Créer une interface'
+            'action_name': _("Create an interface")
         },
         'machines/machine.html',
         request
@@ -383,7 +388,7 @@ def del_interface(request, interface, **_kwargs):
         interface.delete()
         if not machine.interface_set.all():
             machine.delete()
-        messages.success(request, "L'interface a été détruite")
+        messages.success(request, _("The interface was deleted."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
@@ -408,13 +413,13 @@ def new_ipv6list(request, interface, **_kwargs):
     )
     if ipv6.is_valid():
         ipv6.save()
-        messages.success(request, "Ipv6 ajoutée")
+        messages.success(request, _("The IPv6 addresses list was created."))
         return redirect(reverse(
             'machines:index-ipv6',
             kwargs={'interfaceid': str(interface.id)}
         ))
     return form(
-        {'ipv6form': ipv6, 'action_name': 'Créer'},
+        {'ipv6form': ipv6, 'action_name': _("Create an IPv6 addresses list")},
         'machines/machine.html',
         request
     )
@@ -432,13 +437,13 @@ def edit_ipv6list(request, ipv6list_instance, **_kwargs):
     if ipv6.is_valid():
         if ipv6.changed_data:
             ipv6.save()
-            messages.success(request, "Ipv6 modifiée")
+            messages.success(request, _("The IPv6 addresses list was edited."))
         return redirect(reverse(
             'machines:index-ipv6',
             kwargs={'interfaceid': str(ipv6list_instance.interface.id)}
         ))
     return form(
-        {'ipv6form': ipv6, 'action_name': 'Editer'},
+        {'ipv6form': ipv6, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -451,7 +456,7 @@ def del_ipv6list(request, ipv6list, **_kwargs):
     if request.method == "POST":
         interfaceid = ipv6list.interface.id
         ipv6list.delete()
-        messages.success(request, "L'ipv6 a été détruite")
+        messages.success(request, _("The IPv6 addresses list was deleted."))
         return redirect(reverse(
             'machines:index-ipv6',
             kwargs={'interfaceid': str(interfaceid)}
@@ -475,13 +480,13 @@ def new_sshfp(request, machine, **_kwargs):
     )
     if sshfp.is_valid():
         sshfp.save()
-        messages.success(request, "The SSHFP record was added")
+        messages.success(request, _("The SSHFP record was created."))
         return redirect(reverse(
             'machines:index-sshfp',
             kwargs={'machineid': str(machine.id)}
         ))
     return form(
-        {'sshfpform': sshfp, 'action_name': 'Create'},
+        {'sshfpform': sshfp, 'action_name': _("Create a SSHFP record")},
         'machines/machine.html',
         request
     )
@@ -498,13 +503,13 @@ def edit_sshfp(request, sshfp_instance, **_kwargs):
     if sshfp.is_valid():
         if sshfp.changed_data:
             sshfp.save()
-            messages.success(request, "The SSHFP record was edited")
+            messages.success(request, _("The SSHFP record was edited."))
         return redirect(reverse(
             'machines:index-sshfp',
             kwargs={'machineid': str(sshfp_instance.machine.id)}
         ))
     return form(
-        {'sshfpform': sshfp, 'action_name': 'Edit'},
+        {'sshfpform': sshfp, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -517,7 +522,7 @@ def del_sshfp(request, sshfp, **_kwargs):
     if request.method == "POST":
         machineid = sshfp.machine.id
         sshfp.delete()
-        messages.success(request, "The SSHFP record was deleted")
+        messages.success(request, _("The SSHFP record was deleted."))
         return redirect(reverse(
             'machines:index-sshfp',
             kwargs={'machineid': str(machineid)}
@@ -538,10 +543,10 @@ def add_iptype(request):
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
         iptype.save()
-        messages.success(request, "Ce type d'ip a été ajouté")
+        messages.success(request, _("The IP type was created."))
         return redirect(reverse('machines:index-iptype'))
     return form(
-        {'iptypeform': iptype, 'action_name': 'Créer'},
+        {'iptypeform': iptype, 'action_name': _("Create an IP type")},
         'machines/machine.html',
         request
     )
@@ -557,10 +562,10 @@ def edit_iptype(request, iptype_instance, **_kwargs):
     if iptype.is_valid():
         if iptype.changed_data:
             iptype.save()
-            messages.success(request, "Type d'ip modifié")
+            messages.success(request, _("The IP type was edited."))
         return redirect(reverse('machines:index-iptype'))
     return form(
-        {'iptypeform': iptype, 'action_name': 'Editer'},
+        {'iptypeform': iptype, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -576,16 +581,16 @@ def del_iptype(request, instances):
         for iptype_del in iptype_dels:
             try:
                 iptype_del.delete()
-                messages.success(request, "Le type d'ip a été supprimé")
+                messages.success(request, _("The IP type was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Le type d'ip %s est affectée à au moins une machine, "
-                     "vous ne pouvez pas le supprimer" % iptype_del)
+                    (_("The IP type %s is assigned to at least one machine,"
+                       " you can't delete it.") % iptype_del)
                 )
         return redirect(reverse('machines:index-iptype'))
     return form(
-        {'iptypeform': iptype, 'action_name': 'Supprimer'},
+        {'iptypeform': iptype, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -598,10 +603,11 @@ def add_machinetype(request):
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
         machinetype.save()
-        messages.success(request, "Ce type de machine a été ajouté")
+        messages.success(request, _("The machine type was created."))
         return redirect(reverse('machines:index-machinetype'))
     return form(
-        {'machinetypeform': machinetype, 'action_name': 'Créer'},
+        {'machinetypeform': machinetype, 'action_name': _("Create a machine"
+                                                          " type")},
         'machines/machine.html',
         request
     )
@@ -618,10 +624,10 @@ def edit_machinetype(request, machinetype_instance, **_kwargs):
     if machinetype.is_valid():
         if machinetype.changed_data:
             machinetype.save()
-            messages.success(request, "Type de machine modifié")
+            messages.success(request, _("The machine type was edited."))
         return redirect(reverse('machines:index-machinetype'))
     return form(
-        {'machinetypeform': machinetype, 'action_name': 'Editer'},
+        {'machinetypeform': machinetype, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -637,17 +643,16 @@ def del_machinetype(request, instances):
         for machinetype_del in machinetype_dels:
             try:
                 machinetype_del.delete()
-                messages.success(request, "Le type de machine a été supprimé")
+                messages.success(request, _("The machine type was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Le type de machine %s est affectée à au moins une "
-                     "machine, vous ne pouvez pas le supprimer"
-                     % machinetype_del)
+                    (_("The machine type %s is assigned to at least one"
+                       " machine, you can't delete it.") % machinetype_del)
                 )
         return redirect(reverse('machines:index-machinetype'))
     return form(
-        {'machinetypeform': machinetype, 'action_name': 'Supprimer'},
+        {'machinetypeform': machinetype, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -660,10 +665,10 @@ def add_extension(request):
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
         extension.save()
-        messages.success(request, "Cette extension a été ajoutée")
+        messages.success(request, _("The extension was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'extensionform': extension, 'action_name': 'Créer'},
+        {'extensionform': extension, 'action_name': _("Create an extension")},
         'machines/machine.html',
         request
     )
@@ -680,10 +685,10 @@ def edit_extension(request, extension_instance, **_kwargs):
     if extension.is_valid():
         if extension.changed_data:
             extension.save()
-            messages.success(request, "Extension modifiée")
+            messages.success(request, _("The extension was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'extensionform': extension, 'action_name': 'Editer'},
+        {'extensionform': extension, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -699,17 +704,16 @@ def del_extension(request, instances):
         for extension_del in extension_dels:
             try:
                 extension_del.delete()
-                messages.success(request, "L'extension a été supprimée")
+                messages.success(request, _("The extension was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("L'extension %s est affectée à au moins un type de "
-                     "machine, vous ne pouvez pas la supprimer"
-                     % extension_del)
+                    (_("The extension %s is assigned to at least one machine"
+                       " type, you can't delete it." % extension_del))
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'extensionform': extension, 'action_name': 'Supprimer'},
+        {'extensionform': extension, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -722,10 +726,10 @@ def add_soa(request):
     soa = SOAForm(request.POST or None)
     if soa.is_valid():
         soa.save()
-        messages.success(request, "Cet enregistrement SOA a été ajouté")
+        messages.success(request, _("The SOA record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'soaform': soa, 'action_name': 'Créer'},
+        {'soaform': soa, 'action_name': _("Create an SOA record")},
         'machines/machine.html',
         request
     )
@@ -739,10 +743,10 @@ def edit_soa(request, soa_instance, **_kwargs):
     if soa.is_valid():
         if soa.changed_data:
             soa.save()
-            messages.success(request, "SOA modifié")
+            messages.success(request, _("The SOA record was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'soaform': soa, 'action_name': 'Editer'},
+        {'soaform': soa, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -758,16 +762,15 @@ def del_soa(request, instances):
         for soa_del in soa_dels:
             try:
                 soa_del.delete()
-                messages.success(request, "Le SOA a été supprimée")
+                messages.success(request, _("The SOA record was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le SOA suivant %s ne peut être supprimé"
-                     % soa_del)
+                    (_("Error: the SOA record %s can't be deleted.") % soa_del)
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'soaform': soa, 'action_name': 'Supprimer'},
+        {'soaform': soa, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -780,10 +783,10 @@ def add_mx(request):
     mx = MxForm(request.POST or None)
     if mx.is_valid():
         mx.save()
-        messages.success(request, "Cet enregistrement mx a été ajouté")
+        messages.success(request, _("The MX record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'mxform': mx, 'action_name': 'Créer'},
+        {'mxform': mx, 'action_name': _("Create an MX record")},
         'machines/machine.html',
         request
     )
@@ -797,10 +800,10 @@ def edit_mx(request, mx_instance, **_kwargs):
     if mx.is_valid():
         if mx.changed_data:
             mx.save()
-            messages.success(request, "Mx modifié")
+            messages.success(request, _("The MX record was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'mxform': mx, 'action_name': 'Editer'},
+        {'mxform': mx, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -816,16 +819,15 @@ def del_mx(request, instances):
         for mx_del in mx_dels:
             try:
                 mx_del.delete()
-                messages.success(request, "L'mx a été supprimée")
+                messages.success(request, _("The MX record was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Mx suivant %s ne peut être supprimé"
-                     % mx_del)
+                    (_("Error: the MX record %s can't be deleted.") % mx_del)
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'mxform': mx, 'action_name': 'Supprimer'},
+        {'mxform': mx, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -838,10 +840,10 @@ def add_ns(request):
     ns = NsForm(request.POST or None)
     if ns.is_valid():
         ns.save()
-        messages.success(request, "Cet enregistrement ns a été ajouté")
+        messages.success(request, _("The NS record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'nsform': ns, 'action_name': 'Créer'},
+        {'nsform': ns, 'action_name': _("Create an NS record")},
         'machines/machine.html',
         request
     )
@@ -855,10 +857,10 @@ def edit_ns(request, ns_instance, **_kwargs):
     if ns.is_valid():
         if ns.changed_data:
             ns.save()
-            messages.success(request, "Ns modifié")
+            messages.success(request, _("The NS record was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'nsform': ns, 'action_name': 'Editer'},
+        {'nsform': ns, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -874,16 +876,15 @@ def del_ns(request, instances):
         for ns_del in ns_dels:
             try:
                 ns_del.delete()
-                messages.success(request, "Le ns a été supprimée")
+                messages.success(request, _("The NS record was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Ns suivant %s ne peut être supprimé"
-                     % ns_del)
+                    (_("Error: the NS record %s can't be deleted.") % ns_del)
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'nsform': ns, 'action_name': 'Supprimer'},
+        {'nsform': ns, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -895,10 +896,10 @@ def add_dname(request):
     dname = DNameForm(request.POST or None)
     if dname.is_valid():
         dname.save()
-        messages.success(request, "This DNAME record has been added")
+        messages.success(request, _("The DNAME record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': "Create"},
+        {'dnameform': dname, 'action_name': _("Create a DNAME record")},
         'machines/machine.html',
         request
     )
@@ -912,10 +913,10 @@ def edit_dname(request, dname_instance, **_kwargs):
     if dname.is_valid():
         if dname.changed_data:
             dname.save()
-            messages.success(request, "DName successfully edited")
+            messages.success(request, _("The DNAME record was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': "Edit"},
+        {'dnameform': dname, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -931,16 +932,16 @@ def del_dname(request, instances):
         for dname_del in dname_dels:
             try:
                 dname_del.delete()
-                messages.success(request,
-                                 "The DNAME %s has been deleted" % dname_del)
+                messages.success(request, _("The DNAME record was deleted."))
             except ProtectedError:
                 messages.error(
-                    request,
-                    "The DNAME %s can not be deleted" % dname_del
+                        request,
+                        _("Error: the DNAME record %s can't be deleted.")
+                        % dname_del
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'dnameform': dname, 'action_name': 'Delete'},
+        {'dnameform': dname, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -953,10 +954,10 @@ def add_txt(request):
     txt = TxtForm(request.POST or None)
     if txt.is_valid():
         txt.save()
-        messages.success(request, "Cet enregistrement text a été ajouté")
+        messages.success(request, _("The TXT record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'txtform': txt, 'action_name': 'Créer'},
+        {'txtform': txt, 'action_name': _("Create a TXT record")},
         'machines/machine.html',
         request
     )
@@ -970,10 +971,10 @@ def edit_txt(request, txt_instance, **_kwargs):
     if txt.is_valid():
         if txt.changed_data:
             txt.save()
-            messages.success(request, "Txt modifié")
+            messages.success(request, _("The TXT record was edited."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'txtform': txt, 'action_name': 'Editer'},
+        {'txtform': txt, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -989,16 +990,15 @@ def del_txt(request, instances):
         for txt_del in txt_dels:
             try:
                 txt_del.delete()
-                messages.success(request, "Le txt a été supprimé")
+                messages.success(request, _("The TXT record was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Txt suivant %s ne peut être supprimé"
-                     % txt_del)
+                    (_("Error: the TXT record %s can't be deleted.") % txt_del)
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'txtform': txt, 'action_name': 'Supprimer'},
+        {'txtform': txt, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -1011,10 +1011,10 @@ def add_srv(request):
     srv = SrvForm(request.POST or None)
     if srv.is_valid():
         srv.save()
-        messages.success(request, "Cet enregistrement srv a été ajouté")
+        messages.success(request, _("The SRV record was created."))
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'srvform': srv, 'action_name': 'Créer'},
+        {'srvform': srv, 'action_name': _("Create an SRV record")},
         'machines/machine.html',
         request
     )
@@ -1028,10 +1028,10 @@ def edit_srv(request, srv_instance, **_kwargs):
     if srv.is_valid():
         if srv.changed_data:
             srv.save()
-            messages.success(request, "Srv modifié")
-        return redirect(reverse('machines:index-extension'))
+            messages.success(request, _("The SRV record was edited."))
+        return redirect(reverse('machines:1index-extension'))
     return form(
-        {'srvform': srv, 'action_name': 'Editer'},
+        {'srvform': srv, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -1047,16 +1047,15 @@ def del_srv(request, instances):
         for srv_del in srv_dels:
             try:
                 srv_del.delete()
-                messages.success(request, "L'srv a été supprimée")
+                messages.success(request, _("The SRV record was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Srv suivant %s ne peut être supprimé"
-                     % srv_del)
+                    (_("Error: the SRV record %s can't be deleted.") % srv_del)
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
-        {'srvform': srv, 'action_name': 'Supprimer'},
+        {'srvform': srv, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -1072,13 +1071,13 @@ def add_alias(request, interface, interfaceid):
         alias = alias.save(commit=False)
         alias.cname = interface.domain
         alias.save()
-        messages.success(request, "Cet alias a été ajouté")
+        messages.success(request, _("The alias was created."))
         return redirect(reverse(
             'machines:index-alias',
             kwargs={'interfaceid': str(interfaceid)}
         ))
     return form(
-        {'aliasform': alias, 'action_name': 'Créer'},
+        {'aliasform': alias, 'action_name': _("Create an alias")},
         'machines/machine.html',
         request
     )
@@ -1096,7 +1095,7 @@ def edit_alias(request, domain_instance, **_kwargs):
     if alias.is_valid():
         if alias.changed_data:
             domain_instance = alias.save()
-            messages.success(request, "Alias modifié")
+            messages.success(request, _("The alias was edited."))
         return redirect(reverse(
             'machines:index-alias',
             kwargs={
@@ -1104,7 +1103,7 @@ def edit_alias(request, domain_instance, **_kwargs):
             }
         ))
     return form(
-        {'aliasform': alias, 'action_name': 'Editer'},
+        {'aliasform': alias, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -1122,20 +1121,76 @@ def del_alias(request, interface, interfaceid):
                 alias_del.delete()
                 messages.success(
                     request,
-                    "L'alias %s a été supprimé" % alias_del
+                    _("The alias %s was deleted.") % alias_del
                 )
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur l'alias suivant %s ne peut être supprimé"
-                     % alias_del)
+                    (_("Error: the alias %s can't be deleted.") % alias_del)
                 )
         return redirect(reverse(
             'machines:index-alias',
             kwargs={'interfaceid': str(interfaceid)}
         ))
     return form(
-        {'aliasform': alias, 'action_name': 'Supprimer'},
+        {'aliasform': alias, 'action_name': _("Delete")},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_create(Role)
+def add_role(request):
+    """ View used to add a Role object """
+    role = RoleForm(request.POST or None)
+    if role.is_valid():
+        role.save()
+        messages.success(request, _("The role was created."))
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': _("Create a role")},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_edit(Role)
+def edit_role(request, role_instance, **_kwargs):
+    """ View used to edit a Role object """
+    role = RoleForm(request.POST or None, instance=role_instance)
+    if role.is_valid():
+        if role.changed_data:
+            role.save()
+            messages.success(request, _("The role was edited."))
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': _("Edit")},
+        'machines/machine.html',
+        request
+    )
+
+
+@login_required
+@can_delete_set(Role)
+def del_role(request, instances):
+    """ View used to delete a Service object """
+    role = DelRoleForm(request.POST or None, instances=instances)
+    if role.is_valid():
+        role_dels = role.cleaned_data['role']
+        for role_del in role_dels:
+            try:
+                role_del.delete()
+                messages.success(request, _("The role was deleted."))
+            except ProtectedError:
+                messages.error(
+                    request,
+                    (_("Error: the role %s can't be deleted.") % role_del)
+                )
+        return redirect(reverse('machines:index-role'))
+    return form(
+        {'roleform': role, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -1148,10 +1203,10 @@ def add_service(request):
     service = ServiceForm(request.POST or None)
     if service.is_valid():
         service.save()
-        messages.success(request, "Cet enregistrement service a été ajouté")
+        messages.success(request, _("The service was created."))
         return redirect(reverse('machines:index-service'))
     return form(
-        {'serviceform': service, 'action_name': 'Créer'},
+        {'serviceform': service, 'action_name': _("Create a service")},
         'machines/machine.html',
         request
     )
@@ -1165,10 +1220,10 @@ def edit_service(request, service_instance, **_kwargs):
     if service.is_valid():
         if service.changed_data:
             service.save()
-            messages.success(request, "Service modifié")
+            messages.success(request, _("The service was edited."))
         return redirect(reverse('machines:index-service'))
     return form(
-        {'serviceform': service, 'action_name': 'Editer'},
+        {'serviceform': service, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -1184,19 +1239,27 @@ def del_service(request, instances):
         for service_del in service_dels:
             try:
                 service_del.delete()
-                messages.success(request, "Le service a été supprimée")
+                messages.success(request, _("The service was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le service suivant %s ne peut être supprimé"
-                     % service_del)
+                    (_("Error: the service %s can't be deleted.") % service_del)
                 )
         return redirect(reverse('machines:index-service'))
     return form(
-        {'serviceform': service, 'action_name': 'Supprimer'},
+        {'serviceform': service, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
+
+@login_required
+@can_edit(Service)
+def regen_service(request,service, **_kwargs):
+    """Ask for a regen of the service"""
+
+    regen(service)
+    return index_service(request)
+
 
 
 @login_required
@@ -1206,10 +1269,10 @@ def add_vlan(request):
     vlan = VlanForm(request.POST or None)
     if vlan.is_valid():
         vlan.save()
-        messages.success(request, "Cet enregistrement vlan a été ajouté")
+        messages.success(request, _("The VLAN was created."))
         return redirect(reverse('machines:index-vlan'))
     return form(
-        {'vlanform': vlan, 'action_name': 'Créer'},
+        {'vlanform': vlan, 'action_name': _("Create a VLAN")},
         'machines/machine.html',
         request
     )
@@ -1223,10 +1286,10 @@ def edit_vlan(request, vlan_instance, **_kwargs):
     if vlan.is_valid():
         if vlan.changed_data:
             vlan.save()
-            messages.success(request, "Vlan modifié")
+            messages.success(request, _("The VLAN was edited."))
         return redirect(reverse('machines:index-vlan'))
     return form(
-        {'vlanform': vlan, 'action_name': 'Editer'},
+        {'vlanform': vlan, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -1242,16 +1305,15 @@ def del_vlan(request, instances):
         for vlan_del in vlan_dels:
             try:
                 vlan_del.delete()
-                messages.success(request, "Le vlan a été supprimée")
+                messages.success(request, _("The VLAN was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Vlan suivant %s ne peut être supprimé"
-                     % vlan_del)
+                    (_("Error: the VLAN %s can't be deleted.") % vlan_del)
                 )
         return redirect(reverse('machines:index-vlan'))
     return form(
-        {'vlanform': vlan, 'action_name': 'Supprimer'},
+        {'vlanform': vlan, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -1264,10 +1326,10 @@ def add_nas(request):
     nas = NasForm(request.POST or None)
     if nas.is_valid():
         nas.save()
-        messages.success(request, "Cet enregistrement nas a été ajouté")
+        messages.success(request, _("The NAS device was created."))
         return redirect(reverse('machines:index-nas'))
     return form(
-        {'nasform': nas, 'action_name': 'Créer'},
+        {'nasform': nas, 'action_name': _("Create a NAS device")},
         'machines/machine.html',
         request
     )
@@ -1281,10 +1343,10 @@ def edit_nas(request, nas_instance, **_kwargs):
     if nas.is_valid():
         if nas.changed_data:
             nas.save()
-            messages.success(request, "Nas modifié")
+            messages.success(request, _("The NAS device was edited."))
         return redirect(reverse('machines:index-nas'))
     return form(
-        {'nasform': nas, 'action_name': 'Editer'},
+        {'nasform': nas, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -1300,16 +1362,15 @@ def del_nas(request, instances):
         for nas_del in nas_dels:
             try:
                 nas_del.delete()
-                messages.success(request, "Le nas a été supprimé")
+                messages.success(request, _("The NAS device was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
-                    ("Erreur le Nas suivant %s ne peut être supprimé"
-                     % nas_del)
+                    (_("Error: the NAS device %s can't be deleted.") % nas_del)
                 )
         return redirect(reverse('machines:index-nas'))
     return form(
-        {'nasform': nas, 'action_name': 'Supprimer'},
+        {'nasform': nas, 'action_name': _("Delete")},
         'machines/machine.html',
         request
     )
@@ -1470,7 +1531,7 @@ def index_sshfp(request, machine, machineid):
 
 
 @login_required
-@can_view_all(Interface)
+@can_view(Interface)
 def index_ipv6(request, interface, interfaceid):
     """ View used to display the list of existing IPv6 of an interface """
     ipv6_list = Ipv6List.objects.filter(interface=interface)
@@ -1478,6 +1539,21 @@ def index_ipv6(request, interface, interfaceid):
         request,
         'machines/index_ipv6.html',
         {'ipv6_list': ipv6_list, 'interface_id': interfaceid}
+    )
+
+
+@login_required
+@can_view_all(Role)
+def index_role(request):
+    """ View used to display the list of existing roles """
+    role_list = (Role.objects
+                 .prefetch_related(
+                     'servers__domain__extension'
+                 ).all())
+    return render(
+        request,
+        'machines/index_role.html',
+        {'role_list': role_list}
     )
 
 
@@ -1546,7 +1622,7 @@ def edit_portlist(request, ouvertureportlist_instance, **_kwargs):
         for port in instances:
             port.port_list = pl
             port.save()
-        messages.success(request, "Liste de ports modifiée")
+        messages.success(request, _("The ports list was edited."))
         return redirect(reverse('machines:index-portlist'))
     return form(
         {'port_list': port_list, 'ports': port_formset},
@@ -1560,7 +1636,7 @@ def edit_portlist(request, ouvertureportlist_instance, **_kwargs):
 def del_portlist(request, port_list_instance, **_kwargs):
     """ View used to delete a port policy """
     port_list_instance.delete()
-    messages.success(request, "La liste de ports a été supprimée")
+    messages.success(request, _("The ports list was deleted."))
     return redirect(reverse('machines:index-portlist'))
 
 
@@ -1570,12 +1646,12 @@ def add_portlist(request):
     """ View used to add a port policy """
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
-            OuverturePort,
-            fields=('begin', 'end', 'protocole', 'io'),
-            extra=0,
-            can_delete=True,
-            min_num=1,
-            validate_min=True,
+        OuverturePort,
+        fields=('begin', 'end', 'protocole', 'io'),
+        extra=0,
+        can_delete=True,
+        min_num=1,
+        validate_min=True,
     )(request.POST or None, queryset=OuverturePort.objects.none())
     if port_list.is_valid() and port_formset.is_valid():
         pl = port_list.save()
@@ -1585,7 +1661,7 @@ def add_portlist(request):
         for port in instances:
             port.port_list = pl
             port.save()
-        messages.success(request, "Liste de ports créée")
+        messages.success(request, _("The ports list was created."))
         return redirect(reverse('machines:index-portlist'))
     return form(
         {'port_list': port_list, 'ports': port_formset},
@@ -1603,8 +1679,8 @@ def configure_ports(request, interface_instance, **_kwargs):
     if not interface_instance.may_have_port_open():
         messages.error(
             request,
-            ("Attention, l'ipv4 n'est pas publique, l'ouverture n'aura pas "
-             "d'effet en v4")
+            (_("Warning: the IPv4 isn't public, the opening won't have effect"
+               " in v4."))
         )
     interface = EditOuverturePortConfigForm(
         request.POST or None,
@@ -1613,20 +1689,22 @@ def configure_ports(request, interface_instance, **_kwargs):
     if interface.is_valid():
         if interface.changed_data:
             interface.save()
-            messages.success(request, "Configuration des ports mise à jour.")
+            messages.success(request, _("The ports configuration was edited."))
         return redirect(reverse('machines:index'))
     return form(
-        {'interfaceform': interface, 'action_name': 'Editer la configuration'},
+        {'interfaceform': interface, 'action_name': _("Edit the"
+                                                      " configuration")},
         'machines/machine.html',
         request
     )
 
 
-## Framework Rest
+# Framework Rest
 
 
 class JSONResponse(HttpResponse):
     """ Class to build a JSON response. Used for API """
+
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
@@ -1861,3 +1939,4 @@ def regen_achieved(request):
     if obj:
         obj.first().done_regen()
     return HttpResponse("Ok")
+

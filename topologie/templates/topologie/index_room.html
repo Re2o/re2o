@@ -25,13 +25,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load acl %}
+{% load i18n %}
 
-{% block title %}Chambres{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
-  <h2>Chambres</h2>
+<h2>{% trans "Rooms" %}</h2>
 {% can_create Room %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-room' %}"><i class="fa fa-plus"></i> Ajouter une chambre</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-room' %}"><i class="fa fa-plus"></i>{% trans " Add a room" %}</a>
 <hr>
 {% acl_end %}
     {% include "topologie/aff_chambres.html" with room_list=room_list %}
@@ -39,3 +40,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <br />
     <br />
 {% endblock %}
+

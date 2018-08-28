@@ -24,28 +24,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Zone concernée</th>
-            <th>Enregistrement</th>
-            <th></th>
+            <th>{% trans "Concerned zone" %}</th>
+            <th>{% trans "Record" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for txt in txt_list %}
-    <tr>
-        <td>{{ txt.zone }}</td>
-        <td>{{ txt.dns_entry }}</td>
-        <td class="text-right">
-            {% can_edit txt %}
-            {% include 'buttons/edit.html' with href='machines:edit-txt' id=txt.id %}
-            {% acl_end %}
-            {% history_button txt %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ txt.zone }}</td>
+            <td>{{ txt.dns_entry }}</td>
+            <td class="text-right">
+                {% can_edit txt %}
+                {% include 'buttons/edit.html' with href='machines:edit-txt' id=txt.id %}
+                {% acl_end %}
+                {% history_button txt %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
-
 

@@ -24,59 +24,65 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
 
 <div class="table-responsive">
     {% if switch_list.paginator %}
     {% include "pagination.html" with list=switch_list %}
     {% endif %}
 
-
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% include "buttons/sort.html" with prefix='switch' col='dns' text='Dns' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='switch' col='ip' text='Ipv4' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='switch' col='loc' text='Emplacement' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='switch' col='ports' text='Ports' %}</th>
-                <th>{% include "buttons/sort.html" with prefix='switch' col='stack' text='Stack' %}</th>
-                <th>Id stack</th>
-                <th>Modèle</th>
-                <th>Détails</th>
+                {% trans "DNS name" as tr_dns %}
+                <th>{% include "buttons/sort.html" with prefix='switch' col='dns' text=tr_dns %}</th>
+                {% trans "IPv4 address" as tr_ip %}
+                <th>{% include "buttons/sort.html" with prefix='switch' col='ip' text=tr_ip %}</th>
+                {% trans "Switch bay" as tr_bay %}
+                <th>{% include "buttons/sort.html" with prefix='switch' col='loc' text=tr_bay %}</th>
+	        {% trans "Ports" as tr_ports %}
+                <th>{% include "buttons/sort.html" with prefix='switch' col='ports' text=tr_ports %}</th>
+                {% trans "Stack" as tr_stack %}
+                <th>{% include "buttons/sort.html" with prefix='switch' col='stack' text=tr_stack %}</th>
+                <th>{% trans "Stack ID" %}</th>
+                <th>{% trans "Switch model" %}</th>
+                <th>{% trans "Details" %}</th>
                 <th></th>
             </tr>
         </thead>
         {% for switch in switch_list %}
-        <tr>
-            <td>
-                <a title="Configuer" href="{% url 'topologie:index-port' switch.pk %}">
-                    {{switch}}
-                </a>
-            </td>
-            <td>{{switch.interface_set.first.ipv4}}</td>
-            <td>{{switch.switchbay}}</td>
-            <td>{{switch.number}}</td>
-            <td>{{switch.stack.name}}</td>
-            <td>{{switch.stack_member_id}}</td>
-            <td>{{switch.model}}</td>
-            <td>{{switch.interface_set.first.details}}</td>
-            <td class="text-right">
-                {% history_button switch %}
-                {% can_edit switch %}
-                {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
-                {% acl_end %}
-                {% can_delete switch %}
-                {% include 'buttons/suppr.html' with href='machines:del-machine' id=switch.id %}
-                {% acl_end %}
-                {% can_create Port %}
-                {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.pk desc='Création de ports'%}
-                {% acl_end %}
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'topologie:index-port' switch.pk %}">
+                    {{ switch }}
+                    </a>
+                </td>
+                <td>{{ switch.interface_set.first.ipv4 }}</td>
+                <td>{{ switch.switchbay }}</td>
+                <td>{{ switch.number }}</td>
+                <td>{{ switch.stack.name }}</td>
+                <td>{{ switch.stack_member_id }}</td>
+                <td>{{ switch.model }}</td>
+                <td>{{ switch.interface_set.first.details }}</td>
+                <td class="text-right">
+                    {% can_edit switch %}
+                    {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.pk %}
+                    {% acl_end %}
+                    {% history_button switch %}
+                    {% can_delete switch %}
+                    {% include 'buttons/suppr.html' with href='machines:del-machine' id=switch.id %} 
+                    {% acl_end %}
+                    {% can_create Port %}
+                    {% trans "Creation of ports" as tr_creation %}
+                    {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.pk desc=tr_creation %}
+                    {% acl_end %}
+                </td>
+            </tr>
         {% endfor %}
     </table>
 
     {% if switch_list.paginator %}
     {% include "pagination.html" with list=switch_list %}
     {% endif %}
-
 </div>
+

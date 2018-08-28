@@ -21,8 +21,11 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
+
 {% if ban_list.paginator %}
 {% include "pagination.html" with list=ban_list %}
 {% endif %}
@@ -30,36 +33,40 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>{% include "buttons/sort.html" with prefix='ban' col="user" text="Utilisateur" %}</th>
-            <th>Raison</th>
-            <th>{% include "buttons/sort.html" with prefix='ban' col="start" text="Date de début" %}</th>
-            <th>{% include "buttons/sort.html" with prefix='ban' col="end" text="Date de fin" %}</th>
+            {% trans "User" as tr_user %}
+            <th>{% include "buttons/sort.html" with prefix='ban' col="user" text=tr_user %}</th>
+            <th>{% trans "Reason" %}</th>
+            {% trans "Start date" as tr_start %}
+            <th>{% include "buttons/sort.html" with prefix='ban' col="start" text=tr_start %}</th>
+            {% trans "End date" as tr_end %}
+            <th>{% include "buttons/sort.html" with prefix='ban' col="end" text=tr_end %}</th>
             <th></th>
         </tr>
     </thead>
     {% for ban in ban_list %}
-    {% if ban.is_active %}
-    <tr class="danger">
+        {% if ban.is_active %}
+        <tr class="danger">
         {% else %}
         <tr>
-            {% endif %}
-            <td>{{ ban.user }}</td>
+        {% endif %}
+            <td><a href="{% url "users:profil" ban.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ ban.user }}</a></td>
             <td>{{ ban.raison }}</td>
             <td>{{ ban.date_start }}</td>
             <td>{{ ban.date_end }}</td>
             <td class="text-right">
-                {% can_delete ban %}
-                {% include 'buttons/suppr.html' with href='users:del-ban' id=ban.id %}
-                {% acl_end %}
                 {% can_edit ban %}
                 {% include 'buttons/edit.html' with href='users:edit-ban' id=ban.id %}
                 {% acl_end %}
                 {% history_button ban %}
+                {% can_delete ban %}
+                {% include 'buttons/suppr.html' with href='users:del-ban' id=ban.id %}
+                {% acl_end %}
             </td>
         </tr>
-        {% endfor %}
+    {% endfor %}
 </table>
 
 {% if ban_list.paginator %}
 {% include "pagination.html" with list=ban_list %}
 {% endif %}
+

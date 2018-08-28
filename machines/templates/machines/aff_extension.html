@@ -25,17 +25,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load logs_extra %}
 {% load design %}
+{% load i18n %}
 
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Extension</th>
-                <th>Droit infra pour utiliser ?</th>
-                <th>Enregistrement SOA</th>
-                <th>Enregistrement A origin</th>
+                <th>{% trans "Extension" %}</th>
+                <th>{% trans "'infra' right required" %}</th>
+                <th>{% trans "SOA record" %}</th>
+                <th>{% trans "A record origin" %}</th>
                 {% if ipv6_enabled %}
-                <th>Enregistrement AAAA origin</th>
+                <th>{% trans "AAAA record origin" %}</th>
                 {% endif %}
                 <th></th>
             </tr>
@@ -44,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ extension.name }}</td>
             <td>{{ extension.need_infra|tick }}</td>
-            <td>{{ extension.soa}}</td>
+            <td>{{ extension.soa }}</td>
             <td>{{ extension.origin }}</td>
             {% if ipv6_enabled %}
             <td>{{ extension.origin_v6 }}</td>
@@ -59,3 +60,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 </div>
+

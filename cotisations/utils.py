@@ -19,6 +19,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os
+
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
+
+from .tex import create_pdf
+from preferences.models import AssoOption, GeneralOption
+from re2o.settings import LOGO_PATH
+from re2o import settings
+
 
 def find_payment_method(payment):
     """Finds the payment method associated to the payment if it exists."""
@@ -30,3 +40,56 @@ def find_payment_method(payment):
         except method.PaymentMethod.DoesNotExist:
             pass
     return None
+
+
+def send_mail_invoice(invoice):
+    """Creates the pdf of the invoice and sends it by email to the client"""
+    purchases_info = []
+    for purchase in invoice.vente_set.all():
+        purchases_info.append({
+            'name': purchase.name,
+            'price': purchase.prix,
+            'quantity': purchase.number,
+            'total_price': purchase.prix_total
+        })
+
+    ctx = {
+        'paid': True,
+        'fid': invoice.id,
+        'DATE': invoice.date,
+        'recipient_name': "{} {}".format(
+            invoice.user.name,
+            invoice.user.surname
+        ),
+        'address': invoice.user.room,
+        'article': purchases_info,
+        'total': invoice.prix_total(),
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
+    }
+
+    pdf = create_pdf('cotisations/factures.tex', ctx)
+    template = get_template('cotisations/email_invoice')
+
+    ctx = {
+        'name': "{} {}".format(
+            invoice.user.name,
+            invoice.user.surname
+        ),
+        'contact_mail': AssoOption.get_cached_value('contact'),
+        'asso_name': AssoOption.get_cached_value('name')
+    }
+
+    mail = EmailMessage(
+        'Votre facture / Your invoice',
+        template.render(ctx),
+        GeneralOption.get_cached_value('email_from'),
+        [invoice.user.email],
+        attachments=[('invoice.pdf', pdf, 'application/pdf')]
+    )
+    mail.send()

@@ -24,17 +24,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load i18n %}
 
-{% block title %}Création et modification de machines{% endblock %}
+{% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
 
 <form class="form" method="post">
     {% csrf_token %}
-    <h4>Attention, voulez-vous vraiment supprimer cet objet {{ objet_name }} ( {{ objet }} ) ?</h4>
-    {% bootstrap_button "Confirmer" button_type="submit" icon="trash" %}
+    <h4>{% blocktrans %}Warning: are you sure you want to delete this {{ objet_name }} object ( {{ objet }} )?{% endblocktrans %}</h4>
+    {% trans "Confirm" as tr_confirm %}
+    {% bootstrap_button tr_confirm button_type="submit" icon="trash" %}
 </form>
   <br />
   <br />
   <br />
 {% endblock %}
+
