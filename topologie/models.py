@@ -542,6 +542,9 @@ class Room(AclMixin, RevMixin, models.Model):
 
     def __str__(self):
         return self.name
+    
+    def can_change(user_request,*_args, **_kwargs):
+        return user_request.has_perm('users.change_user')
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):
