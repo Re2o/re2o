@@ -87,6 +87,9 @@ from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
+from datetime import date
+
+
 
 # Utilitaires généraux
 
@@ -238,6 +241,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         default=get_fresh_user_uid,
         unique=True
     )
+    birthday = models.DateField(_("Date"), default=None)
     disclaimer = models.FileField(upload_to='disclaimers', blank=True)
     rezo_rez_uid = models.PositiveIntegerField(
         unique=True,

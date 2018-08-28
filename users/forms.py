@@ -46,7 +46,7 @@ from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
-from .widgets import DateTimePicker
+from .widgets import DateTimePicker, DatePicker
 
 from .models import (
     User,
@@ -316,6 +316,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = _("Room")
         self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
+        self.fields['birthday'].label = _("Your birthday")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -334,12 +335,14 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'email',
             'school',
             'comment',
+            'birthday',
             'disclaimer',
             'room',
             'shell',
             'telephone',
             'gpg_fingerprint'
         ]
+        widgets = {'birthday':DatePicker}
 
 
     def clean_telephone(self):
@@ -600,7 +603,7 @@ class BanForm(FormRevMixin, ModelForm):
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['date_end'].label = _("End date")
         self.fields['date_end'].localize = False
-
+    
     class Meta:
         model = Ban
         exclude = ['user']

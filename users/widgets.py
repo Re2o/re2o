@@ -25,10 +25,12 @@ def list2str(str_iterable):
     
 class DateTimePicker(Input):
     is_localized = False
+
     def render(self, name, value, attrs=None): 
         super().render(name, value, attrs) 
         flat_attrs = flatatt(attrs)
         context = Context({
+            'time': True,
             'name': name,
             'attrs': flat_attrs, 
             'id': attrs['id'], 
@@ -48,3 +50,29 @@ class DateTimePicker(Input):
         template = get_template('users/datetimepicker.html')
         return template.render(context) 
 
+class DatePicker(Input):
+    is_localized = False
+
+    def render(self, name, value, attrs=None): 
+        super().render(name, value, attrs) 
+        flat_attrs = flatatt(attrs)
+        context = Context({
+            'time': False,
+            'name': name,
+            'attrs': flat_attrs, 
+            'id': attrs['id'], 
+            'closeText': _("Close"), 
+            'currentText': _("Today"),
+            'dayNames': mark_safe(list2str((str(item[1]) for item in WEEKDAYS.items()))),
+            'dayNamesMin': mark_safe(list2str((str(item[1]) for item in WEEKDAYS_ABBR.items()))), 
+            'dayNamesShort': mark_safe(list2str((str(item[1]) for item in WEEKDAYS_ABBR.items()))), 
+            'firstDay': mark_safe('"' + str(WEEKDAYS[settings.FIRST_DAY_OF_WEEK]) + '"'), 
+            'isRTL': str(get_language_bidi()).lower(), 
+            'monthNames': mark_safe(list2str((str(item[1]) for item in MONTHS.items()))),
+            'monthNamesShort': mark_safe(list2str((str(item[1]) for item in MONTHS_3.items()))), 
+            'nextText': mark_safe('"' + str(_('Next')) + '"'), 
+            'prevText': mark_safe('"' + str(_('Previous')) + '"'), 
+            'weekHeader': mark_safe('"' + str(_('Wk')) + '"' ),
+        }) 
+        template = get_template('users/datetimepicker.html')
+        return template.render(context)

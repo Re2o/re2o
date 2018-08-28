@@ -6,11 +6,15 @@
 <link href="/javascript/jquery-timepicker/jquery-ui-timepicker-addon.css" rel="stylesheet"/> 
 <input {{attrs}} name="{{name}}" type="text" class="form-control" placeholder="Date"/> 
 <script> 
-$(document).ready(function(){ 
+$(document).ready(function(){
+    {% if time %}
 	$("#{{id}}").datetimepicker({
+    {% else %}
+    $("#{{id}}").datepicker({
+    {% endif %}
 		closeText: "{{closeText}}",
 		currentText: "{{currentText}}", 
-		dateFormat:'yy-mm-dd',
+		dateFormat:'dd-mm-yy',
 		dayNames: {{dayNames}}, 
 		dayNamesMin: {{dayNamesMin}},
 		dayNamesShort: {{dayNamesShort}}, 
@@ -25,4 +29,5 @@ $(document).ready(function(){
 		closeText: "{{closeText}}",
 	}) 
 });
-</script> 
+</script>
+
