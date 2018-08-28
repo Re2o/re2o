@@ -109,6 +109,7 @@ urlpatterns = [
     url(r'^mass_archive/$', views.mass_archive, name='mass-archive'),
     url(r'^$', views.index, name='index'),
     url(r'^index_clubs/$', views.index_clubs, name='index-clubs'),
+    url(r'^initial_register/$', views.initial_register, name='initial-register'),
     url(r'^rest/ml/std/$',
         views.ml_std_list,
         name='ml-std-list'),
