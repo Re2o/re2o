@@ -227,7 +227,7 @@ def post_auth(data):
         # On récupère le numéro du port sur l'output de freeradius.
         # La ligne suivante fonctionne pour cisco, HP et Juniper
         port = port.split(".")[0].split('/')[-1][-2:]
-        out = decide_vlan_and_register_switch(nas_machine, nas_type, port, mac)
+        out = decide_vlan_switch(nas_machine, nas_type, port, mac)
         sw_name, room, reason, vlan_id = out
 
         log_message = '(fil) %s -> %s [%s%s]' % (
@@ -277,7 +277,6 @@ def find_nas_from_request(nas_id):
            .select_related('machine__switch__stack'))
     return nas.first()
 
-
 def check_user_machine_and_register(nas_type, username, mac_address):
     """Verifie le username et la mac renseignee. L'enregistre si elle est
     inconnue.
@@ -317,7 +316,7 @@ def check_user_machine_and_register(nas_type, username, mac_address):
         return (False, u"Machine inconnue", '')
 
 
-def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
+def decide_vlan_switch(nas_machine, nas_type, port_number,
                                     mac_address):
     """Fonction de placement vlan pour un switch en radius filaire auth par
     mac.
@@ -337,10 +336,7 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
             - user à jour : VLAN_OK
         - interface inconnue :
             - register mac désactivé : VLAN_NOK
-            - register mac activé :
-                - dans la chambre associé au port, pas d'user ou non à
-                  jour : VLAN_NOK
-                - user à jour, autocapture de la mac et VLAN_OK
+            - register mac activé -> redirection vers webauth
     """
     # Get port from switch and port number
     extra_log = ""
@@ -405,10 +401,10 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
             Q(club__room=port.room) | Q(adherent__room=port.room)
         )
         if not room_user:
-            return (sw_name, room, u'Chambre non cotisante', VLAN_NOK)
+            return (sw_name, room, u'Chambre non cotisante -> Web redirect', radiusd.RLM_MODULE_REJECT)
         for user in room_user:
             if not user.has_access():
-                return (sw_name, room, u'Chambre resident desactive', VLAN_NOK)
+                return (sw_name, room, u'Chambre resident desactive -> Web redirect', radiusd.RLM_MODULE_REJECT)
         # else: user OK, on passe à la verif MAC
 
     # Si on fait de l'auth par mac, on cherche l'interface via sa mac dans la bdd
@@ -425,63 +421,10 @@ def decide_vlan_and_register_switch(nas_machine, nas_type, port_number,
             # Sinon on rejette sur vlan_nok
             if not nas_type.autocapture_mac:
                 return (sw_name, "", u'Machine inconnue', VLAN_NOK)
-            # On ne peut autocapturer que si on connait la chambre et donc l'user correspondant
-            elif not room:
-                return (sw_name,
-                        "Inconnue",
-                        u'Chambre et machine inconnues',
-                        VLAN_NOK)
+            # On rejette pour basculer sur du webauth
             else:
-                # Si la chambre est vide (local club, prises en libre services)
-                # Impossible d'autocapturer
-                if not room_user:
-                    room_user = User.objects.filter(
-                        Q(club__room=port.room) | Q(adherent__room=port.room)
-                    )
-                if not room_user:
-                    return (sw_name,
-                            room,
-                            u'Machine et propriétaire de la chambre '
-                            'inconnus',
-                            VLAN_NOK)
-                # Si il y a plus d'un user dans la chambre, impossible de savoir à qui
-                # Ajouter la machine
-                elif room_user.count() > 1:
-                    return (sw_name,
-                            room,
-                            u'Machine inconnue, il y a au moins 2 users '
-                            'dans la chambre/local -> ajout de mac '
-                            'automatique impossible',
-                            VLAN_NOK)
-                # Si l'adhérent de la chambre n'est pas à jour de cotis, pas d'autocapture
-                elif not room_user.first().has_access():
-                    return (sw_name,
-                            room,
-                            u'Machine inconnue et adhérent non cotisant',
-                            VLAN_NOK)
-                # Sinon on capture et on laisse passer sur le bon vlan
-                else:
-                    interface, reason = (room_user
-                                      .first()
-                                      .autoregister_machine(
-                                          mac_address,
-                                          nas_type
-                                      ))
-                    if interface:
-                        ## Si on choisi de placer les machines sur le vlan correspondant à leur type :
-                        if RADIUS_POLICY == 'MACHINE':
-                            DECISION_VLAN = interface.type.ip_type.vlan.vlan_id
-                        return (sw_name,
-                                room,
-                                u'Access Ok, Capture de la mac: ' + extra_log,
-                                DECISION_VLAN)
-                    else:
-                        return (sw_name,
-                                room,
-                                u'Erreur dans le register mac %s' % (
-                                    reason + str(mac_address)
-                                ),
-                                VLAN_NOK)
+                return (sw_name, room, u'Machine Inconnue -> Web redirect', radiusd.RLM_MODULE_REJECT)
+
         # L'interface a été trouvée, on vérifie qu'elle est active, sinon on reject
         # Si elle n'a pas d'ipv4, on lui en met une
         # Enfin on laisse passer sur le vlan pertinent
