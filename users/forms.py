@@ -41,6 +41,8 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import ugettext_lazy as _
 
+from machines.models import Interface, Machine, Nas
+from topologie.models import Port
 from preferences.models import OptionalUser
 from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
@@ -660,3 +662,53 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         model = User
         fields = ['email','local_email_enabled', 'local_email_redirect']
 
+
+class InitialRegisterForm(forms.Form):
+    register_room = forms.BooleanField(required=False)
+    register_machine = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        switch_ip = kwargs.pop('switch_ip')
+        switch_port = kwargs.pop('switch_port')
+        client_mac = kwargs.pop('client_mac')
+        self.user = kwargs.pop('user')
+        if switch_ip and switch_port:
+            # Looking for a port
+            port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
+            # If a port exists, checking there is a room AND radius
+            if port:
+                if port.get_port_profile.radius_type != 'NO' and port.get_port_profile.radius_mode == 'STRICT' and hasattr(port, 'room'):
+                    # Requesting user is not in this room ?
+                    if self.user.room != port.room:
+                        self.new_room = port.room
+        if client_mac and switch_ip:
+            # If this interface doesn't already exists
+            if not Interface.objects.filter(mac_address=client_mac):
+                self.mac_address = client_mac
+                self.nas_type = Nas.objects.filter(nas_type__interface__ipv4__ipv4=switch_ip).first()
+        super(InitialRegisterForm, self).__init__(*args, **kwargs)
+        if hasattr(self, 'new_room'):
+            self.fields['register_room'].label = _("New connection from room %s. Is it yours? If that is the case, type OK." % self.new_room)
+        else:
+            self.fields.pop('register_room')
+        if hasattr(self, 'mac_address'):
+            self.fields['register_machine'].label = _("New connection from new device. Register it? Say Yes to get Internet access from it (MAC Address : %s)." % self.mac_address)
+        else:
+            self.fields.pop('register_machine')
+
+    def clean_register_room(self):
+        if self.cleaned_data['register_room']:
+            if self.user.is_class_adherent:
+                remove_user_room(self.new_room)
+                user = self.user.adherent
+                user.room = self.new_room
+                user.save()
+            if self.user.is_class_club:
+                user = self.user.club
+                user.room = self.new_room
+                user.save()
+
+    def clean_register_machine(self):
+        if self.cleaned_data['register_machine']:
+            if self.mac_address and self.nas_type:
+                self.user.autoregister_machine(self.mac_address, self.nas_type)
