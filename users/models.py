@@ -186,10 +186,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
+    STATE_NOT_YET_ACTIVE = 3
     STATES = (
         (0, 'STATE_ACTIVE'),
         (1, 'STATE_DISABLED'),
         (2, 'STATE_ARCHIVE'),
+        (3, 'STATE_NOT_YET_ACTIVE'),
     )
 
     surname = models.CharField(max_length=255)
@@ -231,7 +233,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True
     )
     pwd_ntlm = models.CharField(max_length=255)
-    state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
+    state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(
@@ -329,7 +331,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     @property
     def is_active(self):
         """ Renvoie si l'user est à l'état actif"""
-        return self.state == self.STATE_ACTIVE
+        return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE
 
     @property
     def is_staff(self):

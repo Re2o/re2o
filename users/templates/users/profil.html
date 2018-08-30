@@ -211,11 +211,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% endif %}
 			<th>{% trans "State" %}</th>
                         {% if users.state == 0 %}
-			<td><i class="text-success">{% trans "Active" %}</i></td>
+			<td><i class="text-warning">{% trans "Active" %}</i></td>
                         {% elif users.state == 1 %}
-			<td><i class="text-danger">{% trans "Disabled" %}</i></td>
-                        {% else %}
-			<td><i class="text-warning">{% trans "Archived" %}</i></td>
+			<td><i class="text-success">{% trans "Disabled" %}</i></td>
+                        {% elif users.state == 2 %}
+			<td><i class="text-danger">{% trans "Archived" %}</i></td>
+                        {% elif users.state == 3 %}
+			<td><i class="text-danger">{% trans "Not yet Member" %}</i></td>
+
                         {% endif %}
                     </tr>
                     <tr>
