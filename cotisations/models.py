@@ -50,7 +50,7 @@ from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method
+from cotisations.utils import find_payment_method, send_mail_invoice 
 from cotisations.validators import check_no_balance
 
 
@@ -137,7 +137,7 @@ class Facture(BaseInvoice):
     )
     # TODO : change name to validity for clarity
     valid = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_("validated")
     )
     # TODO : changed name to controlled for clarity
@@ -231,6 +231,7 @@ class Facture(BaseInvoice):
         self.field_permissions = {
             'control': self.can_change_control,
         }
+        self.__original_valid = self.valid
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
@@ -242,9 +243,12 @@ def facture_post_save(**kwargs):
     Synchronise the LDAP user after an invoice has been saved.
     """
     facture = kwargs['instance']
-    user = facture.user
-    user.set_active()
-    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+    if facture.valid:
+        user = facture.user
+        if not facture.__original_valid:
+            user.set_active()
+            send_mail_invoice(facture) 
+            user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
@@ -701,6 +705,10 @@ class Paiement(RevMixin, AclMixin, models.Model):
         payment_method = find_payment_method(self)
         if payment_method is not None and use_payment_method:
             return payment_method.end_payment(invoice, request)
+
+        ## So make this invoice valid, trigger send mail
+        invoice.valid = True
+        invoice.save()
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
