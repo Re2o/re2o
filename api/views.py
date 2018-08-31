@@ -29,6 +29,7 @@ the response (JSON or other), the CSRF exempting, ...
 import datetime
 
 from django.conf import settings
+from django.db.models import Q
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -421,7 +422,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes infos of `users.models.Users` objects to create homes.
     """
-    queryset = users.User.objects.filter(state = 0)
+    queryset = users.User.objects.exclude(Q(state=User.STATE_DISABLED) | Q(state=User.STATE_NOT_YET_ACTIVE))
     serializer_class = serializers.HomeCreationSerializer
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
