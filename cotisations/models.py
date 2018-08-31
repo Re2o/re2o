@@ -243,10 +243,8 @@ def facture_post_save(**kwargs):
     """
     facture = kwargs['instance']
     user = facture.user
-    if facture.valid and facture.vente_set.filter(Q(type_cotisation='All') | Q(type_cotisation='Adhesion')).exists():
-        user.state = 0
-        user.save()
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    user.set_active()
+    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
@@ -475,12 +473,8 @@ def vente_post_save(**kwargs):
         purchase.create_cotis()
         purchase.cotisation.save()
         user = purchase.facture.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
-    if purchase.facture.valid and (purchase.type_cotisation == 'All' or purchase.type_cotisation == 'Adhesion'):
-        user = purchase.facture.user
-        if user.state == 3:
-            user.state = 0
-            user.save()
+        user.set_active()
+        user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change vente to purchase
