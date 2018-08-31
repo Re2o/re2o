@@ -243,7 +243,8 @@ def facture_post_save(**kwargs):
     """
     facture = kwargs['instance']
     user = facture.user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    user.set_active()
+    user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
@@ -472,7 +473,8 @@ def vente_post_save(**kwargs):
         purchase.create_cotis()
         purchase.cotisation.save()
         user = purchase.facture.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        user.set_active()
+        user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change vente to purchase
