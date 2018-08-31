@@ -224,8 +224,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% acl_end %}
         <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
         {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
-    <p>
-    </p>
+    
     <table class="table table-striped">
         <tr>
             <th>{% trans "Twitter account URL" %}</th>
@@ -238,5 +237,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ homeoptions.facebook_url }}</td>
         </tr>
     </table>
+    <table class="table table-striped">
+        {% for line in assooptions %}
+	<tr>
+	{% for text, field in line %}
+            <th>{{ field }}</th>
+            <td>{{ text }}</td>
+	{% endfor %}
+	</tr>
+        {% endfor %}
+    </table>
+
+
+<h2>Options pour le mail de fin d'adhésion</h2>
+  {% can_create preferences.Reminder%}
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+  {% acl_end %}
+  {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+
+  <br />
+  <br />
+  <br />
 {% endblock %}
 

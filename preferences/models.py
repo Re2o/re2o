@@ -215,6 +215,32 @@ def optionaltopologie_post_save(**kwargs):
     topologie_pref.set_in_cache()
 
 
+class Reminder(AclMixin, models.Model):
+    """Options pour les mails de notification de fin d'adhésion.
+    Days: liste des nombres de jours pour lesquells un mail est envoyé
+    optionalMessage: message additionel pour le mail
+    """
+    PRETTY_NAME="Options pour le mail de fin d'adhésion"
+
+    days = models.IntegerField(
+        default=7,
+        unique=True,
+        help_text="Délais entre le mail et la fin d'adhésion"
+    )
+    message = models.CharField(
+        max_length=255,
+        default="",
+        null=True,
+        blank=True,
+        help_text="Message affiché spécifiquement pour ce rappel"
+    )
+
+    class Meta:
+        permissions = (
+            ("view_reminder", "Peut voir un objet reminder"),
+        )
+
+
 class GeneralOption(AclMixin, PreferencesModel):
     """Options générales : nombre de resultats par page, nom du site,
     temps où les liens sont valides"""

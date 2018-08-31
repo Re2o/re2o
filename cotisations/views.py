@@ -148,7 +148,7 @@ def new_facture(request, user, userid):
                     p.facture = new_invoice_instance
                     p.save()
 
-                send_mail_invoice(new_invoice_instance)
+                #send_mail_invoice(new_invoice_instance)
 
                 return new_invoice_instance.paiement.end_payment(
                     new_invoice_instance,

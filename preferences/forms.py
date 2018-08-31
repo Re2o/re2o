@@ -24,6 +24,7 @@ Formulaire d'edition des réglages : user, machine, topologie, asso...
 """
 
 from __future__ import unicode_literals
+from re2o.mixins import FormRevMixin
 
 from django.forms import ModelForm, Form
 from django import forms
@@ -39,6 +40,7 @@ from .models import (
     HomeOption,
     Service,
     MailContact
+    Reminder
 )
 
 
@@ -211,7 +213,7 @@ class EditHomeOptionForm(ModelForm):
         self.fields['twitter_account_name'].label = _("Twitter account name")
 
 
-class ServiceForm(ModelForm):
+class ServiceForm(FormRevMixin, ModelForm):
     """Edition, ajout de services sur la page d'accueil"""
     class Meta:
         model = Service
@@ -269,3 +271,12 @@ class DelMailContactForm(Form):
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
 
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de rappel"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)

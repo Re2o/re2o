@@ -79,6 +79,65 @@ from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
+MODEL_NAME = {
+    # cotisations
+    'Facture': cotisations.models.Facture,
+    'Vente': cotisations.models.Vente,
+    'Article': cotisations.models.Article,
+    'Banque': cotisations.models.Banque,
+    'Paiement': cotisations.models.Paiement,
+    'Cotisation': cotisations.models.Cotisation,
+    # machines
+    'Machine': machines.models.Machine,
+    'MachineType': machines.models.MachineType,
+    'IpType': machines.models.IpType,
+    'Vlan': machines.models.Vlan,
+    'Nas': machines.models.Nas,
+    'SOA': machines.models.SOA,
+    'Extension': machines.models.Extension,
+    'Mx': machines.models.Mx,
+    'Ns': machines.models.Ns,
+    'Txt': machines.models.Txt,
+    'Srv': machines.models.Srv,
+    'Interface': machines.models.Interface,
+    'Domain': machines.models.Domain,
+    'IpList': machines.models.IpList,
+    'Ipv6List': machines.models.Ipv6List,
+    'machines.Service': machines.models.Service,
+    'Service_link': machines.models.Service_link,
+    'OuverturePortList': machines.models.OuverturePortList,
+    'OuverturePort': machines.models.OuverturePort,
+    # preferences
+    'OptionalUser': preferences.models.OptionalUser,
+    'OptionalMachine': preferences.models.OptionalMachine,
+    'OptionalTopologie': preferences.models.OptionalTopologie,
+    'GeneralOption': preferences.models.GeneralOption,
+    'preferences.Service': preferences.models.Service,
+    'preferences.Reminder': preferences.models.Reminder,
+    'AssoOption': preferences.models.AssoOption,
+    'MailMessageOption': preferences.models.MailMessageOption,
+    # topologie
+    'Stack': topologie.models.Stack,
+    'Switch': topologie.models.Switch,
+    'AccessPoint': topologie.models.AccessPoint,
+    'ModelSwitch': topologie.models.ModelSwitch,
+    'ConstructorSwitch': topologie.models.ConstructorSwitch,
+    'Port': topologie.models.Port,
+    'Room': topologie.models.Room,
+    'Building': topologie.models.Building,
+    'SwitchBay': topologie.models.SwitchBay,
+    # users
+    'User': users.models.User,
+    'Adherent': users.models.Adherent,
+    'Club': users.models.Club,
+    'ServiceUser': users.models.ServiceUser,
+    'School': users.models.School,
+    'ListRight': users.models.ListRight,
+    'ListShell': users.models.ListShell,
+    'Ban': users.models.Ban,
+    'Whitelist': users.models.Whitelist,
+}
+
 
 def get_model(model_name):
     """Retrieve the model object from its name"""
