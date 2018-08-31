@@ -334,8 +334,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE
 
     def set_active(self):
-        """Enable this user if he subscribed successfully one time before
-        Active l'utilisateur définitivement si il a adhéré au moins une fois"""
+        """Enable this user if he subscribed successfully one time before"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
                 self.state = self.STATE_ACTIVE
