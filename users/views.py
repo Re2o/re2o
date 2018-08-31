@@ -47,13 +47,14 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _
+from django.core.exceptions import PermissionDenied
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
 
 from cotisations.models import Facture, Paiement
 from machines.models import Machine
-from preferences.models import OptionalUser, GeneralOption, AssoOption
+from preferences.models import OptionalUser, OptionalMachine, GeneralOption, AssoOption
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
@@ -70,6 +71,8 @@ from re2o.acl import (
     can_change
 )
 from cotisations.utils import find_payment_method
+
+from netaddr import IPAddress, IPNetwork
 
 from .serializers import MailingSerializer, MailingMemberSerializer
 from .models import (
@@ -1084,27 +1087,31 @@ def process_passwd(request, req):
 
 @login_required
 def initial_register(request):
-    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=request.GET.get('switch_ip', None), switch_port=request.GET.get('switch_port', None), client_mac=request.GET.get('client_mac', None))
-    if not u_form.fields:
-        messages.error(request, _("Incorrect URL, or already registered device"))
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    if u_form.is_valid():
-        messages.success(request, _("Successful registration! Please"
-                                    " disconnect and reconnect your Ethernet"
-                                    " cable to get Internet access."))
+    options, created = OptionalMachine.objects.get_or_create()
+    if any(IPAddress(request.META['REMOTE_ADDR']) in t.ip_set for t in options.autocapture_iprange.all()) or any(IPAddress(request.META['REMOTE_ADDR']) in IPNetwork(t.complete_prefixv6) for t in options.autocapture_iprange.all() if t.complete_prefixv6 ):
+        u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=request.GET.get('switch_ip', None), switch_port=request.GET.get('switch_port', None), client_mac=request.GET.get('client_mac', None))
+        if not u_form.fields:
+            messages.error(request, _("Incorrect URL, or already registered device"))
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': str(request.user.id)}
+            ))
+        if u_form.is_valid():
+            messages.success(request, _("Successful registration! Please"
+                                        " disconnect and reconnect your Ethernet"
+                                        " cable to get Internet access."))
+            return form(
+                {},
+                'users/plugin_out.html',
+                request
+            )
         return form(
-            {},
-            'users/plugin_out.html',
+            {'userform': u_form, 'action_name': _("Register device or room")},
+            'users/user.html',
             request
         )
-    return form(
-        {'userform': u_form, 'action_name': _("Register device or room")},
-        'users/user.html',
-        request
-    )
+    else:
+        raise PermissionDenied
 
 
 class JSONResponse(HttpResponse):

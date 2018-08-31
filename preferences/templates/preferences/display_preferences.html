@@ -96,6 +96,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% trans "Creation of machines" %}</th>
             <td>{{ machineoptions.create_machine|tick }}</td>
+            <th>{% trans "IPs range d'autoregister" %}</th>
+            <td>{% for type in machineoptions.autocapture_iprange.all %}
+                    {{type.type}} 
+                {% endfor %} 
+                </td>
         </tr>
     </table>
     <h4>{% trans "Topology preferences" %}</h4>

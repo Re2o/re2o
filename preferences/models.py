@@ -149,6 +149,13 @@ class OptionalMachine(AclMixin, PreferencesModel):
         default=True
     )
 
+    autocapture_iprange = models.ManyToManyField(
+        'machines.IpType',
+        help_text=_("Définit la plage d'ip depuis laquel un utilisateur peut enregistrer une machine filaire"),
+        blank=True,
+    ) 
+
+
     @cached_property
     def ipv6(self):
         """ Check if the IPv6 option is activated """

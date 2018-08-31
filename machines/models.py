@@ -397,7 +397,10 @@ class IpType(RevMixin, AclMixin, models.Model):
     @cached_property
     def complete_prefixv6(self):
         """Return the complete prefix v6 as cidr"""
-        return str(self.prefix_v6) + "/" + str(self.prefix_v6_length)
+        if self.prefix_v6:
+            return str(self.prefix_v6) + "/" + str(self.prefix_v6_length)
+        else:
+            return None
 
     def ip_objects(self):
         """ Renvoie tous les objets ipv4 relié à ce type"""
