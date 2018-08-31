@@ -422,7 +422,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes infos of `users.models.Users` objects to create homes.
     """
-    queryset = users.User.objects.exclude(Q(state=User.STATE_DISABLED) | Q(state=User.STATE_NOT_YET_ACTIVE))
+    queryset = users.User.objects.exclude(Q(state=users.User.STATE_DISABLED) | Q(state=users.User.STATE_NOT_YET_ACTIVE))
     serializer_class = serializers.HomeCreationSerializer
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
