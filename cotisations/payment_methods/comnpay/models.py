@@ -81,8 +81,6 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         a facture id, the price and the secret transaction data stored in
         the preferences.
         """
-        invoice.valid = False
-        invoice.save()
         host = request.get_host()
         p = Transaction(
             str(self.payment_credential),

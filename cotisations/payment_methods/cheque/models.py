@@ -46,8 +46,6 @@ class ChequePayment(PaymentMethodMixin, models.Model):
         """Invalidates the invoice then redirect the user towards a view asking
         for informations to add to the invoice before validating it.
         """
-        invoice.valid = False
-        invoice.save()
         return redirect(reverse(
             'cotisations:cheque:validate',
             kwargs={'invoice_pk': invoice.pk}

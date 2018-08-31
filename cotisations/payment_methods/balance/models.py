@@ -74,8 +74,6 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         user = invoice.user
         total_price = invoice.prix_total()
         if float(user.solde) - float(total_price) < self.minimum_balance:
-            invoice.valid = False
-            invoice.save()
             messages.error(
                 request,
                 _("Your balance is too low for this operation.")
