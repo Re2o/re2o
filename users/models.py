@@ -571,11 +571,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             try:
                 user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
             except LdapUser.DoesNotExist:
-                if self.state != 3:
-                    user_ldap = LdapUser(uidNumber=self.uid_number)
-                    base = True
-                    access_refresh = True
-                    mac_refresh = True
+                #  Freshly created users are NOT synced in ldap base
+                if self.state == self.STATE_NOT_YET_ACTIVE:
+                    return
+                user_ldap = LdapUser(uidNumber=self.uid_number)
+                base = True
+                access_refresh = True
+                mac_refresh = True
             if base:
                 user_ldap.name = self.pseudo
                 user_ldap.sn = self.pseudo
