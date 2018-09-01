@@ -50,7 +50,7 @@ from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method, send_mail_invoice 
+from cotisations.utils import find_payment_method, send_mail_invoice
 from cotisations.validators import check_no_balance
 
 
@@ -610,7 +610,9 @@ class Article(RevMixin, AclMixin, models.Model):
             user: The user requesting articles.
             target_user: The user to sell articles
         """
-        if target_user.is_class_club:
+        if target_user is None:
+            objects_pool = cls.objects.filter(Q(type_user='All'))
+        elif target_user.is_class_club:
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Club')
             )
