@@ -3,7 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018  Hugo Levy-Falk
+# Copyright © 2018 Gabriel Detraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,11 +18,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from django.conf.urls import include, url
-from . import comnpay, cheque, note_kfet
+from django.conf.urls import url
+from . import views
 
 urlpatterns = [
-    url(r'^comnpay/', include(comnpay.urls, namespace='comnpay')),
-    url(r'^cheque/', include(cheque.urls, namespace='cheque')),
-    url(r'^note_kfet/', include(note_kfet.urls, namespace='note_kfet')),
+    url(
+        r'^note_payment/(?P<factureid>[0-9]+)$',
+        views.note_payment,
+        name='note_payment'
+    ),
 ]
