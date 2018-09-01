@@ -68,7 +68,7 @@ def accept_payment(request, factureid):
             )
     return redirect(reverse(
         'users:profil',
-        kwargs={'userid': request.user.id}
+        kwargs={'userid': invoice.user.id}
     ))
 
 
