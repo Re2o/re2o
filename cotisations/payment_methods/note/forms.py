@@ -3,7 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2018  Hugo Levy-Falk
+# Copyright © 2018  Pierre-Antoine Comby
+# Copyright © 2018  Gabriel Detraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,11 +19,20 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from django.conf.urls import include, url
-from . import comnpay, cheque, note
+from django import forms
+from django.utils.translation import ugettext_lazy as _
 
-urlpatterns = [
-    url(r'^comnpay/', include(comnpay.urls, namespace='comnpay')),
-    url(r'^cheque/', include(cheque.urls, namespace='cheque')),
-    url(r'^note/', include(note.urls, namespace='note')),
-]
+from cotisations.utils import find_payment_method
+
+class NoteCredentialForm(forms.Form):
+    """A special form to get credential to connect to a NoteKfet2015 server throught his API
+    object.
+    """
+    login = forms.CharField(
+            label=_("pseudo note")
+        )
+    password = forms.CharField(
+            label=_("Password"),
+            widget=forms.PasswordInput
+        )
+   
