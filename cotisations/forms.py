@@ -102,7 +102,7 @@ class SelectArticleForm(FormRevMixin, Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
-        target_user = kwargs.pop('target_user')
+        target_user = kwargs.pop('target_user', None)
         super(SelectArticleForm, self).__init__(*args, **kwargs)
         self.fields['article'].queryset = Article.find_allowed_articles(user, target_user)
 
