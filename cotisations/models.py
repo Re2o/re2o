@@ -233,9 +233,13 @@ class Facture(BaseInvoice):
         }
         self.__original_valid = self.valid
 
+    def save(self, *args, **kwargs):
+        super(Facture, self).save(*args, **kwargs)
+        if not self.__original_valid and self.valid:
+            send_mail_invoice(self)
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
-
 
 @receiver(post_save, sender=Facture)
 def facture_post_save(**kwargs):
@@ -245,10 +249,8 @@ def facture_post_save(**kwargs):
     facture = kwargs['instance']
     if facture.valid:
         user = facture.user
-        if not facture.__original_valid:
-            user.set_active()
-            send_mail_invoice(facture) 
-            user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        user.set_active()
+        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
