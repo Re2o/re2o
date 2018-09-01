@@ -127,10 +127,11 @@ method to your model, where `form` is an instance of
 """
 
 
-from . import comnpay, cheque, balance, urls
+from . import comnpay, cheque, balance, note, urls
 
 PAYMENT_METHODS = [
     comnpay,
     cheque,
     balance,
+    note
 ]
