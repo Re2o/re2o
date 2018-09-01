@@ -191,9 +191,9 @@ def new_custom_invoice(request):
     # Building the invocie form and the article formset
     invoice_form = CustomInvoiceForm(request.POST or None)
 
-    article_formset = formset_factory(SelectArticleForm)(
+    articles_formset = formset_factory(SelectArticleForm)(
         request.POST or None,
-        form_kwargs={'user': request.user, 'target_user': user}
+        form_kwargs={'user': request.user}
     )
 
     if invoice_form.is_valid() and articles_formset.is_valid():
@@ -215,7 +215,6 @@ def new_custom_invoice(request):
             _("The custom invoice was created.")
         )
         return redirect(reverse('cotisations:index-custom-invoice'))
-
 
     return form({
         'factureform': invoice_form,
