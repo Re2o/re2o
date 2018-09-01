@@ -60,6 +60,6 @@ class NotePayment(PaymentMethodMixin, models.Model):
 
     def end_payment(self, invoice, request):
         return redirect(reverse(
-            'cotisations:note:note_payment',
+            'cotisations:note_kfet:note_payment',
             kwargs={'factureid': invoice.id}
         ))
