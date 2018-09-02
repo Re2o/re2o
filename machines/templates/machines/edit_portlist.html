@@ -51,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <input class="btn btn-primary btn-sm" role="button" value=value id="add_one">
     </p>
     {% trans "Create or edit" as tr_create_or_edit %}
-    {% bootstrap_button tr_create_or_edit button_type="submit" icon="star" %}
+    {% bootstrap_button tr_create_or_edit icon='ok' button_class='btn-success' %}
 </form>
 <script type="text/javascript">
     var template = `{{ports.empty_form}}`;

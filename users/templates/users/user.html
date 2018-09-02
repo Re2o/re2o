@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     {% massive_bootstrap_form userform 'room,school,administrators,members' %}
-    {% bootstrap_button action_name button_type="submit" icon="star" %}
+    {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
 {% if load_js_file %}
 <script src="{{ load_js_file }}"></script>
