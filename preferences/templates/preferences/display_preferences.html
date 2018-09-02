@@ -32,14 +32,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 <div id="accordion">
-	
+
 	<div class="panel panel-default" id="general">
 	<div class="panel-heading" data-toggle="collapse" href="#collapse_general">
     	<h4 class="panel-title" id="general">
                 <a><i class="fa fa-cog"></i>   {% trans "General preferences" %}</a>
-        </h4> 
+        </h4>
     </div>
-    
+
     <div id="collapse_general" class="panel-collapse panel-body collapse">
 
 			<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
@@ -70,7 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "General message displayed on the website" %}</th>
             <td>{{ generaloptions.general_message }}</td>
  	    <th>{% trans "Main site url" %}</th>
-            <td>{{ generaloptions.main_site_url }}</td>  
+            <td>{{ generaloptions.main_site_url }}</td>
 	</tr>
         <tr>
 	    <th>{% trans "Summary of the General Terms of Use" %}</th>
@@ -99,7 +99,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       		<h4 class="panel-title">
                     <a><i class="fa fa-users fa-fw"></i>   {% trans "User preferences" %}</a>
       		</h4>
-    </div>	
+    </div>
 	<div id="collapse_users" class="panel-collapse panel-body collapse">
 
         <p></p>
@@ -146,7 +146,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
         </div>
     </div>
-	
+
 	<div class="panel panel-default" id="machines">
 	<div class="panel-heading" data-toggle="collapse" href="#collapse_machines">
     	<h4 class ="panel-title">
@@ -159,7 +159,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
         <i class="fa fa-edit"></i>
         {% trans "Edit" %}
-    </a>    
+    </a>
     <p></p>
     <table class="table table-striped">
         <tr>
@@ -208,10 +208,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
-	<tr>	
-	    <th>Placement sur ce vlan par default en cas de rejet</th>
-	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
-	</tr>
+        <tr>
+            <th>{% trans "VLAN for non members machines" %}</th>
+            <td>{{ topologieoptions.vlan_non_member }}</td>
+        </tr>
     </table>
 
     <h4>Clef radius</h4>
@@ -219,7 +219,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
 	  {% acl_end %}
 	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
-	
+
 	</div>
 	</div>
 
@@ -236,7 +236,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% trans "Edit" %}
         </a>
         <p></p>
-        
+
         <table class="table table-striped">
 	    <tr>
             <th>Web management, activé si provision automatique</th>
@@ -254,11 +254,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Switchs configurés automatiquement</th>
 	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
 	    <th>Plage d'ip de management des switchs</th>
 	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
             <th>Serveur des config des switchs</th>
 	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
@@ -287,6 +287,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 	</div>
 
+	<div class="panel panel-default" id="radius">
+		<div class="panel-heading" data-toggle="collapse" href="#collapse_radius">
+			<h4 class="panel-title">{% trans "Radius preferences" %}</h4>
+		</div>
+		<div id="collapse_radius" class="panel-collapse panel-body collapse">
+			<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
+				<i class="fa fa-edit"></i>
+				{% trans "Edit" %}
+			</a>
+			{% include "preferences/aff_radiusoptions.html" %}
+		</div>
+	</div>
 
     <div class="panel panel-default" id="asso">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_asso">
@@ -295,7 +307,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </h4>
     </div>
     <div id="collapse_asso" class="panel-collapse panel-body collapse">
-
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -331,11 +342,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
     </div>
     </div>
-    
+
     <div  class="panel panel-default" id="mail">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">
     	<h4 class="panel-title">
-                <a><i class="fa fa-comment"></i>   Message pour les mails</a>		
+                <a><i class="fa fa-comment"></i>   Message pour les mails</a>
 		</h4>
 	</div>
     <div id="collapse_mail" class="panel-collapse panel-body collapse">
@@ -367,7 +378,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 	<div id="collapse_rappels" class="panel-collapse panel-body collapse">
         {% can_create preferences.Reminder%}
-        
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
         <p></p>
         {% acl_end %}
@@ -384,12 +395,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div id="collapse_services" class="panel-collapse panel-body collapse">
         {% can_create preferences.Service%}
-        
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
         <p></p>
         {% acl_end %}
         {%  include "preferences/aff_service.html" with  service_list=service_list %}
-        
+
 	</div>
 	</div>
 
@@ -400,7 +411,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		</h4>
 	</div>
 	<div id="collapse_contact" class="panel-collapse panel-body collapse">
-        
+
         {% can_create preferences.MailContact %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}

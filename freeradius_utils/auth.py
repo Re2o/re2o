@@ -63,6 +63,7 @@ from preferences.models import OptionalTopologie
 options, created = OptionalTopologie.objects.get_or_create()
 VLAN_NOK = options.vlan_decision_nok.vlan_id
 VLAN_OK = options.vlan_decision_ok.vlan_id
+VLAN_NON_MEMBER = options.vlan_non_member.vlan_id
 RADIUS_POLICY = options.radius_general_policy
 
 #: Serveur radius de test (pas la prod)
@@ -338,14 +339,15 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
     - mode strict :
         - pas de chambre associée : VLAN_NOK
         - pas d'utilisateur dans la chambre : VLAN_NOK
-        - cotisation non à jour : VLAN_NOK
+        - cotisation non à jour : VLAN_NON_MEMBER
         - sinon passe à common (ci-dessous)
     - mode common :
         - interface connue (macaddress):
-            - utilisateur proprio non cotisant ou banni : VLAN_NOK
+            - utilisateur proprio non cotisant : VLAN_NON_MEMBER
+            - utilisateur proprio banni : VLAN_NOK
             - user à jour : VLAN_OK
         - interface inconnue :
-            - register mac désactivé : VLAN_NOK
+            - register mac désactivé : VLAN_NON_MEMBER
             - register mac activé -> redirection vers webauth
     """
     # Get port from switch and port number
@@ -414,8 +416,10 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
         if not room_user:
             return (sw_name, room, u'Chambre non cotisante -> Web redirect', None, False)
         for user in room_user:
-            if not user.has_access():
+            if user.is_ban() or user.state != User.STATE_ACTIVE:
                 return (sw_name, room, u'Chambre resident desactive -> Web redirect', None, False)
+            elif not (user.is_connected() or user.is_whitelisted()):
+                return (sw_name, room, u'Utilisateur non cotisant', VLAN_NON_MEMBER)
         # else: user OK, on passe à la verif MAC
 
     # Si on fait de l'auth par mac, on cherche l'interface via sa mac dans la bdd
@@ -431,7 +435,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
             # On essaye de register la mac, si l'autocapture a été activée
             # Sinon on rejette sur vlan_nok
             if not nas_type.autocapture_mac:
-                return (sw_name, "", u'Machine inconnue', VLAN_NOK, True)
+                return (sw_name, "", u'Machine inconnue', VLAN_NON_MEMBER)
             # On rejette pour basculer sur du webauth
             else:
                 return (sw_name, room, u'Machine Inconnue -> Web redirect', None, False)
@@ -445,8 +449,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                 return (sw_name,
                         room,
                         u'Machine non active / adherent non cotisant',
-                        VLAN_NOK,
-                        True)
+                        VLAN_NON_MEMBER)
             ## Si on choisi de placer les machines sur le vlan correspondant à leur type :
             if RADIUS_POLICY == 'MACHINE':
                 DECISION_VLAN = interface.type.ip_type.vlan.vlan_id

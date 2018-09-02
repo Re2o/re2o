@@ -66,6 +66,11 @@ urlpatterns = [
         views.edit_options,
         name='edit-options'
         ),
+    url(
+        r'^edit_options/(?P<section>RadiusOption)$',
+        views.edit_options,
+        name='edit-options'
+        ),
     url(r'^add_service/$', views.add_service, name='add-service'),
     url(
         r'^edit_service/(?P<serviceid>[0-9]+)$',
