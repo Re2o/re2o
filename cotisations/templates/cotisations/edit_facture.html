@@ -38,7 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>{% trans "Edit the invoice" %}</h3>
     {% massive_bootstrap_form factureform 'user' %}
     {{ venteform.management_form }}
-    <h3>{% trans "Invoice's articles" %}</h3>
+    <h3>{% trans "Articles" %}</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -58,7 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
          {% endfor %}
     </table>
     {% trans "Confirm" as tr_confirm %}
-    {% bootstrap_button tr_confirm button_type='submit' icon='star' %}
+    {% bootstrap_button tr_confirm button_type='submit' icon='ok' button_class='btn-success' %}
 </form>
 
 {% endblock %}
