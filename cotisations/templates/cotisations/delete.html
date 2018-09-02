@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% blocktrans %}Warning: are you sure you really want to delete this {{ object_name }} object ( {{ objet }} )?{% endblocktrans %}
     </h4>
     {% trans "Confirm" as tr_confirm %}
-    {% bootstrap_button tr_confirm button_type='submit' icon='trash' %}
+    {% bootstrap_button tr_confirm button_type='submit' icon='trash' button_class='btn-danger' %}
 </form>
 {% endblock %}
 

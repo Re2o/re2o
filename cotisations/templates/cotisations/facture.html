@@ -34,7 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if title %}
 <h3>{{ title }}</h3>
 {% else %}
-<h3>{% trans "New invoice" %}</h3>
+<h3>{% trans "Buy" %}</h3>
 {% endif %}
 {% if max_balance %}
 <h4>{% blocktrans %}Maximum allowed balance: {{ max_balance }} €{% endblocktrans %}</h4>
@@ -53,7 +53,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="paymentMethod"></div>
     {% endif %}
     {% if articlesformset %}
-    <h3>{% trans "Invoice's articles" %}</h3>
+    <h3>{% trans "Articles" %}</h3>
     <div id="form_set" class="form-group">
         {{ articlesformset.management_form }}
         {% for articlesform in articlesformset.forms %}
@@ -67,12 +67,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
         {% endfor %}
     </div>
-    <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add an article"%}" id="add_one">
+    <input class="btn btn-primary btn-block" role="button" value="{% trans "Add an extra article"%}" id="add_one">
     <p>
         {% blocktrans %}Total price: <span id="total_price">0,00</span> €{% endblocktrans %}
     </p>
     {% endif %}
-    {% bootstrap_button action_name button_type='submit' icon='star' %}
+    {% bootstrap_button action_name button_type='submit' icon='ok' button_class='btn-success' %}
 </form>
 
 {% if articlesformset or payment_method%}

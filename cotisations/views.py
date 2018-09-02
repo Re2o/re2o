@@ -169,7 +169,7 @@ def new_facture(request, user, userid):
             'articlesformset': article_formset,
             'articlelist': article_list,
             'balance': balance,
-            'action_name': _('Create'),
+            'action_name': _('Confirm'),
         },
         'cotisations/facture.html', request
     )
@@ -218,7 +218,7 @@ def new_custom_invoice(request):
 
     return form({
         'factureform': invoice_form,
-        'action_name': _("Create"),
+        'action_name': _("Confirm"),
         'articlesformset': articles_formset,
         'articlelist': articles
     }, 'cotisations/facture.html', request)
