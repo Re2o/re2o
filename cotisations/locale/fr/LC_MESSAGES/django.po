@@ -681,8 +681,9 @@ msgstr ""
 
 #: templates/cotisations/delete.html:38
 #: templates/cotisations/edit_facture.html:60
+#: views.py:181 views.py:235
 msgid "Confirm"
-msgstr "Confirmer"
+msgstr "Valider"
 
 #: templates/cotisations/edit_facture.html:31
 #: templates/cotisations/facture.html:30
@@ -695,12 +696,13 @@ msgstr "Modifier la facture"
 
 #: templates/cotisations/edit_facture.html:41
 #: templates/cotisations/facture.html:56
-msgid "Invoice's articles"
-msgstr "Articles de la facture"
+#: templates/cotisations/index_article.html:30
+msgid "Articles"
+msgstr "Articles"
 
 #: templates/cotisations/facture.html:37
-msgid "New invoice"
-msgstr "Nouvelle facture"
+msgid "Buy"
+msgstr "Acheter une cotisation"
 
 #: templates/cotisations/facture.html:40
 #, python-format
@@ -713,8 +715,8 @@ msgid "Current balance: %(balance)s €"
 msgstr "Solde actuel : %(balance)s €"
 
 #: templates/cotisations/facture.html:70
-msgid "Add an article"
-msgstr "Ajouter un article"
+msgid "Add an extra article"
+msgstr "Ajouter un article supplémentaire"
 
 #: templates/cotisations/facture.html:72
 msgid "Total price: <span id=\"total_price\">0,00</span> €"
@@ -728,9 +730,6 @@ msgstr "Factures"
 msgid "Subscriptions"
 msgstr "Cotisations"
 
-#: templates/cotisations/index_article.html:30
-msgid "Articles"
-msgstr "Articles"
 
 #: templates/cotisations/index_article.html:33
 msgid "Article types list"
@@ -812,9 +811,6 @@ msgstr "Contrôler les factures"
 msgid "You need to choose at least one article."
 msgstr "Vous devez choisir au moins un article."
 
-#: views.py:181 views.py:235
-msgid "Create"
-msgstr "Créer"
 
 #: views.py:228
 msgid "The custom invoice was created."
