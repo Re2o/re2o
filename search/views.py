@@ -140,7 +140,9 @@ def search_single_word(word, filters, user,
             ) | Q(
                 room__name__icontains=word
             ) | Q(
-                room__name__icontains=word
+                email__icontains=word
+            ) | Q(
+                telephone__icontains=word
             )
         ) & Q(state__in=user_state)
         if not User.can_view_all(user)[0]:
