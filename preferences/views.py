@@ -62,7 +62,8 @@ from .models import (
     HomeOption,
     Reminder,
     RadiusKey,
-    SwitchManagementCred
+    SwitchManagementCred,
+    RadiusOption,
 )
 from . import models
 from . import forms
@@ -86,6 +87,7 @@ def display_options(request):
     reminder_list = Reminder.objects.all()
     radiuskey_list = RadiusKey.objects.all()
     switchmanagementcred_list = SwitchManagementCred.objects.all()
+    radiusoptions, _ = RadiusOption.objects.get_or_create()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -98,7 +100,8 @@ def display_options(request):
         'mailcontact_list': mailcontact_list,
         'reminder_list': reminder_list,
         'radiuskey_list' : radiuskey_list,
-        'switchmanagementcred_list': switchmanagementcred_list,  
+        'switchmanagementcred_list': switchmanagementcred_list,
+        'radiusoptions' : radiusoptions,
         }, 'preferences/display_preferences.html', request)
 
 

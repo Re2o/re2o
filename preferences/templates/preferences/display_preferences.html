@@ -132,10 +132,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
-	<tr>	
-	    <th>Placement sur ce vlan par default en cas de rejet</th>
-	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
-	</tr>
+        <tr>
+            <th>{% trans "VLAN for non members machines" %}</th>
+            <td>{{ topologieoptions.vlan_non_member }}</td>
+        </tr>
     </table>
 
 	<h6>Clef radius</h6>
@@ -162,11 +162,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Switchs configurés automatiquement</th>
 	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
 	    <th>Plage d'ip de management des switchs</th>
 	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
             <th>Serveur des config des switchs</th>
 	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
@@ -193,6 +193,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
           {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
           {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
 
+
+
+    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Switchs configurés automatiquement</th>
+		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
+	</tr>
+    </table>
+
+    <h4>{% trans "Radius preferences" %}</h4>
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
+        <i class="fa fa-edit"></i>
+        {% trans "Edit" %}
+    </a>
+    {% include "preferences/aff_radiusoptions.html" %}
 
 
     <h4>{% trans "General preferences" %}</h4>
@@ -225,7 +241,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "General message displayed on the website" %}</th>
             <td>{{ generaloptions.general_message }}</td>
  	    <th>{% trans "Main site url" %}</th>
-            <td>{{ generaloptions.main_site_url }}</td>  
+            <td>{{ generaloptions.main_site_url }}</td>
 	</tr>
         <tr>
 	    <th>{% trans "Summary of the General Terms of Use" %}</th>
