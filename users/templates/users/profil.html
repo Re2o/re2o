@@ -166,10 +166,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <td>{{ users.surname }}</td>
                     </tr>
                     <tr>
-			<th>{% trans "Username" %}</th>
+						<th>{% trans "Username" %}</th>
                         <td>{{ users.pseudo }}</td>
-			<th>{% trans "Email address" %}</th>
-                        <td>{{ users.email }}</td>
+						<th>{% trans "Email address" %}</th>
+						<td><a href="mailto:{{ users.email }}">{{users.email}}</a></td>
                     </tr>
                     <tr>
 			<th>{% trans "Room" %}</th>
