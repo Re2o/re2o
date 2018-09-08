@@ -52,6 +52,8 @@ def new_job(request):
                     job = job.save(commit=False)
                     job.filename = filename
                     job.user=request.user
+                    if job.printAs is None:
+                        job.printAs = request.user
                     job.status='Printable'
                     # raise
                     # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES['form-%s-file' % i].temporary_file_path()})
