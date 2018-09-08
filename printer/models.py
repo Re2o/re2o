@@ -23,8 +23,10 @@ from .validators import (
 from .settings import (
     MAX_PRINTFILE_SIZE,
     ALLOWED_TYPES,
+    PRICES,
 )
 
+import math
 
 """
 - ```user_printing_path``` is a function that returns the path of the uploaded file, used with the FileField.
@@ -63,6 +65,12 @@ class JobWithOptions(RevMixin, models.Model):
 
 
     Parent class : User
+
+
+
+    Methods:
+        ```_compute_price``` compute the printing price
+        ```_update_price``` update printing price
     """
         STATUS_AVAILABLE = (
             ('Printable', 'Printable'),
@@ -122,4 +130,32 @@ class JobWithOptions(RevMixin, models.Model):
 
 
         def _update_price(self):
-            self.price = 0.0
+            self.price = self._compute_price()
+
+        def _compute_price(self):
+            pages = int(self.pages)
+            price_paper = PRICES[self.format]
+            price_stapling = 0.0
+            nb_staples = 0
+
+            if self.disposition == 'Booklet':
+                sheets = int((pages+3)/4)
+                pages = 2 * sheets
+            elif self.disposition == 'TwoSided':
+                sheets = int(pages/2.+0.5)
+            else:
+                sheets = pages
+
+            if self.format == 'A3':
+                pages*=2
+
+            price_ink = price_paper*sheets + PRICES[self.color]*pages
+
+            if self.stapling:
+                nb_staples = 2 - int('Top' in self.stapling)
+
+            price_stapling = nb_staples * PRICES['Staples']
+
+            total_price = math.floor(self.count * (price_ink + price_stapling))
+
+            return float(total_price)/100

@@ -41,7 +41,7 @@ def new_job(request):
                 request.POST,
                 request.FILES,
             )
-            
+
             if job_formset.is_valid():
                 files = request.FILES
                 data = []
@@ -80,10 +80,10 @@ def new_job(request):
                     'printer/print.html',
                     request
                 )
-            
+
         # elif 'Print' in request.POST:
         # raise ValidationError("'%(path)s'", code='path', params = {'path': request.POST })
-        
+
         # raise Exception('On a déjà upload !')
         n = int(request.POST['form-TOTAL_FORMS'])
         job_formset = formset_factory(PrintForm)(
@@ -99,6 +99,7 @@ def new_job(request):
                 job.user = request.user
                 job.status = 'Running'
                 job.file = old_job.file
+                job._update_price()
                 job.save()
                 i+=1
                 # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': request.method})
@@ -107,7 +108,7 @@ def new_job(request):
                     'printer:success',
                 ))
         raise Exception("Invalid Job_formset")
-    
+
     else:
         job_formset = formset_factory(JobWithOptionsForm)(
             None,
