@@ -254,6 +254,14 @@ def stats_general(request):
                      .count()),
                     Club.objects.filter(state=Club.STATE_ARCHIVE).count()
                 ],
+                'not_active_users': [
+                    _("Not yet active users"),
+                    User.objects.filter(state=User.STATE_NOT_YET_ACTIVE).count(),
+                    (Adherent.objects
+                     .filter(state=Adherent.STATE_NOT_YET_ACTIVE)
+                     .count()),
+                    Club.objects.filter(state=Club.STATE_NOT_YET_ACTIVE).count()
+                ],
                 'adherent_users': [
                     _("Contributing members"),
                     _all_adherent.count(),

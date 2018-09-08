@@ -836,7 +836,6 @@ def credit_solde(request, user, **_kwargs):
         else:
             price_ok = True
         if price_ok:
-            invoice.valid = True
             invoice.save()
             Vente.objects.create(
                 facture=invoice,
@@ -852,6 +851,6 @@ def credit_solde(request, user, **_kwargs):
         'balance': user.solde,
         'title': _("Refill your balance"),
         'action_name': _("Pay"),
-        'max_balance': p.payment_method.maximum_balance,
+        'max_balance': find_payment_method(p).maximum_balance,
     }, 'cotisations/facture.html', request)
 
