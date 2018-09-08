@@ -77,7 +77,11 @@ class JobWithOptions(RevMixin, models.Model):
         endtime = models.DateTimeField(null=True)
         status = models.CharField(max_length=255, choices=STATUS_AVAILABLE)
         printAs = models.ForeignKey('users.User', on_delete=models.PROTECT, related_name='print_as_user', blank=True, null=True)
-        price = models.IntegerField(default=0)
+        price = models.DecimalField(
+            max_digits=5,
+            decimal_places=2,
+            verbose_name=_("price"),
+            default=0.0)
         pages = models.IntegerField(default=0)
         FORMAT_AVAILABLE = (
             ('A4', 'A4'),
@@ -118,4 +122,4 @@ class JobWithOptions(RevMixin, models.Model):
 
 
         def _update_price(self):
-            self.price = 0
+            self.price = 0.0
