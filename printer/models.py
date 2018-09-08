@@ -3,7 +3,6 @@
 """printer.models
 Models of the printer application
 Author : Maxime Bombar <bombar@crans.org>.
-Date : 29/06/2018
 """
 
 from __future__ import unicode_literals
@@ -44,6 +43,7 @@ class JobWithOptions(RevMixin, models.Model):
 
         - ```user``` is a ForeignKey to the User Application
         - ```file``` is the file to print
+        - ```filename``` is the name of the file to print
         - ```starttime``` is the time when the job was launched
         - ```endtime``` is the time when the job was stopped.
             A job is stopped when it is either finished or cancelled.
@@ -72,15 +72,16 @@ class JobWithOptions(RevMixin, models.Model):
         )
         user = models.ForeignKey('users.User', on_delete=models.PROTECT)
         file = models.FileField(upload_to=user_printing_path, validators=[FileValidator(allowed_types=ALLOWED_TYPES, max_size=MAX_PRINTFILE_SIZE)])
+        filename = models.CharField(max_length=255,null=True)
         starttime = models.DateTimeField(auto_now_add=True)
         endtime = models.DateTimeField(null=True)
         status = models.CharField(max_length=255, choices=STATUS_AVAILABLE)
-        printAs = models.ForeignKey('users.User', on_delete=models.PROTECT, related_name='print_as_user', null=True)
+        printAs = models.ForeignKey('users.User', on_delete=models.PROTECT, related_name='print_as_user', blank=True, null=True)
         price = models.IntegerField(default=0)
-
+        pages = models.IntegerField(default=0)
         FORMAT_AVAILABLE = (
             ('A4', 'A4'),
-            ('A3', 'A4'),
+            ('A3', 'A3'),
         )
         COLOR_CHOICES = (
             ('Greyscale', 'Greyscale'),
@@ -114,3 +115,7 @@ class JobWithOptions(RevMixin, models.Model):
         count = models.PositiveIntegerField(default=1)
         stapling = models.CharField(max_length=255, choices=STAPLING_OPTIONS, default='None')
         perforation = models.CharField(max_length=255, choices=PERFORATION_OPTIONS, default='None')
+
+
+        def _update_price(self):
+            self.price = 0

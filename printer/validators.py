@@ -4,7 +4,6 @@
 """printer.validators
 Custom validators useful for printer application.
 Author : Maxime Bombar <bombar@crans.org>.
-Date : 29/06/2018
 """
 
 
