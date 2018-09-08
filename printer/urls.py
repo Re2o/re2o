@@ -14,4 +14,5 @@ from . import views
 urlpatterns = [
     url(r'^new_job/$', views.new_job, name="new-job"),
     url(r'^success/$', views.success, name="success"),
+    url(r'^payment/$', views.payment, name="payment"),
 ]

@@ -28,6 +28,15 @@ from .forms import (
     PrintForm,
     )
 
+
+from cotisations.models import(
+    Paiement,
+    Facture,
+    Vente,
+)
+
+from cotisations.utils import find_payment_method
+
 from django.core.exceptions import ValidationError
 
 @login_required
@@ -52,11 +61,14 @@ def new_job(request):
                     job = job.save(commit=False)
                     job.filename = filename
                     job.user=request.user
+                    # raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
                     if job.printAs is None:
                         job.printAs = request.user
                     job.status='Printable'
                     # raise
                     # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES['form-%s-file' % i].temporary_file_path()})
+                    # job_data = model_to_dict(job)
+                    # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': bool(job.printAs is None) })
                     metadata = pdfinfo(request.FILES['form-%s-file' % i].temporary_file_path())
                     job.pages = metadata["Pages"]
                     # raise ValidationError("'%(path)s'", code='path', params = {'path': type(job)})
@@ -91,12 +103,12 @@ def new_job(request):
         job_formset = formset_factory(PrintForm)(
             request.POST,
         )
-        id_list = [request.session['id-form-%s-file' % i] for i in range(n)]
+        jids = [request.session['id-form-%s-file' % i] for i in range(n)]
         # raise ValidationError("'%(path)s'", code='path', params = {'path': id_list })
         if job_formset.is_valid():
             for job_obj in job_formset:
                 i=0
-                old_job = JobWithOptions.objects.get(id=id_list[i])
+                old_job = JobWithOptions.objects.get(id=jids[i])
                 job = job_obj.save(commit=False)
                 job.user = request.user
                 job.status = 'Running'
@@ -106,9 +118,9 @@ def new_job(request):
                 i+=1
                 # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': request.method})
                 # raise ValidationError("'%(path)s'", code='path', params = {'path': str(n) })
-                return redirect(reverse(
-                    'printer:success',
-                ))
+            request.session['jids']=jids
+            return redirect('printer:payment')
+
         raise Exception("Invalid Job_formset")
 
     else:
@@ -123,6 +135,49 @@ def new_job(request):
         'printer/newjob.html',
         request
     )
+
+def payment(request):
+    """
+    View used to create a new invoice and make the payment
+    """
+    # user = request.user
+    jids = request.session['jids']
+    # raise ValidationError("'%(path)s'", code='path', params = {'path': jids})
+    jobs = JobWithOptions.objects.filter(id__in=jids)
+    users = {}
+    for job in jobs:
+        try:
+            users[job.printAs]+=job.price
+        except KeyError:
+            users[job.printAs]=job.price
+
+    for user in users:
+        # If payment_method balance doesn't exist, then you're not allowed to print.
+        try:
+            balance = find_payment_method(Paiement.objects.get(is_balance=True))
+        except Paiement.DoesNotExist:
+            messages.error(
+                request,
+                _("You are not allowed to print")
+            )
+            return redirect(reverse(
+                'users:profil',
+                kwargs={'userid': request.user.id}
+            ))
+        invoice = Facture(user=user)
+        invoice.paiement = balance.payment
+        # invoice.valid = True
+        invoice.save()
+        Vente.objects.create(
+            facture=invoice,
+            name='Printing',
+            prix=users[user],
+            number=1,
+        )
+        invoice.paiement.end_payment(invoice, request)
+    return redirect(reverse(
+        'printer:success',
+    ))
 
 def success(request):
     return form(
