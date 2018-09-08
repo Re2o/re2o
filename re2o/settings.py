@@ -196,3 +196,9 @@ GRAPH_MODELS = {
 if 'api' in INSTALLED_APPS:
     from api.settings import *
     INSTALLED_APPS += API_APPS
+
+# Not to display printer tab if printer is not installed
+PRINTER_INSTALLED = 'printer' in INSTALLED_APPS
+
+# Use temporary upload file
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
