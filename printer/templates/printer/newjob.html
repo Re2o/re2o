@@ -16,7 +16,7 @@
   <div id="form_set" class="form-group">
     {% for job in jobform.forms %}
     <div class='file_to_print form-inline'>
-      {% bootstrap_form job label_class='sr-only' %}
+      {% massive_bootstrap_form job "" label_class='sr-only' %}
       <button class="btn btn-danger btn-sm" id="id_form-0-job-remove" type="button">
         <span class="fa fa-times"></span>
       </button>
@@ -24,7 +24,7 @@
     {% endfor %}
   </div>
   <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add a file"%}" id="add_one">
-  {% bootstrap_button action_name button_type="submit" icon="star" %}
+  {% bootstrap_button action_name name="options" button_type="submit" icon="star" %}
 </form>
 <script type="text/javascript">
 
