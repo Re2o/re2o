@@ -89,7 +89,7 @@ def send_mail_invoice(invoice):
         'Votre facture / Your invoice',
         template.render(ctx),
         GeneralOption.get_cached_value('email_from'),
-        [invoice.user.email],
+        [invoice.user.get_mail],
         attachments=[('invoice.pdf', pdf, 'application/pdf')]
     )
     mail.send()
