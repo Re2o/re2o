@@ -93,7 +93,7 @@ from preferences.models import OptionalMachine, MailMessageOption
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
@@ -375,6 +375,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         return self.shell or OptionalUser.get_cached_value('shell_default')
 
     @cached_property
+    def home_directory(self):
+        return '/home/' + self.pseudo
+
+    @cached_property
     def get_shadow_expire(self):
         """Return the shadow_expire value for the user"""
         if self.state == self.STATE_DISABLED:
@@ -581,7 +585,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 user_ldap.name = self.pseudo
                 user_ldap.sn = self.pseudo
                 user_ldap.dialupAccess = str(self.has_access())
-                user_ldap.home_directory = '/home/' + self.pseudo
+                user_ldap.home_directory = self.home_directory
                 user_ldap.mail = self.get_mail
                 user_ldap.given_name = self.surname.lower() + '_'\
                     + self.name.lower()[:3]
