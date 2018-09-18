@@ -82,11 +82,11 @@ msgstr "Statistiques"
 msgid "Administration"
 msgstr "Administration"
 
-#: base.html:119
+#: base.html:112
 msgid "More information"
 msgstr "Plus d'informations"
 
-#: base.html:121
+#: base.html:114
 msgid "About"
 msgstr "À propos"
 
@@ -161,6 +161,30 @@ msgstr[1] "%(nb)s machines actives"
 #: base.html:244
 msgid "View my machines"
 msgstr "Voir mes machines"
+
+#: base.html:257
+msgid "Back to top"
+msgstr "Retour en haut"
+
+#: base.html:259
+msgid "powered by"
+msgstr "propulsé par"
+
+#: base.html:261
+msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
+msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
+
+#: base.html:264
+msgid "About this website"
+msgstr "À propos de ce site"
+
+#: base.html:267
+msgid ""
+"This software is under the terms of the "
+"<a href=\"http://www.gnu.org/licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
+msgstr ""
+"Ce logiciel est sous les termes de la licence "
+"<a href=\"http://www.gnu.org/licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a>."
 
 #: buttons/add.html:27
 msgid "Add"

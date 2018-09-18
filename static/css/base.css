@@ -1,38 +1,16 @@
-/* Sticky footer hacks */
-html, body {
-    height: 100%;
-}
-
-#wrap {
-    min-height: 100%;
-}
-
-#main {
-    overflow: auto;
-    padding-bottom:60px; /* this needs to be bigger than footer height*/
-}
-
+/* Footer */
 footer {
-    position: relative;
-    margin-top: -50px; /* negative value of footer height */
-    height: 50px;
-    clear:both;
-    padding-top:20px;
-    background-color: #222222;
-    /*background: -webkit-linear-gradient(left, red, red 16.6%, orange 16.6%, orange, orange 33.3%, yellow 33.3%, yellow, yellow 50%, green 50%, green, green 66.6%, blue 66.6%, blue, blue 83.3%, violet 83.3%,violet); */
-    color: white;
-    padding: 15px;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
-footer a {
-    color: white;
-    text-decoration: underline;
+footer p {
+  margin-bottom: .25rem;
 }
 
-/* Remove the navbar's default margin-bottom and rounded borders */
+/* Remove the navbar's default margin-bottom */
 .navbar {
     margin-bottom: 0;
-    border-radius: 0;
 }
 
 /* Reduce the padding for the logo in the navbar-brand so the 32px-high logo
