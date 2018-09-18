@@ -6,8 +6,9 @@ SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 APT_REQ_FILE="apt_requirements.txt"
 PIP_REQ_FILE="pip_requirements.txt"
 
-LDIF_DB_FILE="install_utils/db.ldiff"
-LDIF_SCHEMA_FILE="install_utils/schema.ldiff"
+LDIF_DB_FILE="install_utils/ldap/db.ldif"
+LDIF_SCHEMA_RADIUS_FILE="install_utils/ldap/schema_radius.ldif"
+LDIF_SCHEMA_SAMBA_FILE="install_utils/ldap/schema_samba.ldif"
 
 
 VALUE= # global value used to return values by some functions
@@ -155,7 +156,7 @@ install_database() {
 
 
 install_ldap() {
-    ### Usage: install_ldap <local_setup> <password> <domain>
+    ### Usage: install_ldap <local_setup> <password> <domain> <extension>
     #
     #   This function will install the LDAP
     #
@@ -172,44 +173,32 @@ install_ldap() {
     local_setup="$1"
     password="$2"
     domain="$3"
+    extension_locale="$4"
 
     if [ "$local_setup" == 1 ]; then
 
-        echo "Installing slapd package ..."
-        apt-get -y install slapd
-        echo "Installing slapd package: Done"
+        echo "Preconfiguring slapd package ..."
+        echo slapd slapd/domain string $extension_locale | debconf-set-selections -v
+        echo slapd slapd/password1 password $password | debconf-set-selections -v
+        echo slapd slapd/password2 password $password | debconf-set-selections -v
+        echo "Preconfiguring slapd package: Done"
 
-        echo "Hashing the LDAP password ..."
-        hashed_ldap_passwd="$(slappasswd -s $password)"
-        echo "Hash of the password: $hashed_ldap_passwd"
+        echo "Installing openldap packages ..."
+        DEBIAN_FRONTEND=noninteractive apt-get -y install slapd ldap-utils
+        echo "Installing openldap packages: Done"
 
         echo "Building the LDAP config files ..."
         sed 's|dc=example,dc=net|'"$domain"'|g' $LDIF_DB_FILE | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/db
-        sed 's|dc=example,dc=net|'"$domain"'|g' $LDIF_SCHEMA_FILE | sed 's|FILL_IT|'"$hashed_ldap_passwd"'|g' > /tmp/schema
         echo "Building the LDAP config files: Done"
 
-        echo "Stopping slapd service ..."
-        service slapd stop
-        echo "Stopping slapd service: Done"
+        echo "Adding freeradius and samba schema to LDAP ..."
+        ldapadd -Y EXTERNAL -H ldapi:/// -f "$LDIF_SCHEMA_RADIUS_FILE"
+        ldapadd -Y EXTERNAL -H ldapi:/// -f "$LDIF_SCHEMA_SAMBA_FILE"
+        echo "Adding freeradius and samba schema to LDAP: Done"
 
-        echo "Deleting exisitng LDAP configuration ..."
-        rm -rf /etc/ldap/slapd.d/*
-        rm -rf /var/lib/ldap/*
-        echo "Deleting existing LDAP configuration: Done"
-
-        echo "Setting up the new LDAP configuration ..."
-        slapadd -n 0 -l /tmp/schema -F /etc/ldap/slapd.d/
-        slapadd -n 1 -l /tmp/db
-        echo "Setting up the new LDAP configuration: Done"
-
-        echo "Fixing the LDAP files permissions ..."
-        chown -R openldap:openldap /etc/ldap/slapd.d
-        chown -R openldap:openldap /var/lib/ldap
-        echo "Fixing the LDAP files permissions: Done"
-
-        echo "Starting slapd service ..."
-        service slapd start
-        echo "Starting slapd service: Done"
+        echo "Creating re2o LDAP database ..."
+        ldapadd -H ldap:// -x -D "cn=admin,$domain" -w "$password" -f "/tmp/db"
+        echo "Creating re2o LDAP database: Done"
 
     else
 
@@ -665,7 +654,7 @@ interactive_guide() {
 
     install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password"
 
-    install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn"
+    install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn" "$extension_locale"
 
 
     write_settings_file "$sql_bdd_type" "$sql_host" "$sql_name" "$sql_login" "$sql_password" \
