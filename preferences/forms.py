@@ -38,11 +38,12 @@ from .models import (
     MailMessageOption,
     HomeOption,
     Service,
-    MailContact
+    MailContact,
     Reminder,
     RadiusKey,
-    SwitchManagementCred
+    SwitchManagementCred,
 )
+from topologie.models import Switch
 
 
 class EditOptionalUserForm(ModelForm):
@@ -245,11 +246,21 @@ class DelServiceForm(Form):
         else:
             self.fields['services'].queryset = Service.objects.all()
 
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de services sur la page d'accueil"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 
 class RadiusKeyForm(FormRevMixin, ModelForm):
     """Edition, ajout de clef radius"""
     members = forms.ModelMultipleChoiceField(
-        Switch.objects.all(),
+        queryset=Switch.objects.all(),
         required=False
     )
 

@@ -41,7 +41,7 @@ from django.utils.translation import ugettext as _
 from reversion import revisions as reversion
 
 from re2o.views import form
-from re2o.acl import can_create, can_edit, can_delete_set, can_view_all
+from re2o.acl import can_create, can_edit, can_delete_set, can_view_all, can_delete
 
 from .forms import MailContactForm, DelMailContactForm
 from .forms import (
@@ -95,9 +95,8 @@ def display_options(request):
         'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
         'service_list': service_list,
-        'mailcontact_list': mailcontact_list
-        'reminder_list': reminder_list,
         'mailcontact_list': mailcontact_list,
+        'reminder_list': reminder_list,
         'radiuskey_list' : radiuskey_list,
         'switchmanagementcred_list': switchmanagementcred_list,  
         }, 'preferences/display_preferences.html', request)
@@ -209,6 +208,51 @@ def del_service(request, instances):
         'preferences/preferences.html',
         request
     )
+
+@login_required
+@can_create(Reminder)
+def add_reminder(request):
+    """Ajout d'un service de la page d'accueil"""
+    reminder = ReminderForm(request.POST or None, request.FILES or None)
+    if service.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            reminder.save()
+            reversion.set_user(request.user)
+            reversion.set_comment("Creation")
+        messages.success(request, _("The service was added."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': service, 'action_name': _("Add a service")},
+        'preferences/preferences.html',
+        request
+        )
+
+@login_required
+@can_edit(Reminder)
+def edit_reminder(request, service_instance, **_kwargs):
+    """Edition des services affichés sur la page d'accueil"""
+    reminder = ReminderForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=reminder_instance
+    )
+    if reminder.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            reminder.save()
+            reversion.set_user(request.user)
+            reversion.set_comment(
+                "Field(s) edited: %s" % ', '.join(
+                    field for field in reminder.changed_data
+                    )
+            )
+        messages.success(request, _("The service was edited."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': service, 'action_name': _("Edit")},
+        'preferences/preferences.html',
+        request
+    )
+
 
 
 @login_required

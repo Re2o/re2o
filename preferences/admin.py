@@ -39,7 +39,8 @@ from .models import (
     MailMessageOption,
     HomeOption,
     RadiusKey,
-    SwitchManagementCred
+    SwitchManagementCred,
+    Reminder
 )
 
 
@@ -96,6 +97,9 @@ class SwitchManagementCredAdmin(VersionAdmin):
     """Class managementcred for switch"""
     pass
 
+class ReminderAdmin(VersionAdmin):
+    """Class reminder for switch"""
+    pass
 
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
