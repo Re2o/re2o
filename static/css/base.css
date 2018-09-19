@@ -31,6 +31,20 @@ a > i.fa {
     display: initial;
 }
 
+/* Make navbar look less Bootstraped */
+.navbar-inverse {
+    background-color: #612210;
+    border-color: #f9a01b;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #d6d6d6;
+}
+
 /* Add right colors for buttons in dropdown in navbar-inverse (else it is light
  * gray on white bg and white when hovered */
 .navbar-inverse .dropdown-menu .btn-link {
