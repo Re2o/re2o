@@ -79,11 +79,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    {{ users.solde }} <i class="fa fa-euro-sign"></i>
+                    {{ users.solde }} <i class="fa fa-eur"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                        <i class="fa fa-euro-sign"></i> {% trans "Refill the balance" %}
+                        <i class="fa fa-eur"></i> {% trans "Refill the balance" %}
                     </a>
                 </div>
             </div>
@@ -240,7 +240,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <td>{{ users.solde }} €
                         {% if user_solde %}
                         <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
-                                <i class="fa fa-euro-sign"></i>
+                                <i class="fa fa-eur"></i>
 				{% trans "Refill" %}
                         </a>
                         {% endif %}
@@ -345,7 +345,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
             <h3 class="panel-title pull-left">
-                <i class="fa fa-euro-sign"></i>
+                <i class="fa fa-eur"></i>
 		{% trans "Subscriptions" %}
             </h3>
         </div>
@@ -353,12 +353,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel-body">
                 {% can_create Facture %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                    <i class="fa fa-euro-sign"></i>
+                    <i class="fa fa-eur"></i>
 		    {% trans "Add as subscription" %}
                 </a>
                 {% if user_solde %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    <i class="fa fa-euro-sign"></i>
+                    <i class="fa fa-eur"></i>
 		    {% trans "Edit the balance" %}
                 </a>
                 {% endif%}
@@ -433,7 +433,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel-body">
                 {% can_edit users %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-email-settings' users.id %}">
-                    <i class="fa fa-pencil-alt"></i>{% trans " Edit email settings" %}
+                    <i class="fa fa-pencil"></i>{% trans " Edit email settings" %}
                 </a>
                 {% acl_end %}
             </div>
