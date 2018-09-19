@@ -13,6 +13,13 @@ footer p {
     margin-bottom: 0;
 }
 
+/* Reserv space for icons and align */
+a > i.fa {
+    display: inline-block;
+    width: 26px;
+    text-align: center;
+}
+
 /* Reduce the padding for the logo in the navbar-brand so the 32px-high logo
  * is centered in the navbar */
 .navbar-brand {

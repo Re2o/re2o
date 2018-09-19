@@ -39,22 +39,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
         <meta property="og:image:type" content="image/svg"/>
         <meta property="og:image:alt" content="The Re2o logo"/>
-    	<meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
-    	<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+        <meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
 
-        {# Load CSS and JavaScript #}
+        {# Load CSS #}
         {% bootstrap_css %}
-        <link href="/static/css/typeaheadjs.css" rel="stylesheet">
-        <link href="/static/css/bootstrap-tokenfield.css" rel="stylesheet">
+        <link href="{% static 'css/typeaheadjs.css' %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap-tokenfield.css' %}" rel="stylesheet">
+        <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+        <link href="{% static 'css/base.css' %}" rel="stylesheet">
 
-        {% bootstrap_javascript %}
-        <script src="/static/js/typeahead/typeahead.js"></script>
-        <script src="/static/js/handlebars/handlebars.js"></script>
-        <script src="/static/js/konami/konami.js"></script>
-        <script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
-        <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
-        <script src="/static/js/shortcuts.js"></script>
-        <link rel="stylesheet" href="{% static 'css/base.css' %}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" type="image/svg" href="{% static 'images/logo_re2o.svg' %}">
         <title>{{ name_website }} : {% block title %}{% trans "Home" %}{% endblock %}</title>
@@ -78,17 +71,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <ul class="nav navbar-nav">
                         {% can_view_any_app users machines cotisations %}
                         <li class="dropdown">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Users" %}<span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> {% trans "Users" %}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 {% can_view_app users %}
-			    <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> {% trans "Manage the users" %}</a></li>
-			    <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> {% trans "Manage the clubs" %}</a></li>
+                                <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> {% trans "Manage the users" %}</a></li>
+                                <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> {% trans "Manage the clubs" %}</a></li>
                                 {% acl_end %}                              
                                 {% can_view_app machines %}
-			    <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> {% trans "Manage the machines" %}</a></li>
+                                <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> {% trans "Manage the machines" %}</a></li>
                                 {% acl_end %}
                                 {% can_view_app cotisations %}
-			    <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-dollar-sign"></i> {% trans "Manage the subscriptions" %}</a></li>
+                                <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-usd"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
                             </ul>
                         </li>
@@ -97,14 +90,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sitemap"></i> {% trans "Topology" %}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
-				<li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
-				<li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> {% trans "Access points" %}</a></li>
-				<li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
+                                <li><a href="{% url "topologie:index" %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
+                                <li><a href="{% url "topologie:index-ap" %}"><i class="fa fa-wifi"></i> {% trans "Access points" %}</a></li>
+                                <li><a href="{% url "topologie:index-room" %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
                             </ul>
                         </li>
                         {% acl_end %}
                         {% can_view_app logs %}
-                        <li><a href="{% url "logs:index" %}"><i class="fa fa-chart-area"></i> {% trans "Statistics" %}</a></li>
+                        <li><a href="{% url "logs:index" %}"><i class="fa fa-area-chart"></i> {% trans "Statistics" %}</a></li>
                         {% acl_end %}
                         {% can_view_app preferences %}
                         <li>
@@ -116,10 +109,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-info"></i> {% trans "More information" %}<span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-info"></i> {% trans "More information" %}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
-                                <li><a href="{% url 'contact' %}"><i class="fas fa-at"></i> {% trans "Contact" %}</a></li>
+                                <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a></li>
                             </ul>
                         </li>
                         {% if not request.user.is_authenticated %}
@@ -132,7 +125,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% endif %}
                             <li>
                                 <a id="toggle_login" href="{% url 'login' %}">
-                                    <i class="fa fa-sign-in-alt"></i> {% trans "Log in" %}
+                                    <i class="fa fa-sign-in"></i> {% trans "Log in" %}
                                 </a>
                             </li>
                         {% else %}
@@ -148,14 +141,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     </div>
                                 </form>
                             </li>
-		    {% acl_end %}
+                        {% acl_end %}
                         {% endif %}
                         {% if request.user.is_authenticated %}
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle"></i> {{ request.user.pseudo|slice:":15" }} <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url "users:mon-profil" %}"><i class="fa fa-user"></i> {% trans "My profile" %}</a></li>
-                                <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> {% trans "Log out" %}</a></li>
+                                <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> {% trans "Log out" %}</a></li>
                             </ul>
                         </li>
                         {% endif %}
@@ -199,7 +192,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <td class="text-right">{{ request_user.room }}</td>
                             </tr>
                             <tr>
-			    <th scope="row">{% trans "Internet access" %}</th>
+                                <th scope="row">{% trans "Internet access" %}</th>
                                 <td class="text-right">
                                 {% if request_user.has_access %}
                                     <i class="text-success">{% blocktrans with request.user.end_access|date:"d b Y" as date %}Until {{ date }}{% endblocktrans %}</i>
@@ -222,11 +215,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <div class="list-group">
                             <a class="list-group-item list-group-item-info" role="button"href="{% url "users:mon-profil" %}">
                                 <i class="fa fa-user-circle"></i>
-			    {% trans "View my profile" %}
+                                {% trans "View my profile" %}
                             </a>
                         </div>
                         {% else %}
-		    <p>{% trans "You are not logged in." %}</p>
+                            <p>{% trans "You are not logged in." %}</p>
                         {% endif %}
                     </div>
                     {% if request_user.is_authenticated %}
@@ -271,6 +264,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </p>
             </div>
         </footer>
+
+        {# Load JavaScript #}
+        {% bootstrap_javascript %}
+        <script src="/static/js/typeahead/typeahead.js"></script>
+        <script src="/static/js/handlebars/handlebars.js"></script>
+        <script src="/static/js/konami/konami.js"></script>
+        <script src="/static/js/sapphire.js"> var s=Sapphire(); Konami(s.activate); </script>
+        <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
+        <script src="/static/js/shortcuts.js"></script>
 
         {# Read the documentation for more information #}
     </body>
