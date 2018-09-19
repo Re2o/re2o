@@ -8,10 +8,9 @@ footer p {
   margin-bottom: .25rem;
 }
 
-/* Remove the navbar's default margin-bottom */
-.navbar {
-    margin-bottom: 0;
-}
+/* Move the space between navbar and content in the content */
+.navbar { margin-bottom: 0; }
+.pt4 { padding-top: 1.5rem!important; }
 
 /* Reserv space for icons and align */
 a > i.fa {
@@ -58,10 +57,11 @@ a > i.fa {
     overflow: auto;
 }
 
-/* Set gray background color and 100% height */
+/* Set gray background color */
 .sidenav {
-    padding-top: 20px;
     background-color: #f1f1f1;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 5px 5px;
 }
 .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
     vertical-align: middle;
