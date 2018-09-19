@@ -379,19 +379,18 @@ class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
     doublons d'utilisateurs"""
+
+    # Champ permettant d'éviter au maxium les doublons d'utilisateurs
+    former_user_check_info = _("If you already have an account, please use it. "\
+                           + "If your lost access to it, please consider "\
+                           + "using the forgotten password button on the "\
+                           + "login page or contacting support.")
+    former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
+    former_user_check = _("I have not had an account before")
+
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
-        
-        # Champ permettant d'éviter au maxium les doublons d'utilisateurs
-        former_user_check_info = _("If you already have an account, please use it. "\
-                               + "If your lost access to it, please consider "\
-                               + "using the forgotten password button on the "\
-                               + "login page or contacting support.")
-        self.fields['former_user_check'] = forms.BooleanField(required=True,
-                                                             help_text=former_user_check_info)
-        self.fields['former_user_check'].label = _("I have not had an account before")
-
-
+       
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
