@@ -375,6 +375,22 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             remove_user_room(self.cleaned_data.get('room'))
         return
 
+class AdherentCreationForm(AdherentForm):
+    """Formulaire de création d'un user.
+    AdherentForm auquel on ajoute une checkbox afin d'éviter les
+    doublons d'utilisateurs"""
+    def __init__(self, *args, **kwargs):
+        super(AdherentCreationForm, self).__init__(*args, **kwargs)
+        
+        # Champ permettant d'éviter au maxium les doublons d'utilisateurs
+        former_user_check_info = _("If you already have an account, please use it. "\
+                               + "If your lost access to it, please consider "\
+                               + "using the forgotten password button on the "\
+                               + "login page or contacting support.")
+        self.fields['former_user_check'] = forms.BooleanField(required=True,
+                                                             help_text=former_user_check_info)
+        self.fields['former_user_check'].label = _("I have not had an account before")
+
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé

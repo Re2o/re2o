@@ -100,6 +100,7 @@ from .forms import (
     ServiceUserForm,
     ListRightForm,
     AdherentForm,
+    AdherentCreationForm,
     ClubForm,
     MassArchiveForm,
     PassForm,
@@ -114,7 +115,7 @@ from .forms import (
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = AdherentForm(request.POST or None, user=request.user)
+    user = AdherentCreationForm(request.POST or None, user=request.user)
     GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
     GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
