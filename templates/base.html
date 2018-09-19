@@ -53,7 +53,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <title>{{ name_website }} : {% block title %}{% trans "Home" %}{% endblock %}</title>
     </head>
 
-    <body>
+    <body id="main">
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -162,7 +162,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <div class="container-fluid text-center">
             <div class="row content">
-                <div class="col-sm-2 sidenav">
+                <div class="col-sm-2 sidenav pt4">
                     <div class="panel panel-default">
                         <div class="text-left list-group">
                         {% block sidebar %}
@@ -170,13 +170,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-8 text-left">
+                <div class="col-sm-8 text-left pt4">
                     {# Display django.contrib.messages as Bootstrap alerts #}
                     {% bootstrap_messages %}
-                    <hr>
                     {% block content %}{% endblock %}
                 </div>
-                <div class="col-sm-2 sidenav">
+                <div class="col-sm-2 sidenav pt4">
                     <div class="panel panel-default">
                         {% if request_user.is_authenticated %}
                         <div class="panel-heading">
