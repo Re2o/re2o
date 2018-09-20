@@ -318,9 +318,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = _("Room")
         self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
-        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
-        if 'shell' in self.fields:
-            self.fields['shell'].empty_label = _("Default shell")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -340,9 +337,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'telephone',
-            'room',
-            'shell',
-            'gpg_fingerprint'
+            'room'
         ]
 
 
@@ -355,12 +350,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 _("A valid telephone number is required.")
             )
         return telephone
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
 
     force = forms.BooleanField(
         label=_("Force the move?"),
@@ -386,10 +375,40 @@ class AdherentCreationForm(AdherentForm):
                            + "using the forgotten password button on the "\
                            + "login page or contacting support.")
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
-    former_user_check = _("I have not had an account before")
+    former_user_check.label = _("I have not had an account before")
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
+
+class AdherentEditForm(AdherentForm):
+    """Formulaire d'édition d'un user.
+    AdherentForm incluant la modification des champs gpg et shell"""
+   def __init__(self, *args, **kargs):
+       super(AdherentEditForm, self).__init__(*args, **kwargs)
+       self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
+       if 'shell' in self.fields:
+           self.fields['shell'].empty_label = _("Default shell")
+
+    def clean_gpg_fingerprint(self):
+        """Format the GPG fingerprint"""
+        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
+        if gpg_fingerprint:
+            return gpg_fingerprint.replace(' ', '').upper()
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'shell',
+            'gpg_fingerprint'
+        ]
        
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
