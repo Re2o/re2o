@@ -99,8 +99,8 @@ from .forms import (
     EditServiceUserForm,
     ServiceUserForm,
     ListRightForm,
-    AdherentForm,
     AdherentCreationForm,
+    AdherentEditForm,
     ClubForm,
     MassArchiveForm,
     PassForm,
@@ -198,7 +198,7 @@ def edit_info(request, user, userid):
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """
     if user.is_class_adherent:
-        user_form = AdherentForm(
+        user_form = AdherentEditForm(
             request.POST or None,
             instance=user.adherent,
             user=request.user
