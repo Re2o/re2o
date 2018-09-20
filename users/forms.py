@@ -48,6 +48,8 @@ from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
+from preferences.models import GeneralOption
+
 from .widgets import DateTimePicker
 
 from .models import (
@@ -318,9 +320,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['room'].label = _("Room")
         self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
-        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
-        if 'shell' in self.fields:
-            self.fields['shell'].empty_label = _("Default shell")
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -340,9 +339,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'telephone',
-            'room',
-            'shell',
-            'gpg_fingerprint'
+            'room'
         ]
 
 
@@ -355,12 +352,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 _("A valid telephone number is required.")
             )
         return telephone
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
 
     force = forms.BooleanField(
         label=_("Force the move?"),
@@ -375,7 +366,57 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             remove_user_room(self.cleaned_data.get('room'))
         return
 
+class AdherentCreationForm(AdherentForm):
+    """Formulaire de création d'un user.
+    AdherentForm auquel on ajoute une checkbox afin d'éviter les
+    doublons d'utilisateurs"""
 
+    # Champ permettant d'éviter au maxium les doublons d'utilisateurs
+    former_user_check_info = _("If you already have an account, please use it. "\
+                           + "If your lost access to it, please consider "\
+                           + "using the forgotten password button on the "\
+                           + "login page or contacting support.")
+    former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
+    former_user_check.label = _("I have not had an account before")
+
+    # Checkbox for GTU
+    gtu_check = forms.BooleanField(required=True)
+    gtu_check.label = mark_safe("{}<a href='/media/{}' download='CGU'>{}</a>{}".format(
+        _("I commit to accept the "), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+
+    def __init__(self, *args, **kwargs):
+        super(AdherentCreationForm, self).__init__(*args, **kwargs)
+
+class AdherentEditForm(AdherentForm):
+    """Formulaire d'édition d'un user.
+    AdherentForm incluant la modification des champs gpg et shell"""
+    def __init__(self, *args, **kargs):
+       super(AdherentEditForm, self).__init__(*args, **kwargs)
+       self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
+       if 'shell' in self.fields:
+           self.fields['shell'].empty_label = _("Default shell")
+
+    def clean_gpg_fingerprint(self):
+        """Format the GPG fingerprint"""
+        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
+        if gpg_fingerprint:
+            return gpg_fingerprint.replace(' ', '').upper()
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'shell',
+            'gpg_fingerprint'
+        ]
+       
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
