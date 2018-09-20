@@ -40,6 +40,7 @@ from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from machines.models import Interface, Machine, Nas
 from topologie.models import Port
