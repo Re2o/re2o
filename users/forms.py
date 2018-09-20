@@ -48,6 +48,8 @@ from re2o.utils import remove_user_room, get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
+from preferences.models import GeneralOption
+
 from .widgets import DateTimePicker
 
 from .models import (
@@ -377,13 +379,18 @@ class AdherentCreationForm(AdherentForm):
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
     former_user_check.label = _("I have not had an account before")
 
+    # Checkbox for GTU
+    gtu_check = forms.BooleanField(required=True)
+    gtu_check.label = mark_safe("{}<a href='/media/{}' download='CGU'>{}</a>{}".format(
+        _("I commit to accept the "), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
 
 class AdherentEditForm(AdherentForm):
     """Formulaire d'édition d'un user.
     AdherentForm incluant la modification des champs gpg et shell"""
-   def __init__(self, *args, **kargs):
+    def __init__(self, *args, **kargs):
        super(AdherentEditForm, self).__init__(*args, **kwargs)
        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
        if 'shell' in self.fields:
