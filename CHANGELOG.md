@@ -164,3 +164,11 @@ Collec new statics
 ```bash
 python3 manage.py collectstatic
 ```
+
+## MR 303: Remove generated locales from git tree
+
+After each pull generate locales
+
+```bash
+python3 manage.py compilemessages
+```
