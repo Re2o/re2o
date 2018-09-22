@@ -150,3 +150,17 @@ On some database engines (postgreSQL) you also need to update the id sequences:
 ```bash
 python3 manage.py sqlsequencereset cotisations | python3 manage.py dbshell
 ```
+
+## MR 296: Frontend changes
+
+Install fonts-font-awesome
+
+```bash
+apt-get -y install fonts-font-awesome
+```
+
+Collec new statics
+
+```bash
+python3 manage.py collectstatic
+```
