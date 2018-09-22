@@ -316,6 +316,10 @@ update_django() {
     echo "Collecting web frontend statics ..."
     python3 manage.py collectstatic --noinput
     echo "Collecting web frontend statics: Done"
+
+    echo "Generating locales ..."
+    python3 manage.py compilemessages
+    echo "Generating locales: Done"
 }
 
 
