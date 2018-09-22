@@ -46,7 +46,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
        {% for port in port_list %}
             <tr>
-                <td>{{ port.port }}</td>
+		{% if search %}
+			<td><a href="{% url 'topologie:index-port' switchid=port.switch.id %}">{{ port.port }}</a></td>
+		{% else %}
+			<td>{{ port.port }}</td>
+		{% endif %}
                 <td>
                     {% if port.room %}
                     {{ port.room }}

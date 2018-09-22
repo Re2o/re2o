@@ -59,7 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if ports %}
         <h2>{% trans "Results among ports" %}</h2>
-        {% include "topologie/aff_port.html" with port_list=ports %}
+        {% include "topologie/aff_port.html" with port_list=ports search=True %}
     {% endif %}
     {% if switches %}
         <h2>{% trans "Results among switches" %}</h2>
