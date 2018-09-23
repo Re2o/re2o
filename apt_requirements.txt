@@ -16,3 +16,4 @@ libjs-jquery-timepicker
 libjs-bootstrap
 fonts-font-awesome
 graphviz
+git
