@@ -48,4 +48,4 @@ API_APPS = (
 )
 
 # The expiration time for an authentication token
-API_TOKEN_DURATION = 86400 # 24 hours
+API_TOKEN_DURATION = 86400  # 24 hours
