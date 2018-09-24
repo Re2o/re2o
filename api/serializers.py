@@ -349,6 +349,7 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 class OptionalTopologieSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalTopologie` objects.
     """
+    switchs_management_interface_ip = serializers.CharField()
 
     class Meta:
         model = preferences.OptionalTopologie
