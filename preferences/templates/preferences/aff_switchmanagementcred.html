@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 {% load acl %}
+{% load logs_extra %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -46,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
          	   <i class="fa fa-trash"></i>
             </a>
             {% acl_end %}
-            {% include 'buttons/history.html' with href='preferences:history' name='switchmanagementcred' id=switchmanagementcred.id %}
+            {% history_button switchmanagementcred %}
             </td>
         </tr>
         {% endfor %}

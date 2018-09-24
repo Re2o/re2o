@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 
 <div class="table-responsive">
     <table class="table table-striped">
@@ -51,7 +52,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		{% can_edit vlan %}
                 {% include 'buttons/edit.html' with href='topologie:edit-vlanoptions' id=vlan.id %}
 		{% acl_end %}
-                {% include 'buttons/history.html' with href='machines:history' name='vlan' id=vlan.id %}
+                {% history_button vlan %}
             </td>
         </tr>
         {% endfor %}
