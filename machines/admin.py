@@ -29,7 +29,6 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface
 from .models import (
     Extension,
     SOA,
@@ -47,6 +46,7 @@ from .models import (
     Ipv6List,
     OuverturePortList,
 )
+from .models import IpType, Machine, MachineType, Domain, IpList, Interface
 
 
 class MachineAdmin(VersionAdmin):
@@ -98,6 +98,7 @@ class TxtAdmin(VersionAdmin):
     """ Admin view of a TXT object """
     pass
 
+
 class DNameAdmin(VersionAdmin):
     """ Admin view of a DName object """
     pass
@@ -147,10 +148,10 @@ class ServiceAdmin(VersionAdmin):
     """ Admin view of a ServiceAdmin object """
     list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
 
+
 class RoleAdmin(VersionAdmin):
     """ Admin view of a RoleAdmin object """
     pass
-
 
 
 admin.site.register(Machine, MachineAdmin)
