@@ -552,7 +552,7 @@ class Port(AclMixin, RevMixin, models.Model):
                 return port_profile
             else:
                 nothing_profile, _created = PortProfile.objects.get_or_create(
-                    profile_default='nothing',
+                    profil_default='nothing',
                     name='nothing',
                     radius_type='NO'
                 )
