@@ -41,6 +41,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta property="og:image:alt" content="The Re2o logo"/>
         <meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
 
+        {# Preload JavaScript #}
+        {% bootstrap_javascript %}
+        <script src="/static/js/typeahead/typeahead.js"></script>
+        <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
+
         {# Load CSS #}
         {% bootstrap_css %}
         <link href="{% static 'css/typeaheadjs.css' %}" rel="stylesheet">
@@ -265,8 +270,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </footer>
 
         {# Load JavaScript #}
-        {% bootstrap_javascript %}
-        <script src="/static/js/typeahead/typeahead.js"></script>
         <script src="/static/js/handlebars/handlebars.js"></script>
         <script src="/static/js/konami/konami.js"></script>
         <script src="/static/js/sapphire.js"></script>
@@ -275,7 +278,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             let s = Sapphire();
             Konami(s.activate);
         </script>
-        <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
         <script src="/static/js/shortcuts.js"></script>
 
         {# Read the documentation for more information #}
