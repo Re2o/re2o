@@ -29,13 +29,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Role name" %}</th>
-            <th>{% trans "Specific role" %}</th>
-            <th>{% trans "Servers" %}</th>
-            <th></th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>{% trans "Role name" %}</th>
+        <th>{% trans "Specific role" %}</th>
+        <th>{% trans "Servers" %}</th>
+        <th></th>
+        <th></th>
+    </tr>
     </thead>
     {% for role in role_list %}
         <tr>
@@ -43,12 +43,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ role.specific_role }}</td>
             <td>{% for serv in role.servers.all %}{{ serv }}, {% endfor %}</td>
             <td class="text-right">
-            {% can_edit role %}
-            {% include 'buttons/edit.html' with href='machines:edit-role' id=role.id %}
-            {% acl_end %}
-            {% history_button role %}
-        </td>
-    </tr>
+                {% can_edit role %}
+                    {% include 'buttons/edit.html' with href='machines:edit-role' id=role.id %}
+                {% acl_end %}
+                {% history_button role %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
-

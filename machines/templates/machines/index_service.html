@@ -30,16 +30,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "List of services" %}</h2>
-  {% can_create machines.Service %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
-  {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several services" %}</a>
-  {%  include "machines/aff_service.html" with  service_list=service_list %}
-  <h2>{% trans "States of servers" %}</h2>
-  {%  include "machines/aff_servers.html" with  servers_list=servers_list %}
-  <br />
-  <br />
-  <br />
-{% endblock %}
+    <h2>{% trans "List of services" %}</h2>
+    {% can_create machines.Service %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-service' %}"><i
+            class="fa fa-plus"></i>{% trans " Add a service" %}</a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-service' %}"><i
+            class="fa fa-trash"></i>{% trans " Delete one or several services" %}</a>
+    {% include "machines/aff_service.html" with  service_list=service_list %}
 
+    <h2>{% trans "States of servers" %}</h2>
+    {% include "machines/aff_servers.html" with  servers_list=servers_list %}
+{% endblock %}

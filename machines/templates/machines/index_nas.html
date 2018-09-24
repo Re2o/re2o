@@ -31,15 +31,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-  <h2>{% trans "List of NAS devices" %}</h2>
-  <h5>{% trans "The NAS device type and machine type are linked. It is useful for MAC address auto capture by RADIUS, and allows to choose the machine type to assign to the machines according to the NAS device type." %}</h5>
-  {% can_create Nas %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-nas' %}"><i class="fa fa-plus"></i>{% trans " Add a NAS device type" %}</a>
-  {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-nas'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several NAS device types" %}</a>
-  {%  include "machines/aff_nas.html" with  nas_list=nas_list %}
-  <br />
-  <br />
-  <br />
+    <h2>{% trans "List of NAS devices" %}</h2>
+    <h5>{% trans "The NAS device type and machine type are linked. It is useful for MAC address auto capture by RADIUS, and allows to choose the machine type to assign to the machines according to the NAS device type." %}</h5>
+    {% can_create Nas %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-nas' %}">
+            <i class="fa fa-plus"></i>{% trans " Add a NAS device type" %}
+        </a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-nas' %}">
+        <i class="fa fa-trash"></i>{% trans " Delete one or several NAS device types" %}
+    </a>
+    {% include "machines/aff_nas.html" with  nas_list=nas_list %}
+    <br/>
+    <br/>
+    <br/>
 {% endblock %}
-

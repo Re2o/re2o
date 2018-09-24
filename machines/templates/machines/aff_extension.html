@@ -30,34 +30,33 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>{% trans "Extension" %}</th>
-                <th>{% trans "'infra' right required" %}</th>
-                <th>{% trans "SOA record" %}</th>
-                <th>{% trans "A record origin" %}</th>
-                {% if ipv6_enabled %}
+        <tr>
+            <th>{% trans "Extension" %}</th>
+            <th>{% trans "'infra' right required" %}</th>
+            <th>{% trans "SOA record" %}</th>
+            <th>{% trans "A record origin" %}</th>
+            {% if ipv6_enabled %}
                 <th>{% trans "AAAA record origin" %}</th>
-                {% endif %}
-                <th></th>
-            </tr>
+            {% endif %}
+            <th></th>
+        </tr>
         </thead>
         {% for extension in extension_list %}
-        <tr>
-            <td>{{ extension.name }}</td>
-            <td>{{ extension.need_infra|tick }}</td>
-            <td>{{ extension.soa }}</td>
-            <td>{{ extension.origin }}</td>
-            {% if ipv6_enabled %}
-            <td>{{ extension.origin_v6 }}</td>
-            {% endif %}
-            <td class="text-right">
-                {% can_edit extension %}
-                {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
-                {% acl_end %}
-                {% history_button extension %}
-            </td>
-        </tr>
+            <tr>
+                <td>{{ extension.name }}</td>
+                <td>{{ extension.need_infra|tick }}</td>
+                <td>{{ extension.soa }}</td>
+                <td>{{ extension.origin }}</td>
+                {% if ipv6_enabled %}
+                    <td>{{ extension.origin_v6 }}</td>
+                {% endif %}
+                <td class="text-right">
+                    {% can_edit extension %}
+                        {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
+                    {% acl_end %}
+                    {% history_button extension %}
+                </td>
+            </tr>
         {% endfor %}
     </table>
 </div>
-

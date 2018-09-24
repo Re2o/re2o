@@ -26,11 +26,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Target zone" %}</th>
-            <th>{% trans "Record" %}</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>{% trans "Target zone" %}</th>
+        <th>{% trans "Record" %}</th>
+        <th></th>
+    </tr>
     </thead>
     {% for dname in dname_list %}
         <tr>
@@ -38,11 +38,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ dname.dns_entry }}</td>
             <td class="text-right">
                 {% can_edit dname %}
-                {% include 'buttons/edit.html' with href='machines:edit-dname' id=dname.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-dname' id=dname.id %}
                 {% acl_end %}
                 {% history_button dname %}
             </td>
         </tr>
     {% endfor %}
 </table>
-

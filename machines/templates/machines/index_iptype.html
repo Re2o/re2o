@@ -24,21 +24,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-
 {% load acl %}
 {% load i18n %}
 
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "List of IP types" %}</h2>
-  {% can_create IpType %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype'  %}"><i class="fa fa-plus"></i>{% trans " Add an IP type" %}</a>
-  {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several IP types" %}</a>
-  {%  include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
-  <br />
-  <br />
-  <br />
+    <h2>{% trans "List of IP types" %}</h2>
+    {% can_create IpType %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype' %}">
+            <i class="fa fa-plus"></i>{% trans " Add an IP type" %}
+        </a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype' %}">
+        <i class="fa fa-trash"></i>{% trans " Delete one or several IP types" %}
+    </a>
+    {% include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
 {% endblock %}
-

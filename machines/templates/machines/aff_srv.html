@@ -28,17 +28,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Service" %}</th>
-            <th>{% trans "Protocol" %}</th>
-            <th>{% trans "Extension" %}</th>
-            <th>{% trans "TTL" %}</th>
-            <th>{% trans "Priority" %}</th>
-            <th>{% trans "Weight" %}</th>
-            <th>{% trans "Port" %}</th>
-            <th>{% trans "Target" %}</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>{% trans "Service" %}</th>
+        <th>{% trans "Protocol" %}</th>
+        <th>{% trans "Extension" %}</th>
+        <th>{% trans "TTL" %}</th>
+        <th>{% trans "Priority" %}</th>
+        <th>{% trans "Weight" %}</th>
+        <th>{% trans "Port" %}</th>
+        <th>{% trans "Target" %}</th>
+        <th></th>
+    </tr>
     </thead>
     {% for srv in srv_list %}
         <tr>
@@ -52,11 +52,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ srv.target }}</td>
             <td class="text-right">
                 {% can_edit srv %}
-                {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
                 {% acl_end %}
                 {% history_button srv %}
             </td>
         </tr>
     {% endfor %}
 </table>
-
