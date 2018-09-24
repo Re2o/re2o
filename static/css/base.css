@@ -33,7 +33,6 @@ a > i.fa {
 
 /* Make navbar look less Bootstraped */
 .navbar-inverse {
-    background-color: #612210;
     border-color: #f9a01b;
 }
 
