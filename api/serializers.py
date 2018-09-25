@@ -48,7 +48,7 @@ class NamespacedHRField(serializers.HyperlinkedRelatedField):
 
 class NamespacedHIField(serializers.HyperlinkedIdentityField):
     """A `rest_framework.serializers.HyperlinkedIdentityField` subclass to
-    automatically prefix view names with teh API namespace.
+    automatically prefix view names with the API namespace.
     """
     def __init__(self, view_name=None, **kwargs):
         if view_name is not None:
