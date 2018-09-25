@@ -18,6 +18,8 @@ from re2o.mixins import RevMixin
 
 import users.models
 
+import unidecode
+
 from .validators import (
     FileValidator,
 )
@@ -33,7 +35,6 @@ from .settings import (
         PERFORATION_OPTIONS,
 )
 
-from .utils import user_printing_path
 
 import math
 

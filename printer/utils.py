@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import subprocess
 import os
-import unidecode
 
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
@@ -11,15 +10,6 @@ from preferences.models import OptionalPrinter, GeneralOption, AssoOption
 from numpy.random import randint
 
 import datetime
-
-def user_printing_path(instance, filename):
-    """
-    Defines the path where will be uploaded the files
-    Currently MEDIA_ROOT/printings/user_<id>/<filename>
-    """
-    # File will be uploaded to MEDIA_ROOT/printings/user_<id>/<filename>
-    return 'printings/user_{0}/{1}'.format(instance.user.id, unidecode.unidecode(filename))
-
 
 
 def pdfinfo(file_path):
