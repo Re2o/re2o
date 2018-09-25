@@ -64,7 +64,7 @@ def new_job(request):
                     # raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
                     if job.printAs is None:
                         job.printAs = request.user
-                    job.status='Printable'
+                    job.status='Pending'
                     # raise
                     # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES['form-%s-file' % i].temporary_file_path()})
                     # job_data = model_to_dict(job)
@@ -111,7 +111,7 @@ def new_job(request):
                 old_job = JobWithOptions.objects.get(id=jids[i])
                 job = job_obj.save(commit=False)
                 job.user = request.user
-                job.status = 'Running'
+                job.status = 'Printable'
                 job.file = old_job.file
                 job._update_price()
                 job.save()

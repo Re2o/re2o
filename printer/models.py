@@ -71,10 +71,11 @@ class JobWithOptions(RevMixin, models.Model):
         ```_update_price``` update printing price
     """
         STATUS_AVAILABLE = (
-            ('Printable', 'Printable'),
-            ('Running', 'Running'),
-            ('Cancelled', 'Cancelled'),
-            ('Finished', 'Finished')
+                ('Pending', 'Pending'),
+                ('Printable', 'Printable'),
+                ('Running', 'Running'),
+                ('Cancelled', 'Cancelled'),
+                ('Finished', 'Finished')
         )
         user = models.ForeignKey('users.User', on_delete=models.PROTECT)
         file = models.FileField(upload_to=user_printing_path, validators=[FileValidator(allowed_types=ALLOWED_TYPES, max_size=MAX_PRINTFILE_SIZE)])
