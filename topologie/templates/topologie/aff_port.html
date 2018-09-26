@@ -32,6 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 {% trans "Port" as tr_port %}
                 <th>{% include "buttons/sort.html" with prefix='port' col='port' text=tr_port %}</th>
+                {%  if search %}
+                    <th>{% trans "Switch" %}</th>
+                {% endif %}
                 {% trans "Room" as tr_room %}
                 <th>{% include "buttons/sort.html" with prefix='port' col='room' text=tr_room %}</th>
                 {% trans "Interface" as tr_interface %}
@@ -46,11 +49,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
        {% for port in port_list %}
             <tr>
-		{% if search %}
-			<td><a href="{% url 'topologie:index-port' switchid=port.switch.id %}">{{ port.port }}</a></td>
-		{% else %}
 			<td>{{ port.port }}</td>
-		{% endif %}
+            {% if search %}
+                <td>
+                    <a href="{% url 'topologie:index-port' switchid=port.switch.id %}">{{ port.switch }}</a>
+                </td>
+            {% endif %}
                 <td>
                     {% if port.room %}
                     {{ port.room }}
