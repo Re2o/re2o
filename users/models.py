@@ -503,7 +503,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
         somme_credit = Vente.objects.filter(
@@ -512,7 +512,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
         return somme_credit - somme_debit
