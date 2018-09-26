@@ -189,7 +189,7 @@ def index_port(request, switch, switchid):
         {
             'port_list': port_list,
             'id_switch': switchid,
-            'nom_switch': switch
+            'switch': switch
         }
     )
 
