@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Switch:"%} {{ nom_switch }}</h2>
+<h2>{% trans "Switch:"%} {{ switch }}</h2>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -40,9 +40,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </thead>
     <tr>
-        <td>{{ switch_bay }}</td>
-        <td>{{ switch_model }}</td>
-        <td>{{ switch_stack }}</td>
+        <td>{{ switch.switchbay }}</td>
+        <td>{{ switch.model }}</td>
+        <td>{{ switch.stack }}</td>
     </tr>
 </table>
 <hr>
