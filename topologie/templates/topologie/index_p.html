@@ -31,6 +31,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 <h2>{% trans "Switch:"%} {{ nom_switch }}</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Switch bay" %}</th>
+            <th>{% trans "Switch model" %}</th>
+            <th>{% trans "Stack" %}</th>
+        </tr>
+    </thead>
+    <tr>
+        <td>{{ switch_bay }}</td>
+        <td>{{ switch_model }}</td>
+        <td>{{ switch_stack }}</td>
+    </tr>
+</table>
+<hr>
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-switch'  id_switch %}"><i class="fa fa-edit"></i>{% trans " Edit" %}</a>
 {% can_create Port %}
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port'  id_switch %}"><i class="fa fa-plus"></i>{% trans " Add a port" %}</a>
