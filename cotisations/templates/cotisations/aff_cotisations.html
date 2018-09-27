@@ -78,7 +78,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>
                 {% if facture.valid %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}">
-                    <i class="fa fa-file-pdf"></i> {% trans "PDF" %}
+                    <i class="fa fa-file-pdf-o"></i> {% trans "PDF" %}
                 </a>
                 {% else %}
                 <i class="text-danger">{% trans "Invalidated invoice" %}</i>
