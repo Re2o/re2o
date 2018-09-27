@@ -223,7 +223,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </a>
                         </div>
                         {% else %}
-                            <p>{% trans "You are not logged in." %}</p>
+                            <div class="panel-body">
+                                <p>{% trans "You are not logged in." %}</p>
+                            </div>
                         {% endif %}
                     </div>
                     {% if request_user.is_authenticated %}
