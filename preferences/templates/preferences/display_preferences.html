@@ -118,6 +118,75 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
+	<tr>	
+	    <th>Placement sur ce vlan par default en cas de rejet</th>
+	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
+	</tr>
+    </table>
+
+	<h6>Clef radius</h6>
+	  {% can_create RadiusKey%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+	  {% acl_end %}
+	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+
+    <h4>Configuration des switches</h4>
+    <table class="table table-striped">
+	<tr>
+            <th>Web management, activé si provision automatique</th>
+            <td>{{ topologieoptions.switchs_web_management }}</td>
+	    <th>Rest management, activé si provision auto</th>
+	    <td>{{ topologieoptions.switchs_rest_management }}</td>
+        </tr>
+    </table>
+
+
+
+    <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+	    <th>Switchs configurés automatiquement</th>
+	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+	</tr>
+	<tr>	
+	    <th>Plage d'ip de management des switchs</th>
+	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+	</tr>
+	<tr>	
+            <th>Serveur des config des switchs</th>
+	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+	</tr>
+        <tr>
+	    <th>Mode de provision des switchs</th>
+            <td>{{ topologieoptions.switchs_provision }}</td>
+	</tr>
+	<tr>
+	    <th>Mode TFTP</th>
+	    <td><span class="label label-success"> OK</span></td>
+	</tr>
+	<tr>
+	    <th>Mode SFTP</th>
+	    <td>{% if topologieoptions.switchs_management_sftp_creds %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Creds manquants{% endif %}</span></td>
+	</tr>
+    </table>
+
+       <h6>Creds de management des switchs</h6>
+	  {% can_create SwitchManagementCred%}
+	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i> Ajouter un id/mdp de management switch</a>
+	  {% acl_end %}
+          <p>
+          </p>
+          {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
+          {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
+
+
+
+    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+    <table class="table table-striped">
+	<tr>
+		<th>Switchs configurés automatiquement</th>
+		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
+	</tr>
     </table>
     <h4>{% trans "General preferences" %}</h4>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">

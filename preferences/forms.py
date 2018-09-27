@@ -38,9 +38,12 @@ from .models import (
     MailMessageOption,
     HomeOption,
     Service,
-    MailContact
+    MailContact,
+    Reminder,
+    RadiusKey,
+    SwitchManagementCred,
 )
-
+from topologie.models import Switch
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -92,7 +95,14 @@ class EditOptionalMachineForm(ModelForm):
 
 
 class EditOptionalTopologieForm(ModelForm):
-    """Options de topologie, formulaire d'edition (vlan par default etc)"""
+    """Options de topologie, formulaire d'edition (vlan par default etc)
+    On rajoute un champ automatic provision switchs pour gérer facilement
+    l'ajout de switchs au provisionning automatique"""
+    automatic_provision_switchs = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
     class Meta:
         model = OptionalTopologie
         fields = '__all__'
@@ -109,6 +119,14 @@ class EditOptionalTopologieForm(ModelForm):
                                                   " by RADIUS")
         self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
                                                    " by RADIUS")
+
+        self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        Switch.objects.all().update(automatic_provision=False)
+        self.cleaned_data['automatic_provision_switchs'].update(automatic_provision=True)
+        return instance
 
 
 class EditGeneralOptionForm(ModelForm):
@@ -242,8 +260,68 @@ class DelServiceForm(Form):
         else:
             self.fields['services'].queryset = Service.objects.all()
 
-class MailContactForm(FormRevMixin, ModelForm):
-    """Edit and add contact email adress"""
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de services sur la page d'accueil"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class RadiusKeyForm(FormRevMixin, ModelForm):
+    """Edition, ajout de clef radius"""
+    members = forms.ModelMultipleChoiceField(
+        queryset=Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = RadiusKey
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RadiusKeyForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(radius_key=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class SwitchManagementCredForm(FormRevMixin, ModelForm):
+    """Edition, ajout de creds de management pour gestion
+    et interface rest des switchs"""
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = SwitchManagementCred
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SwitchManagementCredForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(management_creds=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class MailContactForm(ModelForm):
+    """Edition, ajout d'adresse de contact"""
     class Meta:
         model = MailContact
         fields = '__all__'

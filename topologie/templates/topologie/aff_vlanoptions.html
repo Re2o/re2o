@@ -1,4 +1,3 @@
-{% extends "preferences/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,27 +22,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
-{% load i18n %}
-{% load massive_bootstrap_form %}
+{% load acl %}
+{% load logs_extra %}
 
-{% block title %}{% trans "Preferences" %}{% endblock %}
-
-{% block content %}
-{% if preferenceform %}
-{% bootstrap_form_errors preferenceform %}
-{% endif %}
-
-
-<form class="form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% if preferenceform %}
-    {% massive_bootstrap_form preferenceform 'members' %}
-    {% endif %}
-    {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
-</form>
-  <br />
-  <br />
-  <br />
-{% endblock %}
-
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+		<th>Arp Protect</th>
+                <th>Dhcp Snooping</th>
+                <th>Dhcpv6 Snooping</th>
+                <th>Igmp</th>
+		<th>Mld</th>
+		<th></th>
+            </tr>
+        </thead>
+        {% for vlan in vlan_list %}
+        <tr>
+            <td>{{ vlan.vlan_id }}</td>
+            <td>{{ vlan.name  }}</td>
+	    <td>{{ vlan.arp_protect }}</td>
+	    <td>{{ vlan.dhcp_snooping }}</td>
+	    <td>{{ vlan.dhcpv6_snooping }}</td>
+	    <td>{{ vlan.igmp }}</td>
+	    <td>{{ vlan.mld }}</td>
+	    <td class="text-right">
+		{% can_edit vlan %}
+                {% include 'buttons/edit.html' with href='topologie:edit-vlanoptions' id=vlan.id %}
+		{% acl_end %}
+                {% history_button vlan %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>

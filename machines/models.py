@@ -202,6 +202,12 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         return str(self.interface_set.first().domain.name)
 
     @cached_property
+    def complete_name(self):
+        """Par defaut, renvoie le nom de la première interface
+        de cette machine"""
+        return str(self.interface_set.first())
+
+    @cached_property
     def all_short_names(self):
         """Renvoie de manière unique, le nom des interfaces de cette
         machine"""
@@ -515,6 +521,18 @@ class Vlan(RevMixin, AclMixin, models.Model):
     vlan_id = models.PositiveIntegerField(validators=[MaxValueValidator(4095)])
     name = models.CharField(max_length=256)
     comment = models.CharField(max_length=256, blank=True)
+    #Réglages supplémentaires
+    arp_protect = models.BooleanField(default=False)
+    dhcp_snooping = models.BooleanField(default=False)
+    dhcpv6_snooping = models.BooleanField(default=False)
+    igmp = models.BooleanField(
+        default=False,
+        help_text="Gestion multicast v4"
+    )
+    mld = models.BooleanField(
+        default=False,
+        help_text="Gestion multicast v6"
+    )
 
     class Meta:
         permissions = (
@@ -1633,6 +1651,19 @@ class Role(RevMixin, AclMixin, models.Model):
         return Interface.objects.filter(
             machine__interface__role=cls.objects.filter(specific_role=roletype)
         )
+
+    @classmethod
+    def get_instance(cls, machineid, *_args, **_kwargs):
+        """Get the Machine instance with machineid.
+        :param userid: The id
+        :return: The user
+        """
+        return cls.objects.get(pk=machineid)
+
+    @classmethod
+    def interface_for_roletype(cls, roletype):
+        """Return interfaces for a roletype"""
+        return Interface.objects.filter(role=cls.objects.filter(specific_role=roletype))
 
     def save(self, *args, **kwargs):
         super(Role, self).save(*args, **kwargs)

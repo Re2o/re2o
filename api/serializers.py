@@ -153,7 +153,8 @@ class VlanSerializer(NamespacedHMSerializer):
     """
     class Meta:
         model = machines.Vlan
-        fields = ('vlan_id', 'name', 'comment', 'api_url')
+        fields = ('vlan_id', 'name', 'comment', 'arp_protect', 'dhcp_snooping',
+                  'dhcpv6_snooping', 'igmp', 'mld', 'api_url')
 
 
 class NasSerializer(NamespacedHMSerializer):
@@ -310,6 +311,16 @@ class OuverturePortSerializer(NamespacedHMSerializer):
         fields = ('begin', 'end', 'port_list', 'protocole', 'io', 'api_url')
 
 
+class RoleSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
+    servers = InterfaceSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = machines.Role
+        fields = ('role_type', 'servers', 'api_url')
+
+
 # PREFERENCES
 
 
@@ -338,11 +349,15 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
 class OptionalTopologieSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalTopologie` objects.
     """
+    switchs_management_interface_ip = serializers.CharField()
 
     class Meta:
         model = preferences.OptionalTopologie
         fields = ('radius_general_policy', 'vlan_decision_ok',
-                  'vlan_decision_nok')
+                  'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
+                  'switchs_web_management_ssl', 'switchs_rest_management',
+                  'switchs_management_utils', 'switchs_management_interface_ip',
+                  'provision_switchs_enabled', 'switchs_provision', 'switchs_management_sftp_creds')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
@@ -467,14 +482,28 @@ class BuildingSerializer(NamespacedHMSerializer):
 class SwitchPortSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.Port` objects
     """
+
+    get_port_profil = NamespacedHIField(view_name='portprofile-detail', read_only=True)
+
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'custom_profile', 'state', 'details', 'api_url')
+                  'custom_profile', 'state', 'get_port_profil', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
             'api_url': {'view_name': 'switchport-detail'},
         }
+
+
+class PortProfileSerializer(NamespacedHMSerializer):
+    """Serialize `topologie.models.Room` objects
+    """
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 
+                  'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control',
+                  'dhcp_snooping', 'dhcpv6_snooping', 'dhcpv6_snooping', 'arp_protect',
+                  'ra_guard', 'loop_protect', 'api_url')
 
 
 class RoomSerializer(NamespacedHMSerializer):
@@ -644,6 +673,89 @@ class ServiceRegenSerializer(NamespacedHMSerializer):
             'api_url': {'view_name': 'serviceregen-detail'}
         }
 
+# Switches et ports
+
+class InterfaceVlanSerializer(NamespacedHMSerializer):
+    domain = serializers.CharField(read_only=True)
+    ipv4 = serializers.CharField(read_only=True)
+    ipv6 = Ipv6ListSerializer(read_only=True, many=True)
+    vlan_id = serializers.IntegerField(source='type.ip_type.vlan.vlan_id', read_only=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('ipv4', 'ipv6', 'domain', 'vlan_id')
+
+class InterfaceRoleSerializer(NamespacedHMSerializer):
+    interface = InterfaceVlanSerializer(source='machine.interface_set', read_only=True, many=True)
+
+    class Meta:
+        model = machines.Interface
+        fields = ('interface',)
+
+
+class RoleSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.OuverturePort` objects.
+    """
+    servers = InterfaceRoleSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = machines.Role
+        fields = ('role_type', 'servers', 'specific_role')
+
+
+class VlanPortSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = machines.Vlan
+        fields = ('vlan_id', 'name') 
+
+
+class ProfilSerializer(NamespacedHMSerializer):
+    vlan_untagged = VlanSerializer(read_only=True)
+    vlan_tagged = VlanPortSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = topologie.PortProfile
+        fields = ('name', 'profil_default', 'vlan_untagged', 'vlan_tagged', 'radius_type', 'radius_mode', 'speed', 'mac_limit', 'flow_control', 'dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'ra_guard', 'loop_protect', 'vlan_untagged', 'vlan_tagged')
+
+
+class ModelSwitchSerializer(NamespacedHMSerializer):
+    constructor = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = topologie.ModelSwitch
+        fields = ('reference', 'firmware', 'constructor')
+
+
+class SwitchBaySerializer(NamespacedHMSerializer):
+    class Meta:
+        model = topologie.SwitchBay
+        fields = ('name',)
+
+
+class PortsSerializer(NamespacedHMSerializer):
+    """Serialize `machines.models.Ipv6List` objects.
+    """
+    get_port_profil = ProfilSerializer(read_only=True)
+
+
+    class Meta:
+        model = topologie.Port
+        fields = ('state', 'port', 'pretty_name', 'get_port_profil')
+
+
+
+class SwitchPortSerializer(serializers.ModelSerializer):
+    """Serialize the data about the switches"""
+    ports = PortsSerializer(many=True, read_only=True)
+    model = ModelSwitchSerializer(read_only=True)
+    switchbay = SwitchBaySerializer(read_only=True)
+
+
+    class Meta:
+        model = topologie.Switch
+        fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6',
+                  'interfaces_subnet', 'interfaces6_subnet', 'automatic_provision', 'rest_enabled',
+                  'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value')
 
 # LOCAL EMAILS
 

@@ -49,6 +49,11 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
+from preferences.models import (
+    OptionalTopologie,
+    RadiusKey,
+    SwitchManagementCred
+)
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
@@ -228,6 +233,24 @@ class Switch(AclMixin, Machine):
         null=True,
         on_delete=models.SET_NULL,
     )
+    radius_key = models.ForeignKey(
+        'preferences.RadiusKey',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text="Clef radius du switch"
+    )
+    management_creds = models.ForeignKey(
+        'preferences.SwitchManagementCred',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text="Identifiant de management de ce switch"
+    )
+    automatic_provision = models.BooleanField(
+        default=False,
+        help_text='Provision automatique de ce switch',
+    )
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -285,12 +308,77 @@ class Switch(AclMixin, Machine):
                 ValidationError(_("Creation of an existing port."))
 
     def main_interface(self):
-        """ Returns the 'main' interface of the switch """
+        """ Returns the 'main' interface of the switch
+        It must the the management interface for that device"""
+        switch_iptype = OptionalTopologie.get_cached_value('switchs_ip_type')
+        if switch_iptype: 
+            return self.interface_set.filter(type__ip_type=switch_iptype).first()
         return self.interface_set.first()
 
     @cached_property
     def get_name(self):
         return self.name or self.main_interface().domain.name
+
+    @cached_property
+    def get_radius_key(self):
+        """Retourne l'objet de la clef radius de ce switch"""
+        return self.radius_key or RadiusKey.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_radius_key_value(self):
+        """Retourne la valeur en str de la clef radius, none si il n'y en a pas"""
+        if self.get_radius_key:
+            return self.get_radius_key.radius_key
+        else:
+            return None
+
+    @cached_property
+    def get_management_cred(self):
+        """Retourne l'objet des creds de managament de ce switch"""
+        return self.management_creds or SwitchManagementCred.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_management_cred_value(self):
+        """Retourne un dict des creds de management du switch"""
+        if self.get_management_cred:
+            return {'id': self.get_management_cred.management_id, 'pass': self.get_management_cred.management_pass}
+        else:
+            return None
+
+    @cached_property
+    def rest_enabled(self):
+        return OptionalTopologie.get_cached_value('switchs_rest_management') or self.automatic_provision
+
+    @cached_property
+    def web_management_enabled(self):
+        sw_management = OptionalTopologie.get_cached_value('switchs_web_management')
+        sw_management_ssl = OptionalTopologie.get_cached_value('switchs_web_management_ssl')
+        if sw_management_ssl:
+            return "ssl"
+        elif sw_management:
+            return "plain"
+        else:
+            return self.automatic_provision
+
+    @cached_property
+    def ipv4(self):
+        """Return the switch's management ipv4"""
+        return str(self.main_interface().ipv4)
+
+    @cached_property
+    def ipv6(self):
+        """Returne the switch's management ipv6"""
+        return str(self.main_interface().ipv6().first())
+
+    @cached_property
+    def interfaces_subnet(self):
+        """Return dict ip:subnet for all ip of the switch"""
+        return dict((str(interface.ipv4), interface.type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
+
+    @cached_property
+    def interfaces6_subnet(self):
+        """Return dict ip6:subnet for all ipv6 of the switch"""
+        return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
     def __str__(self):
         return str(self.get_name)
@@ -303,6 +391,11 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     constructor = models.ForeignKey(
         'topologie.ConstructorSwitch',
         on_delete=models.PROTECT
+    )
+    firmware = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
     )
 
     class Meta:
@@ -437,8 +530,20 @@ class Port(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("ports")
 
     @cached_property
-    def get_port_profile(self):
-        """Return the config profile for this port
+    def pretty_name(self):
+        """More elaborated name for label on switch conf"""
+        if self.related:
+            return "Uplink : " + self.related.switch.short_name
+        elif self.machine_interface:
+            return "Machine : " + str(self.machine_interface.domain)
+        elif self.room:
+            return "Chambre : " + str(self.room)
+        else:
+            return "Inconnue"
+
+    @cached_property
+    def get_port_profil(self):
+        """Return the config profil for this port
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
             port_profile = PortProfile.objects.filter(
@@ -447,7 +552,7 @@ class Port(AclMixin, RevMixin, models.Model):
                 return port_profile
             else:
                 nothing_profile, _created = PortProfile.objects.get_or_create(
-                    profile_default='nothing',
+                    profil_default='nothing',
                     name='nothing',
                     radius_type='NO'
                 )

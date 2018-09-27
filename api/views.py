@@ -242,6 +242,13 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.OuverturePortSerializer
 
 
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Machine` objects.
+    """
+    queryset = machines.Role.objects.all()
+    serializer_class = serializers.RoleSerializer
+
+
 # PREFERENCES
 # Those views differ a bit because there is only one object
 # to display, so we don't bother with the listing part
@@ -397,6 +404,13 @@ class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SwitchPortSerializer
 
 
+class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.PortProfile` objects.
+    """
+    queryset = topologie.PortProfile.objects.all()
+    serializer_class = serializers.PortProfileSerializer
+
+
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.Room` objects.
     """
@@ -514,6 +528,24 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
             hostname = self.request.GET['hostname']
             queryset = queryset.filter(server__domain__name__iexact=hostname)
         return queryset
+
+# Config des switches
+
+class SwitchPortView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = topologie.Switch.objects.all().select_related("switchbay").select_related("model__constructor").prefetch_related("ports__custom_profile__vlan_tagged").prefetch_related("ports__custom_profile__vlan_untagged").prefetch_related("ports__machine_interface__domain__extension").prefetch_related("ports__room")
+
+    serializer_class = serializers.SwitchPortSerializer
+
+
+class RoleView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = machines.Role.objects.all().prefetch_related('servers')
+    serializer_class = serializers.RoleSerializer
 
 
 # LOCAL EMAILS
