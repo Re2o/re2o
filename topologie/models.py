@@ -311,7 +311,7 @@ class Switch(AclMixin, Machine):
         """ Returns the 'main' interface of the switch
         It must the the management interface for that device"""
         switch_iptype = OptionalTopologie.get_cached_value('switchs_ip_type')
-        if switch_iptype: 
+        if switch_iptype:
             return self.interface_set.filter(type__ip_type=switch_iptype).first()
         return self.interface_set.first()
 
@@ -672,7 +672,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     )
     PROFIL_DEFAULT = (
         ('room', 'room'),
-        ('accespoint', 'accesspoint'),
+        ('access_point', 'access_point'),
         ('uplink', 'uplink'),
         ('asso_machine', 'asso_machine'),
         ('nothing', 'nothing'),
