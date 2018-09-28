@@ -64,10 +64,9 @@ a > i.fa {
     }
 }
 
-/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+/* Set height of the grid so footer stay on footer */
 .row.content {
-    height: 100%;
-    overflow: auto;
+    min-height: 70vh;
 }
 
 /* Set gray background color */
