@@ -32,8 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         {% bootstrap_form form %}
-        <button class="btn btn-success" type="submit"><span
-                class="glyphicon glyphicon-log-in"></span> {% trans "Log in" %}</button>
+        <button class="btn btn-success" type="submit">
+            <i class="fa fa-sign-in"></i> {% trans "Log in" %}
+        </button>
     </form>
     <p><a class="btn btn-warning btn-sm" role="button"
           href="{% url 'users:reset-password' %}"> {% trans "Forgotten password?" %}</a></p>
