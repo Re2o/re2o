@@ -12,10 +12,10 @@ footer p {
 .navbar { margin-bottom: 0; }
 .pt4 { padding-top: 1.5rem!important; }
 
-/* Reserv space for icons and align */
+/* Reserve space for icons and align */
 a > i.fa {
     display: inline-block;
-    width: 26px;
+    width: 16px;
     text-align: center;
 }
 
@@ -64,10 +64,9 @@ a > i.fa {
     }
 }
 
-/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+/* Set height of the grid so footer stay on footer */
 .row.content {
-    height: 100%;
-    overflow: auto;
+    min-height: 70vh;
 }
 
 /* Set gray background color */
@@ -111,6 +110,7 @@ a > i.fa {
     .modal-dialog {
         width: 1000px
     }
+}
 
 /* For tables with long text in cells */
 
