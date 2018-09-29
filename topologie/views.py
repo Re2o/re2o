@@ -1005,7 +1005,7 @@ def new_port_profile(request):
     if port_profile.is_valid():
         port_profile.save()
         messages.success(request, _("The port profile was created."))
-        return redirect(reverse('topologie:index'))
+        return redirect(reverse('topologie:index-port-profile'))
     return form(
         {'topoform': port_profile, 'action_name': _("Create")},
         'topologie/topo.html',
@@ -1023,7 +1023,7 @@ def edit_port_profile(request, port_profile, **_kwargs):
         if port_profile.changed_data:
             port_profile.save()
             messages.success(request, _("The port profile was edited."))
-        return redirect(reverse('topologie:index'))
+        return redirect(reverse('topologie:index-port-profile'))
     return form(
         {'topoform': port_profile, 'action_name': _("Edit")},
         'topologie/topo.html',
@@ -1043,7 +1043,7 @@ def del_port_profile(request, port_profile, **_kwargs):
         except ProtectedError:
             messages.success(request,
                              _("Impossible to delete the port profile."))
-        return redirect(reverse('topologie:index'))
+        return redirect(reverse('topologie:index-port-profile'))
     return form(
         {'objet': port_profile, 'objet_name': _("Port profile")},
         'topologie/delete.html',
