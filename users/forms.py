@@ -391,7 +391,7 @@ class AdherentCreationForm(AdherentForm):
 class AdherentEditForm(AdherentForm):
     """Formulaire d'édition d'un user.
     AdherentForm incluant la modification des champs gpg et shell"""
-    def __init__(self, *args, **kargs):
+    def __init__(self, *args, **kwargs):
        super(AdherentEditForm, self).__init__(*args, **kwargs)
        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
        if 'shell' in self.fields:
