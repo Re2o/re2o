@@ -1653,12 +1653,12 @@ class Role(RevMixin, AclMixin, models.Model):
         )
 
     @classmethod
-    def get_instance(cls, machineid, *_args, **_kwargs):
+    def get_instance(cls, roleid, *_args, **_kwargs):
         """Get the Machine instance with machineid.
         :param userid: The id
         :return: The user
         """
-        return cls.objects.get(pk=machineid)
+        return cls.objects.get(pk=roleid)
 
     @classmethod
     def interface_for_roletype(cls, roletype):
