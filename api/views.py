@@ -539,6 +539,15 @@ class SwitchPortView(generics.ListAPIView):
 
     serializer_class = serializers.SwitchPortSerializer
 
+# Rappel fin adhésion
+
+class ReminderView(generics.ListAPIView):
+    """Exposes the associations between hostname, mac address and IPv4 in
+    order to build the DHCP lease files.
+    """
+    queryset = preferences.Reminder.objects.all()
+    serializer_class = serializers.ReminderSerializer
+
 
 class RoleView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
