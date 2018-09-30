@@ -277,11 +277,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ mailmessageoptions.welcome_mail_en|safe }}</td>
         </tr>
     </table>
+    <h4>Options pour le mail de fin d'adhésion</h2>
+        {% can_create preferences.Reminder%}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+        {% acl_end %}
+        {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+
     <h4>{% trans "List of services and homepage preferences" %}</h4>
         {% can_create preferences.Service%}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
         {% acl_end %}
-        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-service'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several services" %}</a>
         {%  include "preferences/aff_service.html" with  service_list=service_list %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>

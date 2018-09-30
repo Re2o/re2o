@@ -72,7 +72,7 @@ urlpatterns = [
         views.edit_service,
         name='edit-service'
         ),
-    url(r'^del_service/$', views.del_service, name='del-service'),
+    url(r'^del_service/(?P<serviceid>[0-9]+)$', views.del_service, name='del-service'),
     url(r'^add_mailcontact/$', views.add_mailcontact, name='add-mailcontact'),
     url(
         r'^edit_mailcontact/(?P<mailcontactid>[0-9]+)$',
@@ -86,7 +86,7 @@ urlpatterns = [
         views.edit_reminder,
         name='edit-reminder'
         ),
-    url(r'^del_reminder/$', views.del_reminder, name='del-reminder'),
+    url(r'^del_reminder/(?P<reminderid>[0-9]+)$', views.del_reminder, name='del-reminder'),
     url(r'^add_radiuskey/$', views.add_radiuskey, name='add-radiuskey'),
     url(
         r'^edit_radiuskey/(?P<radiuskeyid>[0-9]+)$',
