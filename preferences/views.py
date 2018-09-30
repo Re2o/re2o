@@ -146,10 +146,7 @@ def add_service(request):
     """Ajout d'un service de la page d'accueil"""
     service = ServiceForm(request.POST or None, request.FILES or None)
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Creation")
+        service.save()
         messages.success(request, _("The service was added."))
         return redirect(reverse('preferences:display-options'))
     return form(
@@ -169,14 +166,7 @@ def edit_service(request, service_instance, **_kwargs):
         instance=service_instance
     )
     if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            service.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Field(s) edited: %s" % ', '.join(
-                    field for field in service.changed_data
-                    )
-            )
+        service.save()
         messages.success(request, _("The service was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
@@ -185,70 +175,50 @@ def edit_service(request, service_instance, **_kwargs):
         request
     )
 
-
 @login_required
-@can_delete_set(Service)
-def del_service(request, instances):
+@can_delete(Service)
+def del_service(request, service_instance, **_kwargs):
     """Suppression d'un service de la page d'accueil"""
-    services = DelServiceForm(request.POST or None, instances=instances)
-    if services.is_valid():
-        services_dels = services.cleaned_data['services']
-        for services_del in services_dels:
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    services_del.delete()
-                    reversion.set_user(request.user)
-                messages.success(request, _("The service was deleted."))
-            except ProtectedError:
-                messages.error(request, _("Error: the service %s can't be"
-                                          " deleted.") % services_del)
+    if request.method == "POST":
+        service_instance.delete()
+        messages.success(request, "Le service a été détruit")
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': services, 'action_name': _("Delete")},
-        'preferences/preferences.html',
+        {'objet': service_instance, 'objet_name': 'service'},
+        'preferences/delete.html',
         request
-    )
+        )
 
 @login_required
 @can_create(Reminder)
 def add_reminder(request):
-    """Ajout d'un service de la page d'accueil"""
+    """Ajout d'un mail de rappel"""
     reminder = ReminderForm(request.POST or None, request.FILES or None)
-    if service.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            reminder.save()
-            reversion.set_user(request.user)
-            reversion.set_comment("Creation")
-        messages.success(request, _("The service was added."))
+    if reminder.is_valid():
+        reminder.save()
+        messages.success(request, _("The reminder was added."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name': _("Add a service")},
+        {'preferenceform': reminder, 'action_name': _("Add a service")},
         'preferences/preferences.html',
         request
         )
 
 @login_required
 @can_edit(Reminder)
-def edit_reminder(request, service_instance, **_kwargs):
-    """Edition des services affichés sur la page d'accueil"""
+def edit_reminder(request, reminder_instance, **_kwargs):
+    """Edition reminder"""
     reminder = ReminderForm(
         request.POST or None,
         request.FILES or None,
         instance=reminder_instance
     )
     if reminder.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            reminder.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Field(s) edited: %s" % ', '.join(
-                    field for field in reminder.changed_data
-                    )
-            )
+        reminder.save()
         messages.success(request, _("The service was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': service, 'action_name': _("Edit")},
+        {'preferenceform': reminder, 'action_name': _("Edit")},
         'preferences/preferences.html',
         request
     )
