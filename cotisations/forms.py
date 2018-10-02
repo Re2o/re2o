@@ -233,7 +233,7 @@ class RechargeForm(FormRevMixin, Form):
     """
     Form used to refill a user's balance
     """
-    value = forms.FloatField(
+    value = forms.DecimalField(
         label=_("Amount"),
         min_value=0.01,
         validators=[]
