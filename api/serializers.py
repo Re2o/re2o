@@ -742,7 +742,6 @@ class HistoryJobSerializer(NamespacedHMSerializer):
         }
 
 
-
 # SERVICE REGEN
 
 
