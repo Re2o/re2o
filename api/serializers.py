@@ -22,6 +22,8 @@
 """Defines the serializers of the API
 """
 
+from re2o.settings import INSTALLED_APPS
+
 from rest_framework import serializers
 
 import cotisations.models as cotisations
@@ -29,6 +31,10 @@ import machines.models as machines
 import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
+
+if "printer" in INSTALLED_APPS:
+    import printer.models as printer
+
 
 # The namespace used for the API. It must match the namespace used in the
 # urlpatterns to include the API URLs.
@@ -710,6 +716,16 @@ class EMailAddressSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.EMailAddress
         fields = ('user', 'local_part', 'complete_email_address', 'api_url')
+
+# PRINTER
+
+class PrintJobSerializer(NamespacedHMSerializer):
+    """Serialize the jobs for printer
+    """
+    class Meta:
+        model = printer.JobWithOptions
+        fields = ('file', 'filename', 'status', 'starttime', 'endtime', 'api_url')
+
 
 
 # SERVICE REGEN
