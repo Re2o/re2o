@@ -83,7 +83,7 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
 
