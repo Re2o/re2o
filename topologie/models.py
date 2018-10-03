@@ -542,7 +542,7 @@ class Port(AclMixin, RevMixin, models.Model):
             return "Inconnue"
 
     @cached_property
-    def get_port_profil(self):
+    def get_port_profile(self):
         """Return the config profil for this port
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
