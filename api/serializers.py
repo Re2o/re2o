@@ -488,7 +488,7 @@ class SwitchPortSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'custom_profile', 'state', 'get_port_profiel', 'details', 'api_url')
+                  'custom_profile', 'state', 'get_port_profile', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
             'api_url': {'view_name': 'switchport-detail'},
