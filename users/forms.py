@@ -378,12 +378,12 @@ class AdherentCreationForm(AdherentForm):
                            + "using the forgotten password button on the "\
                            + "login page or contacting support.")
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
-    former_user_check.label = _("I have not had an account before")
+    former_user_check.label = _("I certifie that I have not had an account before")
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
-    gtu_check.label = mark_safe("{}<a href='/media/{}' download='CGU'>{}</a>{}".format(
-        _("I commit to accept the "), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+    gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
+        _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
@@ -417,7 +417,7 @@ class AdherentEditForm(AdherentForm):
             'shell',
             'gpg_fingerprint'
         ]
-       
+
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
@@ -719,7 +719,7 @@ class InitialRegisterForm(forms.Form):
             port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
             # If a port exists, checking there is a room AND radius
             if port:
-                if port.get_port_profile.radius_type != 'NO' and port.get_port_profile.radius_mode == 'STRICT' and hasattr(port, 'room'):
+                if port.get_port_profil.radius_type != 'NO' and port.get_port_profil.radius_mode == 'STRICT' and hasattr(port, 'room'):
                     # Requesting user is not in this room ?
                     if self.user.room != port.room:
                         self.new_room = port.room
@@ -730,11 +730,11 @@ class InitialRegisterForm(forms.Form):
                 self.nas_type = Nas.objects.filter(nas_type__interface__ipv4__ipv4=switch_ip).first()
         super(InitialRegisterForm, self).__init__(*args, **kwargs)
         if hasattr(self, 'new_room'):
-            self.fields['register_room'].label = _("New connection from room %s. Is it yours? If that is the case, type OK." % self.new_room)
+            self.fields['register_room'].label = _("This room is my room")
         else:
             self.fields.pop('register_room')
         if hasattr(self, 'mac_address'):
-            self.fields['register_machine'].label = _("New connection from new device. Register it? Say Yes to get Internet access from it (MAC Address : %s)." % self.mac_address)
+            self.fields['register_machine'].label = _("This new connected device is mine")
         else:
             self.fields.pop('register_machine')
 
