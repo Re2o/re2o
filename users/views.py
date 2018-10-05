@@ -70,7 +70,7 @@ from re2o.acl import (
     can_change
 )
 from cotisations.utils import find_payment_method
-
+from topologie.models import Port
 from .serializers import MailingSerializer, MailingMemberSerializer
 from .models import (
     User,
@@ -133,7 +133,7 @@ def new_user(request):
             'GTU_sum_up': GTU_sum_up,
             'GTU': GTU,
             'showCGU': True,
-            'action_name': _("Create a user")
+            'action_name': _("Commit")
         },
         'users/user.html',
         request
@@ -1085,13 +1085,18 @@ def process_passwd(request, req):
 
 @login_required
 def initial_register(request):
-    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=request.GET.get('switch_ip', None), switch_port=request.GET.get('switch_port', None), client_mac=request.GET.get('client_mac', None))
+    switch_ip = request.GET.get('switch_ip', None)
+    switch_port = request.GET.get('switch_port', None)
+    client_mac = request.GET.get('client_mac', None)
+    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=switch_ip, switch_port=switch_port, client_mac=client_mac)
     if not u_form.fields:
         messages.error(request, _("Incorrect URL, or already registered device"))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
+    if switch_ip and switch_port:
+        port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
     if u_form.is_valid():
         messages.success(request, _("Successful registration! Please"
                                     " disconnect and reconnect your Ethernet"
@@ -1102,8 +1107,8 @@ def initial_register(request):
             request
         )
     return form(
-        {'userform': u_form, 'action_name': _("Register device or room")},
-        'users/user.html',
+        {'userform': u_form, 'port': port, 'mac': client_mac},
+        'users/user_autocapture.html',
         request
     )
 
