@@ -719,7 +719,7 @@ class InitialRegisterForm(forms.Form):
             port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
             # If a port exists, checking there is a room AND radius
             if port:
-                if port.get_port_profil.radius_type != 'NO' and port.get_port_profil.radius_mode == 'STRICT' and hasattr(port, 'room'):
+                if port.get_port_profile.radius_type != 'NO' and port.get_port_profile.radius_mode == 'STRICT' and hasattr(port, 'room'):
                     # Requesting user is not in this room ?
                     if self.user.room != port.room:
                         self.new_room = port.room
