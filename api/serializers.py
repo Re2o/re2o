@@ -483,12 +483,12 @@ class SwitchPortSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.Port` objects
     """
 
-    get_port_profil = NamespacedHIField(view_name='portprofile-detail', read_only=True)
+    get_port_profile = NamespacedHIField(view_name='portprofile-detail', read_only=True)
 
     class Meta:
         model = topologie.Port
         fields = ('switch', 'port', 'room', 'machine_interface', 'related',
-                  'custom_profile', 'state', 'get_port_profil', 'details', 'api_url')
+                  'custom_profile', 'state', 'get_port_profile', 'details', 'api_url')
         extra_kwargs = {
             'related': {'view_name': 'switchport-detail'},
             'api_url': {'view_name': 'switchport-detail'},
@@ -735,12 +735,12 @@ class SwitchBaySerializer(NamespacedHMSerializer):
 class PortsSerializer(NamespacedHMSerializer):
     """Serialize `machines.models.Ipv6List` objects.
     """
-    get_port_profil = ProfilSerializer(read_only=True)
+    get_port_profile = ProfilSerializer(read_only=True)
 
 
     class Meta:
         model = topologie.Port
-        fields = ('state', 'port', 'pretty_name', 'get_port_profil')
+        fields = ('state', 'port', 'pretty_name', 'get_port_profile')
 
 
 
