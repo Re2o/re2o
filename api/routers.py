@@ -24,12 +24,12 @@
 
 from collections import OrderedDict
 
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.core.urlresolvers import NoReverseMatch
 from rest_framework import views
-from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.routers import DefaultRouter
 from rest_framework.schemas import SchemaGenerator
 from rest_framework.settings import api_settings
 
@@ -64,7 +64,8 @@ class AllViewsRouter(DefaultRouter):
             name = self.get_default_name(pattern)
         self.view_registry.append((pattern, view, name))
 
-    def get_default_name(self, pattern):
+    @staticmethod
+    def get_default_name(pattern):
         """Returns the name to use for the route if none was specified.
 
         Args:
@@ -113,7 +114,8 @@ class AllViewsRouter(DefaultRouter):
             _ignore_model_permissions = True
             renderer_classes = view_renderers
 
-            def get(self, request, *args, **kwargs):
+            @staticmethod
+            def get(request, *args, **kwargs):
                 if request.accepted_renderer.media_type in schema_media_types:
                     # Return a schema response.
                     schema = schema_generator.get_schema(request)

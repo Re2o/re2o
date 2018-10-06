@@ -32,7 +32,6 @@ from django.conf.urls import url, include
 from . import views
 from .routers import AllViewsRouter
 
-
 router = AllViewsRouter()
 # COTISATIONS
 router.register_viewset(r'cotisations/facture', views.FactureViewSet)
@@ -120,7 +119,6 @@ router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),
 # TOKEN AUTHENTICATION
 router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
-
 
 urlpatterns = [
     url(r'^', include(router.urls)),
