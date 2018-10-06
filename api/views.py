@@ -45,6 +45,10 @@ from . import serializers
 from .pagination import PageSizedPagination
 from .permissions import ACLPermission
 
+from re2o.settings import INSTALLED_APPS
+
+if "printer" in INSTALLED_APPS:
+   import printer.models as printer
 
 # COTISATIONS
 
@@ -635,7 +639,7 @@ class DNSZonesView(generics.ListAPIView):
 
 
 class DNSReverseZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.IpType.objects.all())
@@ -667,6 +671,13 @@ class ClubMailingView(generics.ListAPIView):
     """
     queryset = users.Club.objects.all()
     serializer_class = serializers.MailingSerializer
+
+# PRINTER
+class JobsView(viewsets.ModelViewSet):
+    """Api Root Jobs
+    """
+    queryset = printer.JobWithOptions.objects.filter(status='Printable')
+    serializer_class = serializers.PrintJobSerializer
 
 
 # TOKEN AUTHENTICATION
