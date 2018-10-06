@@ -32,26 +32,18 @@ The views for the Machines app
 
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
 from django.forms import modelformset_factory
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext as _
-
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 
-from users.models import User
 from preferences.models import GeneralOption
-from re2o.utils import (
-    all_active_assigned_interfaces,
-    filter_active_interfaces,
-    SortTable,
-    re2o_paginator,
-)
 from re2o.acl import (
     can_create,
     can_edit,
@@ -60,21 +52,14 @@ from re2o.acl import (
     can_view_all,
     can_delete_set,
 )
-from re2o.views import form
-
-from .serializers import (
-    FullInterfaceSerializer,
-    InterfaceSerializer,
-    TypeSerializer,
-    DomainSerializer,
-    TxtSerializer,
-    SrvSerializer,
-    MxSerializer,
-    ExtensionSerializer,
-    ServiceServersSerializer,
-    NsSerializer,
+from re2o.utils import (
+    all_active_assigned_interfaces,
+    filter_active_interfaces,
+    SortTable,
+    re2o_paginator,
 )
-
+from re2o.views import form
+from users.models import User
 from .forms import (
     NewMachineForm,
     EditMachineForm,
@@ -139,6 +124,18 @@ from .models import (
     OuverturePort,
     Ipv6List,
 )
+from .serializers import (
+    FullInterfaceSerializer,
+    InterfaceSerializer,
+    TypeSerializer,
+    DomainSerializer,
+    TxtSerializer,
+    SrvSerializer,
+    MxSerializer,
+    ExtensionSerializer,
+    ServiceServersSerializer,
+    NsSerializer,
+)
 
 
 def f_type_id(is_type_tt):
@@ -153,12 +150,12 @@ def generate_ipv4_choices(form_obj):
     """
     f_ipv4 = form_obj.fields['ipv4']
     used_mtype_id = []
-    choices = '{"":[{key:"",value:"'+_("Select a machine type first.") + '"}'
+    choices = '{"":[{key:"",value:"' + _("Select a machine type first.") + '"}'
     mtype_id = -1
 
     for ip in (f_ipv4.queryset
-               .annotate(mtype_id=F('ip_type__machinetype__id'))
-               .order_by('mtype_id', 'id')):
+            .annotate(mtype_id=F('ip_type__machinetype__id'))
+            .order_by('mtype_id', 'id')):
         if mtype_id != ip.mtype_id:
             mtype_id = ip.mtype_id
             used_mtype_id.append(mtype_id)
@@ -172,7 +169,7 @@ def generate_ipv4_choices(form_obj):
         )
 
     for t in form_obj.fields['type'].queryset.exclude(id__in=used_mtype_id):
-        choices += '], "'+str(t.id)+'": ['
+        choices += '], "' + str(t.id) + '": ['
         choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
     choices += ']}'
     return choices
@@ -889,6 +886,7 @@ def del_ns(request, instances):
         request
     )
 
+
 @login_required
 @can_create(DName)
 def add_dname(request):
@@ -935,9 +933,9 @@ def del_dname(request, instances):
                 messages.success(request, _("The DNAME record was deleted."))
             except ProtectedError:
                 messages.error(
-                        request,
-                        _("Error: the DNAME record %s can't be deleted.")
-                        % dname_del
+                    request,
+                    _("Error: the DNAME record %s can't be deleted.")
+                    % dname_del
                 )
         return redirect(reverse('machines:index-extension'))
     return form(
@@ -1252,14 +1250,14 @@ def del_service(request, instances):
         request
     )
 
+
 @login_required
 @can_edit(Service)
-def regen_service(request,service, **_kwargs):
+def regen_service(request, service, **_kwargs):
     """Ask for a regen of the service"""
 
     regen(service)
     return index_service(request)
-
 
 
 @login_required
@@ -1388,10 +1386,10 @@ def index(request):
                      .prefetch_related('interface_set__domain__extension')
                      .prefetch_related('interface_set__ipv4__ip_type')
                      .prefetch_related(
-                         'interface_set__type__ip_type__extension'
-                     ).prefetch_related(
-                         'interface_set__domain__related_domain__extension'
-                     ).prefetch_related('interface_set__ipv6list'))
+        'interface_set__type__ip_type__extension'
+    ).prefetch_related(
+        'interface_set__domain__related_domain__extension'
+    ).prefetch_related('interface_set__ipv6list'))
     machines_list = SortTable.sort(
         machines_list,
         request.GET.get('col'),
@@ -1548,8 +1546,8 @@ def index_role(request):
     """ View used to display the list of existing roles """
     role_list = (Role.objects
                  .prefetch_related(
-                     'servers__domain__extension'
-                 ).all())
+        'servers__domain__extension'
+    ).all())
     return render(
         request,
         'machines/index_role.html',
@@ -1563,8 +1561,8 @@ def index_service(request):
     """ View used to display the list of existing services """
     service_list = (Service.objects
                     .prefetch_related(
-                        'service_link_set__server__domain__extension'
-                    ).all())
+        'service_link_set__server__domain__extension'
+    ).all())
     servers_list = (Service_link.objects
                     .select_related('server__domain__extension')
                     .select_related('service')
@@ -1740,10 +1738,10 @@ def alias(_request):
     alias = (Domain.objects
              .filter(interface_parent=None)
              .filter(
-                 cname__in=Domain.objects.filter(
-                     interface_parent__in=Interface.objects.exclude(ipv4=None)
-                 )
-             ).select_related('extension')
+        cname__in=Domain.objects.filter(
+            interface_parent__in=Interface.objects.exclude(ipv4=None)
+        )
+    ).select_related('extension')
              .select_related('cname__extension'))
     seria = DomainSerializer(alias, many=True)
     return JSONResponse(seria.data)
@@ -1801,10 +1799,10 @@ def ns(_request):
     """ API view to list the NS records """
     ns = (Ns.objects
           .exclude(
-              ns__in=Domain.objects.filter(
-                  interface_parent__in=Interface.objects.filter(ipv4=None)
-              )
-          ).select_related('zone')
+        ns__in=Domain.objects.filter(
+            interface_parent__in=Interface.objects.filter(ipv4=None)
+        )
+    ).select_related('zone')
           .select_related('ns__extension'))
     seria = NsSerializer(ns, many=True)
     return JSONResponse(seria.data)
@@ -1859,9 +1857,9 @@ def ouverture_ports(_request):
     """ API view to list the port policies for each IP """
     r = {'ipv4': {}, 'ipv6': {}}
     for o in (OuverturePortList.objects
-              .all()
-              .prefetch_related('ouvertureport_set')
-              .prefetch_related('interface_set', 'interface_set__ipv4')):
+            .all()
+            .prefetch_related('ouvertureport_set')
+            .prefetch_related('interface_set', 'interface_set__ipv4')):
         pl = {
             "tcp_in": set(map(
                 str,
@@ -1926,17 +1924,16 @@ def regen_achieved(request):
     """ API view to list the regen status for each (Service link, Server)
     couple """
     obj = (Service_link.objects
-           .filter(
-               service__in=Service.objects.filter(
-                   service_type=request.POST['service']
-               ),
-               server__in=Interface.objects.filter(
-                   domain__in=Domain.objects.filter(
-                       name=request.POST['server']
-                   )
-               )
-           ))
+        .filter(
+        service__in=Service.objects.filter(
+            service_type=request.POST['service']
+        ),
+        server__in=Interface.objects.filter(
+            domain__in=Domain.objects.filter(
+                name=request.POST['server']
+            )
+        )
+    ))
     if obj:
         obj.first().done_regen()
     return HttpResponse("Ok")
-

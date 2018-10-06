@@ -34,6 +34,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-plus"></i>{% trans " Add an SSH fingerprint" %}
     </a>
     {% acl_end %}
-    {%  include "machines/aff_sshfp.html" with sshfp_list=sshfp_list %}
+    {% include "machines/aff_sshfp.html" with sshfp_list=sshfp_list %}
 {% endblock %}
-

@@ -26,8 +26,8 @@
 Serializers for the Machines app
 """
 
-
 from rest_framework import serializers
+
 from machines.models import (
     Interface,
     IpType,
@@ -148,13 +148,13 @@ class TypeSerializer(serializers.ModelSerializer):
     get ForeignKey values. Infos about the general port policy is added """
 
     extension = ExtensionNameField(read_only=True)
-    ouverture_ports_tcp_in = serializers\
+    ouverture_ports_tcp_in = serializers \
         .SerializerMethodField('get_port_policy_input_tcp')
-    ouverture_ports_tcp_out = serializers\
+    ouverture_ports_tcp_out = serializers \
         .SerializerMethodField('get_port_policy_output_tcp')
-    ouverture_ports_udp_in = serializers\
+    ouverture_ports_udp_in = serializers \
         .SerializerMethodField('get_port_policy_input_udp')
-    ouverture_ports_udp_out = serializers\
+    ouverture_ports_udp_out = serializers \
         .SerializerMethodField('get_port_policy_output_udp')
 
     class Meta:
@@ -400,7 +400,7 @@ class OuverturePortsSerializer(serializers.Serializer):
         return {
             i.ipv4.ipv4: {
                 "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out() for j in i.port_lists.all()],
                 "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
                 "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
@@ -413,7 +413,7 @@ class OuverturePortsSerializer(serializers.Serializer):
         return {
             i.ipv6: {
                 "tcp_in": [j.tcp_ports_in() for j in i.port_lists.all()],
-                "tcp_out": [j.tcp_ports_out()for j in i.port_lists.all()],
+                "tcp_out": [j.tcp_ports_out() for j in i.port_lists.all()],
                 "udp_in": [j.udp_ports_in() for j in i.port_lists.all()],
                 "udp_out": [j.udp_ports_out() for j in i.port_lists.all()],
             }
