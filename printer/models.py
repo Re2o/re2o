@@ -158,3 +158,47 @@ class JobWithOptions(RevMixin, models.Model):
             total_price = math.floor(self.count * (price_ink + price_stapling))
 
             return float(total_price)/100
+
+        @staticmethod
+        def can_view_all(user_request, *_args, **_kwargs):
+                """
+                """
+                return (
+                        True, None
+                )
+
+
+        @staticmethod
+        def can_create(user_request, *_args, **_kwargs):
+                """
+                """
+                return(
+                        True, None
+                )
+
+
+        @staticmethod
+        def can_view(user_request, *_args, **_kwargs):
+                """
+                """
+                return(
+                        True, None
+                )
+
+
+        @staticmethod
+        def can_edit(user_request, *_args, **_kwargs):
+                """
+                """
+                return(
+                        True, None
+                )
+
+        @staticmethod
+        def can_delete(user_request, *_args, **_kwargs):
+                """
+
+                """
+                return(
+                        True, None
+                )
