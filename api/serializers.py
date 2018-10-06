@@ -724,8 +724,7 @@ class PrintJobSerializer(NamespacedHMSerializer):
     """
     class Meta:
         model = printer.JobWithOptions
-        fields = ('file', 'filename', 'status', 'starttime', 'endtime', 'api_url')
-
+        exclude = ('price', 'pages')
 
 
 # SERVICE REGEN
