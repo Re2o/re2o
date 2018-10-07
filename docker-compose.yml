@@ -1,0 +1,28 @@
+# Use for development purposes only
+
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_DB=re2o
+      - POSTGRES_USER=re2o
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=fr_FR.UTF-8 --lc-ctype=fr_FR.UTF-8
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+    restart: always
+
+volumes:
+  db_data:
+
