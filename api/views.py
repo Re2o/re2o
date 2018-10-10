@@ -685,7 +685,7 @@ class HistoryJobsViewSet(viewsets.ModelViewSet):
     queryset = printer.JobWithOptions.objects.exclude(status='Printable').exclude(status='Pending')
     serializer_class = serializers.HistoryJobSerializer
 
-
+    
 # TOKEN AUTHENTICATION
 
 
