@@ -120,7 +120,8 @@ router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
 router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),
 # PRINTER
-router.register_viewset(r'printer/jobs', views.JobsView)
+router.register_viewset(r'printer/printable-jobs', views.PrintableJobsView)
+router.register_viewset(r'printer/history-jobs', views.HistoryJobsView)
 # TOKEN AUTHENTICATION
 router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
 
