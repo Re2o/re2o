@@ -478,7 +478,7 @@ def vente_post_save(**kwargs):
     if purchase.type_cotisation:
         purchase.create_cotis()
         purchase.cotisation.save()
-        user = purchase.facture.user
+        user = purchase.facture.facture.user
         user.set_active()
         user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
