@@ -86,8 +86,8 @@ router.register_viewset(r'topologie/portprofile', views.PortProfileViewSet, base
 router.register_viewset(r'topologie/room', views.RoomViewSet)
 router.register(r'topologie/portprofile', views.PortProfileViewSet)
 # USERS
-router.register_viewset(r'users/user', views.UserViewSet)
-router.register_viewset(r'users/homecreation', views.HomeCreationViewSet)
+router.register_viewset(r'users/user', views.UserViewSet, base_name='user')
+router.register_viewset(r'users/homecreation', views.HomeCreationViewSet, base_name='homecreation')
 router.register_viewset(r'users/club', views.ClubViewSet)
 router.register_viewset(r'users/adherent', views.AdherentViewSet)
 router.register_viewset(r'users/serviceuser', views.ServiceUserViewSet)
