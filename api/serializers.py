@@ -359,8 +359,7 @@ class OptionalUserSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.OptionalUser
-        fields = ('tel_mandatory', 'user_solde', 'solde_negatif', 'max_solde',
-                  'min_online_payment', 'gpg_fingerprint',
+        fields = ('tel_mandatory', 'gpg_fingerprint',
                   'all_can_create_club', 'self_adhesion', 'shell_default')
 
 
