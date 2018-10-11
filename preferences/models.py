@@ -107,6 +107,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         help_text=_("Maximum number of local email addresses for a standard"
                     " user")
     )
+    delete_notyetactive = models.IntegerField(
+        default=15,
+        help_text=_("Inactive users will be deleted after this number of days")
+    )
 
     class Meta:
         permissions = (
