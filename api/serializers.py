@@ -395,9 +395,10 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.GeneralOption
-        fields = ('general_message', 'search_display_page',
-                  'pagination_number', 'pagination_large_number',
-                  'req_expire_hrs', 'site_name', 'email_from', 'GTU_sum_up',
+        fields = ('general_message_fr', 'general_message_en',
+                  'search_display_page', 'pagination_number',
+                  'pagination_large_number', 'req_expire_hrs',
+                  'site_name', 'email_from', 'GTU_sum_up',
                   'GTU')
 
 
@@ -420,8 +421,7 @@ class AssoOptionSerializer(NamespacedHMSerializer):
     class Meta:
         model = preferences.AssoOption
         fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
-                  'telephone', 'pseudo', 'utilisateur_asso', 'payment',
-                  'payment_id', 'payment_pass', 'description')
+                  'telephone', 'pseudo', 'utilisateur_asso', 'description')
 
 
 class HomeOptionSerializer(NamespacedHMSerializer):
