@@ -58,6 +58,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% trans "GPG fingerprint field" %}</th>
             <td>{{ useroptions.gpg_fingerprint|tick }}</td>
+            <th>{% trans "Delete not yet active users after" %}</th>
+	    <td>{{ useroptions.delete_notyetactive }} days</td>
         </tr>
     </table>
     <h5>{% trans "Email accounts preferences" %}

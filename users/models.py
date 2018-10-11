@@ -1568,7 +1568,7 @@ class Request(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     token = models.CharField(max_length=32)
-    user = models.ForeignKey('User', on_delete=models.PROTECT)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     expires_at = models.DateTimeField()
 
