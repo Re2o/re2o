@@ -113,7 +113,7 @@ class PaiementSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = cotisations.Paiement
-        fields = ('moyen', 'type_paiement', 'api_url')
+        fields = ('moyen', 'api_url')
 
 
 class CotisationSerializer(NamespacedHMSerializer):
