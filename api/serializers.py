@@ -719,12 +719,28 @@ class EMailAddressSerializer(NamespacedHMSerializer):
 
 # PRINTER
 
-class PrintJobSerializer(NamespacedHMSerializer):
-    """Serialize the jobs for printer
+class PrintableJobSerializer(NamespacedHMSerializer):
+    """Serialize the jobs to be printed
     """
+    file = serializers.FileField(use_url=False)
     class Meta:
         model = printer.JobWithOptions
         exclude = ('price', 'pages')
+        extra_kwargs = {
+            'api_url': {'view_name': 'printablejobs-detail'}
+        }
+
+class HistoryJobSerializer(NamespacedHMSerializer):
+    """Serialize past, cancelled jobs
+    """
+    file = serializers.FileField(use_url=False)
+    class Meta:
+        model = printer.JobWithOptions
+        exclude = ('price', 'pages')
+        extra_kwargs = {
+            'api_url': {'view_name': 'historyjobs-detail'}
+        }
+
 
 
 # SERVICE REGEN

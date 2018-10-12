@@ -673,17 +673,17 @@ class ClubMailingView(generics.ListAPIView):
     serializer_class = serializers.MailingSerializer
 
 # PRINTER
-class PrintableJobsView(viewsets.ModelViewSet):
-    """Api Root Jobs
+class PrintableJobsViewSet(viewsets.ModelViewSet):
+    """Exposes list of printable jobs
     """
     queryset = printer.JobWithOptions.objects.filter(status='Printable')
-    serializer_class = serializers.PrintJobSerializer
+    serializer_class = serializers.PrintableJobSerializer
 
-class HistoryJobsView(viewsets.ModelViewSet):
-    """Api Root Jobs
+class HistoryJobsViewSet(viewsets.ModelViewSet):
+    """Exposes past jobs
     """
     queryset = printer.JobWithOptions.objects.exclude(status='Printable').exclude(status='Pending')
-    serializer_class = serializers.PrintJobSerializer
+    serializer_class = serializers.HistoryJobSerializer
 
 
 # TOKEN AUTHENTICATION
