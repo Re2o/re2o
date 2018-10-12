@@ -7,6 +7,8 @@ Author : Maxime Bombar <bombar@crans.org>.
 
 from __future__ import unicode_literals
 
+from django.core.files.storage import FileSystemStorage
+
 from django.db import models
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -78,7 +80,12 @@ class JobWithOptions(RevMixin, models.Model):
                 ('Finished', 'Finished')
         )
         user = models.ForeignKey('users.User', on_delete=models.PROTECT)
-        file = models.FileField(upload_to=user_printing_path, validators=[FileValidator(allowed_types=ALLOWED_TYPES, max_size=MAX_PRINTFILE_SIZE)])
+        file = models.FileField(storage=FileSystemStorage(location='/var/impressions'),
+                                upload_to=user_printing_path,
+                                validators=[FileValidator(
+                                        allowed_types=ALLOWED_TYPES,
+                                        max_size=MAX_PRINTFILE_SIZE)
+                                ])
         filename = models.CharField(max_length=255,null=True)
         starttime = models.DateTimeField(auto_now_add=True)
         endtime = models.DateTimeField(null=True)
