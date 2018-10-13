@@ -55,7 +55,7 @@ from re2o.mixins import AclMixin, RevMixin
 class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     """ Class définissant une machine, object parent user, objets fils
     interfaces"""
-    user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     name = models.CharField(
         max_length=255,
         help_text=_("Optional"),
