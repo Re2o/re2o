@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-15 20:00+0200\n"
+"POT-Creation-Date: 2018-10-11 19:49+0200\n"
 "PO-Revision-Date: 2018-06-25 14:53+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -42,155 +42,156 @@ msgstr "Début :"
 msgid "End:"
 msgstr "Fin :"
 
-#: models.py:69
+#: models.py:74
 msgid "Can view a stack object"
 msgstr "Peut voir un objet pile"
 
-#: models.py:71
+#: models.py:76
 msgid "switches stack"
 msgstr "pile de commutateurs réseau"
 
-#: models.py:72
+#: models.py:77
 msgid "switches stacks"
 msgstr "piles de commutateurs réseau"
 
-#: models.py:87
+#: models.py:92
 msgid "The maximum ID is less than the minimum ID."
 msgstr "L'ID maximum est inférieur l'ID minimum."
 
-#: models.py:100
+#: models.py:105
 msgid "Details about the AP's location"
 msgstr "Détails sur l'emplacement du point d'accès sans fil"
 
-#: models.py:107
+#: models.py:112
 msgid "Can view an access point object"
 msgstr "Peut voir un objet point d'accès sans fil"
 
-#: models.py:109
+#: models.py:114
 msgid "access point"
 msgstr "point d'accès sans fil"
 
-#: models.py:110
+#: models.py:115
 msgid "access points"
 msgstr "points d'accès sans fil"
 
-#: models.py:206
+#: models.py:211
 msgid "Number of ports"
 msgstr "Nombre de ports"
 
-#: models.py:223 templates/topologie/aff_switch.html:48 views.py:803
+#: models.py:228 templates/topologie/aff_switch.html:48
+#: templates/topologie/index_p.html:38 views.py:826
 msgid "Switch model"
 msgstr "Modèle de commutateur réseau"
 
-#: models.py:235
+#: models.py:258
 msgid "Can view a switch object"
 msgstr "Peut voir un objet commutateur réseau"
 
-#: models.py:237
+#: models.py:260
 msgid "switch"
 msgstr "commutateur réseau"
 
-#: models.py:238
+#: models.py:261
 msgid "switches"
 msgstr "commutateurs réseau"
 
-#: models.py:249
+#: models.py:272
 msgid "The switch ID exceeds the limits allowed by the stack."
 msgstr "L'ID du commutateur réseau dépasse les bornes autorisées par la pile."
 
-#: models.py:254
+#: models.py:277
 msgid "The stack member ID can't be void."
 msgstr "L'ID de membre dans la pile ne peut-être vide."
 
-#: models.py:270
+#: models.py:293
 msgid "The end port is less than the start port."
 msgstr "Le port de fin est inférieur au port de début."
 
-#: models.py:273
+#: models.py:296
 msgid "This switch can't have that many ports."
 msgstr "Ce commutateur réseau ne peut pas avoir autant de ports."
 
-#: models.py:283
+#: models.py:306
 msgid "Creation"
 msgstr "Création"
 
-#: models.py:285
+#: models.py:308
 msgid "Creation of an existing port."
 msgstr "Création d'un port existant."
 
-#: models.py:310
+#: models.py:408
 msgid "Can view a switch model object"
 msgstr "Peut voir un objet modèle de commutateur réseau"
 
-#: models.py:312
+#: models.py:410
 msgid "switch model"
 msgstr "modèle de commutateur réseau"
 
-#: models.py:313
+#: models.py:411
 msgid "switch models"
 msgstr "modèles de commutateur réseau"
 
-#: models.py:326
+#: models.py:424
 msgid "Can view a switch constructor object"
 msgstr "Peut voir un objet constructeur de commutateur réseau"
 
-#: models.py:329
+#: models.py:427
 msgid "switch constructor"
 msgstr "constructeur de commutateur réseau"
 
-#: models.py:352
+#: models.py:450
 msgid "Can view a switch bay object"
 msgstr "Peut voir un objet baie de brassage"
 
-#: models.py:354
+#: models.py:452
 msgid "switch bay"
 msgstr "baie de brassage"
 
-#: models.py:355
+#: models.py:453
 msgid "switch bays"
 msgstr "baies de brassage"
 
-#: models.py:368
+#: models.py:466
 msgid "Can view a building object"
 msgstr "Peut voir un objet bâtiment"
 
-#: models.py:370
+#: models.py:468
 msgid "building"
 msgstr "bâtiment"
 
-#: models.py:371
+#: models.py:469
 msgid "buildings"
 msgstr "bâtiments"
 
-#: models.py:427
+#: models.py:525
 msgid "Port state Active"
 msgstr "État du port Actif"
 
-#: models.py:434
+#: models.py:532
 msgid "Can view a port object"
 msgstr "Peut voir un objet port"
 
-#: models.py:436
+#: models.py:534
 msgid "port"
 msgstr "port"
 
-#: models.py:437
+#: models.py:535
 msgid "ports"
 msgstr "ports"
 
-#: models.py:504
+#: models.py:614
 msgid "The port can't exist, its number is too great."
 msgstr "Le port ne peut pas exister, son numéro est trop grand."
 
-#: models.py:510
+#: models.py:620
 msgid "Room, interface and related port are mutually exclusive."
 msgstr "Chambre, interface et port relié sont mutuellement exclusifs."
 
-#: models.py:513
+#: models.py:623
 msgid "A port can't be related to itself."
 msgstr "Un port ne peut être relié à lui-même."
 
-#: models.py:517
+#: models.py:627
 msgid ""
 "The related port is already used, please clear it before creating the "
 "relation."
@@ -198,117 +199,117 @@ msgstr ""
 "Le port relié est déjà utilisé, veuillez le modifier avant de créer la "
 "relation."
 
-#: models.py:538
+#: models.py:648
 msgid "Can view a room object"
 msgstr "Peut voir un objet chambre"
 
-#: models.py:540
+#: models.py:650
 msgid "room"
 msgstr "chambre"
 
-#: models.py:541
+#: models.py:651
 msgid "rooms"
 msgstr "chambres"
 
-#: models.py:575 templates/topologie/aff_port_profile.html:37
+#: models.py:685 templates/topologie/aff_port_profile.html:37
 msgid "Name"
 msgstr "Nom"
 
-#: models.py:582
+#: models.py:692
 msgid "Default profile"
 msgstr "Profil par défaut"
 
-#: models.py:590
+#: models.py:700
 msgid "VLAN untagged"
 msgstr "VLAN untagged"
 
-#: models.py:596
+#: models.py:706
 msgid "VLAN(s) tagged"
 msgstr "VLAN(s) tagged"
 
-#: models.py:601
+#: models.py:711
 msgid "Type of RADIUS authentication : inactive, MAC-address or 802.1X"
 msgstr "Type d'authentification RADIUS : inactive, MAC-address ou 802.1X"
 
-#: models.py:603
+#: models.py:713
 msgid "RADIUS type"
 msgstr "Type de RADIUS"
 
-#: models.py:609
+#: models.py:719
 msgid "In case of MAC-authentication : mode COMMON or STRICT on this port"
 msgstr ""
 "Dans le cas d'authentification par adresse MAC : mode COMMON ou STRICT sur "
 "ce port"
 
-#: models.py:611
+#: models.py:721
 msgid "RADIUS mode"
 msgstr "Mode de RADIUS"
 
-#: models.py:617
+#: models.py:727
 msgid "Port speed limit"
 msgstr "Limite de vitesse du port"
 
-#: models.py:622
+#: models.py:732
 msgid "Limit of MAC-address on this port"
 msgstr "Limite de MAC-address sur ce port"
 
-#: models.py:623
+#: models.py:733
 msgid "MAC limit"
 msgstr "Limite MAC"
 
-#: models.py:627
+#: models.py:737
 msgid "Flow control"
 msgstr "Contrôle du flux"
 
-#: models.py:631
+#: models.py:741
 msgid "Protect against rogue DHCP"
 msgstr "Protège contre les DHCP pirates"
 
-#: models.py:632
+#: models.py:742
 msgid "DHCP snooping"
 msgstr "DHCP snooping"
 
-#: models.py:636
+#: models.py:746
 msgid "Protect against rogue DHCPv6"
 msgstr "Protège contre les DHCPv6 pirates"
 
-#: models.py:637
+#: models.py:747
 msgid "DHCPv6 snooping"
 msgstr "DHCPv6 snooping"
 
-#: models.py:641
+#: models.py:751
 msgid "Check if IP adress is DHCP assigned"
 msgstr "Vérifie si l'adresse IP est attribuée par DHCP"
 
-#: models.py:642
+#: models.py:752
 msgid "ARP protection"
 msgstr "Protection ARP"
 
-#: models.py:646
+#: models.py:756
 msgid "Protect against rogue RA"
 msgstr "Protège contre les RA pirates"
 
-#: models.py:647
+#: models.py:757
 msgid "RA guard"
 msgstr "RA guard"
 
-#: models.py:651
+#: models.py:761
 msgid "Protect against loop"
 msgstr "Protège contre un boucle"
 
-#: models.py:652
+#: models.py:762
 msgid "Loop protection"
 msgstr "Protection contre une boucle"
 
-#: models.py:657
+#: models.py:767
 msgid "Can view a port profile object"
 msgstr "Peut voir un objet profil de port"
 
-#: models.py:659
+#: models.py:769
 msgid "port profile"
 msgstr "profil de port"
 
-#: models.py:660
+#: models.py:770
 msgid "port profiles"
 msgstr "profils de port"
 
@@ -325,7 +326,7 @@ msgid "IPv4 address"
 msgstr "Adresse IPv4"
 
 #: templates/topologie/aff_ap.html:42 templates/topologie/aff_chambres.html:38
-#: templates/topologie/aff_port.html:43 templates/topologie/aff_stacks.html:36
+#: templates/topologie/aff_port.html:46 templates/topologie/aff_stacks.html:36
 #: templates/topologie/aff_switch.html:49
 #: templates/topologie/edit_stack_sw.html:34
 msgid "Details"
@@ -338,37 +339,37 @@ msgstr "Emplacement"
 #: templates/topologie/aff_ap.html:56 templates/topologie/aff_building.html:46
 #: templates/topologie/aff_chambres.html:48
 #: templates/topologie/aff_constructor_switch.html:46
-#: templates/topologie/aff_model_switch.html:49
-#: templates/topologie/aff_port.html:91 templates/topologie/aff_stacks.html:55
+#: templates/topologie/aff_model_switch.html:61
+#: templates/topologie/aff_port.html:99 templates/topologie/aff_stacks.html:55
 #: templates/topologie/aff_switch_bay.html:59
-#: templates/topologie/edit_stack_sw.html:44 views.py:357 views.py:411
-#: views.py:722 views.py:781 views.py:836 views.py:891 views.py:950
-#: views.py:1005
+#: templates/topologie/edit_stack_sw.html:44 views.py:380 views.py:434
+#: views.py:745 views.py:804 views.py:859 views.py:914 views.py:973
+#: views.py:1028
 msgid "Edit"
 msgstr "Modifier"
 
 #: templates/topologie/aff_ap.html:62 templates/topologie/aff_building.html:52
 #: templates/topologie/aff_chambres.html:54
 #: templates/topologie/aff_constructor_switch.html:52
-#: templates/topologie/aff_model_switch.html:55
-#: templates/topologie/aff_port.html:97 templates/topologie/aff_stacks.html:61
+#: templates/topologie/aff_model_switch.html:67
+#: templates/topologie/aff_port.html:105 templates/topologie/aff_stacks.html:61
 #: templates/topologie/aff_switch_bay.html:65
 #: templates/topologie/edit_stack_sw.html:50
 msgid "Delete"
 msgstr "Supprimer"
 
 #: templates/topologie/aff_building.html:36
-#: templates/topologie/aff_switch_bay.html:38 views.py:913
+#: templates/topologie/aff_switch_bay.html:38 views.py:936
 msgid "Building"
 msgstr "Bâtiment"
 
 #: templates/topologie/aff_chambres.html:36
-#: templates/topologie/aff_port.html:35 views.py:744
+#: templates/topologie/aff_port.html:38 views.py:767
 msgid "Room"
 msgstr "Chambre"
 
 #: templates/topologie/aff_constructor_switch.html:36
-#: templates/topologie/aff_model_switch.html:38 views.py:973
+#: templates/topologie/aff_model_switch.html:40 views.py:996
 msgid "Switch constructor"
 msgstr "Constructeur de commutateur réseau"
 
@@ -376,35 +377,50 @@ msgstr "Constructeur de commutateur réseau"
 msgid "Reference"
 msgstr "Référence"
 
+#: templates/topologie/aff_model_switch.html:38
+msgid "Commercial name"
+msgstr "Nom commercial"
+
+#: templates/topologie/aff_model_switch.html:42
+#: templates/topologie/index.html:66 templates/topologie/sidebar.html:35
+msgid "Switches"
+msgstr "Commutateurs réseau"
+
 #: templates/topologie/aff_port.html:33
 msgid "Port"
 msgstr "Port"
 
-#: templates/topologie/aff_port.html:37
+#: templates/topologie/aff_port.html:36
+#, fuzzy
+#| msgid "Switch:"
+msgid "Switch"
+msgstr "Commutateur réseau :"
+
+#: templates/topologie/aff_port.html:40
 msgid "Interface"
 msgstr "Interface"
 
-#: templates/topologie/aff_port.html:39
+#: templates/topologie/aff_port.html:42
 msgid "Related port"
 msgstr "Port relié"
 
-#: templates/topologie/aff_port.html:41
+#: templates/topologie/aff_port.html:44
 msgid "Port state"
 msgstr "État du port"
 
-#: templates/topologie/aff_port.html:42 views.py:1025
+#: templates/topologie/aff_port.html:45 views.py:1048
 msgid "Port profile"
 msgstr "Profil de port"
 
-#: templates/topologie/aff_port.html:77
+#: templates/topologie/aff_port.html:85
 msgid "Active"
 msgstr "Actif"
 
-#: templates/topologie/aff_port.html:79
+#: templates/topologie/aff_port.html:87
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/topologie/aff_port.html:84
+#: templates/topologie/aff_port.html:92
 msgid "Default: "
 msgstr "Par défaut : "
 
@@ -451,6 +467,7 @@ msgstr "Mode de RADIUS : "
 #: templates/topologie/aff_stacks.html:32
 #: templates/topologie/aff_switch.html:45
 #: templates/topologie/edit_stack_sw.html:32
+#: templates/topologie/index_p.html:39
 msgid "Stack"
 msgstr "Pile"
 
@@ -467,7 +484,8 @@ msgid "DNS name"
 msgstr "Nom DNS"
 
 #: templates/topologie/aff_switch.html:41
-#: templates/topologie/aff_switch_bay.html:36 views.py:858
+#: templates/topologie/aff_switch_bay.html:36
+#: templates/topologie/index_p.html:37 views.py:881
 msgid "Switch bay"
 msgstr "Baie de brassage"
 
@@ -520,10 +538,6 @@ msgstr "Confirmer"
 msgid "Topology of the switches"
 msgstr "Topologie des commutateurs réseau"
 
-#: templates/topologie/index.html:66 templates/topologie/sidebar.html:35
-msgid "Switches"
-msgstr "Commutateurs réseau"
-
 #: templates/topologie/index.html:68
 msgid " Add a switch"
 msgstr " Ajouter un commutateur réseau"
@@ -556,15 +570,15 @@ msgstr " Ajouter un constructeur de commutateur réseau"
 msgid "Switch:"
 msgstr "Commutateur réseau :"
 
-#: templates/topologie/index_p.html:34
+#: templates/topologie/index_p.html:49
 msgid " Edit"
 msgstr " Modifier"
 
-#: templates/topologie/index_p.html:36
+#: templates/topologie/index_p.html:51
 msgid " Add a port"
 msgstr " Ajouter un port"
 
-#: templates/topologie/index_p.html:37
+#: templates/topologie/index_p.html:52
 msgid " Add ports"
 msgstr " Ajouter des ports"
 
@@ -592,14 +606,18 @@ msgstr "Bâtiments"
 msgid " Add a building"
 msgstr " Ajouter un bâtiment"
 
-#: templates/topologie/index_portprofile.html:33
+#: templates/topologie/index_portprofile.html:34
 #: templates/topologie/sidebar.html:39
 msgid "Port profiles"
 msgstr "Profils de port"
 
-#: templates/topologie/index_portprofile.html:35
+#: templates/topologie/index_portprofile.html:36
 msgid " Add a port profile"
 msgstr " Ajouter un profil de port"
+
+#: templates/topologie/index_portprofile.html:42
+msgid "Sécurité par vlan"
+msgstr ""
 
 #: templates/topologie/index_room.html:33
 msgid "Rooms"
@@ -629,7 +647,7 @@ msgstr " Aller à la liste des ports"
 msgid "Specific settings for the switch"
 msgstr "Réglages spécifiques pour le commutateur réseau"
 
-#: templates/topologie/switch.html:46 views.py:395 views.py:987
+#: templates/topologie/switch.html:46 views.py:418 views.py:1010
 msgid "Create"
 msgstr "Créer"
 
@@ -647,51 +665,51 @@ msgstr "Réglages généraux pour la machine liée à l'objet %(device)s"
 msgid "Create or edit"
 msgstr "Créer ou modifier"
 
-#: views.py:317
+#: views.py:340
 msgid "Nonexistent switch."
 msgstr "Commutateur réseau inexistant."
 
-#: views.py:325
+#: views.py:348
 msgid "The port was added."
 msgstr "Le port a été ajouté."
 
-#: views.py:327
+#: views.py:350
 msgid "The port already exists."
 msgstr "Le port existe déjà."
 
-#: views.py:333 views.py:705 views.py:760 views.py:819 views.py:874
-#: views.py:929
+#: views.py:356 views.py:728 views.py:783 views.py:842 views.py:897
+#: views.py:952
 msgid "Add"
 msgstr "Ajouter"
 
-#: views.py:348
+#: views.py:371
 msgid "The port was edited."
 msgstr "Le port a été modifié."
 
-#: views.py:371
+#: views.py:394
 msgid "The port was deleted."
 msgstr "Le port a été supprimé."
 
-#: views.py:375
+#: views.py:398
 #, python-format
 msgid "The port %s is used by another object, impossible to delete it."
 msgstr "Le port %s est utilisé par un autre objet, impossible de le supprimer."
 
-#: views.py:392
+#: views.py:415
 msgid "The stack was created."
 msgstr "La pile a été créée."
 
-#: views.py:424
+#: views.py:447
 msgid "The stack was deleted."
 msgstr "La pile a été supprimée."
 
-#: views.py:428
+#: views.py:451
 #, python-format
 msgid "The stack %s is used by another object, impossible to deleted it."
 msgstr ""
 "La pile %s est utilisée par un autre objet, impossible de la supprimer."
 
-#: views.py:470 views.py:611 views.py:666
+#: views.py:493 views.py:634 views.py:689
 msgid ""
 "The organisation's user doesn't exist yet, please create or link it in the "
 "preferences."
@@ -699,117 +717,117 @@ msgstr ""
 "L'utilisateur de l'association n'existe pas encore, veuillez le créer ou le "
 "relier dans les préférences."
 
-#: views.py:485
+#: views.py:508
 msgid "The switch was created."
 msgstr "Le commutateur réseau a été créé."
 
-#: views.py:508
+#: views.py:531
 msgid "Nonexistent switch"
 msgstr "Commutateur réseau inexistant."
 
-#: views.py:528
+#: views.py:551
 msgid "The ports were created."
 msgstr "Les ports ont été créés."
 
-#: views.py:572
+#: views.py:595
 msgid "The switch was edited."
 msgstr "Le commutateur réseau a été modifié."
 
-#: views.py:626
+#: views.py:649
 msgid "The access point was created."
 msgstr "Le point d'accès sans fil a été créé."
 
-#: views.py:679
+#: views.py:702
 msgid "The access point was edited."
 msgstr "Le point d'accès sans fil a été modifié."
 
-#: views.py:702
+#: views.py:725
 msgid "The room was created."
 msgstr "La chambre a été créée."
 
-#: views.py:719
+#: views.py:742
 msgid "The room was edited."
 msgstr "La chambre a été modifiée."
 
-#: views.py:735
+#: views.py:758
 msgid "The room was deleted."
 msgstr "La chambre a été supprimée."
 
-#: views.py:739
+#: views.py:762
 #, python-format
 msgid "The room %s is used by another object, impossible to deleted it."
 msgstr ""
 "La chambre %s est utilisée par un autre objet, impossible de la supprimer."
 
-#: views.py:757
+#: views.py:780
 msgid "The swich model was created."
 msgstr "Le modèle de commutateur réseau a été créé."
 
-#: views.py:778
+#: views.py:801
 msgid "The switch model was edited."
 msgstr "Le modèle de commutateur réseau a été modifié."
 
-#: views.py:794
+#: views.py:817
 msgid "The switch model was deleted."
 msgstr "Le modèle de commutateur réseau a été supprimé."
 
-#: views.py:798
+#: views.py:821
 #, python-format
 msgid "The switch model %s is used by another object, impossible to delete it."
 msgstr ""
 "Le modèle de commutateur réseau %s est utilisé par un autre objet, "
 "impossible de le supprimer."
 
-#: views.py:816
+#: views.py:839
 msgid "The switch bay was created."
 msgstr "La baie de brassage a été créée."
 
-#: views.py:833
+#: views.py:856
 msgid "The switch bay was edited."
 msgstr "La baie de brassage a été modifiée."
 
-#: views.py:849
+#: views.py:872
 msgid "The switch bay was deleted."
 msgstr "La baie de brassage a été supprimée."
 
-#: views.py:853
+#: views.py:876
 #, python-format
 msgid "The switch bay %s is used by another object, impossible to delete it."
 msgstr ""
 "La baie de brassage %s est utilisée par un autre objet, impossible de la "
 "supprimer."
 
-#: views.py:871
+#: views.py:894
 msgid "The building was created."
 msgstr "Le bâtiment a été créé."
 
-#: views.py:888
+#: views.py:911
 msgid "The building was edited."
 msgstr "Le bâtiment a été modifié."
 
-#: views.py:904
+#: views.py:927
 msgid "The building was deleted."
 msgstr "Le bâtiment a été supprimé."
 
-#: views.py:908
+#: views.py:931
 #, python-format
 msgid "The building %s is used by another object, impossible to delete it."
 msgstr ""
 "Le bâtiment %s est utilisé par un autre objet, impossible de le supprimer."
 
-#: views.py:926
+#: views.py:949
 msgid "The switch constructor was created."
 msgstr "Le constructeur de commutateur réseau a été créé."
 
-#: views.py:947
+#: views.py:970
 msgid "The switch constructor was edited."
 msgstr "Le constructeur de commutateur réseau a été modifié."
 
-#: views.py:963
+#: views.py:986
 msgid "The switch constructor was deleted."
 msgstr "Le constructeur de commutateur réseau a été supprimé."
 
-#: views.py:967
+#: views.py:990
 #, python-format
 msgid ""
 "The switch constructor %s is used by another object, impossible to delete it."
@@ -817,23 +835,23 @@ msgstr ""
 "Le constructeur de commutateur réseau %s est utilisé par un autre objet, "
 "impossible de le supprimer."
 
-#: views.py:984
+#: views.py:1007
 msgid "The port profile was created."
 msgstr "Le profil de port a été créé."
 
-#: views.py:1002
+#: views.py:1025
 msgid "The port profile was edited."
 msgstr "Le profil de port a été modifié."
 
-#: views.py:1019
+#: views.py:1042
 msgid "The port profile was deleted."
 msgstr "Le profil de port a été supprimé."
 
-#: views.py:1022
+#: views.py:1045
 msgid "Impossible to delete the port profile."
 msgstr "Impossible de supprimer le profil de port."
 
-#: views.py:1142
+#: views.py:1165
 msgid ""
 "The default Django template isn't used. This can lead to rendering errors. "
 "Check the parameters."

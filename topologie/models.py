@@ -388,6 +388,11 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
 
     reference = models.CharField(max_length=255)
+    commercial_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
     constructor = models.ForeignKey(
         'topologie.ConstructorSwitch',
         on_delete=models.PROTECT

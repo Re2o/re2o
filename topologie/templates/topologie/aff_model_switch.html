@@ -35,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             {% trans "Reference" as tr_ref %}
             <th>{% include "buttons/sort.html" with prefix='model-switch' col='reference' text=tr_ref %}</th>
+            <th>{% trans "Commercial name" %}</th>
             <th>Firmware</th>
             {% trans "Switch constructor" as tr_constructor %}
             <th>{% include "buttons/sort.html" with prefix='model-switch' col='constructor' text=tr_constructor %}</th>
@@ -45,6 +46,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for model_switch in model_switch_list %}
     <tr>
         <td>{{ model_switch.reference }}</td>
+        <td>{{ model_switch.commercial_name }}</td>
         <td>{{model_switch.firmware}}</td>
         <td>{{ model_switch.constructor }}</td>
 	<td>
