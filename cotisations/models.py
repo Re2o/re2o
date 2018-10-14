@@ -182,10 +182,12 @@ class Facture(BaseInvoice):
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_facture'):
             return False, _("You don't have the right to delete an invoice.")
-        if not self.user.can_edit(user_request, *args, **kwargs)[0]:
+        elif not user_request.has_perm('cotisations.change_all_facture') and \
+                not self.user.can_edit(user_request, *args, **kwargs)[0]:
             return False, _("You don't have the right to delete this user's "
                             "invoices.")
-        if self.control or not self.valid:
+        elif not user_request.has_perm('cotisations.change_all_facture') and \
+                (self.control or not self.valid):
             return False, _("You don't have the right to delete an invoice "
                             "already controlled or invalidated.")
         else:
