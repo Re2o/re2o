@@ -468,6 +468,10 @@ class Building(AclMixin, RevMixin, models.Model):
         verbose_name = _("building")
         verbose_name_plural = _("buildings")
 
+    def all_ap_in(self):
+        """Returns all ap of the building"""
+        return AccessPoint.all_ap_in(self)
+
     def __str__(self):
         return self.name
 
