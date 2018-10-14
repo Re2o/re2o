@@ -27,6 +27,8 @@ Gplv2"""
 
 from __future__ import unicode_literals
 
+from netaddr import EUI, AddrFormatError
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
@@ -171,6 +173,11 @@ def search_single_word(word, filters, user,
         ) | Q(
             interface__ipv4__ipv4__icontains=word
         )
+        try:
+            _mac_addr = EUI(word)
+            filter_machines |= Q(interface__mac_address=word)
+        except AddrFormatError:
+            pass
         if not Machine.can_view_all(user)[0]:
             filter_machines &= Q(user__id=user.id)
         filters['machines'] |= filter_machines
