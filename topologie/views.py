@@ -230,7 +230,7 @@ def index_ap(request):
                    queryset=(Interface.objects
                              .select_related('ipv4__ip_type__extension')
                              .select_related('domain__extension'))
-               )))
+               )).distinct())
     ap_list = SortTable.sort(
         ap_list,
         request.GET.get('col'),
