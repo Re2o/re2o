@@ -214,6 +214,11 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         ).values_list('name', flat=True).distinct()
 
     @cached_property
+    def get_name(self):
+        """Return a name : user provided name or first interface name"""
+        return self.name or self.short_name
+
+    @cached_property
     def all_complete_names(self):
         """Renvoie tous les tls complets de la machine"""
         return [str(domain) for domain in Domain.objects.filter(
