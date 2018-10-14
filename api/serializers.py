@@ -78,13 +78,19 @@ class FactureSerializer(NamespacedHMSerializer):
                   'control', 'prix_total', 'name', 'api_url')
 
 
+class BaseInvoiceSerializer(NamespacedHMSerializer):
+    class Meta:
+        model = cotisations.BaseInvoice
+        fields = ('__all__')
+
 class VenteSerializer(NamespacedHMSerializer):
     """Serialize `cotisations.models.Vente` objects.
     """
 
     class Meta:
         model = cotisations.Vente
-        fields = ('facture', 'number', 'name', 'prix', 'duration',
+        fields = ('facture',
+                  'number', 'name', 'prix', 'duration',
                   'type_cotisation', 'prix_total', 'api_url')
 
 
@@ -356,11 +362,15 @@ class OptionalUserSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.OptionalUser` objects.
     """
     tel_mandatory = serializers.BooleanField(source='is_tel_mandatory')
+    shell_default = serializers.StringRelatedField()
 
     class Meta:
         model = preferences.OptionalUser
         fields = ('tel_mandatory', 'gpg_fingerprint',
-                  'all_can_create_club', 'self_adhesion', 'shell_default')
+                  'all_can_create_club', 'self_adhesion', 'shell_default',
+                  'self_change_shell', 'local_email_accounts_enabled', 'local_email_domain',
+                  'max_email_address',
+        )
 
 
 class OptionalMachineSerializer(NamespacedHMSerializer):

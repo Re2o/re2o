@@ -55,6 +55,12 @@ class FactureViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = cotisations.Facture.objects.all()
     serializer_class = serializers.FactureSerializer
 
+class FactureViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Facture` objects.
+    """
+    queryset = cotisations.BaseInvoice.objects.all()
+    serializer_class = serializers.BaseInvoiceSerializer
+
 
 class VenteViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `cotisations.models.Vente` objects.
