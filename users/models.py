@@ -609,9 +609,9 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             if access_refresh:
                 user_ldap.dialupAccess = str(self.has_access())
             if mac_refresh:
-                user_ldap.macs = [str(mac) for mac in Interface.objects.filter(
+                user_ldap.macs = sorted([str(mac) for mac in Interface.objects.filter(
                     machine__user=self
-                ).values_list('mac_address', flat=True).distinct()]
+                ).values_list('mac_address', flat=True).distinct()])
             if group_refresh:
                 # Need to refresh all groups because we don't know which groups
                 # were updated during edition of groups and the user may no longer
