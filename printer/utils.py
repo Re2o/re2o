@@ -1,5 +1,5 @@
 import subprocess
-
+import os
 
 def user_printing_path(instance, filename):
     """
@@ -35,3 +35,20 @@ def pdfinfo(file_path):
                 output[label] = _extract(line)
 
     return output
+
+
+def pdfbook(file_path):
+    """
+    Creates a booklet from a pdf
+    requires texlive-extra-utils
+    """
+    _dir = os.path.dirname(file_path)
+    _fname = os.path.basename(file_path)
+    newfile = os.path.join(_dir, "pdfbook_%s" % (_fname,))
+    check_output(
+        ['/usr/bin/pdfbook',
+         '--short-edge',
+         file_path,
+         '-o', newfile,
+        ])
+    return newfile
