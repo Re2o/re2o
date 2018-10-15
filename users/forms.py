@@ -318,8 +318,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['email'].label = _("Email address")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['room'].label = _("Room")
-        self.fields['room'].empty_label = _("No room")
+        if 'room' in self.fields:
+            self.fields['room'].label = _("Room")
+            self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
 
     def clean_email(self):
@@ -340,7 +341,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'telephone',
-            'room'
+            'room',
         ]
 
 
@@ -428,8 +429,9 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['room'].label = _("Room")
-        self.fields['room'].empty_label = _("No room")
+        if 'room' in self.fields:
+            self.fields['room'].label = _("Room")
+            self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
         self.fields['mailing'].label = _("Use a mailing list")
 

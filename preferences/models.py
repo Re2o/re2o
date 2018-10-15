@@ -79,10 +79,7 @@ class OptionalUser(AclMixin, PreferencesModel):
         default=False,
         help_text=_("Users can create a member"),
     )
-    self_adhesion = models.BooleanField(
-        default=False,
-        help_text=_("A new user can create their account on Re2o")
-    )
+
     shell_default = models.OneToOneField(
         'users.ListShell',
         on_delete=models.PROTECT,
@@ -92,6 +89,10 @@ class OptionalUser(AclMixin, PreferencesModel):
     self_change_shell = models.BooleanField(
         default=False,
         help_text=_("Users can edit their shell")
+    )
+    self_change_room = models.BooleanField(
+        default=False,
+        help_text=_("Users can edit their room")
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False,
@@ -110,6 +111,10 @@ class OptionalUser(AclMixin, PreferencesModel):
     delete_notyetactive = models.IntegerField(
         default=15,
         help_text=_("Inactive users will be deleted after this number of days")
+    )
+    self_adhesion = models.BooleanField(
+        default=False,
+        help_text=_("A new user can create their account on Re2o")
     )
 
     class Meta:
@@ -220,7 +225,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
     switchs_web_management_ssl = models.BooleanField(
         default=False,
         help_text="Web management ssl. Assurez-vous que un certif est installé sur le switch !"
-    )   
+    )
     switchs_rest_management = models.BooleanField(
         default=False,
         help_text="Rest management, activé si provision auto"
@@ -257,7 +262,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         from topologie.models import Switch
         return Switch.objects.filter(automatic_provision=True)
 
-    @cached_property   
+    @cached_property
     def switchs_management_interface(self):
         """Return the ip of the interface that the switch have to contact to get it's config"""
         if self.switchs_ip_type:
@@ -266,7 +271,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         else:
             return None
 
-    @cached_property   
+    @cached_property
     def switchs_management_interface_ip(self):
         """Same, but return the ipv4"""
         if not self.switchs_management_interface:
@@ -400,7 +405,7 @@ class Reminder(AclMixin, models.Model):
         from re2o.utils import all_has_access
         date = timezone.now().replace(minute=0,hour=0)
         futur_date = date + timedelta(days=self.days)
-        users = all_has_access(futur_date).exclude(pk__in = all_has_access(futur_date + timedelta(days=1))) 
+        users = all_has_access(futur_date).exclude(pk__in = all_has_access(futur_date + timedelta(days=1)))
         return users
 
 

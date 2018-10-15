@@ -846,6 +846,20 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         return user_request == self, None
 
     @staticmethod
+    def can_change_room(user_request, *_args, **_kwargs):
+        """ Check if a user can change a room
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a state
+        """
+        if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_room'))
+            or user_request.has_perm('users.change_user')):
+            return False, _("Permission required to change the room.")
+        else:
+            return True, None
+
+    @staticmethod
     def can_change_state(user_request, *_args, **_kwargs):
         """ Check if a user can change a state
 
@@ -993,6 +1007,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'selfpasswd': self.check_selfpasswd,
             'local_email_redirect': self.can_change_local_email_redirect,
             'local_email_enabled': self.can_change_local_email_enabled,
+            'room': self.can_change_room,
         }
         self.__original_state = self.state
 
