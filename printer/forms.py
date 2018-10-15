@@ -3,7 +3,6 @@
 """printer.forms
 Form to add, edit, cancel printer jobs.
 Author : Maxime Bombar <bombar@crans.org>.
-Date : 29/06/2018
 """
 
 from django import forms
@@ -16,6 +15,8 @@ import itertools
 
 from re2o.mixins import FormRevMixin
 
+from users.models import User
+
 from .models import (
     JobWithOptions,
 )
@@ -24,9 +25,11 @@ from .models import (
 class JobWithOptionsForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        self.user = kwargs.pop('user')
         super(JobWithOptionsForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['printAs'].label = 'Print As'
         self.fields['printAs'].empty_label = 'Print As'
+        self.fields['printAs'].queryset = self.user.adherent.club_members.all()
         self.fields['disposition'].label = 'disposition'
         self.fields['color'].label = 'color'
         self.fields['count'].label = 'count'
@@ -45,8 +48,10 @@ class JobWithOptionsForm(FormRevMixin, ModelForm):
 class PrintForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        self.user = kwargs.pop('user')
         super(PrintForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['printAs'].label = 'Print As'
+        self.fields['printAs'].queryset = self.user.adherent.club_members.all()
         self.fields['disposition'].label = 'disposition'
         self.fields['color'].label = 'color'
         self.fields['count'].label = 'count'

@@ -49,6 +49,7 @@ def new_job(request):
             job_formset = formset_factory(JobWithOptionsForm)(
                 request.POST,
                 request.FILES,
+                form_kwargs={'user': request.user},
             )
 
             if job_formset.is_valid():
@@ -85,7 +86,10 @@ def new_job(request):
                     # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job_data })
                     data.append(job_data)
                     i+=1
-                job_formset_filled_in = formset_factory(PrintForm, extra=0)(initial=data)
+                job_formset_filled_in = formset_factory(PrintForm, extra=0)(
+                    initial=data,
+                    form_kwargs={'user': request.user},
+                )
                 return form(
                     {
                         'jobform': job_formset_filled_in,
@@ -102,6 +106,7 @@ def new_job(request):
         n = int(request.POST['form-TOTAL_FORMS'])
         job_formset = formset_factory(PrintForm)(
             request.POST,
+            form_kwargs={'user': request.user},
         )
         jids = [request.session['id-form-%s-file' % i] for i in range(n)]
         # raise ValidationError("'%(path)s'", code='path', params = {'path': id_list })
@@ -125,8 +130,8 @@ def new_job(request):
 
     else:
         job_formset = formset_factory(JobWithOptionsForm)(
-            None,
-            )
+            form_kwargs={'user': request.user}
+        )
     return form(
         {
             'jobform': job_formset,
