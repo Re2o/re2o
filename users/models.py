@@ -845,8 +845,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return user_request == self, None
 
-    @staticmethod
-    def can_change_room(user_request, *_args, **_kwargs):
+    def can_change_room(self, user_request, *_args, **_kwargs):
         """ Check if a user can change a room
 
         :param user_request: The user who request

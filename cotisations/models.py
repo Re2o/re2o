@@ -194,12 +194,14 @@ class Facture(BaseInvoice):
             return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.view_facture') and \
-                self.user != user_request:
-            return False, _("You don't have the right to view someone else's "
-                            "invoices history.")
-        elif not self.valid:
-            return False, _("The invoice has been invalidated.")
+        if not user_request.has_perm('cotisations.view_facture'):
+            if self.user != user_request:
+                return False, _("You don't have the right to view someone else's "
+                                "invoices history.")
+            elif not self.valid:
+                return False, _("The invoice has been invalidated.")
+            else:
+                return True, None
         else:
             return True, None
 
