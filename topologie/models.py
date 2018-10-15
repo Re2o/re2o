@@ -411,7 +411,10 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("switch models")
 
     def __str__(self):
-        return str(self.constructor) + ' ' + self.reference
+        if self.commercial_name:
+            return str(self.constructor) + ' ' + str(self.commercial_name)
+        else:
+            return str(self.constructor) + ' ' + self.reference
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
