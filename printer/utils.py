@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import subprocess
 import os
+import unidecode
 
 def user_printing_path(instance, filename):
     """
@@ -7,7 +9,7 @@ def user_printing_path(instance, filename):
     Currently MEDIA_ROOT/printings/user_<id>/<filename>
     """
     # File will be uploaded to MEDIA_ROOT/printings/user_<id>/<filename>
-    return 'printings/user_{0}/{1}'.format(instance.user.id, filename)
+    return 'printings/user_{0}/{1}'.format(instance.user.id, unidecode.unidecode(filename))
 
 
 

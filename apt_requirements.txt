@@ -19,3 +19,4 @@ graphviz
 git
 poppler-utils
 texlive-extra-utils
+python3-unidecode
