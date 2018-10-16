@@ -725,7 +725,7 @@ class PrintableJobSerializer(NamespacedHMSerializer):
     file = serializers.FileField(use_url=False)
     class Meta:
         model = printer.JobWithOptions
-        exclude = ('price', 'pages')
+        exclude = ('price',)
         extra_kwargs = {
             'api_url': {'view_name': 'printablejobs-detail'}
         }
@@ -736,7 +736,7 @@ class HistoryJobSerializer(NamespacedHMSerializer):
     file = serializers.FileField(use_url=False)
     class Meta:
         model = printer.JobWithOptions
-        exclude = ('price', 'pages')
+        exclude = ('price',)
         extra_kwargs = {
             'api_url': {'view_name': 'historyjobs-detail'}
         }
