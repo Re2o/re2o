@@ -52,6 +52,8 @@ def new_job(request):
                 form_kwargs={'user': request.user},
             )
 
+            tmp_job_formset = job_formset
+
             if job_formset.is_valid():
                 files = request.FILES
                 data = []
@@ -126,7 +128,7 @@ def new_job(request):
             request.session['jids']=jids
             return redirect('printer:payment')
 
-        raise Exception("Invalid Job_formset")
+        job_formset = tmp_job_formset
 
     else:
         job_formset = formset_factory(JobWithOptionsForm)(
