@@ -23,7 +23,9 @@
     </div>
     {% endfor %}
   </div>
-  <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add a file"%}" id="add_one">
+
+  <button class="btn btn-primary btn-sm" role="button" id="add_one">{% trans "Add a file"%}</button>
+
   {% bootstrap_button action_name name="options" button_type="submit" icon="star" %}
 </form>
 <script type="text/javascript">
