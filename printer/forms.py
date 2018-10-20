@@ -41,6 +41,7 @@ class JobWithOptionsForm(FormRevMixin, ModelForm):
             'printAs',
             'color',
             'disposition',
+            'format',
             'count',
             ]
 
