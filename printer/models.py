@@ -23,9 +23,14 @@ from .validators import (
 )
 
 from .settings import (
-    MAX_PRINTFILE_SIZE,
-    ALLOWED_TYPES,
-    PRICES,
+        MAX_PRINTFILE_SIZE,
+        ALLOWED_TYPES,
+        PRICES,
+        FORMAT_AVAILABLE,
+        COLOR_CHOICES,
+        DISPOSITIONS_AVAILABLE,
+        STAPLING_OPTIONS,
+        PERFORATION_OPTIONS,
 )
 
 from .utils import user_printing_path
@@ -97,35 +102,6 @@ class JobWithOptions(RevMixin, models.Model):
             verbose_name=_("price"),
             default=0.0)
         pages = models.IntegerField(default=0)
-        FORMAT_AVAILABLE = (
-            ('A4', 'A4'),
-            ('A3', 'A3'),
-        )
-        COLOR_CHOICES = (
-            ('Greyscale', 'Greyscale'),
-            ('Color', 'Color')
-        )
-        DISPOSITIONS_AVAILABLE = (
-            ('TwoSided', 'Two sided'),
-            ('OneSided', 'One sided'),
-            ('Booklet', 'Booklet')
-        )
-        STAPLING_OPTIONS = (
-            ('None', 'None'),
-            ('TopLeft', 'One top left'),
-            ('TopRight', 'One top right'),
-            ('LeftSided', 'Two left sided'),
-            ('RightSided', 'Two right sided')
-        )
-        PERFORATION_OPTIONS = (
-            ('None', 'None'),
-            ('TwoLeftSidedHoles', 'Two left sided holes'),
-            ('TwoRightSidedHoles', 'Two right sided holes'),
-            ('TwoTopHoles', 'Two top holes'),
-            ('TwoBottomHoles', 'Two bottom holes'),
-            ('FourLeftSidedHoles', 'Four left sided holes'),
-            ('FourRightSidedHoles', 'Four right sided holes')
-        )
 
         format = models.CharField(max_length=255, choices=FORMAT_AVAILABLE, default='A4')
         color = models.CharField(max_length=255, choices=COLOR_CHOICES, default='Greyscale')
