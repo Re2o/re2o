@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from django.forms import modelformset_factory, formset_factory
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
 
 from re2o.views import form
 from users.models import User
@@ -137,7 +138,7 @@ def new_job(request):
     return form(
         {
             'jobform': job_formset,
-            'action_name': "Advanced Options",
+            'action_name': _("Next"),
         },
         'printer/newjob.html',
         request
