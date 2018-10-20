@@ -51,6 +51,7 @@ class PrintForm(FormRevMixin, ModelForm):
         self.user = kwargs.pop('user')
         super(PrintForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['printAs'].label = 'Print As'
+        self.fields['printAs'].empty_label = self.user.pseudo
         self.fields['printAs'].queryset = self.user.adherent.club_members.all()
         self.fields['disposition'].label = 'disposition'
         self.fields['color'].label = 'color'
