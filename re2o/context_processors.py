@@ -27,7 +27,7 @@ import datetime
 
 from django.contrib import messages
 from django.http import HttpRequest
-from preferences.models import GeneralOption, OptionalMachine
+from preferences.models import GeneralOption, OptionalMachine, OptionalPrinter
 from django.utils.translation import get_language
 
 from re2o.settings import INSTALLED_APPS
@@ -70,7 +70,8 @@ def context_printer(request):
     """
     Useful to know whether the printer app is activated or not
     """
-    printer = 'printer' in INSTALLED_APPS
+    printerSettings = OptionalPrinter.objects.get()
+    printer = ('printer' in INSTALLED_APPS)  and printerSettings.Printer_enabled
     return {
         'printer': printer,
         }
