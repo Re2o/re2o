@@ -46,14 +46,15 @@ def new_job(request):
     View to create a new printing job
     """
     if request.method == 'POST':
-        if request.FILES:
-            job_formset = formset_factory(JobWithOptionsForm)(
-                request.POST,
-                request.FILES,
-                form_kwargs={'user': request.user},
-            )
+        job_formset = formset_factory(JobWithOptionsForm)(
+            request.POST,
+            request.FILES or None,
+            form_kwargs={'user': request.user},
+        )
 
-            tmp_job_formset = job_formset
+        tmp_job_formset = job_formset
+
+        if request.FILES:
 
             if job_formset.is_valid():
                 files = request.FILES
