@@ -42,6 +42,7 @@ from .models import (
     Reminder,
     RadiusKey,
     SwitchManagementCred,
+    OptionalPrinter,
 )
 from topologie.models import Switch
 
@@ -347,3 +348,12 @@ class DelMailContactForm(Form):
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
 
+class EditOptionalPrinterForm(ModelForm):
+    """Set preference for Printer App"""
+    class Meta:
+        model = OptionalPrinter
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionalPrinterForm, self).__init__(*args, prefix=prefix, **kwargs)

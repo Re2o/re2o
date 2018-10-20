@@ -47,6 +47,11 @@ urlpatterns = [
         name='edit-options'
         ),
     url(
+        r'^edit_options/(?P<section>OptionalPrinter)$',
+        views.edit_options,
+        name='edit-options'
+        ),
+    url(
         r'^edit_options/(?P<section>GeneralOption)$',
         views.edit_options,
         name='edit-options'

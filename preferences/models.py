@@ -588,3 +588,88 @@ class MailMessageOption(AclMixin, models.Model):
         )
         verbose_name = _("email message options")
 
+
+class OptionalPrinter(AclMixin, models.Model):
+    """Preference for Printer app"""
+
+    Printer_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Is printer Available ?"),
+    )
+
+    A3_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can print in A3 format ?"),
+    )
+
+    A3_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can print in A3 format ?"),
+    )
+
+    booklet_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can print in booklet format ?"),
+    )
+
+    color_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can print in color ?"),
+    )
+
+    stapling_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can use staples ?"),
+    )
+
+    perforation_enabled = models.BooleanField(
+        default=False,
+        help_text=_("Can perforate ?"),
+    )
+
+    max_size = models.IntegerField(
+        default=25,
+        help_text=_("Maximum size in MB of files to be printed")
+    )
+
+    depreciation_coef = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+        help_text=_('Set depreciation coefficient'),
+    )
+
+    A3_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+    )
+
+    A4_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+    )
+
+    Color_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+    )
+
+    Greyscale_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+    )
+
+    Staples_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.0,
+    )
+
+    permissions = (
+        ("view_optionalprinter", _("Can view the printer options")),
+    )
+    verbose_name = _("Printer Options")

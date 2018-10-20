@@ -1,15 +1,12 @@
-
-
-
-
-
 """printer.settings
-Define variables, to be changed into a configuration table.
+Define variables used in printer app
 """
 
+from preferences.models import OptionalPrinter
 
+settings = OptionalPrinter.objects.get()
 
-MAX_PRINTFILE_SIZE = 25 * 1024 * 1024 # 25 MB
+MAX_PRINTFILE_SIZE = settings.max_size * 1024 * 1024 # 25 MB
 ALLOWED_TYPES = ['application/pdf']
 
 
@@ -18,13 +15,13 @@ ALLOWED_TYPES = ['application/pdf']
 ## Config
 
 ## Depreciation
-depr = 2.16
+depr = settings.depreciation_coef
 
 PRICES = {
     'Depreciation': depr,
-    'A3': 0.670,
-    'A4': 2.1504,
-    'Color': 9.0 + depr,
-    'Greyscale': 0.9 + depr,
-    'Staples': 1.3333,
+    'A3': settings.A3_price,
+    'A4': settings.A4_price,
+    'Color': settings.Color_price + depr,
+    'Greyscale': settings.Greyscale_price + depr,
+    'Staples': settings.Staples_price,
 }

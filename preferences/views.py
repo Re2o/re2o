@@ -62,7 +62,8 @@ from .models import (
     HomeOption,
     Reminder,
     RadiusKey,
-    SwitchManagementCred
+    SwitchManagementCred,
+    OptionalPrinter,
 )
 from . import models
 from . import forms
@@ -70,7 +71,7 @@ from . import forms
 
 @login_required
 @can_view_all(OptionalUser, OptionalMachine, OptionalTopologie, GeneralOption,
-              AssoOption, MailMessageOption, HomeOption)
+              AssoOption, MailMessageOption, HomeOption, OptionalPrinter)
 def display_options(request):
     """Vue pour affichage des options (en vrac) classé selon les models
     correspondants dans un tableau"""
@@ -86,6 +87,7 @@ def display_options(request):
     reminder_list = Reminder.objects.all()
     radiuskey_list = RadiusKey.objects.all()
     switchmanagementcred_list = SwitchManagementCred.objects.all()
+    printeroptions, _created = OptionalPrinter.objects.get_or_create()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -98,7 +100,8 @@ def display_options(request):
         'mailcontact_list': mailcontact_list,
         'reminder_list': reminder_list,
         'radiuskey_list' : radiuskey_list,
-        'switchmanagementcred_list': switchmanagementcred_list,  
+        'switchmanagementcred_list': switchmanagementcred_list,
+        'printeroptions': printeroptions,
         }, 'preferences/display_preferences.html', request)
 
 
@@ -398,4 +401,3 @@ def del_mailcontact(request, instances):
         'preferences/preferences.html',
         request
     )
-

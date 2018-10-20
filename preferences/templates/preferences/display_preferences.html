@@ -208,7 +208,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
             <td>{{ topologieoptions.vlan_decision_nok }}</td>
         </tr>
-	<tr>	
+	<tr>
 	    <th>Placement sur ce vlan par default en cas de rejet</th>
 	    <td>{{ topologieoptions.vlan_decision_nok }}</td>
 	</tr>
@@ -254,11 +254,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	    <th>Switchs configurés automatiquement</th>
 	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
 	    <th>Plage d'ip de management des switchs</th>
 	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
-	<tr>	
+	<tr>
             <th>Serveur des config des switchs</th>
 	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
 	</tr>
@@ -296,11 +296,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div id="collapse_asso" class="panel-collapse panel-body collapse">
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
-            <i class="fa fa-edit"></i>
-            {% trans "Edit" %}
-        </a>
-        <p></p>
     <table class="table table-striped">
         <tr>
             <th>{% trans "Name" %}</th>
@@ -332,6 +327,69 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     </div>
     
+
+    <div  class="panel panel-default" id="printer">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_printer">
+	<h4 class="panel-title">
+		<a><i class="fa fa-print"></i>   {% trans "Printer preferences" %}</a>
+	<h4>
+    </div>
+    <div id="collapse_printer" class="panel-collapse panel-body collapse">
+
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalPrinter' %}">
+        <i class="fa fa-edit"></i>
+        {% trans "Edit" %}
+    </a>
+    <p>
+    </p>
+    <table class="table table-striped">
+      <tr>
+          <th>{% trans "Printer Enabled" %}</th>
+          <td>{{ printeroptions.Printer_enabled }}</td>
+	  <th>{% trans "Color enabled" %}</th>
+          <td>{{ printeroptions.color_enabled }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "A3 enabled" %}</th>
+          <td>{{ printeroptions.A3_enabled }}</td>
+          <th>{% trans "Booklet enabled" %}</th>
+          <td>{{ printeroptions.booklet_enabled }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "Stapling enabled" %}</th>
+          <td>{{ printeroptions.stapling_enabled }}</td>
+	  <th>{% trans "Perforation_enabled" %}</th>
+          <td>{{ printeroptions.perforation_enabled }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "Max size available (in MB)" %}</th>
+          <td>{{ printeroptions.max_size }}</td>
+          <th>{% trans "Depreciation coefficient" %}</th>
+          <td>{{ printeroptions.depreciation_coef }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "A3 price" %}</th>
+          <td>{{ printeroptions.A3_price }}</td>
+          <th>{% trans "A4 price" %}</th>
+          <td>{{ printeroptions.A4_price }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "Color price" %}</th>
+          <td>{{ printeroptions.Color_price }}</td>
+          <th>{% trans "Greyscale price" %}</th>
+          <td>{{ printeroptions.Greyscale_price }}</td>
+        </tr>
+	<tr>
+          <th>{% trans "Staples price" %}</th>
+          <td>{{ printeroptions.Staples_price }}</td>
+        </tr>
+
+
+    </table>
+    </div>
+    </div>
+
+   
     <div  class="panel panel-default" id="mail">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">
     	<h4 class="panel-title">
@@ -439,4 +497,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 
 {% endblock %}
-
