@@ -128,10 +128,19 @@ def new_job(request):
             )
             if job_formset.is_valid():
                 for job_form in job_formset:
-                    jid = job_form.cleaned_data['jid']
+                    data = job_form.cleaned_data
+                    jid = data['jid']
                     job = JobWithOptions.objects.get(id=jid)
                     job.user = request.user
                     job.status = 'Printable'
+                    if data['printAs']:
+                        job.printAs = data['printAs']
+                    job.format = data['format']
+                    job.color = data['color']
+                    job.disposition = data['disposition']
+                    job.count = data['count']
+                    job.stapling = data['stapling']
+                    job.perforation = data['perforation']
                     job._update_price()
                     job.save()
                 return redirect('printer:payment')
