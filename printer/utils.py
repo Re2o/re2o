@@ -3,6 +3,15 @@ import subprocess
 import os
 import unidecode
 
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
+
+from preferences.models import OptionalPrinter, GeneralOption, AssoOption
+
+from numpy.random import randint
+
+import datetime
+
 def user_printing_path(instance, filename):
     """
     Defines the path where will be uploaded the files
@@ -54,3 +63,47 @@ def pdfbook(file_path):
          '-o', newfile,
         ])
     return newfile
+
+
+def gen_code():
+    code = randint(10**9, 10**10-1)
+    while code % 1437 != 38:
+        code = randint(10**9, 10**10-1)
+    return (str(code) + '#')
+
+
+def send_mail_printer(client):
+    """Sends an email to the client explaning how to get the printings"""
+
+    template = get_template('printer/email_printer')
+    code = gen_code()
+
+
+    printer_access_fr = "au quatrième (4) étage du bâtiment J (code B7806)"
+    printer_access_en = "on fourth (4th) floor of building J (code B7806)"
+    digicode = True
+
+    end_validity = datetime.datetime.now() + datetime.timedelta(3)
+    end_validity = str(end_validity.date())
+
+    ctx = {
+        'name': "{} {}".format(
+            client.name,
+            client.surname
+        ),
+        'printer_access_fr' : printer_access_fr,
+        'printer_access_en' : printer_access_en,
+        'digicode' : digicode,
+        'code' : code,
+        'end_validity' : end_validity,
+        'contact_mail': AssoOption.get_cached_value('contact'),
+        'asso_name': AssoOption.get_cached_value('name')
+    }
+
+    mail = EmailMessage(
+        'Information',
+        template.render(ctx),
+        GeneralOption.get_cached_value('email_from'),
+        [client.get_mail],
+    )
+    mail.send()

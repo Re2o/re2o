@@ -18,7 +18,7 @@ from users.models import User
 
 from . import settings
 
-from .utils import pdfinfo
+from .utils import pdfinfo, send_mail_printer
 
 from .models import (
     JobWithOptions,
@@ -197,6 +197,7 @@ def payment(request):
     ))
 
 def success(request):
+    send_mail_printer(request.user)
     return form(
         {},
         'printer/success.html',

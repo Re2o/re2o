@@ -1,0 +1,30 @@
+=== English version below ===
+
+Bonjour {{name}},
+
+Vos impressions ont été envoyées à l'imprimante située {{printer_access_fr}}, et vous pourrez les récupérer d'ici quelques minutes.
+
+{% if digicode %}
+Pour ouvrir la porte du local, veuillez utiliser le code suivant {{code}}. Il est valide jusqu'à {{end_validity}}.
+{% endif %}
+
+En cas de question, n’hésitez pas à nous contacter par mail à {{contact_mail}}.
+
+Cordialement,
+L’équipe de {{asso_name}}
+
+
+=== English version ===
+
+Dear {{name}},
+
+Your files have been successfuly sent to the printer located {{printer_acces_en}}, and you will soon be able to pick them up.
+
+{% if digicode %}
+To open the door of the printer room, please use the following code {{code}}. It is valid until {{end_validity}}.
+{% endif %}
+
+Should you need extra information, you can email us at {{contact_mail}}.
+
+Best regards,
+	{{ asso_name }}'s team
