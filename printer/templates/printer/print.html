@@ -13,14 +13,13 @@
   <h3>{% trans "Confirm printing" %}</h3>
   {{ jobform.management_form }}
   {% bootstrap_formset_errors jobform %}
-  <div id="form_set" class="form-group">
-    {% for job in jobform.forms %}
-    <div class='file_to_print form-inline'>
-      {% massive_bootstrap_form job "" label_class='sr-only' %}
+    <div id="form_set" class="form-group container">
+      {% for job in jobform.forms %}
+      <div class="file_to_print col-xs-12 col-sm-4 col-md-3" style="margin-top:1em">
+	{% massive_bootstrap_form job "" %}
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-  <!-- <input class="btn btn-primary btn-sm" role="button" value="{% trans "Add a file"%}" id="add_one"> -->
   {% bootstrap_button action_name name="Print" button_type="submit" icon="star" %}
 </form>
 {% endblock %}
