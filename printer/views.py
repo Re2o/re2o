@@ -59,8 +59,6 @@ def new_job(request):
                 form_kwargs={'user': request.user},
             )
 
-
-
             if job_formset.is_valid():
                 data = []
                 i=0
@@ -86,7 +84,9 @@ def new_job(request):
                     i+=1
                 job_formset_filled_in = formset_factory(PrintForm, extra=0)(
                     initial=data,
-                    form_kwargs={'user': request.user},
+                    # jids=jids,
+                    form_kwargs={'user': request.user,
+                    },
                 )
 
                 if job_formset.total_error_count() == 0:
@@ -150,6 +150,7 @@ def new_job(request):
 
     ### GET request
     else:
+        # raise Exception("Coucou2")
         job_formset = formset_factory(JobWithOptionsForm)(
             form_kwargs={'user': request.user}
         )
