@@ -46,54 +46,73 @@ def new_job(request):
     View to create a new printing job
     """
     if request.method == 'POST':
+        # raise Exception('coucou3')
+        # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES})
+
         job_formset = formset_factory(JobWithOptionsForm)(
             request.POST,
             request.FILES or None,
             form_kwargs={'user': request.user},
         )
 
+        # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES})
+
+
         tmp_job_formset = job_formset
 
         if request.FILES:
+            # raise Exception("Coucou4")
 
             if job_formset.is_valid():
+                # raise Exception("Valide !!!")
                 files = request.FILES
                 data = []
                 i=0
-                for job in job_formset:
-                    # raise ValidationError("'%(path)s'", code='path', params = {'path': job.cleaned_data["file"].name})
-                    filename = job.cleaned_data['file'].name
-                    job = job.save(commit=False)
-                    job.filename = filename
-                    job.user=request.user
-                    # raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
-                    if job.printAs is None:
-                        job.printAs = request.user
-                    job.status='Pending'
-                    # raise
-                    # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES['form-%s-file' % i].temporary_file_path()})
-                    # job_data = model_to_dict(job)
-                    # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': bool(job.printAs is None) })
-                    metadata = pdfinfo(request.FILES['form-%s-file' % i].temporary_file_path())
-                    job.pages = metadata["Pages"]
-                    # raise ValidationError("'%(path)s'", code='path', params = {'path': type(job)})
-                    # job.save()
-                    # job_data = model_to_dict(job)
-                    # job_data['file'] = request.FILES['form-%s-file' % i]
-                    # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job_data })
-                    # raise ValidationError("'%(path)s'", code='path', params = {'path': request.session })
-                    job._update_price()
-                    job.save()
-                    job_data = model_to_dict(job)
-                    request.session['id-form-%s-file' % i] = job.id
-                    request.session['form-%s-file' % i] = request.FILES['form-%s-file' % i].temporary_file_path()
-                    # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job_data })
-                    data.append(job_data)
-                    i+=1
+                # request.POST['jids'] = []
+                jids = []
+                for job in job_formset.forms:
+                    if job.is_valid():
+                        try:
+                            filename = job.cleaned_data['file'].name
+                        except KeyError:
+                            raise ValidationError("'%(path)s'", code='path', params = {'path': job})
+                        job = job.save(commit=False)
+                        job.filename = filename
+                        job.user=request.user
+                        # raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
+                        if job.printAs is None:
+                            job.printAs = request.user
+                        job.status='Pending'
+                        # raise
+                        # raise ValidationError("'%(path)s'", code='path', params = {'path': request.FILES['form-%s-file' % i].temporary_file_path()})
+                        # job_data = model_to_dict(job)
+                        # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': bool(job.printAs is None) })
+                        metadata = pdfinfo(request.FILES['form-%s-file' % i].temporary_file_path())
+                        job.pages = metadata["Pages"]
+                        # raise ValidationError("'%(path)s'", code='path', params = {'path': type(job)})
+                        # job.save()
+                        # job_data = model_to_dict(job)
+                        # job_data['file'] = request.FILES['form-%s-file' % i]
+                        # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job_data })
+                        # raise ValidationError("'%(path)s'", code='path', params = {'path': request.session })
+                        job._update_price()
+                        job.save()
+                        job_data = model_to_dict(job)
+                        jids.append(job.id)
+                        # request.session['id-form-%s-file' % i] = job.id
+                        # request.session['form-%s-file' % i] = request.FILES['form-%s-file' % i].temporary_file_path()
+                        job_data['jid'] = job.id
+                        data.append(job_data)
+                        i+=1
                 job_formset_filled_in = formset_factory(PrintForm, extra=0)(
                     initial=data,
-                    form_kwargs={'user': request.user},
+                    # jids=jids,
+                    form_kwargs={'user': request.user,
+                    },
                 )
+                # raise ValidationError("'%(path)s'", code='path', params = {'path': job_formset_filled_in.forms })
+
+                # request.POST['job_ids'] = jids
                 return form(
                     {
                         'jobform': job_formset_filled_in,
@@ -102,40 +121,70 @@ def new_job(request):
                     'printer/print.html',
                     request
                 )
+            else:
+                job_formset = tmp_job_formset
+                return form(
+                    {
+                        'jobform': job_formset,
+                        'action_name': _("Next"),
+                    },
+                    'printer/newjob.html',
+                    request
+                )
 
+        # else:
+        #     job_formset = tmp_job_formset
+        #     return form(
+        #         {
+        #             'jobform': job_formset,
+        #             'action_name': _("Next"),
+        #         },
+        #         'printer/newjob.html',
+        #         request
+        #     )
+
+
+    # else:
+    #     raise Exception("Coucou5")
         # elif 'Print' in request.POST:
         # raise ValidationError("'%(path)s'", code='path', params = {'path': request.POST })
 
         # raise Exception('On a déjà upload !')
-        n = int(request.POST['form-TOTAL_FORMS'])
+        # n = int(request.POST['form-TOTAL_FORMS'])
         job_formset = formset_factory(PrintForm)(
             request.POST,
             form_kwargs={'user': request.user},
         )
-        jids = [request.session['id-form-%s-file' % i] for i in range(n)]
-        # raise ValidationError("'%(path)s'", code='path', params = {'path': id_list })
+        # raise ValidationError("'%(path)s'", code='path', params = {'path': request.POST })
+        # jids = request.POST['job_ids']
         if job_formset.is_valid():
-            for job_obj in job_formset:
+            for job_form in job_formset:
                 i=0
-                old_job = JobWithOptions.objects.get(id=jids[i])
-                job = job_obj.save(commit=False)
+                # old_job = JobWithOptions.objects.get(id=jids[i])
+                jid = job_form.cleaned_data['jid']
+                # raise ValidationError("'%(path)s'", code='path', params = {'path': job_obj.cleaned_data })
+                job = JobWithOptions.objects.get(id=jid)
+                # job = job_obj.save(commit=False)
                 job.user = request.user
                 job.status = 'Printable'
-                job.file = old_job.file
+                # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job.file})
+                # job.file = old_job.file
                 job._update_price()
                 job.save()
                 i+=1
                 # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': request.method})
                 # raise ValidationError("'%(path)s'", code='path', params = {'path': str(n) })
-            request.session['jids']=jids
+            # request.session['jids']=jids
             return redirect('printer:payment')
 
-        job_formset = tmp_job_formset
 
     else:
+        # raise Exception("Coucou2")
         job_formset = formset_factory(JobWithOptionsForm)(
             form_kwargs={'user': request.user}
         )
+    # raise ValidationError("'%(plop)s'", code='plop', params = {'plop': job_formset})
+
     return form(
         {
             'jobform': job_formset,
@@ -150,15 +199,19 @@ def payment(request):
     View used to create a new invoice and make the payment
     """
     # user = request.user
-    jids = request.session['jids']
+    # jids = request.session['jids']
     # raise ValidationError("'%(path)s'", code='path', params = {'path': jids})
-    jobs = JobWithOptions.objects.filter(id__in=jids)
+    jobs = JobWithOptions.objects.filter(user=request.user, status='Printable', paid='False')
     users = {}
     for job in jobs:
         try:
             users[job.printAs]+=job.price
+            job.paid = True
+            job.save()
         except KeyError:
             users[job.printAs]=job.price
+            job.paid = True
+            job.save()
 
     for user in users:
         # If payment_method balance doesn't exist, then you're not allowed to print.

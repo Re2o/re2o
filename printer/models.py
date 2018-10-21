@@ -85,6 +85,7 @@ class JobWithOptions(RevMixin, models.Model):
                 ('Finished', 'Finished')
         )
         user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+        paid = models.BooleanField(default='False')
         file = models.FileField(storage=FileSystemStorage(location='/var/impressions'),
                                 upload_to=user_printing_path,
                                 validators=[FileValidator(

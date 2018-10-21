@@ -47,6 +47,9 @@ class JobWithOptionsForm(FormRevMixin, ModelForm):
 
 
 class PrintForm(FormRevMixin, ModelForm):
+
+    jid = forms.IntegerField(widget=forms.HiddenInput())
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         self.user = kwargs.pop('user')
@@ -58,6 +61,7 @@ class PrintForm(FormRevMixin, ModelForm):
         self.fields['color'].label = 'color'
         self.fields['count'].label = 'count'
 
+        self.fields['jid'].widget.attrs['readonly'] = True
         self.fields['printAs'].widget.attrs['readonly'] = True
         self.fields['filename'].widget.attrs['readonly'] = True
         self.fields['price'].widget.attrs['readonly'] = True
@@ -71,4 +75,5 @@ class PrintForm(FormRevMixin, ModelForm):
             'endtime',
             'status',
             'file',
+            'paid',
             ]
