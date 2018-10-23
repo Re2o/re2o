@@ -38,6 +38,8 @@ from cotisations.models import(
 
 from cotisations.utils import find_payment_method
 
+from cotisations.payment_methods.balance.models import BalancePayment
+
 from django.core.exceptions import ValidationError
 
 # raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
@@ -170,14 +172,13 @@ def payment(request):
     users = {}
     for job in jobs:
         try:
-            users[job.printAs]+=job.price
-            job.paid = True
-            job.save()
+            users[job.printAs][0]+=job.price
+            users[job.printAs][1].append(job.id)
         except KeyError:
-            users[job.printAs]=job.price
-            job.paid = True
-            job.save()
+            users[job.printAs]=[job.price, [job.id]]
 
+    balancePayment =  BalancePayment.objects.get()
+    minimum_balance = balancePayment.minimum_balance
     for user in users:
         ### If payment_method balance doesn't exist, then you're not allowed to print.
         try:
@@ -197,10 +198,22 @@ def payment(request):
         Vente.objects.create(
             facture=invoice,
             name='Printing (requested by %s)' % request.user,
-            prix=users[user],
+            prix=users[user][0],
             number=1,
         )
         invoice.paiement.end_payment(invoice, request)
+        ### If we are here, then either we were able to pay and it's ok,
+        ### Either we weren't able to pay and we need to cancel the jobs.
+        jobs = JobWithOptions.objects.filter(id__in=users[user][1])
+        if user.solde - users[user][0] < 0:
+            for job in jobs:
+                job.status = 'Cancelled'
+                job.save()
+        else:
+            for job in jobs:
+                job.paid = True
+                job.save()
+
     return redirect(reverse(
         'printer:success',
     ))
