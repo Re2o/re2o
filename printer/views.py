@@ -197,7 +197,7 @@ def payment(request):
         invoice.save()
         Vente.objects.create(
             facture=invoice,
-            name='Printing (requested by %s)' % request.user,
+            name='Impressions (par %s)' % request.user,
             prix=users[user][0],
             number=1,
         )
