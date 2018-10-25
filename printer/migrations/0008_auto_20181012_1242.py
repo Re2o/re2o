@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='jobwithoptions',
             name='file',
-            field=models.FileField(storage=django.core.files.storage.FileSystemStorage(location='/var/impressions'), upload_to=printer.utils.user_printing_path, validators=[printer.validators.FileValidator(allowed_types=['application/pdf'], max_size=26214400)]),
+            field=models.FileField(storage=django.core.files.storage.FileSystemStorage(location='/var/impressions'), upload_to=printer.models.user_printing_path, validators=[printer.validators.FileValidator(allowed_types=['application/pdf'], max_size=26214400)]),
         ),
     ]

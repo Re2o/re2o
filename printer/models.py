@@ -7,6 +7,9 @@ Author : Maxime Bombar <bombar@crans.org>.
 
 from __future__ import unicode_literals
 
+from numpy.random import randint
+import unidecode
+
 from django.core.files.storage import FileSystemStorage
 
 from django.db import models
@@ -43,10 +46,13 @@ import math
 - ```Job``` is the main model of a printer job. His parent is the ```user``` model.
 """
 
-
 def user_printing_path(instance, filename):
+    """
+    Defines the path where will be uploaded the files
+    """
     # File will be uploaded to MEDIA_ROOT/printings/user_<id>/<filename>
-    return 'printings/user_{0}/{1}'.format(instance.user.id, filename)
+    return 'printings/user_{0}/{1}'.format(instance.user.id, unidecode.unidecode(filename))
+
 
 class JobWithOptions(RevMixin, models.Model):
         """
