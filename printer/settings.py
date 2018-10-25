@@ -1,7 +1,7 @@
 """printer.settings
 Define variables used in printer app
 """
-
+from django.utils.translation import ugettext_lazy as _
 from preferences.models import OptionalPrinter
 
 settings = OptionalPrinter.objects.get()
@@ -17,33 +17,33 @@ stapling_enabled = settings.stapling_enabled
 perforation_enabled = settings.perforation_enabled
 
 FORMAT_AVAILABLE = (
-    ('A4', 'A4'),
-    ('A3', 'A3'),
+    ('A4', _('A4')),
+    ('A3', _('A3')),
 )
 COLOR_CHOICES = (
-    ('Greyscale', 'Greyscale'),
-    ('Color', 'Color')
+    ('Greyscale', _('Greyscale')),
+    ('Color', _('Color'))
 )
 DISPOSITIONS_AVAILABLE = (
-    ('TwoSided', 'Two sided'),
-    ('OneSided', 'One sided'),
-    ('Booklet', 'Booklet')
+    ('TwoSided', _('Two sided')),
+    ('OneSided', _('One sided')),
+    ('Booklet', _('Booklet'))
 )
 STAPLING_OPTIONS = (
-    ('None', 'None'),
-    ('TopLeft', 'One top left'),
-    ('TopRight', 'One top right'),
-    ('LeftSided', 'Two left sided'),
-    ('RightSided', 'Two right sided')
+    ('None', _('None')),
+    ('TopLeft', _('One top left')),
+    ('TopRight', _('One top right')),
+    ('LeftSided', _('Two left sided')),
+    ('RightSided', _('Two right sided'))
 )
 PERFORATION_OPTIONS = (
-    ('None', 'None'),
-    ('TwoLeftSidedHoles', 'Two left sided holes'),
-    ('TwoRightSidedHoles', 'Two right sided holes'),
-    ('TwoTopHoles', 'Two top holes'),
-    ('TwoBottomHoles', 'Two bottom holes'),
-    ('FourLeftSidedHoles', 'Four left sided holes'),
-    ('FourRightSidedHoles', 'Four right sided holes')
+    ('None', _('None')),
+    ('TwoLeftSidedHoles', _('Two left sided holes')),
+    ('TwoRightSidedHoles', _('Two right sided holes')),
+    ('TwoTopHoles', _('Two top holes')),
+    ('TwoBottomHoles', _('Two bottom holes')),
+    ('FourLeftSidedHoles', _('Four left sided holes')),
+    ('FourRightSidedHoles', _('Four right sided holes'))
 )
 
 
