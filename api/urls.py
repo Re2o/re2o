@@ -122,6 +122,7 @@ router.register_view(r'mailing/club', views.ClubMailingView),
 # PRINTER
 router.register_viewset(r'printer/printable-jobs', views.PrintableJobsViewSet, 'printablejobs')
 router.register_viewset(r'printer/history-jobs', views.HistoryJobsViewSet, 'historyjobs')
+router.register_viewset(r'printer/printoperation', views.PrintOperationViewSet, 'printoperation')
 # TOKEN AUTHENTICATION
 router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
 

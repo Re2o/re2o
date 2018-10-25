@@ -719,6 +719,15 @@ class EMailAddressSerializer(NamespacedHMSerializer):
 
 # PRINTER
 
+class PrintOperationSerializer(NamespacedHMSerializer):
+    """Serialiaze abstract print operation
+    """
+    class Meta:
+        model = printer.PrintOperation
+        extra_kwargs = {
+            'api_url' : {'view_name': 'printoperation-detail'}
+        }
+
 class PrintableJobSerializer(NamespacedHMSerializer):
     """Serialize the jobs to be printed
     """
