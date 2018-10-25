@@ -11,6 +11,7 @@ from numpy.random import randint
 import unidecode
 
 from django.core.files.storage import FileSystemStorage
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.db import models
 from django.forms import ValidationError
@@ -20,8 +21,6 @@ from django.template.defaultfilters import filesizeformat
 from re2o.mixins import RevMixin
 
 import users.models
-
-import unidecode
 
 from .validators import (
     FileValidator,
@@ -52,6 +51,28 @@ def user_printing_path(instance, filename):
     """
     # File will be uploaded to MEDIA_ROOT/printings/user_<id>/<filename>
     return 'printings/user_{0}/{1}'.format(instance.user.id, unidecode.unidecode(filename))
+
+
+class Digicode(RevMixin, models.Model):
+        """
+    This is a model to represent a digicode, maybe should be an external app.
+        """
+        code = models.BigIntegerField(default=0, unique=True)
+        user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+        created = models.DateTimeField(auto_now_add=True)
+        used_time = models.DateTimeField(null=True)
+
+        def _gen_code(user):
+            try_again = True
+            while try_again:
+                try:
+                    code = randint(695895, 6958942)*1437+38
+                    Digicode.objects.get(code=code)
+                except ObjectDoesNotExist:
+                    try_again = False
+            digicode = Digicode.objects.create(code=code, user=user)
+            digicode.save()
+            return (str(code) + '#')
 
 
 class JobWithOptions(RevMixin, models.Model):

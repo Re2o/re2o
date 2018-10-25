@@ -5,9 +5,9 @@ import os
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 
-from preferences.models import OptionalPrinter, GeneralOption, AssoOption
+from preferences.models import GeneralOption, AssoOption
 
-from numpy.random import randint
+from .models import Digicode
 
 import datetime
 
@@ -54,20 +54,11 @@ def pdfbook(file_path):
         ])
     return newfile
 
-
-def gen_code():
-    code = randint(10**9, 10**10-1)
-    while code % 1437 != 38:
-        code = randint(10**9, 10**10-1)
-    return (str(code) + '#')
-
-
 def send_mail_printer(client):
     """Sends an email to the client explaning how to get the printings"""
 
     template = get_template('printer/email_printer')
-    code = gen_code()
-
+    code = Digicode._gen_code(client)
 
     printer_access_fr = "au quatrième (4) étage du bâtiment J (code B7806)"
     printer_access_en = "on fourth (4th) floor of building J (code B7806)"
