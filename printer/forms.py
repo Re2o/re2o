@@ -10,6 +10,7 @@ from django.forms import (
     Form,
     ModelForm,
 )
+from django.utils.translation import ugettext_lazy as _
 
 import itertools
 
@@ -27,12 +28,12 @@ class JobWithOptionsForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         self.user = kwargs.pop('user')
         super(JobWithOptionsForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['printAs'].label = 'Print As'
-        self.fields['printAs'].empty_label = self.user.pseudo
-        self.fields['printAs'].queryset = self.user.adherent.club_members.all()
-        self.fields['disposition'].label = 'disposition'
-        self.fields['color'].label = 'color'
-        self.fields['count'].label = 'count'
+        if not self.user.adherent.club_members.all():
+            self.fields.pop('printAs')
+        else:
+            self.fields['printAs'].label = _('Print As')
+            self.fields['printAs'].empty_label = self.user.pseudo
+            self.fields['printAs'].queryset = self.user.adherent.club_members.all()
 
     class Meta:
         model = JobWithOptions
@@ -46,34 +47,3 @@ class JobWithOptionsForm(FormRevMixin, ModelForm):
             ]
 
 
-class PrintForm(FormRevMixin, ModelForm):
-
-    jid = forms.IntegerField(widget=forms.HiddenInput())
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        self.user = kwargs.pop('user')
-        super(PrintForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['printAs'].label = 'Print As'
-        self.fields['printAs'].empty_label = self.user.pseudo
-        self.fields['printAs'].queryset = self.user.adherent.club_members.all()
-        self.fields['disposition'].label = 'disposition'
-        self.fields['color'].label = 'color'
-        self.fields['count'].label = 'count'
-
-        self.fields['jid'].widget.attrs['readonly'] = True
-        self.fields['printAs'].widget.attrs['readonly'] = True
-        self.fields['filename'].widget.attrs['readonly'] = True
-        self.fields['price'].widget.attrs['readonly'] = True
-        self.fields['pages'].widget.attrs['readonly'] = True
-
-    class Meta:
-        model = JobWithOptions
-        exclude = [
-            'user',
-            'starttime',
-            'endtime',
-            'status',
-            'file',
-            'paid',
-            ]
