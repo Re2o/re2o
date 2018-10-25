@@ -22,11 +22,11 @@ from .utils import pdfinfo, send_mail_printer
 
 from .models import (
     JobWithOptions,
+    PrintOperation
     )
 
 from .forms import (
     JobWithOptionsForm,
-    PrintForm,
     )
 
 
@@ -41,131 +41,93 @@ from cotisations.utils import find_payment_method
 from cotisations.payment_methods.balance.models import BalancePayment
 
 from django.core.exceptions import ValidationError
-
-# raise ValidationError("'%(path)s'", code='path', params = {'path': job.printAs})
+from re2o.acl import (
+    can_edit
+)
 
 @login_required
 def new_job(request):
     """
     View to create a new printing job
     """
-    if request.method == 'POST':
+    print_operation = PrintOperation(user=request.user)
 
-        ### First Step
-        if 'Next' in request.POST:
-            job_formset = formset_factory(JobWithOptionsForm)(
-                request.POST,
-                request.FILES or None,
-                form_kwargs={'user': request.user},
-            )
+    job_formset = formset_factory(JobWithOptionsForm)(
+        request.POST or None,
+        request.FILES or None,
+        form_kwargs={'user': request.user},
+    )
 
-            if job_formset.is_valid():
-                data = []
-                i=0
-                for job in job_formset:
-                    ### Fails if one of the forms is submitted without a file.
-                    try:
-                        filename = job.cleaned_data['file'].name
-                        job = job.save(commit=False)
-                        job.filename = filename
-                        job.user=request.user
-                        if job.printAs is None:
-                            job.printAs = request.user
-                        job.status='Pending'
-                        metadata = pdfinfo(request.FILES['form-%s-file' % i].temporary_file_path())
-                        job.pages = metadata["Pages"]
-                        job._update_price()
-                        job.save()
-                        job_data = model_to_dict(job)
-                        job_data['jid'] = job.id
-                        data.append(job_data)
-                    except KeyError:
-                        job_formset.errors[i] = {'file': ['This field is required.']}
-                    i+=1
-                job_formset_filled_in = formset_factory(PrintForm, extra=0)(
-                    initial=data,
-                    form_kwargs={'user': request.user},
-                )
-
-                if job_formset.total_error_count() == 0:
-                    ### Every job in the formset has been treated;
-                    ### And no empty file. --> Go to next step.
-                    return form(
-                        {
-                            'jobform': job_formset_filled_in,
-                            'action_name' : 'Print',
-                        },
-                        'printer/print.html',
-                        request
-                    )
-                else:
-                    ### No file
-                    return form(
-                        {
-                            'jobform': job_formset,
-                            'action_name': _("Next"),
-                        },
-                        'printer/newjob.html',
-                        request
-                    )
-
-            ### Formset is not valid --> Return the formset with errors
-            else:
-                return form(
-                    {
-                        'jobform': job_formset,
-                        'action_name': _("Next"),
-                    },
-                    'printer/newjob.html',
-                    request
-                )
-
-        ### Second step
-        elif 'Print' in request.POST:
-            job_formset = formset_factory(PrintForm)(
-                request.POST,
-                form_kwargs={'user': request.user},
-            )
-            if job_formset.is_valid():
-                for job_form in job_formset:
-                    data = job_form.cleaned_data
-                    jid = data['jid']
-                    job = JobWithOptions.objects.get(id=jid)
-                    job.user = request.user
-                    job.status = 'Printable'
-                    if data['printAs']:
-                        job.printAs = data['printAs']
-                    job.format = data['format']
-                    job.color = data['color']
-                    job.disposition = data['disposition']
-                    job.count = data['count']
-                    job.stapling = data['stapling']
-                    job.perforation = data['perforation']
-                    job._update_price()
-                    job.save()
-                return redirect('printer:payment')
-
-
-    ### GET request
-    else:
-        job_formset = formset_factory(JobWithOptionsForm)(
-            form_kwargs={'user': request.user}
-        )
+    if job_formset.is_valid():
+        job_form = job_formset
+        print_operation.save()
+        for count, job in enumerate(job_form):
+            ### Fails if one of the forms is submitted without a file.
+            try:
+                filename = job.cleaned_data['file'].name
+                job_instance = job.save(commit=False)
+                job_instance.filename = filename
+                job_instance.print_operation = print_operation
+                job_instance.user=request.user
+  
+                job_instance.printAs = job.cleaned_data['printAs'] or request.user
+                metadata = pdfinfo(request.FILES['form-%s-file' % count].temporary_file_path())
+                job_instance.pages = metadata["Pages"]
+                job_instance.save()
+            except KeyError:
+                job_form.errors[count] = {'file': ['This field is required.']}
+        if job_formset.total_error_count() == 0:
+            return redirect(reverse(
+                'printer:print-job',
+                kwargs={'printoperationid': print_operation.id}
+            ))
 
     return form(
         {
             'jobform': job_formset,
-            'action_name': _("Next"),
+            'action_name': _('Next'),
         },
         'printer/newjob.html',
         request
     )
 
-def payment(request):
+
+@login_required
+@can_edit(PrintOperation)
+def print_job(request, printoperation, **_kwargs):
+    jobs_to_edit = JobWithOptions.objects.filter(print_operation=printoperation)
+    job_modelformset = modelformset_factory(
+        JobWithOptions,
+        extra=0,
+        fields=('color', 'disposition', 'count', 'stapling', 'perforation'),
+        max_num=jobs_to_edit.count()
+    )
+    job_formset = job_modelformset(
+        request.POST or None,
+        queryset=jobs_to_edit
+    )
+    if job_formset.is_valid():
+        job_formset.save()
+        for job_form in job_formset:
+            job = job_form.instance
+            job.status = 'Printable'
+            job.save()
+        return payment(request, jobs_to_edit)
+    return form(
+        {
+            'jobform': job_formset,
+            'action_name': _('Print'),
+        },
+        'printer/print.html',
+        request
+    )
+
+
+def payment(request, jobs):
     """
     View used to create a new invoice and make the payment
     """
-    jobs = JobWithOptions.objects.filter(user=request.user, status='Printable', paid='False')
+    success = 0
     users = {}
     for job in jobs:
         try:
@@ -194,7 +156,7 @@ def payment(request):
         invoice.save()
         Vente.objects.create(
             facture=invoice,
-            name='Impressions (par %s)' % request.user,
+            name='Impressions',
             prix=users[user][0],
             number=1,
         )
@@ -210,15 +172,10 @@ def payment(request):
             for job in jobs:
                 job.paid = True
                 job.save()
-
+                success=1
+    if success:
+        send_mail_printer(request.user)
     return redirect(reverse(
-        'printer:success',
+        'users:profil',
+        kwargs={'userid': str(request.user.id)}
     ))
-
-def success(request):
-    send_mail_printer(request.user)
-    return form(
-        {},
-        'printer/success.html',
-        request
-        )
