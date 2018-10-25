@@ -18,7 +18,7 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import filesizeformat
 
-from re2o.mixins import RevMixin
+from re2o.mixins import RevMixin, AclMixin
 
 import users.models
 
@@ -74,8 +74,20 @@ class Digicode(RevMixin, models.Model):
             digicode.save()
             return (str(code) + '#')
 
+class PrintOperation(RevMixin, AclMixin, models.Model):
+    """Abstract printing operation"""
+    user = models.ForeignKey('users.User', on_delete=models.PROTECT)
 
-class JobWithOptions(RevMixin, models.Model):
+    def can_edit(self, user_request, *args, **kwargs):
+        if user_request.has_perm('printer.change_printoperation'):
+            return True, None
+        elif user_request == self.user:
+            return True, None
+        else:
+            return False, _("This is not your print operation task")
+
+
+class JobWithOptions(RevMixin, AclMixin, models.Model):
         """
     This is the main model of printer application :
 
@@ -109,38 +121,86 @@ class JobWithOptions(RevMixin, models.Model):
         ```_update_price``` update printing price
     """
         STATUS_AVAILABLE = (
-                ('Pending', 'Pending'),
-                ('Printable', 'Printable'),
-                ('Running', 'Running'),
-                ('Cancelled', 'Cancelled'),
-                ('Finished', 'Finished')
+                ('Pending', _('Pending')),
+                ('Printable', _('Printable')),
+                ('Running', _('Running')),
+                ('Cancelled', _('Cancelled')),
+                ('Finished', _('Finished'))
         )
         user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+        print_operation = models.ForeignKey('PrintOperation', on_delete=models.CASCADE)
         paid = models.BooleanField(default='False')
-        file = models.FileField(storage=FileSystemStorage(location='/var/impressions'),
-                                upload_to=user_printing_path,
-                                validators=[FileValidator(
-                                        allowed_types=ALLOWED_TYPES,
-                                        max_size=MAX_PRINTFILE_SIZE)
-                                ])
-        filename = models.CharField(max_length=255,null=True)
+        file = models.FileField(
+            storage=FileSystemStorage(location='/var/impressions'),
+            upload_to=user_printing_path,
+            validators=[FileValidator(
+                allowed_types=ALLOWED_TYPES,
+                max_size=MAX_PRINTFILE_SIZE)
+            ],
+            verbose_name=_('File')
+        )
+        filename = models.CharField(
+            max_length=255,
+            null=True,
+            verbose_name=_('File Name')
+        )
         starttime = models.DateTimeField(auto_now_add=True)
         endtime = models.DateTimeField(null=True)
-        status = models.CharField(max_length=255, choices=STATUS_AVAILABLE)
-        printAs = models.ForeignKey('users.User', on_delete=models.PROTECT, related_name='print_as_user', blank=True, null=True)
+        status = models.CharField(
+            max_length=255,
+            choices=STATUS_AVAILABLE,
+            verbose_name=_('Status'),
+            default='Pending'
+        )
+        printAs = models.ForeignKey(
+            'users.User',
+            on_delete=models.PROTECT,
+            related_name='print_as_user',
+            blank=True,
+            null=True,
+            verbose_name=_('Print as')
+        )
         price = models.DecimalField(
             max_digits=5,
             decimal_places=2,
-            verbose_name=_("price"),
-            default=0.0)
+            verbose_name=_("Price"),
+            default=0.0
+        )
         pages = models.IntegerField(default=0)
-
-        format = models.CharField(max_length=255, choices=FORMAT_AVAILABLE, default='A4')
-        color = models.CharField(max_length=255, choices=COLOR_CHOICES, default='Greyscale')
-        disposition = models.CharField(max_length=255, choices=DISPOSITIONS_AVAILABLE, default='TwoSided')
-        count = models.PositiveIntegerField(default=1)
-        stapling = models.CharField(max_length=255, choices=STAPLING_OPTIONS, default='None')
-        perforation = models.CharField(max_length=255, choices=PERFORATION_OPTIONS, default='None')
+        format = models.CharField(
+            max_length=255,
+            choices=FORMAT_AVAILABLE,
+            default='A4',
+            verbose_name=_("Format")
+        )
+        color = models.CharField(
+            max_length=255,
+            choices=COLOR_CHOICES,
+            default='Greyscale',
+            verbose_name=_("Color")
+        )
+        disposition = models.CharField(
+            max_length=255,
+            choices=DISPOSITIONS_AVAILABLE,
+            default='TwoSided',
+            verbose_name=_("Disposition")
+        )
+        count = models.PositiveIntegerField(
+            default=1,
+            verbose_name=_("Count")
+        )
+        stapling = models.CharField(
+            max_length=255,
+            choices=STAPLING_OPTIONS,
+            default='None',
+            verbose_name=_("Stapling")
+        )
+        perforation = models.CharField(
+            max_length=255,
+            choices=PERFORATION_OPTIONS,
+            default='None',
+            verbose_name=_("Perforation")
+        )
 
 
         def _update_price(self):
@@ -172,48 +232,9 @@ class JobWithOptions(RevMixin, models.Model):
 
             total_price = math.floor(self.count * (price_ink + price_stapling))
 
-            return float(total_price)/100
+            return total_price/100
 
-        @staticmethod
-        def can_view_all(user_request, *_args, **_kwargs):
-                """
-                """
-                return (
-                        True, None
-                )
+        def save(self, *args, **kwargs):
+            self._update_price()
+            super(JobWithOptions, self).save(*args, **kwargs)
 
-
-        @staticmethod
-        def can_create(user_request, *_args, **_kwargs):
-                """
-                """
-                return(
-                        True, None
-                )
-
-
-        @staticmethod
-        def can_view(user_request, *_args, **_kwargs):
-                """
-                """
-                return(
-                        True, None
-                )
-
-
-        @staticmethod
-        def can_edit(user_request, *_args, **_kwargs):
-                """
-                """
-                return(
-                        True, None
-                )
-
-        @staticmethod
-        def can_delete(user_request, *_args, **_kwargs):
-                """
-
-                """
-                return(
-                        True, None
-                )
