@@ -16,10 +16,15 @@
     <div id="form_set" class="form-group container">
       {% for job in jobform.forms %}
       <div class="file_to_print col-xs-12 col-sm-4 col-md-3" style="margin-top:1em">
+	<h4>Summary</h4>
+	<h6>{% trans "Filename : " %}{{ job.instance.filename }}</h6>
+	<h6>{% trans "Price for one copy : " %}{{ job.instance.price }} €</h6>
+	<h6>{% trans "Number of pages : " %}{{ job.instance.pages }}</h6>
+	<h4>Advanced options</h4>
 	{% massive_bootstrap_form job "" %}
       </div>
       {% endfor %}
     </div>
-  {% bootstrap_button action_name name="Print" button_type="submit" icon="star" %}
+  {% bootstrap_button action_name button_type="submit" icon="ok" button_class='btn-success' %}
 </form>
 {% endblock %}

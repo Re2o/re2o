@@ -15,21 +15,23 @@
   {% bootstrap_formset_errors jobform %}
   <div class="row">
   <div id="form_set" class="form-group container">
-    {% for job in jobform.forms %}
+     {% for job in jobform.forms %}
     <div class="file_to_print col-xs-12 col-sm-4 col-md-3" style="margin-top:1em">
       {% massive_bootstrap_form job ""  %}
       <button class="btn btn-danger form-job-remove" type="button">
         <span class="fa fa-times"></span>
+        {% trans "Delete file"%}
       </button>
     </div>
     {% endfor %}
   </div>
   </div>
 
-  <div class="col-xs-12 row btn-toolbar">
-  <button type="button" class="btn btn-primary" role="button" id="add_one">{% trans "Add a file"%}</button>
+  <hr>
 
-  {% bootstrap_button action_name name="Next" button_type="submit" icon="star" %}
+  <div class="col-xs-12 row btn-toolbar">
+  <button type="button" class="btn btn-primary" icon="plus" role="button" id="add_one">{% trans "Add a file"%}</button>
+  {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
   </div>
   <div style="clear:both; margin-bottom:1em"></div>
 </form>
@@ -38,6 +40,7 @@
   var template = `{% bootstrap_form jobform.empty_form  %}
           <button class="btn btn-danger form-job-remove" type="button">
             <span class="fa fa-times"></span>
+            {% trans "Delete file"%}
         </button>`
   
 	function add_job() {
