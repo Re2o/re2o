@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import filesizeformat
 
 from re2o.mixins import RevMixin, AclMixin
-
+from re2o.field_permissions import FieldPermissionModelMixin
 import users.models
 
 from .validators import (
@@ -87,7 +87,7 @@ class PrintOperation(RevMixin, AclMixin, models.Model):
             return False, _("This is not your print operation task")
 
 
-class JobWithOptions(RevMixin, AclMixin, models.Model):
+class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
     This is the main model of printer application :
 
@@ -233,6 +233,15 @@ class JobWithOptions(RevMixin, AclMixin, models.Model):
             total_price = math.floor(self.count * (price_ink + price_stapling))
 
             return total_price/100
+
+        def __init__(self, *args, **kwargs):
+            super(JobWithOptions, self).__init__(*args, **kwargs)
+            self.field_permissions = {
+                'printAs': self.can_change_printas,
+            }
+
+        def can_change_printas(self, user_request, *_args, **_kwargs):
+            return user_request.adherent.club_members.all(), None
 
         def save(self, *args, **kwargs):
             self._update_price()

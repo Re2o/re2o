@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import itertools
 
+from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 
 from users.models import User
@@ -23,17 +24,15 @@ from .models import (
 )
 
 
-class JobWithOptionsForm(FormRevMixin, ModelForm):
+class JobWithOptionsForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        self.user = kwargs.pop('user')
+        user=kwargs.get('user')
         super(JobWithOptionsForm, self).__init__(*args, prefix=prefix, **kwargs)
-        if not self.user.adherent.club_members.all():
-            self.fields.pop('printAs')
-        else:
+        if 'printAs' in self.fields:
             self.fields['printAs'].label = _('Print As')
-            self.fields['printAs'].empty_label = self.user.pseudo
-            self.fields['printAs'].queryset = self.user.adherent.club_members.all()
+            self.fields['printAs'].empty_label = user.pseudo
+            self.fields['printAs'].queryset = user.adherent.club_members.all()
 
     class Meta:
         model = JobWithOptions

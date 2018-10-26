@@ -69,8 +69,7 @@ def new_job(request):
                 job_instance.filename = filename
                 job_instance.print_operation = print_operation
                 job_instance.user=request.user
-  
-                job_instance.printAs = job.cleaned_data['printAs'] or request.user
+                job_instance.printAs = job.cleaned_data.get('printAs', request.user)
                 metadata = pdfinfo(request.FILES['form-%s-file' % count].temporary_file_path())
                 job_instance.pages = metadata["Pages"]
                 job_instance.save()
