@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-26 01:01+0200\n"
+"POT-Creation-Date: 2018-10-26 17:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,186 +18,215 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: printer/forms.py:34
+#: forms.py:33
 msgid "Print As"
 msgstr "Imprimer en tant que"
 
-#: printer/models.py:116
+#: models.py:87
+msgid "This is not your print operation task"
+msgstr "Ceci n'est pas votre tache"
+
+#: models.py:124
 msgid "Pending"
 msgstr "En attente"
 
-#: printer/models.py:117
+#: models.py:125
 msgid "Printable"
 msgstr "Imprimable"
 
-#: printer/models.py:118
+#: models.py:126
 msgid "Running"
 msgstr "En cours..."
 
-#: printer/models.py:119
+#: models.py:127
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: printer/models.py:120
+#: models.py:128
 msgid "Finished"
 msgstr "Terminée"
 
-#: printer/models.py:132
+#: models.py:140
 msgid "File"
 msgstr "Fichier"
 
-#: printer/models.py:137
+#: models.py:145 templates/printer/aff_jobs.html:31
 msgid "File Name"
 msgstr "Nom du fichier"
 
-#: printer/models.py:144
+#: models.py:152 templates/printer/aff_jobs.html:34
 msgid "Status"
 msgstr "Status"
 
-#: printer/models.py:153
+#: models.py:161
 #, fuzzy
 #| msgid "Print As"
 msgid "Print as"
 msgstr "Imprimer en tant que"
 
-#: printer/models.py:158
+#: models.py:166 templates/printer/aff_jobs.html:36
 #, fuzzy
 #| msgid "price"
 msgid "Price"
 msgstr "Prix"
 
-#: printer/models.py:166
+#: models.py:174
 msgid "Format"
 msgstr "Format"
 
-#: printer/models.py:172 printer/settings.py:25
+#: models.py:180 settings.py:25
 msgid "Color"
 msgstr "Couleur"
 
-#: printer/models.py:178
+#: models.py:186
 msgid "Disposition"
 msgstr "Disposition"
 
-#: printer/models.py:182
+#: models.py:190
 msgid "Count"
 msgstr "Nombre"
 
-#: printer/models.py:188
+#: models.py:196
 msgid "Stapling"
 msgstr "Agrafage"
 
-#: printer/models.py:194
+#: models.py:202
 msgid "Perforation"
 msgstr "Perforation"
 
-#: printer/settings.py:20
+#: models.py:243
+msgid "This is not your print job"
+msgstr "Ceci n'est pas votre tache"
+
+#: settings.py:20
 msgid "A4"
 msgstr "A4"
 
-#: printer/settings.py:21
+#: settings.py:21
 msgid "A3"
 msgstr "A3"
 
-#: printer/settings.py:24
+#: settings.py:24
 msgid "Greyscale"
 msgstr "Noir et blanc"
 
-#: printer/settings.py:28
+#: settings.py:28
 msgid "Two sided"
 msgstr "Recto-verso"
 
-#: printer/settings.py:29
+#: settings.py:29
 msgid "One sided"
 msgstr "Recto"
 
-#: printer/settings.py:30
+#: settings.py:30
 msgid "Booklet"
 msgstr "Livret"
 
-#: printer/settings.py:33 printer/settings.py:40
+#: settings.py:33 settings.py:40
 msgid "None"
 msgstr "Aucun"
 
-#: printer/settings.py:34
+#: settings.py:34
 msgid "One top left"
 msgstr "En haut à gauche"
 
-#: printer/settings.py:35
+#: settings.py:35
 msgid "One top right"
 msgstr "En haut à droite"
 
-#: printer/settings.py:36
+#: settings.py:36
 msgid "Two left sided"
 msgstr "Deux à gauche"
 
-#: printer/settings.py:37
+#: settings.py:37
 msgid "Two right sided"
 msgstr "Deux à droite"
 
-#: printer/settings.py:41
+#: settings.py:41
 msgid "Two left sided holes"
 msgstr "Deux trous à gauche"
 
-#: printer/settings.py:42
+#: settings.py:42
 msgid "Two right sided holes"
 msgstr "Deux trous à droite"
 
-#: printer/settings.py:43
+#: settings.py:43
 msgid "Two top holes"
 msgstr "Deux trous en haut"
 
-#: printer/settings.py:44
+#: settings.py:44
 msgid "Two bottom holes"
 msgstr "Deux trous en bas"
 
-#: printer/settings.py:45
+#: settings.py:45
 msgid "Four left sided holes"
 msgstr "Quatre trous à gauche"
 
-#: printer/settings.py:46
+#: settings.py:46
 msgid "Four right sided holes"
 msgstr "Quatre trous à droite"
 
-#: printer/templates/printer/echec.html:11
-msgid "Failure"
-msgstr "Echec"
+#: templates/printer/aff_jobs.html:32
+msgid "By user"
+msgstr "Par"
 
-#: printer/templates/printer/newjob.html:13
+#: templates/printer/aff_jobs.html:33
+msgid "Start at"
+msgstr "Début"
+
+#: templates/printer/aff_jobs.html:35
+msgid "Number"
+msgstr "Exemplaires"
+
+#: templates/printer/aff_jobs.html:43
+msgid "for"
+msgstr "pour"
+
+#: templates/printer/index_jobs.html:28
+#, fuzzy
+#| msgid "Print"
+msgid "Printer"
+msgstr "Imprimer"
+
+#: templates/printer/index_jobs.html:31 templates/printer/sidebar.html:34
+msgid "List of jobs"
+msgstr "Liste des taches"
+
+#: templates/printer/newjob.html:13
 msgid "Printing Menu"
 msgstr "Menu d'impression"
 
-#: printer/templates/printer/newjob.html:23
-#: printer/templates/printer/newjob.html:44
+#: templates/printer/newjob.html:23 templates/printer/newjob.html:43
 msgid "Delete file"
 msgstr "Supprimer le fichier"
 
-#: printer/templates/printer/newjob.html:34
+#: templates/printer/newjob.html:33
 msgid "Add a file"
 msgstr "Fichier supplémentaire"
 
-#: printer/templates/printer/print.html:13
+#: templates/printer/print.html:13
 msgid "Confirm printing"
 msgstr "Confirmer le lancement de l'impression"
 
-#: printer/templates/printer/print.html:20
+#: templates/printer/print.html:20
 #, fuzzy
 #| msgid "File Name"
 msgid "Filename : "
 msgstr "Nom du fichier"
 
-#: printer/templates/printer/print.html:21
+#: templates/printer/print.html:21
 msgid "Price for one copy : "
 msgstr "Prix d'une copie : "
 
-#: printer/templates/printer/print.html:22
+#: templates/printer/print.html:22
 msgid "Number of pages : "
 msgstr "Nombre de pages : "
 
-#: printer/templates/printer/success.html:11
-msgid "Success"
-msgstr "Succès"
+#: templates/printer/sidebar.html:30
+msgid "Print document"
+msgstr "Imprimer un document"
 
-#: printer/validators.py:48
+#: validators.py:48
 #, python-format
 msgid ""
 "MIME type '%(type)s' is not valid. Please, use one of these types: "
@@ -206,7 +235,7 @@ msgstr ""
 "Le type '%(type)s' n'est pas autorisé. Merci d'utiliser un type"
 "%(allowed_types)s."
 
-#: printer/validators.py:51
+#: validators.py:51
 #, python-format
 msgid ""
 "The current file size is %(size)s. The maximum file size is %(max_size)s."
@@ -214,14 +243,20 @@ msgstr ""
 "Le fichier a une taille de %(size)s. La taille maximum autorisée est "
 "%(max_size)s."
 
-#: printer/views.py:89
+#: views.py:84
 msgid "Next"
 msgstr "Suivant"
 
-#: printer/views.py:121
+#: views.py:115
 msgid "Print"
 msgstr "Imprimer"
 
-#: printer/views.py:150
+#: views.py:144
 msgid "You are not allowed to print"
 msgstr "Vous n'êtes pas autorisé à imprimer"
+
+#~ msgid "Failure"
+#~ msgstr "Echec"
+
+#~ msgid "Success"
+#~ msgstr "Succès"

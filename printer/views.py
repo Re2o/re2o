@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 
 from re2o.views import form
 from users.models import User
-
+from re2o.utils import re2o_paginator
 from . import settings
 
 from .utils import pdfinfo, send_mail_printer
@@ -24,20 +24,17 @@ from .models import (
     JobWithOptions,
     PrintOperation
     )
-
 from .forms import (
     JobWithOptionsForm,
     )
 
-
+from preferences.models import GeneralOption
 from cotisations.models import(
     Paiement,
     Facture,
     Vente,
 )
-
 from cotisations.utils import find_payment_method
-
 from cotisations.payment_methods.balance.models import BalancePayment
 
 from django.core.exceptions import ValidationError
@@ -178,3 +175,11 @@ def payment(request, jobs):
         'users:profil',
         kwargs={'userid': str(request.user.id)}
     ))
+
+@login_required
+def index_jobs(request):
+    """ Display jobs"""
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    jobs = JobWithOptions.objects.select_related('user').select_related('print_operation')
+    jobs_list = re2o_paginator(request, jobs, pagination_number)
+    return render(request, 'printer/index_jobs.html', {'jobs_list': jobs_list})
