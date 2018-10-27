@@ -4,7 +4,7 @@ Define variables used in printer app
 from django.utils.translation import ugettext_lazy as _
 from preferences.models import OptionalPrinter
 
-settings = OptionalPrinter.objects.get()
+settings, created  = OptionalPrinter.objects.get_or_create()
 
 MAX_PRINTFILE_SIZE = settings.max_size * 1024 * 1024 # 25 MB
 ALLOWED_TYPES = ['application/pdf']
