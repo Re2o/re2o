@@ -41,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% can_view job %}
             <tr>
                 <td>{{ job.filename }}</td>
-		<td>{{ job.user }} {% if job.user != job.printAs %} {% trans "for" %} {{ job.printAs }}{% endif %}</td>
+		<td>{{ job.user }} {% if job.printAs %} {% trans "for" %} {{ job.printAs }}{% endif %}</td>
                 <td>{{ job.starttime }}</td>
 		<td>{{ job.status }}</td>
                 <td>{{ job.count }}</td>

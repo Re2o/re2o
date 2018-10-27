@@ -67,7 +67,6 @@ def new_job(request):
                 job_instance.filename = filename
                 job_instance.print_operation = print_operation
                 job_instance.user=request.user
-                job_instance.printAs = job.cleaned_data.get('printAs', request.user)
                 metadata = pdfinfo(request.FILES['form-%s-file' % count].temporary_file_path())
                 job_instance.pages = metadata["Pages"]
                 job_instance.save()
@@ -155,10 +154,10 @@ def payment(request, jobs):
     users = {}
     for job in jobs:
         try:
-            users[job.printAs][0]+=job.price
-            users[job.printAs][1].append(job.id)
+            users[job.printAs or job.user][0]+=job.price
+            users[job.printAs or job.user][1].append(job.id)
         except KeyError:
-            users[job.printAs]=[job.price, [job.id]]
+            users[job.printAs or job.user]=[job.price, [job.id]]
 
     balancePayment =  BalancePayment.objects.get()
     minimum_balance = balancePayment.minimum_balance

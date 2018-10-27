@@ -51,8 +51,11 @@ class PrintAgainForm(JobWithOptionsForm):
         user=kwargs.get('user')
         super(PrintAgainForm, self).__init__(*args, **kwargs)
         if 'printAs' in self.fields:
-            self.fields['printAs'].queryset = User.objects.filter(club__in=user.adherent.club_members.all()) | User.objects.filter(pseudo='dstan')
-
+            self.fields['printAs'].empty_label = user.pseudo
+            if self.instance.user != user:
+                self.fields['printAs'].queryset = User.objects.filter(club__in=user.adherent.club_members.all()) | User.objects.filter(id=self.instance.user.id)
+            else:
+                self.fields['printAs'].queryset = user.adherent.club_members.all()
 
     class Meta:
         model = JobWithOptions
