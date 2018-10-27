@@ -120,7 +120,7 @@ class EditOptionalTopologieForm(ModelForm):
         self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
                                                    " by RADIUS")
 
-        self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True)
+        self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True).order_by('interface__domain__name')
 
     def save(self, commit=True):
         instance = super().save(commit)

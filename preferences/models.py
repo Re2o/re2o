@@ -260,7 +260,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
     def provisioned_switchs(self):
         """Liste des switches provisionnés"""
         from topologie.models import Switch
-        return Switch.objects.filter(automatic_provision=True)
+        return Switch.objects.filter(automatic_provision=True).order_by('interface__domain__name')
 
     @cached_property
     def switchs_management_interface(self):
