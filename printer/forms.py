@@ -46,3 +46,20 @@ class JobWithOptionsForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
             ]
 
 
+class PrintAgainForm(JobWithOptionsForm):
+    def __init__(self, *args, **kwargs):
+        user=kwargs.get('user')
+        super(PrintAgainForm, self).__init__(*args, **kwargs)
+        if 'printAs' in self.fields:
+            self.fields['printAs'].queryset = User.objects.filter(club__in=user.adherent.club_members.all()) | User.objects.filter(pseudo='dstan')
+
+
+    class Meta:
+        model = JobWithOptions
+        fields = [
+            'printAs',
+            'color',
+            'disposition',
+            'format',
+            'count',
+            ] 

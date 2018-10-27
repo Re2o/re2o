@@ -26,6 +26,7 @@ from .models import (
     )
 from .forms import (
     JobWithOptionsForm,
+    PrintAgainForm
     )
 
 from preferences.models import GeneralOption
@@ -91,6 +92,7 @@ def new_job(request):
 @login_required
 @can_edit(PrintOperation)
 def print_job(request, printoperation, **_kwargs):
+    """Print a job, confirm after new job step"""
     jobs_to_edit = JobWithOptions.objects.filter(print_operation=printoperation)
     job_modelformset = modelformset_factory(
         JobWithOptions,
@@ -117,6 +119,32 @@ def print_job(request, printoperation, **_kwargs):
         'printer/print.html',
         request
     )
+
+@login_required
+@can_edit(JobWithOptions)
+def print_job_again(request, jobwithoptions, **_kwargs):
+    """Print a job again"""
+    jobwithoptionsform = formset_factory(PrintAgainForm)(
+        request.POST or None,
+        request.FILES or None,
+        form_kwargs={'user': request.user, 'instance': jobwithoptions},
+    )
+    if jobwithoptionsform.is_valid():
+        for job_form in jobwithoptionsform:
+            jobwithoptions = job_form.instance
+            jobwithoptions.pk = None
+            jobwithoptions.print_operation = PrintOperation.objects.create(user=jobwithoptions.print_operation.user)
+            jobwithoptions.status = 'Running'
+            jobwithoptions.save()
+            return payment(request, [jobwithoptions])
+    return form(
+        {
+            'jobform': jobwithoptionsform,
+            'action_name': _('Print'),
+        },
+        'printer/print.html',
+        request
+    ) 
 
 
 def payment(request, jobs):
@@ -160,7 +188,7 @@ def payment(request, jobs):
         ### If we are here, then either we were able to pay and it's ok,
         ### Either we weren't able to pay and we need to cancel the jobs.
         jobs = JobWithOptions.objects.filter(id__in=users[user][1])
-        if user.solde - users[user][0] < 0:
+        if float(user.solde) - float(users[user][0]) < 0:
             for job in jobs:
                 job.status = 'Cancelled'
                 job.save()
@@ -180,6 +208,8 @@ def payment(request, jobs):
 def index_jobs(request):
     """ Display jobs"""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    jobs = JobWithOptions.objects.select_related('user').select_related('print_operation')
+    jobs = JobWithOptions.objects.select_related('user')\
+        .select_related('print_operation')\
+        .order_by('starttime').reverse()
     jobs_list = re2o_paginator(request, jobs, pagination_number)
     return render(request, 'printer/index_jobs.html', {'jobs_list': jobs_list})

@@ -34,7 +34,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "Status" %}</th>
             <th>{% trans "Number" %}</th>
             <th>{% trans "Price" %}</th>
-        </tr>
+            <th>{% trans "Print again" %}</th>
+	</tr>
         </thead>
         {% for job in jobs_list %}
 	{% can_view job %}
@@ -45,6 +46,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		<td>{{ job.status }}</td>
                 <td>{{ job.count }}</td>
                 <td>{{ job.price }}</td>
+		<td>    
+		<a href="{% url 'printer:print-job-again' jobwithoptionsid=job.id %}" class="btn btn-primary btn-sm" role="button">
+                    <i class="fa fa-print"></i>
+                </a>
+                </td>
             </tr>
 	{% acl_end %}
         {% endfor %}

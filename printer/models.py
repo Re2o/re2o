@@ -242,6 +242,14 @@ class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model
         else:
             return False, _("This is not your print job")
 
+    def can_edit(self, user_request, *args, **kwargs):
+        if user_request.has_perm('printer.change_jobwithoptions'):
+            return True, None
+        elif user_request == self.user or user_request == self.printAs:
+            return True, None
+        else:
+            return False, _("This is not your print operation job")
+
     def __init__(self, *args, **kwargs):
         super(JobWithOptions, self).__init__(*args, **kwargs)
         self.field_permissions = {

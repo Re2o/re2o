@@ -14,5 +14,7 @@ from . import views
 urlpatterns = [
     url(r'^new_job/$', views.new_job, name="new-job"),
     url(r'^print_job/(?P<printoperationid>[0-9]+)$', views.print_job, name='print-job'),
-    url(r'^index_jobs/$', views.index_jobs, name="index-jobs")
+    url(r'^index_jobs/$', views.index_jobs, name="index-jobs"),
+    url(r'^print_job_again/(?P<jobwithoptionsid>[0-9]+)$', views.print_job_again, name='print-job-again'),
+
 ]
