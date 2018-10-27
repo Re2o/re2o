@@ -173,7 +173,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </tr>
                     <tr>
 			<th>{% trans "Room" %}</th>
-                        <td>{{ users.room }}</td>
+                    <td>{{ users.room }} {% can_view_all Port %}{% if users.room.port_set.all %} / {{ users.room.port_set.all|join:", " }} {% endif %}{% acl_end %}</td>
 			<th>{% trans "Telephone number" %}</th>
                     <td>{{ users.telephone }}</td>
                     </tr>
