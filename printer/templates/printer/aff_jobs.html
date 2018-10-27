@@ -25,6 +25,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 <div class="table-responsive">
+    {% if jobs_list.paginator %}
+          {% include "pagination.html" with list=jobs_list %}
+    {% endif %}
+
     <table class="table table-striped">
         <thead>
         <tr>
@@ -55,4 +59,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	{% acl_end %}
         {% endfor %}
     </table>
+
+    {% if jobs_list.paginator %}
+          {% include "pagination.html" with list=jobs_list %}
+    {% endif %}
 </div>
