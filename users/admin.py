@@ -21,8 +21,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des vues pour les admin. Classique, sauf pour users,
-où on fait appel à UserChange et ServiceUserChange, forms custom
+Admin views definition
 """
 
 from __future__ import unicode_literals
@@ -58,69 +57,75 @@ from .models import (
 
 
 class LdapUserAdmin(admin.ModelAdmin):
-    """Administration du ldapuser"""
+    """LDAP users admin page"""
     list_display = ('name', 'uidNumber', 'login_shell')
     exclude = ('user_password', 'sambat_nt_password')
     search_fields = ('name',)
 
 
 class LdapServiceUserAdmin(admin.ModelAdmin):
-    """Administration du ldapserviceuser"""
+    """LDAP service users admin page"""
     list_display = ('name',)
     exclude = ('user_password',)
     search_fields = ('name',)
 
 
 class LdapUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldapusergroupe"""
+    """LDAP user groups admin page"""
     list_display = ('name', 'members', 'gid')
     search_fields = ('name',)
 
 
 class LdapServiceUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldap serviceusergroup"""
+    """LDAP service user groups admin page"""
     list_display = ('name',)
     search_fields = ('name',)
 
 
 class SchoolAdmin(VersionAdmin):
-    """Administration, gestion des écoles"""
+    """Schools admin page (with revisions)"""
     pass
 
 
 class ListRightAdmin(VersionAdmin):
-    """Gestion de la liste des droits existants
-    Ne permet pas l'edition du gid (primarykey pour ldap)"""
+    """Existing right admin page (with revisions)
+
+    Can not edit gid because it is a primary key for LDAP
+    """
     list_display = ('unix_name',)
 
 
 class ListShellAdmin(VersionAdmin):
-    """Gestion de la liste des shells coté admin"""
+    """Shells admin page (with revisions)"""
     pass
 
 
 class RequestAdmin(admin.ModelAdmin):
-    """Gestion des request objet, ticket pour lien de reinit mot de passe"""
+    """User request admin page
+
+    It contains tickets for password reinitialisation.
+    """
     list_display = ('user', 'type', 'created_at', 'expires_at')
 
 
 class BanAdmin(VersionAdmin):
-    """Gestion des bannissements"""
+    """Banned user admin page (with revisions)"""
     pass
 
 
 class EMailAddressAdmin(VersionAdmin):
-    """Gestion des alias mail"""
+    """Mail aliases admin page (with revisions)"""
     pass
 
 
 class WhitelistAdmin(VersionAdmin):
-    """Gestion des whitelist"""
+    """Whitelist admin page"""
     pass
 
 
 class UserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un user : modification des champs perso, mot de passe, etc"""
+    """User admin page (with revisions, based on Django user admin page)"""
+
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
@@ -177,8 +182,8 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
 
 
 class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un service user admin : champs personnels,
-    mot de passe; etc"""
+    """Service user admin page (with revisions, based on Django user admin page)"""
+
     # The forms to add and change user instances
     form = ServiceUserChangeForm
     add_form = ServiceUserCreationForm
@@ -222,7 +227,7 @@ admin.site.register(Ban, BanAdmin)
 admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
-# Now register the new UserAdmin...
+# Now register the new UserAdmin and ServiceUser (replacing Django default ones)...
 admin.site.unregister(User)
 admin.site.unregister(ServiceUser)
 admin.site.register(User, UserAdmin)
