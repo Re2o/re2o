@@ -27,6 +27,7 @@ Serializers for the User app
 """
 
 from rest_framework import serializers
+
 from users.models import Club, Adherent
 
 

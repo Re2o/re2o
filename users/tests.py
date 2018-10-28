@@ -23,13 +23,9 @@
 The tests for the Users module.
 """
 
-import os.path
-
 from django.test import TestCase
-from django.conf import settings
-from . import models
 
-import volatildap
+from . import models
 
 
 class SchoolTestCase(TestCase):
@@ -84,4 +80,3 @@ class LdapServiceUserTestCase(TestCase):
             user_password="{SSHA}AbCdEfGhIjKlMnOpQrStUvWxYz987654"
         )
         self.assertEqual(g.name, 'users_test_ldapserviceuser')
-

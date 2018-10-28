@@ -36,30 +36,24 @@ des whitelist, des services users et des écoles
 
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError, Count, Max
-from django.utils import timezone
 from django.db import transaction
+from django.db.models import ProtectedError, Count, Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext as _
-
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
 
 from cotisations.models import Facture, Paiement
+from cotisations.utils import find_payment_method
 from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption, AssoOption
-from re2o.views import form
-from re2o.utils import (
-    all_has_access,
-    SortTable,
-    re2o_paginator
-)
 from re2o.acl import (
     can_create,
     can_edit,
@@ -69,22 +63,13 @@ from re2o.acl import (
     can_view_all,
     can_change
 )
-from cotisations.utils import find_payment_method
-from topologie.models import Port
-from .serializers import MailingSerializer, MailingMemberSerializer
-from .models import (
-    User,
-    Ban,
-    Whitelist,
-    School,
-    ListRight,
-    Request,
-    ServiceUser,
-    Adherent,
-    Club,
-    ListShell,
-    EMailAddress,
+from re2o.utils import (
+    all_has_access,
+    SortTable,
+    re2o_paginator
 )
+from re2o.views import form
+from topologie.models import Port
 from .forms import (
     BanForm,
     WhitelistForm,
@@ -109,6 +94,20 @@ from .forms import (
     GroupForm,
     InitialRegisterForm
 )
+from .models import (
+    User,
+    Ban,
+    Whitelist,
+    School,
+    ListRight,
+    Request,
+    ServiceUser,
+    Adherent,
+    Club,
+    ListShell,
+    EMailAddress,
+)
+from .serializers import MailingSerializer, MailingMemberSerializer
 
 
 @can_create(Adherent)
@@ -116,8 +115,8 @@ def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
     user = AdherentCreationForm(request.POST or None, user=request.user)
-    GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
-    GTU = GeneralOption.get_cached_value('GTU')
+    gtu_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
+    gtu = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
         user = user.save()
         user.reset_passwd_mail(request)
@@ -130,8 +129,8 @@ def new_user(request):
     return form(
         {
             'userform': user,
-            'GTU_sum_up': GTU_sum_up,
-            'GTU': GTU,
+            'GTU_sum_up': gtu_sum_up,
+            'GTU': gtu,
             'showCGU': True,
             'action_name': _("Commit")
         },
@@ -560,7 +559,7 @@ def del_emailaddress(request, emailaddress, **_kwargs):
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(emailaddress.user.id)}
-            ))
+        ))
     return form(
         {'objet': emailaddress, 'objet_name': 'emailaddress'},
         'users/delete.html',
@@ -584,7 +583,7 @@ def edit_email_settings(request, user_instance, **_kwargs):
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(user_instance.id)}
-            ))
+        ))
     return form(
         {'userform': email_settings,
          'showCGU': False,
@@ -909,28 +908,28 @@ def index_listright(request):
     """ Affiche l'ensemble des droits"""
     rights = {}
     for right in (ListRight.objects
-                  .order_by('name')
-                  .prefetch_related('permissions')
-                  .prefetch_related('user_set')
-                  .prefetch_related('user_set__facture_set__vente_set__cotisation')
-                 ):
+            .order_by('name')
+            .prefetch_related('permissions')
+            .prefetch_related('user_set')
+            .prefetch_related('user_set__facture_set__vente_set__cotisation')
+    ):
         rights[right] = (right.user_set
                          .annotate(action_number=Count('revision'),
                                    last_seen=Max('revision__date_created'),
                                    end_adhesion=Max('facture__vente__cotisation__date_end'))
-                        )
+                         )
     superusers = (User.objects
                   .filter(is_superuser=True)
                   .annotate(action_number=Count('revision'),
                             last_seen=Max('revision__date_created'),
                             end_adhesion=Max('facture__vente__cotisation__date_end'))
-                 )
+                  )
     return render(
         request,
         'users/index_listright.html',
         {
             'rights': rights,
-            'superusers' : superusers,
+            'superusers': superusers,
         }
     )
 
@@ -960,10 +959,10 @@ def mon_profil(request):
 @can_view(User)
 def profil(request, users, **_kwargs):
     """ Affiche un profil, self or cableur, prend un userid en argument """
-    machines = Machine.objects.filter(user=users).select_related('user')\
-        .prefetch_related('interface_set__domain__extension')\
-        .prefetch_related('interface_set__ipv4__ip_type__extension')\
-        .prefetch_related('interface_set__type')\
+    machines = Machine.objects.filter(user=users).select_related('user') \
+        .prefetch_related('interface_set__domain__extension') \
+        .prefetch_related('interface_set__ipv4__ip_type__extension') \
+        .prefetch_related('interface_set__type') \
         .prefetch_related('interface_set__domain__related_domain__extension')
     machines = SortTable.sort(
         machines,
@@ -1003,8 +1002,8 @@ def profil(request, users, **_kwargs):
         user_solde = False
     else:
         user_solde = (
-            balance is not None
-            and balance.can_credit_balance(request.user)
+                balance is not None
+                and balance.can_credit_balance(request.user)
         )
     return render(
         request,
@@ -1083,18 +1082,21 @@ def process_passwd(request, req):
         request
     )
 
+
 @login_required
 def initial_register(request):
     switch_ip = request.GET.get('switch_ip', None)
     switch_port = request.GET.get('switch_port', None)
     client_mac = request.GET.get('client_mac', None)
-    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=switch_ip, switch_port=switch_port, client_mac=client_mac)
+    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=switch_ip, switch_port=switch_port,
+                                 client_mac=client_mac)
     if not u_form.fields:
         messages.error(request, _("Incorrect URL, or already registered device"))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
+    port = None  # TODO: local variable initialized only if condition succeed
     if switch_ip and switch_port:
         port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
     if u_form.is_valid():
@@ -1184,9 +1186,8 @@ def ml_club_members(request, ml_name):
         messages.error(request, _("The mailing list doesn't exist."))
         return redirect(reverse('index'))
     members = (
-        club.administrators.all().values('email').distinct() |
-        club.members.all().values('email').distinct()
+            club.administrators.all().values('email').distinct() |
+            club.members.all().values('email').distinct()
     )
     seria = MailingMemberSerializer(members, many=True)
     return JSONResponse(seria.data)
-

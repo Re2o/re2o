@@ -28,10 +28,16 @@ où on fait appel à UserChange et ServiceUserChange, forms custom
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 from reversion.admin import VersionAdmin
 
+from .forms import (
+    UserChangeForm,
+    UserCreationForm,
+    ServiceUserChangeForm,
+    ServiceUserCreationForm
+)
 from .models import (
     User,
     EMailAddress,
@@ -48,12 +54,6 @@ from .models import (
     LdapServiceUser,
     LdapServiceUserGroup,
     LdapUserGroup
-)
-from .forms import (
-    UserChangeForm,
-    UserCreationForm,
-    ServiceUserChangeForm,
-    ServiceUserCreationForm
 )
 
 
@@ -147,10 +147,10 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
             'Personal info',
             {
                 'fields':
-                ('surname', 'email', 'school', 'shell', 'uid_number')
+                    ('surname', 'email', 'school', 'shell', 'uid_number')
             }
         ),
-        ('Permissions', {'fields': ('is_admin', )}),
+        ('Permissions', {'fields': ('is_admin',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -167,7 +167,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                     'is_admin',
                     'password1',
                     'password2'
-                    )
+                )
             }
         ),
     )

@@ -42,50 +42,45 @@ models sql classiques. Seuls certains champs essentiels sont
 dupliqués.
 """
 
-
 from __future__ import unicode_literals
 
-import re
-import uuid
 import datetime
+import re
 import sys
+import traceback
+import uuid
 
-from django.db import models
-from django.db.models import Q
+import ldapdb.models.fields
 from django import forms
-from django.forms import ValidationError
-from django.db.models.signals import post_save, post_delete, m2m_changed
-from django.dispatch import receiver
-from django.utils.functional import cached_property
-from django.template import Context, loader
-from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
-from django.db import transaction
-from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
     Group
 )
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
-import traceback
+from django.db import models
+from django.db import transaction
+from django.db.models import Q
+from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.dispatch import receiver
+from django.forms import ValidationError
+from django.template import Context, loader
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-
 from reversion import revisions as reversion
-
-import ldapdb.models
-import ldapdb.models.fields
-
-from re2o.settings import LDAP, GID_RANGES, UID_RANGES
-from re2o.login import hashNT
-from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin, RevMixin
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
+from re2o.field_permissions import FieldPermissionModelMixin
+from re2o.login import hashNT
+from re2o.mixins import AclMixin, RevMixin
+from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 
 
 # Utilitaires généraux
@@ -93,8 +88,8 @@ from preferences.models import OptionalMachine, MailMessageOption
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9-]*[$]?$")
-    return UNIX_LOGIN_PATTERN.match(login)
+    unix_login_pattern = re.compile("^[a-zA-Z][a-zA-Z0-9-]*[$]?$")
+    return unix_login_pattern.match(login)
 
 
 def linux_user_validator(login):
@@ -117,7 +112,7 @@ def get_fresh_user_uid():
         used_uids = list(User.objects.values_list('uid_number', flat=True))
     except:
         used_uids = []
-    free_uids = [id for id in uids if id not in used_uids]
+    free_uids = [uid for uid in uids if uid not in used_uids]
     return min(free_uids)
 
 
@@ -128,7 +123,7 @@ def get_fresh_gid():
         int(max(GID_RANGES['posix']))
     ))
     used_gids = list(ListRight.objects.values_list('gid', flat=True))
-    free_gids = [id for id in gids if id not in used_gids]
+    free_gids = [gid for gid in gids if gid not in used_gids]
     return min(free_gids)
 
 
@@ -296,7 +291,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     @cached_property
     def get_mail(self):
         """Return the mail address choosen by the user"""
-        if not OptionalUser.get_cached_value('local_email_accounts_enabled') or not self.local_email_enabled or self.local_email_redirect:
+        if (not OptionalUser.get_cached_value('local_email_accounts_enabled')
+                or not self.local_email_enabled or self.local_email_redirect):
             return str(self.email)
         else:
             return str(self.emailaddress_set.get(local_part=self.pseudo.lower()))
@@ -336,7 +332,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_active(self):
         """Enable this user if he subscribed successfully one time before"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
+            if self.facture_set.filter(valid=True).filter(
+                    Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
                 self.state = self.STATE_ACTIVE
                 self.save()
 
@@ -502,7 +499,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             )
         ).aggregate(
             total=models.Sum(
-                models.F('prix')*models.F('number'),
+                models.F('prix') * models.F('number'),
                 output_field=models.DecimalField()
             )
         )['total'] or 0
@@ -511,7 +508,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             name="solde"
         ).aggregate(
             total=models.Sum(
-                models.F('prix')*models.F('number'),
+                models.F('prix') * models.F('number'),
                 output_field=models.DecimalField()
             )
         )['total'] or 0
@@ -587,20 +584,20 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 user_ldap.dialupAccess = str(self.has_access())
                 user_ldap.home_directory = self.home_directory
                 user_ldap.mail = self.get_mail
-                user_ldap.given_name = self.surname.lower() + '_'\
-                    + self.name.lower()[:3]
+                user_ldap.given_name = self.surname.lower() + '_' \
+                                       + self.name.lower()[:3]
                 user_ldap.gid = LDAP['user_gid']
                 if '{SSHA}' in self.password or '{SMD5}' in self.password:
                     # We remove the extra $ added at import from ldap
                     user_ldap.user_password = self.password[:6] + \
-                        self.password[7:]
+                                              self.password[7:]
                 elif '{crypt}' in self.password:
                     # depending on the length, we need to remove or not a $
                     if len(self.password) == 41:
                         user_ldap.user_password = self.password
                     else:
                         user_ldap.user_password = self.password[:7] + \
-                            self.password[8:]
+                                                  self.password[8:]
 
                 user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
                 if self.get_shell:
@@ -632,7 +629,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
         template = loader.get_template('users/email_welcome')
-        mailmessageoptions, _created = MailMessageOption\
+        mailmessageoptions, _created = MailMessageOption \
             .objects.get_or_create()
         context = Context({
             'nom': self.get_full_name(),
@@ -688,7 +685,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         une machine inconnue sur le compte de l'user"""
         all_interfaces = self.user_interfaces(active=False)
         if all_interfaces.count() > OptionalMachine.get_cached_value(
-            'max_lambdauser_interfaces'
+                'max_lambdauser_interfaces'
         ):
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
@@ -714,7 +711,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             domain.save()
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
-            return False,  traceback.format_exc()
+            return False, traceback.format_exc()
         return interface_cible, "Ok"
 
     def notif_auto_newmachine(self, interface):
@@ -741,7 +738,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
-        super().set_password(password)
+        super(User).set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
 
@@ -853,7 +850,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         the right to change a state
         """
         if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_room'))
-            or user_request.has_perm('users.change_user')):
+                or user_request.has_perm('users.change_user')):
             return False, _("Permission required to change the room.")
         else:
             return True, None
@@ -879,16 +876,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         the right to change a shell
         """
         if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_shell'))
-            or user_request.has_perm('users.change_user_shell')):
+                or user_request.has_perm('users.change_user_shell')):
             return False, _("Permission required to change the shell.")
         else:
             return True, None
 
     @staticmethod
-    def can_change_local_email_redirect(user_request, *_args, **_kwargs):
+    def can_change_local_email_redirect(*_args, **_kwargs):
         """ Check if a user can change local_email_redirect.
 
-        :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
         the right to change a redirection
         """
@@ -898,7 +894,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
 
     @staticmethod
-    def can_change_local_email_enabled(user_request, *_args, **_kwargs):
+    def can_change_local_email_enabled(*_args, **_kwargs):
         """ Check if a user can change internal address.
 
         :param user_request: The user who request
@@ -1014,8 +1010,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
         if (EMailAddress.objects
-            .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
-            ):
+                .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
+        ):
             raise ValidationError("This pseudo is already in use.")
         if not self.local_email_enabled and not self.email:
             raise ValidationError(
@@ -1027,8 +1023,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         if self.local_email_redirect and not self.email:
             raise ValidationError(
                 {'local_email_redirect': (
-                _("You can't redirect your local emails if no external email"
-                  " address has been set.")), }
+                    _("You can't redirect your local emails if no external email"
+                      " address has been set.")), }
             )
 
     def __str__(self):
@@ -1399,7 +1395,6 @@ class ListShell(RevMixin, AclMixin, models.Model):
         verbose_name = _("shell")
         verbose_name_plural = _("shells")
 
-
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
         return self.shell.split("/")[-1]
@@ -1586,14 +1581,14 @@ class Request(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     expires_at = models.DateTimeField()
 
-    def save(self):
+    def save(self, **kwargs):
         if not self.expires_at:
             self.expires_at = (timezone.now() +
                                datetime.timedelta(
                                    hours=GeneralOption.get_cached_value(
                                        'req_expire_hrs'
                                    )
-            ))
+                               ))
         if not self.token:
             self.token = str(uuid.uuid4()).replace('-', '')  # remove hyphens
         super(Request, self).save()
@@ -1682,7 +1677,7 @@ class LdapUser(ldapdb.models.Model):
         self.sn = self.name
         self.uid = self.name
         self.sambaSID = self.uidNumber
-        super(LdapUser, self).save(*args, **kwargs)
+        super(LdapUser, self).save()
 
 
 class LdapUserGroup(ldapdb.models.Model):
@@ -1856,7 +1851,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if user_request == self.user:
             return True, None
         return False, _("You don't have the right to delete another user's"
-                       " local email account")
+                        " local email account")
 
     def can_edit(self, user_request, *_args, **_kwargs):
         """Check if a user can edit the alias
@@ -1885,4 +1880,3 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if "@" in self.local_part:
             raise ValidationError(_("The local part must not contain @."))
         super(EMailAddress, self).clean(*args, **kwargs)
-

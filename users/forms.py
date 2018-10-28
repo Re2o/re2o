@@ -34,25 +34,21 @@ Modification, creation de :
 from __future__ import unicode_literals
 
 from django import forms
-from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.core.validators import MinLengthValidator
-from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
-from django.utils.translation import ugettext_lazy as _
+from django.core.validators import MinLengthValidator
+from django.forms import ModelForm, Form
+from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from machines.models import Interface, Machine, Nas
-from topologie.models import Port
-from preferences.models import OptionalUser
-from re2o.utils import remove_user_room, get_input_formats_help_text
-from re2o.mixins import FormRevMixin
-from re2o.field_permissions import FieldPermissionFormMixin
-
+from machines.models import Interface, Nas
 from preferences.models import GeneralOption
-
-from .widgets import DateTimePicker
-
+from preferences.models import OptionalUser
+from re2o.field_permissions import FieldPermissionFormMixin
+from re2o.mixins import FormRevMixin
+from re2o.utils import remove_user_room
+from topologie.models import Port
 from .models import (
     User,
     ServiceUser,
@@ -65,6 +61,7 @@ from .models import (
     Adherent,
     Club
 )
+from .widgets import DateTimePicker
 
 
 class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
@@ -108,7 +105,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Verifie si il y a lieu que le mdp self est correct"""
         if not self.instance.check_password(
                 self.cleaned_data.get("selfpasswd")
-            ):
+        ):
             raise forms.ValidationError(_("The current password is incorrect."))
         return
 
@@ -310,6 +307,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(AdherentForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -328,8 +326,8 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             return self.cleaned_data.get('email').lower()
         else:
             raise forms.ValidationError(
-                    _("You can't use a {} address.").format(
-                        OptionalUser.objects.first().local_email_domain))
+                _("You can't use a {} address.").format(
+                    OptionalUser.objects.first().local_email_domain))
 
     class Meta:
         model = Adherent
@@ -343,7 +341,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'telephone',
             'room',
         ]
-
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -368,16 +365,17 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             remove_user_room(self.cleaned_data.get('room'))
         return
 
+
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
     doublons d'utilisateurs"""
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
-    former_user_check_info = _("If you already have an account, please use it. "\
-                           + "If your lost access to it, please consider "\
-                           + "using the forgotten password button on the "\
-                           + "login page or contacting support.")
+    former_user_check_info = _("If you already have an account, please use it. "
+                               "If your lost access to it, please consider "
+                               "using the forgotten password button on the "
+                               "login page or contacting support.")
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
     former_user_check.label = _("I certifie that I have not had an account before")
 
@@ -389,14 +387,16 @@ class AdherentCreationForm(AdherentForm):
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
 
+
 class AdherentEditForm(AdherentForm):
     """Formulaire d'édition d'un user.
     AdherentForm incluant la modification des champs gpg et shell"""
+
     def __init__(self, *args, **kwargs):
-       super(AdherentEditForm, self).__init__(*args, **kwargs)
-       self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
-       if 'shell' in self.fields:
-           self.fields['shell'].empty_label = _("Default shell")
+        super(AdherentEditForm, self).__init__(*args, **kwargs)
+        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
+        if 'shell' in self.fields:
+            self.fields['shell'].empty_label = _("Default shell")
 
     def clean_gpg_fingerprint(self):
         """Format the GPG fingerprint"""
@@ -419,10 +419,12 @@ class AdherentEditForm(AdherentForm):
             'gpg_fingerprint'
         ]
 
+
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
     avec des label plus jolis"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ClubForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -462,6 +464,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 class ClubAdminandMembersForm(FormRevMixin, ModelForm):
     """Permet d'éditer la liste des membres et des administrateurs
     d'un club"""
+
     class Meta:
         model = Club
         fields = ['administrators', 'members']
@@ -478,6 +481,7 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
 class PasswordForm(FormRevMixin, ModelForm):
     """ Formulaire de changement brut de mot de passe.
     Ne pas utiliser sans traitement"""
+
     class Meta:
         model = User
         fields = ['password', 'pwd_ntlm']
@@ -499,7 +503,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = ServiceUser
-        fields = ('pseudo', 'access_group','comment')
+        fields = ('pseudo', 'access_group', 'comment')
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -516,12 +520,14 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 class EditServiceUserForm(ServiceUserForm):
     """Formulaire d'edition de base d'un service user. Ne permet
     d'editer que son group d'acl et son commentaire"""
+
     class Meta(ServiceUserForm.Meta):
         fields = ['access_group', 'comment']
 
 
 class StateForm(FormRevMixin, ModelForm):
     """ Changement de l'état d'un user"""
+
     class Meta:
         model = User
         fields = ['state']
@@ -552,6 +558,7 @@ class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
 
 class SchoolForm(FormRevMixin, ModelForm):
     """Edition, creation d'un école"""
+
     class Meta:
         model = School
         fields = ['name']
@@ -564,6 +571,7 @@ class SchoolForm(FormRevMixin, ModelForm):
 
 class ShellForm(FormRevMixin, ModelForm):
     """Edition, creation d'un école"""
+
     class Meta:
         model = ListShell
         fields = ['shell']
@@ -595,6 +603,7 @@ class ListRightForm(FormRevMixin, ModelForm):
 
 class NewListRightForm(ListRightForm):
     """Ajout d'un groupe/list de droit """
+
     class Meta(ListRightForm.Meta):
         fields = ('name', 'unix_name', 'gid', 'critical', 'permissions',
                   'details')
@@ -641,6 +650,7 @@ class DelSchoolForm(Form):
 
 class BanForm(FormRevMixin, ModelForm):
     """Creation, edition d'un objet bannissement"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(BanForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -650,11 +660,12 @@ class BanForm(FormRevMixin, ModelForm):
     class Meta:
         model = Ban
         exclude = ['user']
-        widgets = {'date_end':DateTimePicker}
+        widgets = {'date_end': DateTimePicker}
 
 
 class WhitelistForm(FormRevMixin, ModelForm):
     """Creation, edition d'un objet whitelist"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(WhitelistForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -664,11 +675,12 @@ class WhitelistForm(FormRevMixin, ModelForm):
     class Meta:
         model = Whitelist
         exclude = ['user']
-        widgets = {'date_end':DateTimePicker}
+        widgets = {'date_end': DateTimePicker}
 
 
 class EMailAddressForm(FormRevMixin, ModelForm):
     """Create and edit a local email address"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -685,6 +697,7 @@ class EMailAddressForm(FormRevMixin, ModelForm):
 
 class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Edit email-related settings"""
+
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
@@ -699,12 +712,12 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             return self.cleaned_data.get('email').lower()
         else:
             raise forms.ValidationError(
-                    _("You can't use a {} address.").format(
-                        OptionalUser.objects.first().local_email_domain))
+                _("You can't use a {} address.").format(
+                    OptionalUser.objects.first().local_email_domain))
 
     class Meta:
         model = User
-        fields = ['email','local_email_enabled', 'local_email_redirect']
+        fields = ['email', 'local_email_enabled', 'local_email_redirect']
 
 
 class InitialRegisterForm(forms.Form):
@@ -721,7 +734,9 @@ class InitialRegisterForm(forms.Form):
             port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
             # If a port exists, checking there is a room AND radius
             if port:
-                if port.get_port_profile.radius_type != 'NO' and port.get_port_profile.radius_mode == 'STRICT' and hasattr(port, 'room'):
+                if (port.get_port_profile.radius_type != 'NO'
+                        and port.get_port_profile.radius_mode == 'STRICT'
+                        and hasattr(port, 'room')):
                     # Requesting user is not in this room ?
                     if self.user.room != port.room:
                         self.new_room = port.room

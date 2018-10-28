@@ -27,6 +27,7 @@ Here are defined some functions to check acl on the application.
 """
 from django.utils.translation import ugettext as _
 
+
 def can_view(user):
     """Check if an user can view the application.
 
@@ -40,4 +41,3 @@ def can_view(user):
     can = user.has_module_perms('users')
     return can, None if can else _("You don't have the right to view this"
                                    " application.")
-
