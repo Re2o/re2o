@@ -18,7 +18,7 @@ L’équipe de {{asso_name}}
 
 Dear {{name}},
 
-Your files have been successfuly sent to the printer located {{printer_acces_en}}, and you will soon be able to pick them up.
+Your files have been successfuly sent to the printer located {{printer_access_en}}, and you will soon be able to pick them up.
 
 {% if digicode %}
 To open the door of the printer room, please use the following code {{code}}. It is valid until {{end_validity}}.
