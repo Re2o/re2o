@@ -68,8 +68,11 @@ def new_job(request):
                 job_instance.print_operation = print_operation
                 job_instance.user=request.user
                 metadata = pdfinfo(request.FILES['form-%s-file' % count].temporary_file_path())
-                job_instance.pages = metadata["Pages"]
-                job_instance.save()
+                if "Pages" in metadata:
+                    job_instance.pages = metadata["Pages"]
+                    job_instance.save()
+                else:
+                    job_form.erros[count] = {'file': ['Invalid PDF']}
             except KeyError:
                 job_form.errors[count] = {'file': ['This field is required.']}
         if job_formset.total_error_count() == 0:

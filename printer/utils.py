@@ -32,9 +32,11 @@ def pdfinfo(file_path):
     cmd_output = subprocess.check_output(['/usr/bin/pdfinfo', file_path])
     for line in cmd_output.splitlines():
         for label in labels:
-            if label in line.decode():
-                output[label] = _extract(line)
-
+            try:
+                if label in line.decode():
+                    output[label] = _extract(line)
+            except UnicodeDecodeError:
+                pass
     return output
 
 
