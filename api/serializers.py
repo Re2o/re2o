@@ -964,7 +964,7 @@ class ReminderUsersSerializer(UserSerializer):
     """Serialize the data about a mailing member.
     """
     class Meta(UserSerializer.Meta):
-        fields = ('get_full_name', 'email')
+        fields = ('get_full_name', 'get_mail')
 
 
 class ReminderSerializer(serializers.ModelSerializer):
