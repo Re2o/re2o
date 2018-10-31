@@ -543,9 +543,16 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 reversion.set_comment(_("IPv4 unassigning"))
                 interface.save()
 
+    def disable_email(self):
+        """Disable email account and redirection"""
+        self.email = ""
+        self.local_email_enabled = False
+        self.local_email_redirect = False
+
     def archive(self):
         """ Filling the user; no more active"""
         self.unassign_ips()
+        self.disable_email()
 
     def unarchive(self):
         """Unfilling the user"""
@@ -1017,7 +1024,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
             raise ValidationError("This pseudo is already in use.")
-        if not self.local_email_enabled and not self.email:
+        if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
             raise ValidationError(
                 {'email': (
                     _("There is neither a local email address nor an external"
@@ -1885,4 +1892,3 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if "@" in self.local_part:
             raise ValidationError(_("The local part must not contain @."))
         super(EMailAddress, self).clean(*args, **kwargs)
-
