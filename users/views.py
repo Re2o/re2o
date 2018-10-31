@@ -1034,7 +1034,8 @@ def reset_password(request):
         try:
             user = User.objects.get(
                 pseudo=userform.cleaned_data['pseudo'],
-                email=userform.cleaned_data['email']
+                email=userform.cleaned_data['email'],
+                state__in=[0,3],
             )
         except User.DoesNotExist:
             messages.error(request, _("The user doesn't exist."))
