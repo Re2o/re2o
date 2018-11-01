@@ -624,6 +624,10 @@ class Article(RevMixin, AclMixin, models.Model):
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Adherent')
             )
+        if not target_user.is_adherent():
+            objects_pool = objects_pool.filter(
+                Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
+            )
         if user.has_perm('cotisations.buy_every_article'):
             return objects_pool
         return objects_pool.filter(available_for_everyone=True)
@@ -874,4 +878,3 @@ def cotisation_post_delete(**_kwargs):
     """
     regen('mac_ip_list')
     regen('mailing')
-
