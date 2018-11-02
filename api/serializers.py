@@ -1001,6 +1001,17 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
         model = machines.Domain
         fields = ('alias', 'hostname')
 
+class DNAMERecordSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Domain` objects with the data needed to
+    generate a DNAME DNS record.
+    """
+    alias = serializers.CharField(read_only=True)
+    zone = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = machines.DName
+        fields = ('alias', 'zone')
+
 
 class DNSZonesSerializer(serializers.ModelSerializer):
     """Serialize the data about DNS Zones.
@@ -1015,13 +1026,14 @@ class DNSZonesSerializer(serializers.ModelSerializer):
     a_records = ARecordSerializer(many=True, source='get_associated_a_records')
     aaaa_records = AAAARecordSerializer(many=True, source='get_associated_aaaa_records')
     cname_records = CNAMERecordSerializer(many=True, source='get_associated_cname_records')
+    dname_records = DNAMERecordSerializer(many=True, source='get_associated_dname_records')
     sshfp_records = SSHFPInterfaceSerializer(many=True, source='get_associated_sshfp_records')
 
     class Meta:
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records', 'sshfp_records')
+                  'aaaa_records', 'cname_records', 'dname_records', 'sshfp_records')
 
 #REMINDER
 
