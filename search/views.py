@@ -174,7 +174,7 @@ def search_single_word(word, filters, user,
             interface__ipv4__ipv4__icontains=word
         )
         try:
-            _mac_addr = EUI(word)
+            _mac_addr = EUI(word, 48)
             filter_machines |= Q(interface__mac_address=word)
         except AddrFormatError:
             pass
