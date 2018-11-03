@@ -43,7 +43,7 @@ from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from macaddress.fields import MACAddressField
+from macaddress.fields import MACAddressField, default_dialect
 from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
 
 import preferences.models
@@ -1099,7 +1099,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """ Tente un formatage mac_bare, si échoue, lève une erreur de
         validation"""
         try:
-            self.mac_address = str(EUI(self.mac_address))
+            self.mac_address = str(EUI(self.mac_address, dialect=default_dialect()))
         except:
             raise ValidationError(_("The given MAC address is invalid."))
 
@@ -1116,7 +1116,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         if not hasattr(self, 'type'):
             raise ValidationError(_("The selected IP type is invalid."))
         self.filter_macaddress()
-        self.mac_address = str(EUI(self.mac_address)) or None
         if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
             self.assign_ipv4()
         super(Interface, self).clean(*args, **kwargs)
