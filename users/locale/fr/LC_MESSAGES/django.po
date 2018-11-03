@@ -587,7 +587,7 @@ msgstr ""
 
 #: models.py:1815
 msgid "You reached the limit of {} local email accounts."
-msgstr "Vous avez atteint la limite de {] comptes mail locaux."
+msgstr "Vous avez atteint la limite de {} comptes mail locaux."
 
 #: models.py:1836 models.py:1880
 msgid "You don't have the right to edit another user's local email account."
