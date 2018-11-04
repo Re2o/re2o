@@ -3,6 +3,10 @@ from users.models import User, School, Adherent
 from django.db.models import F, Value
 from django.db.models.functions import Concat
 
+from re2o.login import hashNT, makeSecret
+
+import os, random, string
+
 class Command(BaseCommand):
     help="Anonymize the data in the database in order to use them on critical servers (dev, personnal...). Every information will be overwritten using non-personnal informations. This script must follow any modification of the database." 
 
@@ -46,6 +50,21 @@ class Command(BaseCommand):
 
         a.update(comment=Concat(Value('commentaire of '), 'id'))
         self.stdout.write(self.style.SUCCESS('done ...'))
+
+        self.stdout.write('Unification du mot de passe...')
+        # Define the password
+        chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+        taille = 20
+        random.seed = (os.urandom(1024))
+        password = ""
+        for i in range(taille):
+            password+=random.choice(chars)
+
+        self.stdout.write(self.style.HTTP_NOT_MODIFIED('The password will be: {}'.format(password)))
+
+        a.update(pwd_ntlm = hashNT(password))
+        a.update(password = makeSecret(password))
+        self.stdout.write(self.style.SUCCESS('done...'))
         
 
         self.stdout.write("Data anonymized!")
