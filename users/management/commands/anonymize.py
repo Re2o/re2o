@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from users.models import User, School, Adherent
+from users.models import User, School, Adherent, Club
 from django.db.models import F, Value
 from django.db.models.functions import Concat
 
@@ -12,11 +12,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        total = User.objects.count()
+        total = Adherent.objects.count()
         self.stdout.write("Starting anonymizing the {} users data.".format(total))
         
         u = User.objects.all()
         a = Adherent.objects.all()
+		c = Club.objects.all()
 
         self.stdout.write('Supression de l\'école...')
         # Create a fake School to put everyone in it.
@@ -27,6 +28,7 @@ class Command(BaseCommand):
 
         self.stdout.write('Supression des chambres...')
         a.update(room=None)
+		c.update(room=None)
         self.stdout.write(self.style.SUCCESS('done ...'))
 
         self.stdout.write('Supression des mails...')
@@ -42,7 +44,7 @@ class Command(BaseCommand):
         a.update(surname=Concat(Value('surname of '), 'id'))
         self.stdout.write(self.style.SUCCESS('done surname'))
 
-        a.update(pseudo=F('id'))
+        u.update(pseudo=F('id'))
         self.stdout.write(self.style.SUCCESS('done pseudo'))
 
         a.update(telephone=Concat(Value('phone of '), 'id'))
@@ -62,9 +64,8 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('The password will be: {}'.format(password)))
 
-        a.update(pwd_ntlm = hashNT(password))
-        a.update(password = makeSecret(password))
+        u.update(pwd_ntlm = hashNT(password))
+        u.update(password = makeSecret(password))
         self.stdout.write(self.style.SUCCESS('done...'))
-        
 
         self.stdout.write("Data anonymized!")
