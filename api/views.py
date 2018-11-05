@@ -259,48 +259,36 @@ class RoleViewSet(viewsets.ReadOnlyModelViewSet):
 # Those views differ a bit because there is only one object
 # to display, so we don't bother with the listing part
 
-class OptionalUserView(generics.RetrieveAPIView):
+class OptionalUserViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.OptionalUser.can_view_all]}
+    queryset = preferences.OptionalUser.objects.all()
     serializer_class = serializers.OptionalUserSerializer
 
-    def get_object(self):
-        return preferences.OptionalUser.objects.first()
 
 
-class OptionalMachineView(generics.RetrieveAPIView):
+class OptionalMachineViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.OptionalMachine` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.OptionalMachine.can_view_all]}
+    queryset = preferences.OptionalMachine.objects.all()
     serializer_class = serializers.OptionalMachineSerializer
 
-    def get_object(self):
-        return preferences.OptionalMachine.objects.first()
 
 
-class OptionalTopologieView(generics.RetrieveAPIView):
+class OptionalTopologieViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.OptionalTopologie` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.OptionalTopologie.can_view_all]}
+    queryset = preferences.OptionalTopologie.objects.all()
     serializer_class = serializers.OptionalTopologieSerializer
 
-    def get_object(self):
-        return preferences.OptionalTopologie.objects.first()
 
 
-class GeneralOptionView(generics.RetrieveAPIView):
+class GeneralOptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.GeneralOption` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.GeneralOption.can_view_all]}
+    queryset = preferences.GeneralOption.objects.all()
     serializer_class = serializers.GeneralOptionSerializer
 
-    def get_object(self):
-        return preferences.GeneralOption.objects.first()
 
 
 class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -310,37 +298,27 @@ class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.HomeServiceSerializer
 
 
-class AssoOptionView(generics.RetrieveAPIView):
+class AssoOptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.AssoOption` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.AssoOption.can_view_all]}
+    queryset = preferences.AssoOption.objects.all()
     serializer_class = serializers.AssoOptionSerializer
 
-    def get_object(self):
-        return preferences.AssoOption.objects.first()
 
-
-class HomeOptionView(generics.RetrieveAPIView):
+class HomeOptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.HomeOption` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.HomeOption.can_view_all]}
+    queryset = preferences.HomeOption.objects.all()
     serializer_class = serializers.HomeOptionSerializer
 
-    def get_object(self):
-        return preferences.HomeOption.objects.first()
 
 
-class MailMessageOptionView(generics.RetrieveAPIView):
+class MailMessageOptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes details of `preferences.models.MailMessageOption` settings.
     """
-    permission_classes = (ACLPermission,)
-    perms_map = {'GET': [preferences.MailMessageOption.can_view_all]}
+    queryset = preferences.MailMessageOption.objects.all()
     serializer_class = serializers.MailMessageOptionSerializer
 
-    def get_object(self):
-        return preferences.MailMessageOption.objects.first()
 
 
 # TOPOLOGIE

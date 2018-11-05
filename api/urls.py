@@ -64,14 +64,14 @@ router.register_viewset(r'machines/ouvertureportlist', views.OuverturePortListVi
 router.register_viewset(r'machines/ouvertureport', views.OuverturePortViewSet)
 router.register_viewset(r'machines/role', views.RoleViewSet)
 # PREFERENCES
-router.register_view(r'preferences/optionaluser', views.OptionalUserView),
-router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
-router.register_view(r'preferences/optionaltopologie', views.OptionalTopologieView),
-router.register_view(r'preferences/generaloption', views.GeneralOptionView),
+router.register_viewset(r'preferences/optionaluser', views.OptionalUserViewSet),
+router.register_viewset(r'preferences/optionalmachine', views.OptionalMachineViewSet),
+router.register_viewset(r'preferences/optionaltopologie', views.OptionalTopologieViewSet),
+router.register_viewset(r'preferences/generaloption', views.GeneralOptionViewSet),
 router.register_viewset(r'preferences/service', views.HomeServiceViewSet, base_name='homeservice'),
-router.register_view(r'preferences/assooption', views.AssoOptionView),
-router.register_view(r'preferences/homeoption', views.HomeOptionView),
-router.register_view(r'preferences/mailmessageoption', views.MailMessageOptionView),
+router.register_viewset(r'preferences/assooption', views.AssoOptionViewSet),
+router.register_viewset(r'preferences/homeoption', views.HomeOptionViewSet),
+router.register_viewset(r'preferences/mailmessageoption', views.MailMessageOptionViewSet),
 # TOPOLOGIE
 router.register_viewset(r'topologie/stack', views.StackViewSet)
 router.register_viewset(r'topologie/acesspoint', views.AccessPointViewSet)

@@ -429,8 +429,7 @@ class AssoOptionSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.AssoOption
-        fields = ('name', 'siret', 'adresse1', 'adresse2', 'contact',
-                  'telephone', 'pseudo', 'utilisateur_asso', 'description')
+        fields = '__all__'
 
 
 class HomeOptionSerializer(NamespacedHMSerializer):
@@ -439,7 +438,7 @@ class HomeOptionSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.HomeOption
-        fields = ('facebook_url', 'twitter_url', 'twitter_account_name')
+        fields = '__all__'
 
 
 class MailMessageOptionSerializer(NamespacedHMSerializer):
@@ -448,8 +447,7 @@ class MailMessageOptionSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.MailMessageOption
-        fields = ('welcome_mail_fr', 'welcome_mail_en')
-
+        fields = '__all__'
 
 # TOPOLOGIE
 
@@ -470,7 +468,6 @@ class AccessPointSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = topologie.AccessPoint
-        fields = ('user', 'name', 'active', 'location', 'api_url')
 
 
 class SwitchSerializer(NamespacedHMSerializer):
