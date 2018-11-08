@@ -429,6 +429,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
+        self.fields['email'].label = _("Email Address")
         if 'room' in self.fields:
             self.fields['room'].label = _("Room")
             self.fields['room'].empty_label = _("No room")
@@ -444,6 +445,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'comment',
             'room',
             'telephone',
+            'email',
             'shell',
             'mailing'
         ]
