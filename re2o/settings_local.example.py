@@ -105,8 +105,10 @@ UID_RANGES = {
 
 # A range of GID to use. Used in linux environement
 GID_RANGES = {
-    'posix': [501, 600],
+    'groups' : [501, 600],
+    'clubs' : [20000, 30000],
 }
+
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = ()

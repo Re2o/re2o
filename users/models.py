@@ -107,7 +107,7 @@ def linux_user_validator(login):
         )
 
 
-def get_fresh_user_uid():
+def get_fresh_uid():
     """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
     uids = list(range(
         int(min(UID_RANGES['users'])),
@@ -121,16 +121,195 @@ def get_fresh_user_uid():
     return min(free_uids)
 
 
-def get_fresh_gid():
+def get_fresh_gid(group_type):
     """ Renvoie le plus petit gid libre  """
     gids = list(range(
-        int(min(GID_RANGES['posix'])),
-        int(max(GID_RANGES['posix']))
+        int(min(GID_RANGES[group_type])),
+        int(max(GID_RANGES[group_type]))
     ))
-    used_gids = list(ListRight.objects.values_list('gid', flat=True))
+    used_gids = list(LdapUserGroup.objects.values_list('gid', flat=True))
     free_gids = [id for id in gids if id not in used_gids]
     return min(free_gids)
 
+# Ldap db class models
+
+class LdapUser(ldapdb.models.Model):
+    """
+    Class for representing an LDAP user entry.
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_user_dn']
+    object_classes = ['inetOrgPerson', 'top', 'posixAccount',
+                      'sambaSamAccount', 'radiusprofile',
+                      'shadowAccount']
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+    uid = ldapdb.models.fields.CharField(db_column='uid', max_length=200)
+    uidNumber = ldapdb.models.fields.IntegerField(
+        db_column='uidNumber',
+        unique=True
+    )
+    sn = ldapdb.models.fields.CharField(db_column='sn', max_length=200)
+    login_shell = ldapdb.models.fields.CharField(
+        db_column='loginShell',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200)
+    given_name = ldapdb.models.fields.CharField(
+        db_column='givenName',
+        max_length=200
+    )
+    home_directory = ldapdb.models.fields.CharField(
+        db_column='homeDirectory',
+        max_length=200
+    )
+    display_name = ldapdb.models.fields.CharField(
+        db_column='displayName',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    dialupAccess = ldapdb.models.fields.CharField(db_column='dialupAccess')
+    sambaSID = ldapdb.models.fields.IntegerField(
+        db_column='sambaSID',
+        unique=True
+    )
+    user_password = ldapdb.models.fields.CharField(
+        db_column='userPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    sambat_nt_password = ldapdb.models.fields.CharField(
+        db_column='sambaNTPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    macs = ldapdb.models.fields.ListField(
+        db_column='radiusCallingStationId',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    shadowexpire = ldapdb.models.fields.CharField(
+        db_column='shadowExpire',
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.sn = self.name
+        self.uid = self.name
+        self.sambaSID = self.uidNumber
+        super(LdapUser, self).save(*args, **kwargs)
+
+
+class LdapUserGroup(ldapdb.models.Model):
+    """
+    Class for representing an LDAP group entry.
+
+    Un groupe ldap
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_usergroup_dn']
+    object_classes = ['posixGroup']
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
+    members = ldapdb.models.fields.ListField(
+        db_column='memberUid',
+        blank=True
+    )
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class LdapServiceUser(ldapdb.models.Model):
+    """
+    Class for representing an LDAP userservice entry.
+
+    Un user de service coté ldap
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_userservice_dn']
+    object_classes = ['applicationProcess', 'simpleSecurityObject']
+
+    # attributes
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+    user_password = ldapdb.models.fields.CharField(
+        db_column='userPassword',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class LdapServiceUserGroup(ldapdb.models.Model):
+    """
+    Class for representing an LDAP userservice entry.
+
+    Un group user de service coté ldap. Dans userservicegroupdn
+    (voir dans settings_local.py)
+    """
+    # LDAP meta-data
+    base_dn = LDAP['base_userservicegroup_dn']
+    object_classes = ['groupOfNames']
+
+    # attributes
+    name = ldapdb.models.fields.CharField(
+        db_column='cn',
+        max_length=200,
+        primary_key=True
+    )
+    members = ldapdb.models.fields.ListField(
+        db_column='member',
+        blank=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+## Validators
+
+def validate_gid(value):
+    """Check if a gid is available"""
+    if value in list(LdapUserGroup.objects.values_list('gid', flat=True)):
+        raise ValidationError(_('%(value)s has already been taken'),
+            params={'value': value},
+        )
+    return
+
+
+## Django classics models
 
 class UserManager(BaseUserManager):
     """User manager basique de django"""
@@ -237,7 +416,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(
-        default=get_fresh_user_uid,
+        default=get_fresh_uid,
         unique=True
     )
     rezo_rez_uid = models.PositiveIntegerField(
@@ -312,11 +491,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             raise NotImplementedError(_("Unknown type."))
 
     @cached_property
-    def gid_number(self):
-        """renvoie le gid par défaut des users"""
-        return int(LDAP['user_gid'])
-
-    @cached_property
     def is_class_club(self):
         """ Returns True if the object is a Club (subclassing User) """
         # TODO : change to isinstance (cleaner)
@@ -327,6 +501,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Returns True if the object is a Adherent (subclassing User) """
         # TODO : change to isinstance (cleaner)
         return hasattr(self, 'adherent')
+
+    @cached_property
+    def gid_number(self):
+        """renvoie le gid par défaut des users"""
+        if self.is_class_adherent: 
+            return int(LDAP['user_gid'])
+        if self.is_class_club:
+            return self.club.gid_number
 
     @property
     def is_active(self):
@@ -362,11 +544,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def get_short_name(self):
         """ Renvoie seulement le nom"""
         return self.surname
-
-    @cached_property
-    def gid(self):
-        """return the default gid of user"""
-        return LDAP['user_gid']
 
     @property
     def get_shell(self):
@@ -596,7 +773,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 user_ldap.mail = self.get_mail
                 user_ldap.given_name = self.surname.lower() + '_'\
                     + self.name.lower()[:3]
-                user_ldap.gid = LDAP['user_gid']
+                user_ldap.gid = self.gid_number
                 if '{SSHA}' in self.password or '{SMD5}' in self.password:
                     # We remove the extra $ added at import from ldap
                     user_ldap.user_password = self.password[:6] + \
@@ -1122,6 +1299,11 @@ class Club(User):
     mailing = models.BooleanField(
         default=False
     )
+    gid_number = models.PositiveIntegerField(
+        default=get_fresh_gid('clubs'),
+        unique=True,
+        validators=[validate_gid]
+    )
 
     class Meta(User.Meta):
         verbose_name = _("club")
@@ -1130,7 +1312,6 @@ class Club(User):
     @staticmethod
     def can_create(user_request, *_args, **_kwargs):
         """Check if an user can create an user object.
-
         :param user_request: The user who wants to create a user object.
         :return: a message and a boolean which is True if the user can create
             an user or if the `options.all_can_create` is set.
@@ -1172,6 +1353,25 @@ class Club(User):
         """
         return cls.objects.get(pk=clubid)
 
+    def ldap_group_sync(self):
+        """Ldap group synchronize
+        Make a group for each club"""
+        try:
+            group_ldap = LdapUserGroup.objects.get(gid=self.gid_number)
+        except LdapUserGroup.DoesNotExist:
+            group_ldap = LdapUserGroup(gid=self.gid_number)
+        group_ldap.name = self.pseudo
+        group_ldap.members = list(self.administrators.values_list('pseudo', flat=True))
+        group_ldap.save()
+
+    def ldap_group_del(self):
+        """Supprime un groupe ldap"""
+        try:
+            group_ldap = LdapUserGroup.objects.get(gid=self.gid_number)
+            group_ldap.delete()
+        except LdapUserGroup.DoesNotExist:
+            pass
+
 
 @receiver(post_save, sender=Adherent)
 @receiver(post_save, sender=Club)
@@ -1193,18 +1393,30 @@ def user_post_save(**kwargs):
         mac_refresh=False,
         group_refresh=True
     )
+    if hasattr(user, 'ldap_group_sync'):
+        user.ldap_group_sync()
     regen('mailing')
 
 
 @receiver(m2m_changed, sender=User.groups.through)
 def user_group_relation_changed(**kwargs):
+    """To make the user and his rights/groups synced after a group modification"""
     action = kwargs['action']
     if action in ('post_add', 'post_remove', 'post_clear'):
         user = kwargs['instance']
         user.ldap_sync(base=False,
-                       access_refresh=False,
-                       mac_refresh=False,
-                       group_refresh=True)
+        access_refresh=False,
+        mac_refresh=False,
+        group_refresh=True)
+
+
+@receiver(m2m_changed, sender=Club.administrators.through)
+def user_group_relation_changed(**kwargs):
+    """To make the group related to a club synced after admins change"""
+    action = kwargs['action']
+    if action in ('post_add', 'post_remove', 'post_clear'):
+        club = kwargs['instance']
+        club.ldap_group_sync()
 
 
 @receiver(post_delete, sender=Adherent)
@@ -1214,6 +1426,8 @@ def user_post_delete(**kwargs):
     """Post delete d'un user, on supprime son instance ldap"""
     user = kwargs['instance']
     user.ldap_del()
+    if hasattr(user, 'ldap_group_del'):
+        user.ldap_group_del()
     regen('mailing')
 
 
@@ -1341,7 +1555,10 @@ class ListRight(RevMixin, AclMixin, Group):
             message=(_("UNIX groups can only contain lower case letters."))
         )]
     )
-    gid = models.PositiveIntegerField(unique=True, null=True)
+    gid = models.PositiveIntegerField(
+        unique=True,
+        validators=[validate_gid]
+    )
     critical = models.BooleanField(default=False)
     details = models.CharField(
         help_text=_("Description"),
@@ -1366,8 +1583,7 @@ class ListRight(RevMixin, AclMixin, Group):
         except LdapUserGroup.DoesNotExist:
             group_ldap = LdapUserGroup(gid=self.gid)
         group_ldap.name = self.unix_name
-        group_ldap.members = [user.pseudo for user
-                              in self.user_set.all()]
+        group_ldap.members = list(self.user_set.values_list('pseudo', flat=True))
         group_ldap.save()
 
     def ldap_del(self):
@@ -1606,171 +1822,6 @@ class Request(models.Model):
         super(Request, self).save()
 
 
-class LdapUser(ldapdb.models.Model):
-    """
-    Class for representing an LDAP user entry.
-    """
-    # LDAP meta-data
-    base_dn = LDAP['base_user_dn']
-    object_classes = ['inetOrgPerson', 'top', 'posixAccount',
-                      'sambaSamAccount', 'radiusprofile',
-                      'shadowAccount']
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
-    name = ldapdb.models.fields.CharField(
-        db_column='cn',
-        max_length=200,
-        primary_key=True
-    )
-    uid = ldapdb.models.fields.CharField(db_column='uid', max_length=200)
-    uidNumber = ldapdb.models.fields.IntegerField(
-        db_column='uidNumber',
-        unique=True
-    )
-    sn = ldapdb.models.fields.CharField(db_column='sn', max_length=200)
-    login_shell = ldapdb.models.fields.CharField(
-        db_column='loginShell',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    mail = ldapdb.models.fields.CharField(db_column='mail', max_length=200)
-    given_name = ldapdb.models.fields.CharField(
-        db_column='givenName',
-        max_length=200
-    )
-    home_directory = ldapdb.models.fields.CharField(
-        db_column='homeDirectory',
-        max_length=200
-    )
-    display_name = ldapdb.models.fields.CharField(
-        db_column='displayName',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    dialupAccess = ldapdb.models.fields.CharField(db_column='dialupAccess')
-    sambaSID = ldapdb.models.fields.IntegerField(
-        db_column='sambaSID',
-        unique=True
-    )
-    user_password = ldapdb.models.fields.CharField(
-        db_column='userPassword',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    sambat_nt_password = ldapdb.models.fields.CharField(
-        db_column='sambaNTPassword',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    macs = ldapdb.models.fields.ListField(
-        db_column='radiusCallingStationId',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    shadowexpire = ldapdb.models.fields.CharField(
-        db_column='shadowExpire',
-        blank=True,
-        null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.sn = self.name
-        self.uid = self.name
-        self.sambaSID = self.uidNumber
-        super(LdapUser, self).save(*args, **kwargs)
-
-
-class LdapUserGroup(ldapdb.models.Model):
-    """
-    Class for representing an LDAP group entry.
-
-    Un groupe ldap
-    """
-    # LDAP meta-data
-    base_dn = LDAP['base_usergroup_dn']
-    object_classes = ['posixGroup']
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column='gidNumber')
-    members = ldapdb.models.fields.ListField(
-        db_column='memberUid',
-        blank=True
-    )
-    name = ldapdb.models.fields.CharField(
-        db_column='cn',
-        max_length=200,
-        primary_key=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUser(ldapdb.models.Model):
-    """
-    Class for representing an LDAP userservice entry.
-
-    Un user de service coté ldap
-    """
-    # LDAP meta-data
-    base_dn = LDAP['base_userservice_dn']
-    object_classes = ['applicationProcess', 'simpleSecurityObject']
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column='cn',
-        max_length=200,
-        primary_key=True
-    )
-    user_password = ldapdb.models.fields.CharField(
-        db_column='userPassword',
-        max_length=200,
-        blank=True,
-        null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUserGroup(ldapdb.models.Model):
-    """
-    Class for representing an LDAP userservice entry.
-
-    Un group user de service coté ldap. Dans userservicegroupdn
-    (voir dans settings_local.py)
-    """
-    # LDAP meta-data
-    base_dn = LDAP['base_userservicegroup_dn']
-    object_classes = ['groupOfNames']
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column='cn',
-        max_length=200,
-        primary_key=True
-    )
-    members = ldapdb.models.fields.ListField(
-        db_column='member',
-        blank=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
 class EMailAddress(RevMixin, AclMixin, models.Model):
     """Defines a local email account for a user
     """
@@ -1892,3 +1943,6 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if "@" in self.local_part:
             raise ValidationError(_("The local part must not contain @."))
         super(EMailAddress, self).clean(*args, **kwargs)
+
+
+

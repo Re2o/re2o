@@ -37,6 +37,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='uid_number',
-            field=models.IntegerField(unique=True, default=users.models.get_fresh_user_uid),
+            field=models.IntegerField(unique=True, default=users.models.get_fresh_uid),
         ),
     ]

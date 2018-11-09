@@ -18,7 +18,7 @@
 #
 from django.core.management.base import BaseCommand, CommandError
 
-from users.models import User
+from users.models import User, ListRight, Club
 
 
 class Command(BaseCommand):
@@ -38,3 +38,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for usr in User.objects.all():
             usr.ldap_sync(mac_refresh=options['full'])
+        for lr in ListRight.objects.all():
+            lr.ldap_sync()
+        for cl in Club.objects.all():
+            cl.ldap_group_sync()
