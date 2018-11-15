@@ -48,7 +48,10 @@ from django.utils.translation import ugettext as _
 import tempfile
 
 from users.views import form
-from re2o.utils import re2o_paginator, SortTable
+from re2o.base import (
+    re2o_paginator,
+    SortTable,
+)
 from re2o.acl import (
     can_create,
     can_edit,

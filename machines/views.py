@@ -55,6 +55,8 @@ from re2o.acl import (
 from re2o.utils import (
     all_active_assigned_interfaces,
     filter_active_interfaces,
+)
+from re2o.base import (
     SortTable,
     re2o_paginator,
 )

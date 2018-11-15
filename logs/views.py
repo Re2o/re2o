@@ -102,15 +102,18 @@ from re2o.utils import (
     all_baned,
     all_has_access,
     all_adherent,
+    all_active_assigned_interfaces_count,
+    all_active_interfaces_count,
+) 
+from re2o.base import (   
     re2o_paginator,
+    SortTable
 )
 from re2o.acl import (
     can_view_all,
     can_view_app,
     can_edit_history,
 )
-from re2o.utils import all_active_assigned_interfaces_count
-from re2o.utils import all_active_interfaces_count, SortTable
 
 
 @login_required

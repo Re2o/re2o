@@ -46,7 +46,7 @@ from search.forms import (
     CHOICES_AFF,
     initial_choices
 )
-from re2o.utils import SortTable
+from re2o.base import SortTable
 from re2o.acl import can_view_all
 
 
