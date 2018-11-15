@@ -741,6 +741,9 @@ class Extension(RevMixin, AclMixin, models.Model):
                 .filter(cname__interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
 
+    def get_associated_dname_records(self):
+        return (DName.objects.filter(alias=self))
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans
