@@ -407,9 +407,8 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
         fields = ('general_message_fr', 'general_message_en',
                   'search_display_page', 'pagination_number',
                   'pagination_large_number', 'req_expire_hrs',
-                  'site_name', 'email_from', 'GTU_sum_up',
-                  'GTU')
-
+                  'site_name', 'main_site_url', 'email_from',
+                  'GTU_sum_up', 'GTU')
 
 class HomeServiceSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.Service` objects.
