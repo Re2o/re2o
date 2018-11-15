@@ -81,6 +81,7 @@ from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+from re2o.base import smtp_check
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -1889,6 +1890,9 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
 
     def clean(self, *args, **kwargs):
         self.local_part = self.local_part.lower()
-        if "@" in self.local_part:
-            raise ValidationError(_("The local part must not contain @."))
+        if "@" in self.local_part or "+" in self.local_part:
+            raise ValidationError(_("The local part must not contain @ or +."))
+        result, reason = smtp_check(self.local_part)
+        if result:
+            raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
