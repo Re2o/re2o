@@ -224,10 +224,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% trans "General message displayed on the website" %}</th>
             <td>{{ generaloptions.general_message }}</td>
-            <th>{% trans "Summary of the General Terms of Use" %}</th>
-            <td>{{ generaloptions.GTU_sum_up }}</td>
-        </tr>
+ 	    <th>{% trans "Main site url" %}</th>
+            <td>{{ generaloptions.main_site_url }}</td>  
+	</tr>
         <tr>
+	    <th>{% trans "Summary of the General Terms of Use" %}</th>
+            <td>{{ generaloptions.GTU_sum_up }}</td>
             <th>{% trans "General Terms of Use" %}</th>
             <td>{{ generaloptions.GTU }}</th>
         </tr>

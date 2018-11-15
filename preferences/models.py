@@ -431,6 +431,7 @@ class GeneralOption(AclMixin, PreferencesModel):
     req_expire_hrs = models.IntegerField(default=48)
     site_name = models.CharField(max_length=32, default="Re2o")
     email_from = models.EmailField(default="www-data@example.com")
+    main_site_url = models.URLField(max_length=255, default="http://re2o.example.org")
     GTU_sum_up = models.TextField(
         default="",
         blank=True,
