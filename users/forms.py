@@ -444,6 +444,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'room',
+            'email',
             'telephone',
             'email',
             'shell',
