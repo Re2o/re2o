@@ -577,7 +577,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        if sys.version_info[0] >= 3:
+        if sys.version_info[0] >= 3 and self.state != self.STATE_ARCHIVE and\
+           self.state != self.STATE_DISABLED:
             self.refresh_from_db()
             try:
                 user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
