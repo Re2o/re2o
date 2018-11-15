@@ -114,9 +114,9 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
         Check password against encoded using CRYPT algorithm
         """
         assert encoded.startswith(self.algorithm)
-        salt = hash_password_salt(challenge_password)
-        return constant_time_compare(crypt.crypt(password.encode(), salt),
-                                     challenge.encode())
+        salt = hash_password_salt(encoded)
+        return constant_time_compare(crypt.crypt(password, salt),
+                                     encoded)
 
     def safe_summary(self, encoded):
         """
