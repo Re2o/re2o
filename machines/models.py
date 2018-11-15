@@ -1635,18 +1635,6 @@ class Role(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("server roles")
 
     @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Role instance with roleid.
-
-        Args:
-            roleid: The id
-
-        Returns:
-            The role.
-        """
-        return cls.objects.get(pk=roleid)
-
-    @classmethod
     def interface_for_roletype(cls, roletype):
         """Return interfaces for a roletype"""
         return Interface.objects.filter(
@@ -1659,14 +1647,6 @@ class Role(RevMixin, AclMixin, models.Model):
         return Interface.objects.filter(
             machine__interface__role=cls.objects.filter(specific_role=roletype)
         )
-
-    @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Machine instance with machineid.
-        :param userid: The id
-        :return: The user
-        """
-        return cls.objects.get(pk=roleid)
 
     @classmethod
     def interface_for_roletype(cls, roletype):
