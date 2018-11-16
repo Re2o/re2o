@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 
 from re2o.views import form
 from users.models import User
-from re2o.utils import re2o_paginator
+from re2o.base import re2o_paginator
 from . import settings
 
 from .utils import pdfinfo, send_mail_printer
