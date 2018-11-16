@@ -45,7 +45,8 @@ from django.utils.safestring import mark_safe
 from machines.models import Interface, Machine, Nas
 from topologie.models import Port
 from preferences.models import OptionalUser
-from re2o.utils import remove_user_room, get_input_formats_help_text
+from re2o.utils import remove_user_room
+from re2o.base import get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -444,6 +445,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'room',
+            'email',
             'telephone',
             'email',
             'shell',

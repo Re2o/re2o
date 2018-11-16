@@ -741,6 +741,9 @@ class Extension(RevMixin, AclMixin, models.Model):
                 .filter(cname__interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
 
+    def get_associated_dname_records(self):
+        return (DName.objects.filter(alias=self))
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Superdroit qui permet d'utiliser toutes les extensions sans
@@ -1632,18 +1635,6 @@ class Role(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("server roles")
 
     @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Role instance with roleid.
-
-        Args:
-            roleid: The id
-
-        Returns:
-            The role.
-        """
-        return cls.objects.get(pk=roleid)
-
-    @classmethod
     def interface_for_roletype(cls, roletype):
         """Return interfaces for a roletype"""
         return Interface.objects.filter(
@@ -1656,14 +1647,6 @@ class Role(RevMixin, AclMixin, models.Model):
         return Interface.objects.filter(
             machine__interface__role=cls.objects.filter(specific_role=roletype)
         )
-
-    @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Machine instance with machineid.
-        :param userid: The id
-        :return: The user
-        """
-        return cls.objects.get(pk=roleid)
 
     @classmethod
     def interface_for_roletype(cls, roletype):

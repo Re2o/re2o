@@ -541,8 +541,8 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
 # Config des switches
 
 class SwitchPortView(generics.ListAPIView):
-    """Exposes the associations between hostname, mac address and IPv4 in
-    order to build the DHCP lease files.
+    """Output each port of a switch, to be serialized with
+    additionnal informations (profiles etc)
     """
     queryset = topologie.Switch.objects.all().select_related("switchbay").select_related("model__constructor").prefetch_related("ports__custom_profile__vlan_tagged").prefetch_related("ports__custom_profile__vlan_untagged").prefetch_related("ports__machine_interface__domain__extension").prefetch_related("ports__room")
 
@@ -551,16 +551,14 @@ class SwitchPortView(generics.ListAPIView):
 # Rappel fin adhésion
 
 class ReminderView(generics.ListAPIView):
-    """Exposes the associations between hostname, mac address and IPv4 in
-    order to build the DHCP lease files.
+    """Output for users to remind an end of their subscription.
     """
     queryset = preferences.Reminder.objects.all()
     serializer_class = serializers.ReminderSerializer
 
 
 class RoleView(generics.ListAPIView):
-    """Exposes the associations between hostname, mac address and IPv4 in
-    order to build the DHCP lease files.
+    """Output of roles for each server
     """
     queryset = machines.Role.objects.all().prefetch_related('servers')
     serializer_class = serializers.RoleSerializer
