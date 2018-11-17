@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-15 00:30+0200\n"
+"POT-Creation-Date: 2018-11-17 15:15+0100\n"
 "PO-Revision-Date: 2018-06-24 15:54+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,286 +30,302 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: acl.py:42
+#: preferences/acl.py:42
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: forms.py:62 templates/preferences/display_preferences.html:68
+#: preferences/forms.py:63
+#: preferences/templates/preferences/display_preferences.html:68
 msgid "Telephone number required"
 msgstr "Numéro de téléphone requis"
 
-#: forms.py:64
+#: preferences/forms.py:65
 msgid "GPG fingerprint"
 msgstr "Empreinte GPG"
 
-#: forms.py:65
+#: preferences/forms.py:66
 msgid "All can create a club"
 msgstr "Tous peuvent créer un club"
 
-#: forms.py:66
+#: preferences/forms.py:67
 msgid "All can create a member"
 msgstr "Tous peuvent créer un adhérent"
 
-#: forms.py:67 templates/preferences/display_preferences.html:50
+#: preferences/forms.py:68
+#: preferences/templates/preferences/display_preferences.html:50
 msgid "Self registration"
 msgstr "Autoinscription"
 
-#: forms.py:68
+#: preferences/forms.py:69
 msgid "Default shell"
 msgstr "Interface système par défaut"
 
-#: forms.py:84
+#: preferences/forms.py:85
 msgid "Possibility to set a password per machine"
 msgstr "Possibilité de mettre un mot de passe par machine"
 
-#: forms.py:86 templates/preferences/display_preferences.html:101
+#: preferences/forms.py:87
+#: preferences/templates/preferences/display_preferences.html:101
 msgid "Maximum number of interfaces allowed for a standard user"
 msgstr "Nombre maximum d'interfaces autorisé pour un utilisateur standard"
 
-#: forms.py:90 templates/preferences/display_preferences.html:105
+#: preferences/forms.py:91
+#: preferences/templates/preferences/display_preferences.html:105
 msgid "Maximum number of DNS aliases allowed for a standard user"
 msgstr "Nombre maximum d'alias DNS autorisé pour un utilisateur standard"
 
-#: forms.py:93
+#: preferences/forms.py:94
 msgid "IPv6 mode"
 msgstr "Mode IPv6"
 
-#: forms.py:94
+#: preferences/forms.py:95
 msgid "Can create a machine"
 msgstr "Peut créer une machine"
 
-#: forms.py:117
+#: preferences/forms.py:118
 msgid "RADIUS general policy"
 msgstr "Politique générale de RADIUS"
 
-#: forms.py:118 templates/preferences/display_preferences.html:130
+#: preferences/forms.py:119
+#: preferences/templates/preferences/display_preferences.html:130
 msgid "VLAN for machines accepted by RADIUS"
 msgstr "VLAN pour les machines acceptées par RADIUS"
 
-#: forms.py:120 templates/preferences/display_preferences.html:132
+#: preferences/forms.py:121
+#: preferences/templates/preferences/display_preferences.html:132
 msgid "VLAN for machines rejected by RADIUS"
 msgstr "VLAN pour les machines rejetées par RADIUS"
 
-#: forms.py:145
-#, fuzzy
-#| msgid "General message"
+#: preferences/forms.py:146
 msgid "General message in French"
 msgstr "Message général"
 
-#: forms.py:146
-#, fuzzy
-#| msgid "General message"
+#: preferences/forms.py:147
 msgid "General message in English"
 msgstr "Message général"
 
-#: forms.py:147 templates/preferences/display_preferences.html:213
+#: preferences/forms.py:148
+#: preferences/templates/preferences/display_preferences.html:265
 msgid "Number of results displayed when searching"
 msgstr "Nombre de résultats affichés lors de la recherche"
 
-#: forms.py:150
+#: preferences/forms.py:151
 msgid "Number of items per page, standard size (e.g. users)"
 msgstr "Nombre d'éléments par page, taille standard (ex : utilisateurs)"
 
-#: forms.py:153
+#: preferences/forms.py:154
 msgid "Number of items per page, large size (e.g. machines)"
 msgstr "Nombre d'éléments par page, taille importante (ex : machines)"
 
-#: forms.py:156 templates/preferences/display_preferences.html:221
+#: preferences/forms.py:157
+#: preferences/templates/preferences/display_preferences.html:273
 msgid "Time before expiration of the reset password link (in hours)"
 msgstr ""
 "Temps avant expiration du lien de réinitialisation de mot de passe (en "
 "heures)"
 
-#: forms.py:159 templates/preferences/display_preferences.html:207
+#: preferences/forms.py:160
+#: preferences/templates/preferences/display_preferences.html:259
 msgid "Website name"
 msgstr "Nom du site"
 
-#: forms.py:160 templates/preferences/display_preferences.html:209
+#: preferences/forms.py:161
+#: preferences/templates/preferences/display_preferences.html:261
 msgid "Email address for automatic emailing"
 msgstr "Adresse mail pour les mails automatiques"
 
-#: forms.py:162 templates/preferences/display_preferences.html:227
+#: preferences/forms.py:163
+#: preferences/templates/preferences/display_preferences.html:283
 msgid "Summary of the General Terms of Use"
 msgstr "Résumé des Conditions Générales d'Utilisation"
 
-#: forms.py:164 templates/preferences/display_preferences.html:231
+#: preferences/forms.py:165
+#: preferences/templates/preferences/display_preferences.html:285
 msgid "General Terms of Use"
 msgstr "Conditions Générales d'Utilisation"
 
-#: forms.py:180
+#: preferences/forms.py:181
 msgid "Organisation name"
 msgstr "Nom de l'association"
 
-#: forms.py:181 templates/preferences/display_preferences.html:246
+#: preferences/forms.py:182
+#: preferences/templates/preferences/display_preferences.html:300
 msgid "SIRET number"
 msgstr "Numéro SIRET"
 
-#: forms.py:182
+#: preferences/forms.py:183
 msgid "Address (line 1)"
 msgstr "Adresse (ligne 1)"
 
-#: forms.py:183
+#: preferences/forms.py:184
 msgid "Address (line 2)"
 msgstr "Adresse (ligne 2)"
 
-#: forms.py:184 models.py:482
-#: templates/preferences/display_preferences.html:254
+#: preferences/forms.py:185 preferences/models.py:483
+#: preferences/templates/preferences/display_preferences.html:308
 msgid "Contact email address"
 msgstr "Adresse mail de contact"
 
-#: forms.py:185 templates/preferences/display_preferences.html:258
+#: preferences/forms.py:186
+#: preferences/templates/preferences/display_preferences.html:312
 msgid "Telephone number"
 msgstr "Numéro de téléphone"
 
-#: forms.py:186 templates/preferences/display_preferences.html:260
+#: preferences/forms.py:187
+#: preferences/templates/preferences/display_preferences.html:314
 msgid "Usual name"
 msgstr "Nom d'usage"
 
-#: forms.py:187
+#: preferences/forms.py:188
 msgid "Account used for editing from /admin"
 msgstr "Compte utilisé pour les modifications depuis /admin"
 
-#: forms.py:189
+#: preferences/forms.py:190
 msgid "Payment"
 msgstr "Paiement"
 
-#: forms.py:190
+#: preferences/forms.py:191
 msgid "Payment ID"
 msgstr "ID de paiement"
 
-#: forms.py:191
+#: preferences/forms.py:192
 msgid "Payment password"
 msgstr "Mot de passe de paiement"
 
-#: forms.py:192 forms.py:243 templates/preferences/aff_service.html:33
+#: preferences/forms.py:193 preferences/forms.py:244
+#: preferences/templates/preferences/aff_service.html:33
 msgid "Description"
 msgstr "Description"
 
-#: forms.py:208
+#: preferences/forms.py:209
 msgid "Message for the French welcome email"
 msgstr "Message pour le mail de bienvenue en français"
 
-#: forms.py:210
+#: preferences/forms.py:211
 msgid "Message for the English welcome email"
 msgstr "Message pour le mail de bienvenue en anglais"
 
-#: forms.py:227
+#: preferences/forms.py:228
 msgid "Facebook URL"
 msgstr "URL du compte Facebook"
 
-#: forms.py:228
+#: preferences/forms.py:229
 msgid "Twitter URL"
 msgstr "URL du compte Twitter"
 
-#: forms.py:229 templates/preferences/display_preferences.html:314
+#: preferences/forms.py:230
+#: preferences/templates/preferences/display_preferences.html:368
 msgid "Twitter account name"
 msgstr "Nom du compte Twitter"
 
-#: forms.py:241 templates/preferences/aff_service.html:31
-#: templates/preferences/display_preferences.html:244
+#: preferences/forms.py:242
+#: preferences/templates/preferences/aff_service.html:31
+#: preferences/templates/preferences/display_preferences.html:298
 msgid "Name"
 msgstr "Nom"
 
-#: forms.py:242 templates/preferences/aff_service.html:32
+#: preferences/forms.py:243
+#: preferences/templates/preferences/aff_service.html:32
 msgid "URL"
 msgstr "URL"
 
-#: forms.py:244 templates/preferences/aff_service.html:34
+#: preferences/forms.py:245
+#: preferences/templates/preferences/aff_service.html:34
 msgid "Image"
 msgstr "Image"
 
-#: forms.py:251
+#: preferences/forms.py:252
 msgid "Current services"
 msgstr "Services actuels"
 
-#: models.py:76
+#: preferences/models.py:76
 msgid "Users can create a club"
 msgstr "Les utilisateurs peuvent créer un club"
 
-#: models.py:80
+#: preferences/models.py:80
 msgid "Users can create a member"
 msgstr "Les utilisateurs peuvent créer un adhérent"
 
-#: models.py:91 templates/preferences/display_preferences.html:62
+#: preferences/models.py:91
+#: preferences/templates/preferences/display_preferences.html:62
 msgid "Users can edit their shell"
 msgstr "Les utilisateurs peuvent modifier leur interface système"
 
-#: models.py:95 templates/preferences/display_preferences.html:66
-#, fuzzy
-#| msgid "Users can edit their shell"
+#: preferences/models.py:95
+#: preferences/templates/preferences/display_preferences.html:66
 msgid "Users can edit their room"
-msgstr "Les utilisateurs peuvent modifier leur interface système"
+msgstr "Les utilisateurs peuvent modifier leur chambre"
 
-#: models.py:99
+#: preferences/models.py:99
 msgid "Enable local email accounts for users"
 msgstr "Active les comptes mail locaux pour les utilisateurs"
 
-#: models.py:104
+#: preferences/models.py:104
 msgid "Domain to use for local email accounts"
 msgstr "Domaine à utiliser pour les comptes mail locaux"
 
-#: models.py:108
+#: preferences/models.py:108
 msgid "Maximum number of local email addresses for a standard user"
 msgstr ""
 "Nombre maximum d'adresses mail locales autorisé pour un utilisateur standard"
 
-#: models.py:113
+#: preferences/models.py:113
 msgid "Inactive users will be deleted after this number of days"
 msgstr "Les utilisateurs n'ayant jamais adhéré seront supprimés après (jours)"
 
-#: models.py:117
+#: preferences/models.py:117
 msgid "A new user can create their account on Re2o"
 msgstr "Un nouvel utilisateur peut créer son compte sur Re2o"
 
-#: models.py:122
+#: preferences/models.py:122
 msgid "Can view the user options"
 msgstr "Peut voir les options d'utilisateur"
 
-#: models.py:124
+#: preferences/models.py:124
 msgid "user options"
 msgstr "options d'utilisateur"
 
-#: models.py:131
+#: preferences/models.py:131
 msgid "Email domain must begin with @"
 msgstr "Un domaine mail doit commencer par @"
 
-#: models.py:149
+#: preferences/models.py:149
 msgid "Autoconfiguration by RA"
 msgstr "Configuration automatique par RA"
 
-#: models.py:150
+#: preferences/models.py:150
 msgid "IP addresses assigning by DHCPv6"
 msgstr "Attribution d'adresses IP par DHCPv6"
 
-#: models.py:151
+#: preferences/models.py:151
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: models.py:173
+#: preferences/models.py:173
 msgid "Can view the machine options"
 msgstr "Peut voir les options de machine"
 
-#: models.py:175
+#: preferences/models.py:175
 msgid "machine options"
 msgstr "options de machine"
 
-#: models.py:194
+#: preferences/models.py:194
 msgid "On the IP range's VLAN of the machine"
 msgstr "Sur le VLAN de la plage d'IP de la machine"
 
-#: models.py:195
+#: preferences/models.py:195
 msgid "Preset in 'VLAN for machines accepted by RADIUS'"
 msgstr "Prédéfinie dans 'VLAN pour les machines acceptées par RADIUS'"
 
-#: models.py:315
+#: preferences/models.py:315
 msgid "Can view the topology options"
 msgstr "Peut voir les options de topologie"
 
-#: models.py:317
+#: preferences/models.py:317
 msgid "topology options"
 msgstr "options de topologie"
 
-#: models.py:419
+#: preferences/models.py:419
 msgid ""
 "General message displayed on the French version of the website (e.g. in case "
 "of maintenance)"
@@ -317,7 +333,7 @@ msgstr ""
 "Message général affiché sur la version française du site (ex : en cas de "
 "maintenance)"
 
-#: models.py:425
+#: preferences/models.py:425
 msgid ""
 "General message displayed on the English version of the website (e.g. in "
 "case of maintenance)"
@@ -325,185 +341,224 @@ msgstr ""
 "Message général affiché sur la version anglaise du site (ex : en cas de "
 "maintenance)"
 
-#: models.py:447
+#: preferences/models.py:448
 msgid "Can view the general options"
 msgstr "Peut voir les options générales"
 
-#: models.py:449
+#: preferences/models.py:450
 msgid "general options"
 msgstr "options générales"
 
-#: models.py:469
+#: preferences/models.py:470
 msgid "Can view the service options"
 msgstr "Peut voir les options de service"
 
-#: models.py:471
+#: preferences/models.py:472
 msgid "service"
 msgstr "service"
 
-#: models.py:472
+#: preferences/models.py:473
 msgid "services"
 msgstr "services"
 
-#: models.py:489
+#: preferences/models.py:490
 msgid "Description of the associated email address."
 msgstr "Description de l'adresse mail associée."
 
-#: models.py:499
+#: preferences/models.py:500
 msgid "Can view a contact email address object"
 msgstr "Peut voir un objet adresse mail de contact"
 
-#: models.py:501
+#: preferences/models.py:502
 msgid "contact email address"
 msgstr "adresse mail de contact"
 
-#: models.py:502
+#: preferences/models.py:503
 msgid "contact email addresses"
 msgstr "adresses mail de contact"
 
-#: models.py:512
+#: preferences/models.py:513
 msgid "Networking organisation school Something"
 msgstr "Association de réseau de l'école Machin"
 
-#: models.py:516
+#: preferences/models.py:517
 msgid "Threadneedle Street"
 msgstr "1 rue de la Vrillière"
 
-#: models.py:517
+#: preferences/models.py:518
 msgid "London EC2R 8AH"
 msgstr "75001 Paris"
 
-#: models.py:520
+#: preferences/models.py:521
 msgid "Organisation"
 msgstr "Association"
 
-#: models.py:534
+#: preferences/models.py:535
 msgid "Can view the organisation options"
 msgstr "Peut voir les options d'association"
 
-#: models.py:536
+#: preferences/models.py:537
 msgid "organisation options"
 msgstr "options d'association"
 
-#: models.py:565
+#: preferences/models.py:566
 msgid "Can view the homepage options"
 msgstr "Peut voir les options de page d'accueil"
 
-#: models.py:567
+#: preferences/models.py:568
 msgid "homepage options"
 msgstr "options de page d'accueil"
 
-#: models.py:585
+#: preferences/models.py:586
 msgid "Can view the email message options"
 msgstr "Peut voir les options de message pour les mails"
 
-#: models.py:588
+#: preferences/models.py:589
 msgid "email message options"
 msgstr "options de messages pour les mails"
 
-#: templates/preferences/aff_mailcontact.html:31
-#: templates/preferences/display_preferences.html:250
+#: preferences/models.py:597
+msgid "Is printer Available ?"
+msgstr "L'imprimante est-elle disponible ?"
+
+#: preferences/models.py:602 preferences/models.py:607
+msgid "Can print in A3 format ?"
+msgstr "Peut-on imprimer du A3 ?"
+
+#: preferences/models.py:612
+msgid "Can print in booklet format ?"
+msgstr "Peut-on imprimer du livret ?"
+
+#: preferences/models.py:617
+msgid "Can print in color ?"
+msgstr "Peut-on imprimer en couleur"
+
+#: preferences/models.py:622
+msgid "Can use staples ?"
+msgstr "Peut-on utiliser des agrafes ?"
+
+#: preferences/models.py:627
+msgid "Can perforate ?"
+msgstr "Peut-on perforer ?"
+
+#: preferences/models.py:632
+msgid "Maximum size in MB of files to be printed"
+msgstr "Taille maximum des fichiers à imprimer (en MB)"
+
+#: preferences/models.py:639
+msgid "Set depreciation coefficient"
+msgstr "Coefficient d'amortissement"
+
+#: preferences/models.py:673
+msgid "Can view the printer options"
+msgstr "Peut voir les options d'impression"
+
+#: preferences/models.py:675
+msgid "Printer Options"
+msgstr "options de Printer"
+
+#: preferences/templates/preferences/aff_mailcontact.html:31
+#: preferences/templates/preferences/display_preferences.html:304
 msgid "Address"
 msgstr "Adresse"
 
-#: templates/preferences/aff_mailcontact.html:32
+#: preferences/templates/preferences/aff_mailcontact.html:32
 msgid "Comment"
 msgstr "Commentaire"
 
-#: templates/preferences/display_preferences.html:31
-#: templates/preferences/edit_preferences.html:30
-#: templates/preferences/preferences.html:30
+#: preferences/templates/preferences/display_preferences.html:31
+#: preferences/templates/preferences/edit_preferences.html:30
+#: preferences/templates/preferences/preferences.html:30
 msgid "Preferences"
 msgstr "Préférences"
 
-#: templates/preferences/display_preferences.html:34
+#: preferences/templates/preferences/display_preferences.html:34
 msgid "User preferences"
 msgstr "Préférences d'utilisateur"
 
-#: templates/preferences/display_preferences.html:37
-#: templates/preferences/display_preferences.html:93
-#: templates/preferences/display_preferences.html:118
-#: templates/preferences/display_preferences.html:201
-#: templates/preferences/display_preferences.html:238
-#: templates/preferences/display_preferences.html:273
-#: templates/preferences/display_preferences.html:300
-#: templates/preferences/edit_preferences.html:40 views.py:173 views.py:221
-#: views.py:375
+#: preferences/templates/preferences/display_preferences.html:37
+#: preferences/templates/preferences/display_preferences.html:93
+#: preferences/templates/preferences/display_preferences.html:118
+#: preferences/templates/preferences/display_preferences.html:201
+#: preferences/templates/preferences/display_preferences.html:253
+#: preferences/templates/preferences/display_preferences.html:292
+#: preferences/templates/preferences/display_preferences.html:327
+#: preferences/templates/preferences/display_preferences.html:354
+#: preferences/templates/preferences/edit_preferences.html:40
+#: preferences/views.py:176 preferences/views.py:224 preferences/views.py:378
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/preferences/display_preferences.html:41
-#: templates/preferences/display_preferences.html:198
+#: preferences/templates/preferences/display_preferences.html:41
+#: preferences/templates/preferences/display_preferences.html:250
 msgid "General preferences"
 msgstr "Préférences générales"
 
-#: templates/preferences/display_preferences.html:44
+#: preferences/templates/preferences/display_preferences.html:44
 msgid "Creation of members by everyone"
 msgstr "Création d'adhérents par tous"
 
-#: templates/preferences/display_preferences.html:46
+#: preferences/templates/preferences/display_preferences.html:46
 msgid "Creation of clubs by everyone"
 msgstr "Création de clubs par tous"
 
-#: templates/preferences/display_preferences.html:52
+#: preferences/templates/preferences/display_preferences.html:52
 msgid "Delete not yet active users after"
 msgstr "Suppression des utilisateurs n'ayant jamais adhéré après"
 
-#: templates/preferences/display_preferences.html:57
-#, fuzzy
-#| msgid "general options"
+#: preferences/templates/preferences/display_preferences.html:57
 msgid "Users general permissions"
 msgstr "Permissions générales des utilisateurs"
 
-#: templates/preferences/display_preferences.html:60
+#: preferences/templates/preferences/display_preferences.html:60
 msgid "Default shell for users"
 msgstr "Interface système par défaut pour les utilisateurs"
 
-#: templates/preferences/display_preferences.html:72
+#: preferences/templates/preferences/display_preferences.html:72
 msgid "GPG fingerprint field"
 msgstr "Champ empreinte GPG"
 
-#: templates/preferences/display_preferences.html:77
+#: preferences/templates/preferences/display_preferences.html:77
 msgid "Email accounts preferences"
 msgstr "Préférences de comptes mail"
 
-#: templates/preferences/display_preferences.html:80
+#: preferences/templates/preferences/display_preferences.html:80
 msgid "Local email accounts enabled"
 msgstr "Comptes mail locaux activés"
 
-#: templates/preferences/display_preferences.html:82
+#: preferences/templates/preferences/display_preferences.html:82
 msgid "Local email domain"
 msgstr "Domaine de mail local"
 
-#: templates/preferences/display_preferences.html:86
+#: preferences/templates/preferences/display_preferences.html:86
 msgid "Maximum number of email aliases allowed"
 msgstr "Nombre maximum d'alias mail autorisé pour un utilisateur standard"
 
-#: templates/preferences/display_preferences.html:90
+#: preferences/templates/preferences/display_preferences.html:90
 msgid "Machines preferences"
 msgstr "Préférences de machines"
 
-#: templates/preferences/display_preferences.html:99
+#: preferences/templates/preferences/display_preferences.html:99
 msgid "Password per machine"
 msgstr "Mot de passe par machine"
 
-#: templates/preferences/display_preferences.html:107
+#: preferences/templates/preferences/display_preferences.html:107
 msgid "IPv6 support"
 msgstr "Support de l'IPv6"
 
-#: templates/preferences/display_preferences.html:111
+#: preferences/templates/preferences/display_preferences.html:111
 msgid "Creation of machines"
 msgstr "Création de machines"
 
-#: templates/preferences/display_preferences.html:115
+#: preferences/templates/preferences/display_preferences.html:115
 msgid "Topology preferences"
 msgstr "Préférences de topologie"
 
-#: templates/preferences/display_preferences.html:124
+#: preferences/templates/preferences/display_preferences.html:124
 msgid "General policy for VLAN setting"
 msgstr "Politique générale pour le placement sur un VLAN"
 
-#: templates/preferences/display_preferences.html:126
+#: preferences/templates/preferences/display_preferences.html:126
 msgid ""
 "This setting defines the VLAN policy after acceptance by RADIUS: either on "
 "the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines "
@@ -513,121 +568,179 @@ msgstr ""
 "par RADIUS: soit sur le VLAN de la plage d'IP de la machine, soit sur le "
 "VLAN prédéfini dans 'VLAN pour les machines acceptées par RADIUS'"
 
-#: templates/preferences/display_preferences.html:215
+#: preferences/templates/preferences/display_preferences.html:198
+msgid "Printer preferences"
+msgstr "Préférences d'impression"
+
+#: preferences/templates/preferences/display_preferences.html:207
+msgid "Printer Enabled"
+msgstr "Imprimante disponible"
+
+#: preferences/templates/preferences/display_preferences.html:209
+msgid "Color enabled"
+msgstr "Couleur disponible"
+
+#: preferences/templates/preferences/display_preferences.html:213
+msgid "A3 enabled"
+msgstr "A3 disponible"
+
+#: preferences/templates/preferences/display_preferences.html:215
+msgid "Booklet enabled"
+msgstr "Livret disponible"
+
+#: preferences/templates/preferences/display_preferences.html:219
+msgid "Stapling enabled"
+msgstr "Agrafage disponible"
+
+#: preferences/templates/preferences/display_preferences.html:221
+msgid "Perforation_enabled"
+msgstr "Perforation disponible"
+
+#: preferences/templates/preferences/display_preferences.html:225
+msgid "Max size available (in MB)"
+msgstr "Taille maximum autorisée (en MB)"
+
+#: preferences/templates/preferences/display_preferences.html:227
+msgid "Depreciation coefficient"
+msgstr "Coefficient d'amortissement"
+
+#: preferences/templates/preferences/display_preferences.html:231
+msgid "A3 price"
+msgstr "Prix du A3"
+
+#: preferences/templates/preferences/display_preferences.html:233
+msgid "A4 price"
+msgstr "prix du A4"
+
+#: preferences/templates/preferences/display_preferences.html:237
+msgid "Color price"
+msgstr "Prix des impressions Couleur"
+
+#: preferences/templates/preferences/display_preferences.html:239
+msgid "Greyscale price"
+msgstr "Prix des impressions noir et blanc"
+
+#: preferences/templates/preferences/display_preferences.html:243
+msgid "Staples price"
+msgstr "Prix des agrafes"
+
+#: preferences/templates/preferences/display_preferences.html:267
 msgid "Number of items per page (standard size)"
 msgstr "Nombre d'éléments par page (taille standard)"
 
-#: templates/preferences/display_preferences.html:219
+#: preferences/templates/preferences/display_preferences.html:271
 msgid "Number of items per page (large size)"
 msgstr "Nombre d'éléments par page (taille importante)"
 
-#: templates/preferences/display_preferences.html:225
+#: preferences/templates/preferences/display_preferences.html:277
 msgid "General message displayed on the website"
 msgstr "Message général affiché sur le site"
 
-#: templates/preferences/display_preferences.html:235
+#: preferences/templates/preferences/display_preferences.html:279
+msgid "Main site url"
+msgstr "Url principale du site web"
+
+#: preferences/templates/preferences/display_preferences.html:289
 msgid "Information about the organisation"
 msgstr "Informations sur l'association"
 
-#: templates/preferences/display_preferences.html:264
+#: preferences/templates/preferences/display_preferences.html:318
 msgid "User object of the organisation"
 msgstr "Objet utilisateur de l'association"
 
-#: templates/preferences/display_preferences.html:266
+#: preferences/templates/preferences/display_preferences.html:320
 msgid "Description of the organisation"
 msgstr "Description de l'association"
 
-#: templates/preferences/display_preferences.html:270
+#: preferences/templates/preferences/display_preferences.html:324
 msgid "Custom email message"
 msgstr "Message personnalisé pour les mails"
 
-#: templates/preferences/display_preferences.html:279
+#: preferences/templates/preferences/display_preferences.html:333
 msgid "Welcome email (in French)"
 msgstr "Mail de bienvenue (en français)"
 
-#: templates/preferences/display_preferences.html:283
+#: preferences/templates/preferences/display_preferences.html:337
 msgid "Welcome email (in English)"
 msgstr "Mail de bienvenue (en anglais)"
 
-#: templates/preferences/display_preferences.html:293
+#: preferences/templates/preferences/display_preferences.html:347
 msgid "List of services and homepage preferences"
 msgstr "Liste des services et préférences de page d'accueil"
 
-#: templates/preferences/display_preferences.html:295
+#: preferences/templates/preferences/display_preferences.html:349
 msgid " Add a service"
 msgstr " Ajouter un service"
 
-#: templates/preferences/display_preferences.html:302
+#: preferences/templates/preferences/display_preferences.html:356
 msgid "List of contact email addresses"
 msgstr "Liste des adresses mail de contact"
 
-#: templates/preferences/display_preferences.html:304
+#: preferences/templates/preferences/display_preferences.html:358
 msgid "Add an address"
 msgstr "Ajouter une adresse"
 
-#: templates/preferences/display_preferences.html:306
+#: preferences/templates/preferences/display_preferences.html:360
 msgid "Delete one or several addresses"
 msgstr " Supprimer une ou plusieurs adresses"
 
-#: templates/preferences/display_preferences.html:312
+#: preferences/templates/preferences/display_preferences.html:366
 msgid "Twitter account URL"
 msgstr "URL du compte Twitter"
 
-#: templates/preferences/display_preferences.html:318
+#: preferences/templates/preferences/display_preferences.html:372
 msgid "Facebook account URL"
 msgstr "URL du compte Facebook"
 
-#: templates/preferences/edit_preferences.html:35
+#: preferences/templates/preferences/edit_preferences.html:35
 msgid "Editing of preferences"
 msgstr "Modification des préférences"
 
-#: views.py:111
+#: preferences/views.py:114
 msgid "Unknown object"
 msgstr "Objet inconnu"
 
-#: views.py:117
+#: preferences/views.py:120
 msgid "You don't have the right to edit this option."
 msgstr "Vous n'avez pas le droit de modifier cette option."
 
-#: views.py:134
+#: preferences/views.py:137
 msgid "The preferences were edited."
 msgstr "Les préférences ont été modifiées."
 
-#: views.py:150
+#: preferences/views.py:153
 msgid "The service was added."
 msgstr "Le service a été ajouté."
 
-#: views.py:153 views.py:202
+#: preferences/views.py:156 preferences/views.py:205
 msgid "Add a service"
 msgstr " Ajouter un service"
 
-#: views.py:170 views.py:218
+#: preferences/views.py:173 preferences/views.py:221
 msgid "The service was edited."
 msgstr "Le service a été modifié."
 
-#: views.py:199
-#, fuzzy
-#| msgid "The service was added."
+#: preferences/views.py:202
 msgid "The reminder was added."
 msgstr "Le service a été ajouté."
 
-#: views.py:351
+#: preferences/views.py:354
 msgid "The contact email address was created."
 msgstr "L'adresse mail de contact a été supprimée."
 
-#: views.py:355
+#: preferences/views.py:358
 msgid "Add a contact email address"
 msgstr "Ajouter une adresse mail de contact"
 
-#: views.py:372
+#: preferences/views.py:375
 msgid "The contact email address was edited."
 msgstr "L'adresse mail de contact a été modifiée."
 
-#: views.py:394
+#: preferences/views.py:397
 msgid "The contact email adress was deleted."
 msgstr "L'adresse mail de contact a été supprimée."
 
-#: views.py:397
+#: preferences/views.py:400
 msgid "Delete"
 msgstr "Supprimer"
 
