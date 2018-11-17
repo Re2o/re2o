@@ -88,6 +88,8 @@ router.register(r'topologie/portprofile', views.PortProfileViewSet)
 # USERS
 router.register_viewset(r'users/user', views.UserViewSet, base_name='user')
 router.register_viewset(r'users/homecreation', views.HomeCreationViewSet, base_name='homecreation')
+router.register_viewset(r'users/normaluser', views.NormalUserViewSet, base_name='normaluser')
+router.register_viewset(r'users/criticaluser', views.CriticalUserViewSet, base_name='criticaluser')
 router.register_viewset(r'users/club', views.ClubViewSet)
 router.register_viewset(r'users/adherent', views.AdherentViewSet)
 router.register_viewset(r'users/serviceuser', views.ServiceUserViewSet)
