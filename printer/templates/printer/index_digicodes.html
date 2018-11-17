@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "printer/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
+Copyright © 2018  Gabriel Détraz
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,27 +21,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load bootstrap3 %}
 {% load acl %}
 {% load i18n %}
 
-{% block sidebar %}
-    <a class="list-group-item list-group-item-success" href="{% url "printer:new-job" %}">
-        <i class="fa fa-plus"></i>
-        {% trans "Print document" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "printer:index-jobs" %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "List of jobs" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "printer:index-digicodes" %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "List of digicodes" %}
-    </a>
-    {% can_create digicode %}
-    <a class="list-group-item list-group-item-success" href="{% url "printer:create-digicode" %}">
-      <i class="fa fa-plus"></i>
-      {% trans "Create Digicode" %}
-    </a>
-    {% acl_end %}
+{% block title %}{% trans "Printer" %}{% endblock %}
 
+{% block content %}
+    <h2>{% trans "List of codes" %}</h2>
+    {% include "printer/aff_digicodes.html" with  digicodes_list=digicodes_list %}
 {% endblock %}

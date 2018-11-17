@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-17 13:29+0100\n"
+"POT-Creation-Date: 2018-11-17 15:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,83 +22,92 @@ msgstr ""
 msgid "You don't have the right to view Printer application."
 msgstr "Vous n'avez pas le droit de voir l'application d'impression"
 
-#: printer/forms.py:33
+#: printer/forms.py:34
 msgid "Print As"
 msgstr "Imprimer en tant que"
 
-#: printer/models.py:87
+#: printer/models.py:83
+#, fuzzy
+msgid "This is not your digicode !"
+msgstr "Ceci n'est pas votre tache"
+
+#: printer/models.py:89
+msgid "You can't generate a digicode"
+msgstr "Vous ne pouvez pas créer un digicode"
+
+#: printer/models.py:103
 msgid "This is not your print operation task"
 msgstr "Ceci n'est pas votre tache"
 
-#: printer/models.py:124
+#: printer/models.py:140
 msgid "Pending"
 msgstr "En attente"
 
-#: printer/models.py:125
+#: printer/models.py:141
 msgid "Printable"
 msgstr "Imprimable"
 
-#: printer/models.py:126
+#: printer/models.py:142
 msgid "Running"
 msgstr "En cours..."
 
-#: printer/models.py:127
+#: printer/models.py:143
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: printer/models.py:128
+#: printer/models.py:144
 msgid "Finished"
 msgstr "Terminée"
 
-#: printer/models.py:140
+#: printer/models.py:156
 msgid "File"
 msgstr "Fichier"
 
-#: printer/models.py:145 printer/templates/printer/aff_jobs.html:35
+#: printer/models.py:161 printer/templates/printer/aff_jobs.html:35
 msgid "File Name"
 msgstr "Nom du fichier"
 
-#: printer/models.py:152 printer/templates/printer/aff_jobs.html:38
+#: printer/models.py:168 printer/templates/printer/aff_jobs.html:38
 msgid "Status"
 msgstr "Status"
 
-#: printer/models.py:161
+#: printer/models.py:177
 msgid "Print as"
 msgstr "Imprimer en tant que"
 
-#: printer/models.py:166 printer/templates/printer/aff_jobs.html:40
+#: printer/models.py:182 printer/templates/printer/aff_jobs.html:40
 msgid "Price"
 msgstr "Prix"
 
-#: printer/models.py:174
+#: printer/models.py:190
 msgid "Format"
 msgstr "Format"
 
-#: printer/models.py:180 printer/settings.py:25
+#: printer/models.py:196 printer/settings.py:25
 msgid "Color"
 msgstr "Couleur"
 
-#: printer/models.py:186
+#: printer/models.py:202
 msgid "Disposition"
 msgstr "Disposition"
 
-#: printer/models.py:190
+#: printer/models.py:206
 msgid "Count"
 msgstr "Nombre"
 
-#: printer/models.py:196
+#: printer/models.py:212
 msgid "Stapling"
 msgstr "Agrafage"
 
-#: printer/models.py:202
+#: printer/models.py:218
 msgid "Perforation"
 msgstr "Perforation"
 
-#: printer/models.py:243
+#: printer/models.py:259
 msgid "This is not your print job"
 msgstr "Ceci n'est pas votre tache"
 
-#: printer/models.py:251
+#: printer/models.py:267
 msgid "This is not your print operation job"
 msgstr "Ceci n'est pas votre tâche"
 
@@ -170,6 +179,18 @@ msgstr "Quatre trous à gauche"
 msgid "Four right sided holes"
 msgstr "Quatre trous à droite"
 
+#: printer/templates/printer/aff_digicodes.html:36
+msgid "User"
+msgstr "L'utilisateur"
+
+#: printer/templates/printer/aff_digicodes.html:37
+msgid "Code"
+msgstr "Digicode"
+
+#: printer/templates/printer/aff_digicodes.html:38
+msgid "Created on"
+msgstr "Créé le"
+
 #: printer/templates/printer/aff_jobs.html:36
 msgid "By user"
 msgstr "Par"
@@ -190,9 +211,20 @@ msgstr "Imprimer à nouveau"
 msgid "for"
 msgstr "pour"
 
+#: printer/templates/printer/create_code.html:15
+msgid "Create digicode for"
+msgstr "Créer un digicode pour"
+
+#: printer/templates/printer/index_digicodes.html:28
 #: printer/templates/printer/index_jobs.html:28
 msgid "Printer"
 msgstr "Imprimer"
+
+#: printer/templates/printer/index_digicodes.html:31
+#, fuzzy
+#| msgid "List of jobs"
+msgid "List of codes"
+msgstr "Liste des taches"
 
 #: printer/templates/printer/index_jobs.html:31
 #: printer/templates/printer/sidebar.html:34
@@ -236,6 +268,16 @@ msgstr "Désolé, l'imprimante est actuellement hors-service..."
 msgid "Print document"
 msgstr "Imprimer un document"
 
+#: printer/templates/printer/sidebar.html:38
+#, fuzzy
+#| msgid "List of jobs"
+msgid "List of digicodes"
+msgstr "Liste des taches"
+
+#: printer/templates/printer/sidebar.html:43
+msgid "Create Digicode"
+msgstr "Créer un digicode"
+
 #: printer/validators.py:48
 #, python-format
 msgid ""
@@ -253,14 +295,18 @@ msgstr ""
 "Le fichier a une taille de %(size)s. La taille maximum autorisée est "
 "%(max_size)s."
 
-#: printer/views.py:89
+#: printer/views.py:104
 msgid "Next"
 msgstr "Suivant"
 
-#: printer/views.py:121 printer/views.py:147
+#: printer/views.py:136 printer/views.py:162
 msgid "Print"
 msgstr "Imprimer"
 
-#: printer/views.py:176
+#: printer/views.py:191
 msgid "You are not allowed to print"
 msgstr "Vous n'êtes pas autorisé à imprimer"
+
+#: printer/views.py:263
+msgid "Create Code"
+msgstr "Créer un digicode"

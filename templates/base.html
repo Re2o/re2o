@@ -107,6 +107,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-print"></i> {% trans "Printer" %}<span class="caret"></span></a>
                           <ul class="dropdown-menu">
 			    <li><a href="{% url "printer:new-job" %}"><i class="fa fa-print"></i> {% trans "Print" %}</a></li>
+			    <li><a href="{% url "printer:index-digicodes" %}"><i class="fa fa-calculator"></i> {% trans "Digicodes" %}</a></li>
                           </ul>
                         </li>
 			{% endif %}

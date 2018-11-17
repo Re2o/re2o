@@ -21,6 +21,7 @@ from users.models import User
 
 from .models import (
     JobWithOptions,
+    Digicode,
 )
 
 
@@ -65,4 +66,16 @@ class PrintAgainForm(JobWithOptionsForm):
             'disposition',
             'format',
             'count',
-            ] 
+            ]
+
+class CreateCodeForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        # user = kwargs.get('user')
+        super(CreateCodeForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+    class Meta:
+        model = Digicode
+        fields = [
+            "user",
+            ]

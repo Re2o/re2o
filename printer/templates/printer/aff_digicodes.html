@@ -1,10 +1,9 @@
-{% extends "base.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
+Copyright © 2018  Gabriel Détraz
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,26 +21,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load logs_extra %}
 {% load i18n %}
 
-{% block sidebar %}
-    <a class="list-group-item list-group-item-success" href="{% url "printer:new-job" %}">
-        <i class="fa fa-plus"></i>
-        {% trans "Print document" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "printer:index-jobs" %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "List of jobs" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url "printer:index-digicodes" %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "List of digicodes" %}
-    </a>
-    {% can_create digicode %}
-    <a class="list-group-item list-group-item-success" href="{% url "printer:create-digicode" %}">
-      <i class="fa fa-plus"></i>
-      {% trans "Create Digicode" %}
-    </a>
-    {% acl_end %}
 
-{% endblock %}
+<div class="table-responsive">
+    {% if digicodes_list.paginator %}
+          {% include "pagination.html" with list=digicodes_list %}
+    {% endif %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{% trans "User" %}</th>
+            <th>{% trans "Code" %}</th>
+            <th>{% trans "Created on" %}</th>
+	</tr>
+        </thead>
+        {% for digicode in digicodes_list %}
+	{% can_view digicode %}
+            <tr>
+              <td>{{ digicode.user }}</td>
+	      {% with code=digicode.code %}
+              <td>{{ code }}#</td>
+	      {% endwith %}
+	      <td>{{ digicode.created }}</td>
+            </tr>
+	{% acl_end %}
+        {% endfor %}
+    </table>
+
+    {% if digicodes_list.paginator %}
+          {% include "pagination.html" with list=digicodes_list %}
+    {% endif %}
+</div>

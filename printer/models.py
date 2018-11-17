@@ -53,7 +53,7 @@ def user_printing_path(instance, filename):
     return 'printings/user_{0}/{1}'.format(instance.user.id, unidecode.unidecode(filename))
 
 
-class Digicode(RevMixin, models.Model):
+class Digicode(RevMixin, models.Model, AclMixin, FieldPermissionModelMixin):
     """
     This is a model to represent a digicode, maybe should be an external app.
     """
@@ -73,6 +73,22 @@ class Digicode(RevMixin, models.Model):
         digicode = Digicode.objects.create(code=code, user=user)
         digicode.save()
         return (str(code) + '#')
+
+    def can_view(self, user_request, *args, **kwargs):
+        if user_request.has_perm('printer.view_Digicode'):
+            return True, None
+        elif user_request == self.user:
+            return True, None
+        else:
+            return False, _("This is not your digicode !")
+
+    def can_create(user_request, *args, **kwargs):
+        if user_request.has_perm('printer.create_Digicode'):
+            return True, None
+        else:
+            return False, _("You can't generate a digicode")
+
+
 
 class PrintOperation(RevMixin, AclMixin, models.Model):
     """Abstract printing operation"""
@@ -258,8 +274,7 @@ class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model
 
     def can_change_printas(self, user_request, *_args, **_kwargs):
         return user_request.adherent.club_members.all(), None
-   
+
     def save(self, *args, **kwargs):
         self._update_price()
         super(JobWithOptions, self).save(*args, **kwargs)
-

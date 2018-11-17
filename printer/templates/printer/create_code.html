@@ -1,0 +1,20 @@
+{% extends "printer/sidebar.html" %}
+{% load staticfiles %}
+
+{% load i18n %}
+{% load bootstrap3 %}
+{% load massive_bootstrap_form %}
+
+{% block title %}Printing interface{% endblock %}
+
+{% block content %}
+{% bootstrap_form_errors codeform %}
+
+<form class="form" method="post">
+  {% csrf_token %}
+  <h3>{% trans "Create digicode for" %}</h3>
+  {% massive_bootstrap_form codeform 'user' %}
+  {% bootstrap_button action_name button_type="submit" icon="ok" button_class="btn-succes" %}
+</form>
+{% endblock %}
+

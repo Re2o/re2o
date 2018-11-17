@@ -6,6 +6,8 @@ Author : Maxime Bombar <bombar@crans.org>.
 
 from __future__ import unicode_literals
 
+import datetime
+
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.forms import modelformset_factory, formset_factory
@@ -20,13 +22,26 @@ from . import settings
 
 from .utils import pdfinfo, send_mail_printer, printer_enabled
 
+from re2o.acl import (
+    can_create,
+    can_edit,
+    can_delete_set,
+    can_delete,
+    can_view,
+    can_view_all,
+    can_change
+)
+
+
 from .models import (
     JobWithOptions,
-    PrintOperation
+    PrintOperation,
+    Digicode
     )
 from .forms import (
     JobWithOptionsForm,
-    PrintAgainForm
+    PrintAgainForm,
+    CreateCodeForm,
     )
 
 from preferences.models import GeneralOption
@@ -148,7 +163,7 @@ def print_job_again(request, jobwithoptions, **_kwargs):
         },
         'printer/print.html',
         request
-    ) 
+    )
 
 
 def payment(request, jobs):
@@ -203,10 +218,7 @@ def payment(request, jobs):
                 success=1
     if success:
         send_mail_printer(request.user)
-    return redirect(reverse(
-        'users:profil',
-        kwargs={'userid': str(request.user.id)}
-    ))
+    return redirect(reverse('printer:index-digicodes',))
 
 @login_required
 def index_jobs(request):
@@ -217,3 +229,39 @@ def index_jobs(request):
         .order_by('starttime').reverse()
     jobs_list = re2o_paginator(request, jobs, pagination_number)
     return render(request, 'printer/index_jobs.html', {'jobs_list': jobs_list})
+
+
+@login_required
+def index_digicodes(request):
+    """Display available digicodes"""
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    digicodes = Digicode.objects.filter(created__gte=(datetime.datetime.now()
+                                                       -datetime.timedelta(3)))
+    digicodes_list = re2o_paginator(request, digicodes, pagination_number)
+    return render(request,
+                  'printer/index_digicodes.html',
+                  {'digicodes_list': digicodes_list},
+    )
+
+@can_create(Digicode)
+@login_required
+def create_code(request):
+    """Generate a digicode"""
+    code = CreateCodeForm(
+        request.POST or None,
+        # form_kwargs={'user': request.user},
+        user = request.user,
+    )
+    if code.is_valid():
+        user = code.cleaned_data['user']
+        Digicode._gen_code(user)
+        return redirect(reverse('printer:index-digicodes',))
+
+    return form(
+        {
+            'codeform': code,
+            'action_name': _("Create Code"),
+        },
+        'printer/create_code.html',
+        request
+        )
