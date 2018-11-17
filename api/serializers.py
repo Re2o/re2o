@@ -632,9 +632,8 @@ class AdherentSerializer(NamespacedHMSerializer):
         }
 
 
-class HomeCreationSerializer(NamespacedHMSerializer):
-    """Serialize 'users.models.User' minimal infos to create home
-    """
+class BasicUserSerializer(NamespacedHMSerializer):
+    """Serialize 'users.models.User' minimal infos"""
     uid = serializers.IntegerField(source='uid_number')
     gid = serializers.IntegerField(source='gid_number')
 
