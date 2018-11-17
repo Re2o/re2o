@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-27 19:03+0200\n"
+"POT-Creation-Date: 2018-11-17 13:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -228,6 +228,10 @@ msgstr "Prix d'une copie : "
 msgid "Number of pages : "
 msgstr "Nombre de pages : "
 
+#: printer/templates/printer/printer_disabled.html:10
+msgid "Sorry, the printer currently experiences fatal issues..."
+msgstr "Désolé, l'imprimante est actuellement hors-service..."
+
 #: printer/templates/printer/sidebar.html:30
 msgid "Print document"
 msgstr "Imprimer un document"
@@ -249,14 +253,14 @@ msgstr ""
 "Le fichier a une taille de %(size)s. La taille maximum autorisée est "
 "%(max_size)s."
 
-#: printer/views.py:84
+#: printer/views.py:89
 msgid "Next"
 msgstr "Suivant"
 
-#: printer/views.py:116 printer/views.py:142
+#: printer/views.py:121 printer/views.py:147
 msgid "Print"
 msgstr "Imprimer"
 
-#: printer/views.py:171
+#: printer/views.py:176
 msgid "You are not allowed to print"
 msgstr "Vous n'êtes pas autorisé à imprimer"
