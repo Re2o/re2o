@@ -5,11 +5,19 @@ import os
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 
-from preferences.models import GeneralOption, AssoOption
+from preferences.models import GeneralOption, AssoOption, OptionalPrinter
 
 from .models import Digicode
 
 import datetime
+
+
+def printer_enabled():
+    """
+    Check whether the printer is enabled or not
+    """
+    settings, created  = OptionalPrinter.objects.get_or_create()
+    return settings.Printer_enabled
 
 
 def pdfinfo(file_path):

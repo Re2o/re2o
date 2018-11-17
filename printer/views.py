@@ -18,7 +18,7 @@ from users.models import User
 from re2o.base import re2o_paginator
 from . import settings
 
-from .utils import pdfinfo, send_mail_printer
+from .utils import pdfinfo, send_mail_printer, printer_enabled
 
 from .models import (
     JobWithOptions,
@@ -48,6 +48,8 @@ def new_job(request):
     """
     View to create a new printing job
     """
+    if not printer_enabled():
+        return render(request, 'printer/printer_disabled.html', {})
     print_operation = PrintOperation(user=request.user)
 
     job_formset = formset_factory(JobWithOptionsForm)(
