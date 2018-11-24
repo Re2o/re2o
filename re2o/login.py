@@ -73,7 +73,11 @@ def hash_password_salt(hashed_password):
     if hashed_password.upper().startswith('{CRYPT}'):
         hashed_password = hashed_password[7:]
         if hashed_password.startswith('$'):
-            return '$'.join(hashed_password.split('$')[:-1])
+            res = '$'.join(hashed_password.split('$')[:-1])
+            if res:
+                return res
+            else:
+                return hashed_password.split('$')[-1]
         else:
             return hashed_password[:2]
     elif hashed_password.upper().startswith('{SSHA}'):
