@@ -153,7 +153,7 @@ def print_job_again(request, jobwithoptions, **_kwargs):
             jobwithoptions = job_form.instance
             jobwithoptions.pk = None
             jobwithoptions.print_operation = PrintOperation.objects.create(user=jobwithoptions.print_operation.user)
-            jobwithoptions.status = 'Running'
+            jobwithoptions.status = 'Printable'
             jobwithoptions.save()
             return payment(request, [jobwithoptions])
     return form(
