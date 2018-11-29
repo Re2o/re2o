@@ -19,7 +19,6 @@ from re2o.base import (
     re2o_paginator,
     SortTable
 )
-from . import settings
 
 from .utils import pdfinfo, send_mail_printer, printer_enabled
 

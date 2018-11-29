@@ -16,8 +16,7 @@ def printer_enabled():
     """
     Check whether the printer is enabled or not
     """
-    settings, created  = OptionalPrinter.objects.get_or_create()
-    return settings.Printer_enabled
+    return  OptionalPrinter.get_cached_value('Printer_enabled')
 
 
 def pdfinfo(file_path):

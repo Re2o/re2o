@@ -27,6 +27,8 @@ from .validators import (
     FileValidator,
 )
 
+from preferences.models import OptionalPrinter
+
 from .settings import (
         MAX_PRINTFILE_SIZE,
         ALLOWED_TYPES,
@@ -65,7 +67,8 @@ class Digicode(RevMixin, models.Model, AclMixin, FieldPermissionModelMixin):
 
     @classmethod
     def active_codes(cls):
-        return cls.objects.filter(created__gte = timezone.now() - datetime.timedelta(days=3))
+        code_duration = OptionalPrinter.get_cached_value('code_duration')
+        return cls.objects.filter(created__gte = timezone.now() - code_duration)
 
     def _gen_code(user):
         try_again = True
