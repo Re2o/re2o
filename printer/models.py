@@ -8,7 +8,7 @@ Author : Maxime Bombar <bombar@crans.org>.
 from __future__ import unicode_literals
 
 from numpy.random import randint
-import unidecode
+import unidecode, datetime
 
 from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ObjectDoesNotExist
@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 from django.template.defaultfilters import filesizeformat
 
 from re2o.mixins import RevMixin, AclMixin
@@ -61,6 +62,10 @@ class Digicode(RevMixin, models.Model, AclMixin, FieldPermissionModelMixin):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     used_time = models.DateTimeField(null=True)
+
+    @classmethod
+    def active_codes(cls):
+        return cls.objects.filter(created__gte = timezone.now() - datetime.timedelta(days=3))
 
     def _gen_code(user):
         try_again = True

@@ -29,6 +29,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-plus"></i>
         {% trans "Print document" %}
     </a>
+    {% can_create digicode %}
+    <a class="list-group-item list-group-item-success" href="{% url "printer:create-digicode" %}">
+      <i class="fa fa-plus"></i>
+      {% trans "Create Digicode" %}
+    </a>
+    {% acl_end %}
     <a class="list-group-item list-group-item-info" href="{% url "printer:index-jobs" %}">
         <i class="fa fa-list-ul"></i>
         {% trans "List of jobs" %}
@@ -37,11 +43,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-list-ul"></i>
         {% trans "List of digicodes" %}
     </a>
-    {% can_create digicode %}
-    <a class="list-group-item list-group-item-success" href="{% url "printer:create-digicode" %}">
-      <i class="fa fa-plus"></i>
-      {% trans "Create Digicode" %}
-    </a>
-    {% acl_end %}
-
 {% endblock %}

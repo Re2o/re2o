@@ -32,10 +32,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
         <tr>
-            <th>{% trans "File Name" %}</th>
-            <th>{% trans "By user" %}</th>
-            <th>{% trans "Start at" %}</th>
-            <th>{% trans "Status" %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='job' col='filename' text=tr_filename %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='job' col='user' text=tr_byuser %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='job' col='starttime' text=tr_startat %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='status' col='status' text=tr_status %}</th>
             <th>{% trans "Number" %}</th>
             <th>{% trans "Price" %}</th>
             <th>{% trans "Print again" %}</th>

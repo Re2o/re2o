@@ -6,8 +6,6 @@ Author : Maxime Bombar <bombar@crans.org>.
 
 from __future__ import unicode_literals
 
-import datetime
-
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.forms import modelformset_factory, formset_factory
@@ -17,7 +15,10 @@ from django.utils.translation import ugettext as _
 
 from re2o.views import form
 from users.models import User
-from re2o.base import re2o_paginator
+from re2o.base import (
+    re2o_paginator,
+    SortTable
+)
 from . import settings
 
 from .utils import pdfinfo, send_mail_printer, printer_enabled
@@ -225,9 +226,14 @@ def index_jobs(request):
     """ Display jobs"""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     jobs = JobWithOptions.objects.select_related('user')\
-        .select_related('print_operation')\
-        .order_by('starttime').reverse()
-    jobs_list = re2o_paginator(request, jobs, pagination_number)
+        .select_related('print_operation')
+    jobs_list = SortTable.sort(
+        jobs,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.PRINTER_INDEX_JOB
+    )
+    jobs_list = re2o_paginator(request, jobs_list, pagination_number)
     return render(request, 'printer/index_jobs.html', {'jobs_list': jobs_list})
 
 
@@ -235,21 +241,25 @@ def index_jobs(request):
 def index_digicodes(request):
     """Display available digicodes"""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    digicodes = Digicode.objects.filter(created__gte=(datetime.datetime.now()
-                                                       -datetime.timedelta(3)))
-    digicodes_list = re2o_paginator(request, digicodes, pagination_number)
+    digicodes = Digicode.active_codes()
+    digicodes_list = SortTable.sort(
+        digicodes,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.PRINTER_INDEX_CODE
+    )
+    digicodes_list = re2o_paginator(request, digicodes_list, pagination_number)
     return render(request,
                   'printer/index_digicodes.html',
                   {'digicodes_list': digicodes_list},
     )
 
-@can_create(Digicode)
 @login_required
+@can_create(Digicode)
 def create_code(request):
     """Generate a digicode"""
     code = CreateCodeForm(
         request.POST or None,
-        # form_kwargs={'user': request.user},
         user = request.user,
     )
     if code.is_valid():

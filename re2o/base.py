@@ -234,6 +234,19 @@ class SortTable:
         'logs_date': ['date_created'],
         'default': ['-date_created']
     }
+    PRINTER_INDEX_CODE = {
+        'code_code': ['code'],
+        'code_user': ['user__pseudo'],
+        'code_created': ['created'],
+        'default': ['-created']
+    }
+    PRINTER_INDEX_JOB = {
+        'job_filename': ['filename'],
+        'job_user': ['user__pseudo'],
+        'job_starttime': ['starttime'],
+        'job_status': ['status'],
+        'default': ['-starttime']
+    }
 
     @staticmethod
     def sort(request, col, order, values):
