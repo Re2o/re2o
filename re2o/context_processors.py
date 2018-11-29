@@ -70,8 +70,7 @@ def context_printer(request):
     """
     Useful to know whether the printer app is activated or not
     """
-    printerSettings = OptionalPrinter.objects.get()
-    printer = ('printer' in INSTALLED_APPS)  and printerSettings.Printer_enabled
+    printer = ('printer' in INSTALLED_APPS)  and OptionalPrinter.get_cached_value('Printer_enabled')
     return {
         'printer': printer,
         }

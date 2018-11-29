@@ -589,7 +589,7 @@ class MailMessageOption(AclMixin, models.Model):
         verbose_name = _("email message options")
 
 
-class OptionalPrinter(AclMixin, models.Model):
+class OptionalPrinter(AclMixin, PreferencesModel):
     """Preference for Printer app"""
 
     Printer_enabled = models.BooleanField(
@@ -667,6 +667,11 @@ class OptionalPrinter(AclMixin, models.Model):
         max_digits=5,
         decimal_places=2,
         default=0.0,
+    )
+
+    code_duration = models.DurationField(
+        default=timedelta(days=1),
+        help_text=_("Digicode max duration for printer")
     )
 
     permissions = (
