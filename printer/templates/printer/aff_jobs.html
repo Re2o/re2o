@@ -32,10 +32,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
         <tr>
+            {% trans "Filename" as tr_filename %}
+            {% trans "User" as tr_byuser %}
+            {% trans "Start at" as tr_startat %}
+            {% trans "Status" as tr_status %}
 	    <th>{% include "buttons/sort.html" with prefix='job' col='filename' text=tr_filename %}</th>
 	    <th>{% include "buttons/sort.html" with prefix='job' col='user' text=tr_byuser %}</th>
 	    <th>{% include "buttons/sort.html" with prefix='job' col='starttime' text=tr_startat %}</th>
-	    <th>{% include "buttons/sort.html" with prefix='status' col='status' text=tr_status %}</th>
+	    <th>{% include "buttons/sort.html" with prefix='job' col='status' text=tr_status %}</th>
             <th>{% trans "Number" %}</th>
             <th>{% trans "Price" %}</th>
             <th>{% trans "Print again" %}</th>

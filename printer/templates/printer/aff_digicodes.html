@@ -33,6 +33,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
         <tr>
+            {% trans "User" as tr_user %}
+            {% trans "Digicode" as tr_code %}
+            {% trans "Created on" as tr_created_on %}
             <th>{% include "buttons/sort.html" with prefix='code' col='user' text=tr_user %}</th>
 	    <th>{% include "buttons/sort.html" with prefix='code' col='code' text=tr_code %}</th>
 	    <th>{% include "buttons/sort.html" with prefix='code' col='created' text=tr_created_on %}</th>
