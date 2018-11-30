@@ -116,14 +116,15 @@ class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model
     This is the main model of printer application :
 
         - ```user``` is a ForeignKey to the User Application
+        - ```print_operation``` the PrintOperation wrapping this job.
+        - ```paid``` a boolean field to specify whether or not the job has been paid.
         - ```file``` is the file to print
         - ```filename``` is the name of the file to print
         - ```starttime``` is the time when the job was launched
         - ```endtime``` is the time when the job was stopped.
             A job is stopped when it is either finished or cancelled.
-        - ```status``` can be running, finished or cancelled.
-        - ```club``` is blank in general. If the job was launched as a club then
-            it is the id of the club.
+        - ```status``` can be pending, printable, running, finished or cancelled.
+        - ```PrintAs``` is the user/club to whom belongs this job.
         - ```price``` is the total price of this printing.
 
     Printing Options :
