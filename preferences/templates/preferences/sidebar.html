@@ -22,7 +22,51 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
+{% load acl %}
+{% load i18n %}
 
 
 {% block sidebar %}
+    {% if request.user.is_authenticated %}
+        <a class="list-group-item list-group-item-info" href="#general">
+                <i class="fa fa-cogs"></i>
+                {% trans "Générale" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#asso">
+                <i class="fa fa-building"></i>
+                {% trans "Association" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#users">
+                <i class="fa fa-user"></i>
+                {% trans "Utilisateurs" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#machines">
+                <i class="fa fa-desktop"></i>
+                {% trans "Machines" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#topo">
+                <i class="fa fa-sitemap"></i>
+                {% trans "Topologie" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#switches">
+                <i class="fa fa-server"></i>
+                {% trans "Switchs" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#mail">
+                <i class="fa fa-envelope-open"></i>
+                {% trans "Mail" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#reminders">
+                <i class="fa fa-bell"></i>
+                {% trans "Rappels" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#services">
+                <i class="fa fa-list-ul"></i>
+                {% trans "Services" %}
+        </a>
+        <a class="list-group-item list-group-item-info" href="#contact">
+                <i class="fa fa-cogs"></i>
+                {% trans "Adresses de contact" %}
+        </a>
+    {% endif %}
 {% endblock %}
