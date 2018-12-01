@@ -104,8 +104,8 @@ from re2o.utils import (
     all_adherent,
     all_active_assigned_interfaces_count,
     all_active_interfaces_count,
-) 
-from re2o.base import (   
+)
+from re2o.base import (
     re2o_paginator,
     SortTable
 )
@@ -478,7 +478,7 @@ def stats_actions(request):
     }
     return render(request, 'logs/stats_users.html', {'stats_list': stats})
 
-
+@login_required
 def history(request, application, object_name, object_id):
     """Render history for a model.
 
