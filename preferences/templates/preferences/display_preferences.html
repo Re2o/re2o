@@ -276,8 +276,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 
-
-    <h4 id="asso">{% trans "Information about the organisation" %}</h4>
+    <div class="panel panel-default" id="asso">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#collapse_asso">{% trans "Information about the organisation" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_asso" class="panel-collapse collapse">
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -312,7 +317,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ assooptions.description|safe }}</td>
         </tr>
     </table>
-    <h4 id="mail">{% trans "Custom email message" %}</h4>
+    </div>
+    </div>
+    
+    <div  class="panel panel-default" id="mail">
+    <div class="panel-heading">
+    	<h4 class="panel-title">
+			<a data-toggle="collapse" href="#collapse_mail">Message pour les mails</a>		
+		</h4>
+	</div>
+    <div id="collapse_mail" class="panel-collapse collapse">	
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -329,7 +343,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ mailmessageoptions.welcome_mail_en|safe }}</td>
         </tr>
     </table>
-    <h4 id="reminders">Options pour le mail de fin d'adhésion</h2>
+	</div>
+	</div>
+
+	<div  class="panel panel-default" id="rappels">
+    <div class="panel-heading">
+    	<h4 class="panel-title">
+			<a data-toggle="collapse" href="#collapse_rappels">Options pour le mail de fin d'adhésion</ha>
+		</h4>
+	</div>
+	<div id="collapse_rappels" class="panel-collapse collapse">
         {% can_create preferences.Reminder%}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
         {% acl_end %}
@@ -344,7 +367,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <h4 id="contact">{% trans "List of contact email addresses" %}</h4>
+	</div>
+	</div>
+
+	<div  class="panel panel-default" id="contact">
+    <div class="panel-heading">
+    	<h4 class="panel-title">
+			<a data-toggle="collapse" href="#collapse_contact">{% trans "List of contact email addresses" %}</a>
+		</h4>
+	</div>
+	<div id="collapse_contact" class="panel-collapse collapse">
         {% can_create preferences.MailContact %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}
@@ -364,6 +396,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ homeoptions.facebook_url }}</td>
         </tr>
     </table>
+	</div>
 
 </div>
 {% endblock %}
