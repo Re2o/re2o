@@ -10,17 +10,11 @@ import re2o.mixins
 def create_radius_policy(apps, schema_editor):
     OptionalTopologie = apps.get_model('preferences', 'OptionalTopologie')
     RadiusOption = apps.get_model('preferences', 'RadiusOption')
-    RadiusPolicy = apps.get_model('preferences', 'RadiusPolicy')
 
     option,_ = OptionalTopologie.objects.get_or_create()
 
     radius_option = RadiusOption()
     radius_option.radius_general_policy = option.radius_general_policy
-    radius_option.unknown_machine = RadiusPolicy.objects.create()
-    radius_option.unknown_port = RadiusPolicy.objects.create()
-    radius_option.unknown_room = RadiusPolicy.objects.create()
-    radius_option.non_member = RadiusPolicy.objects.create()
-    radius_option.banned = RadiusPolicy.objects.create()
     radius_option.vlan_decision_ok = option.vlan_decision_ok
 
     radius_option.save()
@@ -45,47 +39,56 @@ class Migration(migrations.Migration):
             },
             bases=(re2o.mixins.AclMixin, models.Model),
         ),
-        migrations.CreateModel(
-            name='RadiusPolicy',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('policy', models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32)),
-                ('vlan', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='machines.Vlan')),
-            ],
-            options={
-                'verbose_name': 'radius policy',
-            },
-            bases=(re2o.mixins.AclMixin, models.Model),
+        migrations.AddField(
+            model_name='radiusoption',
+            name='banned_vlan',
+            field=models.ForeignKey(blank=True, help_text='Vlan for banned if not rejected.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='banned_vlan', to='machines.Vlan', verbose_name='Banned Vlan'),
         ),
         migrations.AddField(
             model_name='radiusoption',
-            name='non_member',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='non_member_option', to='preferences.RadiusPolicy', verbose_name='Policy non member users.'),
+            name='non_member_vlan',
+            field=models.ForeignKey(blank=True, help_text='Vlan for non members if not rejected.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='non_member_vlan', to='machines.Vlan', verbose_name='Non member Vlan'),
         ),
         migrations.AddField(
             model_name='radiusoption',
-            name='unknown_machine',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='unknown_machine_option', to='preferences.RadiusPolicy', verbose_name='Policy for unknown machines'),
+            name='unknown_machine_vlan',
+            field=models.ForeignKey(blank=True, help_text='Vlan for unknown machines if not rejected.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='unknown_machine_vlan', to='machines.Vlan', verbose_name='Unknown machine Vlan'),
         ),
         migrations.AddField(
             model_name='radiusoption',
-            name='unknown_port',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='unknown_port_option', to='preferences.RadiusPolicy', verbose_name='Policy for unknown machines'),
+            name='unknown_port_vlan',
+            field=models.ForeignKey(blank=True, help_text='Vlan for unknown ports if not rejected.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='unknown_port_vlan', to='machines.Vlan', verbose_name='Unknown port Vlan'),
         ),
         migrations.AddField(
             model_name='radiusoption',
-            name='unknown_room',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='unknown_room_option', to='preferences.RadiusPolicy', verbose_name='Policy for machine connecting from unregistered room (relevant on ports with STRICT radius mode)'),
+            name='unknown_room_vlan',
+            field=models.ForeignKey(blank=True, help_text='Vlan for unknown room if not rejected.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='unknown_room_vlan', to='machines.Vlan', verbose_name='Unknown room Vlan'),
         ),
         migrations.AddField(
             model_name='radiusoption',
             name='banned',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='banned_option', to='preferences.RadiusPolicy', verbose_name='Policy for banned users.'),
+            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for banned users.'),
         ),
         migrations.AddField(
             model_name='radiusoption',
-            name='vlan_decision_ok',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlan_ok_option', to='machines.Vlan'),
+            name='non_member',
+            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy non member users.'),
         ),
+        migrations.AddField(
+            model_name='radiusoption',
+            name='unknown_machine',
+            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for unknown machines'),
+        ),
+        migrations.AddField(
+            model_name='radiusoption',
+            name='unknown_port',
+            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for unknown machines'),
+        ),
+        migrations.AddField(
+            model_name='radiusoption',
+            name='unknown_room',
+            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for machine connecting from unregistered room (relevant on ports with STRICT radius mode)'),
+        ),
+
         migrations.RunPython(create_radius_policy),
     ]

@@ -199,26 +199,6 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         ('tftp', 'tftp'),
     )
 
-    radius_general_policy = models.CharField(
-        max_length=32,
-        choices=CHOICE_RADIUS,
-        default='DEFINED'
-    )
-    vlan_decision_ok = models.OneToOneField(
-        'machines.Vlan',
-        on_delete=models.PROTECT,
-        related_name='decision_ok',
-        blank=True,
-        null=True
-    )
-    vlan_decision_nok = models.OneToOneField(
-        'machines.Vlan',
-        on_delete=models.PROTECT,
-        related_name='decision_nok',
-        blank=True,
-        null=True
-    )
-
     switchs_web_management = models.BooleanField(
         default=False,
         help_text="Web management, activé si provision automatique"
@@ -589,31 +569,6 @@ class MailMessageOption(AclMixin, models.Model):
         verbose_name = _("email message options")
 
 
-class RadiusPolicy(AclMixin, models.Model):
-    class Meta:
-        verbose_name = _('radius policy')
-
-    REJECT = 'REJECT'
-    SET_VLAN = 'SET_VLAN'
-    CHOICE_POLICY = (
-        (REJECT, _('Reject the machine')),
-        (SET_VLAN, _('Place the machine on the VLAN'))
-    )
-
-    policy = models.CharField(
-        max_length=32,
-        choices=CHOICE_POLICY,
-        default=REJECT
-    )
-
-    vlan = models.ForeignKey(
-        'machines.Vlan',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-
-
 class RadiusOption(AclMixin, models.Model):
     class Meta:
         verbose_name = _("radius policies")
@@ -624,44 +579,105 @@ class RadiusOption(AclMixin, models.Model):
         (MACHINE, _("On the IP range's VLAN of the machine")),
         (DEFINED, _("Preset in 'VLAN for machines accepted by RADIUS'")),
     )
+    REJECT = 'REJECT'
+    SET_VLAN = 'SET_VLAN'
+    CHOICE_POLICY = (
+        (REJECT, _('Reject the machine')),
+        (SET_VLAN, _('Place the machine on the VLAN'))
+    )
     radius_general_policy = models.CharField(
         max_length=32,
         choices=CHOICE_RADIUS,
         default='DEFINED'
     )
-    unknown_machine = models.ForeignKey(
-        RadiusPolicy,
-        on_delete=models.PROTECT,
+    unknown_machine = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
         verbose_name=_("Policy for unknown machines"),
-        related_name='unknown_machine_option',
     )
-    unknown_port = models.ForeignKey(
-        RadiusPolicy,
+    unknown_machine_vlan = models.ForeignKey(
+        'machines.Vlan',
         on_delete=models.PROTECT,
+        related_name='unknown_machine_vlan',
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown machine Vlan'),
+        help_text=_(
+            'Vlan for unknown machines if not rejected.'
+        )
+    )
+    unknown_port = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
         verbose_name=_("Policy for unknown machines"),
-        related_name='unknown_port_option',
     )
-    unknown_room = models.ForeignKey(
-        RadiusPolicy,
+    unknown_port_vlan = models.ForeignKey(
+        'machines.Vlan',
         on_delete=models.PROTECT,
+        related_name='unknown_port_vlan',
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown port Vlan'),
+        help_text=_(
+            'Vlan for unknown ports if not rejected.'
+        )
+    )
+    unknown_room = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
         verbose_name=_(
             "Policy for machine connecting from "
             "unregistered room (relevant on ports with STRICT "
             "radius mode)"
         ),
-        related_name='unknown_room_option',
     )
-    non_member = models.ForeignKey(
-        RadiusPolicy,
+    unknown_room_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='unknown_room_vlan',
         on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown room Vlan'),
+        help_text=_(
+            'Vlan for unknown room if not rejected.'
+        )
+    )
+    non_member = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
         verbose_name=_("Policy non member users."),
-        related_name='non_member_option',
     )
-    banned = models.ForeignKey(
-        RadiusPolicy,
+    non_member_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='non_member_vlan',
         on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Non member Vlan'),
+        help_text=_(
+            'Vlan for non members if not rejected.'
+        )
+    )
+    banned = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
         verbose_name=_("Policy for banned users."),
-        related_name='banned_option'
+    )
+    banned_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='banned_vlan',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Banned Vlan'),
+        help_text=_(
+            'Vlan for banned if not rejected.'
+        )
     )
     vlan_decision_ok = models.OneToOneField(
         'machines.Vlan',

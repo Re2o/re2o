@@ -42,6 +42,7 @@ from .models import (
     Reminder,
     RadiusKey,
     SwitchManagementCred,
+    RadiusOption,
 )
 from topologie.models import Switch
 
@@ -227,6 +228,13 @@ class EditHomeOptionForm(ModelForm):
         self.fields['facebook_url'].label = _("Facebook URL")
         self.fields['twitter_url'].label = _("Twitter URL")
         self.fields['twitter_account_name'].label = _("Twitter account name")
+
+
+class EditRadiusOptionForm(ModelForm):
+    """Edition forms for Radius options"""
+    class Meta:
+        model = RadiusOption
+        fields = ['radius_general_policy', 'vlan_decision_ok']
 
 
 class ServiceForm(ModelForm):
