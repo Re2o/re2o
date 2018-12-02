@@ -137,7 +137,9 @@ def edit_options(request, section):
             messages.success(request, _("The preferences were edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'options': options},
+        {
+            'options': options,
+        },
         'preferences/edit_preferences.html',
         request
     )
