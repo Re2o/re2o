@@ -51,10 +51,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ job.filename }}</td>
 		<td>{{ job.user }} {% if job.printAs %} {% trans "for" %} {{ job.printAs }}{% endif %}</td>
                 <td>{{ job.starttime }}</td>
-		<td>{{ job.status }}</td>
+		<td>{{ job.get_status_display }}</td>
                 <td>{{ job.count }}</td>
                 <td>{{ job.price }}</td>
-		<td>    
+		<td>
 		<a href="{% url 'printer:print-job-again' jobwithoptionsid=job.id %}" class="btn btn-primary btn-sm" role="button">
                     <i class="fa fa-print"></i>
                 </a>
