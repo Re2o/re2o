@@ -42,10 +42,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     
     <div id="collapse_general" class="panel-collapse panel-body collapse">
 
-
-			<a class="btn btn-primary btn-sm pull-right" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
+			<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
             <i class="fa fa-edit"></i>{% trans "Edit" %}
             </a>
+    <p></p>
 
     <table class="table table-striped">
         <tr>
@@ -102,10 +102,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
      	</div>
      	
 		<div id="collapse_users" class="panel-collapse collapse">
+
+        <p></p>
 			<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
 			<i class="fa fa-edit"></i>
 			{% trans "Edit" %}
 			</a>
+        <p></p>
+
         <table class="table table-striped">
             <tr>
                 <th>{% trans "Creation of members by everyone" %}</th>
@@ -150,13 +154,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-desktop"></i>   {% trans "Machines preferences" %}</a>
 		</h4>
 	</div>
+
 	<div id="collapse_machines" class="panel-collapse collapse">
+
+    <p></p>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
         <i class="fa fa-edit"></i>
         {% trans "Edit" %}
     </a>
-    <p>
-    </p>
+    <p></p>
     <table class="table table-striped">
         <tr>
             <th>{% trans "Password per machine" %}</th>
@@ -185,12 +191,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		</h4>
 	</div>
 	<div id="collapse_topo" class="panel-collapse collapse">
+
+        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
+        <p></p>
     <table class="table table-striped">
         <tr>
             <th>{% trans "General policy for VLAN setting" %}</th>
@@ -284,12 +291,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </h4>
     </div>
     <div id="collapse_asso" class="panel-collapse collapse">
+
+        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
+        <p></p>
     <table class="table table-striped">
         <tr>
             <th>{% trans "Name" %}</th>
@@ -327,13 +335,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-comment"></i>   Message pour les mails</a>		
 		</h4>
 	</div>
-    <div id="collapse_mail" class="panel-collapse collapse">	
+    <div id="collapse_mail" class="panel-collapse collapse">
+
+        <p></p>    
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
+        <p></p>
+
     <table class="table table-striped">
         <tr>
             <th>{% trans "Welcome email (in French)" %}</th>
@@ -355,7 +365,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 	<div id="collapse_rappels" class="panel-collapse collapse">
         {% can_create preferences.Reminder%}
+        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+        <p></p>
         {% acl_end %}
         {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
     </div>
@@ -370,7 +382,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div id="collapse_services" class="panel-collapse collapse">
         {% can_create preferences.Service%}
+        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
+        <p></p>
         {% acl_end %}
         {%  include "preferences/aff_service.html" with  service_list=service_list %}
         
@@ -384,10 +398,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		</h4>
 	</div>
 	<div id="collapse_contact" class="panel-collapse collapse">
+        <p></p>
         {% can_create preferences.MailContact %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}
         <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
+        <p></p>
         {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
     </div>
     </div>
@@ -399,10 +415,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </h4>
     </div>
     <div id="collapse_social" class="panel-collapse collapse">
+
+        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
+        <p></p>
     <table class="table table-striped">
         <tr>
             <th>{% trans "Twitter account URL" %}</th>
