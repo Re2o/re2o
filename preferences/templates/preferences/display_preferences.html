@@ -34,17 +34,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div id="accordion">
 	
 	<div class="panel panel-default" id="general">
-	<div class="panel-heading">
+	<div class="panel-heading" data-toggle="collapse" href="#collapse_general">
     	<h4 class="panel-title" id="general">
-        	<a data-toggle="collapse" href="#collapse_general">{% trans "General preferences" %}</a>
-		</h4>
-		</div>
+                <a><i class="fa fa-cog"></i>   {% trans "General preferences" %}</a>
+        </h4> 
+    </div>
+    
+    <div id="collapse_general" class="panel-collapse panel-body collapse">
 
-    <div id="collapse_general" class="panel-collapse collapse">
-		<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
-        <i class="fa fa-edit"></i>
-        {% trans "Edit" %}
-    	</a>	
+
+			<a class="btn btn-primary btn-sm pull-right" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
+            <i class="fa fa-edit"></i>{% trans "Edit" %}
+            </a>
 
     <table class="table table-striped">
         <tr>
@@ -94,9 +95,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 	<div class="panel panel-default" id="users">
-    	<div class="panel-heading">
+    	<div class="panel-heading" data-toggle="collapse" href="#collapse_users">
       		<h4 class="panel-title">
-        	<a data-toggle="collapse" href="#collapse_users">{% trans "User preferences" %}</a>
+                    <a><i class="fa fa-users fa-fw"></i>   {% trans "User preferences" %}</a>
       		</h4>
      	</div>
      	
@@ -144,9 +145,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 	
 	<div class="panel panel-default" id="machines">
-	<div class="panel-heading">
+	<div class="panel-heading" data-toggle="collapse" href="#collapse_machines">
     	<h4 class ="panel-title">
-			<a data-toggle="collapse" href="#collapse_machines">{% trans "Machines preferences" %}</a>
+                <a><i class="fa fa-desktop"></i>   {% trans "Machines preferences" %}</a>
 		</h4>
 	</div>
 	<div id="collapse_machines" class="panel-collapse collapse">
@@ -178,9 +179,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 	<div  class="panel panel-default" id="topo">
-	<div class="panel-heading">
+	<div class="panel-heading" data-toggle="collapse" href="#collapse_topo">
 		<h4 class="panel-title">
-			<a data-toggle="collapse" href="#collapse_topo">{% trans "Topology preferences" %}</a>
+			<a><i class="fa fa-sitemap"></i>   {% trans "Topology preferences" %}</a>
 		</h4>
 	</div>
 	<div id="collapse_topo" class="panel-collapse collapse">
@@ -219,9 +220,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 	<div  class="panel panel-default" id="switches">
-    <div class="panel-heading">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_switches">
 		<h4 class="panel-title">
-			<a data-toggle="collapse" href="#collapse_switches">Configuration des Switches</a>
+                <a><i class="fa fa-server"></i>   Configuration des Switches</a>
 		</h4>
 	</div>
 	<div id="collapse_switches" class="panel-collapse collapse">
@@ -277,9 +278,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
     <div class="panel panel-default" id="asso">
-    <div class="panel-heading">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_asso">
         <h4 class="panel-title">
-            <a data-toggle="collapse" href="#collapse_asso">{% trans "Information about the organisation" %}</a>
+                <a><i class="fa fa-at"></i>   {% trans "Information about the organisation" %}</a>
         </h4>
     </div>
     <div id="collapse_asso" class="panel-collapse collapse">
@@ -321,9 +322,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     
     <div  class="panel panel-default" id="mail">
-    <div class="panel-heading">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">
     	<h4 class="panel-title">
-			<a data-toggle="collapse" href="#collapse_mail">Message pour les mails</a>		
+                <a><i class="fa fa-comment"></i>   Message pour les mails</a>		
 		</h4>
 	</div>
     <div id="collapse_mail" class="panel-collapse collapse">	
@@ -347,9 +348,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 	<div  class="panel panel-default" id="rappels">
-    <div class="panel-heading">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_rappels">
     	<h4 class="panel-title">
-			<a data-toggle="collapse" href="#collapse_rappels">Options pour le mail de fin d'adhésion</ha>
+                <a><i class="fa fa-bell"></i>   Options pour le mail de fin d'adhésion</a>
 		</h4>
 	</div>
 	<div id="collapse_rappels" class="panel-collapse collapse">
@@ -357,23 +358,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
         {% acl_end %}
         {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+    </div>
+    </div>
 
-    <h4 id="services">{% trans "List of services and homepage preferences" %}</h4>
+
+	<div  class="panel panel-default" id="services">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_services">
+    	<h4 class="panel-title">
+                <a><i class="fa fa-home"></i>   {% trans "List of services and homepage preferences" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_services" class="panel-collapse collapse">
         {% can_create preferences.Service%}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
         {% acl_end %}
         {%  include "preferences/aff_service.html" with  service_list=service_list %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
-            <i class="fa fa-edit"></i>
-            {% trans "Edit" %}
-        </a>
+        
 	</div>
 	</div>
 
 	<div  class="panel panel-default" id="contact">
-    <div class="panel-heading">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_contact">
     	<h4 class="panel-title">
-			<a data-toggle="collapse" href="#collapse_contact">{% trans "List of contact email addresses" %}</a>
+                <a><i class="fa fa-list-ul"></i>   {% trans "List of contact email addresses" %}</a>
 		</h4>
 	</div>
 	<div id="collapse_contact" class="panel-collapse collapse">
@@ -382,8 +389,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% acl_end %}
         <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
         {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
-    <p>
-    </p>
+    </div>
+    </div>
+
+    <div class="panel panel-default" id="social">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_social">
+        <h4 class="panel-title">
+                <a><i class="fa fa-facebook"></i><i class="fa fa-twitter"></i>   Réseaux sociaux</a>
+        </h4>
+    </div>
+    <div id="collapse_social" class="panel-collapse collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
     <table class="table table-striped">
         <tr>
             <th>{% trans "Twitter account URL" %}</th>
@@ -397,7 +416,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </table>
 	</div>
+    </div>
 
-</div>
 {% endblock %}
 
