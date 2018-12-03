@@ -41,7 +41,6 @@ from .settings import (
 )
 
 
-import math
 
 """
 - ```user_printing_path``` is a function that returns the path of the uploaded file, used with the FileField.
@@ -255,7 +254,7 @@ class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model
 
         price_stapling = nb_staples * PRICES['Staples']
 
-        total_price = math.floor(self.count * (price_ink + price_stapling))
+        total_price = self.count * (price_ink + price_stapling)
 
         return total_price/100
 
