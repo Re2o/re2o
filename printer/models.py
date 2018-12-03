@@ -249,7 +249,7 @@ class JobWithOptions(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model
 
         price_ink = price_paper*sheets + PRICES[self.color]*pages
 
-        if self.stapling:
+        if self.stapling != 'None':
             nb_staples = 2 - int('Top' in self.stapling)
 
         price_stapling = nb_staples * PRICES['Staples']
