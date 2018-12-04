@@ -611,7 +611,7 @@ class RadiusOption(AclMixin, models.Model):
         max_length=32,
         choices=CHOICE_POLICY,
         default=REJECT,
-        verbose_name=_("Policy for unknown machines"),
+        verbose_name=_("Policy for unknown port"),
     )
     unknown_port_vlan = models.ForeignKey(
         'machines.Vlan',

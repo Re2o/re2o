@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('machines', '0095_auto_20180919_2225'),
-        ('preferences', '0051_auto_20180919_2225'),
+        ('preferences', '0055_generaloption_main_site_url'),
     ]
 
     operations = [
@@ -89,6 +89,23 @@ class Migration(migrations.Migration):
             name='unknown_room',
             field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for machine connecting from unregistered room (relevant on ports with STRICT radius mode)'),
         ),
+        migrations.AddField(
+            model_name='radiusoption',
+            name='vlan_decision_ok',
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlan_ok_option', to='machines.Vlan'),
+        ),
 
         migrations.RunPython(create_radius_policy),
+        migrations.RemoveField(
+            model_name='optionaltopologie',
+            name='radius_general_policy',
+        ),
+        migrations.RemoveField(
+            model_name='optionaltopologie',
+            name='vlan_decision_nok',
+        ),
+        migrations.RemoveField(
+            model_name='optionaltopologie',
+            name='vlan_decision_ok',
+        ),
     ]
