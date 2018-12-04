@@ -234,7 +234,7 @@ class EditRadiusOptionForm(ModelForm):
     """Edition forms for Radius options"""
     class Meta:
         model = RadiusOption
-        fields = ['radius_general_policy', 'vlan_decision_ok']
+        fields = '__all__'
 
 
 class ServiceForm(ModelForm):
