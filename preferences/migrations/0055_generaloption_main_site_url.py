@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0054_merge_20181025_1258'),
+        ('preferences', '0053_optionaluser_self_change_room'),
     ]
 
     operations = [
