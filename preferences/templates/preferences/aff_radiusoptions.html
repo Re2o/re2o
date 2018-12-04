@@ -45,50 +45,50 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <th>{% trans "Unknown machine" %}</th>
         <td>
-        {% if radiusoptions.unknown_machine.policy == 'REJECT' %}
+        {% if radiusoptions.unknown_machine == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_machine.vlan }}</span>
+        <span class="label label-success">Vlan {{ radiusoptions.unknown_machine_vlan }}</span>
         {% endif %}
         </td>
     </tr>
     <tr>
         <th>{% trans "Unknown port" %}</th>
         <td>
-        {% if radiusoptions.unknown_port.policy == 'REJECT' %}
+        {% if radiusoptions.unknown_port == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_port.vlan }}</span>
+        <span class="label label-success">Vlan {{ radiusoptions.unknown_port_vlan }}</span>
         {% endif %}
         </td>
     </tr>
     <tr>
         <th>{% trans "Unknown room" %}</th>
         <td>
-        {% if radiusoptions.unknown_room.policy == 'REJECT' %}
+        {% if radiusoptions.unknown_room == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_room.vlan }}</span>
+        <span class="label label-success">Vlan {{ radiusoptions.unknown_room_vlan }}</span>
         {% endif %}
         </td>
     </tr>
     <tr>
         <th>{% trans "Non member" %}</th>
         <td>
-        {% if radiusoptions.non_member.policy == 'REJECT' %}
+        {% if radiusoptions.non_member == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.non_member.vlan }}</span>
+        <span class="label label-success">Vlan {{ radiusoptions.non_member_vlan }}</span>
         {% endif %}
         </td>
     </tr>
     <tr>
         <th>{% trans "Banned user" %}</th>
         <td>
-        {% if radiusoptions.unknown_port.policy == 'REJECT' %}
+        {% if radiusoptions.unknown_port == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.banned.vlan }}</span>
+        <span class="label label-success">Vlan {{ radiusoptions.banned_vlan }}</span>
         {% endif %}
         </td>
     </tr>
