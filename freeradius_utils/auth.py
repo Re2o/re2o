@@ -514,7 +514,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
         # Enfin on laisse passer sur le vlan pertinent
         else:
             room = port.room
-            if interface.machine.user.is_banned():
+            if interface.machine.user.is_ban():
                 return (
                     sw_name,
                     room,
