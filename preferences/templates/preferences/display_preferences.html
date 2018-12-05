@@ -95,13 +95,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</div>
 
 	<div class="panel panel-default" id="users">
-    	<div class="panel-heading" data-toggle="collapse" href="#collapse_users">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_users">
       		<h4 class="panel-title">
                     <a><i class="fa fa-users fa-fw"></i>   {% trans "User preferences" %}</a>
       		</h4>
-     	</div>
-     	
-		<div id="collapse_users" class="panel-collapse collapse">
+    </div>	
+	<div id="collapse_users" class="panel-collapse panel-body collapse">
 
         <p></p>
 			<a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
@@ -155,13 +154,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		</h4>
 	</div>
 
-	<div id="collapse_machines" class="panel-collapse collapse">
+	<div id="collapse_machines" class="panel-collapse panel-body collapse">
 
-    <p></p>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
         <i class="fa fa-edit"></i>
         {% trans "Edit" %}
-    </a>
+    </a>    
     <p></p>
     <table class="table table-striped">
         <tr>
@@ -190,9 +188,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			<a><i class="fa fa-sitemap"></i>   {% trans "Topology preferences" %}</a>
 		</h4>
 	</div>
-	<div id="collapse_topo" class="panel-collapse collapse">
+	<div id="collapse_topo" class="panel-collapse panel-body collapse">
 
-        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -232,9 +229,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-server"></i>   Configuration des Switches</a>
 		</h4>
 	</div>
-	<div id="collapse_switches" class="panel-collapse collapse">
-    <table class="table table-striped">
-	<tr>
+	<div id="collapse_switches" class="panel-collapse panel-body collapse">
+
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        <p></p>
+        
+        <table class="table table-striped">
+	    <tr>
             <th>Web management, activé si provision automatique</th>
             <td>{{ topologieoptions.switchs_web_management }}</td>
 	    <th>Rest management, activé si provision auto</th>
@@ -290,9 +294,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-at"></i>   {% trans "Information about the organisation" %}</a>
         </h4>
     </div>
-    <div id="collapse_asso" class="panel-collapse collapse">
+    <div id="collapse_asso" class="panel-collapse panel-body collapse">
 
-        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -335,9 +338,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-comment"></i>   Message pour les mails</a>		
 		</h4>
 	</div>
-    <div id="collapse_mail" class="panel-collapse collapse">
+    <div id="collapse_mail" class="panel-collapse panel-body collapse">
 
-        <p></p>    
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
@@ -363,9 +365,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-bell"></i>   Options pour le mail de fin d'adhésion</a>
 		</h4>
 	</div>
-	<div id="collapse_rappels" class="panel-collapse collapse">
+	<div id="collapse_rappels" class="panel-collapse panel-body collapse">
         {% can_create preferences.Reminder%}
-        <p></p>
+        
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
         <p></p>
         {% acl_end %}
@@ -380,9 +382,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-home"></i>   {% trans "List of services and homepage preferences" %}</a>
         </h4>
     </div>
-    <div id="collapse_services" class="panel-collapse collapse">
+    <div id="collapse_services" class="panel-collapse panel-body collapse">
         {% can_create preferences.Service%}
-        <p></p>
+        
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
         <p></p>
         {% acl_end %}
@@ -397,8 +399,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-list-ul"></i>   {% trans "List of contact email addresses" %}</a>
 		</h4>
 	</div>
-	<div id="collapse_contact" class="panel-collapse collapse">
-        <p></p>
+	<div id="collapse_contact" class="panel-collapse panel-body collapse">
+        
         {% can_create preferences.MailContact %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}
@@ -414,9 +416,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <a><i class="fa fa-facebook"></i><i class="fa fa-twitter"></i>   Réseaux sociaux</a>
         </h4>
     </div>
-    <div id="collapse_social" class="panel-collapse collapse">
+    <div id="collapse_social" class="panel-collapse panel-body collapse">
 
-        <p></p>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
