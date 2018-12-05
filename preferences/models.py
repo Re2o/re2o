@@ -569,7 +569,7 @@ class MailMessageOption(AclMixin, models.Model):
         verbose_name = _("email message options")
 
 
-class RadiusOption(AclMixin, models.Model):
+class RadiusOption(AclMixin, PreferencesModel):
     class Meta:
         verbose_name = _("radius policies")
 
