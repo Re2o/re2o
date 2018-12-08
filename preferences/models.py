@@ -199,25 +199,6 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         ('tftp', 'tftp'),
     )
 
-    radius_general_policy = models.CharField(
-        max_length=32,
-        choices=CHOICE_RADIUS,
-        default='DEFINED'
-    )
-    vlan_decision_ok = models.OneToOneField(
-        'machines.Vlan',
-        on_delete=models.PROTECT,
-        related_name='decision_ok',
-        blank=True,
-        null=True
-    )
-    vlan_decision_nok = models.OneToOneField(
-        'machines.Vlan',
-        on_delete=models.PROTECT,
-        related_name='decision_nok',
-        blank=True,
-        null=True
-    )
     switchs_web_management = models.BooleanField(
         default=False,
         help_text="Web management, activé si provision automatique"
@@ -309,7 +290,6 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         """Return true if all settings are ok : switchs on automatic provision,
         ip_type"""
         return bool(self.provisioned_switchs and self.switchs_ip_type and SwitchManagementCred.objects.filter(default_switch=True).exists() and self.switchs_management_interface_ip and bool(self.switchs_provision != 'sftp'  or self.switchs_management_sftp_creds))
-
     class Meta:
         permissions = (
             ("view_optionaltopologie", _("Can view the topology options")),
@@ -587,4 +567,123 @@ class MailMessageOption(AclMixin, models.Model):
                                          " options")),
         )
         verbose_name = _("email message options")
+
+
+class RadiusOption(AclMixin, PreferencesModel):
+    class Meta:
+        verbose_name = _("radius policies")
+
+    MACHINE = 'MACHINE'
+    DEFINED = 'DEFINED'
+    CHOICE_RADIUS = (
+        (MACHINE, _("On the IP range's VLAN of the machine")),
+        (DEFINED, _("Preset in 'VLAN for machines accepted by RADIUS'")),
+    )
+    REJECT = 'REJECT'
+    SET_VLAN = 'SET_VLAN'
+    CHOICE_POLICY = (
+        (REJECT, _('Reject the machine')),
+        (SET_VLAN, _('Place the machine on the VLAN'))
+    )
+    radius_general_policy = models.CharField(
+        max_length=32,
+        choices=CHOICE_RADIUS,
+        default='DEFINED'
+    )
+    unknown_machine = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
+        verbose_name=_("Policy for unknown machines"),
+    )
+    unknown_machine_vlan = models.ForeignKey(
+        'machines.Vlan',
+        on_delete=models.PROTECT,
+        related_name='unknown_machine_vlan',
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown machine Vlan'),
+        help_text=_(
+            'Vlan for unknown machines if not rejected.'
+        )
+    )
+    unknown_port = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
+        verbose_name=_("Policy for unknown port"),
+    )
+    unknown_port_vlan = models.ForeignKey(
+        'machines.Vlan',
+        on_delete=models.PROTECT,
+        related_name='unknown_port_vlan',
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown port Vlan'),
+        help_text=_(
+            'Vlan for unknown ports if not rejected.'
+        )
+    )
+    unknown_room = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
+        verbose_name=_(
+            "Policy for machine connecting from "
+            "unregistered room (relevant on ports with STRICT "
+            "radius mode)"
+        ),
+    )
+    unknown_room_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='unknown_room_vlan',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Unknown room Vlan'),
+        help_text=_(
+            'Vlan for unknown room if not rejected.'
+        )
+    )
+    non_member = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
+        verbose_name=_("Policy non member users."),
+    )
+    non_member_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='non_member_vlan',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Non member Vlan'),
+        help_text=_(
+            'Vlan for non members if not rejected.'
+        )
+    )
+    banned = models.CharField(
+        max_length=32,
+        choices=CHOICE_POLICY,
+        default=REJECT,
+        verbose_name=_("Policy for banned users."),
+    )
+    banned_vlan = models.ForeignKey(
+        'machines.Vlan',
+        related_name='banned_vlan',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Banned Vlan'),
+        help_text=_(
+            'Vlan for banned if not rejected.'
+        )
+    )
+    vlan_decision_ok = models.OneToOneField(
+        'machines.Vlan',
+        on_delete=models.PROTECT,
+        related_name='vlan_ok_option',
+        blank=True,
+        null=True
+    )
 

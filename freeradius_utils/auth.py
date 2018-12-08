@@ -57,13 +57,8 @@ application = get_wsgi_application()
 from machines.models import Interface, IpList, Nas, Domain
 from topologie.models import Port, Switch
 from users.models import User
-from preferences.models import OptionalTopologie
+from preferences.models import RadiusOption
 
-
-options, created = OptionalTopologie.objects.get_or_create()
-VLAN_NOK = options.vlan_decision_nok.vlan_id
-VLAN_OK = options.vlan_decision_ok.vlan_id
-RADIUS_POLICY = options.radius_general_policy
 
 #: Serveur radius de test (pas la prod)
 TEST_SERVER = bool(os.getenv('DBG_FREERADIUS', False))
@@ -287,6 +282,7 @@ def find_nas_from_request(nas_id):
            .select_related('machine__switch__stack'))
     return nas.first()
 
+
 def check_user_machine_and_register(nas_type, username, mac_address):
     """Verifie le username et la mac renseignee. L'enregistre si elle est
     inconnue.
@@ -327,32 +323,50 @@ def check_user_machine_and_register(nas_type, username, mac_address):
 
 
 def decide_vlan_switch(nas_machine, nas_type, port_number,
-                                    mac_address):
+                       mac_address):
     """Fonction de placement vlan pour un switch en radius filaire auth par
     mac.
     Plusieurs modes :
-    - nas inconnu, port inconnu : on place sur le vlan par defaut VLAN_OK
-    - pas de radius sur le port : VLAN_OK
-    - bloq : VLAN_NOK
-    - force : placement sur le vlan indiqué dans la bdd
-    - mode strict :
-        - pas de chambre associée : VLAN_NOK
-        - pas d'utilisateur dans la chambre : VLAN_NOK
-        - cotisation non à jour : VLAN_NOK
-        - sinon passe à common (ci-dessous)
-    - mode common :
-        - interface connue (macaddress):
-            - utilisateur proprio non cotisant ou banni : VLAN_NOK
-            - user à jour : VLAN_OK
-        - interface inconnue :
-            - register mac désactivé : VLAN_NOK
-            - register mac activé -> redirection vers webauth
+        - tous les modes:
+            - nas inconnu: VLAN_OK
+            - port inconnu: Politique définie dans RadiusOption
+        - pas de radius sur le port: VLAN_OK
+        - force: placement sur le vlan indiqué dans la bdd
+        - mode strict:
+            - pas de chambre associée: Politique définie
+              dans RadiusOption
+            - pas d'utilisateur dans la chambre : Rejet
+              (redirection web si disponible)
+            - utilisateur de la chambre banni ou désactivé : Rejet
+              (redirection web si disponible)
+            - utilisateur de la chambre non cotisant et non whiteslist:
+              Politique définie dans RadiusOption
+
+            - sinon passe à common (ci-dessous)
+        - mode common :
+            - interface connue (macaddress):
+                - utilisateur proprio non cotisant / machine désactivée:
+                    Politique définie dans RadiusOption
+                - utilisateur proprio banni :
+                    Politique définie dans RadiusOption
+                - user à jour : VLAN_OK (réassignation de l'ipv4 au besoin)
+            - interface inconnue :
+                - register mac désactivé : Politique définie
+                  dans RadiusOption
+                - register mac activé: redirection vers webauth
+    Returns:
+        tuple avec :
+            - Nom du switch (str)
+            - chambre (str)
+            - raison de la décision (str)
+            - vlan_id (int)
+            - decision (bool)
     """
     # Get port from switch and port number
     extra_log = ""
     # Si le NAS est inconnu, on place sur le vlan defaut
     if not nas_machine:
-        return ('?', u'Chambre inconnue', u'Nas inconnu', VLAN_OK, True)
+        return ('?', u'Chambre inconnue', u'Nas inconnu', RadiusOption.get_cached_value('vlan_decision_ok').vlan_id, True)
 
     sw_name = str(getattr(nas_machine, 'short_name', str(nas_machine)))
 
@@ -367,7 +381,13 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
     # Aucune information particulière ne permet de déterminer quelle
     # politique à appliquer sur ce port
     if not port:
-        return (sw_name, "Chambre inconnue", u'Port inconnu', VLAN_OK, True)
+        return (
+            sw_name,
+            "Chambre inconnue",
+            u'Port inconnu',
+            RadiusOption('unknown_port_vlan').vlan_id,
+            RadiusOption('unknown_port')!= RadiusOption.REJECT
+        )
 
     # On récupère le profil du port
     port_profile = port.get_port_profile
@@ -378,11 +398,11 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
         DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
         extra_log = u"Force sur vlan " + str(DECISION_VLAN)
     else:
-        DECISION_VLAN = VLAN_OK
+        DECISION_VLAN = RadiusOption.get_cached_value('vlan_decision_ok')
 
-    # Si le port est désactivé, on rejette sur le vlan de déconnexion
+    # Si le port est désactivé, on rejette la connexion
     if not port.state:
-        return (sw_name, port.room, u'Port desactivé', VLAN_NOK, True)
+        return (sw_name, port.room, u'Port desactivé', None, False)
 
     # Si radius est désactivé, on laisse passer
     if port_profile.radius_type == 'NO':
@@ -392,33 +412,68 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                 DECISION_VLAN,
                 True)
 
-    # Si le 802.1X est activé sur ce port, cela veut dire que la personne a été accept précédemment
+    # Si le 802.1X est activé sur ce port, cela veut dire que la personne a
+    # été accept précédemment
     # Par conséquent, on laisse passer sur le bon vlan
-    if nas_type.port_access_mode == '802.1X' and port_profile.radius_type == '802.1X':
+    if (nas_type.port_access_mode, port_profile.radius_type) == ('802.1X', '802.1X'):
         room = port.room or "Chambre/local inconnu"
-        return (sw_name, room, u'Acceptation authentification 802.1X', DECISION_VLAN, True)
+        return (
+            sw_name,
+            room,
+            u'Acceptation authentification 802.1X',
+            DECISION_VLAN,
+            True
+        )
 
     # Sinon, cela veut dire qu'on fait de l'auth radius par mac
     # Si le port est en mode strict, on vérifie que tous les users
-    # rattachés à ce port sont bien à jour de cotisation. Sinon on rejette (anti squattage)
-    # Il n'est pas possible de se connecter sur une prise strict sans adhérent à jour de cotis
-    # dedans
+    # rattachés à ce port sont bien à jour de cotisation. Sinon on rejette
+    # (anti squattage)
+    # Il n'est pas possible de se connecter sur une prise strict sans adhérent
+    # à jour de cotis dedans
     if port_profile.radius_mode == 'STRICT':
         room = port.room
         if not room:
-            return (sw_name, "Inconnue", u'Chambre inconnue', VLAN_NOK, True)
+            return (
+                sw_name,
+                "Inconnue",
+                u'Chambre inconnue',
+                RadiusOption('unknown_room_vlan').vlan_id,
+                RadiusOption('unknown_room')!= RadiusOption.REJECT
+            )
 
         room_user = User.objects.filter(
             Q(club__room=port.room) | Q(adherent__room=port.room)
         )
         if not room_user:
-            return (sw_name, room, u'Chambre non cotisante -> Web redirect', None, False)
+            return (
+                sw_name,
+                room,
+                u'Chambre non cotisante -> Web redirect',
+                None,
+                False
+            )
         for user in room_user:
-            if not user.has_access():
-                return (sw_name, room, u'Chambre resident desactive -> Web redirect', None, False)
+            if user.is_ban() or user.state != User.STATE_ACTIVE:
+                return (
+                    sw_name,
+                    room,
+                    u'Utilisateur banni ou désactivé -> Web redirect',
+                    None,
+                    False
+                )
+            elif not (user.is_connected() or user.is_whitelisted()):
+                return (
+                    sw_name,
+                    room,
+                    u'Utilisateur non cotisant',
+                    RadiusOption('non_member_vlan').vlan_id,
+                    RadiusOption('non_member')!= RadiusOption.REJECT
+                )
         # else: user OK, on passe à la verif MAC
 
-    # Si on fait de l'auth par mac, on cherche l'interface via sa mac dans la bdd
+    # Si on fait de l'auth par mac, on cherche l'interface
+    # via sa mac dans la bdd
     if port_profile.radius_mode == 'COMMON' or port_profile.radius_mode == 'STRICT':
         # Authentification par mac
         interface = (Interface.objects
@@ -428,38 +483,67 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                      .first())
         if not interface:
             room = port.room
-            # On essaye de register la mac, si l'autocapture a été activée
-            # Sinon on rejette sur vlan_nok
-            if not nas_type.autocapture_mac:
-                return (sw_name, "", u'Machine inconnue', VLAN_NOK, True)
-            # On rejette pour basculer sur du webauth
+            # On essaye de register la mac, si l'autocapture a été activée,
+            # on rejette pour faire une redirection web si possible.
+            if nas_type.autocapture_mac:
+                return (
+                    sw_name,
+                    room,
+                    u'Machine Inconnue -> Web redirect',
+                    None,
+                    False
+                )
+            # Sinon on bascule sur la politique définie dans les options
+            # radius.
             else:
-                return (sw_name, room, u'Machine Inconnue -> Web redirect', None, False)
+                return (
+                    sw_name,
+                    "",
+                    u'Machine inconnue',
+                    RadiusOption('unknown_machine_vlan').vlan_id,
+                    RadiusOption('unknown_machine')!= RadiusOption.REJECT
+                )
 
-        # L'interface a été trouvée, on vérifie qu'elle est active, sinon on reject
+        # L'interface a été trouvée, on vérifie qu'elle est active,
+        # sinon on reject
         # Si elle n'a pas d'ipv4, on lui en met une
         # Enfin on laisse passer sur le vlan pertinent
         else:
             room = port.room
+            if interface.machine.user.is_ban():
+                return (
+                    sw_name,
+                    room,
+                    u'Adherent banni',
+                    RadiusOption('banned_vlan').vlan_id,
+                    RadiusOption('banned')!= RadiusOption.REJECT
+                )
             if not interface.is_active:
-                return (sw_name,
-                        room,
-                        u'Machine non active / adherent non cotisant',
-                        VLAN_NOK,
-                        True)
-            ## Si on choisi de placer les machines sur le vlan correspondant à leur type :
-            if RADIUS_POLICY == 'MACHINE':
+                return (
+                    sw_name,
+                    room,
+                    u'Machine non active / adherent non cotisant',
+                    RadiusOption('non_member_vlan').vlan_id,
+                    RadiusOption('non_member')!= RadiusOption.REJECT
+                )
+            # Si on choisi de placer les machines sur le vlan
+            # correspondant à leur type :
+            if RadiusOption.get_cached_value('radius_general_policy') == 'MACHINE':
                 DECISION_VLAN = interface.type.ip_type.vlan.vlan_id
             if not interface.ipv4:
                 interface.assign_ipv4()
-                return (sw_name,
-                        room,
-                        u"Ok, Reassignation de l'ipv4" + extra_log,
-                        DECISION_VLAN,
-                        True)
+                return (
+                    sw_name,
+                    room,
+                    u"Ok, Reassignation de l'ipv4" + extra_log,
+                    DECISION_VLAN,
+                    True
+                )
             else:
-                return (sw_name,
-                        room,
-                        u'Machine OK' + extra_log,
-                        DECISION_VLAN,
-                        True)
+                return (
+                    sw_name,
+                    room,
+                    u'Machine OK' + extra_log,
+                    DECISION_VLAN,
+                    True
+                )
