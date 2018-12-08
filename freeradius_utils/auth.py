@@ -398,7 +398,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
         DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
         extra_log = u"Force sur vlan " + str(DECISION_VLAN)
     else:
-        DECISION_VLAN = RadiusOption.get_cached_value('vlan_decision_ok')
+        DECISION_VLAN = RadiusOption.get_cached_value('vlan_decision_ok').vlan_id
 
     # Si le port est désactivé, on rejette la connexion
     if not port.state:
