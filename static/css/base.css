@@ -102,7 +102,7 @@ a > i.fa {
 }
 
 .table-responsive {
-	overflow-y: visible;
+	overflow: visible;
 }
 
 /* Make modal wider on wide screens */
