@@ -323,6 +323,14 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
 
+    def clean_pseudo(self):
+        """Vérfie que le peusdo est bien en minuscule"""
+        pseudo = self.cleaned_data.get('pseudo')
+        if pseudo.islower():
+            return pseudo
+        else:
+            raise forms.ValidationError(_("Your pseudo should be in lowercase."))
+    
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
             return self.cleaned_data.get('email').lower()
