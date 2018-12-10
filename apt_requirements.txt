@@ -17,3 +17,4 @@ libjs-bootstrap
 fonts-font-awesome
 graphviz
 git
+gettext
