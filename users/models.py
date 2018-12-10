@@ -695,10 +695,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
-        all_interfaces = self.user_interfaces(active=False)
-        if all_interfaces.count() > OptionalMachine.get_cached_value(
-            'max_lambdauser_interfaces'
-        ):
+        if Machine.can_create(self):
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
             return False, _("Re2o doesn't know wich machine type to assign.")

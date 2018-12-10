@@ -31,292 +31,423 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Preferences" %}{% endblock %}
 
 {% block content %}
-    <h4>{% trans "User preferences" %}</h4>
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
-        <i class="fa fa-edit"></i>
-        {% trans "Edit" %}
-    </a>
-    <p>
-    </p>
-    <h5>{% trans "General preferences" %}</h5>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Creation of members by everyone" %}</th>
-            <td>{{ useroptions.all_can_create_adherent|tick }}</td>
-            <th>{% trans "Creation of clubs by everyone" %}</th>
-            <td>{{ useroptions.all_can_create_club|tick }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Self registration" %}</th>
-            <td>{{ useroptions.self_adhesion|tick }}</td>
-            <th>{% trans "Delete not yet active users after" %}</th>
-            <td>{{ useroptions.delete_notyetactive }} days</td>
-        </tr>
-    </table>
+<div id="accordion">
 
-    <h5>{% trans "Users general permissions" %}</h5>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Default shell for users" %}</th>
-            <td>{{ useroptions.shell_default }}</td>
-            <th>{% trans "Users can edit their shell" %}</th>
-            <td>{{ useroptions.self_change_shell|tick }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Users can edit their room" %}</th>
-            <td>{{ useroptions.self_change_room|tick }}</td>
-            <th>{% trans "Telephone number required" %}</th>
-            <td>{{ useroptions.is_tel_mandatory|tick }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "GPG fingerprint field" %}</th>
-            <td>{{ useroptions.gpg_fingerprint|tick }}</td>
-        </tr>
-    </table>
+    <div class="panel panel-default" id="general">
+        <div class="panel-heading" data-toggle="collapse" href="#collapse_general">
+            <h4 class="panel-title" id="general">
+                <a><i class="fa fa-cog"></i>   {% trans "General preferences" %}</a>
+            </h4>
+        </div>
 
-    <h5>{% trans "Email accounts preferences" %}</h5>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Local email accounts enabled" %}</th>
-            <td>{{ useroptions.local_email_accounts_enabled|tick }}</td>
-            <th>{% trans "Local email domain" %}</th>
-            <td>{{ useroptions.local_email_domain }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Maximum number of email aliases allowed" %}</th>
-            <td>{{ useroptions.max_email_address }}</td>
-        </tr>
-    </table>
-    <h4>{% trans "Machines preferences" %}</h4>
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
-        <i class="fa fa-edit"></i>
-        {% trans "Edit" %}
-    </a>
-    <p>
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Password per machine" %}</th>
-            <td>{{ machineoptions.password_machine|tick }}</td>
-            <th>{% trans "Maximum number of interfaces allowed for a standard user" %}</th>
-            <td>{{ machineoptions.max_lambdauser_interfaces }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Maximum number of DNS aliases allowed for a standard user" %}</th>
-            <td>{{ machineoptions.max_lambdauser_aliases }}</td>
-            <th>{% trans "IPv6 support" %}</th>
-            <td>{{ machineoptions.ipv6_mode }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Creation of machines" %}</th>
-            <td>{{ machineoptions.create_machine|tick }}</td>
-        </tr>
-    </table>
-    <h4>{% trans "Topology preferences" %}</h4>
+        <div id="collapse_general" class="panel-collapse panel-body collapse">
+
+            <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
+                <i class="fa fa-edit"></i>{% trans "Edit" %}
+            </a>
+            <p></p>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "Website name" %}</th>
+                    <td>{{ generaloptions.site_name }}</td>
+                    <th>{% trans "Email address for automatic emailing" %}</th>
+                    <td>{{ generaloptions.email_from }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Number of results displayed when searching" %}</th>
+                    <td>{{ generaloptions.search_display_page }}</td>
+                    <th>{% trans "Number of items per page (standard size)" %}</th>
+                    <td>{{ generaloptions.pagination_number }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Number of items per page (large size)" %}</th>
+                    <td>{{ generaloptions.pagination_large_number }}</td>
+                    <th>{% trans "Time before expiration of the reset password link (in hours)" %}</th>
+                    <td>{{ generaloptions.req_expire_hrs }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "General message displayed on the website" %}</th>
+                    <td>{{ generaloptions.general_message }}</td>
+                    <th>{% trans "Main site url" %}</th>
+                    <td>{{ generaloptions.main_site_url }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Summary of the General Terms of Use" %}</th>
+                    <td>{{ generaloptions.GTU_sum_up }}</td>
+                    <th>{% trans "General Terms of Use" %}</th>
+                    <td>{{ generaloptions.GTU }}</th>
+                </tr>
+            </table>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "Local email accounts enabled" %}</th>
+                    <td>{{ useroptions.local_email_accounts_enabled|tick }}</td>
+                    <th>{% trans "Local email domain" %}</th>
+                    <td>{{ useroptions.local_email_domain }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Maximum number of email aliases allowed" %}</th>
+                    <td>{{ useroptions.max_email_address }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel panel-default" id="users">
+        <div class="panel-heading" data-toggle="collapse" href="#collapse_users">
+            <h4 class="panel-title">
+                <a><i class="fa fa-users fa-fw"></i>   {% trans "User preferences" %}</a>
+            </h4>
+        </div>
+        <div id="collapse_users" class="panel-collapse panel-body collapse">
+
+            <p></p>
+            <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalUser' %}">
+                <i class="fa fa-edit"></i>
+                {% trans "Edit" %}
+            </a>
+            <p></p>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "Creation of members by everyone" %}</th>
+                    <td>{{ useroptions.all_can_create_adherent|tick }}</td>
+                    <th>{% trans "Creation of clubs by everyone" %}</th>
+                    <td>{{ useroptions.all_can_create_club|tick }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Self registration" %}</th>
+                    <td>{{ useroptions.self_adhesion|tick }}</td>
+                    <th>{% trans "Delete not yet active users after" %}</th>
+                    <td>{{ useroptions.delete_notyetactive }} days</td>
+                </tr>
+            </table>
+
+            <h4 id="users">{% trans "Users general permissions" %}</h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "Default shell for users" %}</th>
+                    <td>{{ useroptions.shell_default }}</td>
+                    <th>{% trans "Users can edit their shell" %}</th>
+                    <td>{{ useroptions.self_change_shell|tick }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Users can edit their room" %}</th>
+                    <td>{{ useroptions.self_change_room|tick }}</td>
+                    <th>{% trans "Telephone number required" %}</th>
+                    <td>{{ useroptions.is_tel_mandatory|tick }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "GPG fingerprint field" %}</th>
+                    <td>{{ useroptions.gpg_fingerprint|tick }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default" id="machines">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_machines">
+        <h4 class ="panel-title">
+            <a><i class="fa fa-desktop"></i>   {% trans "Machines preferences" %}</a>
+        </h4>
+    </div>
+
+    <div id="collapse_machines" class="panel-collapse panel-body collapse">
+
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalMachine' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        <p></p>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Password per machine" %}</th>
+                <td>{{ machineoptions.password_machine|tick }}</td>
+                <th>{% trans "Maximum number of interfaces allowed for a standard user" %}</th>
+                <td>{{ machineoptions.max_lambdauser_interfaces }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Maximum number of DNS aliases allowed for a standard user" %}</th>
+                <td>{{ machineoptions.max_lambdauser_aliases }}</td>
+                <th>{% trans "IPv6 support" %}</th>
+                <td>{{ machineoptions.ipv6_mode }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Creation of machines" %}</th>
+                <td>{{ machineoptions.create_machine|tick }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div  class="panel panel-default" id="topo">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_topo">
+        <h4 class="panel-title">
+            <a><i class="fa fa-sitemap"></i>   {% trans "Topology preferences" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_topo" class="panel-collapse panel-body collapse">
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
-	<h6>Clef radius</h6>
-	  {% can_create RadiusKey%}
-	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
-	  {% acl_end %}
-	  {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+        <p></p>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "General policy for VLAN setting" %}</th>
+                <td>{{ topologieoptions.radius_general_policy }}</td>
+                <th>{% trans "This setting defines the VLAN policy after acceptance by RADIUS: either on the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines accepted by RADIUS'" %}</th>
+                <td></td>
+            </tr>
+            <tr>
+                <th>{% trans "VLAN for machines accepted by RADIUS" %}</th>
+                <td>{{ topologieoptions.vlan_decision_ok }}</td>
+                <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
+                <td>{{ topologieoptions.vlan_decision_nok }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "VLAN for non members machines" %}</th>
+                <td>{{ topologieoptions.vlan_non_member }}</td>
+            </tr>
+        </table>
 
-    <h4>Configuration des switches</h4>
-    <table class="table table-striped">
-	<tr>
-            <th>Web management, activé si provision automatique</th>
-            <td>{{ topologieoptions.switchs_web_management }}</td>
-	    <th>Rest management, activé si provision auto</th>
-	    <td>{{ topologieoptions.switchs_rest_management }}</td>
-        </tr>
-    </table>
+        <h4>Clef radius</h4>
+        {% can_create RadiusKey%}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+        {% acl_end %}
+        {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
 
+    </div>
+</div>
 
+<div  class="panel panel-default" id="switches">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_switches">
+        <h4 class="panel-title">
+            <a><i class="fa fa-server"></i>   Configuration des Switches</a>
+        </h4>
+    </div>
+    <div id="collapse_switches" class="panel-collapse panel-body collapse">
 
-    <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
-    <table class="table table-striped">
-	<tr>
-	    <th>Switchs configurés automatiquement</th>
-	    <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
-	</tr>
-	<tr>
-	    <th>Plage d'ip de management des switchs</th>
-	    <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
-	</tr>
-	<tr>
-            <th>Serveur des config des switchs</th>
-	    <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
-	</tr>
-        <tr>
-	    <th>Mode de provision des switchs</th>
-            <td>{{ topologieoptions.switchs_provision }}</td>
-	</tr>
-	<tr>
-	    <th>Mode TFTP</th>
-	    <td><span class="label label-success"> OK</span></td>
-	</tr>
-	<tr>
-	    <th>Mode SFTP</th>
-	    <td>{% if topologieoptions.switchs_management_sftp_creds %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Creds manquants{% endif %}</span></td>
-	</tr>
-    </table>
-
-       <h6>Creds de management des switchs</h6>
-	  {% can_create SwitchManagementCred%}
-	  <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i> Ajouter un id/mdp de management switch</a>
-	  {% acl_end %}
-          <p>
-          </p>
-          {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
-          {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
-
-
-
-    <h5>{% if topologieoptions.provisioned_switchs %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
-    <table class="table table-striped">
-	<tr>
-		<th>Switchs configurés automatiquement</th>
-		<td>{{ topologieoptions.provisioned_switchs|join:", "  }}</td>
-	</tr>
-    </table>
-
-    <h4>{% trans "Radius preferences" %}</h4>
-    <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
-        <i class="fa fa-edit"></i>
-        {% trans "Edit" %}
-    </a>
-    {% include "preferences/aff_radiusoptions.html" %}
-
-
-    <h4>{% trans "General preferences" %}</h4>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'GeneralOption' %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Website name" %}</th>
-            <td>{{ generaloptions.site_name }}</td>
-            <th>{% trans "Email address for automatic emailing" %}</th>
-            <td>{{ generaloptions.email_from }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Number of results displayed when searching" %}</th>
-            <td>{{ generaloptions.search_display_page }}</td>
-            <th>{% trans "Number of items per page (standard size)" %}</th>
-            <td>{{ generaloptions.pagination_number }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Number of items per page (large size)" %}</th>
-            <td>{{ generaloptions.pagination_large_number }}</td>
-            <th>{% trans "Time before expiration of the reset password link (in hours)" %}</th>
-            <td>{{ generaloptions.req_expire_hrs }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "General message displayed on the website" %}</th>
-            <td>{{ generaloptions.general_message }}</td>
- 	    <th>{% trans "Main site url" %}</th>
-            <td>{{ generaloptions.main_site_url }}</td>
-	</tr>
-        <tr>
-	    <th>{% trans "Summary of the General Terms of Use" %}</th>
-            <td>{{ generaloptions.GTU_sum_up }}</td>
-            <th>{% trans "General Terms of Use" %}</th>
-            <td>{{ generaloptions.GTU }}</th>
-        </tr>
-    </table>
-    <h4>{% trans "Information about the organisation" %}</h4>
+        <p></p>
+
+        <table class="table table-striped">
+            <tr>
+                <th>Web management, activé si provision automatique</th>
+                <td>{{ topologieoptions.switchs_web_management }}</td>
+                <th>Rest management, activé si provision auto</th>
+                <td>{{ topologieoptions.switchs_rest_management }}</td>
+            </tr>
+        </table>
+
+
+
+        <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+        <table class="table table-striped">
+            <tr>
+                <th>Switchs configurés automatiquement</th>
+                <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+            </tr>
+            <tr>
+                <th>Plage d'ip de management des switchs</th>
+                <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+            </tr>
+            <tr>
+                <th>Serveur des config des switchs</th>
+                <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+            </tr>
+            <tr>
+                <th>Mode de provision des switchs</th>
+                <td>{{ topologieoptions.switchs_provision }}</td>
+            </tr>
+            <tr>
+                <th>Mode TFTP</th>
+                <td><span class="label label-success"> OK</span></td>
+            </tr>
+            <tr>
+                <th>Mode SFTP</th>
+                <td>{% if topologieoptions.switchs_management_sftp_creds %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Creds manquants{% endif %}</span></td>
+            </tr>
+        </table>
+
+        <h6>Creds de management des switchs</h6>
+        {% can_create SwitchManagementCred%}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i> Ajouter un id/mdp de management switch</a>
+        {% acl_end %}
+        <p>
+        </p>
+        {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
+            {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
+    </div>
+</div>
+
+<div class="panel panel-default" id="radius">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_radius">
+        <h4 class="panel-title"><a><i class="fa fa-circle"></i>   {% trans "Radius preferences" %}</h4></a>
+    </div>
+    <div id="collapse_radius" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        {% include "preferences/aff_radiusoptions.html" %}
+    </div>
+</div>
+
+<div class="panel panel-default" id="asso">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_asso">
+        <h4 class="panel-title">
+            <a><i class="fa fa-at"></i>   {% trans "Information about the organisation" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_asso" class="panel-collapse panel-body collapse">
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'AssoOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Name" %}</th>
-            <td>{{ assooptions.name }}</td>
-            <th>{% trans "SIRET number" %}</th>
-            <td>{{ assooptions.siret }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Address" %}</th>
-            <td>{{ assooptions.adresse1  }}<br>
-                {{ assooptions.adresse2 }}
-            </td>
-            <th>{% trans "Contact email address" %}</th>
-            <td>{{ assooptions.contact }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Telephone number" %}</th>
-            <td>{{ assooptions.telephone }}</td>
-            <th>{% trans "Usual name" %}</th>
-            <td>{{ assooptions.pseudo }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "User object of the organisation" %}</th>
-            <td>{{ assooptions.utilisateur_asso }}</td>
-            <th>{% trans "Description of the organisation" %}</th>
-            <td>{{ assooptions.description|safe }}</td>
-        </tr>
-    </table>
-    <h4>{% trans "Custom email message" %}</h4>
+        <p></p>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <td>{{ assooptions.name }}</td>
+                <th>{% trans "SIRET number" %}</th>
+                <td>{{ assooptions.siret }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Address" %}</th>
+                <td>{{ assooptions.adresse1  }}<br>
+                    {{ assooptions.adresse2 }}
+                </td>
+                <th>{% trans "Contact email address" %}</th>
+                <td>{{ assooptions.contact }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Telephone number" %}</th>
+                <td>{{ assooptions.telephone }}</td>
+                <th>{% trans "Usual name" %}</th>
+                <td>{{ assooptions.pseudo }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "User object of the organisation" %}</th>
+                <td>{{ assooptions.utilisateur_asso }}</td>
+                <th>{% trans "Description of the organisation" %}</th>
+                <td>{{ assooptions.description|safe }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div  class="panel panel-default" id="mail">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">
+        <h4 class="panel-title">
+            <a><i class="fa fa-comment"></i>   Message pour les mails</a>
+        </h4>
+    </div>
+    <div id="collapse_mail" class="panel-collapse panel-body collapse">
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'MailMessageOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-    <p>
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Welcome email (in French)" %}</th>
-            <td>{{ mailmessageoptions.welcome_mail_fr|safe }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Welcome email (in English)" %}</th>
-            <td>{{ mailmessageoptions.welcome_mail_en|safe }}</td>
-        </tr>
-    </table>
-    <h4>Options pour le mail de fin d'adhésion</h2>
+        <p></p>
+
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Welcome email (in French)" %}</th>
+                <td>{{ mailmessageoptions.welcome_mail_fr|safe }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Welcome email (in English)" %}</th>
+                <td>{{ mailmessageoptions.welcome_mail_en|safe }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div  class="panel panel-default" id="rappels">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_rappels">
+        <h4 class="panel-title">
+            <a><i class="fa fa-bell"></i>   Options pour le mail de fin d'adhésion</a>
+        </h4>
+    </div>
+    <div id="collapse_rappels" class="panel-collapse panel-body collapse">
         {% can_create preferences.Reminder%}
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+        <p></p>
         {% acl_end %}
         {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+    </div>
+</div>
 
-    <h4>{% trans "List of services and homepage preferences" %}</h4>
+
+<div  class="panel panel-default" id="services">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_services">
+        <h4 class="panel-title">
+            <a><i class="fa fa-home"></i>   {% trans "List of services and homepage preferences" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_services" class="panel-collapse panel-body collapse">
         {% can_create preferences.Service%}
+
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
+        <p></p>
         {% acl_end %}
         {%  include "preferences/aff_service.html" with  service_list=service_list %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
-            <i class="fa fa-edit"></i>
-            {% trans "Edit" %}
-        </a>
-    <h2>{% trans "List of contact email addresses" %}</h2>
+
+    </div>
+</div>
+
+<div  class="panel panel-default" id="contact">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_contact">
+        <h4 class="panel-title">
+            <a><i class="fa fa-list-ul"></i>   {% trans "List of contact email addresses" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_contact" class="panel-collapse panel-body collapse">
+
         {% can_create preferences.MailContact %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}
         <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
+        <p></p>
         {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
-    <p>
-    </p>
-    <table class="table table-striped">
-        <tr>
-            <th>{% trans "Twitter account URL" %}</th>
-            <td>{{ homeoptions.twitter_url }}</td>
-            <th>{% trans "Twitter account name" %}</th>
-            <td>{{ homeoptions.twitter_account_name }}</td>
-        </tr>
-        <tr>
-            <th>{% trans "Facebook account URL" %}</th>
-            <td>{{ homeoptions.facebook_url }}</td>
-        </tr>
-    </table>
+    </div>
+</div>
+
+<div class="panel panel-default" id="social">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_social">
+        <h4 class="panel-title">
+            <a><i class="fa fa-facebook"></i><i class="fa fa-twitter"></i>   Réseaux sociaux</a>
+        </h4>
+    </div>
+    <div id="collapse_social" class="panel-collapse panel-body collapse">
+
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'HomeOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        <p></p>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Twitter account URL" %}</th>
+                <td>{{ homeoptions.twitter_url }}</td>
+                <th>{% trans "Twitter account name" %}</th>
+                <td>{{ homeoptions.twitter_account_name }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Facebook account URL" %}</th>
+                <td>{{ homeoptions.facebook_url }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 {% endblock %}
 
