@@ -385,8 +385,8 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
             sw_name,
             "Chambre inconnue",
             u'Port inconnu',
-            RadiusOption('unknown_port_vlan').vlan_id,
-            RadiusOption('unknown_port')!= RadiusOption.REJECT
+            getattr(RadiusOption.get_cached_value('unknown_port_vlan'), 'vlan_id', None),
+            RadiusOption.get_cached_value('unknown_port')!= RadiusOption.REJECT
         )
 
     # On récupère le profil du port
@@ -438,8 +438,8 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                 sw_name,
                 "Inconnue",
                 u'Chambre inconnue',
-                RadiusOption('unknown_room_vlan').vlan_id,
-                RadiusOption('unknown_room')!= RadiusOption.REJECT
+                getattr(RadiusOption.get_cached_value('unknown_room_vlan'), 'vlan_id', None),
+                RadiusOption.get_cached_value('unknown_room')!= RadiusOption.REJECT
             )
 
         room_user = User.objects.filter(
@@ -467,8 +467,8 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                     sw_name,
                     room,
                     u'Utilisateur non cotisant',
-                    RadiusOption('non_member_vlan').vlan_id,
-                    RadiusOption('non_member')!= RadiusOption.REJECT
+                    getattr(RadiusOption.get_cached_value('non_member_vlan'), 'vlan_id', None),
+                    RadiusOption.get_cached_value('non_member')!= RadiusOption.REJECT
                 )
         # else: user OK, on passe à la verif MAC
 
@@ -500,8 +500,8 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                     sw_name,
                     "",
                     u'Machine inconnue',
-                    RadiusOption('unknown_machine_vlan').vlan_id,
-                    RadiusOption('unknown_machine')!= RadiusOption.REJECT
+                    getattr(RadiusOption.get_cached_value('unknown_machine_vlan'), 'vlan_id', None),
+                    RadiusOption.get_cached_value('unknown_machine')!= RadiusOption.REJECT
                 )
 
         # L'interface a été trouvée, on vérifie qu'elle est active,
@@ -515,16 +515,16 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                     sw_name,
                     room,
                     u'Adherent banni',
-                    RadiusOption('banned_vlan').vlan_id,
-                    RadiusOption('banned')!= RadiusOption.REJECT
+                    getattr(RadiusOption.get_cached_value('banned_vlan'), 'vlan_id', None),
+                    RadiusOption.get_cached_value('banned')!= RadiusOption.REJECT
                 )
             if not interface.is_active:
                 return (
                     sw_name,
                     room,
                     u'Machine non active / adherent non cotisant',
-                    RadiusOption('non_member_vlan').vlan_id,
-                    RadiusOption('non_member')!= RadiusOption.REJECT
+                    getattr(RadiusOption.get_cached_value('non_member_vlan'), 'vlan_id', None),
+                    RadiusOption.get_cached_value('non_member')!= RadiusOption.REJECT
                 )
             # Si on choisi de placer les machines sur le vlan
             # correspondant à leur type :
