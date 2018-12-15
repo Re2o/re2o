@@ -51,6 +51,9 @@ from django.utils.translation import ugettext as _
 from reversion.models import Revision
 from reversion.models import Version, ContentType
 
+from .charts import (
+    ActiveUserChart,
+)
 from users.models import (
     User,
     ServiceUser,
@@ -533,3 +536,14 @@ def history(request, application, object_name, object_id):
         {'reversions': reversions, 'object': instance}
     )
 
+@login_required
+def charts(request):
+    """Sert les graphiques des statistiques"""
+
+    ActiveUser = ActiveUserChart()
+
+    return render(
+        request,
+        'logs/aff_charts.html',
+        {'ActiveUser': ActiveUser}
+    )
