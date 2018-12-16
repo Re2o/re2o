@@ -53,6 +53,7 @@ from reversion.models import Version, ContentType
 
 from .charts import (
     ActiveUserChart,
+    MachinePerUserChart,
 )
 from users.models import (
     User,
@@ -541,9 +542,12 @@ def charts(request):
     """Sert les graphiques des statistiques"""
 
     ActiveUser = ActiveUserChart()
+    MachinePerUser = MachinePerUserChart()
+
+    chart_list=[ActiveUser,MachinePerUser]
 
     return render(
         request,
-        'logs/aff_charts.html',
-        {'ActiveUser': ActiveUser}
+        'logs/stats_charts.html',
+        {'charts_list': chart_list}
     )

@@ -1,3 +1,4 @@
+{% extends "logs/sidebar.html" %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -22,11 +23,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
+{% load bootstrap3 %}
+{% load i18n %}
 
-{% for chart in charts_list %}
+{% block title %}{% trans "Statistics" %}{% endblock %}
 
-{{ chart.as_html }}
-
-{% endfor %}
+{% block content %}
+<h2>{% trans "Graphiques" %}</h2>
+    {%  include "logs/aff_charts.html" with charts_list=charts_list %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
