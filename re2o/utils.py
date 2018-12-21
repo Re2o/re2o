@@ -59,7 +59,7 @@ def all_adherent(search_time=None):
                     vente__in=Vente.objects.filter(
                         facture__in=Facture.objects.all().exclude(valid=False)
                     )
-                ).filter(date_end__gt=search_time)
+                ).filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))
             )
         )
     ).distinct()
@@ -71,7 +71,7 @@ def all_baned(search_time=None):
         search_time = timezone.now()
     return User.objects.filter(
         ban__in=Ban.objects.filter(
-            date_end__gt=search_time
+            Q(date_start__lt=search_time) & Q(date_end__gt=search_time)
         )
     ).distinct()
 
@@ -82,7 +82,7 @@ def all_whitelisted(search_time=None):
         search_time = timezone.now()
     return User.objects.filter(
         whitelist__in=Whitelist.objects.filter(
-            date_end__gt=search_time
+            Q(date_start__lt=search_time) & Q(date_end__gt=search_time)
         )
     ).distinct()
 
@@ -94,8 +94,8 @@ def all_has_access(search_time=None):
         search_time = timezone.now()
     return User.objects.filter(
         Q(state=User.STATE_ACTIVE) &
-        ~Q(ban__in=Ban.objects.filter(date_end__gt=search_time)) &
-        (Q(whitelist__in=Whitelist.objects.filter(date_end__gt=search_time)) |
+        ~Q(ban__in=Ban.objects.filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))) &
+        (Q(whitelist__in=Whitelist.objects.filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))) |
          Q(facture__in=Facture.objects.filter(
              vente__in=Vente.objects.filter(
                  cotisation__in=Cotisation.objects.filter(
@@ -104,7 +104,7 @@ def all_has_access(search_time=None):
                          facture__in=Facture.objects.all()
                          .exclude(valid=False)
                      )
-                 ).filter(date_end__gt=search_time)
+                 ).filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))
              )
          )))
     ).distinct()
