@@ -492,13 +492,14 @@ class PasswordForm(FormRevMixin, ModelForm):
 
 
 class ServiceUserForm(FormRevMixin, ModelForm):
-    """ Modification d'un service user"""
+    """Service user creation
+    force initial password set"""
     password = forms.CharField(
         label=_("New password"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
-        required=False
+        required=True
     )
 
     class Meta:
@@ -510,7 +511,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
-        """Changement du mot de passe"""
+        """Password change"""
         user = super(ServiceUserForm, self).save(commit=False)
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data.get("password"))
@@ -520,6 +521,14 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 class EditServiceUserForm(ServiceUserForm):
     """Formulaire d'edition de base d'un service user. Ne permet
     d'editer que son group d'acl et son commentaire"""
+    password = forms.CharField(
+        label=_("New password"),
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput,
+        required=False
+    )
+
     class Meta(ServiceUserForm.Meta):
         fields = ['access_group', 'comment']
 
