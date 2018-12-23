@@ -1092,7 +1092,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                       .get_cached_value('ipv6_mode') == 'DHCPV6'):
             return self.ipv6list.filter(slaac_ip=False)
         else:
-            return None
+            return []
 
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
