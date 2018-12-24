@@ -38,6 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if ipv6_enabled %}
                 <th>{% trans "AAAA record origin" %}</th>
             {% endif %}
+            <th>{% trans "DNSSEC" %}</th>
             <th></th>
         </tr>
         </thead>
@@ -50,13 +51,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% if ipv6_enabled %}
                     <td>{{ extension.origin_v6 }}</td>
                 {% endif %}
+                <td>{{ extension.dnssec|tick }}</td>
                 <td class="text-right">
                     {% can_edit extension %}
                         {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
                     {% acl_end %}
                     {% history_button extension %}
                 </td>
-                <td>{{ extension.dnssec|tick }}</td>
             </tr>
         {% endfor %}
     </table>
