@@ -696,6 +696,10 @@ class Extension(RevMixin, AclMixin, models.Model):
         'SOA',
         on_delete=models.CASCADE
     )
+    dnssec = models.BooleanField(
+        default=False,
+        help_text=_("Should the zone be signed with DNSSEC")
+    )
 
     class Meta:
         permissions = (
