@@ -94,7 +94,7 @@ from preferences.models import OptionalMachine, MailMessageOption
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-z][a-z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
