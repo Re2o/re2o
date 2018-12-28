@@ -1070,7 +1070,7 @@ class Adherent(User):
         """Validate from raw entry if is it a valid gpg fp"""
         if self.gpg_fingerprint:
             gpg_fingerprint = self.gpg_fingerprint.replace(' ', '').upper()
-            if not re.compile("^[0-9A-F]{40}$").match(gpg_fingerprint):
+            if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
                 raise ValidationError(_("A gpg fingerprint must contain 40 hexadecimal carracters"))
             self.gpg_fingerprint = gpg_fingerprint
 
