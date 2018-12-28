@@ -324,14 +324,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
 
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
-            return self.cleaned_data.get('email').lower()
-        else:
-            raise forms.ValidationError(
-                    _("You can't use a {} address.").format(
-                        OptionalUser.objects.first().local_email_domain))
-
     class Meta:
         model = Adherent
         fields = [
@@ -345,6 +337,19 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'room',
         ]
 
+    force = forms.BooleanField(
+        label=_("Force the move?"),
+        initial=False,
+        required=False
+    )
+
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain))
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -355,12 +360,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 _("A valid telephone number is required.")
             )
         return telephone
-
-    force = forms.BooleanField(
-        label=_("Force the move?"),
-        initial=False,
-        required=False
-    )
 
     def clean_force(self):
         """On supprime l'ancien user de la chambre si et seulement si la
