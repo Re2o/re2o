@@ -624,7 +624,7 @@ class Article(RevMixin, AclMixin, models.Model):
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Adherent')
             )
-        if not target_user.is_adherent():
+        if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
                 Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
             )
