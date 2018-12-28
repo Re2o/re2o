@@ -368,6 +368,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             remove_user_room(self.cleaned_data.get('room'))
         return
 
+
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
@@ -397,12 +398,6 @@ class AdherentEditForm(AdherentForm):
        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
        if 'shell' in self.fields:
            self.fields['shell'].empty_label = _("Default shell")
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
 
     class Meta:
         model = Adherent

@@ -1053,19 +1053,26 @@ class Adherent(User):
         null=True
     )
     gpg_fingerprint = models.CharField(
-        max_length=40,
+        max_length=49,
         blank=True,
         null=True,
-        validators=[RegexValidator(
-            '^[0-9A-F]{40}$',
-            message=_("A GPG fingerprint must contain 40 hexadecimal"
-                      " characters.")
-        )]
     )
 
     class Meta(User.Meta):
         verbose_name = _("member")
         verbose_name_plural = _("members")
+
+    def format_gpgfp(self):
+        """Format gpg finger print as AAAA BBBB... from a string AAAABBBB...."""
+        self.gpg_fingerprint = ' '.join([self.gpg_fingerprint[i:i + 4] for i in range(0, len(self.gpg_fingerprint), 4)])
+
+    def validate_gpgfp(self):
+        """Validate from raw entry if is it a valid gpg fp"""
+        if self.gpg_fingerprint:
+            gpg_fingerprint = self.gpg_fingerprint.replace(' ', '').upper()
+            if not re.compile("^[0-9A-F]{40}$").match(gpg_fingerprint):
+                raise ValidationError(_("A gpg fingerprint must contain 40 hexadecimal carracters"))
+            self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):
@@ -1096,6 +1103,13 @@ class Adherent(User):
                     user_request.has_perm('users.add_user'),
                     _("You don't have the right to create a user.")
                 )
+
+    def clean(self, *args, **kwargs):
+        """Format the GPG fingerprint"""
+        super(Adherent, self).clean(*args, **kwargs)
+        if self.gpg_fingerprint:
+            self.validate_gpgfp()
+            self.format_gpgfp()
 
 
 class Club(User):
