@@ -133,7 +133,7 @@ class DiscountForm(Form):
             amount = discount/100 * invoice_price
         else:
             amount = discount
-        if amount > 0:
+        if amount:
             name = _("{}% discount") if is_relative else _("{}€ discount")
             name = name.format(discount)
             Vente.objects.create(
