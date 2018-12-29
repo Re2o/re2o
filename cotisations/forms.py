@@ -46,7 +46,7 @@ from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-from .models import Article, Paiement, Facture, Banque, CustomInvoice
+from .models import Article, Paiement, Facture, Banque, CustomInvoice, Vente
 from .payment_methods import balance
 
 
@@ -104,7 +104,44 @@ class SelectArticleForm(FormRevMixin, Form):
         user = kwargs.pop('user')
         target_user = kwargs.pop('target_user', None)
         super(SelectArticleForm, self).__init__(*args, **kwargs)
-        self.fields['article'].queryset = Article.find_allowed_articles(user, target_user)
+        self.fields['article'].queryset = Article.find_allowed_articles(
+            user, target_user)
+
+
+class DiscountForm(Form):
+    """
+    Form used in oder to create a discount on an invoice.
+    """
+    is_relative = forms.BooleanField(
+        label=_("Discount is on percentage"),
+        required=False,
+    )
+    discount = forms.DecimalField(
+        label=_("Discount"),
+        max_value=100,
+        min_value=0,
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+    )
+
+    def apply_to_invoice(self, invoice):
+        invoice_price = invoice.prix_total()
+        discount = self.cleaned_data['discount']
+        is_relative = self.cleaned_data['is_relative']
+        if is_relative:
+            amount = discount/100 * invoice_price
+        else:
+            amount = discount
+        if amount > 0:
+            name = _("{}% discount") if is_relative else _("{}€ discount")
+            name = name.format(discount)
+            Vente.objects.create(
+                facture=invoice,
+                name=name,
+                prix=-amount,
+                number=1
+            )
 
 
 class CustomInvoiceForm(FormRevMixin, ModelForm):
@@ -248,7 +285,8 @@ class RechargeForm(FormRevMixin, Form):
         super(RechargeForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
             _("Select a payment method")
-        self.fields['payment'].queryset = Paiement.find_allowed_payments(user_source).exclude(is_balance=True)
+        self.fields['payment'].queryset = Paiement.find_allowed_payments(
+            user_source).exclude(is_balance=True)
 
     def clean(self):
         """
@@ -266,4 +304,3 @@ class RechargeForm(FormRevMixin, Form):
                 }
             )
         return self.cleaned_data
-

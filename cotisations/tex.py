@@ -36,6 +36,7 @@ from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
+import logging
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -91,6 +92,20 @@ def create_pdf(template, ctx={}):
             pdf = f.read()
 
     return pdf
+
+
+def escape_chars(string):
+    """Escape the '%' and the '€' signs to avoid messing with LaTeX"""
+    if not isinstance(string, str):
+        return string
+    mapping = (
+        ('€', r'\euro'),
+        ('%', r'\%'),
+    )
+    r = str(string)
+    for k, v in mapping:
+        r = r.replace(k, v)
+    return r
 
 
 def render_tex(_request, template, ctx={}):

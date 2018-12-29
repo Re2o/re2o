@@ -80,9 +80,10 @@ from .forms import (
     DelBanqueForm,
     SelectArticleForm,
     RechargeForm,
-    CustomInvoiceForm
+    CustomInvoiceForm,
+    DiscountForm
 )
-from .tex import render_invoice
+from .tex import render_invoice, escape_chars
 from .payment_methods.forms import payment_method_factory
 from .utils import find_payment_method
 
@@ -198,8 +199,9 @@ def new_custom_invoice(request):
         request.POST or None,
         form_kwargs={'user': request.user}
     )
+    discount_form = DiscountForm(request.POST or None)
 
-    if invoice_form.is_valid() and articles_formset.is_valid():
+    if invoice_form.is_valid() and articles_formset.is_valid() and discount_form.is_valid():
         new_invoice_instance = invoice_form.save()
         for art_item in articles_formset:
             if art_item.cleaned_data:
@@ -213,6 +215,7 @@ def new_custom_invoice(request):
                     duration=article.duration,
                     number=quantity
                 )
+        discount_form.apply_to_invoice(new_invoice_instance)
         messages.success(
             request,
             _("The custom invoice was created.")
@@ -223,7 +226,8 @@ def new_custom_invoice(request):
         'factureform': invoice_form,
         'action_name': _("Confirm"),
         'articlesformset': articles_formset,
-        'articlelist': articles
+        'articlelist': articles,
+        'discount_form': discount_form
     }, 'cotisations/facture.html', request)
 
 
@@ -382,7 +386,7 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
     purchases_info = []
     for purchase in purchases_objects:
         purchases_info.append({
-            'name': purchase.name,
+            'name': escape_chars(purchase.name),
             'price': purchase.prix,
             'quantity': purchase.number,
             'total_price': purchase.prix_total
