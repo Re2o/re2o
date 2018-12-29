@@ -297,15 +297,9 @@ class Switch(AclMixin, Machine):
         begin_range = range(begin, s_begin)
         end_range = range(s_end+1, end+1)
         for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = self
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_comment(_("Creation"))
-            except IntegrityError:
-                ValidationError(_("Creation of an existing port."))
+            with transaction.atomic(), reversion.create_revision():       
+                _created, _port = Port.objects.get_or_create(switch=self, port=port)
+                reversion.set_comment(_("Creation"))
 
     def main_interface(self):
         """ Returns the 'main' interface of the switch

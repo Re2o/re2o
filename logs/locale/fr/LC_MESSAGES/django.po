@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-15 20:12+0200\n"
+"POT-Creation-Date: 2018-12-29 21:16+0100\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,107 +30,116 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: acl.py:42
+#: logs/acl.py:42
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: templates/logs/aff_stats_logs.html:36
+#: logs/templates/logs/aff_stats_logs.html:36
 msgid "Edited object"
 msgstr "Objet modifié"
 
-#: templates/logs/aff_stats_logs.html:37
-#: templates/logs/aff_stats_models.html:32
+#: logs/templates/logs/aff_stats_logs.html:37
+#: logs/templates/logs/aff_stats_models.html:32
 msgid "Object type"
 msgstr "Type d'objet"
 
-#: templates/logs/aff_stats_logs.html:38
+#: logs/templates/logs/aff_stats_logs.html:38
 msgid "Edited by"
 msgstr "Modifié par"
 
-#: templates/logs/aff_stats_logs.html:40
+#: logs/templates/logs/aff_stats_logs.html:40
 msgid "Date of editing"
 msgstr "Date de modification"
 
-#: templates/logs/aff_stats_logs.html:42
+#: logs/templates/logs/aff_stats_logs.html:42
 msgid "Comment"
 msgstr "Commentaire"
 
-#: templates/logs/aff_stats_logs.html:58 templates/logs/aff_summary.html:62
-#: templates/logs/aff_summary.html:85 templates/logs/aff_summary.html:104
-#: templates/logs/aff_summary.html:123 templates/logs/aff_summary.html:142
+#: logs/templates/logs/aff_stats_logs.html:58
+#: logs/templates/logs/aff_summary.html:62
+#: logs/templates/logs/aff_summary.html:85
+#: logs/templates/logs/aff_summary.html:104
+#: logs/templates/logs/aff_summary.html:128
+#: logs/templates/logs/aff_summary.html:147
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/logs/aff_stats_models.html:29
+#: logs/templates/logs/aff_stats_models.html:29
 #, python-format
 msgid "Statistics of the set %(key)s"
 msgstr "Statistiques de l'ensemble %(key)s"
 
-#: templates/logs/aff_stats_models.html:33
+#: logs/templates/logs/aff_stats_models.html:33
 msgid "Number of stored entries"
 msgstr "Nombre d'entrées enregistrées"
 
-#: templates/logs/aff_stats_users.html:31
+#: logs/templates/logs/aff_stats_users.html:31
 #, python-format
 msgid "Statistics per %(key_dict)s of %(key)s"
 msgstr "Statistiques par %(key_dict)s de %(key)s"
 
-#: templates/logs/aff_stats_users.html:34
+#: logs/templates/logs/aff_stats_users.html:34
 #, python-format
 msgid "Number of %(key)s per %(key_dict)s"
 msgstr "Nombre de %(key)s par %(key_dict)s"
 
-#: templates/logs/aff_stats_users.html:35
+#: logs/templates/logs/aff_stats_users.html:35
 msgid "Rank"
 msgstr "Rang"
 
-#: templates/logs/aff_summary.html:37
+#: logs/templates/logs/aff_summary.html:37
 msgid "Date"
 msgstr "Date"
 
-#: templates/logs/aff_summary.html:39
+#: logs/templates/logs/aff_summary.html:39
 msgid "Editing"
 msgstr "Modification"
 
-#: templates/logs/aff_summary.html:48
+#: logs/templates/logs/aff_summary.html:48
 #, python-format
 msgid "%(username)s has banned"
 msgstr "%(username)s a banni"
 
-#: templates/logs/aff_summary.html:52 templates/logs/aff_summary.html:75
+#: logs/templates/logs/aff_summary.html:52
+#: logs/templates/logs/aff_summary.html:75
 msgid "No reason"
 msgstr "Aucun motif"
 
-#: templates/logs/aff_summary.html:71
+#: logs/templates/logs/aff_summary.html:71
 #, python-format
 msgid "%(username)s has graciously authorised"
 msgstr "%(username)s a autorisé gracieusement"
 
-#: templates/logs/aff_summary.html:94
+#: logs/templates/logs/aff_summary.html:94
 #, python-format
 msgid "%(username)s has updated"
 msgstr "%(username)s a mis à jour"
 
-#: templates/logs/aff_summary.html:113
-#, python-format
-msgid "%(username)s has sold %(number)sx %(name)s to"
+#: logs/templates/logs/aff_summary.html:113
+#, fuzzy, python-format
+#| msgid "%(username)s has sold %(number)sx %(name)s to"
+msgid "%(username)s has sold %(number)sx %(name)s"
 msgstr "%(username)s a vendu %(number)sx %(name)s à"
 
-#: templates/logs/aff_summary.html:116
+#: logs/templates/logs/aff_summary.html:116
+msgid " to"
+msgstr ""
+
+#: logs/templates/logs/aff_summary.html:119
 #, python-format
 msgid "+%(duration)s months"
 msgstr "+%(duration)s mois"
 
-#: templates/logs/aff_summary.html:132
+#: logs/templates/logs/aff_summary.html:137
 #, python-format
 msgid "%(username)s has edited an interface of"
 msgstr "%(username)s a modifié une interface de"
 
-#: templates/logs/delete.html:29
+#: logs/templates/logs/delete.html:29
 msgid "Deletion of actions"
 msgstr "Suppression d'actions"
 
-#: templates/logs/delete.html:35
+#: logs/templates/logs/delete.html:35
 #, python-format
 msgid ""
 "Warning: are you sure you want to delete this action %(objet_name)s "
@@ -139,200 +148,209 @@ msgstr ""
 "Attention: voulez-vous vraiment supprimer cette action %(objet_name)s "
 "( %(objet)s ) ?"
 
-#: templates/logs/delete.html:36
+#: logs/templates/logs/delete.html:36
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: templates/logs/index.html:29 templates/logs/stats_general.html:29
-#: templates/logs/stats_logs.html:29 templates/logs/stats_models.html:29
-#: templates/logs/stats_users.html:29
+#: logs/templates/logs/index.html:29 logs/templates/logs/stats_general.html:29
+#: logs/templates/logs/stats_logs.html:29
+#: logs/templates/logs/stats_models.html:29
+#: logs/templates/logs/stats_users.html:29
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/logs/index.html:32 templates/logs/stats_logs.html:32 views.py:403
+#: logs/templates/logs/index.html:32 logs/templates/logs/stats_logs.html:32
+#: logs/views.py:414
 msgid "Actions performed"
 msgstr "Actions effectuées"
 
-#: templates/logs/sidebar.html:33
+#: logs/templates/logs/sidebar.html:33
 msgid "Summary"
 msgstr "Résumé"
 
-#: templates/logs/sidebar.html:37
+#: logs/templates/logs/sidebar.html:37
 msgid "Events"
 msgstr "Évènements"
 
-#: templates/logs/sidebar.html:41
+#: logs/templates/logs/sidebar.html:41
 msgid "General"
 msgstr "Général"
 
-#: templates/logs/sidebar.html:45
+#: logs/templates/logs/sidebar.html:45
 msgid "Database"
 msgstr "Base de données"
 
-#: templates/logs/sidebar.html:49
+#: logs/templates/logs/sidebar.html:49
 msgid "Wiring actions"
 msgstr "Actions de câblage"
 
-#: templates/logs/sidebar.html:53 views.py:325
+#: logs/templates/logs/sidebar.html:53 logs/views.py:336
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: templates/logs/stats_general.html:32
+#: logs/templates/logs/stats_general.html:32
 msgid "General statistics"
 msgstr "Statistiques générales"
 
-#: templates/logs/stats_models.html:32
+#: logs/templates/logs/stats_models.html:32
 msgid "Database statistics"
 msgstr "Statistiques sur la base de données"
 
-#: templates/logs/stats_users.html:32
+#: logs/templates/logs/stats_users.html:32
 msgid "Statistics about users"
 msgstr "Statistiques sur les utilisateurs"
 
-#: views.py:191
+#: logs/views.py:194
 msgid "Nonexistent revision."
 msgstr "Révision inexistante."
 
-#: views.py:194
+#: logs/views.py:197
 msgid "The action was deleted."
 msgstr "L'action a été supprimée."
 
-#: views.py:227
+#: logs/views.py:230
 msgid "Category"
 msgstr "Catégorie"
 
-#: views.py:228
+#: logs/views.py:231
 msgid "Number of users (members and clubs)"
 msgstr "Nombre d'utilisateurs (adhérents et clubs)"
 
-#: views.py:229
+#: logs/views.py:232
 msgid "Number of members"
 msgstr "Nombre d'adhérents"
 
-#: views.py:230
+#: logs/views.py:233
 msgid "Number of clubs"
 msgstr "Nombre de clubs"
 
-#: views.py:234
+#: logs/views.py:237
 msgid "Activated users"
 msgstr "Utilisateurs activés"
 
-#: views.py:242
+#: logs/views.py:245
 msgid "Disabled users"
 msgstr "Utilisateurs désactivés"
 
-#: views.py:250
+#: logs/views.py:253
 msgid "Archived users"
 msgstr "Utilisateurs archivés"
 
-#: views.py:258
+#: logs/views.py:261
+#, fuzzy
+#| msgid "Activated users"
+msgid "Not yet active users"
+msgstr "Utilisateurs activés"
+
+#: logs/views.py:269
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
-#: views.py:264
+#: logs/views.py:275
 msgid "Users benefiting from a connection"
 msgstr "Utilisateurs bénéficiant d'une connexion"
 
-#: views.py:270
+#: logs/views.py:281
 msgid "Banned users"
 msgstr "Utilisateurs bannis"
 
-#: views.py:276
+#: logs/views.py:287
 msgid "Users benefiting from a free connection"
 msgstr "Utilisateurs bénéficiant d'une connexion gratuite"
 
-#: views.py:282
+#: logs/views.py:293
 msgid "Active interfaces (with access to the network)"
 msgstr "Interfaces actives (ayant accès au réseau)"
 
-#: views.py:292
+#: logs/views.py:303
 msgid "Active interfaces assigned IPv4"
 msgstr "Interfaces actives assignées IPv4"
 
-#: views.py:305
+#: logs/views.py:316
 msgid "IP range"
 msgstr "Plage d'IP"
 
-#: views.py:306
+#: logs/views.py:317
 msgid "VLAN"
 msgstr "VLAN"
 
-#: views.py:307
+#: logs/views.py:318
 msgid "Total number of IP addresses"
 msgstr "Nombre total d'adresses IP"
 
-#: views.py:308
+#: logs/views.py:319
 msgid "Number of assigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: views.py:309
+#: logs/views.py:320
 msgid "Number of IP address assigned to an activated machine"
 msgstr "Nombre d'adresses IP assignées à une machine activée"
 
-#: views.py:310
+#: logs/views.py:321
 msgid "Number of nonassigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: views.py:337
+#: logs/views.py:348
 msgid "Subscriptions"
 msgstr "Cotisations"
 
-#: views.py:359 views.py:420
+#: logs/views.py:370 logs/views.py:431
 msgid "Machines"
 msgstr "Machines"
 
-#: views.py:386
+#: logs/views.py:397
 msgid "Topology"
 msgstr "Topologie"
 
-#: views.py:405
+#: logs/views.py:416
 msgid "Number of actions"
 msgstr "Nombre d'actions"
 
-#: views.py:419 views.py:437 views.py:442 views.py:447 views.py:462
+#: logs/views.py:430 logs/views.py:448 logs/views.py:453 logs/views.py:458
+#: logs/views.py:473
 msgid "User"
 msgstr "Utilisateur"
 
-#: views.py:423
+#: logs/views.py:434
 msgid "Invoice"
 msgstr "Facture"
 
-#: views.py:426
+#: logs/views.py:437
 msgid "Ban"
 msgstr "Bannissement"
 
-#: views.py:429
+#: logs/views.py:440
 msgid "Whitelist"
 msgstr "Accès gracieux"
 
-#: views.py:432
+#: logs/views.py:443
 msgid "Rights"
 msgstr "Droits"
 
-#: views.py:436
+#: logs/views.py:447
 msgid "School"
 msgstr "Établissement"
 
-#: views.py:441
+#: logs/views.py:452
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: views.py:446
+#: logs/views.py:457
 msgid "Bank"
 msgstr "Banque"
 
-#: views.py:463
+#: logs/views.py:474
 msgid "Action"
 msgstr "Action"
 
-#: views.py:494
+#: logs/views.py:505
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
 
-#: views.py:500
+#: logs/views.py:511
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: views.py:507
+#: logs/views.py:518
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
