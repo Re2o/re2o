@@ -475,7 +475,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie si un utilisateur a accès à internet """
         return (self.state == User.STATE_ACTIVE and
                 not self.is_ban() and
-                (self.is_connected() or self.is_whitelisted()))
+                (self.is_connected() or self.is_whitelisted())) \
+                or self == AssoOption.get_cached_value('utilisateur_asso')
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""

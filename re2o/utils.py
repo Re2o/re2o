@@ -42,7 +42,7 @@ from django.db.models import Q
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
-
+from preferences.models import AssoOption
 
 def all_adherent(search_time=None):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
@@ -88,11 +88,14 @@ def all_whitelisted(search_time=None):
 
 
 def all_has_access(search_time=None):
-    """  Renvoie tous les users beneficiant d'une connexion
-    : user adherent ou whiteliste et non banni """
+    """ Return all connected users : active users and whitelisted +
+    asso_user defined in AssoOption pannel
+    ----
+    Renvoie tous les users beneficiant d'une connexion
+    : user adherent et whiteliste non banni plus l'utilisateur asso"""
     if search_time is None:
         search_time = timezone.now()
-    return User.objects.filter(
+    filter_user = (
         Q(state=User.STATE_ACTIVE) &
         ~Q(ban__in=Ban.objects.filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))) &
         (Q(whitelist__in=Whitelist.objects.filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))) |
@@ -107,7 +110,11 @@ def all_has_access(search_time=None):
                  ).filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))
              )
          )))
-    ).distinct()
+    )
+    asso_user = AssoOption.get_cached_value('utilisateur_asso')
+    if asso_user:
+        filter_user |= Q(id=asso_user.id)
+    return User.objects.filter(filter_user).distinct()
 
 
 def filter_active_interfaces(interface_set):
