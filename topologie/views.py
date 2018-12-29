@@ -533,19 +533,14 @@ def create_ports(request, switchid):
     except Switch.DoesNotExist:
         messages.error(request, _("Nonexistent switch"))
         return redirect(reverse('topologie:index'))
-
-    s_begin = s_end = 0
-    nb_ports = switch.ports.count()
-    if nb_ports > 0:
-        ports = switch.ports.order_by('port').values('port')
-        s_begin = ports.first().get('port')
-        s_end = ports.last().get('port')
-
+ 
+    first_port = getattr(switch.ports.order_by('port').first(), 'port', 1)
+    s_begin = first_port
+    s_end = switch.number + first_port - 1
     port_form = CreatePortsForm(
         request.POST or None,
         initial={'begin': s_begin, 'end': s_end}
     )
-
     if port_form.is_valid():
         begin = port_form.cleaned_data['begin']
         end = port_form.cleaned_data['end']
