@@ -111,10 +111,14 @@
         \end{tabular}
 
     \vspace{1cm}
-    \begin{tabularx}{\textwidth}{c X}
+    \begin{tabularx}{\textwidth}{r X}
         \hline
         \textbf{Moyen de paiement} & {{payment_method|default:"Non spécifié"}} \\
         \hline
+        {% if remark %}
+        \textbf{Remarque} & {{remark|safe}} \\
+        \hline
+        {% endif %}
     \end{tabularx}
 
 

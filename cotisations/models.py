@@ -286,6 +286,11 @@ class CustomInvoice(BaseInvoice):
     paid = models.BooleanField(
         verbose_name=_("Paid")
     )
+    remark = models.TextField(
+        verbose_name=_("Remark"),
+        blank=True,
+        null=True
+    )
 
 
 # TODO : change Vente to Purchase

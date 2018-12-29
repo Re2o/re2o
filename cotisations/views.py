@@ -408,6 +408,7 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
         'phone': AssoOption.get_cached_value('telephone'),
         'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH),
         'payment_method': invoice.payment,
+        'remark': invoice.remark,
     })
 
 
