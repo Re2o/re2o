@@ -270,7 +270,8 @@ def facture_pdf(request, facture, **_kwargs):
         'siret': AssoOption.get_cached_value('siret'),
         'email': AssoOption.get_cached_value('contact'),
         'phone': AssoOption.get_cached_value('telephone'),
-        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH),
+        'payment_method': facture.paiement.moyen,
     })
 
 
@@ -405,7 +406,8 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
         'siret': AssoOption.get_cached_value('siret'),
         'email': AssoOption.get_cached_value('contact'),
         'phone': AssoOption.get_cached_value('telephone'),
-        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH),
+        'payment_method': invoice.payment,
     })
 
 

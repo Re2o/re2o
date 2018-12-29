@@ -43,7 +43,7 @@
 
 
 \begin{document}
-    
+
     %----------------------------------------------------------------------------------------
     %   HEADING SECTION
     %----------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@
     {\bf Siret :} {{siret|safe}}
 
     \vspace{2cm}
-     
+
     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l r}
         {\bf Pour :} {{recipient_name|safe}} & {\bf Date :} {{DATE}} \\
         {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %} & \\
@@ -84,20 +84,20 @@
     %----------------------------------------------------------------------------------------
     %   TABLE OF EXPENSES
     %----------------------------------------------------------------------------------------
-    
+
     \begin{tabularx}{\textwidth}{|X|r|r|r|}
 
         \hline
         \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
         \doublehline
-        
+
         {% for a in article %}
         {{a.name}} & {{a.price}} \euro & {{a.quantity}} & {{a.total_price}} \euro\\
         \hline
         {% endfor %}
-        
+
     \end{tabularx}
-    
+
     \vspace{1cm}
 
     \hfill
@@ -109,14 +109,22 @@
             \textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
             \hline
         \end{tabular}
-    
+
+    \vspace{1cm}
+    \begin{tabularx}{\textwidth}{c X}
+        \hline
+        \textbf{Moyen de paiement} & {{payment_method|default:"Non spécifié"}} \\
+        \hline
+    \end{tabularx}
+
+
     \vfill
 
 
     %----------------------------------------------------------------------------------------
     %   FOOTNOTE
     %----------------------------------------------------------------------------------------
-    
+
     \hrule
     \smallskip
     \footnotesize{TVA non applicable, art. 293 B du CGI}
