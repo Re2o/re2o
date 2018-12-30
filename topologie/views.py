@@ -535,11 +535,10 @@ def create_ports(request, switchid):
         return redirect(reverse('topologie:index'))
  
     first_port = getattr(switch.ports.order_by('port').first(), 'port', 1)
-    s_begin = first_port
-    s_end = switch.number + first_port - 1
+    last_port = switch.number + first_port - 1
     port_form = CreatePortsForm(
         request.POST or None,
-        initial={'begin': s_begin, 'end': s_end}
+        initial={'begin': first_port, 'end': last_port}
     )
     if port_form.is_valid():
         begin = port_form.cleaned_data['begin']
