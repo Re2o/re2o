@@ -284,7 +284,7 @@ class Switch(AclMixin, Machine):
         if end < begin:
             raise ValidationError(_("The end port is less than the start"
                                     " port."))
-        ports_to_create = list(range(begin, end + 1))
+        ports_to_create = range(begin, end + 1)
         existing_ports = Port.objects.filter(switch=self.switch).values_list('port', flat=True)
         non_existing_ports = list(set(ports_to_create) - set(existing_ports))
 
