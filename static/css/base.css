@@ -79,19 +79,6 @@ a > i.fa {
     vertical-align: middle;
 }
 
-/* Pull sidebars to the bottom */
-@media (min-width: 767px) {
-    .row {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display:         flex;
-    }
-    .row > [class*='col-'] {
-        flex-direction: column;
-    }
-}
-
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
     .sidenav {
@@ -144,4 +131,15 @@ th.long_text{
 /* center the profil boxes */
 .dashboard{
     text-align: center;
+}
+
+/* Detailed information on profile page */
+dl.profile-info {
+    margin-top: -16px;
+    margin-bottom: 0;
+}
+
+dl.profile-info > div {
+    padding: 8px;
+    border-top: 1px solid #ddd;
 }
