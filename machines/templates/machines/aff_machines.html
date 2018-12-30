@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
     {% if machines_list.paginator %}
-        {% include "pagination.html" with list=machines_list %}
+        {% include "pagination.html" with list=machines_list go_to_id="machines" %}
     {% endif %}
 
     <table class="table" id="machines_table">
@@ -215,6 +215,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </script>
 
     {% if machines_list.paginator %}
-        {% include "pagination.html" with list=machines_list %}
+        {% include "pagination.html" with list=machines_list go_to_id="machines" %}
     {% endif %}
 </div>
