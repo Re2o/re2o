@@ -381,6 +381,17 @@ class Switch(AclMixin, Machine):
         """Return dict ip6:subnet for all ipv6 of the switch"""
         return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
+    @cached_property
+    def list_modules(self):
+        """Return modules of that switch, list of dict (rank, reference)"""
+        modules = []
+        if self.model.is_modular:
+            if self.model.is_itself_module:
+                modules.append((1, self.model.reference))
+            for module_of_self in self.moduleonswitch_set.all():
+                modules.append((module_of_self.slot, module_of_self.module.reference))
+        return modules
+
     def __str__(self):
         return str(self.get_name)
 
