@@ -385,7 +385,7 @@ class Switch(AclMixin, Machine):
     def list_modules(self):
         """Return modules of that switch, list of dict (rank, reference)"""
         modules = []
-        if self.model.is_modular:
+        if getattr(self.model, 'is_modular', None):
             if self.model.is_itself_module:
                 modules.append((1, self.model.reference))
             for module_of_self in self.moduleonswitch_set.all():
