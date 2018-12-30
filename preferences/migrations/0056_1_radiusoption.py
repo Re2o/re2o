@@ -7,19 +7,6 @@ import django.db.models.deletion
 import re2o.mixins
 
 
-def create_radius_policy(apps, schema_editor):
-    OptionalTopologie = apps.get_model('preferences', 'OptionalTopologie')
-    RadiusOption = apps.get_model('preferences', 'RadiusOption')
-
-    option,_ = OptionalTopologie.objects.get_or_create()
-
-    radius_option = RadiusOption()
-    radius_option.radius_general_policy = option.radius_general_policy
-    radius_option.vlan_decision_ok = option.vlan_decision_ok
-
-    radius_option.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -93,19 +80,5 @@ class Migration(migrations.Migration):
             model_name='radiusoption',
             name='vlan_decision_ok',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlan_ok_option', to='machines.Vlan'),
-        ),
-
-        migrations.RunPython(create_radius_policy),
-        migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='radius_general_policy',
-        ),
-        migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='vlan_decision_nok',
-        ),
-        migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='vlan_decision_ok',
         ),
     ]
