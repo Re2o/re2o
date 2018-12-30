@@ -134,6 +134,12 @@ th.long_text{
 }
 
 /* Detailed information on profile page */
+dl.profile-info {
+    margin-top: -16px;
+    margin-bottom: 0;
+}
+
 dl.profile-info > div {
     padding: 8px;
+    border-top: 1px solid #ddd;
 }

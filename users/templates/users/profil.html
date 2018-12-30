@@ -286,19 +286,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </dd>
                     </div>
 
-                    <div class="col-md-6 col-xs-12">
-                        {% if users.adherent.gpg_fingerprint %}
+                    {% if users.adherent.gpg_fingerprint %}
+                        <div class="col-md-6 col-xs-12">
                             <dt>{% trans "GPG fingerprint" %}</dt>
                             <dd>{{ users.adherent.gpg_fingerprint }}</dd>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
 
-                    <div class="col-md-6 col-xs-12">
-                        {% if users.shell %}
+                    {% if users.shell %}
+                        <div class="col-md-6 col-xs-12">
                             <dt>{% trans "Shell" %}</dt>
                             <dd>{{ users.shell }}</dd>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 </dl>
             </div>
         </div>
