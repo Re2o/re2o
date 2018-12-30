@@ -24,24 +24,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
+{% load acl %}
 {% load i18n %}
 
 {% block title %}{% trans "Topology" %}{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors topoform %}
-
-{% if id_switch %}
-<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %}{% trans " Go to the ports list" %}</a>
-{% endif %}
-<form class="form" method="post">
-    {% csrf_token %}
-    {% massive_bootstrap_form topoform 'room,related,machine_interface,members,vlan_tagged,switchs' %}
-    {% bootstrap_button action_name icon='ok' button_class='btn-success' %}
-</form>
-  <br />
-  <br />
-  <br />
+<h2>{% trans "Modules of switchs" %}</h2>
+{% can_create ModuleSwitch %}
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:add-module' %}"><i class="fa fa-plus"></i>{% trans " Add a module" %}</a>
+<hr>
+{% acl_end %}
+    {% include "topologie/aff_modules.html" with module_list=module_list %}
+    <br />
+    <br />
+    <br />
 {% endblock %}
 

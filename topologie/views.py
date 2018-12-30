@@ -86,6 +86,7 @@ from .models import (
     Building,
     Server,
     PortProfile,
+    ModuleSwitch,
 )
 from .forms import (
     EditPortForm,
@@ -102,6 +103,7 @@ from .forms import (
     EditSwitchBayForm,
     EditBuildingForm,
     EditPortProfileForm,
+    EditModuleForm
 )
 
 from subprocess import (
@@ -313,6 +315,20 @@ def index_model_switch(request):
             'model_switch_list': model_switch_list,
             'constructor_switch_list': constructor_switch_list,
         }
+    )
+
+
+@login_required
+@can_view_all(ModuleSwitch)
+def index_module(request):
+    """Display all modules of switchs"""
+    module_list = ModuleSwitch.objects.all()
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    module_list = re2o_paginator(request, module_list, pagination_number)
+    return render(
+        request,
+        'topologie/index_module.html',
+        {'module_list': module_list}
     )
 
 
@@ -1049,6 +1065,60 @@ def del_port_profile(request, port_profile, **_kwargs):
         return redirect(reverse('topologie:index-port-profile'))
     return form(
         {'objet': port_profile, 'objet_name': _("Port profile")},
+        'topologie/delete.html',
+        request
+    )
+
+
+@can_create(ModuleSwitch)
+def add_module(request):
+    """ View used to add a Module object """
+    module = EditModuleForm(request.POST or None)
+    if module.is_valid():
+        module.save()
+        messages.success(request, _("The module was created."))
+        return redirect(reverse('topologie:index-module'))
+    return form(
+        {'topoform': module, 'action_name': _("Create a module")},
+        'topologie/topo.html',
+        request
+    )
+
+
+@login_required
+@can_edit(ModuleSwitch)
+def edit_module(request, module_instance, **_kwargs):
+    """ View used to edit a Module object """
+    module = EditModuleForm(request.POST or None, instance=module_instance)
+    if module.is_valid():
+        if module.changed_data:
+            module.save()
+            messages.success(request, _("The module was edited."))
+        return redirect(reverse('topologie:index-module'))
+    return form(
+        {'topoform': module, 'action_name': _("Edit")},
+        'topologie/topo.html',
+        request
+    )
+
+
+@login_required
+@can_delete(ModuleSwitch)
+def del_module(request, module, **_kwargs):
+    """Compleete delete a module"""
+    if request.method == "POST":
+        try:
+            module.delete()
+            messages.success(request, _("The module was deleted."))
+        except ProtectedError:
+            messages.error(
+                request,
+                (_("The module %s is used by another object, impossible to"
+                   " deleted it.") % module)
+            )
+        return redirect(reverse('topologie:index-module'))
+    return form(
+        {'objet': module, 'objet_name': _("Module")},
         'topologie/delete.html',
         request
     )

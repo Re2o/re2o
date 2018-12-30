@@ -1,0 +1,67 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load logs_extra %}
+{% load i18n %}
+
+{% if module_list.paginator %}
+{% include "pagination.html" with list=module_list %}
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Comment" %}</th>
+            <th>{% trans "Switchs" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for module in module_list %}
+    <tr>
+        <td>{{ module.reference }}</td>
+        <td>{{ module.comment }}</td>
+        <td>{{ module.switchs.all }}</td>
+        <td class="text-right">
+            {% can_edit module %}
+            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-module' module.id %}">
+                <i class="fa fa-edit"></i>
+            </a>
+            {% acl_end %}
+            {% history_button module %}
+            {% can_delete module %}
+            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-module' module.id %}">
+                <i class="fa fa-trash"></i>
+            </a>
+            {% acl_end %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if module_list.paginator %}
+{% include "pagination.html" with list=module_list %}
+{% endif %}
+
