@@ -438,7 +438,6 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
         help_text=_("Comment"),
         verbose_name=_("Comment")   
     )
-    switchs = models.ManyToManyField('Switch', through='ModuleOnSwitch')
 
     class Meta:
         permissions = (
@@ -446,17 +445,6 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
         )
         verbose_name = _("Module of a switch")
 
-    def process_link(self, switchs):
-        """Django can't create itself foreignkey with explicit through"""
-        ModuleOnSwitch.objects.bulk_create(
-            [ModuleOnSwitch(
-                module=self, switch=sw
-            ) for sw in switchs.exclude(
-                pk__in=Switch.objects.filter(moduleswitch=self)
-            )]
-        )
-        ModuleOnSwitch.objects.filter(module=self).exclude(switch__in=switchs).delete()
-        return
 
     def __str__(self):
         return str(self.reference)
@@ -477,6 +465,10 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
             ("view_moduleonswitch", _("Can view a moduleonswitch object")),
         )
         verbose_name = _("link between switchs and modules")
+        unique_together = ['slot', 'switch']
+
+    def __str__(self):
+        return 'On slot ' + str(self.slot) + ' of ' + str(self.switch)
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
