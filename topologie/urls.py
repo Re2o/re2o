@@ -123,4 +123,10 @@ urlpatterns = [
     url(r'^edit_vlanoptions/(?P<vlanid>[0-9]+)$',
         views.edit_vlanoptions,
         name='edit-vlanoptions'),
-    ]
+    url(r'^add_module/$', views.add_module, name='add-module'),
+    url(r'^edit_module/(?P<moduleid>[0-9]+)$',
+        views.edit_module,
+        name='edit-module'),
+    url(r'^del_module/(?P<moduleid>[0-9]+)$', views.del_module, name='del-module'),
+    url(r'^index_module/$', views.index_module, name='index-module'),
+]

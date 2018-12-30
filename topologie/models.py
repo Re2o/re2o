@@ -251,6 +251,7 @@ class Switch(AclMixin, Machine):
         default=False,
         help_text='Provision automatique de ce switch',
     )
+  
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -389,6 +390,14 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         null=True,
         blank=True
     )
+    is_modular = models.BooleanField(
+        default=False,
+        help_text=_("Is this switch model modular"),
+    ) 
+    is_itself_module = models.BooleanField(
+        default=False,
+        help_text=_("Does the switch, itself, considered as a module"),
+    ) 
 
     class Meta:
         permissions = (
@@ -402,6 +411,61 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
             return str(self.constructor) + ' ' + str(self.commercial_name)
         else:
             return str(self.constructor) + ' ' + self.reference
+
+
+class ModuleSwitch(AclMixin, RevMixin, models.Model):
+    """A module of a switch"""
+    reference = models.CharField(
+        max_length=255,
+        help_text=_("Reference of a module"),
+        verbose_name=_("Module reference")   
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text=_("Comment"),
+        verbose_name=_("Comment")   
+    )
+    switchs = models.ManyToManyField('Switch', through='ModuleOnSwitch')
+
+    class Meta:
+        permissions = (
+            ("view_moduleswitch", _("Can view a module object")),
+        )
+        verbose_name = _("Module of a switch")
+
+    def process_link(self, switchs):
+        """Django can't create itself foreignkey with explicit through"""
+        ModuleOnSwitch.objects.bulk_create(
+            [ModuleOnSwitch(
+                module=self, switch=sw
+            ) for sw in switchs.exclude(
+                pk__in=Switch.objects.filter(moduleswitch=self)
+            )]
+        )
+        ModuleOnSwitch.objects.filter(module=self).exclude(switch__in=switchs).delete()
+        return
+
+    def __str__(self):
+        return str(self.reference)
+
+
+class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
+    """Link beetween module and switch"""
+    module = models.ForeignKey('ModuleSwitch', on_delete=models.CASCADE)
+    switch = models.ForeignKey('Switch', on_delete=models.CASCADE)
+    slot = models.CharField(
+        max_length=15,
+        help_text=_("Slot on switch"),
+        verbose_name=_("Slot")   
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleonswitch", _("Can view a moduleonswitch object")),
+        )
+        verbose_name = _("link between switchs and modules")
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
