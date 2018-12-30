@@ -19,6 +19,9 @@ def create_radius_policy(apps, schema_editor):
 
     radius_option.save()
 
+def revert_radius(apps, schema_editor):
+    pass
+
 
 class Migration(migrations.Migration):
 
@@ -29,5 +32,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_radius_policy),
+        migrations.RunPython(create_radius_policy, revert_radius),
     ]
