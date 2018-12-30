@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:add-module' %}"><i class="fa fa-plus"></i>{% trans " Add a module" %}</a>
 <hr>
 {% acl_end %}
-    {% include "topologie/aff_modules.html" with module_list=module_list %}
+    {% include "topologie/aff_modules.html" with module_list=module_list modular_switchs=modular_switchs %}
     <br />
     <br />
     <br />

@@ -325,12 +325,14 @@ def index_model_switch(request):
 def index_module(request):
     """Display all modules of switchs"""
     module_list = ModuleSwitch.objects.all()
+    modular_switchs = Switch.objects.filter(model__is_modular=True)
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     module_list = re2o_paginator(request, module_list, pagination_number)
     return render(
         request,
         'topologie/index_module.html',
-        {'module_list': module_list}
+        {'module_list': module_list,
+         'modular_switchs': modular_switchs}
     )
 
 

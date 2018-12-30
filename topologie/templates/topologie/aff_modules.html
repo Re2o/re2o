@@ -83,3 +83,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% include "pagination.html" with list=module_list %}
 {% endif %}
 
+<h4>{% trans "All modular switchs" %}</h4>
+
+<table class="table table-striped">
+    <thead>
+        <th>{% trans "Switch" %}</th>
+        <th>{% trans "Reference" %}</th>
+        <th>{% trans "Slot" %}</th>
+        <tbody>
+             {% for switch in modular_switchs %}
+             {% if switch.list_modules %}
+             <tr class="info">
+                 <td colspan="4">
+            	    {{ switch }}
+                 </td>
+             </tr>
+    {% for module in switch.list_modules %}
+    <tr>
+	<td></td>
+        <td>{{ module.1 }}</td>
+        <td>{{ module.0 }}</td>
+    </tr>
+    {% endfor %}
+{% endif %}
+{% endfor %}
+</table>
