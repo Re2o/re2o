@@ -55,7 +55,8 @@ from .models import (
     SwitchBay,
     Building,
     PortProfile,
-    ModuleSwitch
+    ModuleSwitch,
+    ModuleOnSwitch,
 )
 
 
@@ -279,14 +280,14 @@ class EditModuleForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditModuleForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['switchs'].queryset = (Switch.objects.filter(model__is_modular=True))
 
-    def save(self, commit=True):
-        # TODO : None of the parents of ServiceForm use the commit
-        # parameter in .save()
-        instance = super(EditModuleForm, self).save(commit=False)
-        if commit:
-            instance.save()
-        instance.process_link(self.cleaned_data.get('switchs'))
-        return instance
 
+class EditSwitchModuleForm(FormRevMixin, ModelForm):
+    """Add/edit a switch to a module"""
+    class Meta:
+        model = ModuleOnSwitch
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditSwitchModuleForm, self).__init__(*args, prefix=prefix, **kwargs)
