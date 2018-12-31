@@ -45,6 +45,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-list-ul"></i> {% trans "Custom invoices" %}
     </a>
     {% acl_end %}
+    {% can_view_all CostEstimate %}
+    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-cost-estimate" %}">
+        <i class="fa fa-list-ul"></i> {% trans "Cost estimate" %}
+    </a>
+    {% acl_end %}
     {% can_view_all Article %}
     <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-article" %}">
         <i class="fa fa-list-ul"></i> {% trans "Available articles" %}

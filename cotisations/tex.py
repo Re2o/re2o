@@ -49,8 +49,9 @@ def render_invoice(_request, ctx={}):
     Render an invoice using some available information such as the current
     date, the user, the articles, the prices, ...
     """
+    is_estimate = ctx.get('is_estimate', False)
     filename = '_'.join([
-        'invoice',
+        'cost_estimate' if is_estimate else 'invoice',
         slugify(ctx.get('asso_name', "")),
         slugify(ctx.get('recipient_name', "")),
         str(ctx.get('DATE', datetime.now()).year),

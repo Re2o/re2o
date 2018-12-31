@@ -46,7 +46,10 @@ from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-from .models import Article, Paiement, Facture, Banque, CustomInvoice, Vente
+from .models import (
+    Article, Paiement, Facture, Banque,
+    CustomInvoice, Vente, CostEstimate
+)
 from .payment_methods import balance
 
 
@@ -151,6 +154,15 @@ class CustomInvoiceForm(FormRevMixin, ModelForm):
     class Meta:
         model = CustomInvoice
         fields = '__all__'
+
+
+class CostEstimateForm(FormRevMixin, ModelForm):
+    """
+    Form used to create a cost estimate.
+    """
+    class Meta:
+        model = CostEstimate
+        exclude = ['paid', 'final_invoice']
 
 
 class ArticleForm(FormRevMixin, ModelForm):

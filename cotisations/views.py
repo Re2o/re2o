@@ -68,7 +68,8 @@ from .models import (
     Paiement,
     Banque,
     CustomInvoice,
-    BaseInvoice
+    BaseInvoice,
+    CostEstimate
 )
 from .forms import (
     FactureForm,
@@ -81,7 +82,8 @@ from .forms import (
     SelectArticleForm,
     RechargeForm,
     CustomInvoiceForm,
-    DiscountForm
+    DiscountForm,
+    CostEstimateForm,
 )
 from .tex import render_invoice, escape_chars
 from .payment_methods.forms import payment_method_factory
@@ -179,7 +181,58 @@ def new_facture(request, user, userid):
     )
 
 
-# TODO : change facture to invoice
+@login_required
+@can_create(CostEstimate)
+def new_cost_estimate(request):
+    """
+    View used to generate a custom invoice. It's mainly used to
+    get invoices that are not taken into account, for the administrative
+    point of view.
+    """
+    # The template needs the list of articles (for the JS part)
+    articles = Article.objects.filter(
+        Q(type_user='All') | Q(type_user=request.user.class_name)
+    )
+    # Building the invocie form and the article formset
+    cost_estimate_form = CostEstimateForm(request.POST or None)
+
+    articles_formset = formset_factory(SelectArticleForm)(
+        request.POST or None,
+        form_kwargs={'user': request.user}
+    )
+    discount_form = DiscountForm(request.POST or None)
+
+    if cost_estimate_form.is_valid() and articles_formset.is_valid() and discount_form.is_valid():
+        cost_estimate_instance = cost_estimate_form.save()
+        for art_item in articles_formset:
+            if art_item.cleaned_data:
+                article = art_item.cleaned_data['article']
+                quantity = art_item.cleaned_data['quantity']
+                Vente.objects.create(
+                    facture=cost_estimate_instance,
+                    name=article.name,
+                    prix=article.prix,
+                    type_cotisation=article.type_cotisation,
+                    duration=article.duration,
+                    number=quantity
+                )
+        discount_form.apply_to_invoice(cost_estimate_instance)
+        messages.success(
+            request,
+            _("The cost estimate was created.")
+        )
+        return redirect(reverse('cotisations:index-cost-estimate'))
+
+    return form({
+        'factureform': cost_estimate_form,
+        'action_name': _("Confirm"),
+        'articlesformset': articles_formset,
+        'articlelist': articles,
+        'discount_form': discount_form,
+        'title': _("Cost estimate"),
+    }, 'cotisations/facture.html', request)
+
+
 @login_required
 @can_create(CustomInvoice)
 def new_custom_invoice(request):
@@ -337,6 +390,55 @@ def del_facture(request, facture, **_kwargs):
 
 
 @login_required
+@can_edit(CostEstimate)
+def edit_cost_estimate(request, invoice, **kwargs):
+    # Building the invocie form and the article formset
+    invoice_form = CostEstimateForm(
+        request.POST or None,
+        instance=invoice
+    )
+    purchases_objects = Vente.objects.filter(facture=invoice)
+    purchase_form_set = modelformset_factory(
+        Vente,
+        fields=('name', 'number'),
+        extra=0,
+        max_num=len(purchases_objects)
+    )
+    purchase_form = purchase_form_set(
+        request.POST or None,
+        queryset=purchases_objects
+    )
+    if invoice_form.is_valid() and purchase_form.is_valid():
+        if invoice_form.changed_data:
+            invoice_form.save()
+        purchase_form.save()
+        messages.success(
+            request,
+            _("The cost estimate was edited.")
+        )
+        return redirect(reverse('cotisations:index-cost-estimate'))
+
+    return form({
+        'factureform': invoice_form,
+        'venteform': purchase_form,
+        'title': "Edit the cost estimate"
+    }, 'cotisations/edit_facture.html', request)
+
+
+@login_required
+@can_edit(CostEstimate)
+@can_create(CustomInvoice)
+def cost_estimate_to_invoice(request, cost_estimate, **_kwargs):
+    """Create a custom invoice from a cos estimate"""
+    cost_estimate.create_invoice()
+    messages.success(
+        request,
+        _("An invoice was successfully created from your cost estimate.")
+    )
+    return redirect(reverse('cotisations:index-custom-invoice'))
+
+
+@login_required
 @can_edit(CustomInvoice)
 def edit_custom_invoice(request, invoice, **kwargs):
     # Building the invocie form and the article formset
@@ -369,6 +471,68 @@ def edit_custom_invoice(request, invoice, **kwargs):
         'factureform': invoice_form,
         'venteform': purchase_form
     }, 'cotisations/edit_facture.html', request)
+
+
+@login_required
+@can_view(CostEstimate)
+def cost_estimate_pdf(request, invoice, **_kwargs):
+    """
+    View used to generate a PDF file from an existing cost estimate in database
+    Creates a line for each Purchase (thus article sold) and generate the
+    invoice with the total price, the payment method, the address and the
+    legal information for the user.
+    """
+    # TODO : change vente to purchase
+    purchases_objects = Vente.objects.all().filter(facture=invoice)
+    # Get the article list and build an list out of it
+    # contiaining (article_name, article_price, quantity, total_price)
+    purchases_info = []
+    for purchase in purchases_objects:
+        purchases_info.append({
+            'name': escape_chars(purchase.name),
+            'price': purchase.prix,
+            'quantity': purchase.number,
+            'total_price': purchase.prix_total
+        })
+    return render_invoice(request, {
+        'paid': invoice.paid,
+        'fid': invoice.id,
+        'DATE': invoice.date,
+        'recipient_name': invoice.recipient,
+        'address': invoice.address,
+        'article': purchases_info,
+        'total': invoice.prix_total(),
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH),
+        'payment_method': invoice.payment,
+        'remark': invoice.remark,
+        'end_validity': invoice.date + invoice.validity,
+        'is_estimate': True,
+    })
+
+
+@login_required
+@can_delete(CostEstimate)
+def del_cost_estimate(request, estimate, **_kwargs):
+    """
+    View used to delete an existing invocie.
+    """
+    if request.method == "POST":
+        estimate.delete()
+        messages.success(
+            request,
+            _("The cost estimate was deleted.")
+        )
+        return redirect(reverse('cotisations:index-cost-estimate'))
+    return form({
+        'objet': estimate,
+        'objet_name': _("Cost Estimate")
+    }, 'cotisations/delete.html', request)
 
 
 @login_required
@@ -412,7 +576,6 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
     })
 
 
-# TODO : change facture to invoice
 @login_required
 @can_delete(CustomInvoice)
 def del_custom_invoice(request, invoice, **_kwargs):
@@ -765,10 +928,33 @@ def index_banque(request):
 
 @login_required
 @can_view_all(CustomInvoice)
+def index_cost_estimate(request):
+    """View used to display every custom invoice."""
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    cost_estimate_list = CostEstimate.objects.prefetch_related('vente_set')
+    cost_estimate_list = SortTable.sort(
+        cost_estimate_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.COTISATIONS_CUSTOM
+    )
+    cost_estimate_list = re2o_paginator(
+        request,
+        cost_estimate_list,
+        pagination_number,
+    )
+    return render(request, 'cotisations/index_cost_estimate.html', {
+        'cost_estimate_list': cost_estimate_list
+    })
+
+
+@login_required
+@can_view_all(CustomInvoice)
 def index_custom_invoice(request):
     """View used to display every custom invoice."""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    custom_invoice_list = CustomInvoice.objects.prefetch_related('vente_set')
+    cost_estimate_ids = [i for i, in CostEstimate.objects.values_list('id')]
+    custom_invoice_list = CustomInvoice.objects.prefetch_related('vente_set').exclude(id__in=cost_estimate_ids)
     custom_invoice_list = SortTable.sort(
         custom_invoice_list,
         request.GET.get('col'),
