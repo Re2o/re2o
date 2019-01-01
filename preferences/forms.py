@@ -115,11 +115,6 @@ class EditOptionalTopologieForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['radius_general_policy'].label = _("RADIUS general policy")
-        self.fields['vlan_decision_ok'].label = _("VLAN for machines accepted"
-                                                  " by RADIUS")
-        self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
-                                                   " by RADIUS")
 
         self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True).order_by('interface__domain__name')
 

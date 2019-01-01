@@ -281,31 +281,18 @@ class Switch(AclMixin, Machine):
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
         sont cohérentes. """
-
-        s_begin = s_end = 0
-        nb_ports = self.ports.count()
-        if nb_ports > 0:
-            ports = self.ports.order_by('port').values('port')
-            s_begin = ports.first().get('port')
-            s_end = ports.last().get('port')
-
         if end < begin:
             raise ValidationError(_("The end port is less than the start"
                                     " port."))
-        if end - begin > self.number:
+        ports_to_create = range(begin, end + 1)
+        existing_ports = Port.objects.filter(switch=self.switch).values_list('port', flat=True)
+        non_existing_ports = list(set(ports_to_create) - set(existing_ports))
+
+        if len(non_existing_ports) + existing_ports.count() > self.number:
             raise ValidationError(_("This switch can't have that many ports."))
-        begin_range = range(begin, s_begin)
-        end_range = range(s_end+1, end+1)
-        for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = self
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_comment(_("Creation"))
-            except IntegrityError:
-                ValidationError(_("Creation of an existing port."))
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_comment(_("Creation"))
+            Port.objects.bulk_create([Port(switch=self.switch, port=port_id) for port_id in non_existing_ports])
 
     def main_interface(self):
         """ Returns the 'main' interface of the switch
@@ -317,7 +304,7 @@ class Switch(AclMixin, Machine):
 
     @cached_property
     def get_name(self):
-        return self.name or self.main_interface().domain.name
+        return self.name or getattr(self.main_interface(), 'domain', 'Unknown')
 
     @cached_property
     def get_radius_key(self):
