@@ -304,7 +304,7 @@ class Switch(AclMixin, Machine):
 
     @cached_property
     def get_name(self):
-        return self.name or self.main_interface().domain.name
+        return self.name or getattr(self.main_interface(), 'domain', 'Unknown')
 
     @cached_property
     def get_radius_key(self):
