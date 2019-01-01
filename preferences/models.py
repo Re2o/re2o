@@ -278,7 +278,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         log_servers = Role.all_interfaces_for_roletype("log-server").filter(type__ip_type=self.switchs_ip_type)
         radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(type__ip_type=self.switchs_ip_type)
         dhcp_servers = Role.all_interfaces_for_roletype("dhcp-server")
-        dns_recursive_servers = Role.all_interfaces_for_roletype("dns-recursif-server").filter(type__ip_type=self.switchs_ip_type)
+        dns_recursive_servers = Role.all_interfaces_for_roletype("dns-recursive-server").filter(type__ip_type=self.switchs_ip_type)
         subnet = None
         subnet6 = None
         if self.switchs_ip_type:
