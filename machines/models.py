@@ -1380,7 +1380,10 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 .filter(interface=self.interface, slaac_ip=True)
                 .exclude(id=self.id)):
             raise ValidationError(_("A SLAAC IP address is already registered."))
-        prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        try:
+            prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        except AttributeError: # Prevents from crashing when there is no defined prefix_v6
+            prefix_v6 = None
         if prefix_v6:
             if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                     IPv6Address(prefix_v6).exploded[:20]):
