@@ -23,7 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
 {% load acl %}
 {% load logs_extra %}
 {% load design %}
@@ -78,8 +77,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if solde_activated %}
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
-                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    {{ users.solde }} <i class="fa fa-eur"></i>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#subscriptions">
+                {{ users.solde }} <i class="fa fa-eur"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
@@ -92,8 +92,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col-md-6{% endif %}">
             {% if nb_machines %}
             <div class="panel panel-info">
-                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
-                    <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#machines">
+                <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
@@ -103,7 +104,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% else %}
             <div class="panel panel-warning">
-                <div class="panel-heading dashboard">{% trans "No machine" %}</div>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#machines">
+                    {% trans "No machine" %}
+                </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
                         <i class="fa fa-desktop"></i>{% trans " Add a machine" %}
@@ -118,12 +122,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel-group" id="accordion">
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
-             data-target="#collapse1">
+             data-target="#information">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-user"></i>{% trans " Detailed information" %}
             </h3>
         </div>
-        <div class="panel-collapse collapse in" id="collapse1">
+        <div class="panel-collapse collapse collapse-default" id="information">
             <div class="panel-body">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
                     <i class="fa fa-edit"></i>
@@ -305,12 +309,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse2">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#club">
             <h3 class="panel-title pull-left">
 		    <i class="fa fa-users"></i>{% trans " Manage the club" %}
             </h3>
         </div>
-        <div class="panel-collapse collapse" id="collapse2">
+        <div class="panel-collapse collapse" id="club">
             <div class="panel-body">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
                     <i class="fa fa-lock"></i>
@@ -361,14 +365,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     {% endif %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+             data-target="#machines">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-desktop"></i>
 		{% trans "Machines" %}
                 <span class="badge">{{nb_machines}}</span>
             </h3>
         </div>
-        <div id="collapse3" class="panel-collapse collapse">
+        <div id="machines" class="panel-collapse collapse">
             <div class="panel-body">
                <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
                    <i class="fa fa-desktop"></i>
@@ -385,13 +390,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+             data-target="#subscriptions">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-eur"></i>
 		{% trans "Subscriptions" %}
             </h3>
         </div>
-        <div id="collapse4" class="panel-collapse collapse">
+        <div id="subscriptions" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_create Facture %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
@@ -416,13 +422,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#bans">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-ban"></i>
 		{% trans "Bans" %}
             </h3>
         </div>
-        <div id="collapse5" class="panel-collapse collapse">
+        <div id="bans" class="panel-collapse collapse">
              <div class="panel-body">
              	{% can_create Ban %}
               	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}">
@@ -441,13 +447,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#whitelists">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-check-circle"></i>
 		{% trans "Whitelists" %}
             </h3>
         </div>
-        <div id="collapse6" class="panel-collapse collapse">
+        <div id="whitelists" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_create Whitelist %}
 				<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}">
@@ -466,12 +472,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#email">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-envelope"></i>{% trans " Email settings" %}
             </h3>
         </div>
-        <div id="collapse7" class="panel-collapse collapse">
+        <div id="email" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_edit users %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-email-settings' users.id %}">
