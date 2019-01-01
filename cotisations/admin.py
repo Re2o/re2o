@@ -30,11 +30,16 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
-from .models import CustomInvoice
+from .models import CustomInvoice, CostEstimate
 
 
 class FactureAdmin(VersionAdmin):
     """Class admin d'une facture, tous les champs"""
+    pass
+
+
+class CostEstimateAdmin(VersionAdmin):
+    """Admin class for cost estimates."""
     pass
 
 
@@ -76,3 +81,4 @@ admin.site.register(Paiement, PaiementAdmin)
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Cotisation, CotisationAdmin)
 admin.site.register(CustomInvoice, CustomInvoiceAdmin)
+admin.site.register(CostEstimate, CostEstimateAdmin)

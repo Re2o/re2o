@@ -284,8 +284,65 @@ class CustomInvoice(BaseInvoice):
         verbose_name=_("Address")
     )
     paid = models.BooleanField(
-        verbose_name=_("Paid")
+        verbose_name=_("Paid"),
+        default=False
     )
+    remark = models.TextField(
+        verbose_name=_("Remark"),
+        blank=True,
+        null=True
+    )
+
+
+class CostEstimate(CustomInvoice):
+    class Meta:
+        permissions = (
+            ('view_costestimate', _("Can view a cost estimate object")),
+        )
+    validity = models.DurationField(
+        verbose_name=_("Period of validity"),
+        help_text="DD HH:MM:SS"
+    )
+    final_invoice = models.ForeignKey(
+        CustomInvoice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="origin_cost_estimate",
+        primary_key=False
+    )
+
+    def create_invoice(self):
+        """Create a CustomInvoice from the CostEstimate."""
+        if self.final_invoice is not None:
+            return self.final_invoice
+        invoice = CustomInvoice()
+        invoice.recipient = self.recipient
+        invoice.payment = self.payment
+        invoice.address = self.address
+        invoice.paid = False
+        invoice.remark = self.remark
+        invoice.date = timezone.now()
+        invoice.save()
+        self.final_invoice = invoice
+        self.save()
+        for sale in self.vente_set.all():
+            Vente.objects.create(
+                facture=invoice,
+                name=sale.name,
+                prix=sale.prix,
+                number=sale.number,
+            )
+        return invoice
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_costestimate'):
+            return False, _("You don't have the right "
+                            "to delete a cost estimate.")
+        if self.final_invoice is not None:
+            return False, _("The cost estimate has an "
+                            "invoice and cannot be deleted.")
+        return True, None
 
 
 # TODO : change Vente to Purchase

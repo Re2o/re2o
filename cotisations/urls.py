@@ -52,9 +52,39 @@ urlpatterns = [
         name='facture-pdf'
     ),
     url(
+        r'^new_cost_estimate/$',
+        views.new_cost_estimate,
+        name='new-cost-estimate'
+    ),
+    url(
+        r'^index_cost_estimate/$',
+        views.index_cost_estimate,
+        name='index-cost-estimate'
+    ),
+    url(
+        r'^cost_estimate_pdf/(?P<costestimateid>[0-9]+)$',
+        views.cost_estimate_pdf,
+        name='cost-estimate-pdf',
+    ),
+    url(
         r'^index_custom_invoice/$',
         views.index_custom_invoice,
         name='index-custom-invoice'
+    ),
+    url(
+        r'^edit_cost_estimate/(?P<costestimateid>[0-9]+)$',
+        views.edit_cost_estimate,
+        name='edit-cost-estimate'
+    ),
+    url(
+        r'^cost_estimate_to_invoice/(?P<costestimateid>[0-9]+)$',
+        views.cost_estimate_to_invoice,
+        name='cost-estimate-to-invoice'
+    ),
+    url(
+        r'^del_cost_estimate/(?P<costestimateid>[0-9]+)$',
+        views.del_cost_estimate,
+        name='del-cost-estimate'
     ),
     url(
         r'^new_custom_invoice/$',
