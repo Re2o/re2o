@@ -346,6 +346,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </table>
     </div>
 </div>
+<div  class="panel panel-default" id="cotisation">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_cotisation">
+        <h4 class="panel-title">
+            <a><i class="fa fa-eur"></i>   {% trans "Cotisation's options" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_cotisation" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'CotisationsOption' %}">
+            <i class="fa fa-edit"></i>
+        </a>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Invoices' template" %}</th>
+                <td>{{ cotisationsoptions.invoice_template }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 
 <div  class="panel panel-default" id="mail">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">

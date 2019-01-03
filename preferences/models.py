@@ -687,3 +687,15 @@ class RadiusOption(AclMixin, PreferencesModel):
         null=True
     )
 
+
+class CotisationsOption(AclMixin, PreferencesModel):
+    class Meta:
+        verbose_name = _("cotisations options")
+
+    invoice_template = models.OneToOneField(
+        'cotisations.DocumentTemplate',
+        verbose_name=_("Template for invoices"),
+        related_name="invoice_template",
+        on_delete=models.PROTECT,
+    )
+

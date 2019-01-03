@@ -43,6 +43,7 @@ from .models import (
     RadiusKey,
     SwitchManagementCred,
     RadiusOption,
+    CotisationsOption
 )
 from topologie.models import Switch
 
@@ -251,6 +252,13 @@ class EditRadiusOptionForm(ModelForm):
                     _("Please, choose a VLAN."),
                 )
         return cleaned_data
+
+
+class EditCotisationsOptionForm(ModelForm):
+    """Edition forms for Cotisations options"""
+    class Meta:
+        model = CotisationsOption
+        fields = '__all__'
 
 
 class ServiceForm(ModelForm):

@@ -40,6 +40,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.mixins import AclMixin, RevMixin
+from preferences.models import CotisationsOption
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -73,6 +74,7 @@ def render_invoice(_request, ctx={}):
     Render an invoice using some available information such as the current
     date, the user, the articles, the prices, ...
     """
+    options, _ = CotisationsOption.objects.get_or_create()
     is_estimate = ctx.get('is_estimate', False)
     filename = '_'.join([
         'cost_estimate' if is_estimate else 'invoice',
@@ -82,7 +84,8 @@ def render_invoice(_request, ctx={}):
         str(ctx.get('DATE', datetime.now()).month),
         str(ctx.get('DATE', datetime.now()).day),
     ])
-    r = render_tex(_request, 'cotisations/factures.tex', ctx)
+    templatename = options.invoice_template.template.name.split('/')[-1]
+    r = render_tex(_request, templatename, ctx)
     r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
         name=filename
     )

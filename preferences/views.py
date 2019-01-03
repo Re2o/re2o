@@ -64,6 +64,7 @@ from .models import (
     RadiusKey,
     SwitchManagementCred,
     RadiusOption,
+    CotisationsOption,
 )
 from . import models
 from . import forms
@@ -88,6 +89,7 @@ def display_options(request):
     radiuskey_list = RadiusKey.objects.all()
     switchmanagementcred_list = SwitchManagementCred.objects.all()
     radiusoptions, _ = RadiusOption.objects.get_or_create()
+    cotisationsoptions, _created = CotisationsOption.objects.get_or_create()
     return form({
         'useroptions': useroptions,
         'machineoptions': machineoptions,
@@ -102,6 +104,7 @@ def display_options(request):
         'radiuskey_list' : radiuskey_list,
         'switchmanagementcred_list': switchmanagementcred_list,
         'radiusoptions' : radiusoptions,
+        'cotisationsoptions': cotisationsoptions,
         }, 'preferences/display_preferences.html', request)
 
 
