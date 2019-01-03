@@ -251,7 +251,7 @@ class Switch(AclMixin, Machine):
         default=False,
         help_text='Provision automatique de ce switch',
     )
-  
+
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -404,11 +404,11 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     is_modular = models.BooleanField(
         default=False,
         help_text=_("Is this switch model modular"),
-    ) 
+    )
     is_itself_module = models.BooleanField(
         default=False,
-        help_text=_("Does the switch, itself, considered as a module"),
-    ) 
+        help_text=_("Is the switch, itself, considered as a module"),
+    )
 
     class Meta:
         permissions = (
@@ -429,14 +429,14 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
     reference = models.CharField(
         max_length=255,
         help_text=_("Reference of a module"),
-        verbose_name=_("Module reference")   
+        verbose_name=_("Module reference")
     )
     comment = models.CharField(
         max_length=255,
         null=True,
         blank=True,
         help_text=_("Comment"),
-        verbose_name=_("Comment")   
+        verbose_name=_("Comment")
     )
 
     class Meta:
@@ -457,7 +457,7 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
     slot = models.CharField(
         max_length=15,
         help_text=_("Slot on switch"),
-        verbose_name=_("Slot")   
+        verbose_name=_("Slot")
     )
 
     class Meta:
