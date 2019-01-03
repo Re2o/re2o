@@ -1612,7 +1612,7 @@ class Role(RevMixin, AclMixin, models.Model):
     ROLE = (
         ('dhcp-server', _("DHCP server")),
         ('switch-conf-server', _("Switches configuration server")),
-        ('dns-recursif-server', _("Recursive DNS server")),
+        ('dns-recursive-server', _("Recursive DNS server")),
         ('ntp-server', _("NTP server")),
         ('radius-server', _("RADIUS server")),
         ('log-server', _("Log server")),

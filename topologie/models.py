@@ -252,6 +252,7 @@ class Switch(AclMixin, Machine):
         help_text='Provision automatique de ce switch',
     )
 
+
     class Meta:
         unique_together = ('stack', 'stack_member_id')
         permissions = (
@@ -367,6 +368,17 @@ class Switch(AclMixin, Machine):
         """Return dict ip6:subnet for all ipv6 of the switch"""
         return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
+    @cached_property
+    def list_modules(self):
+        """Return modules of that switch, list of dict (rank, reference)"""
+        modules = []
+        if getattr(self.model, 'is_modular', None):
+            if self.model.is_itself_module:
+                modules.append((1, self.model.reference))
+            for module_of_self in self.moduleonswitch_set.all():
+                modules.append((module_of_self.slot, module_of_self.module.reference))
+        return modules
+
     def __str__(self):
         return str(self.get_name)
 
@@ -389,6 +401,14 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         null=True,
         blank=True
     )
+    is_modular = models.BooleanField(
+        default=False,
+        help_text=_("Is this switch model modular"),
+    )
+    is_itself_module = models.BooleanField(
+        default=False,
+        help_text=_("Is the switch, itself, considered as a module"),
+    )
 
     class Meta:
         permissions = (
@@ -402,6 +422,53 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
             return str(self.constructor) + ' ' + str(self.commercial_name)
         else:
             return str(self.constructor) + ' ' + self.reference
+
+
+class ModuleSwitch(AclMixin, RevMixin, models.Model):
+    """A module of a switch"""
+    reference = models.CharField(
+        max_length=255,
+        help_text=_("Reference of a module"),
+        verbose_name=_("Module reference")
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text=_("Comment"),
+        verbose_name=_("Comment")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleswitch", _("Can view a module object")),
+        )
+        verbose_name = _("Module of a switch")
+
+
+    def __str__(self):
+        return str(self.reference)
+
+
+class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
+    """Link beetween module and switch"""
+    module = models.ForeignKey('ModuleSwitch', on_delete=models.CASCADE)
+    switch = models.ForeignKey('Switch', on_delete=models.CASCADE)
+    slot = models.CharField(
+        max_length=15,
+        help_text=_("Slot on switch"),
+        verbose_name=_("Slot")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleonswitch", _("Can view a moduleonswitch object")),
+        )
+        verbose_name = _("link between switchs and modules")
+        unique_together = ['slot', 'switch']
+
+    def __str__(self):
+        return 'On slot ' + str(self.slot) + ' of ' + str(self.switch)
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
