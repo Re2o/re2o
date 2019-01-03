@@ -31,6 +31,7 @@ from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
 from .models import CustomInvoice, CostEstimate
+from .tex import DocumentTemplate
 
 
 class FactureAdmin(VersionAdmin):
@@ -74,6 +75,11 @@ class CotisationAdmin(VersionAdmin):
     pass
 
 
+class DocumentTemplateAdmin(VersionAdmin):
+    """Admin class for DocumentTemplate"""
+    pass
+
+
 admin.site.register(Facture, FactureAdmin)
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(Banque, BanqueAdmin)
@@ -82,3 +88,4 @@ admin.site.register(Vente, VenteAdmin)
 admin.site.register(Cotisation, CotisationAdmin)
 admin.site.register(CustomInvoice, CustomInvoiceAdmin)
 admin.site.register(CostEstimate, CostEstimateAdmin)
+admin.site.register(DocumentTemplate, DocumentTemplateAdmin)

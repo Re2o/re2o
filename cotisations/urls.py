@@ -176,5 +176,25 @@ urlpatterns = [
         views.control,
         name='control'
     ),
+    url(
+        r'^add_document_template/$',
+        views.add_document_template,
+        name='add-document-template'
+    ),
+    url(
+        r'^edit_document_template/(?P<documenttemplateid>[0-9]+)$',
+        views.edit_document_template,
+        name='edit-document-template'
+    ),
+    url(
+        r'^del_document_template/$',
+        views.del_document_template,
+        name='del-document-template'
+    ),
+    url(
+        r'^index_document_template/$',
+        views.index_document_template,
+        name='index-document-template'
+    ),
     url(r'^$', views.index, name='index'),
 ] + payment_methods.urls.urlpatterns

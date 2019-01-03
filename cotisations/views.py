@@ -84,8 +84,10 @@ from .forms import (
     CustomInvoiceForm,
     DiscountForm,
     CostEstimateForm,
+    DocumentTemplateForm,
+    DelDocumentTemplateForm
 )
-from .tex import render_invoice, escape_chars
+from .tex import render_invoice, escape_chars, DocumentTemplate
 from .payment_methods.forms import payment_method_factory
 from .utils import find_payment_method
 
@@ -720,7 +722,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         if payment_method is not None:
             payment_method.save()
         messages.success(
-            request,_("The payment method was edited.")
+            request, _("The payment method was edited.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -954,7 +956,8 @@ def index_custom_invoice(request):
     """View used to display every custom invoice."""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     cost_estimate_ids = [i for i, in CostEstimate.objects.values_list('id')]
-    custom_invoice_list = CustomInvoice.objects.prefetch_related('vente_set').exclude(id__in=cost_estimate_ids)
+    custom_invoice_list = CustomInvoice.objects.prefetch_related(
+        'vente_set').exclude(id__in=cost_estimate_ids)
     custom_invoice_list = SortTable.sort(
         custom_invoice_list,
         request.GET.get('col'),
@@ -1020,7 +1023,8 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(request.POST or None, user=user, user_source=request.user)
+    refill_form = RechargeForm(
+        request.POST or None, user=user, user_source=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
@@ -1050,3 +1054,93 @@ def credit_solde(request, user, **_kwargs):
         'max_balance': find_payment_method(p).maximum_balance,
     }, 'cotisations/facture.html', request)
 
+
+@login_required
+@can_create(DocumentTemplate)
+def add_document_template(request):
+    """
+    View used to add a document template.
+    """
+    document_template = DocumentTemplateForm(request.POST or None)
+    if document_template.is_valid():
+        document_template.save()
+        messages.success(
+            request,
+            _("The document template was created.")
+        )
+        return redirect(reverse('cotisations:index-document-template'))
+    return form({
+        'factureform': document_template,
+        'action_name': _("Add"),
+        'title': _("New document template")
+    }, 'cotisations/facture.html', request)
+
+
+@login_required
+@can_edit(DocumentTemplate)
+def edit_document_template(request, document_template_instance, **_kwargs):
+    """
+    View used to edit a document_template.
+    """
+    document_template = DocumentTemplateForm(
+        request.POST or None, instance=document_template_instance)
+    if document_template.is_valid():
+        if document_template.changed_data:
+            document_template.save()
+            messages.success(
+                request,
+                _("The document template was edited.")
+            )
+        return redirect(reverse('cotisations:index-document-template'))
+    return form({
+        'factureform': document_template,
+        'action_name': _("Edit"),
+        'title': _("Edit document template")
+    }, 'cotisations/facture.html', request)
+
+
+@login_required
+@can_delete_set(DocumentTemplate)
+def del_document_template(request, instances):
+    """
+    View used to delete a set of document template.
+    """
+    document_template = DelDocumentTemplateForm(
+        request.POST or None, instances=instances)
+    if document_template.is_valid():
+        document_template_del = document_template.cleaned_data['document_templates']
+        for document_template in document_template_del:
+            try:
+                document_template.delete()
+                messages.success(
+                    request,
+                    _("The document template %(document_template)s was deleted.") % {
+                        'document_template': document_template
+                    }
+                )
+            except ProtectedError:
+                messages.error(
+                    request,
+                    _("The document template %(document_template)s can't be deleted \
+                    because it is currently being used.") % {
+                        'document_template': document_template
+                    }
+                )
+        return redirect(reverse('cotisations:index-document-template'))
+    return form({
+        'factureform': document_template,
+        'action_name': _("Delete"),
+        'title': _("Delete document template")
+    }, 'cotisations/facture.html', request)
+
+
+@login_required
+@can_view_all(DocumentTemplate)
+def index_document_template(request):
+    """
+    View used to display the list of all available document templates.
+    """
+    document_template_list = DocumentTemplate.objects.order_by('name')
+    return render(request, 'cotisations/index_document_template.html', {
+        'document_template_list': document_template_list
+    })

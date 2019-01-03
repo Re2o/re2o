@@ -50,6 +50,7 @@ from .models import (
     Article, Paiement, Facture, Banque,
     CustomInvoice, Vente, CostEstimate
 )
+from .tex import DocumentTemplate
 from .payment_methods import balance
 
 
@@ -316,3 +317,37 @@ class RechargeForm(FormRevMixin, Form):
                 }
             )
         return self.cleaned_data
+
+
+class DocumentTemplateForm(FormRevMixin, ModelForm):
+    """
+    Form used to create a document template.
+    """
+    class Meta:
+        model = DocumentTemplate
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(DocumentTemplateForm, self).__init__(
+            *args, prefix=prefix, **kwargs)
+
+
+class DelDocumentTemplateForm(FormRevMixin, Form):
+    """
+    Form used to delete one or more document templatess.
+    The use must choose the one to delete by checking the boxes.
+    """
+    document_templates = forms.ModelMultipleChoiceField(
+        queryset=DocumentTemplate.objects.none(),
+        label=_("Available document templates"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelDocumentTemplateForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['document_templates'].queryset = instances
+        else:
+            self.fields['document_templates'].queryset = Banque.objects.all()

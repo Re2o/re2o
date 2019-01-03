@@ -31,17 +31,41 @@ from subprocess import Popen, PIPE
 import os
 from datetime import datetime
 
+from django.db import models
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
-import logging
+from django.utils.translation import ugettext_lazy as _
+
+from re2o.mixins import AclMixin, RevMixin
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
+
+
+class DocumentTemplate(RevMixin, AclMixin, models.Model):
+    """Represent a template in order to create documents such as invoice or
+    subscribtion voucher.
+    """
+    template = models.FileField(
+        upload_to='templates/',
+        verbose_name=_('template')
+    )
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('name')
+    )
+
+    class Meta:
+        verbose_name = _("document template")
+        verbose_name_plural = _("document templates")
+
+    def __str__(self):
+        return str(self.name)
 
 
 def render_invoice(_request, ctx={}):
