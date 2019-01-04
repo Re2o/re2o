@@ -292,6 +292,17 @@ class OptionalTopologieView(generics.RetrieveAPIView):
         return preferences.OptionalTopologie.objects.first()
 
 
+class RadiusOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalTopologie` settings.
+    """
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.RadiusOption.can_view_all]}
+    serializer_class = serializers.RadiusOptionSerializer
+
+    def get_object(self):
+        return preferences.RadiusOption.objects.first()
+
+
 class GeneralOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.GeneralOption` settings.
     """

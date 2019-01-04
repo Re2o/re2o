@@ -391,11 +391,23 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.OptionalTopologie
-        fields = ('radius_general_policy', 'vlan_decision_ok',
-                  'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
+        fields = ('switchs_ip_type', 'switchs_web_management',
                   'switchs_web_management_ssl', 'switchs_rest_management',
                   'switchs_management_utils', 'switchs_management_interface_ip',
                   'provision_switchs_enabled', 'switchs_provision', 'switchs_management_sftp_creds')
+
+
+class RadiusOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.RadiusOption` objects
+    """
+
+    class Meta:
+        model = preferences.RadiusOption
+        fields = ('radius_general_policy', 'unknown_machine',
+                'unknown_machine_vlan', 'unknown_port',
+                'unknown_port_vlan', 'unknown_room', 'unknown_room_vlan',
+                'non_member', 'non_member_vlan', 'banned', 'banned_vlan',
+                'vlan_decision_ok')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
