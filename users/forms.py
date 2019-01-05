@@ -387,6 +387,20 @@ class AdherentCreationForm(AdherentForm):
     #gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
     #    _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
 
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'state',
+        ]
+
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
 
