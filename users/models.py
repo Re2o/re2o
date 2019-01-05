@@ -1026,17 +1026,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             ):
             raise ValidationError("This pseudo is already in use.")
         if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
-            raise ValidationError(
-                {'email': (
-                    _("There is neither a local email address nor an external"
+            raise ValidationError(_("There is neither a local email address nor an external"
                       " email address for this user.")
-                ), }
             )
         if self.local_email_redirect and not self.email:
-            raise ValidationError(
-                {'local_email_redirect': (
-                _("You can't redirect your local emails if no external email"
-                  " address has been set.")), }
+            raise ValidationError(_("You can't redirect your local emails if no external email"
+                  " address has been set.")
             )
 
     def __str__(self):
