@@ -337,7 +337,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_active(self):
         """Enable this user if he subscribed successfully one time before"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
+            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists() or OptionalUser.get_cached_value('all_users_active'):
                 self.state = self.STATE_ACTIVE
                 self.save()
 

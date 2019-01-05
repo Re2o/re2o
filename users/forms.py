@@ -117,6 +117,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Changement du mot de passe"""
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
+        user.set_active()
         user.save()
 
 
