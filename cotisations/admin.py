@@ -30,8 +30,7 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
-from .models import CustomInvoice, CostEstimate
-from .tex import DocumentTemplate
+from .models import CustomInvoice, CostEstimate, DocumentTemplate
 
 
 class FactureAdmin(VersionAdmin):

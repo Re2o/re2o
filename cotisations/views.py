@@ -69,7 +69,8 @@ from .models import (
     Banque,
     CustomInvoice,
     BaseInvoice,
-    CostEstimate
+    CostEstimate,
+    DocumentTemplate
 )
 from .forms import (
     FactureForm,
@@ -87,7 +88,7 @@ from .forms import (
     DocumentTemplateForm,
     DelDocumentTemplateForm
 )
-from .tex import render_invoice, escape_chars, DocumentTemplate
+from .tex import render_invoice, escape_chars
 from .payment_methods.forms import payment_method_factory
 from .utils import find_payment_method
 

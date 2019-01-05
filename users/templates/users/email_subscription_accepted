@@ -1,0 +1,22 @@
+<p>Bonjour {{nom}} !</p>
+
+<p>Nous vous informons que votre cotisation auprès de {{asso_name}} a été acceptée. Vous voilà donc membre de l'association.</p>
+
+<p>Vous trouverez en pièce jointe un reçu.</p>
+
+<p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.</p>
+
+<p>À bientôt,<br>
+L'équipe de {{asso_name}}.</p>
+
+<p>---</p>
+
+<p>Your subscription to {{asso_name}} has just been accepted. You are now a full member of {{asso_name}}.
+
+<p>You will find with this email a subscription voucher.</p>
+
+<p>For any information, suggestion or problem, you can contact us via email at<br>
+{{asso_email}}.</p>
+
+<p>Regards,<br>
+The {{asso_name}} team.</p>

@@ -698,4 +698,9 @@ class CotisationsOption(AclMixin, PreferencesModel):
         related_name="invoice_template",
         on_delete=models.PROTECT,
     )
-
+    voucher_template = models.OneToOneField(
+        'cotisations.DocumentTemplate',
+        verbose_name=_("Template for subscription voucher"),
+        related_name="voucher_template",
+        on_delete=models.PROTECT,
+    )

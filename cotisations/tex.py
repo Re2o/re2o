@@ -48,27 +48,6 @@ CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
 
 
-class DocumentTemplate(RevMixin, AclMixin, models.Model):
-    """Represent a template in order to create documents such as invoice or
-    subscribtion voucher.
-    """
-    template = models.FileField(
-        upload_to='templates/',
-        verbose_name=_('template')
-    )
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_('name')
-    )
-
-    class Meta:
-        verbose_name = _("document template")
-        verbose_name_plural = _("document templates")
-
-    def __str__(self):
-        return str(self.name)
-
-
 def render_invoice(_request, ctx={}):
     """
     Render an invoice using some available information such as the current
@@ -86,6 +65,27 @@ def render_invoice(_request, ctx={}):
     ])
     templatename = options.invoice_template.template.name.split('/')[-1]
     r = render_tex(_request, templatename, ctx)
+    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
+        name=filename
+    )
+    return r
+
+
+def render_voucher(_request, ctx={}):
+    """
+    Render a subscribtion voucher.
+    """
+    options, _ = CotisationsOption.objects.get_or_create()
+    filename = '_'.join([
+        'voucher',
+        slugify(ctx.get('asso_name', "")),
+        slugify(ctx.get('recipient_name', "")),
+        str(ctx.get('DATE', datetime.now()).year),
+        str(ctx.get('DATE', datetime.now()).month),
+        str(ctx.get('DATE', datetime.now()).day),
+    ])
+    templatename = options.voucher_template.template.name.split('/')[-1]
+    r = create_pdf(templatename, ctx)
     r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
         name=filename
     )

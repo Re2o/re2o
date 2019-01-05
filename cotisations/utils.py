@@ -93,3 +93,56 @@ def send_mail_invoice(invoice):
         attachments=[('invoice.pdf', pdf, 'application/pdf')]
     )
     mail.send()
+
+
+def send_mail_voucher(invoice):
+    """Creates a voucher from an invoice and sends it by email to the client"""
+    purchases_info = []
+    for purchase in invoice.vente_set.all():
+        purchases_info.append({
+            'name': purchase.name,
+            'price': purchase.prix,
+            'quantity': purchase.number,
+            'total_price': purchase.prix_total
+        })
+
+    ctx = {
+        'paid': True,
+        'fid': invoice.id,
+        'DATE': invoice.date,
+        'recipient_name': "{} {}".format(
+            invoice.user.name,
+            invoice.user.surname
+        ),
+        'address': invoice.user.room,
+        'article': purchases_info,
+        'total': invoice.prix_total(),
+        'asso_name': AssoOption.get_cached_value('name'),
+        'line1': AssoOption.get_cached_value('adresse1'),
+        'line2': AssoOption.get_cached_value('adresse2'),
+        'siret': AssoOption.get_cached_value('siret'),
+        'email': AssoOption.get_cached_value('contact'),
+        'phone': AssoOption.get_cached_value('telephone'),
+        'tpl_path': os.path.join(settings.BASE_DIR, LOGO_PATH)
+    }
+
+    pdf = create_pdf('cotisations/factures.tex', ctx)
+    template = get_template('cotisations/email_invoice')
+
+    ctx = {
+        'name': "{} {}".format(
+            invoice.user.name,
+            invoice.user.surname
+        ),
+        'contact_mail': AssoOption.get_cached_value('contact'),
+        'asso_name': AssoOption.get_cached_value('name')
+    }
+
+    mail = EmailMessage(
+        'Votre facture / Your invoice',
+        template.render(ctx),
+        GeneralOption.get_cached_value('email_from'),
+        [invoice.user.get_mail],
+        attachments=[('invoice.pdf', pdf, 'application/pdf')]
+    )
+    mail.send()
