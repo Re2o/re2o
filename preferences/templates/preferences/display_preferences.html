@@ -122,6 +122,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <th>{% trans "Delete not yet active users after" %}</th>
                     <td>{{ useroptions.delete_notyetactive }} days</td>
                 </tr>
+                <tr>
+                    <th>{% trans "All users are active by default" %}</th>
+                    <td>{{ useroptions.all_users_active|tick }}</td>
+                </tr>
             </table>
 
             <h4 id="users">{% trans "Users general permissions" %}</h4>

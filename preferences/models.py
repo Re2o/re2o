@@ -116,6 +116,11 @@ class OptionalUser(AclMixin, PreferencesModel):
         default=False,
         help_text=_("A new user can create their account on Re2o")
     )
+    all_users_active = models.BooleanField(
+        default=False,
+        help_text=_("If True, all new created and connected users are active.\
+                    If False, only when a valid registration has been paid")
+    )
 
     class Meta:
         permissions = (
