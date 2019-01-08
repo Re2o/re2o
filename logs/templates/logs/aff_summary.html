@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% if versions_list.paginator %}
-{% include "pagination.html" with list=versions_list %}
+    {% include 'pagination.html' with list=versions_list %}
 {% endif %}
 
 {% load logs_extra %}
@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             {% trans "Date" as tr_date %}
-            <th>{% include "buttons/sort.html" with prefix='sum' col='date' text=tr_date %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='sum' col='date' text=tr_date %}</th>
             <th>{% trans "Editing" %}</th>
             <th></th>
         </tr>
@@ -154,6 +154,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if versions_list.paginator %}
-{% include "pagination.html" with list=versions_list %}
+    {% include 'pagination.html' with list=versions_list %}
 {% endif %}
 

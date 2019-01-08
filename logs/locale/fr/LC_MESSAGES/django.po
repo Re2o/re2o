@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-15 20:12+0200\n"
+"POT-Creation-Date: 2019-01-08 23:16+0100\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -57,7 +57,7 @@ msgstr "Commentaire"
 
 #: templates/logs/aff_stats_logs.html:58 templates/logs/aff_summary.html:62
 #: templates/logs/aff_summary.html:85 templates/logs/aff_summary.html:104
-#: templates/logs/aff_summary.html:123 templates/logs/aff_summary.html:142
+#: templates/logs/aff_summary.html:128 templates/logs/aff_summary.html:147
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -113,15 +113,19 @@ msgstr "%(username)s a mis à jour"
 
 #: templates/logs/aff_summary.html:113
 #, python-format
-msgid "%(username)s has sold %(number)sx %(name)s to"
-msgstr "%(username)s a vendu %(number)sx %(name)s à"
+msgid "%(username)s has sold %(number)sx %(name)s"
+msgstr "%(username)s a vendu %(number)sx %(name)s"
 
 #: templates/logs/aff_summary.html:116
+msgid " to"
+msgstr " à"
+
+#: templates/logs/aff_summary.html:119
 #, python-format
 msgid "+%(duration)s months"
 msgstr "+%(duration)s mois"
 
-#: templates/logs/aff_summary.html:132
+#: templates/logs/aff_summary.html:137
 #, python-format
 msgid "%(username)s has edited an interface of"
 msgstr "%(username)s a modifié une interface de"
@@ -149,7 +153,7 @@ msgstr "Confirmer"
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/logs/index.html:32 templates/logs/stats_logs.html:32 views.py:403
+#: templates/logs/index.html:32 templates/logs/stats_logs.html:32 views.py:414
 msgid "Actions performed"
 msgstr "Actions effectuées"
 
@@ -173,7 +177,7 @@ msgstr "Base de données"
 msgid "Wiring actions"
 msgstr "Actions de câblage"
 
-#: templates/logs/sidebar.html:53 views.py:325
+#: templates/logs/sidebar.html:53 views.py:336
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -189,150 +193,154 @@ msgstr "Statistiques sur la base de données"
 msgid "Statistics about users"
 msgstr "Statistiques sur les utilisateurs"
 
-#: views.py:191
+#: views.py:194
 msgid "Nonexistent revision."
 msgstr "Révision inexistante."
 
-#: views.py:194
+#: views.py:197
 msgid "The action was deleted."
 msgstr "L'action a été supprimée."
 
-#: views.py:227
+#: views.py:230
 msgid "Category"
 msgstr "Catégorie"
 
-#: views.py:228
+#: views.py:231
 msgid "Number of users (members and clubs)"
 msgstr "Nombre d'utilisateurs (adhérents et clubs)"
 
-#: views.py:229
+#: views.py:232
 msgid "Number of members"
 msgstr "Nombre d'adhérents"
 
-#: views.py:230
+#: views.py:233
 msgid "Number of clubs"
 msgstr "Nombre de clubs"
 
-#: views.py:234
+#: views.py:237
 msgid "Activated users"
 msgstr "Utilisateurs activés"
 
-#: views.py:242
+#: views.py:245
 msgid "Disabled users"
 msgstr "Utilisateurs désactivés"
 
-#: views.py:250
+#: views.py:253
 msgid "Archived users"
 msgstr "Utilisateurs archivés"
 
-#: views.py:258
+#: views.py:261
+msgid "Not yet active users"
+msgstr "Utilisateurs pas encore actifs"
+
+#: views.py:269
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
-#: views.py:264
+#: views.py:275
 msgid "Users benefiting from a connection"
 msgstr "Utilisateurs bénéficiant d'une connexion"
 
-#: views.py:270
+#: views.py:281
 msgid "Banned users"
 msgstr "Utilisateurs bannis"
 
-#: views.py:276
+#: views.py:287
 msgid "Users benefiting from a free connection"
 msgstr "Utilisateurs bénéficiant d'une connexion gratuite"
 
-#: views.py:282
+#: views.py:293
 msgid "Active interfaces (with access to the network)"
 msgstr "Interfaces actives (ayant accès au réseau)"
 
-#: views.py:292
+#: views.py:303
 msgid "Active interfaces assigned IPv4"
 msgstr "Interfaces actives assignées IPv4"
 
-#: views.py:305
+#: views.py:316
 msgid "IP range"
 msgstr "Plage d'IP"
 
-#: views.py:306
+#: views.py:317
 msgid "VLAN"
 msgstr "VLAN"
 
-#: views.py:307
+#: views.py:318
 msgid "Total number of IP addresses"
 msgstr "Nombre total d'adresses IP"
 
-#: views.py:308
+#: views.py:319
 msgid "Number of assigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: views.py:309
+#: views.py:320
 msgid "Number of IP address assigned to an activated machine"
 msgstr "Nombre d'adresses IP assignées à une machine activée"
 
-#: views.py:310
+#: views.py:321
 msgid "Number of nonassigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: views.py:337
+#: views.py:348
 msgid "Subscriptions"
 msgstr "Cotisations"
 
-#: views.py:359 views.py:420
+#: views.py:370 views.py:431
 msgid "Machines"
 msgstr "Machines"
 
-#: views.py:386
+#: views.py:397
 msgid "Topology"
 msgstr "Topologie"
 
-#: views.py:405
+#: views.py:416
 msgid "Number of actions"
 msgstr "Nombre d'actions"
 
-#: views.py:419 views.py:437 views.py:442 views.py:447 views.py:462
+#: views.py:430 views.py:448 views.py:453 views.py:458 views.py:473
 msgid "User"
 msgstr "Utilisateur"
 
-#: views.py:423
+#: views.py:434
 msgid "Invoice"
 msgstr "Facture"
 
-#: views.py:426
+#: views.py:437
 msgid "Ban"
 msgstr "Bannissement"
 
-#: views.py:429
+#: views.py:440
 msgid "Whitelist"
 msgstr "Accès gracieux"
 
-#: views.py:432
+#: views.py:443
 msgid "Rights"
 msgstr "Droits"
 
-#: views.py:436
+#: views.py:447
 msgid "School"
 msgstr "Établissement"
 
-#: views.py:441
+#: views.py:452
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: views.py:446
+#: views.py:457
 msgid "Bank"
 msgstr "Banque"
 
-#: views.py:463
+#: views.py:474
 msgid "Action"
 msgstr "Action"
 
-#: views.py:494
+#: views.py:505
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
 
-#: views.py:500
+#: views.py:511
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: views.py:507
+#: views.py:518
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
