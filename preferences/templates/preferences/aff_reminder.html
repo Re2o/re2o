@@ -23,31 +23,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 {% load acl %}
 {% load logs_extra %}
+{% load i18n %}
+
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Nombre de jours avant le rappel</th>
-            <th>Message custom pour ce rappel</th>
-       <th></th>
+            <th>{% trans "Number of days before the reminder" %}</th>
+            <th>{% trans "Message for this reminder" %}</th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
     {% for reminder in reminder_list %}
-    <tr>
-        <td>{{ reminder.days }}</td>
-        <td>{{ reminder.message }}</td>
-        <td class="text-right">
-        {% can_edit reminder %}
-        {% include 'buttons/edit.html' with href='preferences:edit-reminder' id=reminder.id %}
-        {% can_delete reminder %}
-        <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-reminder' reminder.id %}">
-        <i class="fa fa-trash"></i>
-        </a>
-        {% acl_end %}
-        {% acl_end %}
-        {% history_button reminder %}
-        </td>
-    </tr>
+        <tr>
+            <td>{{ reminder.days }}</td>
+            <td>{{ reminder.message }}</td>
+            <td class="text-right">
+            {% can_edit reminder %}
+            {% include 'buttons/edit.html' with href='preferences:edit-reminder' id=reminder.id %}
+            {% acl_end %}
+            {% can_delete reminder %}
+            {% include 'buttons/suppr.html' with href='preferences:del-reminder' id=reminder.id %}
+            {% acl_end %}
+            {% history_button reminder %}
+            </td>
+        </tr>
     {% endfor %}
 </table>
 

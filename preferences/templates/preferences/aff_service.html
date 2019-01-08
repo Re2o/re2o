@@ -42,15 +42,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.description }}</td>
             <td>{{ service.image }}</td>
             <td class="text-right">
-                {% can_edit service%}
-                {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
-                {% can_delete service %}
-                <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-service' service.id %}">
-                <i class="fa fa-trash"></i>
-                </a>
-                {% acl_end %}
-                {% acl_end %}
-                {% history_button service %}
+            {% can_edit service%}
+            {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
+            {% acl_end %}
+            {% can_delete service %}
+            {% include 'buttons/suppr.html' with href='preferences:del-service' id=service.id %}
+            {% acl_end %}
+            {% history_button service %}
             </td>
         </tr>
     {% endfor %}
