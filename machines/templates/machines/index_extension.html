@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -39,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-extension' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several extensions" %}
     </a>
-    {% include "machines/aff_extension.html" with  extension_list=extension_list %}
+    {% include 'machines/aff_extension.html' with  extension_list=extension_list %}
 
     <h2>{% trans "List of SOA records" %}</h2>
     {% can_create SOA %}
@@ -50,7 +50,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-soa' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several SOA records" %}
     </a>
-    {% include "machines/aff_soa.html" with  soa_list=soa_list %}
+    {% include 'machines/aff_soa.html' with  soa_list=soa_list %}
 
     <h2>{% trans "List of MX records" %}</h2>
     {% can_create Mx %}
@@ -61,7 +61,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-mx' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several MX records" %}
     </a>
-    {% include "machines/aff_mx.html" with  mx_list=mx_list %}
+    {% include 'machines/aff_mx.html' with  mx_list=mx_list %}
 
     <h2>{% trans "List of NS records" %}</h2>
     {% can_create Ns %}
@@ -72,7 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-ns' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several NS records" %}
     </a>
-    {% include "machines/aff_ns.html" with  ns_list=ns_list %}
+    {% include 'machines/aff_ns.html' with  ns_list=ns_list %}
 
     <h2>{% trans "List of TXT records" %}</h2>
     {% can_create Txt %}
@@ -83,7 +83,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-txt' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several TXT records" %}
     </a>
-    {% include "machines/aff_txt.html" with  txt_list=txt_list %}
+    {% include 'machines/aff_txt.html' with  txt_list=txt_list %}
 
     <h2>{% trans "List of DNAME records" %}</h2>
     {% can_create DName %}
@@ -94,7 +94,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-dname' %}">
         <i class="fa fa-trash"></i> {% trans " Delete one or several DNAME records" %}
     </a>
-    {% include "machines/aff_dname.html" with  dname_list=dname_list %}
+    {% include 'machines/aff_dname.html' with  dname_list=dname_list %}
 
     <h2>{% trans "List of SRV records" %}</h2>
     {% can_create Srv %}
@@ -105,5 +105,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-srv' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several SRV records" %}
     </a>
-    {% include "machines/aff_srv.html" with  srv_list=srv_list %}
+    {% include 'machines/aff_srv.html' with  srv_list=srv_list %}
 {% endblock %}

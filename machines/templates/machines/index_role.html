@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -37,5 +37,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-role' %}"><i
             class="fa fa-trash"></i>{% trans " Delete one or several roles" %}</a>
-    {% include "machines/aff_role.html" with  role_list=role_list %}
+    {% include 'machines/aff_role.html' with  role_list=role_list %}
 {% endblock %}

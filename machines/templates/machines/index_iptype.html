@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -39,5 +39,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype' %}">
         <i class="fa fa-trash"></i>{% trans " Delete one or several IP types" %}
     </a>
-    {% include "machines/aff_iptype.html" with  iptype_list=iptype_list %}
+    {% include 'machines/aff_iptype.html' with  iptype_list=iptype_list %}
 {% endblock %}

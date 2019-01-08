@@ -201,7 +201,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         if interfaces_set:
             return str(interfaces_set.domain.name)
         else:
-            return "None"
+            return _("No name")
 
     @cached_property
     def complete_name(self):
@@ -340,7 +340,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             ("use_all_iptype", _("Can use all IP types")),
         )
         verbose_name = _("IP type")
-        verbose_name_plural = "IP types"
+        verbose_name_plural = _("IP types")
 
     @cached_property
     def ip_range(self):
@@ -534,11 +534,11 @@ class Vlan(RevMixin, AclMixin, models.Model):
     dhcpv6_snooping = models.BooleanField(default=False)
     igmp = models.BooleanField(
         default=False,
-        help_text="Gestion multicast v4"
+        help_text=_("v4 multicast management")
     )
     mld = models.BooleanField(
         default=False,
-        help_text="Gestion multicast v6"
+        help_text=_("v6 multicast management")
     )
 
     class Meta:
@@ -559,7 +559,7 @@ class Nas(RevMixin, AclMixin, models.Model):
     default_mode = '802.1X'
     AUTH = (
         ('802.1X', '802.1X'),
-        ('Mac-address', 'Mac-address'),
+        ('Mac-address', _("MAC-address")),
     )
 
     name = models.CharField(max_length=255, unique=True)
@@ -666,7 +666,7 @@ class SOA(RevMixin, AclMixin, models.Model):
         utilisée dans les migrations de la BDD. """
         return cls.objects.get_or_create(
             name=_("SOA to edit"),
-            mail="postmaser@example.com"
+            mail="postmaster@example.com"
         )[0].pk
 
 
@@ -934,7 +934,7 @@ class SshFp(RevMixin, AclMixin, models.Model):
 
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     pub_key_entry = models.TextField(
-        help_text="SSH public key",
+        help_text=_("SSH public key"),
         max_length=2048
     )
     algo = models.CharField(
@@ -942,7 +942,7 @@ class SshFp(RevMixin, AclMixin, models.Model):
         max_length=32
     )
     comment = models.CharField(
-        help_text="Comment",
+        help_text=_("Comment"),
         max_length=255,
         null=True,
         blank=True
@@ -1872,7 +1872,8 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        verbose_name = _("ports openings")
+        verbose_name = _("ports opening")
+        verbose_name_plural = _("ports openings")
 
     def __str__(self):
         if self.begin == self.end:

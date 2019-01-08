@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ mx.name }}</td>
             <td class="text-right">
                 {% can_edit mx %}
-                    {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}
                 {% acl_end %}
                 {% history_button mx %}
             </td>

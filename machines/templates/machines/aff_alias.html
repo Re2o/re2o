@@ -38,7 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ alias }}</td>
             <td class="text-right">
                 {% can_edit alias %}
-                    {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
                 {% acl_end %}
                 {% history_button alias %}
             </td>
