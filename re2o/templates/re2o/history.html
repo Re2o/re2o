@@ -1,4 +1,4 @@
-{% extends "re2o/sidebar.html" %}
+{% extends 're2o/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 <h2>{% blocktrans %}History of {{ object }}{% endblocktrans %}</h2>
-    {% include "re2o/aff_history.html" with reversions=reversions %}
+    {% include 're2o/aff_history.html' with reversions=reversions %}
     <br />
     <br />
     <br />
