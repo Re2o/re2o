@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if module_list.paginator %}
-{% include "pagination.html" with list=module_list %}
+    {% include 'pagination.html' with list=module_list %}
 {% endif %}
 
 <table class="table table-striped">
@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% trans "Reference" %}</th>
             <th>{% trans "Comment" %}</th>
-            <th>{% trans "Switchs" %}</th>
+            <th>{% trans "Switches" %}</th>
             <th></th>
         </tr>
     </thead>
@@ -45,34 +45,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ module.comment }}</td>
         <td>
         {% for module_switch in  module.moduleonswitch_set.all %}
-	<b>Slot</b> {{ module_switch.slot }} <b>of</b> {{ module_switch.switch }}
+        <b>{% trans "Slot" %}</b> {{ module_switch.slot }} <b>{% trans "of" %}</b> {{ module_switch.switch }}
             {% can_edit module_switch %}
-            <a class="btn btn-primary btn-xs" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-module-on' module_switch.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='topologie:edit-module-on' id=module_switch.id %}
             {% acl_end %}
             {% can_delete module_switch %}
-            <a class="btn btn-danger btn-xs" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-module-on' module_switch.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+            {% include 'buttons/suppr.html' with href='topologie:del-module-on' id=module_switch.id %}
             {% acl_end %}
 	<br>
 	{% endfor %}
 	</td>
         <td class="text-right">
             {% can_edit module %}
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Add" %} href="{% url 'topologie:add-module-on' %}">
-                <i class="fa fa-plus"></i>
-            </a>
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-module' module.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/add.html' with href='topologie:add-module-on' %}
+            {% include 'buttons/edit.html' with href='topologie:edit-module' id=module.id %}
             {% acl_end %}
             {% history_button module %}
             {% can_delete module %}
-            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-module' module.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+            {% include 'buttons/suppr.html' with href='topologie:del-module' id=module.id %}
             {% acl_end %}
         </td>
     </tr>
@@ -80,7 +70,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if module_list.paginator %}
-{% include "pagination.html" with list=module_list %}
+    {% include 'pagination.html' with list=module_list %}
 {% endif %}
 
 <h4>{% trans "All modular switchs" %}</h4>

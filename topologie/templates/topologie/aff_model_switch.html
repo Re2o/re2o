@@ -27,18 +27,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if model_switch_list.paginator %}
-{% include "pagination.html" with list=model_switch_list %}
+    {% include 'pagination.html' with list=model_switch_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
             {% trans "Reference" as tr_ref %}
-            <th>{% include "buttons/sort.html" with prefix='model-switch' col='reference' text=tr_ref %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='model-switch' col='reference' text=tr_ref %}</th>
             <th>{% trans "Commercial name" %}</th>
             <th>Firmware</th>
             {% trans "Switch constructor" as tr_constructor %}
-            <th>{% include "buttons/sort.html" with prefix='model-switch' col='constructor' text=tr_constructor %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='model-switch' col='constructor' text=tr_constructor %}</th>
 	    <th>{% trans "Switches" %}
 	    <th></th>
         </tr>
@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <td>{{ model_switch.reference }}</td>
         <td>{{ model_switch.commercial_name }}</td>
-        <td>{{model_switch.firmware}}</td>
+        <td>{{ model_switch.firmware }}</td>
         <td>{{ model_switch.constructor }}</td>
 	<td>
 	    {% for switch in model_switch.switch_set.all %}
@@ -58,15 +58,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	</td>
         <td class="text-right">
             {% can_edit model_switch %}
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-model-switch' model_switch.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='topologie:edit-model-switch' id=model_switch.id %}
             {% acl_end %}
             {% history_button model_switch %}
             {% can_delete model_switch %}
-            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-model-switch' model_switch.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+            {% include 'buttons/suppr.html' with href='topologie:del-model-switch' id=model_switch.id %}
             {% acl_end %}
         </td>
     </tr>
@@ -74,8 +70,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if model_switch_list.paginator %}
-{% include "pagination.html" with list=model_switch_list %}
+    {% include 'pagination.html' with list=model_switch_list %}
 {% endif %}
-		    
-		    
 

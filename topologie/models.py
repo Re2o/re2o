@@ -238,18 +238,18 @@ class Switch(AclMixin, Machine):
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        help_text="Clef radius du switch"
+        help_text=_("RADIUS key of the switch")
     )
     management_creds = models.ForeignKey(
         'preferences.SwitchManagementCred',
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        help_text="Identifiant de management de ce switch"
+        help_text=_("Management credentials for the switch")
     )
     automatic_provision = models.BooleanField(
         default=False,
-        help_text='Provision automatique de ce switch',
+        help_text=_("Automatic provision for the switch")
     )
 
 
@@ -403,11 +403,11 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     )
     is_modular = models.BooleanField(
         default=False,
-        help_text=_("Is this switch model modular"),
+        help_text=_("The switch model is modular."),
     )
     is_itself_module = models.BooleanField(
         default=False,
-        help_text=_("Is the switch, itself, considered as a module"),
+        help_text=_("The switch is considered as a module."),
     )
 
     class Meta:
@@ -441,9 +441,10 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_moduleswitch", _("Can view a module object")),
+            ("view_moduleswitch", _("Can view a switch module object")),
         )
-        verbose_name = _("Module of a switch")
+        verbose_name = _("switch module")
+        verbose_name_plural = _("switch modules")
 
 
     def __str__(self):
@@ -462,13 +463,15 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_moduleonswitch", _("Can view a moduleonswitch object")),
+            ("view_moduleonswitch", _("Can view a link between switch and"
+                                      " module object")),
         )
-        verbose_name = _("link between switchs and modules")
+        verbose_name = _("link between switch and module")
+        verbose_name_plural = _("links between switch and module")
         unique_together = ['slot', 'switch']
 
     def __str__(self):
-        return 'On slot ' + str(self.slot) + ' of ' + str(self.switch)
+        return _("On slot ") + str(self.slot) + _(" of ") + str(self.switch)
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
@@ -582,7 +585,7 @@ class Port(AclMixin, RevMixin, models.Model):
     )
     state = models.BooleanField(
         default=True,
-        help_text='Port state Active',
+        help_text=_("Port state Active"),
         verbose_name=_("Port state Active")
     )
     details = models.CharField(max_length=255, blank=True)
@@ -599,13 +602,13 @@ class Port(AclMixin, RevMixin, models.Model):
     def pretty_name(self):
         """More elaborated name for label on switch conf"""
         if self.related:
-            return "Uplink : " + self.related.switch.short_name
+            return _("Uplink: ") + self.related.switch.short_name
         elif self.machine_interface:
-            return "Machine : " + str(self.machine_interface.domain)
+            return _("Machine: ") + str(self.machine_interface.domain)
         elif self.room:
-            return "Chambre : " + str(self.room)
+            return _("Room: ") + str(self.room)
         else:
-            return "Inconnue"
+            return _("Unknown")
 
     @cached_property
     def get_port_profile(self):
@@ -720,7 +723,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     TYPES = (
         ('NO', 'NO'),
         ('802.1X', '802.1X'),
-        ('MAC-radius', 'MAC-radius'),
+        ('MAC-radius', _("MAC-RADIUS")),
     )
     MODES = (
         ('STRICT', 'STRICT'),
@@ -737,11 +740,11 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ('auto-100', 'auto-100'),
     )
     PROFIL_DEFAULT = (
-        ('room', 'room'),
-        ('access_point', 'access_point'),
-        ('uplink', 'uplink'),
-        ('asso_machine', 'asso_machine'),
-        ('nothing', 'nothing'),
+        ('room', _("Room")),
+        ('access_point', _("Access point")),
+        ('uplink', _("Uplink")),
+        ('asso_machine', _("Organisation machine")),
+        ('nothing', _("Nothing")),
     )
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     profil_default = models.CharField(
