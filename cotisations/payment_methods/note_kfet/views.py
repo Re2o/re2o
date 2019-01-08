@@ -57,7 +57,7 @@ def note_payment(request, facture, factureid):
     user = facture.user
     payment_method = find_payment_method(facture.paiement)
     if not payment_method or not isinstance(payment_method, NotePayment):
-        messages.error(request, "Erreur inconnue")
+        messages.error(request, _("Unknown error."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': user.id}
@@ -85,7 +85,7 @@ def note_payment(request, facture, factureid):
                 )
         facture.valid = True
         facture.save()
-        messages.success(request, "Le paiement par note a bien été effectué")
+        messages.success(request, _("The payment with note was done."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': user.id}

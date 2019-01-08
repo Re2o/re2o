@@ -45,9 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </td>
         <td class="text-right">
             {% can_edit paiement %}
-            <a class="btn btn-primary btn-sm" role="button" title="{% trans "Edit" %}" href="{% url 'cotisations:edit-paiement' paiement.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='cotisations:edit-paiement' id=paiement.id %}
             {% acl_end %}
             {% history_button paiement %}
         </td>

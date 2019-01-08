@@ -421,7 +421,7 @@ def edit_cost_estimate(request, invoice, **kwargs):
     return form({
         'factureform': invoice_form,
         'venteform': purchase_form,
-        'title': "Edit the cost estimate"
+        'title': _("Edit cost estimate")
     }, 'cotisations/edit_facture.html', request)
 
 
@@ -531,7 +531,7 @@ def del_cost_estimate(request, estimate, **_kwargs):
         return redirect(reverse('cotisations:index-cost-estimate'))
     return form({
         'objet': estimate,
-        'objet_name': _("Cost Estimate")
+        'objet_name': _("Cost estimate")
     }, 'cotisations/delete.html', request)
 
 
@@ -833,8 +833,8 @@ def del_banque(request, instances):
             except ProtectedError:
                 messages.error(
                     request,
-                    _("The bank %(bank_name)s can't be deleted \
-                    because there are invoices using it.") % {
+                    _("The bank %(bank_name)s can't be deleted because there"
+                      " are invoices using it.") % {
                         'bank_name': bank_del
                     }
                 )
