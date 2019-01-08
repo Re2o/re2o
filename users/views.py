@@ -1093,7 +1093,7 @@ def initial_register(request):
     client_mac = request.GET.get('client_mac', None)
     u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=switch_ip, switch_port=switch_port, client_mac=client_mac)
     if not u_form.fields:
-        messages.error(request, _("Incorrect URL, or already registered device"))
+        messages.error(request, _("Incorrect URL, or already registered device."))
         return redirect(reverse(
             'users:profil',
             kwargs={'userid': str(request.user.id)}

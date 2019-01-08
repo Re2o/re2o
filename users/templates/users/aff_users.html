@@ -26,20 +26,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
     {% if users_list.paginator %}
-    {% include "pagination.html" with list=users_list %}
+        {% include 'pagination.html' with list=users_list %}
     {% endif %}
 
     <table class="table table-striped">
         <thead>
             <tr>
                 {% trans "Firt name" as tr_name %}
-                <th>{% include "buttons/sort.html" with prefix='user' col="name" text=tr_name %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='user' col="name" text=tr_name %}</th>
                 {% trans "Surname" as tr_surname %}
-                <th>{% include "buttons/sort.html" with prefix='user' col="surname" text=tr_surname %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='user' col="surname" text=tr_surname %}</th>
                 {% trans "Username" as tr_username %}
-                <th>{% include "buttons/sort.html" with prefix='user' col="pseudo" text=tr_username %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='user' col="pseudo" text=tr_username %}</th>
                 {% trans "Room" as tr_room %}
-                <th>{% include "buttons/sort.html" with prefix='user' col="room" text=tr_room %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='user' col="room" text=tr_room %}</th>
                 <th>{% trans "End of subscription on" %}</th>
                 <th>{% trans "Internet access" %}</th>
                 <th>{% trans "Profile" %}</th>
@@ -60,7 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url "users:profil" user.id%}" class="btn btn-primary btn-sm" role="button">
+                    <a href="{% url 'users:profil' user.id%}" class="btn btn-primary btn-sm" role="button">
                         <i class="fa fa-user"></i>
                     </a>
                 </td>
@@ -69,7 +69,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
     {% if users_list.paginator %}
-    {% include "pagination.html" with list=users_list %}
+        {% include 'pagination.html' with list=users_list %}
     {% endif %}
 </div>
 

@@ -381,7 +381,7 @@ class AdherentCreationForm(AdherentForm):
                            + "using the forgotten password button on the "\
                            + "login page or contacting support.")
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
-    former_user_check.label = _("I certifie that I have not had an account before")
+    former_user_check.label = _("I certify that I have not had an account before")
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
@@ -439,7 +439,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['email'].label = _("Email Address")
+        self.fields['email'].label = _("Email address")
         if 'room' in self.fields:
             self.fields['room'].label = _("Room")
             self.fields['room'].empty_label = _("No room")

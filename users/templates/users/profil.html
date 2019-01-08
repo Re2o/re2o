@@ -1,4 +1,4 @@
-{% extends "users/sidebar.html" %}
+{% extends 'users/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -45,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">{% trans "Your account has been banned" %}</div>
                 <div class="panel-body dashboard">
-                    <i class="text-danger">{% blocktrans with end_ban=users.end_ban|date:"SHORT_DATE_FORMAT" %}End of the ban: {{ end_ban }}{% endblocktrans %}</i>
+                    <i class="text-danger">{% blocktrans with end_ban_date=users.end_ban|date:"SHORT_DATE_FORMAT" %}End of the ban: {{ end_ban_date }}{% endblocktrans %}</i>
                 </div>
             </div>
             {% elif not users.has_access %}
@@ -63,7 +63,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% else %}
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">{% blocktrans with end_connection=users.end_access|date:"SHORT_DATE_FORMAT" %}Connection (until {{ end_connection }} ){% endblocktrans %}</div>
+                <div class="panel-heading dashboard">{% blocktrans with end_connection_date=users.end_access|date:"SHORT_DATE_FORMAT" %}Connection (until {{ end_connection_date }} ){% endblocktrans %}</div>
                 <div class="panel-body dashboard">
                     {% can_create Facture %}
                     <a class="btn btn-success btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
@@ -163,7 +163,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <dd>{% trans "Mailing disabled" %}</dd>
                             {% endif %}
                         {% else %}
-                            <dt>{% trans "Firt name" %}</dt>
+                            <dt>{% trans "First name" %}</dt>
                             <dd>{{ users.name }}</dd>
                         {% endif %}
                     </div>
@@ -252,7 +252,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% elif users.state == 2 %}
                             <dd><i class="text-danger">{% trans "Archived" %}</i></dd>
                         {% elif users.state == 3 %}
-                            <dd><i class="text-danger">{% trans "Not yet Member" %}</i></dd>
+                            <dd><i class="text-danger">{% trans "Not yet member" %}</i></dd>
                         {% endif %}
                     </div>
 
@@ -260,8 +260,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <dt>{% trans "Internet access" %}</dt>
                         {% if users.has_access == True %}
                             <dd><i class="text-success">
-                                {% blocktrans with end_access=users.end_access %}Active
-                                    (until {{ end_access }}){% endblocktrans %}</i></dd>
+                                {% blocktrans with end_access=users.end_access %}Active (until {{ end_access }}){% endblocktrans %}</i></dd>
                         {% else %}
                             <dd><i class="text-danger">{% trans "Disabled" %}</i></dd>
                         {% endif %}
@@ -370,7 +369,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <h3 class="panel-title pull-left">
                 <i class="fa fa-desktop"></i>
 		{% trans "Machines" %}
-                <span class="badge">{{nb_machines}}</span>
+                <span class="badge">{{ nb_machines }}</span>
             </h3>
         </div>
         <div id="machines" class="panel-collapse collapse">
@@ -382,7 +381,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <div class="panel-body">
                 {% if machines_list %}
-                {% include "machines/aff_machines.html" with machines_list=machines_list %}
+                {% include 'machines/aff_machines.html' with machines_list=machines_list %}
                 {% else %}
 		<p>{% trans "No machine" %}</p>
                 {% endif %}
@@ -402,7 +401,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% can_create Facture %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
                     <i class="fa fa-eur"></i>
-		    {% trans "Add as subscription" %}
+		    {% trans "Add a subscription" %}
                 </a>
                 {% if user_solde %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
@@ -414,7 +413,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <div class="panel-body">
                 {% if facture_list %}
-                {% include "cotisations/aff_cotisations.html" with facture_list=facture_list %}
+                {% include 'cotisations/aff_cotisations.html' with facture_list=facture_list %}
                 {% else %}
 		<p>{% trans "No invoice" %}</p>
                 {% endif %}
@@ -439,7 +438,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <div class="panel-body">
                 {% if ban_list %}
-                {% include "users/aff_bans.html" with ban_list=ban_list %}
+                {% include 'users/aff_bans.html' with ban_list=ban_list %}
                 {% else %}
 		<p>{% trans "No ban" %}</p>
                 {% endif %}
@@ -464,7 +463,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             <div class="panel-body">
                 {% if white_list %}
-                {% include "users/aff_whitelists.html" with white_list=white_list %}
+                {% include 'users/aff_whitelists.html' with white_list=white_list %}
                 {% else %}
 		<p>{% trans "No whitelist" %}</p>
                 {% endif %}
@@ -509,7 +508,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </a>
                 {% acl_end %}
                 {% if emailaddress_list %}
-                {% include "users/aff_emailaddress.html" with emailaddress_list=emailaddress_list %}
+                {% include 'users/aff_emailaddress.html' with emailaddress_list=emailaddress_list %}
                 {% endif %}
                 {% endif %}
                 {% else %}
