@@ -23,7 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
 {% load acl %}
 {% load logs_extra %}
 {% load design %}
@@ -78,8 +77,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if solde_activated %}
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-info">
-                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
-                    {{ users.solde }} <i class="fa fa-eur"></i>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#subscriptions">
+                {{ users.solde }} <i class="fa fa-eur"></i>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
@@ -92,8 +92,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col-md-6{% endif %}">
             {% if nb_machines %}
             <div class="panel panel-info">
-                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
-                    <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#machines">
+                <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
@@ -103,7 +104,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
             {% else %}
             <div class="panel panel-warning">
-                <div class="panel-heading dashboard">{% trans "No machine" %}</div>
+                <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
+                     data-target="#machines">
+                    {% trans "No machine" %}
+                </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
                         <i class="fa fa-desktop"></i>{% trans " Add a machine" %}
@@ -117,158 +121,200 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="panel-group" id="accordion">
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse1">
-            <h3 class="panel-title pull-left" >
-		<i class="fa fa-user"></i>{% trans " Detailed information" %}
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+             data-target="#information">
+            <h3 class="panel-title pull-left">
+                <i class="fa fa-user"></i>{% trans " Detailed information" %}
             </h3>
         </div>
-        <div class="panel-collapse collapse in" id="collapse1">
-             <div class="panel-body">
-		    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
-		        <i class="fa fa-edit"></i>
-			{% trans "Edit" %}
-		    </a>
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
-                        <i class="fa fa-lock"></i>
-			{% trans "Change the password" %}
-                    </a>
-                    {% can_change User state %}
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
-                        <i class="fa fa-id-badge"></i>
-			{% trans "Change the state" %}
-                    </a>
-                    {% acl_end %}
-                    {% can_change User groups %}
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
-                        <i class="fa fa-check"></i>
-			{% trans "Edit the groups" %}
-                    </a>
-                    {% acl_end %}
-		    {% history_button users text=True %}
+        <div class="panel-collapse collapse collapse-default" id="information">
+            <div class="panel-body">
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-info' users.id %}">
+                    <i class="fa fa-edit"></i>
+                    {% trans "Edit" %}
+                </a>
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:password' users.id %}">
+                    <i class="fa fa-lock"></i>
+                    {% trans "Change the password" %}
+                </a>
+                {% can_change User state %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:state' users.id %}">
+                    <i class="fa fa-id-badge"></i>
+                    {% trans "Change the state" %}
+                </a>
+                {% acl_end %}
+                {% can_change User groups %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:groups' users.id %}">
+                    <i class="fa fa-check"></i>
+                    {% trans "Edit the groups" %}
+                </a>
+                {% acl_end %}
+                {% history_button users text=True %}
                 </ul>
             </div>
             <div class="panel-body">
-                <div class="table-responsive">
-                <table class="table table-striped">
-                    <tr>
+                <dl class="dl-horizontal row profile-info">
+                    <div class="col-md-6">
                         {% if users.is_class_club %}
-			<th>{% trans "Mailing" %}</th>
-			{% if users.club.mailing %}
-			<td>{{ users.pseudo }}(-admin)</td>
-			{% else %}
-			<td>{% trans "Mailing disabled" %}</td>
-			{% endif %}
-			{% else %}
-			<th>{% trans "Firt name" %}</th>
-                        <td>{{ users.name }}</td>
-			{% endif %}
-			<th>{% trans "Surname" %}</th>
-                        <td>{{ users.surname }}</td>
-                    </tr>
-                    <tr>
-						<th>{% trans "Username" %}</th>
-                        <td>{{ users.pseudo }}</td>
-						<th>{% trans "Email address" %}</th>
-						<td><a href="mailto:{{ users.email }}">{{users.email}}</a></td>
-                    </tr>
-                    <tr>
-			<th>{% trans "Room" %}</th>
-                    <td>{{ users.room }} {% can_view_all Port %}{% if users.room.port_set.all %} / {{ users.room.port_set.all|join:", " }} {% endif %}{% acl_end %}</td>
-			<th>{% trans "Telephone number" %}</th>
-                    <td>{{ users.telephone }}</td>
-                    </tr>
-                    <tr>
-			<th>{% trans "School" %}</th>
-                        <td>{{ users.school }}</td>
-			<th>{% trans "Comment" %}</th>
-                        <td>{{ users.comment }}</td>
-                    </tr>
-                    <tr>
-			<th>{% trans "Registration date" %}</th>
-                        <td>{{ users.registered }}</td>
-			<th>{% trans "Last login" %}</th>
-                        <td>{{ users.last_login }}</td>
-                    </tr>
-                    <tr>
-			<th>{% trans "End of membership" %}</th>
-                        {% if users.end_adhesion != None %}
-                        <td><i class="text-success">{{ users.end_adhesion }}</i></td>
+                            <dt>{% trans "Mailing" %}</dt>
+                            {% if users.club.mailing %}
+                                <dd>{{ users.pseudo }}(-admin)</dd>
+                            {% else %}
+                                <dd>{% trans "Mailing disabled" %}</dd>
+                            {% endif %}
                         {% else %}
-			<td><i class="text-danger">{% trans "Not a member" %}</i></td>
+                            <dt>{% trans "Firt name" %}</dt>
+                            <dd>{{ users.name }}</dd>
                         {% endif %}
-			<th>{% trans "Whitelist" %}</th>
-                        {% if users.end_whitelist != None %}
-                        <td><i class="text-success">{{ users.end_whitelist }}</i></td>
-                        {% else %}
-			<td><i class="text-warning">{% trans "None" %}</i></td>
-                        {% endif %}
-                    <tr>
-			<th>{% trans "Ban" %}</th>
-                        {% if users.end_ban != None %}
-                        <td><i class="text-danger">{{ users.end_ban }}</i></td>
-                        {% else %}
-			<td><i class="text-success">{% trans "Not banned" %}</i></td>
-                        {% endif %}
-			<th>{% trans "State" %}</th>
-                        {% if users.state == 0 %}
-			<td><i class="text-success">{% trans "Active" %}</i></td>
-                        {% elif users.state == 1 %}
-			<td><i class="text-warning">{% trans "Disabled" %}</i></td>
-                        {% elif users.state == 2 %}
-			<td><i class="text-danger">{% trans "Archived" %}</i></td>
-                        {% elif users.state == 3 %}
-			<td><i class="text-danger">{% trans "Not yet Member" %}</i></td>
+                    </div>
 
+                    <div class="col-md-6">
+                        <dt>{% trans "Surname" %}</dt>
+                        <dd>{{ users.surname }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Username" %}</dt>
+                        <dd>{{ users.pseudo }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Email address" %}</dt>
+                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a></dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Room" %}</dt>
+                        <dd>
+                            {{ users.room }} {% can_view_all Port %}{% if users.room.port_set.all %} /
+                            {{ users.room.port_set.all|join:", " }} {% endif %}{% acl_end %}
+                        </dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Telephone number" %}</dt>
+                        <dd>{{ users.telephone }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "School" %}</dt>
+                        <dd>{{ users.school }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Comment" %}</dt>
+                        <dd>{{ users.comment }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Registration date" %}</dt>
+                        <dd>{{ users.registered }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Last login" %}</dt>
+                        <dd>{{ users.last_login }}</dd>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "End of membership" %}</dt>
+                        {% if users.end_adhesion != None %}
+                            <dd><i class="text-success">{{ users.end_adhesion }}</i></dd>
+                        {% else %}
+                            <dd><i class="text-danger">{% trans "Not a member" %}</i></dd>
                         {% endif %}
-                    </tr>
-                    <tr>
-			<th>{% trans "Internet access" %}</th>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Whitelist" %}</dt>
+                        {% if users.end_whitelist != None %}
+                            <dd><i class="text-success">{{ users.end_whitelist }}</i></dd>
+                        {% else %}
+                            <dd><i class="text-warning">{% trans "None" %}</i></dd>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Ban" %}</dt>
+                        {% if users.end_ban != None %}
+                            <dd><i class="text-danger">{{ users.end_ban }}</i></dd>
+                        {% else %}
+                            <dd><i class="text-success">{% trans "Not banned" %}</i></dd>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "State" %}</dt>
+                        {% if users.state == 0 %}
+                            <dd><i class="text-success">{% trans "Active" %}</i></dd>
+                        {% elif users.state == 1 %}
+                            <dd><i class="text-warning">{% trans "Disabled" %}</i></dd>
+                        {% elif users.state == 2 %}
+                            <dd><i class="text-danger">{% trans "Archived" %}</i></dd>
+                        {% elif users.state == 3 %}
+                            <dd><i class="text-danger">{% trans "Not yet Member" %}</i></dd>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Internet access" %}</dt>
                         {% if users.has_access == True %}
-			<td><i class="text-success">{% blocktrans with end_access=users.end_access %}Active (until {{ end_access }}){% endblocktrans %}</i></td>
+                            <dd><i class="text-success">
+                                {% blocktrans with end_access=users.end_access %}Active
+                                    (until {{ end_access }}){% endblocktrans %}</i></dd>
                         {% else %}
-			<td><i class="text-danger">{% trans "Disabled" %}</i></td>
+                            <dd><i class="text-danger">{% trans "Disabled" %}</i></dd>
                         {% endif %}
-			<th>{% trans "Groups of rights" %}</th>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Groups of rights" %}</dt>
                         {% if users.groups.all %}
-                    <td>{{ users.groups.all|join:", "}}</td>
+                            <dd>{{ users.groups.all|join:", " }}</dd>
                         {% else %}
-			<td>{% trans "None" %}</td>
+                            <dd>{% trans "None" %}</dd>
                         {% endif %}
-                    </tr>
-                    <tr>
-			<th>{% trans "Balance" %}</th>
-                        <td>{{ users.solde }} €
-                        {% if user_solde %}
-                        <a class="btn btn-primary btn-sm" style='float:right' role="button" href="{% url 'cotisations:credit-solde' users.pk%}">
-                                <i class="fa fa-eur"></i>
-				{% trans "Refill" %}
-                        </a>
-                        {% endif %}
-			</td>
-                {% if users.adherent.gpg_fingerprint %}
-                        <th>{% trans "GPG fingerprint" %}</th>
-                        <td>{{ users.adherent.gpg_fingerprint }}</td>
-                {% endif %}
-                    </tr>
-                    <tr>
-                {% if users.shell %}
-		        <th>{% trans "Shell" %}</th>
-                        <td>{{ users.shell }}</td>
-                {% endif %}
-                    </tr>
-                </table>
-                </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dt>{% trans "Balance" %}</dt>
+                        <dd>
+                            {{ users.solde }} €
+                            {% if user_solde %}
+                                <a class="btn btn-primary btn-sm" style='float:right' role="button"
+                                   href="{% url 'cotisations:credit-solde' users.pk %}">
+                                    <i class="fa fa-eur"></i>
+                                    {% trans "Refill" %}
+                                </a>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    {% if users.adherent.gpg_fingerprint %}
+                        <div class="col-md-6 col-xs-12">
+                            <dt>{% trans "GPG fingerprint" %}</dt>
+                            <dd>{{ users.adherent.gpg_fingerprint }}</dd>
+                        </div>
+                    {% endif %}
+
+                    {% if users.shell %}
+                        <div class="col-md-6 col-xs-12">
+                            <dt>{% trans "Shell" %}</dt>
+                            <dd>{{ users.shell }}</dd>
+                        </div>
+                    {% endif %}
+                </dl>
             </div>
         </div>
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#collapse2">
+        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#club">
             <h3 class="panel-title pull-left">
 		    <i class="fa fa-users"></i>{% trans " Manage the club" %}
             </h3>
         </div>
-        <div class="panel-collapse collapse" id="collapse2">
+        <div class="panel-collapse collapse" id="club">
             <div class="panel-body">
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
                     <i class="fa fa-lock"></i>
@@ -319,14 +365,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     {% endif %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse3">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+             data-target="#machines">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-desktop"></i>
 		{% trans "Machines" %}
                 <span class="badge">{{nb_machines}}</span>
             </h3>
         </div>
-        <div id="collapse3" class="panel-collapse collapse">
+        <div id="machines" class="panel-collapse collapse">
             <div class="panel-body">
                <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
                    <i class="fa fa-desktop"></i>
@@ -343,13 +390,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse4">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+             data-target="#subscriptions">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-eur"></i>
 		{% trans "Subscriptions" %}
             </h3>
         </div>
-        <div id="collapse4" class="panel-collapse collapse">
+        <div id="subscriptions" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_create Facture %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
@@ -374,13 +422,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse5">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#bans">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-ban"></i>
 		{% trans "Bans" %}
             </h3>
         </div>
-        <div id="collapse5" class="panel-collapse collapse">
+        <div id="bans" class="panel-collapse collapse">
              <div class="panel-body">
              	{% can_create Ban %}
               	<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-ban' users.id %}">
@@ -399,13 +447,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse6">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#whitelists">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-check-circle"></i>
 		{% trans "Whitelists" %}
             </h3>
         </div>
-        <div id="collapse6" class="panel-collapse collapse">
+        <div id="whitelists" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_create Whitelist %}
 				<a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-whitelist' users.id %}">
@@ -424,12 +472,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#collapse7">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#email">
             <h3 class="panel-title pull-left">
                 <i class="fa fa-envelope"></i>{% trans " Email settings" %}
             </h3>
         </div>
-        <div id="collapse7" class="panel-collapse collapse">
+        <div id="email" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_edit users %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-email-settings' users.id %}">

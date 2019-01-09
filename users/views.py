@@ -57,8 +57,10 @@ from preferences.models import OptionalUser, GeneralOption, AssoOption
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
-    SortTable,
-    re2o_paginator
+)
+from re2o.base import (
+    re2o_paginator,
+    SortTable
 )
 from re2o.acl import (
     can_create,

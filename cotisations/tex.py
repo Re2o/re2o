@@ -36,6 +36,7 @@ from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
+import logging
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -48,8 +49,9 @@ def render_invoice(_request, ctx={}):
     Render an invoice using some available information such as the current
     date, the user, the articles, the prices, ...
     """
+    is_estimate = ctx.get('is_estimate', False)
     filename = '_'.join([
-        'invoice',
+        'cost_estimate' if is_estimate else 'invoice',
         slugify(ctx.get('asso_name', "")),
         slugify(ctx.get('recipient_name', "")),
         str(ctx.get('DATE', datetime.now()).year),
@@ -91,6 +93,20 @@ def create_pdf(template, ctx={}):
             pdf = f.read()
 
     return pdf
+
+
+def escape_chars(string):
+    """Escape the '%' and the '€' signs to avoid messing with LaTeX"""
+    if not isinstance(string, str):
+        return string
+    mapping = (
+        ('€', r'\euro'),
+        ('%', r'\%'),
+    )
+    r = str(string)
+    for k, v in mapping:
+        r = r.replace(k, v)
+    return r
 
 
 def render_tex(_request, template, ctx={}):

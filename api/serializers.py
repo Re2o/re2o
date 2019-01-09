@@ -391,11 +391,23 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = preferences.OptionalTopologie
-        fields = ('radius_general_policy', 'vlan_decision_ok',
-                  'vlan_decision_nok', 'switchs_ip_type', 'switchs_web_management',
+        fields = ('switchs_ip_type', 'switchs_web_management',
                   'switchs_web_management_ssl', 'switchs_rest_management',
                   'switchs_management_utils', 'switchs_management_interface_ip',
                   'provision_switchs_enabled', 'switchs_provision', 'switchs_management_sftp_creds')
+
+
+class RadiusOptionSerializer(NamespacedHMSerializer):
+    """Serialize `preferences.models.RadiusOption` objects
+    """
+
+    class Meta:
+        model = preferences.RadiusOption
+        fields = ('radius_general_policy', 'unknown_machine',
+                'unknown_machine_vlan', 'unknown_port',
+                'unknown_port_vlan', 'unknown_room', 'unknown_room_vlan',
+                'non_member', 'non_member_vlan', 'banned', 'banned_vlan',
+                'vlan_decision_ok')
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
@@ -407,9 +419,8 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
         fields = ('general_message_fr', 'general_message_en',
                   'search_display_page', 'pagination_number',
                   'pagination_large_number', 'req_expire_hrs',
-                  'site_name', 'email_from', 'GTU_sum_up',
-                  'GTU')
-
+                  'site_name', 'main_site_url', 'email_from',
+                  'GTU_sum_up', 'GTU')
 
 class HomeServiceSerializer(NamespacedHMSerializer):
     """Serialize `preferences.models.Service` objects.
@@ -633,9 +644,8 @@ class AdherentSerializer(NamespacedHMSerializer):
         }
 
 
-class HomeCreationSerializer(NamespacedHMSerializer):
-    """Serialize 'users.models.User' minimal infos to create home
-    """
+class BasicUserSerializer(NamespacedHMSerializer):
+    """Serialize 'users.models.User' minimal infos"""
     uid = serializers.IntegerField(source='uid_number')
     gid = serializers.IntegerField(source='gid_number')
 
@@ -813,7 +823,8 @@ class SwitchPortSerializer(serializers.ModelSerializer):
         model = topologie.Switch
         fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6',
                   'interfaces_subnet', 'interfaces6_subnet', 'automatic_provision', 'rest_enabled',
-                  'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value')
+                  'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value',
+                  'list_modules')
 
 # LOCAL EMAILS
 
@@ -1001,6 +1012,17 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
         model = machines.Domain
         fields = ('alias', 'hostname')
 
+class DNAMERecordSerializer(serializers.ModelSerializer):
+    """Serialize `machines.models.Domain` objects with the data needed to
+    generate a DNAME DNS record.
+    """
+    alias = serializers.CharField(read_only=True)
+    zone = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = machines.DName
+        fields = ('alias', 'zone')
+
 
 class DNSZonesSerializer(serializers.ModelSerializer):
     """Serialize the data about DNS Zones.
@@ -1015,14 +1037,14 @@ class DNSZonesSerializer(serializers.ModelSerializer):
     a_records = ARecordSerializer(many=True, source='get_associated_a_records')
     aaaa_records = AAAARecordSerializer(many=True, source='get_associated_aaaa_records')
     cname_records = CNAMERecordSerializer(many=True, source='get_associated_cname_records')
+    dname_records = DNAMERecordSerializer(many=True, source='get_associated_dname_records')
     sshfp_records = SSHFPInterfaceSerializer(many=True, source='get_associated_sshfp_records')
 
     class Meta:
         model = machines.Extension
         fields = ('name', 'soa', 'ns_records', 'originv4', 'originv6',
                   'mx_records', 'txt_records', 'srv_records', 'a_records',
-                  'aaaa_records', 'cname_records', 'sshfp_records')
-
+                  'aaaa_records', 'cname_records', 'dname_records', 'sshfp_records')
 #REMINDER
 
 

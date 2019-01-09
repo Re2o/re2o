@@ -273,6 +273,7 @@ class ExtensionForm(FormRevMixin, ModelForm):
         self.fields['origin'].label = _("A record origin")
         self.fields['origin_v6'].label = _("AAAA record origin")
         self.fields['soa'].label = _("SOA record to use")
+        self.fields['dnssec'].label = _("Sign with DNSSEC")
 
 
 class DelExtensionForm(FormRevMixin, Form):

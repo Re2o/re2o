@@ -81,6 +81,7 @@ from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+from re2o.base import smtp_check
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -93,7 +94,7 @@ from preferences.models import OptionalMachine, MailMessageOption
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-z][a-z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
@@ -336,7 +337,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_active(self):
         """Enable this user if he subscribed successfully one time before"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
+            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists() or OptionalUser.get_cached_value('all_users_active'):
                 self.state = self.STATE_ACTIVE
                 self.save()
 
@@ -474,7 +475,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie si un utilisateur a accès à internet """
         return (self.state == User.STATE_ACTIVE and
                 not self.is_ban() and
-                (self.is_connected() or self.is_whitelisted()))
+                (self.is_connected() or self.is_whitelisted())) \
+                or self == AssoOption.get_cached_value('utilisateur_asso')
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
@@ -576,7 +578,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        if sys.version_info[0] >= 3:
+        if sys.version_info[0] >= 3 and self.state != self.STATE_ARCHIVE and\
+           self.state != self.STATE_DISABLED:
             self.refresh_from_db()
             try:
                 user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
@@ -693,10 +696,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
-        all_interfaces = self.user_interfaces(active=False)
-        if all_interfaces.count() > OptionalMachine.get_cached_value(
-            'max_lambdauser_interfaces'
-        ):
+        allowed, _message = Machine.can_create(self, self.id)
+        if not allowed:
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
             return False, _("Re2o doesn't know wich machine type to assign.")
@@ -1025,17 +1026,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             ):
             raise ValidationError("This pseudo is already in use.")
         if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
-            raise ValidationError(
-                {'email': (
-                    _("There is neither a local email address nor an external"
+            raise ValidationError(_("There is neither a local email address nor an external"
                       " email address for this user.")
-                ), }
             )
         if self.local_email_redirect and not self.email:
-            raise ValidationError(
-                {'local_email_redirect': (
-                _("You can't redirect your local emails if no external email"
-                  " address has been set.")), }
+            raise ValidationError(_("You can't redirect your local emails if no external email"
+                  " address has been set.")
             )
 
     def __str__(self):
@@ -1054,19 +1050,26 @@ class Adherent(User):
         null=True
     )
     gpg_fingerprint = models.CharField(
-        max_length=40,
+        max_length=49,
         blank=True,
         null=True,
-        validators=[RegexValidator(
-            '^[0-9A-F]{40}$',
-            message=_("A GPG fingerprint must contain 40 hexadecimal"
-                      " characters.")
-        )]
     )
 
     class Meta(User.Meta):
         verbose_name = _("member")
         verbose_name_plural = _("members")
+
+    def format_gpgfp(self):
+        """Format gpg finger print as AAAA BBBB... from a string AAAABBBB...."""
+        self.gpg_fingerprint = ' '.join([self.gpg_fingerprint[i:i + 4] for i in range(0, len(self.gpg_fingerprint), 4)])
+
+    def validate_gpgfp(self):
+        """Validate from raw entry if is it a valid gpg fp"""
+        if self.gpg_fingerprint:
+            gpg_fingerprint = self.gpg_fingerprint.replace(' ', '').upper()
+            if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
+                raise ValidationError(_("A gpg fingerprint must contain 40 hexadecimal carracters"))
+            self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):
@@ -1097,6 +1100,13 @@ class Adherent(User):
                     user_request.has_perm('users.add_user'),
                     _("You don't have the right to create a user.")
                 )
+
+    def clean(self, *args, **kwargs):
+        """Format the GPG fingerprint"""
+        super(Adherent, self).clean(*args, **kwargs)
+        if self.gpg_fingerprint:
+            self.validate_gpgfp()
+            self.format_gpgfp()
 
 
 class Club(User):
@@ -1889,6 +1899,9 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
 
     def clean(self, *args, **kwargs):
         self.local_part = self.local_part.lower()
-        if "@" in self.local_part:
-            raise ValidationError(_("The local part must not contain @."))
+        if "@" in self.local_part or "+" in self.local_part:
+            raise ValidationError(_("The local part must not contain @ or +."))
+        result, reason = smtp_check(self.local_part)
+        if result:
+            raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)

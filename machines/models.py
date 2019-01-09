@@ -696,6 +696,10 @@ class Extension(RevMixin, AclMixin, models.Model):
         'SOA',
         on_delete=models.CASCADE
     )
+    dnssec = models.BooleanField(
+        default=False,
+        help_text=_("Should the zone be signed with DNSSEC")
+    )
 
     class Meta:
         permissions = (
@@ -740,6 +744,9 @@ class Extension(RevMixin, AclMixin, models.Model):
                 .filter(extension=self)
                 .filter(cname__interface_parent__in=all_active_assigned_interfaces())
                 .prefetch_related('cname'))
+
+    def get_associated_dname_records(self):
+        return (DName.objects.filter(alias=self))
 
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
@@ -1089,7 +1096,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                       .get_cached_value('ipv6_mode') == 'DHCPV6'):
             return self.ipv6list.filter(slaac_ip=False)
         else:
-            return None
+            return []
 
     def mac_bare(self):
         """ Formatage de la mac type mac_bare"""
@@ -1373,7 +1380,10 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 .filter(interface=self.interface, slaac_ip=True)
                 .exclude(id=self.id)):
             raise ValidationError(_("A SLAAC IP address is already registered."))
-        prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        try:
+            prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        except AttributeError: # Prevents from crashing when there is no defined prefix_v6
+            prefix_v6 = None
         if prefix_v6:
             if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                     IPv6Address(prefix_v6).exploded[:20]):
@@ -1602,7 +1612,7 @@ class Role(RevMixin, AclMixin, models.Model):
     ROLE = (
         ('dhcp-server', _("DHCP server")),
         ('switch-conf-server', _("Switches configuration server")),
-        ('dns-recursif-server', _("Recursive DNS server")),
+        ('dns-recursive-server', _("Recursive DNS server")),
         ('ntp-server', _("NTP server")),
         ('radius-server', _("RADIUS server")),
         ('log-server', _("Log server")),
@@ -1632,18 +1642,6 @@ class Role(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("server roles")
 
     @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Role instance with roleid.
-
-        Args:
-            roleid: The id
-
-        Returns:
-            The role.
-        """
-        return cls.objects.get(pk=roleid)
-
-    @classmethod
     def interface_for_roletype(cls, roletype):
         """Return interfaces for a roletype"""
         return Interface.objects.filter(
@@ -1656,14 +1654,6 @@ class Role(RevMixin, AclMixin, models.Model):
         return Interface.objects.filter(
             machine__interface__role=cls.objects.filter(specific_role=roletype)
         )
-
-    @classmethod
-    def get_instance(cls, roleid, *_args, **_kwargs):
-        """Get the Machine instance with machineid.
-        :param userid: The id
-        :return: The user
-        """
-        return cls.objects.get(pk=roleid)
 
     @classmethod
     def interface_for_roletype(cls, roletype):

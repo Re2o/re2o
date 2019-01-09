@@ -252,6 +252,7 @@ class Switch(AclMixin, Machine):
         help_text='Provision automatique de ce switch',
     )
 
+
     class Meta:
         unique_together = ('stack', 'stack_member_id')
         permissions = (
@@ -281,31 +282,18 @@ class Switch(AclMixin, Machine):
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
         sont cohérentes. """
-
-        s_begin = s_end = 0
-        nb_ports = self.ports.count()
-        if nb_ports > 0:
-            ports = self.ports.order_by('port').values('port')
-            s_begin = ports.first().get('port')
-            s_end = ports.last().get('port')
-
         if end < begin:
             raise ValidationError(_("The end port is less than the start"
                                     " port."))
-        if end - begin > self.number:
+        ports_to_create = range(begin, end + 1)
+        existing_ports = Port.objects.filter(switch=self.switch).values_list('port', flat=True)
+        non_existing_ports = list(set(ports_to_create) - set(existing_ports))
+
+        if len(non_existing_ports) + existing_ports.count() > self.number:
             raise ValidationError(_("This switch can't have that many ports."))
-        begin_range = range(begin, s_begin)
-        end_range = range(s_end+1, end+1)
-        for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = self
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_comment(_("Creation"))
-            except IntegrityError:
-                ValidationError(_("Creation of an existing port."))
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_comment(_("Creation"))
+            Port.objects.bulk_create([Port(switch=self.switch, port=port_id) for port_id in non_existing_ports])
 
     def main_interface(self):
         """ Returns the 'main' interface of the switch
@@ -317,7 +305,7 @@ class Switch(AclMixin, Machine):
 
     @cached_property
     def get_name(self):
-        return self.name or self.main_interface().domain.name
+        return self.name or getattr(self.main_interface(), 'domain', 'Unknown')
 
     @cached_property
     def get_radius_key(self):
@@ -380,6 +368,17 @@ class Switch(AclMixin, Machine):
         """Return dict ip6:subnet for all ipv6 of the switch"""
         return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
+    @cached_property
+    def list_modules(self):
+        """Return modules of that switch, list of dict (rank, reference)"""
+        modules = []
+        if getattr(self.model, 'is_modular', None):
+            if self.model.is_itself_module:
+                modules.append((1, self.model.reference))
+            for module_of_self in self.moduleonswitch_set.all():
+                modules.append((module_of_self.slot, module_of_self.module.reference))
+        return modules
+
     def __str__(self):
         return str(self.get_name)
 
@@ -402,6 +401,14 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         null=True,
         blank=True
     )
+    is_modular = models.BooleanField(
+        default=False,
+        help_text=_("Is this switch model modular"),
+    )
+    is_itself_module = models.BooleanField(
+        default=False,
+        help_text=_("Is the switch, itself, considered as a module"),
+    )
 
     class Meta:
         permissions = (
@@ -415,6 +422,53 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
             return str(self.constructor) + ' ' + str(self.commercial_name)
         else:
             return str(self.constructor) + ' ' + self.reference
+
+
+class ModuleSwitch(AclMixin, RevMixin, models.Model):
+    """A module of a switch"""
+    reference = models.CharField(
+        max_length=255,
+        help_text=_("Reference of a module"),
+        verbose_name=_("Module reference")
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text=_("Comment"),
+        verbose_name=_("Comment")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleswitch", _("Can view a module object")),
+        )
+        verbose_name = _("Module of a switch")
+
+
+    def __str__(self):
+        return str(self.reference)
+
+
+class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
+    """Link beetween module and switch"""
+    module = models.ForeignKey('ModuleSwitch', on_delete=models.CASCADE)
+    switch = models.ForeignKey('Switch', on_delete=models.CASCADE)
+    slot = models.CharField(
+        max_length=15,
+        help_text=_("Slot on switch"),
+        verbose_name=_("Slot")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleonswitch", _("Can view a moduleonswitch object")),
+        )
+        verbose_name = _("link between switchs and modules")
+        unique_together = ['slot', 'switch']
+
+    def __str__(self):
+        return 'On slot ' + str(self.slot) + ' of ' + str(self.switch)
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):

@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 <form class="form" method="post">
     {% csrf_token %}
-    {% massive_bootstrap_form topoform 'room,related,machine_interface,members,vlan_tagged' %}
+    {% massive_bootstrap_form topoform 'room,related,machine_interface,members,vlan_tagged,switch' %}
     {% bootstrap_button action_name icon='ok' button_class='btn-success' %}
 </form>
   <br />

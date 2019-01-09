@@ -45,7 +45,8 @@ from django.utils.safestring import mark_safe
 from machines.models import Interface, Machine, Nas
 from topologie.models import Port
 from preferences.models import OptionalUser
-from re2o.utils import remove_user_room, get_input_formats_help_text
+from re2o.utils import remove_user_room
+from re2o.base import get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -116,6 +117,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Changement du mot de passe"""
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
+        user.set_active()
         user.save()
 
 
@@ -323,14 +325,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
 
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
-            return self.cleaned_data.get('email').lower()
-        else:
-            raise forms.ValidationError(
-                    _("You can't use a {} address.").format(
-                        OptionalUser.objects.first().local_email_domain))
-
     class Meta:
         model = Adherent
         fields = [
@@ -344,6 +338,19 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'room',
         ]
 
+    force = forms.BooleanField(
+        label=_("Force the move?"),
+        initial=False,
+        required=False
+    )
+
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain))
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -355,18 +362,13 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             )
         return telephone
 
-    force = forms.BooleanField(
-        label=_("Force the move?"),
-        initial=False,
-        required=False
-    )
-
     def clean_force(self):
         """On supprime l'ancien user de la chambre si et seulement si la
         case est cochée"""
         if self.cleaned_data.get('force', False):
             remove_user_room(self.cleaned_data.get('room'))
         return
+
 
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
@@ -383,8 +385,22 @@ class AdherentCreationForm(AdherentForm):
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
-    gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
-        _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+    #gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
+    #    _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'state',
+        ]
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
@@ -397,12 +413,6 @@ class AdherentEditForm(AdherentForm):
        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
        if 'shell' in self.fields:
            self.fields['shell'].empty_label = _("Default shell")
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
 
     class Meta:
         model = Adherent
@@ -429,6 +439,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
+        self.fields['email'].label = _("Email Address")
         if 'room' in self.fields:
             self.fields['room'].label = _("Room")
             self.fields['room'].empty_label = _("No room")
@@ -443,7 +454,9 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'room',
+            'email',
             'telephone',
+            'email',
             'shell',
             'mailing'
         ]
@@ -488,13 +501,14 @@ class PasswordForm(FormRevMixin, ModelForm):
 
 
 class ServiceUserForm(FormRevMixin, ModelForm):
-    """ Modification d'un service user"""
+    """Service user creation
+    force initial password set"""
     password = forms.CharField(
         label=_("New password"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
-        required=False
+        required=True
     )
 
     class Meta:
@@ -506,7 +520,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
-        """Changement du mot de passe"""
+        """Password change"""
         user = super(ServiceUserForm, self).save(commit=False)
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data.get("password"))
@@ -516,6 +530,14 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 class EditServiceUserForm(ServiceUserForm):
     """Formulaire d'edition de base d'un service user. Ne permet
     d'editer que son group d'acl et son commentaire"""
+    password = forms.CharField(
+        label=_("New password"),
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput,
+        required=False
+    )
+
     class Meta(ServiceUserForm.Meta):
         fields = ['access_group', 'comment']
 
