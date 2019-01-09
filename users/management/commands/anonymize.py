@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from users.models import User, School, Adherent, Club
 from machines.models import Domain, Machine
+from reversion.models import Revision
 from django.db.models import F, Value
 from django.db.models import Q
 from django.db.models.functions import Concat
@@ -85,6 +86,10 @@ class Command(BaseCommand):
 
             u.update(pwd_ntlm = hashNT(password))
             u.update(password = makeSecret(password))
+            self.stdout.write(self.style.SUCCESS('done...'))
+
+            self.stdout.write('Suppression de l\'historique (This may take some time)')
+            Revision.objects.all().delete()
             self.stdout.write(self.style.SUCCESS('done...'))
 
             self.stdout.write("Data anonymized!")
