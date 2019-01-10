@@ -289,7 +289,7 @@ def check_user_machine_and_register(nas_type, username, mac_address):
     Renvoie le mot de passe ntlm de l'user si tout est ok
     Utilise pour les authentifications en 802.1X"""
     interface = Interface.objects.filter(mac_address=mac_address).first()
-    user = User.objects.filter(pseudo=username).first()
+    user = User.objects.filter(pseudo__iexact=username).first()
     if not user:
         return (False, u"User inconnu", '')
     if not user.has_access():
