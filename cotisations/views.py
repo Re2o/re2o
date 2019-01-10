@@ -88,7 +88,7 @@ from .forms import (
     DocumentTemplateForm,
     DelDocumentTemplateForm
 )
-from .tex import render_invoice, escape_chars
+from .tex import render_invoice, render_voucher, escape_chars
 from .payment_methods.forms import payment_method_factory
 from .utils import find_payment_method
 
@@ -220,6 +220,7 @@ def new_cost_estimate(request):
                     number=quantity
                 )
         discount_form.apply_to_invoice(cost_estimate_instance)
+
         messages.success(
             request,
             _("The cost estimate was created.")
@@ -485,7 +486,6 @@ def cost_estimate_pdf(request, invoice, **_kwargs):
     invoice with the total price, the payment method, the address and the
     legal information for the user.
     """
-    # TODO : change vente to purchase
     purchases_objects = Vente.objects.all().filter(facture=invoice)
     # Get the article list and build an list out of it
     # contiaining (article_name, article_price, quantity, total_price)
@@ -1144,4 +1144,31 @@ def index_document_template(request):
     document_template_list = DocumentTemplate.objects.order_by('name')
     return render(request, 'cotisations/index_document_template.html', {
         'document_template_list': document_template_list
+    })
+
+
+@login_required
+@can_view(Facture)
+def voucher_pdf(request, invoice, **_kwargs):
+    """
+    View used to generate a PDF file from a controlled invoice
+    Creates a line for each Purchase (thus article sold) and generate the
+    invoice with the total price, the payment method, the address and the
+    legal information for the user.
+    """
+    if not invoice.control:
+        messages.error(
+            request,
+            _("Could not find a voucher for that invoice.")
+        )
+        return redirect(reverse('cotisations:index'))
+    return render_voucher(request, {
+        'asso_name': AssoOption.get_cached_value('name'),
+        'pres_name': AssoOption.get_cached_value('pres_name'),
+        'firstname': invoice.user.name,
+        'lastname': invoice.user.surname,
+        'email': invoice.user.email,
+        'phone': invoice.user.telephone,
+        'date_end': invoice.get_subscription().latest('date_end').date_end,
+        'date_begin': invoice.get_subscription().earliest('date_start').date_start
     })

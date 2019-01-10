@@ -343,6 +343,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Description of the organisation" %}</th>
                 <td>{{ assooptions.description|safe }}</td>
             </tr>
+            <tr>
+                <th>{% trans "President of the association"%}</th>
+                <td>{{ assooptions.pres_name }}</td>
+            </tr>
         </table>
     </div>
 </div>
@@ -360,6 +364,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Invoices' template" %}</th>
                 <td>{{ cotisationsoptions.invoice_template }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Vouchers' template" %}</th>
+                <td>{{ cotisationsoptions.voucher_template }}</td>
             </tr>
         </table>
     </div>

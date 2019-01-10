@@ -50,7 +50,9 @@ from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method, send_mail_invoice
+from cotisations.utils import (
+    find_payment_method, send_mail_invoice, send_mail_voucher
+)
 from cotisations.validators import check_no_balance
 
 
@@ -238,20 +240,22 @@ class Facture(BaseInvoice):
         self.__original_valid = self.valid
         self.__original_control = self.control
 
-    def get_subscribtion(self):
-        return self.vent_set.filter(
-            Q(type_cotisation='All') |
-            Q(type_cotisation='Cotisation')
+    def get_subscription(self):
+        return Cotisation.objects.filter(
+            vente__in=self.vente_set.filter(
+                Q(type_cotisation='All') |
+                Q(type_cotisation='Cotisation')
+            )
         )
 
-    def is_subscribtion(self):
-        return bool(self.get_subscribtion())
+    def is_subscription(self):
+        return bool(self.get_subscription())
 
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
         if not self.__original_valid and self.valid:
             send_mail_invoice(self)
-        if self.is_subscribtion() and not self.__original_control and self.control:
+        if self.is_subscription() and not self.__original_control and self.control:
             send_mail_voucher(self)
 
     def __str__(self):
@@ -267,10 +271,6 @@ def facture_post_save(**kwargs):
         user = facture.user
         user.set_active()
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
-    if facture.control:
-        user = facture.user
-        if user.is_adherent():
-            user.notif_subscription_accepted()
 
 
 @receiver(post_delete, sender=Facture)
@@ -955,7 +955,7 @@ def cotisation_post_delete(**_kwargs):
 
 class DocumentTemplate(RevMixin, AclMixin, models.Model):
     """Represent a template in order to create documents such as invoice or
-    subscribtion voucher.
+    subscription voucher.
     """
     template = models.FileField(
         upload_to='templates/',
@@ -972,18 +972,3 @@ class DocumentTemplate(RevMixin, AclMixin, models.Model):
 
     def __str__(self):
         return str(self.name)
-
-
-class Voucher(RevMixin, AclMixin, models.Model):
-    """A Subscription Voucher."""
-    user = models.ForeignKey(
-        'users.User',
-        on_delete=models.CASCADE,
-        verbose_name=_("user")
-    )
-
-    class Meta:
-        verbose_name = _("subscription voucher")
-
-    def __str__(self):
-        return "voucher {} {}".format(self.user, self.date)

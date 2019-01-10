@@ -331,7 +331,8 @@ copy_templates_files() {
 
     echo "Copying LaTeX templates ..."
     mkdir -p media/templates/
-    cp cotisations/templates/cotisations/factures.tex media/templates
+    cp cotisations/templates/cotisations/factures.tex media/templates/default_invoice.tex
+    cp cotisations/templates/cotisations/voucher.tex media/templates/default_voucher.tex
     echo "Copying LaTeX templates: Done"
 }
 

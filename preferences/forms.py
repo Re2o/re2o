@@ -183,9 +183,6 @@ class EditAssoOptionForm(ModelForm):
         self.fields['pseudo'].label = _("Usual name")
         self.fields['utilisateur_asso'].label = _("Account used for editing"
                                                   " from /admin")
-        self.fields['payment'].label = _("Payment")
-        self.fields['payment_id'].label = _("Payment ID")
-        self.fields['payment_pass'].label = _("Payment password")
         self.fields['description'].label = _("Description")
 
 

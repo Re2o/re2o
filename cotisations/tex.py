@@ -79,13 +79,14 @@ def render_voucher(_request, ctx={}):
     filename = '_'.join([
         'voucher',
         slugify(ctx.get('asso_name', "")),
-        slugify(ctx.get('recipient_name', "")),
-        str(ctx.get('DATE', datetime.now()).year),
-        str(ctx.get('DATE', datetime.now()).month),
-        str(ctx.get('DATE', datetime.now()).day),
+        slugify(ctx.get('firstname', "")),
+        slugify(ctx.get('lastname', "")),
+        str(ctx.get('date_begin', datetime.now()).year),
+        str(ctx.get('date_begin', datetime.now()).month),
+        str(ctx.get('date_begin', datetime.now()).day),
     ])
     templatename = options.voucher_template.template.name.split('/')[-1]
-    r = create_pdf(templatename, ctx)
+    r = render_tex(_request, templatename, ctx)
     r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
         name=filename
     )
@@ -110,12 +111,13 @@ def create_pdf(template, ctx={}):
 
     with tempfile.TemporaryDirectory() as tempdir:
         for _ in range(2):
-            process = Popen(
-                ['pdflatex', '-output-directory', tempdir],
-                stdin=PIPE,
-                stdout=PIPE,
-            )
-            process.communicate(rendered_tpl)
+            with open("/var/www/re2o/out.log", "w") as f:
+                process = Popen(
+                    ['pdflatex', '-output-directory', tempdir],
+                    stdin=PIPE,
+                    stdout=f,#PIPE,
+                )
+                process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
 

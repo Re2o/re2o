@@ -521,6 +521,12 @@ class AssoOption(AclMixin, PreferencesModel):
         null=True,
         blank=True,
     )
+    pres_name = models.CharField(
+        max_length=255,
+        default="",
+        verbose_name=_("President of the association"),
+        help_text=_("Displayed on subscription vouchers")
+    )
 
     class Meta:
         permissions = (

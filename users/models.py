@@ -663,26 +663,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )
         return
 
-    def notif_subscription_accepted(self):
-        """Send an email when the subscription has been accepted"""
-        template = loader.get_template('users/email_subscription_accepted')
-        mailmessageoptions, _created = MailMessageOption\
-            .objects.get_or_create()
-        context = Context({
-            'nom': self.get_full_name(),
-            'asso_name': AssoOption.get_cached_value('name'),
-            'asso_email': AssoOption.get_cached_value('contact'),
-        })
-        send_mail(
-            'Votre inscription a été validée / Your subscription has been accepted',
-            '',
-            GeneralOption.get_cached_value('email_from'),
-            [self.email],
-            html_message=template.render(context)
-        )
-        return
-
-   def reset_passwd_mail(self, request):
+    def reset_passwd_mail(self, request):
         """ Prend en argument un request, envoie un mail de
         réinitialisation de mot de pass """
         req = Request()

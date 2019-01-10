@@ -52,6 +52,11 @@ urlpatterns = [
         name='facture-pdf'
     ),
     url(
+        r'^voucher_pdf/(?P<factureid>[0-9]+)$',
+        views.voucher_pdf,
+        name='voucher-pdf'
+    ),
+    url(
         r'^new_cost_estimate/$',
         views.new_cost_estimate,
         name='new-cost-estimate'
