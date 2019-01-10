@@ -164,3 +164,17 @@ Collec new statics
 ```bash
 python3 manage.py collectstatic
 ```
+
+## MR 391: Document templates and subscription vouchers
+
+Re2o can now use templates for generated invoices. To load default templates run
+
+```bash
+./install update
+```
+
+Be carefull, you need the proper rights to edit a DocumentTemplate.
+
+Re2o now sends subscription voucher when an invoice is controlled. It uses one
+of the templates. You also need to set the name of the president of your association
+to be set in your settings.
