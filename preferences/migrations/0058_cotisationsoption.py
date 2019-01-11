@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('cotisations', '0039_documenttemplate'),
-        ('preferences', '0056_4_radiusoption'),
+        ('preferences', '0057_optionaluser_all_users_active'),
     ]
 
     operations = [
