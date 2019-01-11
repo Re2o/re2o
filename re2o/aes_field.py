@@ -82,16 +82,22 @@ class AESEncryptedField(models.CharField):
             return None
         try:
             return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode('utf-8')
-        except Exception as e:
-            raise ValueError(value)
+        except UnicodeDecodeError as e:
+            raise ValueError(
+                "Could not decode your field %s, your settings.AES_KEY "
+                "is probably wrong." % self.name
+            )
 
     def from_db_value(self, value, *args, **kwargs):
         if value is None:
             return value
         try:
             return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode('utf-8')
-        except Exception as e:
-            raise ValueError(value)
+        except UnicodeDecodeError as e:
+            raise ValueError(
+                "Could not decode your field %s, your settings.AES_KEY "
+                "is probably wrong." % self.name
+            )
 
     def get_prep_value(self, value):
         if value is None:
