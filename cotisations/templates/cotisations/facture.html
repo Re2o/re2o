@@ -74,8 +74,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </div>
     <input class="btn btn-primary btn-block" role="button" value="{% trans "Add an extra article"%}" id="add_one">
-    <h3>{% trans "Discount" %}</h3>
     {% if discount_form %}
+    <h3>{% trans "Discount" %}</h3>
     {% bootstrap_form discount_form %}
     {% endif %}
     <p>
