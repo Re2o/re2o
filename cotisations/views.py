@@ -1170,5 +1170,5 @@ def voucher_pdf(request, invoice, **_kwargs):
         'email': invoice.user.email,
         'phone': invoice.user.telephone,
         'date_end': invoice.get_subscription().latest('date_end').date_end,
-        'date_begin': invoice.get_subscription().earliest('date_start').date_start
+        'date_begin': invoice.date
     })
