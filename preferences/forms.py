@@ -231,6 +231,27 @@ class EditRadiusOptionForm(ModelForm):
         model = RadiusOption
         fields = '__all__'
 
+    def clean(self):
+        cleaned_data = super().clean()
+        ignored=('radius_general_policy', 'vlan_decision_ok')
+        fields = (
+            f for f in self.fields.keys()
+            if 'vlan' not in f and f not in ignored
+        )
+        for f in fields:
+            choice = cleaned_data.get(f)
+            vlan = cleaned_data.get(f+'_vlan')
+            if choice == RadiusOption.SET_VLAN and vlan is None:
+                self.add_error(
+                    f,
+                    _("You chose to set vlan but did not set any VLAN."),
+                )
+                self.add_error(
+                    f+'_vlan',
+                    _("Please, choose a VLAN."),
+                )
+        return cleaned_data
+
 
 class ServiceForm(ModelForm):
     """Edition, ajout de services sur la page d'accueil"""
