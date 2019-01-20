@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0058_cotisationsoption'),
+        ('preferences', '0059_cotisationsoption'),
     ]
 
     operations = [
