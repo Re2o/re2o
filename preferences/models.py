@@ -729,3 +729,7 @@ class CotisationsOption(AclMixin, PreferencesModel):
         on_delete=models.PROTECT,
         default=default_voucher,
     )
+    send_voucher_mail = models.BooleanField(
+        verbose_name=_("Send voucher by email when the invoice is controlled."),
+        default=False,
+    )

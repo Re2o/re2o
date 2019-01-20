@@ -46,6 +46,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
 
+from preferences.models import CotisationsOption
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
@@ -255,7 +256,10 @@ class Facture(BaseInvoice):
         super(Facture, self).save(*args, **kwargs)
         if not self.__original_valid and self.valid:
             send_mail_invoice(self)
-        if self.is_subscription() and not self.__original_control and self.control:
+        if self.is_subscription() \
+            and not self.__original_control \
+            and self.control \
+            and CotisationsOption.get_cached_value('send_voucher_mail'):
             send_mail_voucher(self)
 
     def __str__(self):

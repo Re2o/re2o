@@ -362,6 +362,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </a>
         <table class="table table-striped">
             <tr>
+                <th>{% trans "Send voucher by email" %}</th>
+                <td>{{ cotisationsoptions.send_voucher_mail | tick }}</th>
+            </tr>
+            <tr>
                 <th>{% trans "Invoices' template" %}</th>
                 <td>{{ cotisationsoptions.invoice_template }}</td>
             </tr>
