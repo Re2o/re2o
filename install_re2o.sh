@@ -333,6 +333,7 @@ copy_templates_files() {
     mkdir -p media/templates/
     cp cotisations/templates/cotisations/factures.tex media/templates/default_invoice.tex
     cp cotisations/templates/cotisations/voucher.tex media/templates/default_voucher.tex
+    chown -R www-data:www-data media/templates/
     echo "Copying LaTeX templates: Done"
 }
 

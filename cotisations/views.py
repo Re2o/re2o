@@ -1062,7 +1062,10 @@ def add_document_template(request):
     """
     View used to add a document template.
     """
-    document_template = DocumentTemplateForm(request.POST or None)
+    document_template = DocumentTemplateForm(
+        request.POST or None,
+        request.FILES or None,
+    )
     if document_template.is_valid():
         document_template.save()
         messages.success(
@@ -1084,7 +1087,9 @@ def edit_document_template(request, document_template_instance, **_kwargs):
     View used to edit a document_template.
     """
     document_template = DocumentTemplateForm(
-        request.POST or None, instance=document_template_instance)
+        request.POST or None,
+        request.FILES or None,
+        instance=document_template_instance)
     if document_template.is_valid():
         if document_template.changed_data:
             document_template.save()
