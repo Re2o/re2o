@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td><a href="{{template.template.url}}">{{template.template}}</a></td>
         <td class="text-right">
         {% can_edit template %}
-        {% include 'buttons/edit.html' with href='cotisations:edit-document-template' id=template.id %}
+        {% include 'buttons/edit.html' with href='preferences:edit-document-template' id=template.id %}
         {% acl_end %}
         {% history_button template %}
         </td>

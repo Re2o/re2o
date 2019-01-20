@@ -350,6 +350,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </table>
     </div>
 </div>
+<div  class="panel panel-default" id="templates">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_templates">
+        <h4 class="panel-title">
+            <a><i class="fa fa-edit"></i>   {% trans "Document templates" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_templates" class="panel-collapse panel-body collapse">
+        {% can_create DocumentTemplate %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-document-template' %}">
+            <i class="fa fa-cart-plus"></i> {% trans "Add a document template" %}
+        </a>
+        {% acl_end %}
+        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-document-template' %}">
+            <i class="fa fa-trash"></i> {% trans "Delete one or several document templates" %}
+        </a>
+        {% include 'preferences/aff_document_template.html' %}
+    </div>
+</div>
+
 <div  class="panel panel-default" id="cotisation">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_cotisation">
         <h4 class="panel-title">

@@ -33,7 +33,6 @@ each.
 
 from __future__ import unicode_literals
 from dateutil.relativedelta import relativedelta
-import os
 
 from django.db import models
 from django.db.models import Q, Max
@@ -956,56 +955,3 @@ def cotisation_post_delete(**_kwargs):
     """
     regen('mac_ip_list')
     regen('mailing')
-
-
-class DocumentTemplate(RevMixin, AclMixin, models.Model):
-    """Represent a template in order to create documents such as invoice or
-    subscription voucher.
-    """
-    template = models.FileField(
-        upload_to='templates/',
-        verbose_name=_('template')
-    )
-    name = models.CharField(
-        max_length=125,
-        verbose_name=_('name'),
-        unique=True
-    )
-
-    class Meta:
-        verbose_name = _("document template")
-        verbose_name_plural = _("document templates")
-
-    def __str__(self):
-        return str(self.name)
-
-@receiver(models.signals.post_delete, sender=DocumentTemplate)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `DocumentTemplate` object is deleted.
-    """
-    if instance.template:
-        if os.path.isfile(instance.template.path):
-            os.remove(instance.template.path)
-
-
-@receiver(models.signals.pre_save, sender=DocumentTemplate)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `DocumentTemplate` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = DocumentTemplate.objects.get(pk=instance.pk).template
-    except DocumentTemplate.DoesNotExist:
-        return False
-
-    new_file = instance.template
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
