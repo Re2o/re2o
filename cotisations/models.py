@@ -967,8 +967,9 @@ class DocumentTemplate(RevMixin, AclMixin, models.Model):
         verbose_name=_('template')
     )
     name = models.CharField(
-        max_length=255,
-        verbose_name=_('name')
+        max_length=125,
+        verbose_name=_('name'),
+        unique=True
     )
 
     class Meta:
