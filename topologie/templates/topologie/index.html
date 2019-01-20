@@ -1,4 +1,4 @@
-{% extends "topologie/sidebar.html" %}
+{% extends 'topologie/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -68,7 +68,7 @@ function toggle_graph() {
 <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i>{% trans " Add a switch" %}</a>
 <hr>
 {% acl_end %}
-    {% include "topologie/aff_switch.html" with switch_list=switch_list %}
+    {% include 'topologie/aff_switch.html' with switch_list=switch_list %}
     <br />
     <br />
     <br />

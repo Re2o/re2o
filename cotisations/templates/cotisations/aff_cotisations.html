@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
 {% if facture_list.paginator %}
-{% include 'pagination.html' with list=facture_list %}
+    {% include 'pagination.html' with list=facture_list %}
 {% endif %}
 
     <table class="table table-striped">
@@ -89,7 +89,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
 {% if facture_list.paginator %}
-{% include 'pagination.html' with list=facture_list %}
+    {% include 'pagination.html' with list=facture_list %}
 {% endif %}
 </div>
 

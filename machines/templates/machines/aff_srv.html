@@ -52,7 +52,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ srv.target }}</td>
             <td class="text-right">
                 {% can_edit srv %}
-                    {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-srv' id=srv.id %}
                 {% acl_end %}
                 {% history_button srv %}
             </td>

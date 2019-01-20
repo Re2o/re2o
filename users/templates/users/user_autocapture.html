@@ -1,4 +1,4 @@
-{% extends "users/sidebar.html" %}
+{% extends 'users/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -41,19 +41,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="row">
         <div class="col-sm-6 col-md-6">
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">{% blocktrans %}Connected from :{% endblocktrans %}</div>
+                <div class="panel-heading dashboard">{% trans "Connected from:" %}</div>
                     <div class="panel-body dashboard">
-                        <h5>{% blocktrans %}Room {% endblocktrans %}    {{ port.room }}</h5>
-                        <h5>{% blocktrans %}Port {% endblocktrans %}    {{ port }}</h5>
+                        <h5>{% blocktrans with room=port.room %}Room {{ room }}{% endblocktrans %}</h5>
+                        <h5>{% blocktrans %}Port {{ port }}{% endblocktrans %}</h5>
                             <h3>{{ userform.register_room }} {{ userform.register_room.label }}</h3>
                     </div>
                 </div>
         </div>
         <div class="col-sm-6 col-md-6">
             <div class="panel panel-success">
-                <div class="panel-heading dashboard">{% blocktrans %}Connected with device :{% endblocktrans %}</div>
+                <div class="panel-heading dashboard">{% trans "Connected with device:" %}</div>
                     <div class="panel-body dashboard">
-                        <h5>{% blocktrans %}Mac address {% endblocktrans %}   {{ mac }}</h5>
+                        <h5>{% blocktrans %}MAC address {{ mac }}{% endblocktrans %}</h5>
                             <h3>{{ userform.register_machine }} {{ userform.register_machine.label }}</h3>
                     </div>
             </div>
@@ -61,7 +61,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 </div>
 
-<center>{% bootstrap_button "Ok" button_type="submit" icon='ok' button_class='btn-success' %}</center>
+<center>{% bootstrap_button _("OK") button_type="submit" icon='ok' button_class='btn-success' %}</center>
 </form>
 
 

@@ -116,7 +116,7 @@ class DiscountForm(Form):
     Form used in oder to create a discount on an invoice.
     """
     is_relative = forms.BooleanField(
-        label=_("Discount is on percentage"),
+        label=_("Discount is on percentage."),
         required=False,
     )
     discount = forms.DecimalField(
@@ -310,8 +310,8 @@ class RechargeForm(FormRevMixin, Form):
         if balance_method.maximum_balance is not None and \
            value + self.user.solde > balance_method.maximum_balance:
             raise forms.ValidationError(
-                _("Requested amount is too high. Your balance can't exceed \
-                %(max_online_balance)s €.") % {
+                _("Requested amount is too high. Your balance can't exceed"
+                  " %(max_online_balance)s €.") % {
                     'max_online_balance': balance_method.maximum_balance
                 }
             )

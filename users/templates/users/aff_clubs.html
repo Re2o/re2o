@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if clubs_list.paginator %}
-{% include "pagination.html" with list=clubs_list %}
+    {% include 'pagination.html' with list=clubs_list %}
 {% endif %}
 
 {% load acl %}
@@ -34,11 +34,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             {% trans "Name" as tr_name %}
-            <th>{% include "buttons/sort.html" with prefix='club' col="surname" text=tr_name %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='club' col="surname" text=tr_name %}</th>
             {% trans "Username" as tr_username %}
-            <th>{% include "buttons/sort.html" with prefix='club' col="pseudo" text=tr_username %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='club' col="pseudo" text=tr_username %}</th>
             {% trans "Room" as tr_room %}
-            <th>{% include "buttons/sort.html" with prefix='club' col="room" text=tr_room %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='club' col="room" text=tr_room %}</th>
             <th>{% trans "End of subscription on" %}</th>
             <th>{% trans "Internet access" %}</th>
             <th>{% trans "Profile" %}</th>
@@ -58,7 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% endif %}
             </td>
             <td>
-                <a href="{% url "users:profil" club.id%}" class="btn btn-primary btn-sm" role="button">
+                <a href="{% url 'users:profil' club.id%}" class="btn btn-primary btn-sm" role="button">
                     <i class="fa fa-user"></i>
                 </a>
             </td>
@@ -68,6 +68,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if clubs_list.paginator %}
-{% include "pagination.html" with list=clubs_list %}
+    {% include 'pagination.html' with list=clubs_list %}
 {% endif %}
 

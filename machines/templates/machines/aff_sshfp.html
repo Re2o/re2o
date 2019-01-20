@@ -41,11 +41,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ sshfp.comment }}</td>
                 <td class="text-right">
                     {% can_edit sshfp %}
-                        {% include 'buttons/edit.html' with href='machines:edit-sshfp' id=sshfp.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-sshfp' id=sshfp.id %}
                     {% acl_end %}
                     {% history_button sshfp %}
                     {% can_delete sshfp %}
-                        {% include 'buttons/suppr.html' with href='machines:del-sshfp' id=sshfp.id %}
+                    {% include 'buttons/suppr.html' with href='machines:del-sshfp' id=sshfp.id %}
                     {% acl_end %}
                 </td>
             </tr>

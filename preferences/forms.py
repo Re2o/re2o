@@ -359,7 +359,7 @@ class DelMailContactForm(Form):
     """Delete contact email adress"""
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
-        label="Enregistrements adresses actuels",
+        label=_("Current email addresses"),
         widget=forms.CheckboxSelectMultiple
     )
 

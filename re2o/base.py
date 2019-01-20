@@ -73,9 +73,9 @@ def smtp_check(local_part):
         reply_code = srv.getreply()[0]
         srv.close()
         if reply_code in [250, 252]:
-            return True, _("This domain is already taken")
+            return True, _("This domain is already taken.")
     except:
-        return True, _("Smtp unreachable")
+        return True, _("SMTP unreachable.")
     return False, None
 
 

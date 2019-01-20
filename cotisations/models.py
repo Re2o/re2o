@@ -341,7 +341,7 @@ class CostEstimate(CustomInvoice):
                             "to delete a cost estimate.")
         if self.final_invoice is not None:
             return False, _("The cost estimate has an "
-                            "invoice and cannot be deleted.")
+                            "invoice and can't be deleted.")
         return True, None
 
 

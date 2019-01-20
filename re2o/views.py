@@ -84,7 +84,7 @@ def about_page(request):
         git_info_commit = last_commit.hexsha
         git_info_commit_date = last_commit.committed_datetime
     except:
-        NO_GIT_MSG = _("Unable to get the information")
+        NO_GIT_MSG = _("Unable to get the information.")
         git_info_remote = NO_GIT_MSG
         git_info_branch = NO_GIT_MSG
         git_info_commit = NO_GIT_MSG

@@ -1,4 +1,4 @@
-{% extends "re2o/sidebar.html" %}
+{% extends 're2o/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <div class="caption">
                     <h3>{% trans "Registration" %}</h3>
                     <p>{% trans "If you don't have an account yet and you want to access the Internet and the organisation's services, create your own personal account." %}</p>
-                    <p><a href="{% url 'users:new-user' %}" class="btn btn-primary" role="button">{% trans "Registration" %}</a></p>
+                    <p><a href="{% url 'users:new-user' %}" class="btn btn-primary" role="button">{% trans "Sign up" %}</a></p>
                 </div>
             </div>
         </div>
@@ -53,8 +53,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="thumbnail">
                 <div class="caption">
                     <h3>{% trans "Logging in" %}</h3>
-                    <p>{% trans "If you already have an account, log in. You can manage your subscription to the organisation, your machines and all your services." %}</p>
-                    <p><a href="{% url 'login' %}" class="btn btn-primary" role="button">{% trans "Logging in" %}</a></p>
+                    <p>{% trans "If you already have an account, log in. You can manage your subscriptions to the organisation, your machines and all your services." %}</p>
+                    <p><a href="{% url 'login' %}" class="btn btn-primary" role="button">{% trans "Log in" %}</a></p>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="thumbnail">
                 <div class="caption">
                     <h3>{% trans "My profile" %}</h3>
-                    <p>{% trans "To manage your subscription, your machines and all your services, access your profile." %}</p>
+                    <p>{% trans "To manage your subscriptions, your machines and all your services, access your profile." %}</p>
                     <p><a href="{% url 'users:mon-profil' %}" class="btn btn-primary" role="button">{% trans "Access my profile" %}</a></p>
                 </div>
             </div>

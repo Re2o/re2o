@@ -1,4 +1,4 @@
-{% extends "cotisations/sidebar.html" %}
+{% extends 'cotisations/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -28,9 +28,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Custom invoices" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Custom invoices list" %}</h2>
+<h2>{% trans "List of custom invoices" %}</h2>
 {% can_create CustomInvoice %}
-{% include "buttons/add.html" with href='cotisations:new-custom-invoice'%}
+{% include 'buttons/add.html' with href='cotisations:new-custom-invoice'%}
 {% acl_end %}
 {% include 'cotisations/aff_custom_invoice.html' with custom_invoice_list=custom_invoice_list %}
 {% endblock %}

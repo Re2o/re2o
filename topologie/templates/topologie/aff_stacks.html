@@ -30,9 +30,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             {% trans "Stack" as tr_stack %}
-            <th>{% include "buttons/sort.html" with prefix='stack' col='name' text=tr_stack %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='stack' col='name' text=tr_stack %}</th>
             {% trans "ID" as tr_id %}
-            <th>{% include "buttons/sort.html" with prefix='stack' col='id' text=id %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='stack' col='id' text=id %}</th>
             <th>{% trans "Details" %}</th>
             <th>{% trans "Members" %}</th>
             <th></th>
@@ -45,22 +45,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ stack.details }}</td>
             <td>
             {% for switch in stack.switch_set.all %}
-                <a href="{% url 'topologie:index-port' switch.pk %}">
+                <a href="{% url 'topologie:index-port' switch.id %}">
                     {{ switch }}
                 </a>
             {% endfor %}
             </td>
             <td class="text-right">
                 {% can_edit stack %}
-                <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-stack' stack.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
+                {% include 'buttons/edit.html' with href='topologie:edit-stack' id=stack.id %}
                 {% acl_end %}
                 {% history_button stack %}
                 {% can_delete stack %}
-                <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-stack' stack.pk %}">
-                    <i class="fa fa-trash"></i>
-                </a>
+                {% include 'buttons/suppr.html' with href='topologie:del-stack' id=stack.id %}
                 {% acl_end %}
             </td>
         </tr>

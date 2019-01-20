@@ -344,10 +344,10 @@ def edit_vlanoptions(request, vlan_instance, **_kwargs):
     if vlan.is_valid():
         if vlan.changed_data:
             vlan.save()
-            messages.success(request, "Vlan modifié")
+            messages.success(request, _("The VLAN was edited."))
         return redirect(reverse('topologie:index-port-profile'))
     return form(
-        {'vlanform': vlan, 'action_name': 'Editer'},
+        {'vlanform': vlan, 'action_name': _("Edit")},
         'machines/machine.html',
         request
     )
@@ -551,7 +551,7 @@ def create_ports(request, switchid):
     try:
         switch = Switch.objects.get(pk=switchid)
     except Switch.DoesNotExist:
-        messages.error(request, _("Nonexistent switch"))
+        messages.error(request, _("Nonexistent switch."))
         return redirect(reverse('topologie:index'))
  
     first_port = getattr(switch.ports.order_by('port').first(), 'port', 1)
@@ -742,7 +742,7 @@ def new_room(request):
         messages.success(request, _("The room was created."))
         return redirect(reverse('topologie:index-room'))
     return form(
-        {'topoform': room, 'action_name': _("Add")},
+        {'topoform': room, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -794,10 +794,10 @@ def new_model_switch(request):
     model_switch = EditModelSwitchForm(request.POST or None)
     if model_switch.is_valid():
         model_switch.save()
-        messages.success(request, _("The swich model was created."))
+        messages.success(request, _("The switch model was created."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': model_switch, 'action_name': _("Add")},
+        {'topoform': model_switch, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -856,7 +856,7 @@ def new_switch_bay(request):
         messages.success(request, _("The switch bay was created."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': switch_bay, 'action_name': _("Add")},
+        {'topoform': switch_bay, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -911,7 +911,7 @@ def new_building(request):
         messages.success(request, _("The building was created."))
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
-        {'topoform': building, 'action_name': _("Add")},
+        {'topoform': building, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -966,7 +966,7 @@ def new_constructor_switch(request):
         messages.success(request, _("The switch constructor was created."))
         return redirect(reverse('topologie:index-model-switch'))
     return form(
-        {'topoform': constructor_switch, 'action_name': _("Add")},
+        {'topoform': constructor_switch, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -1078,7 +1078,7 @@ def add_module(request):
         messages.success(request, _("The module was created."))
         return redirect(reverse('topologie:index-module'))
     return form(
-        {'topoform': module, 'action_name': _("Create a module")},
+        {'topoform': module, 'action_name': _("Create")},
         'topologie/topo.html',
         request
     )
@@ -1129,10 +1129,10 @@ def add_module_on(request):
     module_switch = EditSwitchModuleForm(request.POST or None)
     if module_switch.is_valid():
         module_switch.save()
-        messages.success(request, _("The module added to that switch"))
+        messages.success(request, _("The module was added."))
         return redirect(reverse('topologie:index-module'))
     return form(
-        {'topoform': module_switch, 'action_name': _("Create")},
+        {'topoform': module_switch, 'action_name': _("Add")},
         'topologie/topo.html',
         request
     )

@@ -31,16 +31,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 {% trans "Port" as tr_port %}
-                <th>{% include "buttons/sort.html" with prefix='port' col='port' text=tr_port %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='port' col='port' text=tr_port %}</th>
                 {%  if search %}
                     <th>{% trans "Switch" %}</th>
                 {% endif %}
                 {% trans "Room" as tr_room %}
-                <th>{% include "buttons/sort.html" with prefix='port' col='room' text=tr_room %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='port' col='room' text=tr_room %}</th>
                 {% trans "Interface" as tr_interface %}
-                <th>{% include "buttons/sort.html" with prefix='port' col='interface' text=tr_interface %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='port' col='interface' text=tr_interface %}</th>
                 {% trans "Related port" as tr_related_port %}
-                <th>{% include "buttons/sort.html" with prefix='port' col='related' text=tr_related_port %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='port' col='related' text=tr_related_port %}</th>
                 <th>{% trans "Port state" %}</th>
                 <th>{% trans "Port profile" %}</th>
                 <th>{% trans "Details" %}</th>
@@ -96,15 +96,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ port.details }}</td>
                 <td class="text-right">
                     {% can_edit port %}
-                    <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-port' port.id %}">
-                        <i class="fa fa-edit"></i>
-                    </a>
+                    {% include 'buttons/edit.html' with href='topologie:edit-port' id=port.id %}
                     {% acl_end %}
                     {% history_button port %}
                     {% can_delete port %}
-                    <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-port' port.pk %}">
-                        <i class="fa fa-trash"></i>
-                    </a>
+                    {% include 'buttons/suppr.html' with href='topologie:del-port' id=port.id %}
                     {% acl_end %}
                 </td>
             </tr>

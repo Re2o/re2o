@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load acl %}
+{% load i18n %}
 
 <div class="table-responsive" style="font-size: 12px">
     <table class="table table-bordered text-center text-nowrap">
@@ -63,7 +64,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </td>
                 {% else %}
                 <td class="p-3 mb-2 bg-info text-dark">
-                    Vide
+                   {% trans "Empty" %}
                 </td>
                 {% endif %}
                 {% endfor %}
@@ -106,7 +107,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </td>
                 {% else %}
                 <td class="p-3 mb-2 bg-info text-dark">
-                    Vide
+                    {% trans "Empty" %}
                 </td>
                 {% endif %}
                 {% endfor %}

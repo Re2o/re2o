@@ -45,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{% for range in vlan.iptype_set.all %}{{ range }}, {% endfor %}</td>
                 <td class="text-right">
                     {% can_edit vlan %}
-                        {% include 'buttons/edit.html' with href='machines:edit-vlan' id=vlan.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-vlan' id=vlan.id %}
                     {% acl_end %}
                     {% history_button vlan %}
                 </td>

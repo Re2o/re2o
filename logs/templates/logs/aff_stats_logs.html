@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% if revisions_list.paginator %}
-{% include "pagination.html" with list=revisions_list %}
+    {% include 'pagination.html' with list=revisions_list %}
 {% endif %}
 
 {% load logs_extra %}
@@ -36,9 +36,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% trans "Edited object" %}</th>
             <th>{% trans "Object type" %}</th>
             {% trans "Edited by" as tr_edited_by %}
-            <th>{% include "buttons/sort.html" with prefix='logs' col='author' text=tr_edited_by %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='logs' col='author' text=tr_edited_by %}</th>
             {% trans "Date of editing" as tr_date_of_editing %}
-            <th>{% include "buttons/sort.html" with prefix='logs' col='date' text=tr_date_of_editing %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='logs' col='date' text=tr_date_of_editing %}</th>
             <th>{% trans "Comment" %}</th>
             <th></th>
         </tr>
@@ -65,6 +65,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if revisions_list.paginator %}
-{% include "pagination.html" with list=revisions_list %}
+    {% include 'pagination.html' with list=revisions_list %}
 {% endif %}
 

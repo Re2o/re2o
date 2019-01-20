@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 
 {% if emailaddress_list.paginator %}
-{% include "pagination.html" with list=emailaddress_list %}
+    {% include 'pagination.html' with list=emailaddress_list %}
 {% endif %}
 
 <table class="table table-striped">
@@ -53,6 +53,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
 {% if emailaddress_list.paginator %}
-{% include "pagination.html" with list=emailaddress_list %}
+    {% include 'pagination.html' with list=emailaddress_list %}
 {% endif %}
 

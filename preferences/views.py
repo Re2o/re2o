@@ -111,7 +111,7 @@ def edit_options(request, section):
     model = getattr(models, section, None)
     form_instance = getattr(forms, 'Edit' + section + 'Form', None)
     if not (model or form_instance):
-        messages.error(request, _("Unknown object"))
+        messages.error(request, _("Unknown object."))
         return redirect(reverse('preferences:display-options'))
 
     options_instance, _created = model.objects.get_or_create()
@@ -186,7 +186,7 @@ def del_service(request, service_instance, **_kwargs):
     """Suppression d'un service de la page d'accueil"""
     if request.method == "POST":
         service_instance.delete()
-        messages.success(request, "Le service a été détruit")
+        messages.success(request, _("The service was deleted."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': service_instance, 'objet_name': 'service'},
@@ -204,7 +204,7 @@ def add_reminder(request):
         messages.success(request, _("The reminder was added."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': reminder, 'action_name': _("Add a service")},
+        {'preferenceform': reminder, 'action_name': _("Add a reminder")},
         'preferences/preferences.html',
         request
         )
@@ -220,7 +220,7 @@ def edit_reminder(request, reminder_instance, **_kwargs):
     )
     if reminder.is_valid():
         reminder.save()
-        messages.success(request, _("The service was edited."))
+        messages.success(request, _("The reminder was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'preferenceform': reminder, 'action_name': _("Edit")},
@@ -236,7 +236,7 @@ def del_reminder(request, reminder_instance, **_kwargs):
     """Destruction d'un reminder"""
     if request.method == "POST":
         reminder_instance.delete()
-        messages.success(request, "Le reminder a été détruit")
+        messages.success(request, _("The reminder was deleted."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': reminder_instance, 'objet_name': 'reminder'},
@@ -252,10 +252,10 @@ def add_radiuskey(request):
     radiuskey = RadiusKeyForm(request.POST or None)
     if radiuskey.is_valid():
         radiuskey.save()
-        messages.success(request, "Cette clef a été ajouté")
+        messages.success(request, _("The RADIUS key was added."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': radiuskey, 'action_name': 'Ajouter'},
+        {'preferenceform': radiuskey, 'action_name': _("Add a RADIUS key")},
         'preferences/preferences.html',
         request
         )
@@ -266,10 +266,10 @@ def edit_radiuskey(request, radiuskey_instance, **_kwargs):
     radiuskey = RadiusKeyForm(request.POST or None, instance=radiuskey_instance)
     if radiuskey.is_valid():
         radiuskey.save()
-        messages.success(request, "Radiuskey modifié")
+        messages.success(request, _("The RADIUS key was edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': radiuskey, 'action_name': 'Editer'},
+        {'preferenceform': radiuskey, 'action_name': _("Edit")},
         'preferences/preferences.html',
         request
     )
@@ -282,10 +282,10 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
     if request.method == "POST":
         try:
             radiuskey_instance.delete()
-            messages.success(request, "La radiuskey a été détruite")
+            messages.success(request, _("The RADIUS key was deleted."))
         except ProtectedError:
-            messages.error(request, "Erreur la\
-                clef ne peut être supprimé, elle est affectée à des switchs")
+            messages.error(request, _("The RADIUS key is assigned to at least"
+                                      " one switch, you can't delete it."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': radiuskey_instance, 'objet_name': 'radiuskey'},
@@ -301,10 +301,10 @@ def add_switchmanagementcred(request):
     switchmanagementcred = SwitchManagementCredForm(request.POST or None)
     if switchmanagementcred.is_valid():
         switchmanagementcred.save()
-        messages.success(request, "Ces creds ont été ajoutés")
+        messages.success(request, _("The switch management credentials were added."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': switchmanagementcred, 'action_name': 'Ajouter'},
+        {'preferenceform': switchmanagementcred, 'action_name': _("Add switch management credentials")},
         'preferences/preferences.html',
         request
         )
@@ -315,10 +315,10 @@ def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs)
     switchmanagementcred = SwitchManagementCredForm(request.POST or None, instance=switchmanagementcred_instance)
     if switchmanagementcred.is_valid():
         switchmanagementcred.save()
-        messages.success(request, "Creds de managament modifié")
+        messages.success(request, _("The switch management credentials were edited."))
         return redirect(reverse('preferences:display-options'))
     return form(
-        {'preferenceform': switchmanagementcred, 'action_name': 'Editer'},
+        {'preferenceform': switchmanagementcred, 'action_name': _("Edit")},
         'preferences/preferences.html',
         request
     )
@@ -331,10 +331,11 @@ def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
     if request.method == "POST":
         try:
             switchmanagementcred_instance.delete()
-            messages.success(request, "Ces creds ont été détruits")
+            messages.success(request, _("The switch management credentials were deleted."))
         except ProtectedError:
-            messages.error(request, "Erreur ces\
-                creds ne peuvent être supprimés, ils sont affectés à des switchs")
+            messages.error(request, _("The switch management credentials are"
+                                      " assigned to at least one switch, you"
+                                      " can't delete them."))
         return redirect(reverse('preferences:display-options'))
     return form(
         {'objet': switchmanagementcred_instance, 'objet_name': 'switchmanagementcred'},

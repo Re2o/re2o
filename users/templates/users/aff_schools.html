@@ -28,14 +28,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
     {% if school_list.paginator %}
-    {% include "pagination.html" with list=school_list %}
+        {% include 'pagination.html' with list=school_list %}
     {% endif %}
 
     <table class="table table-striped">
         <thead>
             <tr>
                 {% trans "School" as tr_school %}
-	        <th>{% include "buttons/sort.html" with prefix='school' col='name' text=tr_school %}</th>
+	        <th>{% include 'buttons/sort.html' with prefix='school' col='name' text=tr_school %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -53,7 +53,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
     {% if school_list.paginator %}
-    {% include "pagination.html" with list=school_list %}
+        {% include 'pagination.html' with list=school_list %}
     {% endif %}
 </div>
 

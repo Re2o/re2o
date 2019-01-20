@@ -56,7 +56,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ type.ouverture_ports }}</td>
                 <td class="text-right">
                     {% can_edit type %}
-                        {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
                     {% acl_end %}
                     {% history_button type %}
                 </td>

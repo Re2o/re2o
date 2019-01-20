@@ -1,4 +1,4 @@
-{% extends "topologie/sidebar.html" %}
+{% extends 'topologie/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% bootstrap_form_errors topoform %}
 
 {% if id_switch %}
-<a class="btn btn-primary" href="{% url "topologie:index-port" id_switch %}" role="button">{% bootstrap_icon "list" %}{% trans " Go to the ports list" %}</a>
+<a class="btn btn-primary" href="{% url 'topologie:index-port' id_switch %}" role="button">{% bootstrap_icon "list" %}{% trans " Go to the ports list" %}</a>
 {% endif %}
 <form class="form" method="post">
     {% csrf_token %}
