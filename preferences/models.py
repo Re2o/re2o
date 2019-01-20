@@ -35,6 +35,7 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 import machines.models
+import cotisations.models
 
 from re2o.mixins import AclMixin
 from re2o.aes_field import AESEncryptedField
@@ -694,6 +695,22 @@ class RadiusOption(AclMixin, PreferencesModel):
     )
 
 
+def default_invoice():
+    tpl, _ = cotisations.models.DocumentTemplate.objects.get_or_create(
+        name="Re2o default invoice",
+        template="templates/default_invoice.tex"
+    )
+    return tpl.id
+
+
+def default_voucher():
+    tpl, _ = cotisations.models.DocumentTemplate.objects.get_or_create(
+        name="Re2o default voucher",
+        template="templates/default_voucher.tex"
+    )
+    return tpl.id
+
+
 class CotisationsOption(AclMixin, PreferencesModel):
     class Meta:
         verbose_name = _("cotisations options")
@@ -703,10 +720,12 @@ class CotisationsOption(AclMixin, PreferencesModel):
         verbose_name=_("Template for invoices"),
         related_name="invoice_template",
         on_delete=models.PROTECT,
+        default=default_invoice,
     )
     voucher_template = models.OneToOneField(
         'cotisations.DocumentTemplate',
         verbose_name=_("Template for subscription voucher"),
         related_name="voucher_template",
         on_delete=models.PROTECT,
+        default=default_voucher,
     )

@@ -797,8 +797,8 @@ main_function() {
 
         update )
             install_requirements
-            update_django
             copy_templates_files
+            update_django
             ;;
 
         copy-templates-files )
