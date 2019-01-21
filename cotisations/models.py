@@ -242,14 +242,16 @@ class Facture(BaseInvoice):
         self.__original_control = self.control
 
     def get_subscription(self):
+        """Returns every subscription associated with this invoice."""
         return Cotisation.objects.filter(
             vente__in=self.vente_set.filter(
                 Q(type_cotisation='All') |
-                Q(type_cotisation='Cotisation')
+                Q(type_cotisation='Adhesion')
             )
         )
 
     def is_subscription(self):
+        """Returns True if this invoice contains at least one subscribtion."""
         return bool(self.get_subscription())
 
     def save(self, *args, **kwargs):
@@ -257,13 +259,14 @@ class Facture(BaseInvoice):
         if not self.__original_valid and self.valid:
             send_mail_invoice(self)
         if self.is_subscription() \
-            and not self.__original_control \
-            and self.control \
-            and CotisationsOption.get_cached_value('send_voucher_mail'):
+                and not self.__original_control \
+                and self.control \
+                and CotisationsOption.get_cached_value('send_voucher_mail'):
             send_mail_voucher(self)
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
+
 
 @receiver(post_save, sender=Facture)
 def facture_post_save(**kwargs):
@@ -795,7 +798,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         if payment_method is not None and use_payment_method:
             return payment_method.end_payment(invoice, request)
 
-        ## So make this invoice valid, trigger send mail
+        # So make this invoice valid, trigger send mail
         invoice.valid = True
         invoice.save()
 
