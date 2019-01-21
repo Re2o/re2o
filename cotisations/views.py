@@ -69,7 +69,7 @@ from .models import (
     Banque,
     CustomInvoice,
     BaseInvoice,
-    CostEstimate
+    CostEstimate,
 )
 from .forms import (
     FactureForm,
@@ -85,7 +85,7 @@ from .forms import (
     DiscountForm,
     CostEstimateForm,
 )
-from .tex import render_invoice, escape_chars
+from .tex import render_invoice, render_voucher, escape_chars
 from .payment_methods.forms import payment_method_factory
 from .utils import find_payment_method
 
@@ -217,6 +217,7 @@ def new_cost_estimate(request):
                     number=quantity
                 )
         discount_form.apply_to_invoice(cost_estimate_instance)
+
         messages.success(
             request,
             _("The cost estimate was created.")
@@ -482,7 +483,6 @@ def cost_estimate_pdf(request, invoice, **_kwargs):
     invoice with the total price, the payment method, the address and the
     legal information for the user.
     """
-    # TODO : change vente to purchase
     purchases_objects = Vente.objects.all().filter(facture=invoice)
     # Get the article list and build an list out of it
     # contiaining (article_name, article_price, quantity, total_price)
@@ -720,7 +720,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
         if payment_method is not None:
             payment_method.save()
         messages.success(
-            request,_("The payment method was edited.")
+            request, _("The payment method was edited.")
         )
         return redirect(reverse('cotisations:index-paiement'))
     return form({
@@ -954,7 +954,8 @@ def index_custom_invoice(request):
     """View used to display every custom invoice."""
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     cost_estimate_ids = [i for i, in CostEstimate.objects.values_list('id')]
-    custom_invoice_list = CustomInvoice.objects.prefetch_related('vente_set').exclude(id__in=cost_estimate_ids)
+    custom_invoice_list = CustomInvoice.objects.prefetch_related(
+        'vente_set').exclude(id__in=cost_estimate_ids)
     custom_invoice_list = SortTable.sort(
         custom_invoice_list,
         request.GET.get('col'),
@@ -1020,7 +1021,8 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(request.POST or None, user=user, user_source=request.user)
+    refill_form = RechargeForm(
+        request.POST or None, user=user, user_source=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']
         invoice = Facture(user=user)
@@ -1050,3 +1052,29 @@ def credit_solde(request, user, **_kwargs):
         'max_balance': find_payment_method(p).maximum_balance,
     }, 'cotisations/facture.html', request)
 
+
+@login_required
+@can_view(Facture)
+def voucher_pdf(request, invoice, **_kwargs):
+    """
+    View used to generate a PDF file from a controlled invoice
+    Creates a line for each Purchase (thus article sold) and generate the
+    invoice with the total price, the payment method, the address and the
+    legal information for the user.
+    """
+    if not invoice.control:
+        messages.error(
+            request,
+            _("Could not find a voucher for that invoice.")
+        )
+        return redirect(reverse('cotisations:index'))
+    return render_voucher(request, {
+        'asso_name': AssoOption.get_cached_value('name'),
+        'pres_name': AssoOption.get_cached_value('pres_name'),
+        'firstname': invoice.user.name,
+        'lastname': invoice.user.surname,
+        'email': invoice.user.email,
+        'phone': invoice.user.telephone,
+        'date_end': invoice.get_subscription().latest('date_end').date_end,
+        'date_begin': invoice.date
+    })

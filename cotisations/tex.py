@@ -31,12 +31,16 @@ from subprocess import Popen, PIPE
 import os
 from datetime import datetime
 
+from django.db import models
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
-import logging
+from django.utils.translation import ugettext_lazy as _
+
+from re2o.mixins import AclMixin, RevMixin
+from preferences.models import CotisationsOption
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -49,6 +53,7 @@ def render_invoice(_request, ctx={}):
     Render an invoice using some available information such as the current
     date, the user, the articles, the prices, ...
     """
+    options, _ = CotisationsOption.objects.get_or_create()
     is_estimate = ctx.get('is_estimate', False)
     filename = '_'.join([
         'cost_estimate' if is_estimate else 'invoice',
@@ -58,7 +63,30 @@ def render_invoice(_request, ctx={}):
         str(ctx.get('DATE', datetime.now()).month),
         str(ctx.get('DATE', datetime.now()).day),
     ])
-    r = render_tex(_request, 'cotisations/factures.tex', ctx)
+    templatename = options.invoice_template.template.name.split('/')[-1]
+    r = render_tex(_request, templatename, ctx)
+    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
+        name=filename
+    )
+    return r
+
+
+def render_voucher(_request, ctx={}):
+    """
+    Render a subscribtion voucher.
+    """
+    options, _ = CotisationsOption.objects.get_or_create()
+    filename = '_'.join([
+        'voucher',
+        slugify(ctx.get('asso_name', "")),
+        slugify(ctx.get('firstname', "")),
+        slugify(ctx.get('lastname', "")),
+        str(ctx.get('date_begin', datetime.now()).year),
+        str(ctx.get('date_begin', datetime.now()).month),
+        str(ctx.get('date_begin', datetime.now()).day),
+    ])
+    templatename = options.voucher_template.template.name.split('/')[-1]
+    r = render_tex(_request, templatename, ctx)
     r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
         name=filename
     )
@@ -83,12 +111,13 @@ def create_pdf(template, ctx={}):
 
     with tempfile.TemporaryDirectory() as tempdir:
         for _ in range(2):
-            process = Popen(
-                ['pdflatex', '-output-directory', tempdir],
-                stdin=PIPE,
-                stdout=PIPE,
-            )
-            process.communicate(rendered_tpl)
+            with open("/var/www/re2o/out.log", "w") as f:
+                process = Popen(
+                    ['pdflatex', '-output-directory', tempdir],
+                    stdin=PIPE,
+                    stdout=f,#PIPE,
+                )
+                process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
 

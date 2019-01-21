@@ -343,9 +343,59 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Description of the organisation" %}</th>
                 <td>{{ assooptions.description|safe }}</td>
             </tr>
+            <tr>
+                <th>{% trans "President of the association"%}</th>
+                <td>{{ assooptions.pres_name }}</td>
+            </tr>
         </table>
     </div>
 </div>
+<div  class="panel panel-default" id="templates">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_templates">
+        <h4 class="panel-title">
+            <a><i class="fa fa-edit"></i>   {% trans "Document templates" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_templates" class="panel-collapse panel-body collapse">
+        {% can_create DocumentTemplate %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-document-template' %}">
+            <i class="fa fa-cart-plus"></i> {% trans "Add a document template" %}
+        </a>
+        {% acl_end %}
+        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-document-template' %}">
+            <i class="fa fa-trash"></i> {% trans "Delete one or several document templates" %}
+        </a>
+        {% include 'preferences/aff_document_template.html' %}
+    </div>
+</div>
+
+<div  class="panel panel-default" id="cotisation">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_cotisation">
+        <h4 class="panel-title">
+            <a><i class="fa fa-eur"></i>   {% trans "Cotisation's options" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_cotisation" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'CotisationsOption' %}">
+            <i class="fa fa-edit"></i>
+        </a>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Send voucher by email" %}</th>
+                <td>{{ cotisationsoptions.send_voucher_mail | tick }}</th>
+            </tr>
+            <tr>
+                <th>{% trans "Invoices' template" %}</th>
+                <td>{{ cotisationsoptions.invoice_template }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Vouchers' template" %}</th>
+                <td>{{ cotisationsoptions.voucher_template }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 
 <div  class="panel panel-default" id="mail">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">

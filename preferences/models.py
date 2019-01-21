@@ -24,6 +24,7 @@
 Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 """
 from __future__ import unicode_literals
+import os
 
 from django.utils.functional import cached_property
 from django.utils import timezone
@@ -36,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 from re2o.aes_field import AESEncryptedField
 
 from datetime import timedelta
@@ -521,6 +522,12 @@ class AssoOption(AclMixin, PreferencesModel):
         null=True,
         blank=True,
     )
+    pres_name = models.CharField(
+        max_length=255,
+        default="",
+        verbose_name=_("President of the association"),
+        help_text=_("Displayed on subscription vouchers")
+    )
 
     class Meta:
         permissions = (
@@ -687,3 +694,95 @@ class RadiusOption(AclMixin, PreferencesModel):
         null=True
     )
 
+
+def default_invoice():
+    tpl, _ = DocumentTemplate.objects.get_or_create(
+        name="Re2o default invoice",
+        template="templates/default_invoice.tex"
+    )
+    return tpl.id
+
+
+def default_voucher():
+    tpl, _ = DocumentTemplate.objects.get_or_create(
+        name="Re2o default voucher",
+        template="templates/default_voucher.tex"
+    )
+    return tpl.id
+
+
+class CotisationsOption(AclMixin, PreferencesModel):
+    class Meta:
+        verbose_name = _("cotisations options")
+
+    invoice_template = models.OneToOneField(
+        'preferences.DocumentTemplate',
+        verbose_name=_("Template for invoices"),
+        related_name="invoice_template",
+        on_delete=models.PROTECT,
+        default=default_invoice,
+    )
+    voucher_template = models.OneToOneField(
+        'preferences.DocumentTemplate',
+        verbose_name=_("Template for subscription voucher"),
+        related_name="voucher_template",
+        on_delete=models.PROTECT,
+        default=default_voucher,
+    )
+    send_voucher_mail = models.BooleanField(
+        verbose_name=_("Send voucher by email when the invoice is controlled."),
+        default=False,
+    )
+
+
+class DocumentTemplate(RevMixin, AclMixin, models.Model):
+    """Represent a template in order to create documents such as invoice or
+    subscription voucher.
+    """
+    template = models.FileField(
+        upload_to='templates/',
+        verbose_name=_('template')
+    )
+    name = models.CharField(
+        max_length=125,
+        verbose_name=_('name'),
+        unique=True
+    )
+
+    class Meta:
+        verbose_name = _("document template")
+        verbose_name_plural = _("document templates")
+
+    def __str__(self):
+        return str(self.name)
+
+@receiver(models.signals.post_delete, sender=DocumentTemplate)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `DocumentTemplate` object is deleted.
+    """
+    if instance.template:
+        if os.path.isfile(instance.template.path):
+            os.remove(instance.template.path)
+
+
+@receiver(models.signals.pre_save, sender=DocumentTemplate)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `DocumentTemplate` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = DocumentTemplate.objects.get(pk=instance.pk).template
+    except DocumentTemplate.DoesNotExist:
+        return False
+
+    new_file = instance.template
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

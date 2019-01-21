@@ -40,7 +40,8 @@ from .models import (
     HomeOption,
     RadiusKey,
     SwitchManagementCred,
-    Reminder
+    Reminder,
+    DocumentTemplate
 )
 
 
@@ -101,6 +102,12 @@ class ReminderAdmin(VersionAdmin):
     """Class reminder for switch"""
     pass
 
+
+class DocumentTemplateAdmin(VersionAdmin):
+    """Admin class for DocumentTemplate"""
+    pass
+
+
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
 admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
@@ -113,3 +120,4 @@ admin.site.register(RadiusKey, RadiusKeyAdmin)
 admin.site.register(SwitchManagementCred, SwitchManagementCredAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)
+admin.site.register(DocumentTemplate, DocumentTemplateAdmin)

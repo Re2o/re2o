@@ -48,7 +48,7 @@ from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from .models import (
     Article, Paiement, Facture, Banque,
-    CustomInvoice, Vente, CostEstimate
+    CustomInvoice, Vente, CostEstimate,
 )
 from .payment_methods import balance
 

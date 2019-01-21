@@ -43,8 +43,11 @@ from .models import (
     RadiusKey,
     SwitchManagementCred,
     RadiusOption,
+    CotisationsOption,
+    DocumentTemplate
 )
 from topologie.models import Switch
+
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -182,9 +185,6 @@ class EditAssoOptionForm(ModelForm):
         self.fields['pseudo'].label = _("Usual name")
         self.fields['utilisateur_asso'].label = _("Account used for editing"
                                                   " from /admin")
-        self.fields['payment'].label = _("Payment")
-        self.fields['payment_id'].label = _("Payment ID")
-        self.fields['payment_pass'].label = _("Payment password")
         self.fields['description'].label = _("Description")
 
 
@@ -251,6 +251,13 @@ class EditRadiusOptionForm(ModelForm):
                     _("Please, choose a VLAN."),
                 )
         return cleaned_data
+
+
+class EditCotisationsOptionForm(ModelForm):
+    """Edition forms for Cotisations options"""
+    class Meta:
+        model = CotisationsOption
+        fields = '__all__'
 
 
 class ServiceForm(ModelForm):
@@ -371,3 +378,36 @@ class DelMailContactForm(Form):
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
 
+
+class DocumentTemplateForm(FormRevMixin, ModelForm):
+    """
+    Form used to create a document template.
+    """
+    class Meta:
+        model = DocumentTemplate
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(DocumentTemplateForm, self).__init__(
+            *args, prefix=prefix, **kwargs)
+
+
+class DelDocumentTemplateForm(FormRevMixin, Form):
+    """
+    Form used to delete one or more document templatess.
+    The use must choose the one to delete by checking the boxes.
+    """
+    document_templates = forms.ModelMultipleChoiceField(
+        queryset=DocumentTemplate.objects.none(),
+        label=_("Available document templates"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelDocumentTemplateForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['document_templates'].queryset = instances
+        else:
+            self.fields['document_templates'].queryset = Banque.objects.all()

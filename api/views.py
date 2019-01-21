@@ -611,8 +611,10 @@ class HostMacIpView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
     order to build the DHCP lease files.
     """
-    queryset = all_active_interfaces()
     serializer_class = serializers.HostMacIpSerializer
+
+    def get_queryset(self):
+        return all_active_interfaces()
 
 
 # Firewall
@@ -646,7 +648,7 @@ class DNSZonesView(generics.ListAPIView):
 
 
 class DNSReverseZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.IpType.objects.all())
