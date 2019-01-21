@@ -65,11 +65,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-list-ul"></i> {% trans "Payment methods" %}
     </a>
     {% acl_end %}
-    {% can_view_all DocumentTemplate %}
-    <a class="list-group-item list-group-item-info" href="{% url "cotisations:index-document-template" %}">
-        <i class="fa fa-list-ul"></i> {% trans "Document templates" %}
-    </a>
-    {% acl_end %}
-
 {% endblock %}
 
