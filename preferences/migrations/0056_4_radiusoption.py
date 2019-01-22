@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0056_radiusoption'),
+        ('preferences', '0056_3_radiusoption'),
     ]
 
     operations = [

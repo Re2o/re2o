@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <i class="fa fa-plus"></i>{% trans " Add an IPv6 address" %}
         </a>
     {% acl_end %}
-    {% include "machines/aff_ipv6.html" with  ipv6_list=ipv6_list %}
+    {% include 'machines/aff_ipv6.html' with  ipv6_list=ipv6_list %}
     <br/>
     <br/>
     <br/>

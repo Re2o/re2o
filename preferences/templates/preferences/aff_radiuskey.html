@@ -23,35 +23,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 {% load acl %}
 {% load logs_extra %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id Clef</th>
-		<th>Commentaire</th>
-                <th>Clef par default des switchs</th>
-		<th>Clef utilisée par les switchs</th>
-		<th></th>
-                <th></th>
+{% load i18n %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "RADIUS key ID" %}</th>
+            <th>{% trans "Comment" %}</th>
+            <th>{% trans "Default RADIUS key for switches" %}</th>
+            <th>{% trans "RADIUS key used by the swithes" %}</th>
+            <th></th>
+            <th></th>
             </tr>
-        </thead>
-        {% for radiuskey in radiuskey_list %}
+    </thead>
+    {% for radiuskey in radiuskey_list %}
         <tr>
             <td>{{ radiuskey.id }}</td>
             <td>{{ radiuskey.comment }}</td>
             <td>{{ radiuskey.default_switch }}</td>
-	    <td>{{ radiuskey.switch_set.all|join:", " }}</td>
+            <td>{{ radiuskey.switch_set.all|join:", " }}</td>
             <td class="text-right">
             {% can_edit radiuskey %}
             {% include 'buttons/edit.html' with href='preferences:edit-radiuskey' id=radiuskey.id %}
             {% acl_end %}
-	    {% can_delete radiuskey %}
-            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-radiuskey' radiuskey.pk %}">
-		   <i class="fa fa-trash"></i>
-            </a>
+            {% can_delete radiuskey %}
+            {% include 'buttons/suppr.html' with href='preferences:del-radiuskey' id=radiuskey.id %}
             {% acl_end %}
             {% history_button radiuskey %}
             </td>
         </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>
 

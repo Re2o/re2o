@@ -1,4 +1,4 @@
-{% extends "cotisations/sidebar.html" %}
+{% extends 'cotisations/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -35,7 +35,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post">
     {% csrf_token %}
-    <h3>{% trans "Edit the invoice" %}</h3>
+    {% if title %}
+    <h3>{{title}}</h3>
+    {% else %}
+    <h3>{% trans "Edit invoice" %}</h3>
+    {% endif %}
     {% massive_bootstrap_form factureform 'user' %}
     {{ venteform.management_form }}
     <h3>{% trans "Articles" %}</h3>

@@ -27,16 +27,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if switch_bay_list.paginator %}
-{% include "pagination.html" with list=switch_bay_list %}
+    {% include 'pagination.html' with list=switch_bay_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
             {% trans "Switch bay" as tr_bay %}
-            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='name' text=tr_bay %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='switch-bay' col='name' text=tr_bay %}</th>
             {% trans "Building" as tr_building %}
-            <th>{% include "buttons/sort.html" with prefix='switch-bay' col='building' text=tr_building %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='switch-bay' col='building' text=tr_building %}</th>
             <th>{% trans "Information" %}</th>
             <th>{% trans "Switches of the bay" %}</th>
             <th></th>
@@ -49,22 +49,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ switch_bay.info }}</td>
             <td>
                 {% for switch in switch_bay.switch_set.all %}
-                <a href="{% url 'topologie:index-port' switch.pk %}">
+                <a href="{% url 'topologie:index-port' switch.id %}">
                     {{ switch }}
                 </a>
                 {% endfor %}
             </td>
             <td class="text-right">
                 {% can_edit switch_bay %}
-                <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-switch-bay' switch_bay.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
+                {% include 'buttons/edit.html' with href='topologie:edit-switch-bay' id=switch_bay.id %}
                 {% acl_end %}
                 {% history_button switch_bay %}
                 {% can_delete switch_bay %}
-                <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-switch-bay' switch_bay.id %}">
-                    <i class="fa fa-trash"></i>
-                </a>
+                {% include 'buttons/suppr.html' with href='topologie:del-switch-bay' id=switch_bay.id %}
                 {% acl_end %}
             </td>
         </tr>
@@ -72,6 +68,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if switch_bay_list.paginator %}
-{% include "pagination.html" with list=switch_bay_list %}
+    {% include 'pagination.html' with list=switch_bay_list %}
 {% endif %}
 

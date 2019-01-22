@@ -23,23 +23,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load url_insert_param %}
+{% load i18n %}
 
 {% if list.paginator.num_pages > 1 %}
-<ul class="pagination nav navbar-nav">
-    {% if list.has_previous %}
-    <li><a href="{% url_insert_param request.get_full_path page=1 %}"> << </a></li>
-    <li><a href="{% url_insert_param request.get_full_path page=list.previous_page_number %}"> < </a></li>
-    {% endif %}
-    {% for page in list.paginator.page_range %}
-        {% if list.number <= page|add:"3" and list.number >= page|add:"-3" %}
-            <li class="{% if list.number == page  %}active{% endif %}"><a href="{% url_insert_param request.get_full_path page=page %}">{{ page }}</a></li>
+    <ul class="pagination text-center">
+        {% if list.has_previous %}
+            <li>
+                <a href="{% url_insert_param request.get_full_path page=1 %}{% if go_to_id %}#{{ go_to_id }}{% endif %}">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">{% trans "First" %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url_insert_param request.get_full_path page=list.previous_page_number %}{% if go_to_id %}#{{ go_to_id }}{% endif %}">
+                    <span aria-hidden="true">&lsaquo;</span>
+                    <span class="sr-only">{% trans "Previous" %}</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="disabled"><span aria-hidden="true">&laquo;</span></li>
+            <li class="disabled"><span aria-hidden="true">&lsaquo;</span></li>
         {% endif %}
-    {% endfor %}
 
-    {% if list.has_next %}
-        <li><a href="{% url_insert_param request.get_full_path page=list.next_page_number %}"> > </a></li>
-        <li><a href="{% url_insert_param request.get_full_path page=list.paginator.page_range|length %}"> >> </a></li>
-    {% endif %}
-</ul>
+        {% for page in list.paginator.page_range %}
+            {% if list.number <= page|add:"3" and list.number >= page|add:"-3" %}
+                <li class="{% if list.number == page %}active{% endif %}">
+                    <a href="{% url_insert_param request.get_full_path page=page %}{% if go_to_id %}#{{ go_to_id }}{% endif %}">{{ page }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if list.has_next %}
+            <li>
+                <a href="{% url_insert_param request.get_full_path page=list.next_page_number %}{% if go_to_id %}#{{ go_to_id }}{% endif %}">
+                    <span aria-hidden="true">&rsaquo;</span>
+                    <span class="sr-only">{% trans "Next" %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url_insert_param request.get_full_path page=list.paginator.page_range|length %}{% if go_to_id %}#{{ go_to_id }}{% endif %}">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">{% trans "Last" %}</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="disabled"><span aria-hidden="true">&rsaquo;</span></li>
+            <li class="disabled"><span aria-hidden="true">&raquo;</span></li>
+        {% endif %}
+    </ul>
 {% endif %}
-

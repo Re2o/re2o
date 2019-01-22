@@ -1,4 +1,4 @@
-{% extends "preferences/sidebar.html" %}
+{% extends 'preferences/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -69,7 +69,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "General message displayed on the website" %}</th>
                     <td>{{ generaloptions.general_message }}</td>
-                    <th>{% trans "Main site url" %}</th>
+                    <th>{% trans "Main site URL" %}</th>
                     <td>{{ generaloptions.main_site_url }}</td>
                 </tr>
                 <tr>
@@ -120,7 +120,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <th>{% trans "Self registration" %}</th>
                     <td>{{ useroptions.self_adhesion|tick }}</td>
                     <th>{% trans "Delete not yet active users after" %}</th>
-                    <td>{{ useroptions.delete_notyetactive }} days</td>
+		    <td>{% blocktrans with delete_notyetactive=useroptions.delete_notyetactive %}{{ delete_notyetactive }} days{% endblocktrans %}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "All users are active by default" %}</th>
+                    <td>{{ useroptions.all_users_active|tick }}</td>
                 </tr>
             </table>
 
@@ -214,11 +218,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
         </table>
 
-        <h4>Clef radius</h4>
+	<h4>{% trans "RADIUS keys" %}</h4>
         {% can_create RadiusKey%}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i> Ajouter une clef radius</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i>{% trans " Add a RADIUS key" %}</a>
         {% acl_end %}
-        {%  include "preferences/aff_radiuskey.html" with  radiuskey_list=radiuskey_list %}
+        {%  include 'preferences/aff_radiuskey.html' with  radiuskey_list=radiuskey_list %}
 
     </div>
 </div>
@@ -226,7 +230,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div  class="panel panel-default" id="switches">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_switches">
         <h4 class="panel-title">
-            <a><i class="fa fa-server"></i>   Configuration des Switches</a>
+            <a><i class="fa fa-server"></i>{% trans "Configuration of switches" %}</a>
         </h4>
     </div>
     <div id="collapse_switches" class="panel-collapse panel-body collapse">
@@ -239,64 +243,64 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <table class="table table-striped">
             <tr>
-                <th>Web management, activé si provision automatique</th>
+                <th>{% trans "Web management, activated in case of automatic provision" %}</th>
                 <td>{{ topologieoptions.switchs_web_management }}</td>
-                <th>Rest management, activé si provision auto</th>
+                <th>{% trans "REST management, activated in case of automatic provision" %}</th>
                 <td>{{ topologieoptions.switchs_rest_management }}</td>
             </tr>
         </table>
 
 
 
-        <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">Provision de la config des switchs{% else %}<span class="label label-danger">Provision de la config des switchs{% endif%}</span></h5>
+        <h5>{% if topologieoptions.provision_switchs_enabled %}<span class="label label-success">{% trans "Provision of configuration for switches" %}{% else %}<span class="label label-danger">{% trans "Provision of configuration for switches" %}{% endif%}</span></h5>
         <table class="table table-striped">
             <tr>
-                <th>Switchs configurés automatiquement</th>
-                <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+                <th>{% trans "Switches with automatic provision" %}</th>
+                <td>{{ topologieoptions.provisioned_switchs|join:", "  }} {% if topologieoptions.provisioned_switchs %}<span class="label label-success">{% trans "OK" %}{% else %}<span class="label label-danger">{% trans "Missing" %}{% endif %}</span></td>
             </tr>
             <tr>
-                <th>Plage d'ip de management des switchs</th>
-                <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+                <th>{% trans "IP range for the management of switches" %}</th>
+                <td>{{ topologieoptions.switchs_ip_type }} {% if topologieoptions.switchs_ip_type %}<span class="label label-success">{% trans "OK" %}{% else %}<span class="label label-danger">{% trans "Missing" %}{% endif %}</span></td>
             </tr>
             <tr>
-                <th>Serveur des config des switchs</th>
-                <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span></td>
+                <th>{% trans "Server for the configuration of switches" %}</th>
+                <td>{{ topologieoptions.switchs_management_interface }} {% if topologieoptions.switchs_management_interface %} - {{ topologieoptions.switchs_management_interface_ip }}  <span class="label label-success">{% trans "OK" %}{% else %}<span class="label label-danger">{% trans "Missing" %}{% endif %}</span></td>
             </tr>
             <tr>
-                <th>Mode de provision des switchs</th>
+                <th>{% trans "Provision of configuration mode for switches" %}</th>
                 <td>{{ topologieoptions.switchs_provision }}</td>
             </tr>
             <tr>
-                <th>Mode TFTP</th>
-                <td><span class="label label-success"> OK</span></td>
+                <th>{% trans "TFTP mode" %}</th>
+                <td><span class="label label-success">{% trans "OK" %}</span></td>
             </tr>
             <tr>
-                <th>Mode SFTP</th>
-                <td>{% if topologieoptions.switchs_management_sftp_creds %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Creds manquants{% endif %}</span></td>
+                <th>{% trans "SFTP mode" %}</th>
+                <td>{% if topologieoptions.switchs_management_sftp_creds %}<span class="label label-success">{% trans "OK" %}{% else %}<span class="label label-danger">{% trans "Missing credentials" %}{% endif %}</span></td>
             </tr>
         </table>
 
-        <h6>Creds de management des switchs</h6>
+        <h6>{% trans "Switch management credentials" %}</h6>
         {% can_create SwitchManagementCred%}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i> Ajouter un id/mdp de management switch</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i>{% trans " Add switch management credentials" %}</a>
         {% acl_end %}
         <p>
         </p>
-        {% if switchmanagementcred_list %}<span class="label label-success"> OK{% else %}<span class="label label-danger">Manquant{% endif %}</span>
-            {%  include "preferences/aff_switchmanagementcred.html" with  switchmanagementcred_list=switchmanagementcred_list %}
+        {% if switchmanagementcred_list %}<span class="label label-success">{% trans "OK" %}{% else %}<span class="label label-danger">{% trans "Missing" %}{% endif %}</span>
+            {%  include 'preferences/aff_switchmanagementcred.html' with  switchmanagementcred_list=switchmanagementcred_list %}
     </div>
 </div>
 
 <div class="panel panel-default" id="radius">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_radius">
-        <h4 class="panel-title"><a><i class="fa fa-circle"></i>   {% trans "Radius preferences" %}</h4></a>
+        <h4 class="panel-title"><a><i class="fa fa-circle"></i>   {% trans "RADIUS preferences" %}</h4></a>
     </div>
     <div id="collapse_radius" class="panel-collapse panel-body collapse">
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-        {% include "preferences/aff_radiusoptions.html" %}
+        {% include 'preferences/aff_radiusoptions.html' %}
     </div>
 </div>
 
@@ -339,14 +343,64 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Description of the organisation" %}</th>
                 <td>{{ assooptions.description|safe }}</td>
             </tr>
+            <tr>
+                <th>{% trans "President of the association"%}</th>
+                <td>{{ assooptions.pres_name }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div  class="panel panel-default" id="templates">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_templates">
+        <h4 class="panel-title">
+            <a><i class="fa fa-edit"></i>   {% trans "Document templates" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_templates" class="panel-collapse panel-body collapse">
+        {% can_create DocumentTemplate %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-document-template' %}">
+            <i class="fa fa-cart-plus"></i> {% trans "Add a document template" %}
+        </a>
+        {% acl_end %}
+        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-document-template' %}">
+            <i class="fa fa-trash"></i> {% trans "Delete one or several document templates" %}
+        </a>
+        {% include 'preferences/aff_document_template.html' %}
+    </div>
+</div>
+
+<div  class="panel panel-default" id="cotisation">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_cotisation">
+        <h4 class="panel-title">
+            <a><i class="fa fa-eur"></i>   {% trans "Cotisation's options" %}</a>
+        </h4>
+    </div>
+    <div id="collapse_cotisation" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'CotisationsOption' %}">
+            <i class="fa fa-edit"></i>
+        </a>
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "Send voucher by email" %}</th>
+                <td>{{ cotisationsoptions.send_voucher_mail | tick }}</th>
+            </tr>
+            <tr>
+                <th>{% trans "Invoices' template" %}</th>
+                <td>{{ cotisationsoptions.invoice_template }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Vouchers' template" %}</th>
+                <td>{{ cotisationsoptions.voucher_template }}</td>
+            </tr>
         </table>
     </div>
 </div>
 
+
 <div  class="panel panel-default" id="mail">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_mail">
         <h4 class="panel-title">
-            <a><i class="fa fa-comment"></i>   Message pour les mails</a>
+                <a><i class="fa fa-comment"></i>{% trans "Message for emails" %}</a>
         </h4>
     </div>
     <div id="collapse_mail" class="panel-collapse panel-body collapse">
@@ -373,16 +427,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div  class="panel panel-default" id="rappels">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_rappels">
         <h4 class="panel-title">
-            <a><i class="fa fa-bell"></i>   Options pour le mail de fin d'adhésion</a>
+                <a><i class="fa fa-bell"></i>{% trans "Options for the membership's end email" %}</a>
         </h4>
     </div>
     <div id="collapse_rappels" class="panel-collapse panel-body collapse">
         {% can_create preferences.Reminder%}
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i> Ajouter un rappel</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i>{% trans " Add a reminder" %}</a>
         <p></p>
         {% acl_end %}
-        {%  include "preferences/aff_reminder.html" with  reminder_list=reminder_list %}
+        {%  include 'preferences/aff_reminder.html' with  reminder_list=reminder_list %}
     </div>
 </div>
 
@@ -399,7 +453,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
         <p></p>
         {% acl_end %}
-        {%  include "preferences/aff_service.html" with  service_list=service_list %}
+        {%  include 'preferences/aff_service.html' with  service_list=service_list %}
 
     </div>
 </div>
@@ -413,18 +467,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="collapse_contact" class="panel-collapse panel-body collapse">
 
         {% can_create preferences.MailContact %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans " Add an address" %}</a>
         {% acl_end %}
-        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
+        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several addresses" %}</a>
         <p></p>
-        {%  include "preferences/aff_mailcontact.html" with  mailcontact_list=mailcontact_list %}
+        {%  include 'preferences/aff_mailcontact.html' with  mailcontact_list=mailcontact_list %}
     </div>
 </div>
 
 <div class="panel panel-default" id="social">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_social">
         <h4 class="panel-title">
-            <a><i class="fa fa-facebook"></i><i class="fa fa-twitter"></i>   Réseaux sociaux</a>
+                <a><i class="fa fa-facebook"></i><i class="fa fa-twitter"></i>{% trans "Social networks" %}</a>
         </h4>
     </div>
     <div id="collapse_social" class="panel-collapse panel-body collapse">

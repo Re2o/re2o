@@ -1,4 +1,4 @@
-{% extends "topologie/sidebar.html" %}
+{% extends 'topologie/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -46,14 +46,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </tr>
 </table>
 <hr>
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:edit-switch'  id_switch %}"><i class="fa fa-edit"></i>{% trans " Edit" %}</a>
+{% include 'buttons/edit.html' with href='topologie:edit-switch' id=id_switch %}
 {% can_create Port %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port'  id_switch %}"><i class="fa fa-plus"></i>{% trans " Add a port" %}</a>
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:create-ports'  id_switch %}"><i class="fa fa-plus"></i>{% trans " Add ports" %}</a>
+{% include 'buttons/add.html' with href='topologie:new-port' id=id_switch %}
+{% include 'buttons/add.html' with href='topologie:create-ports' id=id_switch %}
 {% acl_end %}
 <hr>
-{% include "topologie/aff_repr_switch.html" with port_list=port_list %}
-{% include "topologie/aff_port.html" with port_list=port_list %}
+{% include 'topologie/aff_repr_switch.html' with port_list=port_list %}
+{% include 'topologie/aff_port.html' with port_list=port_list %}
     <br />
     <br />
     <br />

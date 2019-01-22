@@ -67,6 +67,7 @@ router.register_viewset(r'machines/role', views.RoleViewSet)
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
 router.register_view(r'preferences/optionaltopologie', views.OptionalTopologieView),
+router.register_view(r'preferences/radiusoption', views.RadiusOptionView),
 router.register_view(r'preferences/generaloption', views.GeneralOptionView),
 router.register_viewset(r'preferences/service', views.HomeServiceViewSet, base_name='homeservice'),
 router.register_view(r'preferences/assooption', views.AssoOptionView),

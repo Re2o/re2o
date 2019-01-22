@@ -40,10 +40,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ ipv6.slaac_ip }}</td>
             <td class="text-right">
                 {% can_edit ipv6 %}
-                    {% include 'buttons/edit.html' with href='machines:edit-ipv6list' id=ipv6.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-ipv6list' id=ipv6.id %}
                 {% acl_end %}
                 {% can_delete ipv6 %}
-                    {% include 'buttons/suppr.html' with href='machines:del-ipv6list' id=ipv6.id %}
+                {% include 'buttons/suppr.html' with href='machines:del-ipv6list' id=ipv6.id %}
                 {% acl_end %}
                 {% history_button ipv6 %}
             </td>

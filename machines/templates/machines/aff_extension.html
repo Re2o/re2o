@@ -54,7 +54,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ extension.dnssec|tick }}</td>
                 <td class="text-right">
                     {% can_edit extension %}
-                        {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
+                    {% include 'buttons/edit.html' with href='machines:edit-extension' id=extension.id %}
                     {% acl_end %}
                     {% history_button extension %}
                 </td>

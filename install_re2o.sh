@@ -59,7 +59,7 @@ _ask_value() {
 
 
 install_requirements() {
-    ### Usage: install_requirements 
+    ### Usage: install_requirements
     #
     #   This function will install the required packages from APT repository
     #   and Pypi repository. Those packages are all required for Re2o to work
@@ -273,7 +273,7 @@ write_settings_file() {
 
     django_secret_key="$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(50)]))")"
     aes_key="$(python -c "import random; print(''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%=+') for i in range(32)]))")"
-    
+
     if [ "$db_engine_type" == 1 ]; then
         sed -i 's/db_engine/django.db.backends.mysql/g' "$SETTINGS_LOCAL_FILE"
     else
@@ -320,6 +320,21 @@ update_django() {
     echo "Generating locales ..."
     python3 manage.py compilemessages
     echo "Generating locales: Done"
+}
+
+
+
+copy_templates_files() {
+    ### Usage: copy_templates_files
+    #
+    #   This will copy LaTeX templates in the media root.
+
+    echo "Copying LaTeX templates ..."
+    mkdir -p media/templates/
+    cp cotisations/templates/cotisations/factures.tex media/templates/default_invoice.tex
+    cp cotisations/templates/cotisations/voucher.tex media/templates/default_voucher.tex
+    chown -R www-data:www-data media/templates/
+    echo "Copying LaTeX templates: Done"
 }
 
 
@@ -476,7 +491,7 @@ interactive_guide() {
         sql_host="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
             $HEIGHT $WIDTH 2>&1 >/dev/tty)"
-        
+
         # Prompt to enter the remote database name
         TITLE="SQL database name"
         INPUTBOX="The name of the remote SQL database"
@@ -523,14 +538,14 @@ interactive_guide() {
     ldap_is_local="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
         $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
-    
+
     # Prompt to enter the LDAP domain extension
     TITLE="Domain extension"
     INPUTBOX="The local domain extension to use (e.g. 'example.net'). This is used in the LDAP configuration."
     extension_locale="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)"
-    
+
     # Building the DN of the LDAP from the extension
     IFS='.' read -a extension_locale_array <<< $extension_locale
     for i in "${extension_locale_array[@]}"
@@ -546,7 +561,7 @@ interactive_guide() {
         ldap_host="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
             $HEIGHT $WIDTH 2>&1 >/dev/tty)"
-        
+
         # Prompt to choose if TLS should be activated or not for the LDAP
         TITLE="TLS on LDAP"
         MENU="Would you like to activate TLS for communicating with the remote LDAP ?"
@@ -583,7 +598,7 @@ interactive_guide() {
     #########################
 
     BACKTITLE="Re2o setup - configuration of the mail server"
-    
+
     # Prompt to enter the hostname of the mail server
     TITLE="Mail server hostname"
     INPUTBOX="The hostname of the mail server to use"
@@ -591,7 +606,7 @@ interactive_guide() {
         --title "$TITLE" --inputbox "$TITLE" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)"
 
-    # Prompt to choose the port of the mail server    
+    # Prompt to choose the port of the mail server
     TITLE="Mail server port"
     MENU="Which port (thus which protocol) to use to contact the mail server"
     OPTIONS=(25 "SMTP"
@@ -608,7 +623,7 @@ interactive_guide() {
     ########################
 
     BACKTITLE="Re2o setup - configuration of the web server"
-    
+
     # Prompt to choose the web server
     TITLE="Web server to use"
     MENU="Which web server to install for accessing Re2o web frontend (automatic setup of nginx is not supported) ?"
@@ -617,14 +632,14 @@ interactive_guide() {
     web_serveur="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --menu "$MENU" \
         $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
-    
+
     # Prompt to enter the requested URL for the web frontend
     TITLE="Web URL"
     INPUTBOX="URL for accessing the web server (e.g. re2o.example.net). Be sure that this URL is accessible and correspond to a DNS entry (if applicable)."
     url_server="$(dialog --clear --backtitle "$BACKTITLE" \
         --title "$TITLE" --inputbox "$INPUTBOX" \
         $HEIGHT $WIDTH 2>&1 >/dev/tty)"
-    
+
     # Prompt to choose if the TLS should be setup or not for the web server
     TITLE="TLS on web server"
     MENU="Would you like to activate the TLS (with Let'Encrypt) on the web server ?"
@@ -679,7 +694,7 @@ interactive_guide() {
     update_django
 
     create_superuser
-    
+
     install_webserver "$web_serveur" "$is_tls" "$url_server"
 
 
@@ -748,9 +763,10 @@ main_function() {
         echo "  * {help} ---------- Display this quick usage documentation"
         echo "  * {setup} --------- Launch the full interactive guide to setup entirely"
         echo "                      re2o from scratch"
-        echo "  * {update} -------- Collect frontend statics, install the missing APT"
+        echo "  * {update} -------- Collect frontend statics, install the missing APT and copy LaTeX templates files"
         echo "                      and pip packages and apply the migrations to the DB"
         echo "  * {update-django} - Apply Django migration and collect frontend statics"
+        echo "  * {copy-template-files} - Copy LaTeX templates files to media/templates"
         echo "  * {update-packages} Install the missing APT and pip packages"
         echo "  * {update-settings} Interactively rewrite the settings file"
         echo "  * {reset-db} ------ Erase the previous local database, setup a new empty"
@@ -782,7 +798,12 @@ main_function() {
 
         update )
             install_requirements
+            copy_templates_files
             update_django
+            ;;
+
+        copy-templates-files )
+            copy_templates_files
             ;;
 
         update-django )
@@ -800,7 +821,7 @@ main_function() {
         reset-db )
             if [ ! -z "$2" ]; then
                 db_password="$2"
-                case "$3" in 
+                case "$3" in
                 mysql )
                     db_engine_type=1;;
                 postresql )

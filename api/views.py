@@ -292,6 +292,17 @@ class OptionalTopologieView(generics.RetrieveAPIView):
         return preferences.OptionalTopologie.objects.first()
 
 
+class RadiusOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalTopologie` settings.
+    """
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.RadiusOption.can_view_all]}
+    serializer_class = serializers.RadiusOptionSerializer
+
+    def get_object(self):
+        return preferences.RadiusOption.objects.first()
+
+
 class GeneralOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.GeneralOption` settings.
     """
@@ -600,8 +611,10 @@ class HostMacIpView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
     order to build the DHCP lease files.
     """
-    queryset = all_active_interfaces()
     serializer_class = serializers.HostMacIpSerializer
+
+    def get_queryset(self):
+        return all_active_interfaces()
 
 
 # Firewall
@@ -635,7 +648,7 @@ class DNSZonesView(generics.ListAPIView):
 
 
 class DNSReverseZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.IpType.objects.all())

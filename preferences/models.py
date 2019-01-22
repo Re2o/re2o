@@ -24,6 +24,7 @@
 Reglages généraux, machines, utilisateurs, mail, general pour l'application.
 """
 from __future__ import unicode_literals
+import os
 
 from django.utils.functional import cached_property
 from django.utils import timezone
@@ -36,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 
-from re2o.mixins import AclMixin
+from re2o.mixins import AclMixin, RevMixin
 from re2o.aes_field import AESEncryptedField
 
 from datetime import timedelta
@@ -73,11 +74,11 @@ class OptionalUser(AclMixin, PreferencesModel):
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create_club = models.BooleanField(
         default=False,
-        help_text=_("Users can create a club")
+        help_text=_("Users can create a club.")
     )
     all_can_create_adherent = models.BooleanField(
         default=False,
-        help_text=_("Users can create a member"),
+        help_text=_("Users can create a member."),
     )
 
     shell_default = models.OneToOneField(
@@ -88,15 +89,15 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
     self_change_shell = models.BooleanField(
         default=False,
-        help_text=_("Users can edit their shell")
+        help_text=_("Users can edit their shell.")
     )
     self_change_room = models.BooleanField(
         default=False,
-        help_text=_("Users can edit their room")
+        help_text=_("Users can edit their room.")
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False,
-        help_text=_("Enable local email accounts for users")
+        help_text=_("Enable local email accounts for users.")
     )
     local_email_domain = models.CharField(
         max_length=32,
@@ -106,15 +107,21 @@ class OptionalUser(AclMixin, PreferencesModel):
     max_email_address = models.IntegerField(
         default=15,
         help_text=_("Maximum number of local email addresses for a standard"
-                    " user")
+                    " user.")
     )
     delete_notyetactive = models.IntegerField(
         default=15,
-        help_text=_("Inactive users will be deleted after this number of days")
+        help_text=_("Not yet active users will be deleted after this number of"
+                    " days.")
     )
     self_adhesion = models.BooleanField(
         default=False,
-        help_text=_("A new user can create their account on Re2o")
+        help_text=_("A new user can create their account on Re2o.")
+    )
+    all_users_active = models.BooleanField(
+        default=False,
+        help_text=_("If True, all new created and connected users are active."
+                    " If False, only when a valid registration has been paid.")
     )
 
     class Meta:
@@ -201,40 +208,41 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     switchs_web_management = models.BooleanField(
         default=False,
-        help_text="Web management, activé si provision automatique"
+        help_text=_("Web management, activated in case of automatic provision")
     )
     switchs_web_management_ssl = models.BooleanField(
         default=False,
-        help_text="Web management ssl. Assurez-vous que un certif est installé sur le switch !"
+        help_text=_("SSL web management, make sure that a certificate is"
+                    " installed on the switch")
     )
     switchs_rest_management = models.BooleanField(
         default=False,
-        help_text="Rest management, activé si provision auto"
+        help_text=_("REST management, activated in case of automatic provision")
     )
     switchs_ip_type = models.OneToOneField(
         'machines.IpType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        help_text="Plage d'ip de management des switchs"
+        help_text=_("IP range for the management of switches")
     )
     switchs_provision = models.CharField(
         max_length=32,
         choices=CHOICE_PROVISION,
         default='tftp',
-        help_text="Mode de récupération des confs par les switchs"
+        help_text=_("Provision of configuration mode for switches")
     )
     sftp_login = models.CharField(
         max_length=32,
         null=True,
         blank=True,
-        help_text="Login sftp des switchs"
+        help_text=_("SFTP login for switches")
     )
     sftp_pass = AESEncryptedField(
         max_length=63,
         null=True,
         blank=True,
-        help_text="Mot de passe sftp"
+        help_text=_("SFTP password")
     )
 
     @cached_property
@@ -278,12 +286,13 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         log_servers = Role.all_interfaces_for_roletype("log-server").filter(type__ip_type=self.switchs_ip_type)
         radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(type__ip_type=self.switchs_ip_type)
         dhcp_servers = Role.all_interfaces_for_roletype("dhcp-server")
+        dns_recursive_servers = Role.all_interfaces_for_roletype("dns-recursive-server").filter(type__ip_type=self.switchs_ip_type)
         subnet = None
         subnet6 = None
         if self.switchs_ip_type:
             subnet = self.switchs_ip_type.ip_set_full_info
             subnet6 = self.switchs_ip_type.ip6_set_full_info
-        return {'ntp_servers': return_ips_dict(ntp_servers), 'log_servers': return_ips_dict(log_servers), 'radius_servers': return_ips_dict(radius_servers), 'dhcp_servers': return_ips_dict(dhcp_servers), 'subnet': subnet, 'subnet6': subnet6}
+        return {'ntp_servers': return_ips_dict(ntp_servers), 'log_servers': return_ips_dict(log_servers), 'radius_servers': return_ips_dict(radius_servers), 'dhcp_servers': return_ips_dict(dhcp_servers), 'dns_recursive_servers': return_ips_dict(dns_recursive_servers), 'subnet': subnet, 'subnet6': subnet6}
 
     @cached_property
     def provision_switchs_enabled(self):
@@ -308,52 +317,56 @@ class RadiusKey(AclMixin, models.Model):
     """Class of a radius key"""
     radius_key = AESEncryptedField(
         max_length=255,
-        help_text="Clef radius"
+        help_text=_("RADIUS key")
     )
     comment = models.CharField(
         max_length=255,
         null=True,
         blank=True,
-        help_text="Commentaire de cette clef"
+        help_text=_("Comment for this key")
     )
     default_switch = models.BooleanField(
         default=True,
         unique=True,
-        help_text= "Clef par défaut des switchs"
+        help_text=_("Default key for switches")
     )
 
     class Meta:
         permissions = (
-            ("view_radiuskey", "Peut voir un objet radiuskey"),
+            ("view_radiuskey", _("Can view a RADIUS key object")),
         )
+        verbose_name = _("RADIUS key")
+        verbose_name_plural = _("RADIUS keys")
 
     def __str__(self):
-        return "Clef radius " + str(self.id) + " " + str(self.comment)
+        return _("RADIUS key ") + str(self.id) + " " + str(self.comment)
 
 
 class SwitchManagementCred(AclMixin, models.Model):
     """Class of a management creds of a switch, for rest management"""
     management_id = models.CharField(
         max_length=63,
-        help_text="Login du switch"
+        help_text=_("Switch login")
     )
     management_pass = AESEncryptedField(
         max_length=63,
-        help_text="Mot de passe"
+        help_text=_("Password")
     )
     default_switch = models.BooleanField(
         default=True,
         unique=True,
-        help_text= "Creds par défaut des switchs"
+        help_text=_("Default credentials for switches")
     )
 
     class Meta:
         permissions = (
-            ("view_switchmanagementcred", "Peut voir un objet switchmanagementcred"),
+            ("view_switchmanagementcred", _("Can view a switch management"
+                                            " credentials object")),
         )
+        verbose_name = _("switch management credentials")
 
     def __str__(self):
-        return "Identifiant " + str(self.management_id)
+        return _("Switch login ") + str(self.management_id)
 
 
 class Reminder(AclMixin, models.Model):
@@ -361,25 +374,26 @@ class Reminder(AclMixin, models.Model):
     Days: liste des nombres de jours pour lesquells un mail est envoyé
     optionalMessage: message additionel pour le mail
     """
-    PRETTY_NAME="Options pour le mail de fin d'adhésion"
 
     days = models.IntegerField(
         default=7,
         unique=True,
-        help_text="Délais entre le mail et la fin d'adhésion"
+        help_text=_("Delay between the email and the membership's end")
     )
     message = models.CharField(
         max_length=255,
         default="",
         null=True,
         blank=True,
-        help_text="Message affiché spécifiquement pour ce rappel"
+        help_text=_("Message displayed specifically for this reminder")
     )
 
     class Meta:
         permissions = (
-            ("view_reminder", "Peut voir un objet reminder"),
+            ("view_reminder", _("Can view a reminder object")),
         )
+        verbose_name = _("reminder")
+        verbose_name_plural = _("reminders")
 
     def users_to_remind(self):
         from re2o.utils import all_has_access
@@ -466,8 +480,7 @@ class MailContact(AclMixin, models.Model):
     commentary = models.CharField(
         blank = True,
         null = True,
-        help_text = _(
-            "Description of the associated email address."),
+        help_text = _("Description of the associated email address."),
         max_length = 256
     )
 
@@ -508,6 +521,12 @@ class AssoOption(AclMixin, PreferencesModel):
     description = models.TextField(
         null=True,
         blank=True,
+    )
+    pres_name = models.CharField(
+        max_length=255,
+        default="",
+        verbose_name=_("President of the association"),
+        help_text=_("Displayed on subscription vouchers")
     )
 
     class Meta:
@@ -558,8 +577,8 @@ def homeoption_post_save(**kwargs):
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
 
-    welcome_mail_fr = models.TextField(default="", help_text="Mail de bienvenue en français")
-    welcome_mail_en = models.TextField(default="", help_text="Mail de bienvenue en anglais")
+    welcome_mail_fr = models.TextField(default="", help_text=_("Welcome email in French"))
+    welcome_mail_en = models.TextField(default="", help_text=_("Welcome email in English"))
 
     class Meta:
         permissions = (
@@ -571,7 +590,8 @@ class MailMessageOption(AclMixin, models.Model):
 
 class RadiusOption(AclMixin, PreferencesModel):
     class Meta:
-        verbose_name = _("radius policies")
+        verbose_name = _("RADIUS policy")
+        verbose_name_plural = _("RADIUS policies")
 
     MACHINE = 'MACHINE'
     DEFINED = 'DEFINED'
@@ -582,8 +602,8 @@ class RadiusOption(AclMixin, PreferencesModel):
     REJECT = 'REJECT'
     SET_VLAN = 'SET_VLAN'
     CHOICE_POLICY = (
-        (REJECT, _('Reject the machine')),
-        (SET_VLAN, _('Place the machine on the VLAN'))
+        (REJECT, _("Reject the machine")),
+        (SET_VLAN, _("Place the machine on the VLAN"))
     )
     radius_general_policy = models.CharField(
         max_length=32,
@@ -602,16 +622,14 @@ class RadiusOption(AclMixin, PreferencesModel):
         related_name='unknown_machine_vlan',
         blank=True,
         null=True,
-        verbose_name=_('Unknown machine Vlan'),
-        help_text=_(
-            'Vlan for unknown machines if not rejected.'
-        )
+        verbose_name=_("Unknown machines VLAN"),
+        help_text=_("VLAN for unknown machines if not rejected")
     )
     unknown_port = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
         default=REJECT,
-        verbose_name=_("Policy for unknown port"),
+        verbose_name=_("Policy for unknown ports"),
     )
     unknown_port_vlan = models.ForeignKey(
         'machines.Vlan',
@@ -619,20 +637,15 @@ class RadiusOption(AclMixin, PreferencesModel):
         related_name='unknown_port_vlan',
         blank=True,
         null=True,
-        verbose_name=_('Unknown port Vlan'),
-        help_text=_(
-            'Vlan for unknown ports if not rejected.'
-        )
+        verbose_name=_("Unknown ports VLAN"),
+        help_text=_("VLAN for unknown ports if not rejected")
     )
     unknown_room = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
         default=REJECT,
-        verbose_name=_(
-            "Policy for machine connecting from "
-            "unregistered room (relevant on ports with STRICT "
-            "radius mode)"
-        ),
+        verbose_name=_("Policy for machines connecting from unregistered rooms"
+                       " (relevant on ports with STRICT RADIUS mode)"),
     )
     unknown_room_vlan = models.ForeignKey(
         'machines.Vlan',
@@ -640,16 +653,14 @@ class RadiusOption(AclMixin, PreferencesModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        verbose_name=_('Unknown room Vlan'),
-        help_text=_(
-            'Vlan for unknown room if not rejected.'
-        )
+        verbose_name=_("Unknown rooms VLAN"),
+        help_text=_("VLAN for unknown rooms if not rejected")
     )
     non_member = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
         default=REJECT,
-        verbose_name=_("Policy non member users."),
+        verbose_name=_("Policy for non members"),
     )
     non_member_vlan = models.ForeignKey(
         'machines.Vlan',
@@ -657,16 +668,14 @@ class RadiusOption(AclMixin, PreferencesModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        verbose_name=_('Non member Vlan'),
-        help_text=_(
-            'Vlan for non members if not rejected.'
-        )
+        verbose_name=_("Non members VLAN"),
+        help_text=_("VLAN for non members if not rejected")
     )
     banned = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
         default=REJECT,
-        verbose_name=_("Policy for banned users."),
+        verbose_name=_("Policy for banned users"),
     )
     banned_vlan = models.ForeignKey(
         'machines.Vlan',
@@ -674,10 +683,8 @@ class RadiusOption(AclMixin, PreferencesModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        verbose_name=_('Banned Vlan'),
-        help_text=_(
-            'Vlan for banned if not rejected.'
-        )
+        verbose_name=_("Banned users VLAN"),
+        help_text=_("VLAN for banned users if not rejected")
     )
     vlan_decision_ok = models.OneToOneField(
         'machines.Vlan',
@@ -687,3 +694,95 @@ class RadiusOption(AclMixin, PreferencesModel):
         null=True
     )
 
+
+def default_invoice():
+    tpl, _ = DocumentTemplate.objects.get_or_create(
+        name="Re2o default invoice",
+        template="templates/default_invoice.tex"
+    )
+    return tpl.id
+
+
+def default_voucher():
+    tpl, _ = DocumentTemplate.objects.get_or_create(
+        name="Re2o default voucher",
+        template="templates/default_voucher.tex"
+    )
+    return tpl.id
+
+
+class CotisationsOption(AclMixin, PreferencesModel):
+    class Meta:
+        verbose_name = _("cotisations options")
+
+    invoice_template = models.OneToOneField(
+        'preferences.DocumentTemplate',
+        verbose_name=_("Template for invoices"),
+        related_name="invoice_template",
+        on_delete=models.PROTECT,
+        default=default_invoice,
+    )
+    voucher_template = models.OneToOneField(
+        'preferences.DocumentTemplate',
+        verbose_name=_("Template for subscription voucher"),
+        related_name="voucher_template",
+        on_delete=models.PROTECT,
+        default=default_voucher,
+    )
+    send_voucher_mail = models.BooleanField(
+        verbose_name=_("Send voucher by email when the invoice is controlled."),
+        default=False,
+    )
+
+
+class DocumentTemplate(RevMixin, AclMixin, models.Model):
+    """Represent a template in order to create documents such as invoice or
+    subscription voucher.
+    """
+    template = models.FileField(
+        upload_to='templates/',
+        verbose_name=_('template')
+    )
+    name = models.CharField(
+        max_length=125,
+        verbose_name=_('name'),
+        unique=True
+    )
+
+    class Meta:
+        verbose_name = _("document template")
+        verbose_name_plural = _("document templates")
+
+    def __str__(self):
+        return str(self.name)
+
+@receiver(models.signals.post_delete, sender=DocumentTemplate)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `DocumentTemplate` object is deleted.
+    """
+    if instance.template:
+        if os.path.isfile(instance.template.path):
+            os.remove(instance.template.path)
+
+
+@receiver(models.signals.pre_save, sender=DocumentTemplate)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `DocumentTemplate` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = DocumentTemplate.objects.get(pk=instance.pk).template
+    except DocumentTemplate.DoesNotExist:
+        return False
+
+    new_file = instance.template
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

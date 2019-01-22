@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-23 15:03+0200\n"
+"POT-Creation-Date: 2019-01-12 16:48+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -41,6 +41,14 @@ msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 #: acl.py:274
 msgid "You don't have the right to edit the history."
 msgstr "Vous n'avez pas le droit de modifier l'historique."
+
+#: base.py:76
+msgid "This domain is already taken."
+msgstr "Ce domaine est déjà pris."
+
+#: base.py:78
+msgid "SMTP unreachable."
+msgstr "SMTP injoignable."
 
 #: mixins.py:111
 #, python-format
@@ -87,15 +95,15 @@ msgstr "À propos de %(AssoName)s"
 #: templates/re2o/about.html:36
 msgid ""
 "Re2o is an administration tool initiated by <a href=\"https://rezometz.org/"
-"\">Rezo Metz</a> and a few members of other <a href=\"https://"
-"federez.net\">FedeRez</a> associations around the summer 2016.<br /> It is "
-"intended to be a tool independant from any network infrastructure so it can "
-"be setup in \"a few steps\". This tool is entirely free and available under "
-"a GNU Public License v2 (GPLv2) license on <a href=\"https://gitlab.federez."
-"net/federez/re2o/\">FedeRez gitlab</a>.<br /> Re2o's mainteners are "
-"volunteers mainly from French schools. <br /> If you want to get involved in "
-"the development process, we will be glad to welcome you so do not hesitate "
-"to contact us and come help us build the future of Re2o."
+"\">Rezo Metz</a> and a few members of other <a href=\"https://federez.net"
+"\">FedeRez</a> associations around the summer 2016.<br /> It is intended to "
+"be a tool independant from any network infrastructure so it can be setup in "
+"\"a few steps\". This tool is entirely free and available under a GNU Public "
+"License v2 (GPLv2) license on <a href=\"https://gitlab.federez.net/federez/"
+"re2o/\">FedeRez gitlab</a>.<br /> Re2o's mainteners are volunteers mainly "
+"from French schools. <br /> If you want to get involved in the development "
+"process, we will be glad to welcome you so do not hesitate to contact us and "
+"come help us build the future of Re2o."
 msgstr ""
 "Re2o est un outil d'administration initié par <a href=\"https://rezometz.org/"
 "\">Rézo Metz</a> et quelques membres d'autres associations de <a href="
@@ -190,7 +198,7 @@ msgstr "Accueil"
 msgid "Welcome to %(name_website)s"
 msgstr "Bienvenue sur %(name_website)s"
 
-#: templates/re2o/index.html:43 templates/re2o/index.html:45
+#: templates/re2o/index.html:43
 msgid "Registration"
 msgstr "Inscription"
 
@@ -202,17 +210,25 @@ msgstr ""
 "Si vous n'avez pas encore de compte et que vous voulez accéder à Internet et "
 "aux services de l'association, créez votre espace personnel."
 
-#: templates/re2o/index.html:55 templates/re2o/index.html:57
+#: templates/re2o/index.html:45
+msgid "Sign up"
+msgstr "S'inscrire"
+
+#: templates/re2o/index.html:55
 msgid "Logging in"
 msgstr "Identification"
 
 #: templates/re2o/index.html:56
 msgid ""
-"If you already have an account, log in. You can manage your subscription to "
+"If you already have an account, log in. You can manage your subscriptions to "
 "the organisation, your machines and all your services."
 msgstr ""
-"Si vous avez déjà un compte, identifiez-vous. Vous pouvez gérer votre "
-"cotisation à l'association, vos machines et tous vos services."
+"Si vous avez déjà un compte, identifiez-vous. Vous pouvez gérer vos "
+"cotisations à l'association, vos machines et tous vos services."
+
+#: templates/re2o/index.html:57
+msgid "Log in"
+msgstr "Se connecter"
 
 #: templates/re2o/index.html:68
 msgid "My profile"
@@ -220,10 +236,10 @@ msgstr "Mon profil"
 
 #: templates/re2o/index.html:69
 msgid ""
-"To manage your subscription, your machines and all your services, access "
+"To manage your subscriptions, your machines and all your services, access "
 "your profile."
 msgstr ""
-"Pour gérer votre cotisation, vos machines et tous vos services, accéder à "
+"Pour gérer vos cotisations, vos machines et tous vos services, accéder à "
 "votre profil."
 
 #: templates/re2o/index.html:70
@@ -249,5 +265,5 @@ msgid "Follow @%(twitter_account_name)s"
 msgstr "Suivre @%(twitter_account_name)s"
 
 #: views.py:87
-msgid "Unable to get the information"
-msgstr "Impossible d'obtenir l'information"
+msgid "Unable to get the information."
+msgstr "Impossible d'obtenir l'information."

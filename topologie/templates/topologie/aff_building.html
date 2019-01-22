@@ -27,15 +27,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if building_list.paginator %}
-{% include "pagination.html" with list=building_list %}
+    {% include 'pagination.html' with list=building_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
             {% trans "Building" as tr_building %}
-            <th>{% include "buttons/sort.html" with prefix='building' col='name' text=tr_building %}</th>
-            <th>Wireless AP</th>
+            <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
+            <th>{% trans "Access points" %}</th>
             <th></th>
         </tr>
     </thead>
@@ -45,15 +45,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{% for ap in building.all_ap_in %} {{ ap.short_name }} {% endfor %}</td>
         <td class="text-right">
             {% can_edit building %}
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-building' building.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='topologie:edit-building' id=building.id %}
             {% acl_end %}
             {% history_button building %}
             {% can_delete building %}
-            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-building' building.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+	    {% include 'buttons/suppr.html' with href='topologie:del-building' id=building.id %}
             {% acl_end %}
         </td>
     </tr>
@@ -61,6 +57,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if building_list.paginator %}
-{% include "pagination.html" with list=building_list %}
+    {% include 'pagination.html' with list=building_list %}
 {% endif %}
 

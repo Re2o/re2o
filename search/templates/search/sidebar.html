@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -26,11 +26,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    <a class="list-group-item list-group-item-warning" href="{% url "search:search" %}">
+    <a class="list-group-item list-group-item-warning" href="{% url 'search:search' %}">
         <i class="fa fa-search"></i>
         {% trans "Simple search" %}
     </a>
-    <a class="list-group-item list-group-item-warning" href="{% url "search:searchp" %}">
+    <a class="list-group-item list-group-item-warning" href="{% url 'search:searchp' %}">
         <i class="fa fa-search-plus"></i>
         {% trans "Advanced search" %}
     </a>

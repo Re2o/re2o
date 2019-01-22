@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-18 13:17+0200\n"
+"POT-Creation-Date: 2019-01-12 16:50+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language: fr_FR\n"
@@ -33,79 +33,98 @@ msgstr ""
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: forms.py:63 forms.py:274
+#: forms.py:66 forms.py:299
 msgid "Select a payment method"
 msgstr "Sélectionnez un moyen de paiement"
 
-#: forms.py:66 models.py:510
+#: forms.py:69 models.py:579
 msgid "Member"
 msgstr "Adhérent"
 
-#: forms.py:68
+#: forms.py:71
 msgid "Select the proprietary member"
 msgstr "Sélectionnez l'adhérent propriétaire"
 
-#: forms.py:69
+#: forms.py:72
 msgid "Validated invoice"
 msgstr "Facture validée"
 
-#: forms.py:82
+#: forms.py:85
 msgid "A payment method must be specified."
 msgstr "Un moyen de paiement doit être renseigné."
 
-#: forms.py:96 forms.py:120 templates/cotisations/aff_article.html:33
-#: templates/cotisations/facture.html:61
+#: forms.py:97 templates/cotisations/aff_article.html:33
+#: templates/cotisations/facture.html:67
 msgid "Article"
 msgstr "Article"
 
-#: forms.py:100 forms.py:124 templates/cotisations/edit_facture.html:46
+#: forms.py:101 templates/cotisations/edit_facture.html:50
 msgid "Quantity"
 msgstr "Quantité"
 
-#: forms.py:154
+#: forms.py:119
+msgid "Discount is on percentage."
+msgstr "La réduction est en pourcentage."
+
+#: forms.py:123 templates/cotisations/facture.html:78
+msgid "Discount"
+msgstr "Réduction"
+
+#: forms.py:140
+#, python-format
+msgid "{}% discount"
+msgstr "{}% de réduction"
+
+#: forms.py:140
+msgid "{}€ discount"
+msgstr "{}€ de réduction"
+
+#: forms.py:179
 msgid "Article name"
 msgstr "Nom de l'article"
 
-#: forms.py:164 templates/cotisations/sidebar.html:50
+#: forms.py:189 templates/cotisations/sidebar.html:55
 msgid "Available articles"
 msgstr "Articles disponibles"
 
-#: forms.py:192
+#: forms.py:217
 msgid "Payment method name"
 msgstr "Nom du moyen de paiement"
 
-#: forms.py:204
+#: forms.py:229
 msgid "Available payment methods"
 msgstr "Moyens de paiement disponibles"
 
-#: forms.py:230
+#: forms.py:255
 msgid "Bank name"
 msgstr "Nom de la banque"
 
-#: forms.py:242
+#: forms.py:267
 msgid "Available banks"
 msgstr "Banques disponibles"
 
-#: forms.py:261
+#: forms.py:286
 msgid "Amount"
 msgstr "Montant"
 
-#: forms.py:267 templates/cotisations/aff_cotisations.html:44
+#: forms.py:292 templates/cotisations/aff_cost_estimate.html:42
+#: templates/cotisations/aff_cotisations.html:44
 #: templates/cotisations/aff_custom_invoice.html:42
 #: templates/cotisations/control.html:66
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: forms.py:287
+#: forms.py:313
 #, python-format
 msgid ""
-"Requested amount is too high. Your balance can't exceed                 "
+"Requested amount is too high. Your balance can't exceed "
 "%(max_online_balance)s €."
 msgstr ""
-"Le montant demandé trop grand. Votre solde ne peut excéder                 "
+"Le montant demandé est trop grand. Votre solde ne peut excéder "
 "%(max_online_balance)s €."
 
-#: models.py:60 templates/cotisations/aff_cotisations.html:48
+#: models.py:60 templates/cotisations/aff_cost_estimate.html:46
+#: templates/cotisations/aff_cotisations.html:48
 #: templates/cotisations/aff_custom_invoice.html:46
 #: templates/cotisations/control.html:70
 msgid "Date"
@@ -133,9 +152,9 @@ msgstr "Peut voir un objet facture"
 
 #: models.py:158
 msgid "Can edit all the previous invoices"
-msgstr "Peut modifier toutes les factures existantes"
+msgstr "Peut modifier toutes les factures précédentes"
 
-#: models.py:160 models.py:305
+#: models.py:160 models.py:373
 msgid "invoice"
 msgstr "facture"
 
@@ -156,128 +175,149 @@ msgid ""
 "You don't have the right to edit an invoice already controlled or "
 "invalidated."
 msgstr ""
-"Vous n'avez pas le droit de modifier une facture précedemment contrôlée ou "
+"Vous n'avez pas le droit de modifier une facture précédemment contrôlée ou "
 "invalidée."
 
 #: models.py:184
 msgid "You don't have the right to delete an invoice."
 msgstr "Vous n'avez pas le droit de supprimer une facture."
 
-#: models.py:186
+#: models.py:187
 msgid "You don't have the right to delete this user's invoices."
 msgstr "Vous n'avez pas le droit de supprimer les factures de cet utilisateur."
 
-#: models.py:189
+#: models.py:191
 msgid ""
 "You don't have the right to delete an invoice already controlled or "
 "invalidated."
 msgstr ""
-"Vous n'avez pas le droit de supprimer une facture précedement contrôlée ou "
+"Vous n'avez pas le droit de supprimer une facture précédemment contrôlée ou "
 "invalidée."
 
-#: models.py:197
+#: models.py:199
 msgid "You don't have the right to view someone else's invoices history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des factures d'un autre "
 "utilisateur."
 
-#: models.py:200
+#: models.py:202
 msgid "The invoice has been invalidated."
 msgstr "La facture a été invalidée."
 
-#: models.py:210
+#: models.py:214
 msgid "You don't have the right to edit the \"controlled\" state."
 msgstr "Vous n'avez pas le droit de modifier le statut \"contrôlé\"."
 
-#: models.py:224
+#: models.py:228
 msgid "There are no payment method which you can use."
 msgstr "Il n'y a pas de moyen de paiement que vous puissiez utiliser."
 
-#: models.py:226
+#: models.py:230
 msgid "There are no article that you can buy."
 msgstr "Il n'y a pas d'article que vous puissiez acheter."
 
-#: models.py:261
+#: models.py:272
 msgid "Can view a custom invoice object"
 msgstr "Peut voir un objet facture personnalisée"
 
-#: models.py:265 templates/cotisations/aff_custom_invoice.html:36
+#: models.py:276 templates/cotisations/aff_cost_estimate.html:36
+#: templates/cotisations/aff_custom_invoice.html:36
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models.py:269 templates/cotisations/aff_paiement.html:33
+#: models.py:280 templates/cotisations/aff_paiement.html:33
 msgid "Payment type"
 msgstr "Type de paiement"
 
-#: models.py:273
+#: models.py:284
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:276 templates/cotisations/aff_custom_invoice.html:54
+#: models.py:287 templates/cotisations/aff_custom_invoice.html:54
 msgid "Paid"
 msgstr "Payé"
 
-#: models.py:296 models.py:516 models.py:764
+#: models.py:291
+msgid "Remark"
+msgstr "Remarque"
+
+#: models.py:300
+msgid "Can view a cost estimate object"
+msgstr "Peut voir un objet devis"
+
+#: models.py:303
+msgid "Period of validity"
+msgstr "Période de validité"
+
+#: models.py:340
+msgid "You don't have the right to delete a cost estimate."
+msgstr "Vous n'avez pas le droit de supprimer un devis."
+
+#: models.py:343
+msgid "The cost estimate has an invoice and can't be deleted."
+msgstr "Le devis a une facture et ne peut pas être supprimé."
+
+#: models.py:364 models.py:585 models.py:852
 msgid "Connection"
 msgstr "Connexion"
 
-#: models.py:297 models.py:517 models.py:765
+#: models.py:365 models.py:586 models.py:853
 msgid "Membership"
 msgstr "Adhésion"
 
-#: models.py:298 models.py:512 models.py:518 models.py:766
+#: models.py:366 models.py:581 models.py:587 models.py:854
 msgid "Both of them"
 msgstr "Les deux"
 
-#: models.py:310
+#: models.py:378
 msgid "amount"
 msgstr "montant"
 
-#: models.py:315
+#: models.py:383
 msgid "article"
 msgstr "article"
 
-#: models.py:322
+#: models.py:390
 msgid "price"
 msgstr "prix"
 
-#: models.py:327 models.py:535
+#: models.py:395 models.py:604
 msgid "duration (in months)"
 msgstr "durée (en mois)"
 
-#: models.py:335 models.py:549 models.py:780
+#: models.py:403 models.py:618 models.py:868
 msgid "subscription type"
 msgstr "type de cotisation"
 
-#: models.py:340
+#: models.py:408
 msgid "Can view a purchase object"
 msgstr "Peut voir un objet achat"
 
-#: models.py:341
+#: models.py:409
 msgid "Can edit all the previous purchases"
 msgstr "Peut modifier tous les achats précédents"
 
-#: models.py:343 models.py:774
+#: models.py:411 models.py:862
 msgid "purchase"
 msgstr "achat"
 
-#: models.py:344
+#: models.py:412
 msgid "purchases"
 msgstr "achats"
 
-#: models.py:411 models.py:573
+#: models.py:479 models.py:642
 msgid "Duration must be specified for a subscription."
 msgstr "La durée de la cotisation doit être indiquée."
 
-#: models.py:418
+#: models.py:486
 msgid "You don't have the right to edit the purchases."
 msgstr "Vous n'avez pas le droit de modifier les achats."
 
-#: models.py:423
+#: models.py:491
 msgid "You don't have the right to edit this user's purchases."
 msgstr "Vous n'avez pas le droit de modifier les achats de cet utilisateur."
 
-#: models.py:427
+#: models.py:495
 msgid ""
 "You don't have the right to edit a purchase already controlled or "
 "invalidated."
@@ -285,150 +325,150 @@ msgstr ""
 "Vous n'avez pas le droit de modifier un achat précédemment contrôlé ou "
 "invalidé."
 
-#: models.py:434
+#: models.py:502
 msgid "You don't have the right to delete a purchase."
 msgstr "Vous n'avez pas le droit de supprimer un achat."
 
-#: models.py:436
+#: models.py:504
 msgid "You don't have the right to delete this user's purchases."
 msgstr "Vous n'avez pas le droit de supprimer les achats de cet utilisateur."
 
-#: models.py:439
+#: models.py:507
 msgid ""
 "You don't have the right to delete a purchase already controlled or "
 "invalidated."
 msgstr ""
-"Vous n'avez pas le droit de supprimer un achat précédement contrôlé ou "
+"Vous n'avez pas le droit de supprimer un achat précédemment contrôlé ou "
 "invalidé."
 
-#: models.py:447
+#: models.py:515
 msgid "You don't have the right to view someone else's purchase history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des achats d'un autre "
 "utilisateur."
 
-#: models.py:511
+#: models.py:580
 msgid "Club"
 msgstr "Club"
 
-#: models.py:523
+#: models.py:592
 msgid "designation"
 msgstr "désignation"
 
-#: models.py:529
+#: models.py:598
 msgid "unit price"
 msgstr "prix unitaire"
 
-#: models.py:541
+#: models.py:610
 msgid "type of users concerned"
 msgstr "type d'utilisateurs concernés"
 
-#: models.py:553 models.py:649
+#: models.py:622 models.py:733
 msgid "is available for every user"
 msgstr "est disponible pour chaque utilisateur"
 
-#: models.py:560
+#: models.py:629
 msgid "Can view an article object"
 msgstr "Peut voir un objet article"
 
-#: models.py:561
+#: models.py:630
 msgid "Can buy every article"
 msgstr "Peut acheter chaque article"
 
-#: models.py:569
+#: models.py:638
 msgid "Balance is a reserved article name."
 msgstr "Solde est un nom d'article réservé."
 
-#: models.py:594
+#: models.py:663
 msgid "You can't buy this article."
 msgstr "Vous ne pouvez pas acheter cet article."
 
-#: models.py:624
+#: models.py:708
 msgid "Can view a bank object"
 msgstr "Peut voir un objet banque"
 
-#: models.py:626
+#: models.py:710
 msgid "bank"
 msgstr "banque"
 
-#: models.py:627
+#: models.py:711
 msgid "banks"
 msgstr "banques"
 
-#: models.py:645
+#: models.py:729
 msgid "method"
 msgstr "moyen"
 
-#: models.py:654
+#: models.py:738
 msgid "is user balance"
 msgstr "est solde utilisateur"
 
-#: models.py:655
+#: models.py:739
 msgid "There should be only one balance payment method."
 msgstr "Il ne devrait y avoir qu'un moyen de paiement solde."
 
-#: models.py:661
+#: models.py:745
 msgid "Can view a payment method object"
 msgstr "Peut voir un objet moyen de paiement"
 
-#: models.py:662
+#: models.py:746
 msgid "Can use every payment method"
 msgstr "Peut utiliser chaque moyen de paiement"
 
-#: models.py:664
+#: models.py:748
 msgid "payment method"
 msgstr "moyen de paiement"
 
-#: models.py:665
+#: models.py:749
 msgid "payment methods"
 msgstr "moyens de paiement"
 
-#: models.py:699 payment_methods/comnpay/views.py:63
+#: models.py:787 payment_methods/comnpay/views.py:63
 #, python-format
 msgid "The subscription of %(member_name)s was extended to %(end_date)s."
 msgstr "La cotisation de %(member_name)s a été étendue au %(end_date)s."
 
-#: models.py:709
+#: models.py:797
 msgid "The invoice was created."
 msgstr "La facture a été créée."
 
-#: models.py:730
+#: models.py:818
 msgid "You can't use this payment method."
 msgstr "Vous ne pouvez pas utiliser ce moyen de paiement."
 
-#: models.py:748
+#: models.py:836
 msgid "No custom payment method."
 msgstr "Pas de moyen de paiement personnalisé."
 
-#: models.py:783
+#: models.py:871
 msgid "start date"
 msgstr "date de début"
 
-#: models.py:786
+#: models.py:874
 msgid "end date"
 msgstr "date de fin"
 
-#: models.py:791
+#: models.py:879
 msgid "Can view a subscription object"
 msgstr "Peut voir un objet cotisation"
 
-#: models.py:792
+#: models.py:880
 msgid "Can edit the previous subscriptions"
 msgstr "Peut modifier les cotisations précédentes"
 
-#: models.py:794
+#: models.py:882
 msgid "subscription"
 msgstr "cotisation"
 
-#: models.py:795
+#: models.py:883
 msgid "subscriptions"
 msgstr "cotisations"
 
-#: models.py:799
+#: models.py:887
 msgid "You don't have the right to edit a subscription."
 msgstr "Vous n'avez pas le droit de modifier une cotisation."
 
-#: models.py:803
+#: models.py:891
 msgid ""
 "You don't have the right to edit a subscription already controlled or "
 "invalidated."
@@ -436,11 +476,11 @@ msgstr ""
 "Vous n'avez pas le droit de modifier une cotisation précédemment contrôlée "
 "ou invalidée."
 
-#: models.py:810
+#: models.py:898
 msgid "You don't have the right to delete a subscription."
 msgstr "Vous n'avez pas le droit de supprimer une cotisation."
 
-#: models.py:813
+#: models.py:901
 msgid ""
 "You don't have the right to delete a subscription already controlled or "
 "invalidated."
@@ -448,7 +488,7 @@ msgstr ""
 "Vous n'avez pas le droit de supprimer une cotisation précédemment contrôlée "
 "ou invalidée."
 
-#: models.py:821
+#: models.py:909
 msgid "You don't have the right to view someone else's subscription history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des cotisations d'un autre "
@@ -482,11 +522,11 @@ msgstr "Le montant maximal d'argent autorisé pour le solde."
 msgid "Allow user to credit their balance"
 msgstr "Autorise l'utilisateur à créditer son solde"
 
-#: payment_methods/balance/models.py:81 payment_methods/balance/models.py:112
+#: payment_methods/balance/models.py:79 payment_methods/balance/models.py:110
 msgid "Your balance is too low for this operation."
 msgstr "Votre solde est trop bas pour cette opération."
 
-#: payment_methods/balance/models.py:99 validators.py:20
+#: payment_methods/balance/models.py:97 validators.py:20
 msgid "There is already a payment method for user balance."
 msgstr "Il y a déjà un moyen de paiement pour le solde utilisateur."
 
@@ -523,11 +563,11 @@ msgstr ""
 msgid "Production mode enabled (production URL, instead of homologation)"
 msgstr "Mode production activé (URL de production, au lieu d'homologation)"
 
-#: payment_methods/comnpay/models.py:104
+#: payment_methods/comnpay/models.py:102
 msgid "Pay invoice number "
 msgstr "Payer la facture numéro "
 
-#: payment_methods/comnpay/models.py:116
+#: payment_methods/comnpay/models.py:114
 msgid ""
 "In order to pay your invoice with ComNpay, the price must be greater than {} "
 "€."
@@ -559,6 +599,30 @@ msgstr ""
 msgid "no"
 msgstr "non"
 
+#: payment_methods/note_kfet/forms.py:32
+msgid "pseudo note"
+msgstr "pseudo note"
+
+#: payment_methods/note_kfet/forms.py:35
+msgid "Password"
+msgstr "Mot de passe"
+
+#: payment_methods/note_kfet/models.py:40
+msgid "NoteKfet"
+msgstr "NoteKfet"
+
+#: payment_methods/note_kfet/models.py:50
+msgid "server"
+msgstr "serveur"
+
+#: payment_methods/note_kfet/views.py:60
+msgid "Unknown error."
+msgstr "Erreur inconnue."
+
+#: payment_methods/note_kfet/views.py:88
+msgid "The payment with note was done."
+msgstr "Le paiement par note a été effectué."
+
 #: templates/cotisations/aff_article.html:34
 msgid "Price"
 msgstr "Prix"
@@ -579,33 +643,46 @@ msgstr "Utilisateurs concernés"
 msgid "Available for everyone"
 msgstr "Disponible pour tous"
 
-#: templates/cotisations/aff_article.html:52
-#: templates/cotisations/aff_paiement.html:48
-#: templates/cotisations/control.html:107 views.py:483 views.py:570
-#: views.py:650
-msgid "Edit"
-msgstr "Modifier"
-
 #: templates/cotisations/aff_banque.html:32
 msgid "Bank"
 msgstr "Banque"
 
-#: templates/cotisations/aff_cotisations.html:38
-msgid "User"
-msgstr "Utilisateur"
-
+#: templates/cotisations/aff_cost_estimate.html:39
 #: templates/cotisations/aff_cotisations.html:41
 #: templates/cotisations/aff_custom_invoice.html:39
 #: templates/cotisations/control.html:63
-#: templates/cotisations/edit_facture.html:45
+#: templates/cotisations/edit_facture.html:49
 msgid "Designation"
 msgstr "Désignation"
 
+#: templates/cotisations/aff_cost_estimate.html:40
 #: templates/cotisations/aff_cotisations.html:42
 #: templates/cotisations/aff_custom_invoice.html:40
 #: templates/cotisations/control.html:64
 msgid "Total price"
 msgstr "Prix total"
+
+#: templates/cotisations/aff_cost_estimate.html:50
+msgid "Validity"
+msgstr "Validité"
+
+#: templates/cotisations/aff_cost_estimate.html:54
+msgid "Cost estimate ID"
+msgstr "ID devis"
+
+#: templates/cotisations/aff_cost_estimate.html:58
+msgid "Invoice created"
+msgstr "Facture créée"
+
+#: templates/cotisations/aff_cost_estimate.html:91
+#: templates/cotisations/aff_cotisations.html:81
+#: templates/cotisations/aff_custom_invoice.html:79
+msgid "PDF"
+msgstr "PDF"
+
+#: templates/cotisations/aff_cotisations.html:38
+msgid "User"
+msgstr "Utilisateur"
 
 #: templates/cotisations/aff_cotisations.html:52
 #: templates/cotisations/aff_custom_invoice.html:50
@@ -616,11 +693,6 @@ msgstr "ID facture"
 #: templates/cotisations/aff_cotisations.html:71
 msgid "Controlled invoice"
 msgstr "Facture contrôlée"
-
-#: templates/cotisations/aff_cotisations.html:81
-#: templates/cotisations/aff_custom_invoice.html:79
-msgid "PDF"
-msgstr "PDF"
 
 #: templates/cotisations/aff_cotisations.html:84
 msgid "Invalidated invoice"
@@ -666,6 +738,11 @@ msgstr "Validé"
 msgid "Controlled"
 msgstr "Contrôlé"
 
+#: templates/cotisations/control.html:107 views.py:642 views.py:729
+#: views.py:809
+msgid "Edit"
+msgstr "Modifier"
+
 #: templates/cotisations/delete.html:29
 msgid "Deletion of subscriptions"
 msgstr "Suppression de cotisations"
@@ -676,33 +753,33 @@ msgid ""
 "Warning: are you sure you really want to delete this %(object_name)s object "
 "( %(objet)s )?"
 msgstr ""
-"\tAttention: voulez-vous vraiment supprimer cet objet %(object_name)s  "
+"Attention: voulez-vous vraiment supprimer cet objet %(object_name)s  "
 "( %(objet)s ) ?"
 
 #: templates/cotisations/delete.html:38
-#: templates/cotisations/edit_facture.html:60
-#: views.py:181 views.py:235
+#: templates/cotisations/edit_facture.html:64 views.py:178 views.py:228
+#: views.py:280
 msgid "Confirm"
-msgstr "Valider"
+msgstr "Confirmer"
 
 #: templates/cotisations/edit_facture.html:31
 #: templates/cotisations/facture.html:30
 msgid "Creation and editing of invoices"
 msgstr "Création et modification de factures"
 
-#: templates/cotisations/edit_facture.html:38
-msgid "Edit the invoice"
+#: templates/cotisations/edit_facture.html:41
+msgid "Edit invoice"
 msgstr "Modifier la facture"
 
-#: templates/cotisations/edit_facture.html:41
-#: templates/cotisations/facture.html:56
+#: templates/cotisations/edit_facture.html:45
+#: templates/cotisations/facture.html:62
 #: templates/cotisations/index_article.html:30
 msgid "Articles"
 msgstr "Articles"
 
 #: templates/cotisations/facture.html:37
 msgid "Buy"
-msgstr "Acheter une cotisation"
+msgstr "Acheter"
 
 #: templates/cotisations/facture.html:40
 #, python-format
@@ -714,11 +791,11 @@ msgstr "Solde maximum autorisé : %(max_balance)s €"
 msgid "Current balance: %(balance)s €"
 msgstr "Solde actuel : %(balance)s €"
 
-#: templates/cotisations/facture.html:70
+#: templates/cotisations/facture.html:76
 msgid "Add an extra article"
 msgstr "Ajouter un article supplémentaire"
 
-#: templates/cotisations/facture.html:72
+#: templates/cotisations/facture.html:82
 msgid "Total price: <span id=\"total_price\">0,00</span> €"
 msgstr "Prix total : <span id=\"total_price\">0,00</span> €"
 
@@ -730,9 +807,8 @@ msgstr "Factures"
 msgid "Subscriptions"
 msgstr "Cotisations"
 
-
 #: templates/cotisations/index_article.html:33
-msgid "Article types list"
+msgid "List of article types"
 msgstr "Liste des types d'article"
 
 #: templates/cotisations/index_article.html:36
@@ -744,12 +820,12 @@ msgid "Delete one or several article types"
 msgstr "Supprimer un ou plusieurs types d'article"
 
 #: templates/cotisations/index_banque.html:30
-#: templates/cotisations/sidebar.html:55
+#: templates/cotisations/sidebar.html:60
 msgid "Banks"
 msgstr "Banques"
 
 #: templates/cotisations/index_banque.html:33
-msgid "Banks list"
+msgid "List of banks"
 msgstr "Liste des banques"
 
 #: templates/cotisations/index_banque.html:36
@@ -760,17 +836,26 @@ msgstr "Ajouter une banque"
 msgid "Delete one or several banks"
 msgstr "Supprimer une ou plusieurs banques"
 
+#: templates/cotisations/index_cost_estimate.html:28
+#: templates/cotisations/sidebar.html:50
+msgid "Cost estimates"
+msgstr "Devis"
+
+#: templates/cotisations/index_cost_estimate.html:31
+msgid "List of cost estimates"
+msgstr "Liste des devis"
+
 #: templates/cotisations/index_custom_invoice.html:28
 #: templates/cotisations/sidebar.html:45
 msgid "Custom invoices"
 msgstr "Factures personnalisées"
 
 #: templates/cotisations/index_custom_invoice.html:31
-msgid "Custom invoices list"
-msgstr "Liste des factures personalisées"
+msgid "List of custom invoices"
+msgstr "Liste des factures personnalisées"
 
 #: templates/cotisations/index_paiement.html:30
-#: templates/cotisations/sidebar.html:60
+#: templates/cotisations/sidebar.html:65
 msgid "Payment methods"
 msgstr "Moyens de paiement"
 
@@ -793,9 +878,9 @@ msgstr "Rechargement de solde"
 #: templates/cotisations/payment.html:34
 #, python-format
 msgid "Pay %(amount)s €"
-msgstr "Recharger de %(amount)s €"
+msgstr "Payer %(amount)s €"
 
-#: templates/cotisations/payment.html:42 views.py:870
+#: templates/cotisations/payment.html:42 views.py:1049
 msgid "Pay"
 msgstr "Payer"
 
@@ -807,81 +892,104 @@ msgstr "Créer une facture"
 msgid "Control the invoices"
 msgstr "Contrôler les factures"
 
-#: views.py:167
+#: views.py:164
 msgid "You need to choose at least one article."
 msgstr "Vous devez choisir au moins un article."
 
+#: views.py:222
+msgid "The cost estimate was created."
+msgstr "Le devis a été créé."
 
-#: views.py:228
+#: views.py:232 views.py:534
+msgid "Cost estimate"
+msgstr "Devis"
+
+#: views.py:274
 msgid "The custom invoice was created."
 msgstr "La facture personnalisée a été créée."
 
-#: views.py:316 views.py:370
+#: views.py:363 views.py:466
 msgid "The invoice was edited."
 msgstr "La facture a été modifiée."
 
-#: views.py:336 views.py:430
+#: views.py:383 views.py:589
 msgid "The invoice was deleted."
 msgstr "La facture a été supprimée."
 
-#: views.py:341 views.py:435
+#: views.py:388 views.py:594
 msgid "Invoice"
 msgstr "Facture"
 
-#: views.py:456
+#: views.py:417
+msgid "The cost estimate was edited."
+msgstr "Le devis a été modifié."
+
+#: views.py:424
+msgid "Edit cost estimate"
+msgstr "Modifier le devis"
+
+#: views.py:436
+msgid "An invoice was successfully created from your cost estimate."
+msgstr "Une facture a bien été créée à partir de votre devis."
+
+#: views.py:529
+msgid "The cost estimate was deleted."
+msgstr "Le devis a été supprimé."
+
+#: views.py:615
 msgid "The article was created."
 msgstr "L'article a été créé."
 
-#: views.py:461 views.py:534 views.py:627
+#: views.py:620 views.py:693 views.py:786
 msgid "Add"
 msgstr "Ajouter"
 
-#: views.py:462
+#: views.py:621
 msgid "New article"
 msgstr "Nouvel article"
 
-#: views.py:478
+#: views.py:637
 msgid "The article was edited."
 msgstr "L'article a été modifié."
 
-#: views.py:484
+#: views.py:643
 msgid "Edit article"
 msgstr "Modifier l'article"
 
-#: views.py:500
+#: views.py:659
 msgid "The articles were deleted."
 msgstr "Les articles ont été supprimés."
 
-#: views.py:505 views.py:605 views.py:685
+#: views.py:664 views.py:764 views.py:844
 msgid "Delete"
 msgstr "Supprimer"
 
-#: views.py:506
+#: views.py:665
 msgid "Delete article"
 msgstr "Supprimer l'article"
 
-#: views.py:528
+#: views.py:687
 msgid "The payment method was created."
 msgstr "Le moyen de paiment a été créé."
 
-#: views.py:535
+#: views.py:694
 msgid "New payment method"
 msgstr "Nouveau moyen de paiement"
 
-#: views.py:564
+#: views.py:723
 msgid "The payment method was edited."
 msgstr "Le moyen de paiment a été modifié."
 
-#: views.py:571
+#: views.py:730
 msgid "Edit payment method"
 msgstr "Modifier le moyen de paiement"
 
-#: views.py:590
+#: views.py:749
 #, python-format
 msgid "The payment method %(method_name)s was deleted."
 msgstr "Le moyen de paiement %(method_name)s a été supprimé."
 
-#: views.py:597
+#: views.py:756
 #, python-format
 msgid ""
 "The payment method %(method_name)s can't be deleted                     "
@@ -890,52 +998,51 @@ msgstr ""
 "Le moyen de paiement %(method_name)s ne peut pas être supprimé car il y a "
 "des factures qui l'utilisent."
 
-#: views.py:606
+#: views.py:765
 msgid "Delete payment method"
 msgstr "Supprimer le moyen de paiement"
 
-#: views.py:622
+#: views.py:781
 msgid "The bank was created."
 msgstr "La banque a été créée."
 
-#: views.py:628
+#: views.py:787
 msgid "New bank"
 msgstr "Nouvelle banque"
 
-#: views.py:645
+#: views.py:804
 msgid "The bank was edited."
 msgstr "La banque a été modifiée."
 
-#: views.py:651
+#: views.py:810
 msgid "Edit bank"
 msgstr "Modifier la banque"
 
-#: views.py:670
+#: views.py:829
 #, python-format
 msgid "The bank %(bank_name)s was deleted."
 msgstr "La banque %(bank_name)s a été supprimée."
 
-#: views.py:677
+#: views.py:836
 #, python-format
 msgid ""
-"The bank %(bank_name)s can't be deleted                     because there "
-"are invoices using it."
+"The bank %(bank_name)s can't be deleted because there are invoices using it."
 msgstr ""
 "La banque %(bank_name)s ne peut pas être supprimée car il y a des factures "
 "qui l'utilisent."
 
-#: views.py:686
+#: views.py:845
 msgid "Delete bank"
 msgstr "Supprimer la banque"
 
-#: views.py:722
+#: views.py:881
 msgid "Your changes have been properly taken into account."
 msgstr "Vos modifications ont correctement été prises en compte."
 
-#: views.py:834
+#: views.py:1016
 msgid "You are not allowed to credit your balance."
 msgstr "Vous n'êtes pas autorisés à créditer votre solde."
 
-#: views.py:869
+#: views.py:1048
 msgid "Refill your balance"
 msgstr "Recharger votre solde"

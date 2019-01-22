@@ -43,8 +43,11 @@ from .models import (
     RadiusKey,
     SwitchManagementCred,
     RadiusOption,
+    CotisationsOption,
+    DocumentTemplate
 )
 from topologie.models import Switch
+
 
 class EditOptionalUserForm(ModelForm):
     """Formulaire d'édition des options de l'user. (solde, telephone..)"""
@@ -115,11 +118,6 @@ class EditOptionalTopologieForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['radius_general_policy'].label = _("RADIUS general policy")
-        self.fields['vlan_decision_ok'].label = _("VLAN for machines accepted"
-                                                  " by RADIUS")
-        self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
-                                                   " by RADIUS")
 
         self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True).order_by('interface__domain__name')
 
@@ -187,9 +185,6 @@ class EditAssoOptionForm(ModelForm):
         self.fields['pseudo'].label = _("Usual name")
         self.fields['utilisateur_asso'].label = _("Account used for editing"
                                                   " from /admin")
-        self.fields['payment'].label = _("Payment")
-        self.fields['payment_id'].label = _("Payment ID")
-        self.fields['payment_pass'].label = _("Payment password")
         self.fields['description'].label = _("Description")
 
 
@@ -234,6 +229,34 @@ class EditRadiusOptionForm(ModelForm):
     """Edition forms for Radius options"""
     class Meta:
         model = RadiusOption
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ignored=('radius_general_policy', 'vlan_decision_ok')
+        fields = (
+            f for f in self.fields.keys()
+            if 'vlan' not in f and f not in ignored
+        )
+        for f in fields:
+            choice = cleaned_data.get(f)
+            vlan = cleaned_data.get(f+'_vlan')
+            if choice == RadiusOption.SET_VLAN and vlan is None:
+                self.add_error(
+                    f,
+                    _("You chose to set vlan but did not set any VLAN."),
+                )
+                self.add_error(
+                    f+'_vlan',
+                    _("Please, choose a VLAN."),
+                )
+        return cleaned_data
+
+
+class EditCotisationsOptionForm(ModelForm):
+    """Edition forms for Cotisations options"""
+    class Meta:
+        model = CotisationsOption
         fields = '__all__'
 
 
@@ -343,7 +366,7 @@ class DelMailContactForm(Form):
     """Delete contact email adress"""
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
-        label="Enregistrements adresses actuels",
+        label=_("Current email addresses"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -355,3 +378,36 @@ class DelMailContactForm(Form):
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
 
+
+class DocumentTemplateForm(FormRevMixin, ModelForm):
+    """
+    Form used to create a document template.
+    """
+    class Meta:
+        model = DocumentTemplate
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(DocumentTemplateForm, self).__init__(
+            *args, prefix=prefix, **kwargs)
+
+
+class DelDocumentTemplateForm(FormRevMixin, Form):
+    """
+    Form used to delete one or more document templatess.
+    The use must choose the one to delete by checking the boxes.
+    """
+    document_templates = forms.ModelMultipleChoiceField(
+        queryset=DocumentTemplate.objects.none(),
+        label=_("Available document templates"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelDocumentTemplateForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['document_templates'].queryset = instances
+        else:
+            self.fields['document_templates'].queryset = Banque.objects.all()

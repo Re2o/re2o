@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ ns.ns }}</td>
             <td class="text-right">
                 {% can_edit ns %}
-                    {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-ns' id=ns.id %}
                 {% acl_end %}
                 {% history_button ns %}
             </td>

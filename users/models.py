@@ -189,10 +189,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     STATE_ARCHIVE = 2
     STATE_NOT_YET_ACTIVE = 3
     STATES = (
-        (0, 'STATE_ACTIVE'),
-        (1, 'STATE_DISABLED'),
-        (2, 'STATE_ARCHIVE'),
-        (3, 'STATE_NOT_YET_ACTIVE'),
+        (0, _("Active")),
+        (1, _("Disabled")),
+        (2, _("Archived")),
+        (3, _("Not yet active")),
     )
 
     surname = models.CharField(max_length=255)
@@ -337,7 +337,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_active(self):
         """Enable this user if he subscribed successfully one time before"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists():
+            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists() or OptionalUser.get_cached_value('all_users_active'):
                 self.state = self.STATE_ACTIVE
                 self.save()
 
@@ -356,7 +356,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie le nom complet de l'user formaté nom/prénom"""
         name = self.name
         if name:
-            return '%s %s' % (name, self.surname)
+            return "%s %s" % (name, self.surname)
         else:
             return self.surname
 
@@ -475,7 +475,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie si un utilisateur a accès à internet """
         return (self.state == User.STATE_ACTIVE and
                 not self.is_ban() and
-                (self.is_connected() or self.is_whitelisted()))
+                (self.is_connected() or self.is_whitelisted())) \
+                or self == AssoOption.get_cached_value('utilisateur_asso')
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
@@ -509,7 +510,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )['total'] or 0
         somme_credit = Vente.objects.filter(
             facture__in=Facture.objects.filter(user=self, valid=True),
-            name="solde"
+            name='solde'
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
@@ -680,7 +681,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             ),
             'expire_in': str(
                 GeneralOption.get_cached_value('req_expire_hrs')
-            ) + ' heures',
+            ) + ' hours',
         }
         send_mail(
             'Changement de mot de passe du %(name)s / Password renewal for '
@@ -695,7 +696,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
-        if Machine.can_create(self):
+        allowed, _message = Machine.can_create(self, self.id)
+        if not allowed:
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
             return False, _("Re2o doesn't know wich machine type to assign.")
@@ -721,7 +723,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
             return False,  traceback.format_exc()
-        return interface_cible, "Ok"
+        return interface_cible, _("OK")
 
     def notif_auto_newmachine(self, interface):
         """Notification mail lorsque une machine est automatiquement
@@ -1022,19 +1024,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         if (EMailAddress.objects
             .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
-            raise ValidationError("This pseudo is already in use.")
+            raise ValidationError(_("This username is already used."))
         if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
-            raise ValidationError(
-                {'email': (
-                    _("There is neither a local email address nor an external"
+            raise ValidationError(_("There is neither a local email address nor an external"
                       " email address for this user.")
-                ), }
             )
         if self.local_email_redirect and not self.email:
-            raise ValidationError(
-                {'local_email_redirect': (
-                _("You can't redirect your local emails if no external email"
-                  " address has been set.")), }
+            raise ValidationError(_("You can't redirect your local emails if no external email"
+                  " address has been set.")
             )
 
     def __str__(self):
@@ -1053,19 +1050,26 @@ class Adherent(User):
         null=True
     )
     gpg_fingerprint = models.CharField(
-        max_length=40,
+        max_length=49,
         blank=True,
         null=True,
-        validators=[RegexValidator(
-            '^[0-9A-F]{40}$',
-            message=_("A GPG fingerprint must contain 40 hexadecimal"
-                      " characters.")
-        )]
     )
 
     class Meta(User.Meta):
         verbose_name = _("member")
         verbose_name_plural = _("members")
+
+    def format_gpgfp(self):
+        """Format gpg finger print as AAAA BBBB... from a string AAAABBBB...."""
+        self.gpg_fingerprint = ' '.join([self.gpg_fingerprint[i:i + 4] for i in range(0, len(self.gpg_fingerprint), 4)])
+
+    def validate_gpgfp(self):
+        """Validate from raw entry if is it a valid gpg fp"""
+        if self.gpg_fingerprint:
+            gpg_fingerprint = self.gpg_fingerprint.replace(' ', '').upper()
+            if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
+                raise ValidationError(_("A GPG fingerprint must contain 40 hexadecimal characters"))
+            self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):
@@ -1096,6 +1100,13 @@ class Adherent(User):
                     user_request.has_perm('users.add_user'),
                     _("You don't have the right to create a user.")
                 )
+
+    def clean(self, *args, **kwargs):
+        """Format the GPG fingerprint"""
+        super(Adherent, self).clean(*args, **kwargs)
+        if self.gpg_fingerprint:
+            self.validate_gpgfp()
+            self.format_gpgfp()
 
 
 class Club(User):
@@ -1450,7 +1461,7 @@ class Ban(RevMixin, AclMixin, models.Model):
             'asso_name': AssoOption.get_cached_value('name'),
         })
         send_mail(
-            'Deconnexion disciplinaire',
+            'Déconnexion disciplinaire / Disciplinary disconnection',
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
             [self.user.email],

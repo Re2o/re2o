@@ -46,11 +46,14 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
 
+from preferences.models import CotisationsOption
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method, send_mail_invoice
+from cotisations.utils import (
+    find_payment_method, send_mail_invoice, send_mail_voucher
+)
 from cotisations.validators import check_no_balance
 
 
@@ -236,14 +239,34 @@ class Facture(BaseInvoice):
             'control': self.can_change_control,
         }
         self.__original_valid = self.valid
+        self.__original_control = self.control
+
+    def get_subscription(self):
+        """Returns every subscription associated with this invoice."""
+        return Cotisation.objects.filter(
+            vente__in=self.vente_set.filter(
+                Q(type_cotisation='All') |
+                Q(type_cotisation='Adhesion')
+            )
+        )
+
+    def is_subscription(self):
+        """Returns True if this invoice contains at least one subscribtion."""
+        return bool(self.get_subscription())
 
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
         if not self.__original_valid and self.valid:
             send_mail_invoice(self)
+        if self.is_subscription() \
+                and not self.__original_control \
+                and self.control \
+                and CotisationsOption.get_cached_value('send_voucher_mail'):
+            send_mail_voucher(self)
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
+
 
 @receiver(post_save, sender=Facture)
 def facture_post_save(**kwargs):
@@ -284,8 +307,65 @@ class CustomInvoice(BaseInvoice):
         verbose_name=_("Address")
     )
     paid = models.BooleanField(
-        verbose_name=_("Paid")
+        verbose_name=_("Paid"),
+        default=False
     )
+    remark = models.TextField(
+        verbose_name=_("Remark"),
+        blank=True,
+        null=True
+    )
+
+
+class CostEstimate(CustomInvoice):
+    class Meta:
+        permissions = (
+            ('view_costestimate', _("Can view a cost estimate object")),
+        )
+    validity = models.DurationField(
+        verbose_name=_("Period of validity"),
+        help_text="DD HH:MM:SS"
+    )
+    final_invoice = models.ForeignKey(
+        CustomInvoice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="origin_cost_estimate",
+        primary_key=False
+    )
+
+    def create_invoice(self):
+        """Create a CustomInvoice from the CostEstimate."""
+        if self.final_invoice is not None:
+            return self.final_invoice
+        invoice = CustomInvoice()
+        invoice.recipient = self.recipient
+        invoice.payment = self.payment
+        invoice.address = self.address
+        invoice.paid = False
+        invoice.remark = self.remark
+        invoice.date = timezone.now()
+        invoice.save()
+        self.final_invoice = invoice
+        self.save()
+        for sale in self.vente_set.all():
+            Vente.objects.create(
+                facture=invoice,
+                name=sale.name,
+                prix=sale.prix,
+                number=sale.number,
+            )
+        return invoice
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_costestimate'):
+            return False, _("You don't have the right "
+                            "to delete a cost estimate.")
+        if self.final_invoice is not None:
+            return False, _("The cost estimate has an "
+                            "invoice and can't be deleted.")
+        return True, None
 
 
 # TODO : change Vente to Purchase
@@ -624,7 +704,7 @@ class Article(RevMixin, AclMixin, models.Model):
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Adherent')
             )
-        if not target_user.is_adherent():
+        if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
                 Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
             )
@@ -718,7 +798,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         if payment_method is not None and use_payment_method:
             return payment_method.end_payment(invoice, request)
 
-        ## So make this invoice valid, trigger send mail
+        # So make this invoice valid, trigger send mail
         invoice.valid = True
         invoice.save()
 

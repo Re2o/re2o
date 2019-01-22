@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </tr>
     <tr>
         <th>{% trans "VLAN for machines accepted by RADIUS" %}</th>
-		<td><span class="label label-success">Vlan {{ radiusoptions.vlan_decision_ok }}</span></td>
+        <td><span class="label label-success">{% blocktrans with vlan_decision_ok=radiusoptions.vlan_decision_ok %}VLAN {{ vlan_decision_ok }}{% endblocktrans %}</span></td>
     </tr>
 </table>
 <hr/>
@@ -39,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             <th>{% trans "Situation" %}</th>
-            <th>{% trans "Behavior" %}</th>
+            <th>{% trans "Behaviour" %}</th>
         </tr>
     </thead>
     <tr>
@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if radiusoptions.unknown_machine == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_machine_vlan }}</span>
+        <span class="label label-success">{% blocktrans with unknown_machine_vlan=radiusoptions.unknown_machine_vlan %}VLAN {{ unknown_machine_vlan }}{% endblocktrans %}</span>
         {% endif %}
         </td>
     </tr>
@@ -58,7 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if radiusoptions.unknown_port == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_port_vlan }}</span>
+        <span class="label label-success">{% blocktrans with unknown_port_vlan=radiusoptions.unknown_port_vlan %}VLAN {{ unknown_port_vlan }}{% endblocktrans %}</span>
         {% endif %}
         </td>
     </tr>
@@ -68,7 +68,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if radiusoptions.unknown_room == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.unknown_room_vlan }}</span>
+        <span class="label label-success">{% blocktrans with unknown_room_vlan=radiusoptions.unknown_room_vlan %}VLAN {{ unknown_room_vlan }}{% endblocktrans %}</span>
         {% endif %}
         </td>
     </tr>
@@ -78,7 +78,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if radiusoptions.non_member == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.non_member_vlan }}</span>
+        <span class="label label-success">{% blocktrans with non_member_vlan=radiusoptions.non_member_vlan %}VLAN {{ non_member_vlan }}{% endblocktrans %}</span>
         {% endif %}
         </td>
     </tr>
@@ -88,7 +88,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% if radiusoptions.unknown_port == 'REJECT' %}
         <span class="label label-danger">{% trans "Reject" %}</span>
         {% else %}
-        <span class="label label-success">Vlan {{ radiusoptions.banned_vlan }}</span>
+        <span class="label label-success">{% blocktrans with banned_vlan=radiusoptions.banned_vlan %}VLAN {{ banned_vlan }}{% endblocktrans %}</span>
         {% endif %}
         </td>
     </tr>

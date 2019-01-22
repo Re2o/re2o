@@ -201,7 +201,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         if interfaces_set:
             return str(interfaces_set.domain.name)
         else:
-            return "None"
+            return _("No name")
 
     @cached_property
     def complete_name(self):
@@ -340,7 +340,7 @@ class IpType(RevMixin, AclMixin, models.Model):
             ("use_all_iptype", _("Can use all IP types")),
         )
         verbose_name = _("IP type")
-        verbose_name_plural = "IP types"
+        verbose_name_plural = _("IP types")
 
     @cached_property
     def ip_range(self):
@@ -534,11 +534,11 @@ class Vlan(RevMixin, AclMixin, models.Model):
     dhcpv6_snooping = models.BooleanField(default=False)
     igmp = models.BooleanField(
         default=False,
-        help_text="Gestion multicast v4"
+        help_text=_("v4 multicast management")
     )
     mld = models.BooleanField(
         default=False,
-        help_text="Gestion multicast v6"
+        help_text=_("v6 multicast management")
     )
 
     class Meta:
@@ -559,7 +559,7 @@ class Nas(RevMixin, AclMixin, models.Model):
     default_mode = '802.1X'
     AUTH = (
         ('802.1X', '802.1X'),
-        ('Mac-address', 'Mac-address'),
+        ('Mac-address', _("MAC-address")),
     )
 
     name = models.CharField(max_length=255, unique=True)
@@ -666,7 +666,7 @@ class SOA(RevMixin, AclMixin, models.Model):
         utilisée dans les migrations de la BDD. """
         return cls.objects.get_or_create(
             name=_("SOA to edit"),
-            mail="postmaser@example.com"
+            mail="postmaster@example.com"
         )[0].pk
 
 
@@ -934,7 +934,7 @@ class SshFp(RevMixin, AclMixin, models.Model):
 
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
     pub_key_entry = models.TextField(
-        help_text="SSH public key",
+        help_text=_("SSH public key"),
         max_length=2048
     )
     algo = models.CharField(
@@ -942,7 +942,7 @@ class SshFp(RevMixin, AclMixin, models.Model):
         max_length=32
     )
     comment = models.CharField(
-        help_text="Comment",
+        help_text=_("Comment"),
         max_length=255,
         null=True,
         blank=True
@@ -1110,23 +1110,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         except:
             raise ValidationError(_("The given MAC address is invalid."))
 
-    def clean(self, *args, **kwargs):
-        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
-        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
-        # If type was an invalid value, django won't create an attribute type
-        # but try clean() as we may be able to create it from another value
-        # so even if the error as yet been detected at this point, django
-        # continues because the error might not prevent us from creating the
-        # instance.
-        # But in our case, it's impossible to create a type value so we raise
-        # the error.
-        if not hasattr(self, 'type'):
-            raise ValidationError(_("The selected IP type is invalid."))
-        self.filter_macaddress()
-        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
-            self.assign_ipv4()
-        super(Interface, self).clean(*args, **kwargs)
-
     def assign_ipv4(self):
         """ Assigne une ip à l'interface """
         free_ips = self.type.ip_type.free_ip()
@@ -1146,6 +1129,42 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         self.clean()
         self.save()
 
+    def has_private_ip(self):
+        """ True si l'ip associée est privée"""
+        if self.ipv4:
+            return IPAddress(str(self.ipv4)).is_private()
+        else:
+            return False
+
+    def may_have_port_open(self):
+        """ True si l'interface a une ip et une ip publique.
+        Permet de ne pas exporter des ouvertures sur des ip privées
+        (useless)"""
+        return self.ipv4 and not self.has_private_ip()
+
+    def clean(self, *args, **kwargs):
+        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
+        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
+        # If type was an invalid value, django won't create an attribute type
+        # but try clean() as we may be able to create it from another value
+        # so even if the error as yet been detected at this point, django
+        # continues because the error might not prevent us from creating the
+        # instance.
+        # But in our case, it's impossible to create a type value so we raise
+        # the error.
+        if not hasattr(self, 'type'):
+            raise ValidationError(_("The selected IP type is invalid."))
+        self.filter_macaddress()
+        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
+            self.assign_ipv4()
+        super(Interface, self).clean(*args, **kwargs)
+
+    def validate_unique(self, *args, **kwargs):
+        super(Interface, self).validate_unique(*args, **kwargs)
+        interfaces_similar = Interface.objects.filter(mac_address=self.mac_address, type__ip_type=self.type.ip_type)
+        if interfaces_similar and interfaces_similar.first() != self:
+            raise ValidationError(_("Mac address already registered in this Machine Type/Subnet"))
+
     def save(self, *args, **kwargs):
         self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
@@ -1153,6 +1172,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if self.type.ip_type != self.ipv4.ip_type:
                 raise ValidationError(_("The IPv4 address and the machine type"
                                         " don't match."))
+        self.validate_unique()
         super(Interface, self).save(*args, **kwargs)
 
     @staticmethod
@@ -1249,19 +1269,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         except:
             domain = None
         return str(domain)
-
-    def has_private_ip(self):
-        """ True si l'ip associée est privée"""
-        if self.ipv4:
-            return IPAddress(str(self.ipv4)).is_private()
-        else:
-            return False
-
-    def may_have_port_open(self):
-        """ True si l'interface a une ip et une ip publique.
-        Permet de ne pas exporter des ouvertures sur des ip privées
-        (useless)"""
-        return self.ipv4 and not self.has_private_ip()
 
 
 class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
@@ -1380,7 +1387,10 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 .filter(interface=self.interface, slaac_ip=True)
                 .exclude(id=self.id)):
             raise ValidationError(_("A SLAAC IP address is already registered."))
-        prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        try:
+            prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        except AttributeError: # Prevents from crashing when there is no defined prefix_v6
+            prefix_v6 = None
         if prefix_v6:
             if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
                     IPv6Address(prefix_v6).exploded[:20]):
@@ -1609,7 +1619,7 @@ class Role(RevMixin, AclMixin, models.Model):
     ROLE = (
         ('dhcp-server', _("DHCP server")),
         ('switch-conf-server', _("Switches configuration server")),
-        ('dns-recursif-server', _("Recursive DNS server")),
+        ('dns-recursive-server', _("Recursive DNS server")),
         ('ntp-server', _("NTP server")),
         ('radius-server', _("RADIUS server")),
         ('log-server', _("Log server")),
@@ -1869,7 +1879,8 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        verbose_name = _("ports openings")
+        verbose_name = _("ports opening")
+        verbose_name_plural = _("ports openings")
 
     def __str__(self):
         if self.begin == self.end:

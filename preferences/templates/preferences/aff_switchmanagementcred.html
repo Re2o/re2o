@@ -23,17 +23,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 {% load acl %}
 {% load logs_extra %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Identifiant</th>
-                <th>Creds par default des switchs</th>
-		<th>Utilisé pour les switchs</th>
-		<th></th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for switchmanagementcred in switchmanagementcred_list %}
+{% load i18n %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Switch login" %}</th>
+            <th>{% trans "Default switch management credentials" %}</th>
+            <th>{% trans "Management credentials used by the switches" %}</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for switchmanagementcred in switchmanagementcred_list %}
         <tr>
             <td>{{ switchmanagementcred.management_id }}</td>
             <td>{{ switchmanagementcred.default_switch }}</td>
@@ -43,13 +45,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% include 'buttons/edit.html' with href='preferences:edit-switchmanagementcred' id=switchmanagementcred.id %}
             {% acl_end %}
 	    {% can_delete switchmanagementcred %}
-            <a class="btn btn-danger btn-sm" role="button" title="Supprimer" href="{% url 'preferences:del-switchmanagementcred' switchmanagementcred.pk %}">
-         	   <i class="fa fa-trash"></i>
-            </a>
+	    {% include 'buttons/suppr.html' with href='preferences:del-switchmanagementcred' id=switchmanagementcred.id %}
             {% acl_end %}
             {% history_button switchmanagementcred %}
             </td>
         </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>
 

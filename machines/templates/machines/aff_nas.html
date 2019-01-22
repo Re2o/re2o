@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ nas.autocapture_mac|tick }}</td>
             <td class="text-right">
                 {% can_edit nas %}
-                    {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
+                {% include 'buttons/edit.html' with href='machines:edit-nas' id=nas.id %}
                 {% acl_end %}
                 {% history_button nas %}
             </td>

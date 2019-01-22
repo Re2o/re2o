@@ -117,6 +117,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Changement du mot de passe"""
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
+        user.set_active()
         user.save()
 
 
@@ -324,14 +325,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
 
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
-            return self.cleaned_data.get('email').lower()
-        else:
-            raise forms.ValidationError(
-                    _("You can't use a {} address.").format(
-                        OptionalUser.objects.first().local_email_domain))
-
     class Meta:
         model = Adherent
         fields = [
@@ -345,6 +338,19 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'room',
         ]
 
+    force = forms.BooleanField(
+        label=_("Force the move?"),
+        initial=False,
+        required=False
+    )
+
+    def clean_email(self):
+        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
+            return self.cleaned_data.get('email').lower()
+        else:
+            raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain))
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -356,18 +362,13 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             )
         return telephone
 
-    force = forms.BooleanField(
-        label=_("Force the move?"),
-        initial=False,
-        required=False
-    )
-
     def clean_force(self):
         """On supprime l'ancien user de la chambre si et seulement si la
         case est cochée"""
         if self.cleaned_data.get('force', False):
             remove_user_room(self.cleaned_data.get('room'))
         return
+
 
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
@@ -380,12 +381,26 @@ class AdherentCreationForm(AdherentForm):
                            + "using the forgotten password button on the "\
                            + "login page or contacting support.")
     former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
-    former_user_check.label = _("I certifie that I have not had an account before")
+    former_user_check.label = _("I certify that I have not had an account before")
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
     #gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
     #    _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'state',
+        ]
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
@@ -398,12 +413,6 @@ class AdherentEditForm(AdherentForm):
        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
        if 'shell' in self.fields:
            self.fields['shell'].empty_label = _("Default shell")
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
 
     class Meta:
         model = Adherent
@@ -430,7 +439,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['email'].label = _("Email Address")
+        self.fields['email'].label = _("Email address")
         if 'room' in self.fields:
             self.fields['room'].label = _("Room")
             self.fields['room'].empty_label = _("No room")

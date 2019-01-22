@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="table-responsive">
 
     {% if port_profile_list.paginator %}
-    {% include "pagination.html" with list=port_profile_list %}
+        {% include 'pagination.html' with list=port_profile_list %}
     {% endif %}
 
 
@@ -68,11 +68,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ port_profile.security_parameters_enabled|join:"<br>" }}</td>
             <td class="text-right">
                 {% can_edit port_profile %}
-                {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.pk %}
+                {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.id %}
                 {% acl_end %}
                 {% history_button port_profile %}
                 {% can_delete port_profile %}
-                {% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.pk %}
+		{% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.id %}
                 {% acl_end %}
             </td>
         </tr>
@@ -80,7 +80,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
     {% if port_profile_list.paginator %}
-    {% include "pagination.html" with list=port_profile_list %}
+        {% include 'pagination.html' with list=port_profile_list %}
     {% endif %}
 
 </div>

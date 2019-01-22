@@ -41,15 +41,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
            <td>{{ stack.details }}</td>
            <td class="text-right">
                {% can_edit stack %}
-               <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-stack' stack.id %}">
-                   <i class="fa fa-edit"></i>
-               </a>
+               {% include 'buttons/edit.html' with href='topologie:edit-stack' id=stack.id %}
                {% acl_end %}
                {% history_button stack %}
                {% can_delete stack %}
-               <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-stack' stack.pk %}">
-                   <i class="fa fa-trash"></i>
-               </a>
+               {% include 'buttons/suppr.html' with href='topologie:del-stack' id=stack.id %}
                {% acl_end %}
            </td>
         </tr>
