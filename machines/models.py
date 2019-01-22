@@ -1110,23 +1110,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         except:
             raise ValidationError(_("The given MAC address is invalid."))
 
-    def clean(self, *args, **kwargs):
-        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
-        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
-        # If type was an invalid value, django won't create an attribute type
-        # but try clean() as we may be able to create it from another value
-        # so even if the error as yet been detected at this point, django
-        # continues because the error might not prevent us from creating the
-        # instance.
-        # But in our case, it's impossible to create a type value so we raise
-        # the error.
-        if not hasattr(self, 'type'):
-            raise ValidationError(_("The selected IP type is invalid."))
-        self.filter_macaddress()
-        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
-            self.assign_ipv4()
-        super(Interface, self).clean(*args, **kwargs)
-
     def assign_ipv4(self):
         """ Assigne une ip à l'interface """
         free_ips = self.type.ip_type.free_ip()
@@ -1146,6 +1129,42 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         self.clean()
         self.save()
 
+    def has_private_ip(self):
+        """ True si l'ip associée est privée"""
+        if self.ipv4:
+            return IPAddress(str(self.ipv4)).is_private()
+        else:
+            return False
+
+    def may_have_port_open(self):
+        """ True si l'interface a une ip et une ip publique.
+        Permet de ne pas exporter des ouvertures sur des ip privées
+        (useless)"""
+        return self.ipv4 and not self.has_private_ip()
+
+    def clean(self, *args, **kwargs):
+        """ Formate l'addresse mac en mac_bare (fonction filter_mac)
+        et assigne une ipv4 dans le bon range si inexistante ou incohérente"""
+        # If type was an invalid value, django won't create an attribute type
+        # but try clean() as we may be able to create it from another value
+        # so even if the error as yet been detected at this point, django
+        # continues because the error might not prevent us from creating the
+        # instance.
+        # But in our case, it's impossible to create a type value so we raise
+        # the error.
+        if not hasattr(self, 'type'):
+            raise ValidationError(_("The selected IP type is invalid."))
+        self.filter_macaddress()
+        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
+            self.assign_ipv4()
+        super(Interface, self).clean(*args, **kwargs)
+
+    def validate_unique(self, *args, **kwargs):
+        super(Interface, self).validate_unique(*args, **kwargs)
+        interfaces_similar = Interface.objects.filter(mac_address=self.mac_address, type__ip_type=self.type.ip_type)
+        if interfaces_similar and interfaces_similar.first() != self:
+            raise ValidationError(_("Mac address already registered in this Machine Type/Subnet"))
+
     def save(self, *args, **kwargs):
         self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
@@ -1153,6 +1172,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if self.type.ip_type != self.ipv4.ip_type:
                 raise ValidationError(_("The IPv4 address and the machine type"
                                         " don't match."))
+        self.validate_unique()
         super(Interface, self).save(*args, **kwargs)
 
     @staticmethod
@@ -1249,19 +1269,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         except:
             domain = None
         return str(domain)
-
-    def has_private_ip(self):
-        """ True si l'ip associée est privée"""
-        if self.ipv4:
-            return IPAddress(str(self.ipv4)).is_private()
-        else:
-            return False
-
-    def may_have_port_open(self):
-        """ True si l'interface a une ip et une ip publique.
-        Permet de ne pas exporter des ouvertures sur des ip privées
-        (useless)"""
-        return self.ipv4 and not self.has_private_ip()
 
 
 class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
