@@ -38,6 +38,7 @@ Inspiré du travail de Daniel Stan au Crans
 import os
 import sys
 import logging
+import traceback
 import radiusd  # Module magique freeradius (radiusd.py is dummy)
 
 from django.core.wsgi import get_wsgi_application
@@ -76,7 +77,7 @@ class RadiusdHandler(logging.Handler):
             rad_sig = radiusd.L_INFO
         else:
             rad_sig = radiusd.L_DBG
-        radiusd.radlog(rad_sig, record.msg)
+        radiusd.radlog(rad_sig, record.msg.encode('utf-8'))
 
 
 # Initialisation d'un logger (pour logguer unifié)
@@ -117,6 +118,7 @@ def radius_event(fun):
             return fun(data)
         except Exception as err:
             logger.error('Failed %r on data %r' % (err, auth_data))
+            logger.debug('Function %r, Traceback: %s' % (fun, repr(traceback.format_stack())))
             return radiusd.RLM_MODULE_FAIL
 
     return new_f
@@ -398,7 +400,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
         DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
         extra_log = u"Force sur vlan " + str(DECISION_VLAN)
     else:
-        DECISION_VLAN = RadiusOption.get_cached_value('vlan_decision_ok')
+        DECISION_VLAN = RadiusOption.get_cached_value('vlan_decision_ok').vlan_id
 
     # Si le port est désactivé, on rejette la connexion
     if not port.state:
