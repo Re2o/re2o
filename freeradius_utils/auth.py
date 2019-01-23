@@ -76,7 +76,7 @@ class RadiusdHandler(logging.Handler):
             rad_sig = radiusd.L_INFO
         else:
             rad_sig = radiusd.L_DBG
-        radiusd.radlog(rad_sig, record.msg)
+        radiusd.radlog(rad_sig, record.msg.encode('utf-8'))
 
 
 # Initialisation d'un logger (pour logguer unifié)
