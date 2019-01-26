@@ -55,7 +55,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% if machine.active %}
                         <span class="text-success">
                         {% else %}
-                        <span class="text-warning">Deactivated: 
+                        <span class="text-warning">{% trans "Deactivated" %}: 
                         {% endif %}
                         <b>{{ machine.get_name|default:tr_no_name }}</b> </span><i class="fa fa-angle-right"></i>
                         <a href="{% url 'users:profil' userid=machine.user.id %}" title=tr_view_the_profile>
