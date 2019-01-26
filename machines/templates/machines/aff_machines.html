@@ -52,7 +52,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <td colspan="4">
                         {% trans "No name" as tr_no_name %}
                         {% trans "View the profile" as tr_view_the_profile %}
-                        <b>{{ machine.get_name|default:tr_no_name }}</b> <i class="fa fa-angle-right"></i>
+                        {% if machine.active %}
+                        <span class="text-success">
+                        {% else %}
+                        <span class="text-warning">{% trans "Deactivated" %}: 
+                        {% endif %}
+                        <b>{{ machine.get_name|default:tr_no_name }}</b> </span><i class="fa fa-angle-right"></i>
                         <a href="{% url 'users:profil' userid=machine.user.id %}" title=tr_view_the_profile>
                             <i class="fa fa-user"></i> {{ machine.user }}
                         </a>
