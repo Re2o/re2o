@@ -44,7 +44,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import MACAddressField, default_dialect
-from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+from netaddr import mac_bare, EUI, NotRegisteredError, IPSet, IPRange, IPNetwork, IPAddress
 
 import preferences.models
 import users.models
@@ -1044,6 +1044,16 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             IPv6Address(prefix_v6).exploded[:20] +
             IPv6Address(self.id).exploded[20:]
         )
+    @cached_property
+    def get_vendor(self):
+        """Retourne le vendeur associé à la mac de l'interface"""
+        mac = EUI(self.mac_address)
+        try:
+                oui = mac.oui
+                vendor = oui.registration().org
+        except NotRegisteredError:
+                vendor = "Unknown vendor"
+        return(vendor)
 
     def sync_ipv6_dhcpv6(self):
         """Affecte une ipv6 dhcpv6 calculée à partir de l'id de la machine"""
