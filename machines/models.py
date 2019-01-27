@@ -44,7 +44,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import MACAddressField, default_dialect
-from netaddr import mac_bare, EUI, IPSet, IPRange, IPNetwork, IPAddress
+from netaddr import mac_bare, EUI, NotRegisteredError, IPSet, IPRange, IPNetwork, IPAddress
 
 import preferences.models
 import users.models
@@ -1051,7 +1051,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
                 oui = mac.oui
                 vendor = oui.registration().org
-        except:
+        except NotRegisteredError:
                 vendor = "Unknown vendor"
         return(vendor)
 
