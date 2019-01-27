@@ -92,6 +92,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </td>
                     <td>
                         {{ interface.mac_address }}
+                            <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
+                                    data-target="#collapseVendor_{{ interface.id }}" aria-expanded="true"
+                                    aria-controls="collapseVendor_{{ interface.id }}">
+                                {% trans "Display the vendor" %}
+                            </button>
                     </td>
                     <td>
                         <b>IPv4</b> {{ interface.ipv4 }}
@@ -163,6 +168,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                     </td>
                 </tr>
+                    <tr>
+                        <td colspan=5 style="border-top: none; padding: 1px;">
+                            <div class="collapse in" id="collapseVendor_{{ interface.id }}">
+                                <ul class="list-group" style="margin-bottom: 0;">
+                                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                                            {{ interface.get_vendor }}
+                                        </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
                 {% if ipv6_enabled and interface.ipv6 != 'None' %}
                     <tr>
                         <td colspan=5 style="border-top: none; padding: 1px;">
@@ -215,6 +231,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{ interface.id }}"), {% endif %}{% endfor %}{% endfor %}];
             for (var i = 0; i < ipv6_div.length; i++) {
                 ipv6_div[i].collapse('hide');
+            }
+        });
+        $("#machines_table").ready(function () {
+                var vendor_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.get_vendor %}$("#collapseVendor_{{ interface.id }}"), {% endif %}{% endfor %}{% endfor %}];
+            for (var i = 0; i < vendor_div.length; i++) {    
+                vendor_div[i].collapse('hide');
             }
         });
     </script>

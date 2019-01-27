@@ -1044,6 +1044,16 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             IPv6Address(prefix_v6).exploded[:20] +
             IPv6Address(self.id).exploded[20:]
         )
+    @cached_property
+    def get_vendor(self):
+        """Retourne le vendeur associé à la mac de l'interface"""
+        mac = EUI(self.mac_address)
+        try:
+                oui = mac.oui
+                vendor = oui.registration().org
+        except:
+                vendor = "Unknown vendor"
+        return(vendor)
 
     def sync_ipv6_dhcpv6(self):
         """Affecte une ipv6 dhcpv6 calculée à partir de l'id de la machine"""
