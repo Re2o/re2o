@@ -308,17 +308,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#club">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#club">
             <h3 class="panel-title pull-left">
-		    <i class="fa fa-users"></i>{% trans " Manage the club" %}
+                <i class="fa fa-users"></i>{% trans " Manage the club" %}
             </h3>
         </div>
         <div class="panel-collapse collapse" id="club">
             <div class="panel-body">
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                <a class="btn btn-primary btn-sm" role="button"
+                   href="{% url 'users:edit-club-admin-members' users.club.id %}">
                     <i class="fa fa-lock"></i>
-		    {% trans "Manage the admins and members" %}
-                    </a>
+                    {% trans "Manage the admins and members" %}
+                </a>
             </div>
 	    <div class="panel-body">
 		<h4>{% trans "Club admins" %}</h4>
