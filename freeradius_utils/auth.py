@@ -191,12 +191,12 @@ def post_auth(data):
     nas_instance = find_nas_from_request(nas)
     # Toutes les reuquètes non proxifiées
     if not nas_instance:
-        logger.info(u"Requète proxifiée, nas inconnu".encode('utf-8'))
+        logger.info(u"Requete proxifiee, nas inconnu".encode('utf-8'))
         return radiusd.RLM_MODULE_OK
     nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
     if not nas_type:
         logger.info(
-            u"Type de nas non enregistré dans la bdd!".encode('utf-8')
+            u"Type de nas non enregistre dans la bdd!".encode('utf-8')
         )
         return radiusd.RLM_MODULE_OK
 
@@ -295,15 +295,15 @@ def check_user_machine_and_register(nas_type, username, mac_address):
     if not user:
         return (False, u"User inconnu", '')
     if not user.has_access():
-        return (False, u"Adhérent non cotisant", '')
+        return (False, u"Adherent non cotisant", '')
     if interface:
         if interface.machine.user != user:
             return (False,
-                    u"Machine enregistrée sur le compte d'un autre "
+                    u"Machine enregistree sur le compte d'un autre "
                     "user...",
                     '')
         elif not interface.is_active:
-            return (False, u"Machine desactivée", '')
+            return (False, u"Machine desactivee", '')
         elif not interface.ipv4:
             interface.assign_ipv4()
             return (True, u"Ok, Reassignation de l'ipv4", user.pwd_ntlm)
@@ -404,7 +404,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
 
     # Si le port est désactivé, on rejette la connexion
     if not port.state:
-        return (sw_name, port.room, u'Port desactivé', None, False)
+        return (sw_name, port.room, u'Port desactive', None, False)
 
     # Si radius est désactivé, on laisse passer
     if port_profile.radius_type == 'NO':
@@ -460,7 +460,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
                 return (
                     sw_name,
                     room,
-                    u'Utilisateur banni ou désactivé -> Web redirect',
+                    u'Utilisateur banni ou desactive -> Web redirect',
                     None,
                     False
                 )
