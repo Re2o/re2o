@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -29,44 +29,45 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-{% bootstrap_form_errors port_list %}
+    {% bootstrap_form_errors port_list %}
 
 
-<form class="form" method="post">
-    {% csrf_token %}
-    {% bootstrap_form port_list %}
-    {{ ports.management_form }}
-    <div id="formset">
-    {% for form in ports.forms %}
-    	<div class="port">
-	    <p>
-	        {{ form }}
-	    </p>
-	</div>
-    {% endfor %}
-    </div>
+    <form class="form" method="post">
+        {% csrf_token %}
+        {% bootstrap_form port_list %}
+        {{ ports.management_form }}
+        <div id="formset">
+            {% for form in ports.forms %}
+                <div class="port">
+                    <p>
+                        {{ form }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
 
-    <p>
-        {% trans "Add a port" as value %}
-        <input class="btn btn-primary btn-sm" role="button" value=value id="add_one">
-    </p>
-    {% trans "Create or edit" as tr_create_or_edit %}
-    {% bootstrap_button tr_create_or_edit button_type="submit" icon="star" %}
-</form>
-<script type="text/javascript">
-    var template = `{{ports.empty_form}}`;
-    function add_port(){
-        var new_index = document.getElementsByClassName('port').length;
-	document.getElementById('id_form-TOTAL_FORMS').value =
-            parseInt(document.getElementById('id_form-TOTAL_FORMS').value) + 1;
-	var new_port = document.createElement('div');
-	new_port.className = 'port';
-	new_port.innerHTML = template.replace(/__prefix__/g, new_index);
-	document.getElementById('formset').appendChild(new_port);
-    }
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("add_one").addEventListener("click", add_port, true);});
+        <p>
+            {% trans "Add a port" as value %}
+            <input class="btn btn-primary btn-sm" role="button" value="value" id="add_one">
+        </p>
+        {% trans "Create or edit" as tr_create_or_edit %}
+        {% bootstrap_button tr_create_or_edit icon='ok' button_class='btn-success' %}
+    </form>
+    <script type="text/javascript">
+        var template = `{{ports.empty_form}}`;
 
-</script>
+        function add_port() {
+            var new_index = document.getElementsByClassName('port').length;
+            document.getElementById('id_form-TOTAL_FORMS').value =
+                parseInt(document.getElementById('id_form-TOTAL_FORMS').value) + 1;
+            var new_port = document.createElement('div');
+            new_port.className = 'port';
+            new_port.innerHTML = template.replace(/__prefix__/g, new_index);
+            document.getElementById('formset').appendChild(new_port);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("add_one").addEventListener("click", add_port, true);
+        });
+    </script>
 {% endblock %}
-

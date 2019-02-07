@@ -29,10 +29,11 @@ the response (JSON or other), the CSRF exempting, ...
 import datetime
 
 from django.conf import settings
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+from django.db.models import Q
 from rest_framework import viewsets, generics, views
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
 
 import cotisations.models as cotisations
 import machines.models as machines
@@ -40,7 +41,6 @@ import preferences.models as preferences
 import topologie.models as topologie
 import users.models as users
 from re2o.utils import all_active_interfaces, all_has_access
-
 from . import serializers
 from .pagination import PageSizedPagination
 from .permissions import ACLPermission
@@ -54,6 +54,12 @@ class FactureViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = cotisations.Facture.objects.all()
     serializer_class = serializers.FactureSerializer
+
+class FactureViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `cotisations.models.Facture` objects.
+    """
+    queryset = cotisations.BaseInvoice.objects.all()
+    serializer_class = serializers.BaseInvoiceSerializer
 
 
 class VenteViewSet(viewsets.ReadOnlyModelViewSet):
@@ -163,6 +169,7 @@ class TxtViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = machines.Txt.objects.all()
     serializer_class = serializers.TxtSerializer
 
+
 class DNameViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `machines.models.DName` objects.
     """
@@ -241,6 +248,13 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.OuverturePortSerializer
 
 
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `machines.models.Machine` objects.
+    """
+    queryset = machines.Role.objects.all()
+    serializer_class = serializers.RoleSerializer
+
+
 # PREFERENCES
 # Those views differ a bit because there is only one object
 # to display, so we don't bother with the listing part
@@ -248,8 +262,8 @@ class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
 class OptionalUserView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.OptionalUser.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.OptionalUser.can_view_all]}
     serializer_class = serializers.OptionalUserSerializer
 
     def get_object(self):
@@ -259,8 +273,8 @@ class OptionalUserView(generics.RetrieveAPIView):
 class OptionalMachineView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.OptionalMachine` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.OptionalMachine.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.OptionalMachine.can_view_all]}
     serializer_class = serializers.OptionalMachineSerializer
 
     def get_object(self):
@@ -270,19 +284,30 @@ class OptionalMachineView(generics.RetrieveAPIView):
 class OptionalTopologieView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.OptionalTopologie` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.OptionalTopologie.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.OptionalTopologie.can_view_all]}
     serializer_class = serializers.OptionalTopologieSerializer
 
     def get_object(self):
         return preferences.OptionalTopologie.objects.first()
 
 
+class RadiusOptionView(generics.RetrieveAPIView):
+    """Exposes details of `preferences.models.OptionalTopologie` settings.
+    """
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.RadiusOption.can_view_all]}
+    serializer_class = serializers.RadiusOptionSerializer
+
+    def get_object(self):
+        return preferences.RadiusOption.objects.first()
+
+
 class GeneralOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.GeneralOption` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.GeneralOption.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.GeneralOption.can_view_all]}
     serializer_class = serializers.GeneralOptionSerializer
 
     def get_object(self):
@@ -299,8 +324,8 @@ class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
 class AssoOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.AssoOption` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.AssoOption.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.AssoOption.can_view_all]}
     serializer_class = serializers.AssoOptionSerializer
 
     def get_object(self):
@@ -310,8 +335,8 @@ class AssoOptionView(generics.RetrieveAPIView):
 class HomeOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.HomeOption` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.HomeOption.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.HomeOption.can_view_all]}
     serializer_class = serializers.HomeOptionSerializer
 
     def get_object(self):
@@ -321,8 +346,8 @@ class HomeOptionView(generics.RetrieveAPIView):
 class MailMessageOptionView(generics.RetrieveAPIView):
     """Exposes details of `preferences.models.MailMessageOption` settings.
     """
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [preferences.MailMessageOption.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [preferences.MailMessageOption.can_view_all]}
     serializer_class = serializers.MailMessageOptionSerializer
 
     def get_object(self):
@@ -396,6 +421,13 @@ class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SwitchPortSerializer
 
 
+class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.PortProfile` objects.
+    """
+    queryset = topologie.PortProfile.objects.all()
+    serializer_class = serializers.PortProfileSerializer
+
+
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.Room` objects.
     """
@@ -409,6 +441,7 @@ class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = topologie.PortProfile.objects.all()
     serializer_class = serializers.PortProfileSerializer
 
+
 # USER
 
 
@@ -418,11 +451,25 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.User.objects.all()
     serializer_class = serializers.UserSerializer
 
+
 class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes infos of `users.models.Users` objects to create homes.
     """
-    queryset = users.User.objects.all()
-    serializer_class = serializers.HomeCreationSerializer
+    queryset = users.User.objects.exclude(Q(state=users.User.STATE_DISABLED) | Q(state=users.User.STATE_NOT_YET_ACTIVE))
+    serializer_class = serializers.BasicUserSerializer
+
+
+class NormalUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes infos of `users.models.Users`without specific rights objects."""
+    queryset = users.User.objects.exclude(groups__listright__critical=True).distinct()
+    serializer_class = serializers.BasicUserSerializer
+
+
+class CriticalUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes infos of `users.models.Users`without specific rights objects."""
+    queryset = users.User.objects.filter(groups__listright__critical=True).distinct()
+    serializer_class = serializers.BasicUserSerializer
+
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `users.models.Club` objects.
@@ -488,7 +535,7 @@ class EMailAddressViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         if preferences.OptionalUser.get_cached_value(
-            'local_email_accounts_enabled'):
+                'local_email_accounts_enabled'):
             return (users.EMailAddress.objects
                     .filter(user__local_email_enabled=True))
         else:
@@ -514,6 +561,31 @@ class ServiceRegenViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(server__domain__name__iexact=hostname)
         return queryset
 
+# Config des switches
+
+class SwitchPortView(generics.ListAPIView):
+    """Output each port of a switch, to be serialized with
+    additionnal informations (profiles etc)
+    """
+    queryset = topologie.Switch.objects.all().select_related("switchbay").select_related("model__constructor").prefetch_related("ports__custom_profile__vlan_tagged").prefetch_related("ports__custom_profile__vlan_untagged").prefetch_related("ports__machine_interface__domain__extension").prefetch_related("ports__room")
+
+    serializer_class = serializers.SwitchPortSerializer
+
+# Rappel fin adhésion
+
+class ReminderView(generics.ListAPIView):
+    """Output for users to remind an end of their subscription.
+    """
+    queryset = preferences.Reminder.objects.all()
+    serializer_class = serializers.ReminderSerializer
+
+
+class RoleView(generics.ListAPIView):
+    """Output of roles for each server
+    """
+    queryset = machines.Role.objects.all().prefetch_related('servers')
+    serializer_class = serializers.RoleSerializer
+
 
 # LOCAL EMAILS
 
@@ -525,7 +597,7 @@ class LocalEmailUsersView(generics.ListAPIView):
 
     def get_queryset(self):
         if preferences.OptionalUser.get_cached_value(
-            'local_email_accounts_enabled'):
+                'local_email_accounts_enabled'):
             return (users.User.objects
                     .filter(local_email_enabled=True))
         else:
@@ -539,19 +611,23 @@ class HostMacIpView(generics.ListAPIView):
     """Exposes the associations between hostname, mac address and IPv4 in
     order to build the DHCP lease files.
     """
-    queryset = all_active_interfaces()
     serializer_class = serializers.HostMacIpSerializer
 
+    def get_queryset(self):
+        return all_active_interfaces()
 
-#Firewall
+
+# Firewall
 
 class SubnetPortsOpenView(generics.ListAPIView):
     queryset = machines.IpType.objects.all()
     serializer_class = serializers.SubnetPortsOpenSerializer
 
+
 class InterfacePortsOpenView(generics.ListAPIView):
     queryset = machines.Interface.objects.filter(port_lists__isnull=False).distinct()
     serializer_class = serializers.InterfacePortsOpenSerializer
+
 
 # DNS
 
@@ -570,14 +646,13 @@ class DNSZonesView(generics.ListAPIView):
                 .all())
     serializer_class = serializers.DNSZonesSerializer
 
+
 class DNSReverseZonesView(generics.ListAPIView):
-    """Exposes the detailed information about each extension (hostnames, 
+    """Exposes the detailed information about each extension (hostnames,
     IPs, DNS records, etc.) in order to build the DNS zone files.
     """
     queryset = (machines.IpType.objects.all())
     serializer_class = serializers.DNSReverseZonesSerializer
-
-
 
 
 # MAILING
@@ -588,8 +663,8 @@ class StandardMailingView(views.APIView):
     order to building the corresponding mailing lists.
     """
     pagination_class = PageSizedPagination
-    permission_classes = (ACLPermission, )
-    perms_map = {'GET' : [users.User.can_view_all]}
+    permission_classes = (ACLPermission,)
+    perms_map = {'GET': [users.User.can_view_all]}
 
     def get(self, request, format=None):
         adherents_data = serializers.MailingMemberSerializer(all_has_access(), many=True).data
@@ -617,6 +692,7 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
     `rest_framework.auth_token.views.ObtainAuthToken` view except that the
     expiration time is send along with the token as an addtional information.
     """
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)

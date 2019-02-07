@@ -28,14 +28,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Service name" %}</th>
-            <th>{% trans "Minimal time before regeneration" %}</th>
-            <th>{% trans "Maximal time before regeneration" %}</th>
-            <th>{% trans "Included servers" %}</th>
-            <th>{% trans "Ask for regeneration" %}</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>{% trans "Service name" %}</th>
+        <th>{% trans "Minimal time before regeneration" %}</th>
+        <th>{% trans "Maximal time before regeneration" %}</th>
+        <th>{% trans "Included servers" %}</th>
+        <th>{% trans "Ask for regeneration" %}</th>
+        <th></th>
+    </tr>
     </thead>
     {% for service in service_list %}
         <tr>
@@ -43,7 +43,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.min_time_regen }}</td>
             <td>{{ service.regular_time_regen }}</td>
             <td>{% for serv in service.servers.all %}{{ serv }}, {% endfor %}</td>
-            <td><a role="button" class="btn btn-danger" href="{% url 'machines:regen-service' service.id %}"><i class="fa fa-sync"></i></a></td>
+            <td><a role="button" class="btn btn-danger" href="{% url 'machines:regen-service' service.id %}"><i
+                    class="fa fa-sync"></i></a></td>
             <td class="text-right">
                 {% can_edit service %}
                 {% include 'buttons/edit.html' with href='machines:edit-service' id=service.id %}
@@ -53,4 +54,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% endfor %}
 </table>
-

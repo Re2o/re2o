@@ -38,8 +38,15 @@ from .models import (
     MailMessageOption,
     HomeOption,
     Service,
-    MailContact
+    MailContact,
+    Reminder,
+    RadiusKey,
+    SwitchManagementCred,
+    RadiusOption,
+    CotisationsOption,
+    DocumentTemplate
 )
+from topologie.models import Switch
 
 
 class EditOptionalUserForm(ModelForm):
@@ -92,7 +99,14 @@ class EditOptionalMachineForm(ModelForm):
 
 
 class EditOptionalTopologieForm(ModelForm):
-    """Options de topologie, formulaire d'edition (vlan par default etc)"""
+    """Options de topologie, formulaire d'edition (vlan par default etc)
+    On rajoute un champ automatic provision switchs pour gérer facilement
+    l'ajout de switchs au provisionning automatique"""
+    automatic_provision_switchs = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
     class Meta:
         model = OptionalTopologie
         fields = '__all__'
@@ -104,11 +118,14 @@ class EditOptionalTopologieForm(ModelForm):
             prefix=prefix,
             **kwargs
         )
-        self.fields['radius_general_policy'].label = _("RADIUS general policy")
-        self.fields['vlan_decision_ok'].label = _("VLAN for machines accepted"
-                                                  " by RADIUS")
-        self.fields['vlan_decision_nok'].label = _("VLAN for machines rejected"
-                                                   " by RADIUS")
+
+        self.initial['automatic_provision_switchs'] = Switch.objects.filter(automatic_provision=True).order_by('interface__domain__name')
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        Switch.objects.all().update(automatic_provision=False)
+        self.cleaned_data['automatic_provision_switchs'].update(automatic_provision=True)
+        return instance
 
 
 class EditGeneralOptionForm(ModelForm):
@@ -208,6 +225,41 @@ class EditHomeOptionForm(ModelForm):
         self.fields['twitter_account_name'].label = _("Twitter account name")
 
 
+class EditRadiusOptionForm(ModelForm):
+    """Edition forms for Radius options"""
+    class Meta:
+        model = RadiusOption
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ignored=('radius_general_policy', 'vlan_decision_ok')
+        fields = (
+            f for f in self.fields.keys()
+            if 'vlan' not in f and f not in ignored
+        )
+        for f in fields:
+            choice = cleaned_data.get(f)
+            vlan = cleaned_data.get(f+'_vlan')
+            if choice == RadiusOption.SET_VLAN and vlan is None:
+                self.add_error(
+                    f,
+                    _("You chose to set vlan but did not set any VLAN."),
+                )
+                self.add_error(
+                    f+'_vlan',
+                    _("Please, choose a VLAN."),
+                )
+        return cleaned_data
+
+
+class EditCotisationsOptionForm(ModelForm):
+    """Edition forms for Cotisations options"""
+    class Meta:
+        model = CotisationsOption
+        fields = '__all__'
+
+
 class ServiceForm(ModelForm):
     """Edition, ajout de services sur la page d'accueil"""
     class Meta:
@@ -239,8 +291,68 @@ class DelServiceForm(Form):
         else:
             self.fields['services'].queryset = Service.objects.all()
 
-class MailContactForm(FormRevMixin, ModelForm):
-    """Edit and add contact email adress"""
+class ReminderForm(FormRevMixin, ModelForm):
+    """Edition, ajout de services sur la page d'accueil"""
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(ReminderForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class RadiusKeyForm(FormRevMixin, ModelForm):
+    """Edition, ajout de clef radius"""
+    members = forms.ModelMultipleChoiceField(
+        queryset=Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = RadiusKey
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RadiusKeyForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(radius_key=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class SwitchManagementCredForm(FormRevMixin, ModelForm):
+    """Edition, ajout de creds de management pour gestion
+    et interface rest des switchs"""
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = SwitchManagementCred
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(SwitchManagementCredForm, self).__init__(*args, prefix=prefix, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance:
+            self.initial['members'] = Switch.objects.filter(management_creds=instance)
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        instance.switch_set = self.cleaned_data['members']
+        return instance
+
+
+class MailContactForm(ModelForm):
+    """Edition, ajout d'adresse de contact"""
     class Meta:
         model = MailContact
         fields = '__all__'
@@ -254,7 +366,7 @@ class DelMailContactForm(Form):
     """Delete contact email adress"""
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
-        label="Enregistrements adresses actuels",
+        label=_("Current email addresses"),
         widget=forms.CheckboxSelectMultiple
     )
 
@@ -266,3 +378,36 @@ class DelMailContactForm(Form):
         else:
             self.fields['mailcontacts'].queryset = MailContact.objects.all()
 
+
+class DocumentTemplateForm(FormRevMixin, ModelForm):
+    """
+    Form used to create a document template.
+    """
+    class Meta:
+        model = DocumentTemplate
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(DocumentTemplateForm, self).__init__(
+            *args, prefix=prefix, **kwargs)
+
+
+class DelDocumentTemplateForm(FormRevMixin, Form):
+    """
+    Form used to delete one or more document templatess.
+    The use must choose the one to delete by checking the boxes.
+    """
+    document_templates = forms.ModelMultipleChoiceField(
+        queryset=DocumentTemplate.objects.none(),
+        label=_("Available document templates"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelDocumentTemplateForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['document_templates'].queryset = instances
+        else:
+            self.fields['document_templates'].queryset = Banque.objects.all()

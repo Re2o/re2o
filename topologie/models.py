@@ -49,6 +49,11 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
+from preferences.models import (
+    OptionalTopologie,
+    RadiusKey,
+    SwitchManagementCred
+)
 from machines.models import Machine, regen
 from re2o.mixins import AclMixin, RevMixin
 
@@ -228,6 +233,25 @@ class Switch(AclMixin, Machine):
         null=True,
         on_delete=models.SET_NULL,
     )
+    radius_key = models.ForeignKey(
+        'preferences.RadiusKey',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text=_("RADIUS key of the switch")
+    )
+    management_creds = models.ForeignKey(
+        'preferences.SwitchManagementCred',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        help_text=_("Management credentials for the switch")
+    )
+    automatic_provision = models.BooleanField(
+        default=False,
+        help_text=_("Automatic provision for the switch")
+    )
+
 
     class Meta:
         unique_together = ('stack', 'stack_member_id')
@@ -258,39 +282,102 @@ class Switch(AclMixin, Machine):
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
         sont cohérentes. """
-
-        s_begin = s_end = 0
-        nb_ports = self.ports.count()
-        if nb_ports > 0:
-            ports = self.ports.order_by('port').values('port')
-            s_begin = ports.first().get('port')
-            s_end = ports.last().get('port')
-
         if end < begin:
             raise ValidationError(_("The end port is less than the start"
                                     " port."))
-        if end - begin > self.number:
+        ports_to_create = range(begin, end + 1)
+        existing_ports = Port.objects.filter(switch=self.switch).values_list('port', flat=True)
+        non_existing_ports = list(set(ports_to_create) - set(existing_ports))
+
+        if len(non_existing_ports) + existing_ports.count() > self.number:
             raise ValidationError(_("This switch can't have that many ports."))
-        begin_range = range(begin, s_begin)
-        end_range = range(s_end+1, end+1)
-        for i in itertools.chain(begin_range, end_range):
-            port = Port()
-            port.switch = self
-            port.port = i
-            try:
-                with transaction.atomic(), reversion.create_revision():
-                    port.save()
-                    reversion.set_comment(_("Creation"))
-            except IntegrityError:
-                ValidationError(_("Creation of an existing port."))
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_comment(_("Creation"))
+            Port.objects.bulk_create([Port(switch=self.switch, port=port_id) for port_id in non_existing_ports])
 
     def main_interface(self):
-        """ Returns the 'main' interface of the switch """
+        """ Returns the 'main' interface of the switch
+        It must the the management interface for that device"""
+        switch_iptype = OptionalTopologie.get_cached_value('switchs_ip_type')
+        if switch_iptype:
+            return self.interface_set.filter(type__ip_type=switch_iptype).first()
         return self.interface_set.first()
 
     @cached_property
     def get_name(self):
-        return self.name or self.main_interface().domain.name
+        return self.name or getattr(self.main_interface(), 'domain', 'Unknown')
+
+    @cached_property
+    def get_radius_key(self):
+        """Retourne l'objet de la clef radius de ce switch"""
+        return self.radius_key or RadiusKey.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_radius_key_value(self):
+        """Retourne la valeur en str de la clef radius, none si il n'y en a pas"""
+        if self.get_radius_key:
+            return self.get_radius_key.radius_key
+        else:
+            return None
+
+    @cached_property
+    def get_management_cred(self):
+        """Retourne l'objet des creds de managament de ce switch"""
+        return self.management_creds or SwitchManagementCred.objects.filter(default_switch=True).first()
+
+    @cached_property
+    def get_management_cred_value(self):
+        """Retourne un dict des creds de management du switch"""
+        if self.get_management_cred:
+            return {'id': self.get_management_cred.management_id, 'pass': self.get_management_cred.management_pass}
+        else:
+            return None
+
+    @cached_property
+    def rest_enabled(self):
+        return OptionalTopologie.get_cached_value('switchs_rest_management') or self.automatic_provision
+
+    @cached_property
+    def web_management_enabled(self):
+        sw_management = OptionalTopologie.get_cached_value('switchs_web_management')
+        sw_management_ssl = OptionalTopologie.get_cached_value('switchs_web_management_ssl')
+        if sw_management_ssl:
+            return "ssl"
+        elif sw_management:
+            return "plain"
+        else:
+            return self.automatic_provision
+
+    @cached_property
+    def ipv4(self):
+        """Return the switch's management ipv4"""
+        return str(self.main_interface().ipv4)
+
+    @cached_property
+    def ipv6(self):
+        """Returne the switch's management ipv6"""
+        return str(self.main_interface().ipv6().first())
+
+    @cached_property
+    def interfaces_subnet(self):
+        """Return dict ip:subnet for all ip of the switch"""
+        return dict((str(interface.ipv4), interface.type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
+
+    @cached_property
+    def interfaces6_subnet(self):
+        """Return dict ip6:subnet for all ipv6 of the switch"""
+        return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
+
+    @cached_property
+    def list_modules(self):
+        """Return modules of that switch, list of dict (rank, reference)"""
+        modules = []
+        if getattr(self.model, 'is_modular', None):
+            if self.model.is_itself_module:
+                modules.append((1, self.model.reference))
+            for module_of_self in self.moduleonswitch_set.all():
+                modules.append((module_of_self.slot, module_of_self.module.reference))
+        return modules
 
     def __str__(self):
         return str(self.get_name)
@@ -300,9 +387,27 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
 
     reference = models.CharField(max_length=255)
+    commercial_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
     constructor = models.ForeignKey(
         'topologie.ConstructorSwitch',
         on_delete=models.PROTECT
+    )
+    firmware = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    is_modular = models.BooleanField(
+        default=False,
+        help_text=_("The switch model is modular."),
+    )
+    is_itself_module = models.BooleanField(
+        default=False,
+        help_text=_("The switch is considered as a module."),
     )
 
     class Meta:
@@ -313,7 +418,60 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("switch models")
 
     def __str__(self):
-        return str(self.constructor) + ' ' + self.reference
+        if self.commercial_name:
+            return str(self.constructor) + ' ' + str(self.commercial_name)
+        else:
+            return str(self.constructor) + ' ' + self.reference
+
+
+class ModuleSwitch(AclMixin, RevMixin, models.Model):
+    """A module of a switch"""
+    reference = models.CharField(
+        max_length=255,
+        help_text=_("Reference of a module"),
+        verbose_name=_("Module reference")
+    )
+    comment = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text=_("Comment"),
+        verbose_name=_("Comment")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleswitch", _("Can view a switch module object")),
+        )
+        verbose_name = _("switch module")
+        verbose_name_plural = _("switch modules")
+
+
+    def __str__(self):
+        return str(self.reference)
+
+
+class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
+    """Link beetween module and switch"""
+    module = models.ForeignKey('ModuleSwitch', on_delete=models.CASCADE)
+    switch = models.ForeignKey('Switch', on_delete=models.CASCADE)
+    slot = models.CharField(
+        max_length=15,
+        help_text=_("Slot on switch"),
+        verbose_name=_("Slot")
+    )
+
+    class Meta:
+        permissions = (
+            ("view_moduleonswitch", _("Can view a link between switch and"
+                                      " module object")),
+        )
+        verbose_name = _("link between switch and module")
+        verbose_name_plural = _("links between switch and module")
+        unique_together = ['slot', 'switch']
+
+    def __str__(self):
+        return _("On slot ") + str(self.slot) + _(" of ") + str(self.switch)
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
@@ -370,6 +528,10 @@ class Building(AclMixin, RevMixin, models.Model):
         verbose_name = _("building")
         verbose_name_plural = _("buildings")
 
+    def all_ap_in(self):
+        """Returns all ap of the building"""
+        return AccessPoint.all_ap_in(self)
+
     def __str__(self):
         return self.name
 
@@ -423,7 +585,7 @@ class Port(AclMixin, RevMixin, models.Model):
     )
     state = models.BooleanField(
         default=True,
-        help_text='Port state Active',
+        help_text=_("Port state Active"),
         verbose_name=_("Port state Active")
     )
     details = models.CharField(max_length=255, blank=True)
@@ -437,8 +599,20 @@ class Port(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("ports")
 
     @cached_property
+    def pretty_name(self):
+        """More elaborated name for label on switch conf"""
+        if self.related:
+            return _("Uplink: ") + self.related.switch.short_name
+        elif self.machine_interface:
+            return _("Machine: ") + str(self.machine_interface.domain)
+        elif self.room:
+            return _("Room: ") + str(self.room)
+        else:
+            return _("Unknown")
+
+    @cached_property
     def get_port_profile(self):
-        """Return the config profile for this port
+        """Return the config profil for this port
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
             port_profile = PortProfile.objects.filter(
@@ -447,7 +621,7 @@ class Port(AclMixin, RevMixin, models.Model):
                 return port_profile
             else:
                 nothing_profile, _created = PortProfile.objects.get_or_create(
-                    profile_default='nothing',
+                    profil_default='nothing',
                     name='nothing',
                     radius_type='NO'
                 )
@@ -549,7 +723,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     TYPES = (
         ('NO', 'NO'),
         ('802.1X', '802.1X'),
-        ('MAC-radius', 'MAC-radius'),
+        ('MAC-radius', _("MAC-RADIUS")),
     )
     MODES = (
         ('STRICT', 'STRICT'),
@@ -566,11 +740,11 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ('auto-100', 'auto-100'),
     )
     PROFIL_DEFAULT = (
-        ('room', 'room'),
-        ('accespoint', 'accesspoint'),
-        ('uplink', 'uplink'),
-        ('asso_machine', 'asso_machine'),
-        ('nothing', 'nothing'),
+        ('room', _("Room")),
+        ('access_point', _("Access point")),
+        ('uplink', _("Uplink")),
+        ('asso_machine', _("Organisation machine")),
+        ('nothing', _("Nothing")),
     )
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     profil_default = models.CharField(

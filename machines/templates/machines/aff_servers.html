@@ -27,13 +27,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Service name" %}</th>
-            <th>{% trans "Server" %}</th>
-            <th>{% trans "Last regeneration" %}</th>
-            <th>{% trans "Regeneration required" %}</th>
-            <th>{% trans "Regeneration activated" %}</th>
-        </tr>
+    <tr>
+        <th>{% trans "Service name" %}</th>
+        <th>{% trans "Server" %}</th>
+        <th>{% trans "Last regeneration" %}</th>
+        <th>{% trans "Regeneration required" %}</th>
+        <th>{% trans "Regeneration activated" %}</th>
+    </tr>
     </thead>
     {% for server in servers_list %}
         <tr>
@@ -47,4 +47,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% endfor %}
 </table>
-

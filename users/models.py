@@ -81,6 +81,7 @@ from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+from re2o.base import smtp_check
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -93,7 +94,7 @@ from preferences.models import OptionalMachine, MailMessageOption
 
 def linux_user_check(login):
     """ Validation du pseudo pour respecter les contraintes unix"""
-    UNIX_LOGIN_PATTERN = re.compile("^[a-zA-Z0-9-]*[$]?$")
+    UNIX_LOGIN_PATTERN = re.compile("^[a-z][a-z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
@@ -186,10 +187,12 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
+    STATE_NOT_YET_ACTIVE = 3
     STATES = (
-        (0, 'STATE_ACTIVE'),
-        (1, 'STATE_DISABLED'),
-        (2, 'STATE_ARCHIVE'),
+        (0, _("Active")),
+        (1, _("Disabled")),
+        (2, _("Archived")),
+        (3, _("Not yet active")),
     )
 
     surname = models.CharField(max_length=255)
@@ -231,7 +234,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True
     )
     pwd_ntlm = models.CharField(max_length=255)
-    state = models.IntegerField(choices=STATES, default=STATE_ACTIVE)
+    state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(
@@ -329,7 +332,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     @property
     def is_active(self):
         """ Renvoie si l'user est à l'état actif"""
-        return self.state == self.STATE_ACTIVE
+        return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE
+
+    def set_active(self):
+        """Enable this user if he subscribed successfully one time before"""
+        if self.state == self.STATE_NOT_YET_ACTIVE:
+            if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists() or OptionalUser.get_cached_value('all_users_active'):
+                self.state = self.STATE_ACTIVE
+                self.save()
 
     @property
     def is_staff(self):
@@ -346,7 +356,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie le nom complet de l'user formaté nom/prénom"""
         name = self.name
         if name:
-            return '%s %s' % (name, self.surname)
+            return "%s %s" % (name, self.surname)
         else:
             return self.surname
 
@@ -364,6 +374,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ A utiliser de préférence, prend le shell par défaut
         si il n'est pas défini"""
         return self.shell or OptionalUser.get_cached_value('shell_default')
+
+    @cached_property
+    def home_directory(self):
+        return '/home/' + self.pseudo
 
     @cached_property
     def get_shadow_expire(self):
@@ -461,7 +475,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """ Renvoie si un utilisateur a accès à internet """
         return (self.state == User.STATE_ACTIVE and
                 not self.is_ban() and
-                (self.is_connected() or self.is_whitelisted()))
+                (self.is_connected() or self.is_whitelisted())) \
+                or self == AssoOption.get_cached_value('utilisateur_asso')
 
     def end_access(self):
         """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
@@ -490,16 +505,16 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
         somme_credit = Vente.objects.filter(
             facture__in=Facture.objects.filter(user=self, valid=True),
-            name="solde"
+            name='solde'
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
         return somme_credit - somme_debit
@@ -530,9 +545,16 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 reversion.set_comment(_("IPv4 unassigning"))
                 interface.save()
 
+    def disable_email(self):
+        """Disable email account and redirection"""
+        self.email = ""
+        self.local_email_enabled = False
+        self.local_email_redirect = False
+
     def archive(self):
         """ Filling the user; no more active"""
         self.unassign_ips()
+        self.disable_email()
 
     def unarchive(self):
         """Unfilling the user"""
@@ -556,11 +578,15 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        if sys.version_info[0] >= 3:
+        if sys.version_info[0] >= 3 and self.state != self.STATE_ARCHIVE and\
+           self.state != self.STATE_DISABLED:
             self.refresh_from_db()
             try:
                 user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
             except LdapUser.DoesNotExist:
+                #  Freshly created users are NOT synced in ldap base
+                if self.state == self.STATE_NOT_YET_ACTIVE:
+                    return
                 user_ldap = LdapUser(uidNumber=self.uid_number)
                 base = True
                 access_refresh = True
@@ -569,7 +595,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 user_ldap.name = self.pseudo
                 user_ldap.sn = self.pseudo
                 user_ldap.dialupAccess = str(self.has_access())
-                user_ldap.home_directory = '/home/' + self.pseudo
+                user_ldap.home_directory = self.home_directory
                 user_ldap.mail = self.get_mail
                 user_ldap.given_name = self.surname.lower() + '_'\
                     + self.name.lower()[:3]
@@ -655,7 +681,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             ),
             'expire_in': str(
                 GeneralOption.get_cached_value('req_expire_hrs')
-            ) + ' heures',
+            ) + ' hours',
         }
         send_mail(
             'Changement de mot de passe du %(name)s / Password renewal for '
@@ -670,10 +696,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
-        all_interfaces = self.user_interfaces(active=False)
-        if all_interfaces.count() > OptionalMachine.get_cached_value(
-            'max_lambdauser_interfaces'
-        ):
+        allowed, _message = Machine.can_create(self, self.id)
+        if not allowed:
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
             return False, _("Re2o doesn't know wich machine type to assign.")
@@ -699,7 +723,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             self.notif_auto_newmachine(interface_cible)
         except Exception as error:
             return False,  traceback.format_exc()
-        return interface_cible, "Ok"
+        return interface_cible, _("OK")
 
     def notif_auto_newmachine(self, interface):
         """Notification mail lorsque une machine est automatiquement
@@ -828,6 +852,19 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         (False, None)
         """
         return user_request == self, None
+
+    def can_change_room(self, user_request, *_args, **_kwargs):
+        """ Check if a user can change a room
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a state
+        """
+        if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_room'))
+            or user_request.has_perm('users.change_user')):
+            return False, _("Permission required to change the room.")
+        else:
+            return True, None
 
     @staticmethod
     def can_change_state(user_request, *_args, **_kwargs):
@@ -977,6 +1014,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             'selfpasswd': self.check_selfpasswd,
             'local_email_redirect': self.can_change_local_email_redirect,
             'local_email_enabled': self.can_change_local_email_enabled,
+            'room': self.can_change_room,
         }
         self.__original_state = self.state
 
@@ -986,19 +1024,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         if (EMailAddress.objects
             .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
-            raise ValidationError("This pseudo is already in use.")
-        if not self.local_email_enabled and not self.email:
-            raise ValidationError(
-                {'email': (
-                    _("There is neither a local email address nor an external"
+            raise ValidationError(_("This username is already used."))
+        if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
+            raise ValidationError(_("There is neither a local email address nor an external"
                       " email address for this user.")
-                ), }
             )
         if self.local_email_redirect and not self.email:
-            raise ValidationError(
-                {'local_email_redirect': (
-                _("You can't redirect your local emails if no external email"
-                  " address has been set.")), }
+            raise ValidationError(_("You can't redirect your local emails if no external email"
+                  " address has been set.")
             )
 
     def __str__(self):
@@ -1017,19 +1050,26 @@ class Adherent(User):
         null=True
     )
     gpg_fingerprint = models.CharField(
-        max_length=40,
+        max_length=49,
         blank=True,
         null=True,
-        validators=[RegexValidator(
-            '^[0-9A-F]{40}$',
-            message=_("A GPG fingerprint must contain 40 hexadecimal"
-                      " characters.")
-        )]
     )
 
     class Meta(User.Meta):
         verbose_name = _("member")
         verbose_name_plural = _("members")
+
+    def format_gpgfp(self):
+        """Format gpg finger print as AAAA BBBB... from a string AAAABBBB...."""
+        self.gpg_fingerprint = ' '.join([self.gpg_fingerprint[i:i + 4] for i in range(0, len(self.gpg_fingerprint), 4)])
+
+    def validate_gpgfp(self):
+        """Validate from raw entry if is it a valid gpg fp"""
+        if self.gpg_fingerprint:
+            gpg_fingerprint = self.gpg_fingerprint.replace(' ', '').upper()
+            if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
+                raise ValidationError(_("A GPG fingerprint must contain 40 hexadecimal characters"))
+            self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
     def get_instance(cls, adherentid, *_args, **_kwargs):
@@ -1060,6 +1100,13 @@ class Adherent(User):
                     user_request.has_perm('users.add_user'),
                     _("You don't have the right to create a user.")
                 )
+
+    def clean(self, *args, **kwargs):
+        """Format the GPG fingerprint"""
+        super(Adherent, self).clean(*args, **kwargs)
+        if self.gpg_fingerprint:
+            self.validate_gpgfp()
+            self.format_gpgfp()
 
 
 class Club(User):
@@ -1414,7 +1461,7 @@ class Ban(RevMixin, AclMixin, models.Model):
             'asso_name': AssoOption.get_cached_value('name'),
         })
         send_mail(
-            'Deconnexion disciplinaire',
+            'Déconnexion disciplinaire / Disciplinary disconnection',
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
             [self.user.email],
@@ -1552,7 +1599,7 @@ class Request(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     token = models.CharField(max_length=32)
-    user = models.ForeignKey('User', on_delete=models.PROTECT)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     expires_at = models.DateTimeField()
 
@@ -1852,7 +1899,9 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
 
     def clean(self, *args, **kwargs):
         self.local_part = self.local_part.lower()
-        if "@" in self.local_part:
-            raise ValidationError(_("The local part must not contain @."))
+        if "@" in self.local_part or "+" in self.local_part:
+            raise ValidationError(_("The local part must not contain @ or +."))
+        result, reason = smtp_check(self.local_part)
+        if result:
+            raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
-

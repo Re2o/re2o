@@ -1,0 +1,96 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2018  Hugo Levy-Falk
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+{% load i18n %}
+{% load acl %}
+{% load logs_extra %}
+
+<table>
+    <tr>
+        <th>{% trans "General policy for VLAN setting" %}</th>
+        <td>{{ radiusoptions.radius_general_policy }}</td>
+        <td>{% trans "This setting defines the VLAN policy after acceptance by RADIUS: either on the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines accepted by RADIUS'" %}</td>
+    </tr>
+    <tr>
+        <th>{% trans "VLAN for machines accepted by RADIUS" %}</th>
+        <td><span class="label label-success">{% blocktrans with vlan_decision_ok=radiusoptions.vlan_decision_ok %}VLAN {{ vlan_decision_ok }}{% endblocktrans %}</span></td>
+    </tr>
+</table>
+<hr/>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Situation" %}</th>
+            <th>{% trans "Behaviour" %}</th>
+        </tr>
+    </thead>
+    <tr>
+        <th>{% trans "Unknown machine" %}</th>
+        <td>
+        {% if radiusoptions.unknown_machine == 'REJECT' %}
+        <span class="label label-danger">{% trans "Reject" %}</span>
+        {% else %}
+        <span class="label label-success">{% blocktrans with unknown_machine_vlan=radiusoptions.unknown_machine_vlan %}VLAN {{ unknown_machine_vlan }}{% endblocktrans %}</span>
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Unknown port" %}</th>
+        <td>
+        {% if radiusoptions.unknown_port == 'REJECT' %}
+        <span class="label label-danger">{% trans "Reject" %}</span>
+        {% else %}
+        <span class="label label-success">{% blocktrans with unknown_port_vlan=radiusoptions.unknown_port_vlan %}VLAN {{ unknown_port_vlan }}{% endblocktrans %}</span>
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Unknown room" %}</th>
+        <td>
+        {% if radiusoptions.unknown_room == 'REJECT' %}
+        <span class="label label-danger">{% trans "Reject" %}</span>
+        {% else %}
+        <span class="label label-success">{% blocktrans with unknown_room_vlan=radiusoptions.unknown_room_vlan %}VLAN {{ unknown_room_vlan }}{% endblocktrans %}</span>
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Non member" %}</th>
+        <td>
+        {% if radiusoptions.non_member == 'REJECT' %}
+        <span class="label label-danger">{% trans "Reject" %}</span>
+        {% else %}
+        <span class="label label-success">{% blocktrans with non_member_vlan=radiusoptions.non_member_vlan %}VLAN {{ non_member_vlan }}{% endblocktrans %}</span>
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Banned user" %}</th>
+        <td>
+        {% if radiusoptions.unknown_port == 'REJECT' %}
+        <span class="label label-danger">{% trans "Reject" %}</span>
+        {% else %}
+        <span class="label label-success">{% blocktrans with banned_vlan=radiusoptions.banned_vlan %}VLAN {{ banned_vlan }}{% endblocktrans %}</span>
+        {% endif %}
+        </td>
+    </tr>
+</table>
+

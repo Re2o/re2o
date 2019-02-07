@@ -62,13 +62,13 @@ def accept_payment(request, factureid):
                 request,
                 _("The subscription of %(member_name)s was extended to"
                   " %(end_date)s.") % {
-                    'member_name': request.user.pseudo,
-                    'end_date': request.user.end_adhesion()
+                    'member_name': invoice.user.pseudo,
+                    'end_date': invoice.user.end_adhesion()
                 }
             )
     return redirect(reverse(
         'users:profil',
-        kwargs={'userid': request.user.id}
+        kwargs={'userid': invoice.user.id}
     ))
 
 

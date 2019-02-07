@@ -43,7 +43,7 @@
 
 
 \begin{document}
-    
+
     %----------------------------------------------------------------------------------------
     %   HEADING SECTION
     %----------------------------------------------------------------------------------------
@@ -70,12 +70,16 @@
     {\bf Siret :} {{siret|safe}}
 
     \vspace{2cm}
-     
+
     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l r}
         {\bf Pour :} {{recipient_name|safe}} & {\bf Date :} {{DATE}} \\
         {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %} & \\
         {% if fid is not None %}
+        {% if is_estimate %}
+        {\bf Devis n\textsuperscript{o} :} {{ fid }} & \\
+        {% else %}
         {\bf Facture n\textsuperscript{o} :} {{ fid }} & \\
+        {% endif %}
         {% endif %}
     \end{tabular*}
     \\
@@ -84,39 +88,57 @@
     %----------------------------------------------------------------------------------------
     %   TABLE OF EXPENSES
     %----------------------------------------------------------------------------------------
-    
+
     \begin{tabularx}{\textwidth}{|X|r|r|r|}
 
         \hline
         \textbf{Désignation} & \textbf{Prix Unit.} \euro & \textbf{Quantité} & \textbf{Prix total} \euro\\
         \doublehline
-        
+
         {% for a in article %}
         {{a.name}} & {{a.price}} \euro & {{a.quantity}} & {{a.total_price}} \euro\\
         \hline
         {% endfor %}
-        
+
     \end{tabularx}
-    
+
     \vspace{1cm}
 
     \hfill
         \begin{tabular}{|l|r|}
             \hline
             \textbf{Total} & {{total|floatformat:2}} \euro \\
+            {% if not is_estimate %}
             \textbf{Votre règlement} & {% if paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro \\
             \doublehline
             \textbf{À PAYER} & {% if not paid %}{{total|floatformat:2}}{% else %} 00,00 {% endif %} \euro\\
+            {% endif %}
             \hline
         \end{tabular}
-    
+
+    \vspace{1cm}
+    \begin{tabularx}{\textwidth}{r X}
+        \hline
+        \textbf{Moyen de paiement} & {{payment_method|default:"Non spécifié"}} \\
+        \hline
+        {% if remark %}
+        \textbf{Remarque} & {{remark|safe}} \\
+        \hline
+        {% endif %}
+        {% if end_validity %}
+        \textbf{Validité} & Jusqu'au {{end_validity}} \\
+        \hline
+        {% endif %}
+    \end{tabularx}
+
+
     \vfill
 
 
     %----------------------------------------------------------------------------------------
     %   FOOTNOTE
     %----------------------------------------------------------------------------------------
-    
+
     \hrule
     \smallskip
     \footnotesize{TVA non applicable, art. 293 B du CGI}

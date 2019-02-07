@@ -28,12 +28,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "IPv6 addresses" %}</th>
-            <th>{% trans "SLAAC" %}</th>
-            <th></th>
-        </tr>
-        </thead>
+    <tr>
+        <th>{% trans "IPv6 addresses" %}</th>
+        <th>{% trans "SLAAC" %}</th>
+        <th></th>
+    </tr>
+    </thead>
     {% for ipv6 in ipv6_list %}
         <tr>
             <td>{{ ipv6.ipv6 }}</td>
@@ -50,4 +50,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% endfor %}
 </table>
-

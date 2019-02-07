@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -24,33 +24,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-
 {% load i18n %}
 
 {% block title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
-
-{% if form.errors %}
-<p>{% trans "Your username and password didn't match. Please try again." %}</p>
-{% endif %}
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>{% trans "Your account doesn't have access to this page. To proceed,
-    please log in with an account that has access." %}</p>
-    {% else %}
-    <p>{% trans "Please log in to see this page." %}</p>
-    {% endif %}
-{% endif %}
-
-<p><form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    <button class="btn btn-success" type="submit"><span class="glyphicon glyphicon-log-in"></span> {% trans "Log in" %}</button>
-    <input type="hidden" name="next" value="{{ next }}" />
-</form></p>
-<p><a class="btn btn-warning btn-sm" role="button" href="{% url 'users:reset-password' %}"> {% trans "Forgotten password?" %}</a></p>
-
+    <form method="post" action="">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button class="btn btn-success" type="submit">
+            <i class="fa fa-sign-in"></i> {% trans "Log in" %}
+        </button>
+    </form>
+    <p><a class="btn btn-warning btn-sm" role="button"
+          href="{% url 'users:reset-password' %}"> {% trans "Forgotten password?" %}</a></p>
 {% endblock %}
-

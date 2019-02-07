@@ -120,6 +120,7 @@ TEMPLATES = [
         'DIRS': [
             # Use only absolute paths with '/' delimiters even on Windows
             os.path.join(BASE_DIR, 'templates').replace('\\', '/'),
+            os.path.join(BASE_DIR, 'media', 'templates').replace('\\', '/'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -174,6 +175,7 @@ BOOTSTRAP_BASE_URL = '/javascript/bootstrap/'
 # Use only absolute paths with '/' delimiters even on Windows
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static').replace('\\', '/'),
+    "/usr/share/fonts-font-awesome/",
 )
 # Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')

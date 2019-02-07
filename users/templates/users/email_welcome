@@ -1,6 +1,8 @@
 <p>Bonjour {{nom}} !</p>
 
-<p>Vous êtes maintenant adhérent de {{asso_name}} ! Nous sommes ravis de vous accueillir dans l'association.</p>
+<p>Il vous suffit maintenant de payer l'adhésion pour devenir adhérent de {{asso_name}} et bénéficier des services. Pour avoir accès à Internet, il vous faudra payer la connexion.</p>
+
+<p>Pour ce faire, rien de plus simple. Une fois que vous aurez défini votre mot de passe, il vous suffira d'accéder à votre profil et de cliquer sur 'Payer la connexion'</p>
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
@@ -13,7 +15,9 @@ L'équipe de {{asso_name}}.</p>
 
 <p>---</p>
 
-<p>Welcome to the {{asso_name}} !</p>
+<p>You just need to pay membership to become a full member of {{asso_name}} and benefit from the services. To have Internet access, you will need to pay the connexion. </p>
+
+<p>Nothing could be simpler. Once your password is defined, you just need to visit your profile and click on 'Pay for a connexion'.</p>
 
 <p>Your username is : {{pseudo}}<p>
 

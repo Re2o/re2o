@@ -19,9 +19,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from django.conf.urls import include, url
-from . import comnpay, cheque
+from . import comnpay, cheque, note_kfet
 
 urlpatterns = [
     url(r'^comnpay/', include(comnpay.urls, namespace='comnpay')),
     url(r'^cheque/', include(cheque.urls, namespace='cheque')),
+    url(r'^note_kfet/', include(note_kfet.urls, namespace='note_kfet')),
 ]

@@ -46,11 +46,14 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
 
+from preferences.models import CotisationsOption
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import find_payment_method
+from cotisations.utils import (
+    find_payment_method, send_mail_invoice, send_mail_voucher
+)
 from cotisations.validators import check_no_balance
 
 
@@ -83,7 +86,7 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         ).aggregate(
             total=models.Sum(
                 models.F('prix')*models.F('number'),
-                output_field=models.FloatField()
+                output_field=models.DecimalField()
             )
         )['total'] or 0
 
@@ -137,7 +140,7 @@ class Facture(BaseInvoice):
     )
     # TODO : change name to validity for clarity
     valid = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_("validated")
     )
     # TODO : changed name to controlled for clarity
@@ -182,22 +185,26 @@ class Facture(BaseInvoice):
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_facture'):
             return False, _("You don't have the right to delete an invoice.")
-        if not self.user.can_edit(user_request, *args, **kwargs)[0]:
+        elif not user_request.has_perm('cotisations.change_all_facture') and \
+                not self.user.can_edit(user_request, *args, **kwargs)[0]:
             return False, _("You don't have the right to delete this user's "
                             "invoices.")
-        if self.control or not self.valid:
+        elif not user_request.has_perm('cotisations.change_all_facture') and \
+                (self.control or not self.valid):
             return False, _("You don't have the right to delete an invoice "
                             "already controlled or invalidated.")
         else:
             return True, None
 
     def can_view(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.view_facture') and \
-                self.user != user_request:
-            return False, _("You don't have the right to view someone else's "
-                            "invoices history.")
-        elif not self.valid:
-            return False, _("The invoice has been invalidated.")
+        if not user_request.has_perm('cotisations.view_facture'):
+            if self.user != user_request:
+                return False, _("You don't have the right to view someone else's "
+                                "invoices history.")
+            elif not self.valid:
+                return False, _("The invoice has been invalidated.")
+            else:
+                return True, None
         else:
             return True, None
 
@@ -231,6 +238,31 @@ class Facture(BaseInvoice):
         self.field_permissions = {
             'control': self.can_change_control,
         }
+        self.__original_valid = self.valid
+        self.__original_control = self.control
+
+    def get_subscription(self):
+        """Returns every subscription associated with this invoice."""
+        return Cotisation.objects.filter(
+            vente__in=self.vente_set.filter(
+                Q(type_cotisation='All') |
+                Q(type_cotisation='Adhesion')
+            )
+        )
+
+    def is_subscription(self):
+        """Returns True if this invoice contains at least one subscribtion."""
+        return bool(self.get_subscription())
+
+    def save(self, *args, **kwargs):
+        super(Facture, self).save(*args, **kwargs)
+        if not self.__original_valid and self.valid:
+            send_mail_invoice(self)
+        if self.is_subscription() \
+                and not self.__original_control \
+                and self.control \
+                and CotisationsOption.get_cached_value('send_voucher_mail'):
+            send_mail_voucher(self)
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.date)
@@ -242,8 +274,10 @@ def facture_post_save(**kwargs):
     Synchronise the LDAP user after an invoice has been saved.
     """
     facture = kwargs['instance']
-    user = facture.user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    if facture.valid:
+        user = facture.user
+        user.set_active()
+        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
@@ -273,8 +307,65 @@ class CustomInvoice(BaseInvoice):
         verbose_name=_("Address")
     )
     paid = models.BooleanField(
-        verbose_name=_("Paid")
+        verbose_name=_("Paid"),
+        default=False
     )
+    remark = models.TextField(
+        verbose_name=_("Remark"),
+        blank=True,
+        null=True
+    )
+
+
+class CostEstimate(CustomInvoice):
+    class Meta:
+        permissions = (
+            ('view_costestimate', _("Can view a cost estimate object")),
+        )
+    validity = models.DurationField(
+        verbose_name=_("Period of validity"),
+        help_text="DD HH:MM:SS"
+    )
+    final_invoice = models.ForeignKey(
+        CustomInvoice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="origin_cost_estimate",
+        primary_key=False
+    )
+
+    def create_invoice(self):
+        """Create a CustomInvoice from the CostEstimate."""
+        if self.final_invoice is not None:
+            return self.final_invoice
+        invoice = CustomInvoice()
+        invoice.recipient = self.recipient
+        invoice.payment = self.payment
+        invoice.address = self.address
+        invoice.paid = False
+        invoice.remark = self.remark
+        invoice.date = timezone.now()
+        invoice.save()
+        self.final_invoice = invoice
+        self.save()
+        for sale in self.vente_set.all():
+            Vente.objects.create(
+                facture=invoice,
+                name=sale.name,
+                prix=sale.prix,
+                number=sale.number,
+            )
+        return invoice
+
+    def can_delete(self, user_request, *args, **kwargs):
+        if not user_request.has_perm('cotisations.delete_costestimate'):
+            return False, _("You don't have the right "
+                            "to delete a cost estimate.")
+        if self.final_invoice is not None:
+            return False, _("The cost estimate has an "
+                            "invoice and can't be deleted.")
+        return True, None
 
 
 # TODO : change Vente to Purchase
@@ -471,8 +562,9 @@ def vente_post_save(**kwargs):
     if purchase.type_cotisation:
         purchase.create_cotis()
         purchase.cotisation.save()
-        user = purchase.facture.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        user = purchase.facture.facture.user
+        user.set_active()
+        user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change vente to purchase
@@ -602,13 +694,19 @@ class Article(RevMixin, AclMixin, models.Model):
             user: The user requesting articles.
             target_user: The user to sell articles
         """
-        if target_user.is_class_club:
+        if target_user is None:
+            objects_pool = cls.objects.filter(Q(type_user='All'))
+        elif target_user.is_class_club:
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Club')
             )
         else:
             objects_pool = cls.objects.filter(
                 Q(type_user='All') | Q(type_user='Adherent')
+            )
+        if target_user is not None and not target_user.is_adherent():
+            objects_pool = objects_pool.filter(
+                Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
             )
         if user.has_perm('cotisations.buy_every_article'):
             return objects_pool
@@ -699,6 +797,10 @@ class Paiement(RevMixin, AclMixin, models.Model):
         payment_method = find_payment_method(self)
         if payment_method is not None and use_payment_method:
             return payment_method.end_payment(invoice, request)
+
+        # So make this invoice valid, trigger send mail
+        invoice.valid = True
+        invoice.save()
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
@@ -856,4 +958,3 @@ def cotisation_post_delete(**_kwargs):
     """
     regen('mac_ip_list')
     regen('mailing')
-

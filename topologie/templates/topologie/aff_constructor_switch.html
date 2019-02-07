@@ -27,14 +27,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if constructor_switch_list.paginator %}
-{% include "pagination.html" with list=constructor_switch_list %}
+    {% include 'pagination.html' with list=constructor_switch_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
             {% trans "Switch constructor" as tr_constructor %}
-            <th>{% include "buttons/sort.html" with prefix='constructor-switch' col='name' text=tr_constructor %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='constructor-switch' col='name' text=tr_constructor %}</th>
             <th></th>
         </tr>
     </thead>
@@ -43,15 +43,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ constructor_switch }}</td>
         <td class="text-right">
             {% can_edit constructor_switch %}
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-constructor-switch' constructor_switch.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='topologie:edit-constructor-switch' id=constructor_switch.id %}
             {% acl_end %}
             {% history_button constructor_switch %}
             {% can_delete constructor_switch %}
-            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-constructor-switch' constructor_switch.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+            {% include 'buttons/suppr.html' with href='topologie:del-constructor-switch' id=constructor_switch.id %}
             {% acl_end %}
         </td>
     </tr>
@@ -59,6 +55,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if constructor_switch_list.paginator %}
-{% include "pagination.html" with list=constructor_switch_list %}
+    {% include 'pagination.html' with list=constructor_switch_list %}
 {% endif %}
 

@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 
 {% load bootstrap3 %}
 
@@ -8,60 +8,58 @@
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "List of ports configurations" %}</h2>
-  {% can_create OuverturePortList %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}"><i class="fa fa-plus"></i>{% trans " Add a configuration" %}</a>
-  {% acl_end %}
-  <table class="table table-striped">
-    <thead>
-      <tr>
-	<th>{% trans "Name" %}</th>
-	<th>{% trans "TCP (input)" %}</th>
-	<th>{% trans "TCP (output)" %}</th>
-	<th>{% trans "UDP (input)" %}</th>
-	<th>{% trans "UDP (output)" %}</th>
-	<th>{% trans "Machines" %}</th>
-	<th></th>
-      </tr>
-    </thead>
-    {% for pl in port_list %}
-    <tr>
-      <td>{{pl.name}}</td>
-      <td>{% for p in pl.tcp_ports_in %}{{p.show_port}}, {%endfor%}</td>
-      <td>{% for p in pl.tcp_ports_out %}{{p.show_port}}, {%endfor%}</td>
-      <td>{% for p in pl.udp_ports_in %}{{p.show_port}}, {%endfor%}</td>
-      <td>{% for p in pl.udp_ports_out %}{{p.show_port}}, {%endfor%}</td>
-      <td>
-      {% if pl.interface_set.all %}
-	<div class="dropdown">
-	    <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                	 <span class="caret"></span>
-	    </button>
-	    <ul class="dropdown-menu" aria-labelledby="editioninterface">
-	    {% for interface in pl.interface_set.all %}
-		<li>
-                   <a href="{% url 'users:profil' userid=interface.machine.user.id %}">
-			{{ interface }}
-		   </a>
-		</li>
-	    {% endfor %}
-	    </ul>
-	</div>
-      {% endif %}
-	<td class="text-right">
-	  {% can_edit pl %}
-	  {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
-	  {% acl_end %}
-          {% can_delete pl %}
-	  {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
-	  {% acl_end %}
-	</td>
-    </tr>
-    {%endfor%}
-  </table>
-  <br />
-  <br />
-  <br />
-
+    <h2>{% trans "List of ports configurations" %}</h2>
+    {% can_create OuverturePortList %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}">
+            <i class="fa fa-plus"></i>{% trans " Add a configuration" %}
+        </a>
+    {% acl_end %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "TCP (input)" %}</th>
+            <th>{% trans "TCP (output)" %}</th>
+            <th>{% trans "UDP (input)" %}</th>
+            <th>{% trans "UDP (output)" %}</th>
+            <th>{% trans "Machines" %}</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% for pl in port_list %}
+            <tr>
+                <td>{{ pl.name }}</td>
+                <td>{% for p in pl.tcp_ports_in %}{{ p.show_port }}, {% endfor %}</td>
+                <td>{% for p in pl.tcp_ports_out %}{{ p.show_port }}, {% endfor %}</td>
+                <td>{% for p in pl.udp_ports_in %}{{ p.show_port }}, {% endfor %}</td>
+                <td>{% for p in pl.udp_ports_out %}{{ p.show_port }}, {% endfor %}</td>
+                <td>
+                    {% if pl.interface_set.all %}
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="editioninterface"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="editioninterface">
+                                {% for interface in pl.interface_set.all %}
+                                    <li>
+                                        <a href="{% url 'users:profil' userid=interface.machine.user.id %}">
+                                            {{ interface }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                <td class="text-right">
+                    {% can_edit pl %}
+                    {% include 'buttons/edit.html' with href='machines:edit-portlist' id=pl.id %}
+                    {% acl_end %}
+                    {% can_delete pl %}
+                    {% include 'buttons/suppr.html' with href='machines:del-portlist' id=pl.id %}
+                    {% acl_end %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
-

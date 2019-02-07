@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -31,147 +31,144 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-{% if machineform %}
-    {% bootstrap_form_errors machineform %}
-{% endif %}
-{% if interfaceform %}
-    {% bootstrap_form_errors interfaceform %}
-{% endif %}
-{% if domainform %}
-    {% bootstrap_form_errors domainform %}
-{% endif %}
-{% if iptypeform %}
-    {% bootstrap_form_errors iptypeform %}
-{% endif %}
-{% if machinetypeform %}
-    {% bootstrap_form_errors machinetypeform %}
-{% endif %}
-{% if extensionform %}
-    {% bootstrap_form_errors extensionform %}
-{% endif %}
-{% if mxform %}
-    {% bootstrap_form_errors mxform %}
-{% endif %}
-{% if nsform %}
-    {% bootstrap_form_errors nsform %}
-{% endif %}
-{% if txtform %}
-    {% bootstrap_form_errors txtform %}
-{% endif %}
-{% if dnameform %}
-    {% bootstrap_form_errors dnameform %}
-{% endif %}
-{% if srvform %}
-    {% bootstrap_form_errors srvform %}
-{% endif %}
-{% if aliasform %}
-    {% bootstrap_form_errors aliasform %}
-{% endif %}
-{% if serviceform %}
-    {% bootstrap_form_errors serviceform %}
-{% endif %}
-{% if sshfpform %}
-    {% bootstrap_form_errors sshfpform %}
-{% endif %}
-{% if roleform %}
-    {% bootstrap_form_errors roleform %}
-{% endif %}
-{% if vlanform %}
-    {% bootstrap_form_errors vlanform %}
-{% endif %}
-{% if nasform %}
-    {% bootstrap_form_errors nasform %}
-{% endif %}
-{% if ipv6form %}
-    {% bootstrap_form_errors ipv6form %}
-{% endif %}
-
-<form class="form" method="post">
-    {% csrf_token %}
     {% if machineform %}
-    	<h3>{% trans "Machine" %}</h3>
-        {% massive_bootstrap_form machineform 'user' %}
+        {% bootstrap_form_errors machineform %}
     {% endif %}
     {% if interfaceform %}
-    	<h3>{% trans "Interface" %}</h3>
-        {% if i_mbf_param %}
-            {% massive_bootstrap_form interfaceform 'ipv4,machine' mbf_param=i_mbf_param %}
-        {% else %}
-            {% massive_bootstrap_form interfaceform 'ipv4,machine' %}
-        {% endif %}
+        {% bootstrap_form_errors interfaceform %}
     {% endif %}
     {% if domainform %}
-    	<h3>{% trans "Domain" %}</h3>
-        {% bootstrap_form domainform %}
+        {% bootstrap_form_errors domainform %}
     {% endif %}
     {% if iptypeform %}
-    	<h3>{% trans "IP type" %}</h3>
-        {% bootstrap_form iptypeform %}
+        {% bootstrap_form_errors iptypeform %}
     {% endif %}
     {% if machinetypeform %}
-    	<h3>{% trans "Machine type" %}</h3>
-        {% bootstrap_form machinetypeform %}
+        {% bootstrap_form_errors machinetypeform %}
     {% endif %}
     {% if extensionform %}
-    	<h3>{% trans "Extension" %}</h3>
-        {% massive_bootstrap_form extensionform 'origin' %}
-    {% endif %}
-    {% if soaform %}
-    	<h3>{% trans "SOA record" %}</h3>
-        {% bootstrap_form soaform %}
+        {% bootstrap_form_errors extensionform %}
     {% endif %}
     {% if mxform %}
-    	<h3>{% trans "MX record" %}</h3>
-        {% massive_bootstrap_form mxform 'name' %}
+        {% bootstrap_form_errors mxform %}
     {% endif %}
     {% if nsform %}
-    	<h3>{% trans "NS record" %}</h3>
-        {% massive_bootstrap_form nsform 'ns' %}
+        {% bootstrap_form_errors nsform %}
     {% endif %}
     {% if txtform %}
-    	<h3>{% trans "TXT record" %}</h3>
-        {% bootstrap_form txtform %}
+        {% bootstrap_form_errors txtform %}
     {% endif %}
     {% if dnameform %}
-        <h3>{% trans "DNAME record" %}</h3>
-        {% bootstrap_form dnameform %}
+        {% bootstrap_form_errors dnameform %}
     {% endif %}
     {% if srvform %}
-    	<h3>{% trans "SRV record" %}</h3>
-        {% massive_bootstrap_form srvform 'target'  %}
-    {% endif %}
-    {% if sshfpform %}
-        <h3>{% trans "SSHFP record" %}</h3>
-        {% bootstrap_form sshfpform %}
+        {% bootstrap_form_errors srvform %}
     {% endif %}
     {% if aliasform %}
-    	<h3>{% trans "Alias" %}</h3>
-        {% bootstrap_form aliasform %}
+        {% bootstrap_form_errors aliasform %}
     {% endif %}
     {% if serviceform %}
-    	<h3>{% trans "Service" %}</h3>
-        {% massive_bootstrap_form serviceform 'servers' %}
+        {% bootstrap_form_errors serviceform %}
+    {% endif %}
+    {% if sshfpform %}
+        {% bootstrap_form_errors sshfpform %}
     {% endif %}
     {% if roleform %}
-        <h3>Role</h3>
-        {% massive_bootstrap_form roleform 'servers' %}
+        {% bootstrap_form_errors roleform %}
     {% endif %}
     {% if vlanform %}
-    	<h3>{% trans "VLAN" %}</h3>
-        {% bootstrap_form vlanform %}
+        {% bootstrap_form_errors vlanform %}
     {% endif %}
     {% if nasform %}
-    	<h3>{% trans "NAS device" %}</h3>
-        {% bootstrap_form nasform %}
+        {% bootstrap_form_errors nasform %}
     {% endif %}
     {% if ipv6form %}
-    	<h3>{% trans "IPv6 address" %}</h3>
-        {% bootstrap_form ipv6form %}
+        {% bootstrap_form_errors ipv6form %}
     {% endif %}
-    {% bootstrap_button action_name button_type="submit" icon="star" %}
-</form>
-  <br />
-  <br />
-  <br />
+
+    <form class="form" method="post">
+        {% csrf_token %}
+        {% if machineform %}
+            <h3>{% trans "Machine" %}</h3>
+            {% massive_bootstrap_form machineform 'user' %}
+        {% endif %}
+        {% if interfaceform %}
+            <h3>{% trans "Interface" %}</h3>
+            {% if i_mbf_param %}
+                {% massive_bootstrap_form interfaceform 'ipv4,machine,port_lists' mbf_param=i_mbf_param %}
+            {% else %}
+                {% massive_bootstrap_form interfaceform 'ipv4,machine,port_lists' %}
+            {% endif %}
+        {% endif %}
+        {% if domainform %}
+            <h3>{% trans "Domain" %}</h3>
+            {% bootstrap_form domainform %}
+        {% endif %}
+        {% if iptypeform %}
+            <h3>{% trans "IP type" %}</h3>
+            {% bootstrap_form iptypeform %}
+        {% endif %}
+        {% if machinetypeform %}
+            <h3>{% trans "Machine type" %}</h3>
+            {% bootstrap_form machinetypeform %}
+        {% endif %}
+        {% if extensionform %}
+            <h3>{% trans "Extension" %}</h3>
+            {% massive_bootstrap_form extensionform 'origin' %}
+        {% endif %}
+        {% if soaform %}
+            <h3>{% trans "SOA record" %}</h3>
+            {% bootstrap_form soaform %}
+        {% endif %}
+        {% if mxform %}
+            <h3>{% trans "MX record" %}</h3>
+            {% massive_bootstrap_form mxform 'name' %}
+        {% endif %}
+        {% if nsform %}
+            <h3>{% trans "NS record" %}</h3>
+            {% massive_bootstrap_form nsform 'ns' %}
+        {% endif %}
+        {% if txtform %}
+            <h3>{% trans "TXT record" %}</h3>
+            {% bootstrap_form txtform %}
+        {% endif %}
+        {% if dnameform %}
+            <h3>{% trans "DNAME record" %}</h3>
+            {% bootstrap_form dnameform %}
+        {% endif %}
+        {% if srvform %}
+            <h3>{% trans "SRV record" %}</h3>
+            {% massive_bootstrap_form srvform 'target' %}
+        {% endif %}
+        {% if sshfpform %}
+            <h3>{% trans "SSHFP record" %}</h3>
+            {% bootstrap_form sshfpform %}
+        {% endif %}
+        {% if aliasform %}
+            <h3>{% trans "Alias" %}</h3>
+	    {% massive_bootstrap_form aliasform 'extension' %} 
+        {% endif %}
+        {% if serviceform %}
+            <h3>{% trans "Service" %}</h3>
+            {% massive_bootstrap_form serviceform 'servers' %}
+        {% endif %}
+        {% if roleform %}
+            <h3>Role</h3>
+            {% massive_bootstrap_form roleform 'servers' %}
+        {% endif %}
+        {% if vlanform %}
+            <h3>{% trans "VLAN" %}</h3>
+            {% bootstrap_form vlanform %}
+        {% endif %}
+        {% if nasform %}
+            <h3>{% trans "NAS device" %}</h3>
+            {% bootstrap_form nasform %}
+        {% endif %}
+        {% if ipv6form %}
+            <h3>{% trans "IPv6 address" %}</h3>
+            {% bootstrap_form ipv6form %}
+        {% endif %}
+        {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
+    </form>
 {% endblock %}
 

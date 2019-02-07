@@ -40,11 +40,17 @@ from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
+from machines.models import Interface, Machine, Nas
+from topologie.models import Port
 from preferences.models import OptionalUser
-from re2o.utils import remove_user_room, get_input_formats_help_text
+from re2o.utils import remove_user_room
+from re2o.base import get_input_formats_help_text
 from re2o.mixins import FormRevMixin
 from re2o.field_permissions import FieldPermissionFormMixin
+
+from preferences.models import GeneralOption
 
 from .widgets import DateTimePicker
 
@@ -111,6 +117,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Changement du mot de passe"""
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
+        user.set_active()
         user.save()
 
 
@@ -313,12 +320,29 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['email'].label = _("Email address")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['room'].label = _("Room")
-        self.fields['room'].empty_label = _("No room")
+        if 'room' in self.fields:
+            self.fields['room'].label = _("Room")
+            self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
-        self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
-        if 'shell' in self.fields:
-            self.fields['shell'].empty_label = _("Default shell")
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+        ]
+
+    force = forms.BooleanField(
+        label=_("Force the move?"),
+        initial=False,
+        required=False
+    )
 
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get('email'):
@@ -327,6 +351,68 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             raise forms.ValidationError(
                     _("You can't use a {} address.").format(
                         OptionalUser.objects.first().local_email_domain))
+
+    def clean_telephone(self):
+        """Verifie que le tel est présent si 'option est validée
+        dans preferences"""
+        telephone = self.cleaned_data['telephone']
+        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
+            raise forms.ValidationError(
+                _("A valid telephone number is required.")
+            )
+        return telephone
+
+    def clean_force(self):
+        """On supprime l'ancien user de la chambre si et seulement si la
+        case est cochée"""
+        if self.cleaned_data.get('force', False):
+            remove_user_room(self.cleaned_data.get('room'))
+        return
+
+
+class AdherentCreationForm(AdherentForm):
+    """Formulaire de création d'un user.
+    AdherentForm auquel on ajoute une checkbox afin d'éviter les
+    doublons d'utilisateurs"""
+
+    # Champ permettant d'éviter au maxium les doublons d'utilisateurs
+    former_user_check_info = _("If you already have an account, please use it. "\
+                           + "If your lost access to it, please consider "\
+                           + "using the forgotten password button on the "\
+                           + "login page or contacting support.")
+    former_user_check = forms.BooleanField(required=True, help_text=former_user_check_info)
+    former_user_check.label = _("I certify that I have not had an account before")
+
+    # Checkbox for GTU
+    gtu_check = forms.BooleanField(required=True)
+    #gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
+    #    _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
+
+    class Meta:
+        model = Adherent
+        fields = [
+            'name',
+            'surname',
+            'pseudo',
+            'email',
+            'school',
+            'comment',
+            'telephone',
+            'room',
+            'state',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(AdherentCreationForm, self).__init__(*args, **kwargs)
+
+class AdherentEditForm(AdherentForm):
+    """Formulaire d'édition d'un user.
+    AdherentForm incluant la modification des champs gpg et shell"""
+    def __init__(self, *args, **kwargs):
+       super(AdherentEditForm, self).__init__(*args, **kwargs)
+       self.fields['gpg_fingerprint'].widget.attrs['placeholder'] = _("Leave empty if you don't have any GPG key.")
+       if 'shell' in self.fields:
+           self.fields['shell'].empty_label = _("Default shell")
 
     class Meta:
         model = Adherent
@@ -343,37 +429,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'gpg_fingerprint'
         ]
 
-
-    def clean_telephone(self):
-        """Verifie que le tel est présent si 'option est validée
-        dans preferences"""
-        telephone = self.cleaned_data['telephone']
-        if not telephone and OptionalUser.get_cached_value('is_tel_mandatory'):
-            raise forms.ValidationError(
-                _("A valid telephone number is required.")
-            )
-        return telephone
-
-    def clean_gpg_fingerprint(self):
-        """Format the GPG fingerprint"""
-        gpg_fingerprint = self.cleaned_data.get('gpg_fingerprint', None)
-        if gpg_fingerprint:
-            return gpg_fingerprint.replace(' ', '').upper()
-
-    force = forms.BooleanField(
-        label=_("Force the move?"),
-        initial=False,
-        required=False
-    )
-
-    def clean_force(self):
-        """On supprime l'ancien user de la chambre si et seulement si la
-        case est cochée"""
-        if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
-        return
-
-
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
     pour l'edition de self par self ou un cableur. On formate les champs
@@ -384,8 +439,10 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields['surname'].label = _("Name")
         self.fields['school'].label = _("School")
         self.fields['comment'].label = _("Comment")
-        self.fields['room'].label = _("Room")
-        self.fields['room'].empty_label = _("No room")
+        self.fields['email'].label = _("Email address")
+        if 'room' in self.fields:
+            self.fields['room'].label = _("Room")
+            self.fields['room'].empty_label = _("No room")
         self.fields['school'].empty_label = _("Select a school")
         self.fields['mailing'].label = _("Use a mailing list")
 
@@ -397,7 +454,9 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             'school',
             'comment',
             'room',
+            'email',
             'telephone',
+            'email',
             'shell',
             'mailing'
         ]
@@ -442,13 +501,14 @@ class PasswordForm(FormRevMixin, ModelForm):
 
 
 class ServiceUserForm(FormRevMixin, ModelForm):
-    """ Modification d'un service user"""
+    """Service user creation
+    force initial password set"""
     password = forms.CharField(
         label=_("New password"),
         max_length=255,
         validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
-        required=False
+        required=True
     )
 
     class Meta:
@@ -460,7 +520,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
-        """Changement du mot de passe"""
+        """Password change"""
         user = super(ServiceUserForm, self).save(commit=False)
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data.get("password"))
@@ -470,6 +530,14 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 class EditServiceUserForm(ServiceUserForm):
     """Formulaire d'edition de base d'un service user. Ne permet
     d'editer que son group d'acl et son commentaire"""
+    password = forms.CharField(
+        label=_("New password"),
+        max_length=255,
+        validators=[MinLengthValidator(8)],
+        widget=forms.PasswordInput,
+        required=False
+    )
+
     class Meta(ServiceUserForm.Meta):
         fields = ['access_group', 'comment']
 
@@ -484,6 +552,12 @@ class StateForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
+    def save(self, commit=True):
+        user = super(StateForm, self).save(commit=False)
+        if self.cleaned_data['state']:
+            user.state=self.cleaned_data.get('state')
+            user.state_sync()
+        user.save()
 
 class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """ Gestion des groupes d'un user"""
@@ -660,3 +734,53 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         model = User
         fields = ['email','local_email_enabled', 'local_email_redirect']
 
+
+class InitialRegisterForm(forms.Form):
+    register_room = forms.BooleanField(required=False)
+    register_machine = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        switch_ip = kwargs.pop('switch_ip')
+        switch_port = kwargs.pop('switch_port')
+        client_mac = kwargs.pop('client_mac')
+        self.user = kwargs.pop('user')
+        if switch_ip and switch_port:
+            # Looking for a port
+            port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
+            # If a port exists, checking there is a room AND radius
+            if port:
+                if port.get_port_profile.radius_type != 'NO' and port.get_port_profile.radius_mode == 'STRICT' and hasattr(port, 'room'):
+                    # Requesting user is not in this room ?
+                    if self.user.room != port.room:
+                        self.new_room = port.room
+        if client_mac and switch_ip:
+            # If this interface doesn't already exists
+            if not Interface.objects.filter(mac_address=client_mac):
+                self.mac_address = client_mac
+                self.nas_type = Nas.objects.filter(nas_type__interface__ipv4__ipv4=switch_ip).first()
+        super(InitialRegisterForm, self).__init__(*args, **kwargs)
+        if hasattr(self, 'new_room'):
+            self.fields['register_room'].label = _("This room is my room")
+        else:
+            self.fields.pop('register_room')
+        if hasattr(self, 'mac_address'):
+            self.fields['register_machine'].label = _("This new connected device is mine")
+        else:
+            self.fields.pop('register_machine')
+
+    def clean_register_room(self):
+        if self.cleaned_data['register_room']:
+            if self.user.is_class_adherent:
+                remove_user_room(self.new_room)
+                user = self.user.adherent
+                user.room = self.new_room
+                user.save()
+            if self.user.is_class_club:
+                user = self.user.club
+                user.room = self.new_room
+                user.save()
+
+    def clean_register_machine(self):
+        if self.cleaned_data['register_machine']:
+            if self.mac_address and self.nas_type:
+                self.user.autoregister_machine(self.mac_address, self.nas_type)

@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if white_list.paginator %}
-{% include "pagination.html" with list=white_list %}
+    {% include 'pagination.html' with list=white_list %}
 {% endif %}
 {% load acl %}
 {% load logs_extra %}
@@ -34,12 +34,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             {% trans "User" as tr_user %}
-            <th>{% include "buttons/sort.html" with prefix='white' col="user" text=tr_user %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='white' col="user" text=tr_user %}</th>
             <th>{% trans "Reason" %}</th>
             {% trans "Start date" as tr_start %}
-            <th>{% include "buttons/sort.html" with prefix='white' col="start" text=tr_start %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='white' col="start" text=tr_start %}</th>
             {% trans "End date" as tr_end %}
-            <th>{% include "buttons/sort.html" with prefix='white' col="end" text=tr_end %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='white' col="end" text=tr_end %}</th>
             <th></th>
         </tr>
     </thead>
@@ -49,7 +49,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% else %}
         <tr>
     {% endif %}
-            <td><a href="{% url "users:profil" whitelist.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ whitelist.user }}</a></td>
+            <td><a href="{% url 'users:profil' whitelist.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ whitelist.user }}</a></td>
             <td>{{ whitelist.raison }}</td>
             <td>{{ whitelist.date_start }}</td>
             <td>{{ whitelist.date_end }}</td>
@@ -67,6 +67,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if white_list.paginator %}
-{% include "pagination.html" with list=white_list %}
+    {% include 'pagination.html' with list=white_list %}
 {% endif %}
 

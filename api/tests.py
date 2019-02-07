@@ -21,10 +21,11 @@
 """Defines the test suite for the API
 """
 
-import json
 import datetime
-from rest_framework.test import APITestCase
+import json
+
 from requests import codes
+from rest_framework.test import APITestCase
 
 import cotisations.models as cotisations
 import machines.models as machines
@@ -33,7 +34,7 @@ import topologie.models as topologie
 import users.models as users
 
 
-class APIEndpointsTestCase(APITestCase):    
+class APIEndpointsTestCase(APITestCase):
     """Test case to test that all endpoints are reachable with respects to
     authentication and permission checks.
 
@@ -148,10 +149,10 @@ class APIEndpointsTestCase(APITestCase):
         '/api/users/club/',
         # 4th user to be create (stduser, superuser, users_adherent_1,
         # users_club_1)
-        '/api/users/club/4/', 
+        '/api/users/club/4/',
         '/api/users/listright/',
-# TODO: Merge !145
-#        '/api/users/listright/1/',
+        # TODO: Merge !145
+        #        '/api/users/listright/1/',
         '/api/users/school/',
         '/api/users/school/1/',
         '/api/users/serviceuser/',
@@ -215,7 +216,7 @@ class APIEndpointsTestCase(APITestCase):
         '/api/users/user/4242/',
         '/api/users/whitelist/4242/',
     ]
-    
+
     stduser = None
     superuser = None
 
@@ -363,7 +364,7 @@ class APIEndpointsTestCase(APITestCase):
             machine=cls.machines_machine_1,  # Dep machines.Machine
             type=cls.machines_machinetype_1,  # Dep machines.MachineType
             details="machines Interface 1",
-            #port_lists=[cls.machines_ouvertureportlist_1]  # Dep machines.OuverturePortList
+            # port_lists=[cls.machines_ouvertureportlist_1]  # Dep machines.OuverturePortList
         )
         cls.machines_domain_1 = machines.Domain.objects.create(
             interface_parent=cls.machines_interface_1,  # Dep machines.Interface
@@ -525,14 +526,14 @@ class APIEndpointsTestCase(APITestCase):
             uid_number=21103,
             rezo_rez_uid=21103
         )
-# Need merge of MR145 to work
-# TODO: Merge !145
-#        cls.users_listright_1 = users.ListRight.objects.create(
-#            unix_name="userslistright",
-#            gid=601,
-#            critical=False,
-#            details="userslistright"
-#        )
+        # Need merge of MR145 to work
+        # TODO: Merge !145
+        #        cls.users_listright_1 = users.ListRight.objects.create(
+        #            unix_name="userslistright",
+        #            gid=601,
+        #            critical=False,
+        #            details="userslistright"
+        #        )
         cls.users_serviceuser_1 = users.ServiceUser.objects.create(
             password="password",
             last_login=datetime.datetime.now(datetime.timezone.utc),
@@ -663,7 +664,7 @@ class APIEndpointsTestCase(APITestCase):
             AssertionError: An endpoint did not have a 200 status code.
         """
         self.client.force_authenticate(user=self.superuser)
-        
+
         urls = self.no_auth_endpoints + self.auth_no_perm_endpoints + \
                self.auth_perm_endpoints
 
@@ -675,6 +676,7 @@ class APIEndpointsTestCase(APITestCase):
         self.check_responses_code(urls, codes.ok,
                                   formats=[None, 'json', 'api'],
                                   assert_more=assert_more)
+
 
 class APIPaginationTestCase(APITestCase):
     """Test case to check that the pagination is used on all endpoints that
@@ -756,7 +758,7 @@ class APIPaginationTestCase(APITestCase):
     @classmethod
     def tearDownClass(cls):
         cls.superuser.delete()
-        super().tearDownClass()
+        super(APIPaginationTestCase, self).tearDownClass()
 
     def test_pagination(self):
         """Tests that every endpoint is using the pagination correctly.
@@ -776,4 +778,3 @@ class APIPaginationTestCase(APITestCase):
                 assert 'previous' in res_json.keys()
                 assert 'results' in res_json.keys()
                 assert not len('results') > 100
-

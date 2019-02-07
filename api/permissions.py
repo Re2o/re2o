@@ -24,8 +24,6 @@
 
 from rest_framework import permissions, exceptions
 
-from re2o.acl import can_create, can_edit, can_delete, can_view_all
-
 from . import acl
 
 
@@ -57,14 +55,14 @@ def _get_param_in_view(view, param_name):
         AssertionError: None of the getter function or the attribute are
             defined in the view.
     """
-    assert hasattr(view, 'get_'+param_name) \
-        or getattr(view, param_name, None) is not None, (
+    assert hasattr(view, 'get_' + param_name) \
+           or getattr(view, param_name, None) is not None, (
         'cannot apply {} on a view that does not set '
         '`.{}` or have a `.get_{}()` method.'
     ).format(self.__class__.__name__, param_name, param_name)
 
-    if hasattr(view, 'get_'+param_name):
-        param = getattr(view, 'get_'+param_name)()
+    if hasattr(view, 'get_' + param_name):
+        param = getattr(view, 'get_' + param_name)()
         assert param is not None, (
             '{}.get_{}() returned None'
         ).format(view.__class__.__name__, param_name)
@@ -80,7 +78,8 @@ class ACLPermission(permissions.BasePermission):
     See the wiki for the syntax of this attribute.
     """
 
-    def get_required_permissions(self, method, view):
+    @staticmethod
+    def get_required_permissions(method, view):
         """Build the list of permissions required for the request to be
         accepted.
 
@@ -153,15 +152,15 @@ class AutodetectACLPermission(permissions.BasePermission):
         'OPTIONS': [can_see_api, lambda model: model.can_view_all],
         'HEAD': [can_see_api, lambda model: model.can_view_all],
         'POST': [can_see_api, lambda model: model.can_create],
-        'PUT': [],     # No restrictions, apply to objects
-        'PATCH': [],   # No restrictions, apply to objects
+        'PUT': [],  # No restrictions, apply to objects
+        'PATCH': [],  # No restrictions, apply to objects
         'DELETE': [],  # No restrictions, apply to objects
     }
     perms_obj_map = {
         'GET': [can_see_api, lambda obj: obj.can_view],
         'OPTIONS': [can_see_api, lambda obj: obj.can_view],
         'HEAD': [can_see_api, lambda obj: obj.can_view],
-        'POST': [],    # No restrictions, apply to models
+        'POST': [],  # No restrictions, apply to models
         'PUT': [can_see_api, lambda obj: obj.can_edit],
         'PATCH': [can_see_api, lambda obj: obj.can_edit],
         'DELETE': [can_see_api, lambda obj: obj.can_delete],
@@ -209,7 +208,8 @@ class AutodetectACLPermission(permissions.BasePermission):
 
         return [perm(obj) for perm in self.perms_obj_map[method]]
 
-    def _queryset(self, view):
+    @staticmethod
+    def _queryset(view):
         return _get_param_in_view(view, 'queryset')
 
     def has_permission(self, request, view):
@@ -282,4 +282,3 @@ class AutodetectACLPermission(permissions.BasePermission):
             return False
 
         return True
-

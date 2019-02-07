@@ -28,17 +28,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
     {% if ap_list.paginator %}
-    {% include "pagination.html" with list=ap_list %}
+        {% include 'pagination.html' with list=ap_list %}
     {% endif %}
     <table class="table table-striped">
         <thead>
             <tr>
                 {% trans "Access point" as tr_ap %}
-                <th>{% include "buttons/sort.html" with prefix='ap' col='name' text=tr_ap %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='ap' col='name' text=tr_ap %}</th>
                 {% trans "MAC address" as tr_mac %}
-                <th>{% include "buttons/sort.html" with prefix='ap' col='mac' text=tr_mac %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='ap' col='mac' text=tr_mac %}</th>
                 {% trans "IPv4 address" as tr_ip %}
-                <th>{% include "buttons/sort.html" with prefix='ap' col='ip' text=tr_ip %}</th>
+                <th>{% include 'buttons/sort.html' with prefix='ap' col='ip' text=tr_ip %}</th>
                 <th>{% trans "Details" %}</th>
                 <th>{% trans "Location" %}</th> 
                 <th></th>
@@ -53,15 +53,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <td>{{ ap.location }}</td>
                 <td class="text-right">
                     {% can_edit ap %}
-                    <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-ap' ap.id %}">
-                        <i class="fa fa-edit"></i>
-                    </a>
+                    {% include 'buttons/edit.html' with href='topologie:edit-ap' id=ap.id %}
                     {% acl_end %}
                     {% history_button ap %}
                     {% can_delete ap %}
-                    <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'machines:del-machine' ap.id %}">
-                        <i class="fa fa-trash"></i>
-                    </a>
+                    {% include 'buttons/suppr.html' with href='machines:del-machine' id=ap.id %}
                     {% acl_end %}
                 </td>
             </tr>
@@ -69,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
     {% if ap_list.paginator %}
-    {% include "pagination.html" with list=ap_list %}
+        {% include 'pagination.html' with list=ap_list %}
     {% endif %}
 </div>
 

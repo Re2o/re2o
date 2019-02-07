@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="panel-heading clearfix" data-toggle="collapse" data-target="#collapse_superuser">
         <div class="pull-right">
             <a type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_superuser">
-                {{superusers.count}} <i class="fa fa-user"></i>
+                {{ superusers.count }} <i class="fa fa-user"></i>
             </a>
         </div>
         <h4 class="text-danger">
@@ -41,16 +41,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div class="panel-collapse collapse" id="collapse_superuser">
         <div class="panel-body">
-            <h4 class="text-danger">{% trans "Total: All permissions" %}</h4>
+            <h4 class="text-danger">{% trans "Total: all permissions" %}</h4>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modal_superuser" tabindex="-1" role="dialog" aria-labelledby="Users in Superuser">
+<div class="modal fade" id="modal_superuser" tabindex="-1" role="dialog" aria-labelledby={% trans "Users in Superuser" %}>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label={% trans "Close" %}>
                     <i class="fa fa-times"></i>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">{% trans "Users in Superuser" %}</h4>
@@ -147,11 +147,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </div>
 
 {% if users %}
-<div class="modal fade" id="modal_{{right.id}}" tabindex="-1" role="dialog" aria-labelledby="Users">
+<div class="modal fade" id="modal_{{right.id}}" tabindex="-1" role="dialog" aria-labelledby={% trans "Users" %}>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label={% trans "Close" %}>
                     <i class="fa fa-times"></i>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">
@@ -192,7 +192,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             {% if not user.last_seen %}
                             <td class="text-danger">{% trans "Never" %}</td>
                             {% else %}
-                            <td class="text-success">{{user.last_seen}}</td>
+                            <td class="text-success">{{ user.last_seen }}</td>
                             {% endif %}
                             <td>
                                 <a class="btn btn-danger" role="button" href="{% url 'users:del-group' user.id right.id %}">

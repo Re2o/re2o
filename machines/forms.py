@@ -35,13 +35,12 @@ Formulaires d'ajout, edition et suppressions de :
 
 from __future__ import unicode_literals
 
-from django.forms import ModelForm, Form
 from django import forms
+from django.forms import ModelForm, Form
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-
 from .models import (
     Domain,
     Machine,
@@ -68,6 +67,7 @@ from .models import (
 
 class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Formulaire d'édition d'une machine"""
+
     class Meta:
         model = Machine
         fields = '__all__'
@@ -80,12 +80,14 @@ class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 class NewMachineForm(EditMachineForm):
     """Creation d'une machine, ne renseigne que le nom"""
+
     class Meta(EditMachineForm.Meta):
         fields = ['name']
 
 
 class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Edition d'une interface. Edition complète"""
+
     class Meta:
         model = Interface
         fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
@@ -116,7 +118,7 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 interface=self.instance
             )
         if "machine" in self.fields:
-            self.fields['machine'].queryset = Machine.objects.all()\
+            self.fields['machine'].queryset = Machine.objects.all() \
                 .select_related('user')
         can_use_all_machinetype, _reason = MachineType.can_use_all(user)
         if not can_use_all_machinetype:
@@ -128,12 +130,14 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 class AddInterfaceForm(EditInterfaceForm):
     """Ajout d'une interface à une machine. En fonction des droits,
     affiche ou non l'ensemble des ip disponibles"""
+
     class Meta(EditInterfaceForm.Meta):
         fields = ['type', 'ipv4', 'mac_address', 'details']
 
 
 class AliasForm(FormRevMixin, ModelForm):
     """Ajout d'un alias (et edition), CNAME, contenant nom et extension"""
+
     class Meta:
         model = Domain
         fields = ['name', 'extension']
@@ -151,6 +155,7 @@ class AliasForm(FormRevMixin, ModelForm):
 
 class DomainForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un enregistrement de nom, relié à interface"""
+
     class Meta:
         model = Domain
         fields = ['name']
@@ -183,6 +188,7 @@ class DelAliasForm(FormRevMixin, Form):
 
 class MachineTypeForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un machinetype, relié à un iptype"""
+
     class Meta:
         model = MachineType
         fields = ['type', 'ip_type']
@@ -214,6 +220,7 @@ class DelMachineTypeForm(FormRevMixin, Form):
 class IpTypeForm(FormRevMixin, ModelForm):
     """Formulaire d'ajout d'un iptype. Pas d'edition de l'ip de start et de
     stop après creation"""
+
     class Meta:
         model = IpType
         fields = '__all__'
@@ -227,6 +234,7 @@ class IpTypeForm(FormRevMixin, ModelForm):
 class EditIpTypeForm(IpTypeForm):
     """Edition d'un iptype. Pas d'edition du rangev4 possible, car il faudrait
     synchroniser les objets iplist"""
+
     class Meta(IpTypeForm.Meta):
         fields = ['extension', 'type', 'need_infra', 'domaine_ip_network', 'domaine_ip_netmask',
                   'prefix_v6', 'prefix_v6_length',
@@ -253,6 +261,7 @@ class DelIpTypeForm(FormRevMixin, Form):
 
 class ExtensionForm(FormRevMixin, ModelForm):
     """Formulaire d'ajout et edition d'une extension"""
+
     class Meta:
         model = Extension
         fields = '__all__'
@@ -264,6 +273,7 @@ class ExtensionForm(FormRevMixin, ModelForm):
         self.fields['origin'].label = _("A record origin")
         self.fields['origin_v6'].label = _("AAAA record origin")
         self.fields['soa'].label = _("SOA record to use")
+        self.fields['dnssec'].label = _("Sign with DNSSEC")
 
 
 class DelExtensionForm(FormRevMixin, Form):
@@ -285,6 +295,7 @@ class DelExtensionForm(FormRevMixin, Form):
 
 class Ipv6ListForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Gestion des ipv6 d'une machine"""
+
     class Meta:
         model = Ipv6List
         fields = ['ipv6', 'slaac_ip']
@@ -296,6 +307,7 @@ class Ipv6ListForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 class SOAForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un SOA"""
+
     class Meta:
         model = SOA
         fields = '__all__'
@@ -324,6 +336,7 @@ class DelSOAForm(FormRevMixin, Form):
 
 class MxForm(FormRevMixin, ModelForm):
     """Ajout et edition d'un MX"""
+
     class Meta:
         model = Mx
         fields = ['zone', 'priority', 'name']
@@ -357,6 +370,7 @@ class NsForm(FormRevMixin, ModelForm):
     """Ajout d'un NS pour une zone
     On exclue les CNAME dans les objets domain (interdit par la rfc)
     donc on prend uniquemet """
+
     class Meta:
         model = Ns
         fields = ['zone', 'ns']
@@ -388,6 +402,7 @@ class DelNsForm(FormRevMixin, Form):
 
 class TxtForm(FormRevMixin, ModelForm):
     """Ajout d'un txt pour une zone"""
+
     class Meta:
         model = Txt
         fields = '__all__'
@@ -416,6 +431,7 @@ class DelTxtForm(FormRevMixin, Form):
 
 class DNameForm(FormRevMixin, ModelForm):
     """Add a DNAME entry for a zone"""
+
     class Meta:
         model = DName
         fields = '__all__'
@@ -444,6 +460,7 @@ class DelDNameForm(FormRevMixin, Form):
 
 class SrvForm(FormRevMixin, ModelForm):
     """Ajout d'un srv pour une zone"""
+
     class Meta:
         model = Srv
         fields = '__all__'
@@ -473,6 +490,7 @@ class DelSrvForm(FormRevMixin, Form):
 class NasForm(FormRevMixin, ModelForm):
     """Ajout d'un type de nas (machine d'authentification,
     swicths, bornes...)"""
+
     class Meta:
         model = Nas
         fields = '__all__'
@@ -501,6 +519,7 @@ class DelNasForm(FormRevMixin, Form):
 
 class RoleForm(FormRevMixin, ModelForm):
     """Add and edit role."""
+
     class Meta:
         model = Role
         fields = '__all__'
@@ -509,9 +528,9 @@ class RoleForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(RoleForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['servers'].queryset = (Interface.objects.all()
-                                           .select_related(
-                                               'domain__extension'
-                                           ))
+            .select_related(
+            'domain__extension'
+        ))
 
 
 class DelRoleForm(FormRevMixin, Form):
@@ -533,6 +552,7 @@ class DelRoleForm(FormRevMixin, Form):
 
 class ServiceForm(FormRevMixin, ModelForm):
     """Ajout et edition d'une classe de service : dns, dhcp, etc"""
+
     class Meta:
         model = Service
         fields = '__all__'
@@ -541,9 +561,9 @@ class ServiceForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(ServiceForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['servers'].queryset = (Interface.objects.all()
-                                           .select_related(
-                                               'domain__extension'
-                                           ))
+            .select_related(
+            'domain__extension'
+        ))
 
     def save(self, commit=True):
         # TODO : None of the parents of ServiceForm use the commit
@@ -574,13 +594,25 @@ class DelServiceForm(FormRevMixin, Form):
 
 class VlanForm(FormRevMixin, ModelForm):
     """Ajout d'un vlan : id, nom"""
+
     class Meta:
         model = Vlan
-        fields = '__all__'
+        fields = ['vlan_id', 'name', 'comment']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(VlanForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditOptionVlanForm(FormRevMixin, ModelForm):
+    """Ajout d'un vlan : id, nom"""
+    class Meta:
+        model = Vlan
+        fields = ['dhcp_snooping', 'dhcpv6_snooping', 'arp_protect', 'igmp', 'mld']
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditOptionVlanForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
 class DelVlanForm(FormRevMixin, Form):
@@ -603,6 +635,7 @@ class DelVlanForm(FormRevMixin, Form):
 class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
     """Edition de la liste des profils d'ouverture de ports
     pour l'interface"""
+
     class Meta:
         model = Interface
         fields = ['port_lists']
@@ -619,6 +652,7 @@ class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
 class EditOuverturePortListForm(FormRevMixin, ModelForm):
     """Edition de la liste des ports et profils d'ouverture
     des ports"""
+
     class Meta:
         model = OuverturePortList
         fields = '__all__'
@@ -631,9 +665,10 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
             **kwargs
         )
 
-        
+
 class SshFpForm(FormRevMixin, ModelForm):
     """Edits a SSHFP record."""
+
     class Meta:
         model = SshFp
         exclude = ('machine',)
@@ -645,4 +680,3 @@ class SshFpForm(FormRevMixin, ModelForm):
             prefix=prefix,
             **kwargs
         )
-

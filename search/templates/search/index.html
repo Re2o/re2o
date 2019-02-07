@@ -1,4 +1,4 @@
-{% extends "search/sidebar.html" %}
+{% extends 'search/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -31,39 +31,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     {% if users %}
         <h2>{% trans "Results among users:" %}</h2>
-        {% include "users/aff_users.html" with users_list=users %}
+        {% include 'users/aff_users.html' with users_list=users %}
     {% endif%}
     {% if clubs %}
         <h2>{% trans "Results among clubs:" %}</h2>
-        {% include "users/aff_clubs.html" with clubs_list=clubs %}
+        {% include 'users/aff_clubs.html' with clubs_list=clubs %}
     {% endif%}
     {% if machines %}
         <h2>{% trans "Results among machines:" %}</h2>
-        {% include "machines/aff_machines.html" with machines_list=machines %}
+        {% include 'machines/aff_machines.html' with machines_list=machines %}
     {% endif %}
     {% if factures %}
         <h2>{% trans "Results among invoices:" %}</h2>
-        {% include "cotisations/aff_cotisations.html" with facture_list=factures %}
+        {% include 'cotisations/aff_cotisations.html' with facture_list=factures %}
     {% endif %}
     {% if whitelists %}
         <h2>{% trans "Results among whitelists:" %}</h2>
-        {% include "users/aff_whitelists.html" with white_list=whitelists %}
+        {% include 'users/aff_whitelists.html' with white_list=whitelists %}
     {% endif %}
     {% if bans %}
         <h2>{% trans "Results among bans:" %}</h2>
-        {% include "users/aff_bans.html" with ban_list=bans %}
+        {% include 'users/aff_bans.html' with ban_list=bans %}
     {% endif %}
     {% if rooms %}
         <h2>{% trans "Results among rooms:" %}</h2>
-        {% include "topologie/aff_chambres.html" with room_list=rooms %}
+        {% include 'topologie/aff_chambres.html' with room_list=rooms %}
     {% endif %}
     {% if ports %}
-        <h2>{% trans "Results among ports" %}</h2>
-        {% include "topologie/aff_port.html" with port_list=ports %}
+        <h2>{% trans "Results among ports:" %}</h2>
+        {% include 'topologie/aff_port.html' with port_list=ports search=True %}
     {% endif %}
     {% if switches %}
-        <h2>{% trans "Results among switches" %}</h2>
-        {% include "topologie/aff_switch.html" with switch_list=switches %}
+        <h2>{% trans "Results among switches:" %}</h2>
+        {% include 'topologie/aff_switch.html' with switch_list=switches %}
     {% endif %}
     {% if not users and not machines and not factures and not whitelists and not bans and not rooms and not ports and not switches %}
         <h3>{% trans "No result" %}</h3>

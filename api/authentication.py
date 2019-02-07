@@ -26,12 +26,14 @@ import datetime
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.authentication import TokenAuthentication
 from rest_framework import exceptions
+from rest_framework.authentication import TokenAuthentication
+
 
 class ExpiringTokenAuthentication(TokenAuthentication):
     """Authenticate a user if the provided token is valid and not expired.
     """
+
     def authenticate_credentials(self, key):
         """See base class. Add the verification the token is not expired.
         """
@@ -44,6 +46,6 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         )
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         if token.created < utc_now - token_duration:
-            raise exceptions.AuthenticationFailed(_('Token has expired'))
+            raise exceptions.AuthenticationFailed(_("The token has expired."))
 
-        return (token.user, token)
+        return token.user, token

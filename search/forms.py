@@ -27,12 +27,13 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import Form
 from django.utils.translation import ugettext_lazy as _
-from re2o.utils import get_input_formats_help_text
+from re2o.base import get_input_formats_help_text
 
 CHOICES_USER = (
     ('0', _("Active")),
     ('1', _("Disabled")),
     ('2', _("Archived")),
+    ('3', _("Not yet active")),
 )
 
 CHOICES_AFF = (

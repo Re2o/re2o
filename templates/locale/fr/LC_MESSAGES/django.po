@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-15 16:10+0200\n"
+"POT-Creation-Date: 2019-01-08 23:59+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -38,116 +38,121 @@ msgstr "Site de gestion de réseau soutenu par FedeRez."
 msgid "Home"
 msgstr "Accueil"
 
-#: base.html:81
+#: base.html:80
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: base.html:84
+#: base.html:83
 msgid "Manage the users"
 msgstr "Gérer les utilisateurs"
 
-#: base.html:85
+#: base.html:84
 msgid "Manage the clubs"
 msgstr "Gérer les clubs"
 
-#: base.html:88
+#: base.html:87
 msgid "Manage the machines"
 msgstr "Gérer les machines"
 
-#: base.html:91
+#: base.html:90
 msgid "Manage the subscriptions"
 msgstr "Gérer les cotisations"
 
-#: base.html:98
+#: base.html:97
 msgid "Topology"
 msgstr "Topologie"
 
-#: base.html:100
+#: base.html:99
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: base.html:101
+#: base.html:100
 msgid "Access points"
 msgstr "Points d'accès sans fil"
 
-#: base.html:102
+#: base.html:101
 msgid "Rooms"
 msgstr "Chambres"
 
-#: base.html:107
+#: base.html:106
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: base.html:112
+#: base.html:111
 msgid "Administration"
 msgstr "Administration"
 
-#: base.html:119
+#: base.html:118
 msgid "More information"
 msgstr "Plus d'informations"
 
-#: base.html:121
+#: base.html:120
 msgid "About"
 msgstr "À propos"
 
-#: base.html:122
+#: base.html:121
 msgid "Contact"
 msgstr "Contact"
 
-#: base.html:129
+#: base.html:128
 msgid "Sign up"
-msgstr "S'enregistrer"
+msgstr "S'inscrire"
 
-#: base.html:135 registration/login.html:30 registration/login.html:50
+#: base.html:134 registration/login.html:29 registration/login.html:36
 msgid "Log in"
 msgstr "Se connecter"
 
-#: base.html:143
+#: base.html:142
 msgid "Search"
 msgstr "Rechercher"
 
-#: base.html:157
+#: base.html:156
 msgid "My profile"
 msgstr "Mon profil"
 
-#: base.html:158
+#: base.html:157
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: base.html:194
+#: base.html:192
 msgid "Username"
 msgstr "Pseudo"
 
-#: base.html:198
+#: base.html:196
 msgid "Room"
 msgstr "Chambre"
 
-#: base.html:202
+#: base.html:200
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: base.html:205 base.html:215
+#: base.html:203
 #, python-format
-msgid "Until %(date)s"
-msgstr "Jusqu'au %(date)s"
+msgid "Until %(end_access_date)s"
+msgstr "Jusqu'au %(end_access_date)s"
 
-#: base.html:207
+#: base.html:205
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: base.html:212
+#: base.html:210
 msgid "Membership"
 msgstr "Adhésion"
 
-#: base.html:217
-msgid "Not a member"
+#: base.html:213
+#, python-format
+msgid "Until %(end_adhesion_date)s"
+msgstr "Jusqu'au %(end_adhesion_date)s"
+
+#: base.html:215
+msgid "Non member"
 msgstr "Non adhérent"
 
-#: base.html:225
+#: base.html:223
 msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: base.html:229
+#: base.html:228
 msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
@@ -161,6 +166,30 @@ msgstr[1] "%(nb)s machines actives"
 #: base.html:244
 msgid "View my machines"
 msgstr "Voir mes machines"
+
+#: base.html:257
+msgid "Back to top"
+msgstr "Retour en haut"
+
+#: base.html:259
+msgid "powered by"
+msgstr "propulsé par"
+
+#: base.html:261
+msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
+msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
+
+#: base.html:264
+msgid "About this website"
+msgstr "À propos de ce site"
+
+#: base.html:267
+msgid ""
+"This software is under the terms of the <a href=\"http://www.gnu.org/"
+"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
+msgstr ""
+"Ce logiciel est sous les termes de la licence <a href=\"http://www.gnu.org/"
+"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a>."
 
 #: buttons/add.html:27
 msgid "Add"
@@ -269,14 +298,22 @@ msgstr "Si vous n'avez aucune idée de ce que vous avez fait :"
 msgid "Go back to a safe page"
 msgstr "Retourner à une page sécurisée"
 
-#: registration/login.html:35
-msgid "Your username and password didn't match. Please try again."
-msgstr "Vos identifiants sont incorrects. Veuillez réessayer."
+#: pagination.html:34
+msgid "First"
+msgstr "Première page"
 
-#: registration/login.html:43
-msgid "Please log in to see this page."
-msgstr "Veuillez vous connecter pour voir cette page."
+#: pagination.html:40
+msgid "Previous"
+msgstr "Précédent"
 
-#: registration/login.html:53
+#: pagination.html:60
+msgid "Next"
+msgstr "Suivant"
+
+#: pagination.html:66
+msgid "Last"
+msgstr "Dernière page"
+
+#: registration/login.html:40
 msgid "Forgotten password?"
 msgstr "Mot de passe oublié ?"

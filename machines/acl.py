@@ -41,4 +41,3 @@ def can_view(user):
     can = user.has_module_perms('machines')
     return can, None if can else _("You don't have the right to view this"
                                    " application.")
-

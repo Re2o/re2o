@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
     {% if custom_invoice_list.paginator %}
-    {% include 'pagination.html' with list=custom_invoice_list %}
+        {% include 'pagination.html' with list=custom_invoice_list %}
     {% endif %}
 
     <table class="table table-striped">
@@ -34,7 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>
                     {% trans "Recipient" as tr_recip %}
-                    {% include 'buttons/sort.html' with prefix='invoice' col='user' text=tr_user %}
+                    {% include 'buttons/sort.html' with prefix='invoice' col='user' text=tr_recip %}
                 </th>
                 <th>{% trans "Designation" %}</th>
                 <th>{% trans "Total price" %}</th>
@@ -51,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% include 'buttons/sort.html' with prefix='invoice' col='id' text=tr_invoice_id %}
                 </th>
                 <th>
-                    {% trans "Paid" as tr_invoice_paid%}
+                    {% trans "Paid" as tr_invoice_paid %}
                     {% include 'buttons/sort.html' with prefix='invoice' col='paid' text=tr_invoice_paid %}
                 </th>
                 <th></th>
@@ -76,7 +76,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% acl_end %}
                 {% history_button invoice %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:custom-invoice-pdf' invoice.id %}">
-                    <i class="fa fa-file-pdf"></i> {% trans "PDF" %}
+                    <i class="fa fa-file-pdf-o"></i> {% trans "PDF" %}
                 </a>
             </td>
         </tr>
@@ -84,6 +84,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </table>
 
     {% if custom_invoice_list.paginator %}
-    {% include 'pagination.html' with list=custom_invoice_list %}
+        {% include 'pagination.html' with list=custom_invoice_list %}
     {% endif %}
 </div>

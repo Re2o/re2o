@@ -1,4 +1,4 @@
-{% extends "users/sidebar.html" %}
+{% extends 'users/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   {% can_create ServiceUser %}
   <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:new-serviceuser'  %}"><i class="fa fa-plus"></i>{% trans " Add a service user" %}</a>
   {% acl_end %}
-  {%  include "users/aff_serviceusers.html" with  serviceusers_list=serviceusers_list %}
+  {%  include 'users/aff_serviceusers.html' with  serviceusers_list=serviceusers_list %}
   <br />
   <br />
   <br />

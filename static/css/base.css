@@ -1,38 +1,22 @@
-/* Sticky footer hacks */
-html, body {
-    height: 100%;
-}
-
-#wrap {
-    min-height: 100%;
-}
-
-#main {
-    overflow: auto;
-    padding-bottom:60px; /* this needs to be bigger than footer height*/
-}
-
+/* Footer */
 footer {
-    position: relative;
-    margin-top: -50px; /* negative value of footer height */
-    height: 50px;
-    clear:both;
-    padding-top:20px;
-    background-color: #222222;
-    /*background: -webkit-linear-gradient(left, red, red 16.6%, orange 16.6%, orange, orange 33.3%, yellow 33.3%, yellow, yellow 50%, green 50%, green, green 66.6%, blue 66.6%, blue, blue 83.3%, violet 83.3%,violet); */
-    color: white;
-    padding: 15px;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
-footer a {
-    color: white;
-    text-decoration: underline;
+footer p {
+  margin-bottom: .25rem;
 }
 
-/* Remove the navbar's default margin-bottom and rounded borders */
-.navbar {
-    margin-bottom: 0;
-    border-radius: 0;
+/* Move the space between navbar and content in the content */
+.navbar { margin-bottom: 0; }
+.pt4 { padding-top: 1.5rem!important; }
+
+/* Reserve space for icons and align */
+a > i.fa {
+    display: inline-block;
+    width: 16px;
+    text-align: center;
 }
 
 /* Reduce the padding for the logo in the navbar-brand so the 32px-high logo
@@ -45,6 +29,19 @@ footer a {
 /* Display logo and site name side by side and not on top of each other */
 .navbar-brand img {
     display: initial;
+}
+
+/* Make navbar look less Bootstraped */
+.navbar-inverse {
+    border-color: #f9a01b;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #d6d6d6;
 }
 
 /* Add right colors for buttons in dropdown in navbar-inverse (else it is light
@@ -67,32 +64,19 @@ footer a {
     }
 }
 
-/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+/* Set height of the grid so footer stay on footer */
 .row.content {
-    height: 100%;
-    overflow: auto;
+    min-height: 70vh;
 }
 
-/* Set gray background color and 100% height */
+/* Set gray background color */
 .sidenav {
-    padding-top: 20px;
     background-color: #f1f1f1;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 5px 5px;
 }
 .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
     vertical-align: middle;
-}
-
-/* Pull sidebars to the bottom */
-@media (min-width: 767px) {
-    .row {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display:         flex;
-    }
-    .row > [class*='col-'] {
-        flex-direction: column;
-    }
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */
@@ -105,7 +89,7 @@ footer a {
 }
 
 .table-responsive {
-	overflow-y: visible;
+	overflow: visible;
 }
 
 /* Make modal wider on wide screens */
@@ -113,6 +97,7 @@ footer a {
     .modal-dialog {
         width: 1000px
     }
+}
 
 /* For tables with long text in cells */
 
@@ -146,4 +131,15 @@ th.long_text{
 /* center the profil boxes */
 .dashboard{
     text-align: center;
+}
+
+/* Detailed information on profile page */
+dl.profile-info {
+    margin-top: -16px;
+    margin-bottom: 0;
+}
+
+dl.profile-info > div {
+    padding: 8px;
+    border-top: 1px solid #ddd;
 }

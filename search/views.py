@@ -27,6 +27,8 @@ Gplv2"""
 
 from __future__ import unicode_literals
 
+from netaddr import EUI, AddrFormatError
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
@@ -44,7 +46,7 @@ from search.forms import (
     CHOICES_AFF,
     initial_choices
 )
-from re2o.utils import SortTable
+from re2o.base import SortTable
 from re2o.acl import can_view_all
 
 
@@ -140,7 +142,9 @@ def search_single_word(word, filters, user,
             ) | Q(
                 room__name__icontains=word
             ) | Q(
-                room__name__icontains=word
+                email__icontains=word
+            ) | Q(
+                telephone__icontains=word
             )
         ) & Q(state__in=user_state)
         if not User.can_view_all(user)[0]:
@@ -169,6 +173,11 @@ def search_single_word(word, filters, user,
         ) | Q(
             interface__ipv4__ipv4__icontains=word
         )
+        try:
+            _mac_addr = EUI(word, 48)
+            filter_machines |= Q(interface__mac_address=word)
+        except AddrFormatError:
+            pass
         if not Machine.can_view_all(user)[0]:
             filter_machines &= Q(user__id=user.id)
         filters['machines'] |= filter_machines

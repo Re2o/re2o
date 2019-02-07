@@ -26,9 +26,9 @@ done.
 """
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext as _
 
 
 def _create_api_permission():
@@ -71,4 +71,5 @@ def can_view(user):
         'codename': settings.API_PERMISSION_CODENAME
     }
     can = user.has_perm('%(app_label)s.%(codename)s' % kwargs)
-    return can, None if can else _("You cannot see this application.")
+    return can, None if can else _("You don't have the right to see this"
+                                   " application.")

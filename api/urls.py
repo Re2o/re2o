@@ -32,7 +32,6 @@ from django.conf.urls import url, include
 from . import views
 from .routers import AllViewsRouter
 
-
 router = AllViewsRouter()
 # COTISATIONS
 router.register_viewset(r'cotisations/facture', views.FactureViewSet)
@@ -63,10 +62,12 @@ router.register_viewset(r'machines/service', views.ServiceViewSet)
 router.register_viewset(r'machines/servicelink', views.ServiceLinkViewSet, base_name='servicelink')
 router.register_viewset(r'machines/ouvertureportlist', views.OuverturePortListViewSet)
 router.register_viewset(r'machines/ouvertureport', views.OuverturePortViewSet)
+router.register_viewset(r'machines/role', views.RoleViewSet)
 # PREFERENCES
 router.register_view(r'preferences/optionaluser', views.OptionalUserView),
 router.register_view(r'preferences/optionalmachine', views.OptionalMachineView),
 router.register_view(r'preferences/optionaltopologie', views.OptionalTopologieView),
+router.register_view(r'preferences/radiusoption', views.RadiusOptionView),
 router.register_view(r'preferences/generaloption', views.GeneralOptionView),
 router.register_viewset(r'preferences/service', views.HomeServiceViewSet, base_name='homeservice'),
 router.register_view(r'preferences/assooption', views.AssoOptionView),
@@ -81,12 +82,15 @@ router.register_viewset(r'topologie/modelswitch', views.ModelSwitchViewSet)
 router.register_viewset(r'topologie/constructorswitch', views.ConstructorSwitchViewSet)
 router.register_viewset(r'topologie/switchbay', views.SwitchBayViewSet)
 router.register_viewset(r'topologie/building', views.BuildingViewSet)
-router.register(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
+router.register_viewset(r'topologie/switchport', views.SwitchPortViewSet, base_name='switchport')
+router.register_viewset(r'topologie/portprofile', views.PortProfileViewSet, base_name='portprofile')
 router.register_viewset(r'topologie/room', views.RoomViewSet)
 router.register(r'topologie/portprofile', views.PortProfileViewSet)
 # USERS
-router.register_viewset(r'users/user', views.UserViewSet)
-router.register_viewset(r'users/homecreation', views.HomeCreationViewSet)
+router.register_viewset(r'users/user', views.UserViewSet, base_name='user')
+router.register_viewset(r'users/homecreation', views.HomeCreationViewSet, base_name='homecreation')
+router.register_viewset(r'users/normaluser', views.NormalUserViewSet, base_name='normaluser')
+router.register_viewset(r'users/criticaluser', views.CriticalUserViewSet, base_name='criticaluser')
 router.register_viewset(r'users/club', views.ClubViewSet)
 router.register_viewset(r'users/adherent', views.AdherentViewSet)
 router.register_viewset(r'users/serviceuser', views.ServiceUserViewSet)
@@ -105,6 +109,11 @@ router.register_view(r'localemail/users', views.LocalEmailUsersView),
 # Firewall
 router.register_view(r'firewall/subnet-ports', views.SubnetPortsOpenView),
 router.register_view(r'firewall/interface-ports', views.InterfacePortsOpenView),
+# Switches config
+router.register_view(r'switchs/ports-config', views.SwitchPortView),
+router.register_view(r'switchs/role', views.RoleView),
+# Reminder
+router.register_view(r'reminder/get-users', views.ReminderView),
 # DNS
 router.register_view(r'dns/zones', views.DNSZonesView),
 router.register_view(r'dns/reverse-zones', views.DNSReverseZonesView),
@@ -113,7 +122,6 @@ router.register_view(r'mailing/standard', views.StandardMailingView),
 router.register_view(r'mailing/club', views.ClubMailingView),
 # TOKEN AUTHENTICATION
 router.register_view(r'token-auth', views.ObtainExpiringAuthToken)
-
 
 urlpatterns = [
     url(r'^', include(router.urls)),

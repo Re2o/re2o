@@ -14,4 +14,7 @@ libjs-jquery
 libjs-jquery-ui
 libjs-jquery-timepicker
 libjs-bootstrap
+fonts-font-awesome
 graphviz
+git
+gettext

@@ -30,7 +30,9 @@ def update_rights(apps, schema_editor):
     create_permissions(app)
     app.models_module = False
 
-    former = Permission.objects.get(codename='change_facture_pdf')
+    ContentType = apps.get_model("contenttypes", "ContentType")
+    content_type = ContentType.objects.get_for_model(Permission)
+    former, created = Permission.objects.get_or_create(codename='change_facture_pdf', content_type=content_type)
     new_1 = Permission.objects.get(codename='add_custominvoice')
     new_2 = Permission.objects.get(codename='change_custominvoice')
     new_3 = Permission.objects.get(codename='view_custominvoice')

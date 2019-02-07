@@ -28,15 +28,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <table class="table table-striped">
     <thead>
-        <tr>
-            <th>{% trans "Name" %}</th>
-            <th>{% trans "Mail" %}</th>
-            <th>{% trans "Refresh" %}</th>
-            <th>{% trans "Retry" %}</th>
-            <th>{% trans "Expire" %}</th>
-            <th>{% trans "TTL" %}</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Mail" %}</th>
+        <th>{% trans "Refresh" %}</th>
+        <th>{% trans "Retry" %}</th>
+        <th>{% trans "Expire" %}</th>
+        <th>{% trans "TTL" %}</th>
+        <th></th>
+    </tr>
     </thead>
     {% for soa in soa_list %}
         <tr>
@@ -55,4 +55,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% endfor %}
 </table>
-

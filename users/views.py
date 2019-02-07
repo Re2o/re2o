@@ -57,8 +57,10 @@ from preferences.models import OptionalUser, GeneralOption, AssoOption
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
-    SortTable,
-    re2o_paginator
+)
+from re2o.base import (
+    re2o_paginator,
+    SortTable
 )
 from re2o.acl import (
     can_create,
@@ -70,7 +72,7 @@ from re2o.acl import (
     can_change
 )
 from cotisations.utils import find_payment_method
-
+from topologie.models import Port
 from .serializers import MailingSerializer, MailingMemberSerializer
 from .models import (
     User,
@@ -99,13 +101,15 @@ from .forms import (
     EditServiceUserForm,
     ServiceUserForm,
     ListRightForm,
-    AdherentForm,
+    AdherentCreationForm,
+    AdherentEditForm,
     ClubForm,
     MassArchiveForm,
     PassForm,
     ResetPasswordForm,
     ClubAdminandMembersForm,
-    GroupForm
+    GroupForm,
+    InitialRegisterForm
 )
 
 
@@ -113,7 +117,7 @@ from .forms import (
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = AdherentForm(request.POST or None, user=request.user)
+    user = AdherentCreationForm(request.POST or None, user=request.user)
     GTU_sum_up = GeneralOption.get_cached_value('GTU_sum_up')
     GTU = GeneralOption.get_cached_value('GTU')
     if user.is_valid():
@@ -131,7 +135,7 @@ def new_user(request):
             'GTU_sum_up': GTU_sum_up,
             'GTU': GTU,
             'showCGU': True,
-            'action_name': _("Create a user")
+            'action_name': _("Commit")
         },
         'users/user.html',
         request
@@ -196,7 +200,7 @@ def edit_info(request, user, userid):
     si l'id est différent de request.user, vérifie la
     possession du droit cableur """
     if user.is_class_adherent:
-        user_form = AdherentForm(
+        user_form = AdherentEditForm(
             request.POST or None,
             instance=user.adherent,
             user=request.user
@@ -1032,7 +1036,8 @@ def reset_password(request):
         try:
             user = User.objects.get(
                 pseudo=userform.cleaned_data['pseudo'],
-                email=userform.cleaned_data['email']
+                email=userform.cleaned_data['email'],
+                state__in=[User.STATE_ACTIVE, User.STATE_NOT_YET_ACTIVE],
             )
         except User.DoesNotExist:
             messages.error(request, _("The user doesn't exist."))
@@ -1078,6 +1083,35 @@ def process_passwd(request, req):
     return form(
         {'userform': u_form, 'action_name': _("Change the password")},
         'users/user.html',
+        request
+    )
+
+@login_required
+def initial_register(request):
+    switch_ip = request.GET.get('switch_ip', None)
+    switch_port = request.GET.get('switch_port', None)
+    client_mac = request.GET.get('client_mac', None)
+    u_form = InitialRegisterForm(request.POST or None, user=request.user, switch_ip=switch_ip, switch_port=switch_port, client_mac=client_mac)
+    if not u_form.fields:
+        messages.error(request, _("Incorrect URL, or already registered device."))
+        return redirect(reverse(
+            'users:profil',
+            kwargs={'userid': str(request.user.id)}
+        ))
+    if switch_ip and switch_port:
+        port = Port.objects.filter(switch__interface__ipv4__ipv4=switch_ip, port=switch_port).first()
+    if u_form.is_valid():
+        messages.success(request, _("Successful registration! Please"
+                                    " disconnect and reconnect your Ethernet"
+                                    " cable to get Internet access."))
+        return form(
+            {},
+            'users/plugin_out.html',
+            request
+        )
+    return form(
+        {'userform': u_form, 'port': port, 'mac': client_mac},
+        'users/user_autocapture.html',
         request
     )
 

@@ -1,4 +1,4 @@
-{% extends "topologie/sidebar.html" %}
+{% extends 'topologie/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<i class="fa fa-plus"></i>{% trans " Add a stack" %}
     </a>
     {% acl_end %}
-    {% include "topologie/aff_stacks.html" with stack_list=stack_list %}
+    {% include 'topologie/aff_stacks.html' with stack_list=stack_list %}
     
     <h2>{% trans "Switch bays" %}</h2>
     {% can_create SwitchBay %}
@@ -45,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </a>
     <hr>
     {% acl_end %}
-    {% include "topologie/aff_switch_bay.html" with switch_bay_list=switch_bay_list %}
+    {% include 'topologie/aff_switch_bay.html' with switch_bay_list=switch_bay_list %}
     
     <h2>{% trans "Buildings" %}</h2>
     {% can_create Building %}
@@ -54,6 +54,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </a>
     <hr>
     {% acl_end %}
-    {% include "topologie/aff_building.html" with building_list=building_list %}
+    {% include 'topologie/aff_building.html' with building_list=building_list %}
 {% endblock %}
 

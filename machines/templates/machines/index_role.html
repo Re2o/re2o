@@ -1,4 +1,4 @@
-{% extends "machines/sidebar.html" %}
+{% extends 'machines/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -30,13 +30,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "List of roles" %}</h2>
-  {% can_create Role %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-role'  %}"><i class="fa fa-plus"></i>{% trans " Add a role"%}</a>
-  {% acl_end %}
-    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-role'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several roles" %}</a>
-  {%  include "machines/aff_role.html" with  role_list=role_list %}
-  <br />
-  <br />
+    <h2>{% trans "List of roles" %}</h2>
+    {% can_create Role %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-role' %}"><i
+            class="fa fa-plus"></i>{% trans " Add a role" %}</a>
+    {% acl_end %}
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-role' %}"><i
+            class="fa fa-trash"></i>{% trans " Delete one or several roles" %}</a>
+    {% include 'machines/aff_role.html' with  role_list=role_list %}
 {% endblock %}
-

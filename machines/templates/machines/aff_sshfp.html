@@ -27,12 +27,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="table-responsive">
     <table class="table table-striped long_text">
         <thead>
-            <tr>
-                <th class="long_text">{% trans "SSH public key" %}</th>
-                <th>{% trans "Algorithm used" %}</th>
-                <th>{% trans "Comment" %}</th>
-                <th></th>
-            </tr>
+        <tr>
+            <th class="long_text">{% trans "SSH public key" %}</th>
+            <th>{% trans "Algorithm used" %}</th>
+            <th>{% trans "Comment" %}</th>
+            <th></th>
+        </tr>
         </thead>
         {% for sshfp in sshfp_list %}
             <tr>
@@ -52,4 +52,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endfor %}
     </table>
 </div>
-

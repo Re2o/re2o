@@ -31,36 +31,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>{% trans "IP type" %}</th>
-                <th>{% trans "Extension" %}</th>
-                <th>{% trans "'infra' right required" %}</th>
-                <th>{% trans "IPv4 range" %}</th>
-                <th>{% trans "v6 prefix" %}</th>
-                <th>{% trans "DNSSEC reverse v4/v6" %}</th>
-                <th>{% trans "On VLAN(s)" %}</th>
-                <th>{% trans "Default ports opening" %}</th>
-                <th></th>
-            </tr>
+        <tr>
+            <th>{% trans "IP type" %}</th>
+            <th>{% trans "Extension" %}</th>
+            <th>{% trans "'infra' right required" %}</th>
+            <th>{% trans "IPv4 range" %}</th>
+            <th>{% trans "v6 prefix" %}</th>
+            <th>{% trans "DNSSEC reverse v4/v6" %}</th>
+            <th>{% trans "On VLAN(s)" %}</th>
+            <th>{% trans "Default ports opening" %}</th>
+            <th></th>
+        </tr>
         </thead>
         {% for type in iptype_list %}
-        <tr>
-            <td>{{ type.type }}</td>
-            <td>{{ type.extension }}</td>
-            <td>{{ type.need_infra|tick }}</td>
-	    <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </b></u>{{ type.ip_network }}{% endif %}</td>
-            <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
-	    <td>{{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}</td>
-            <td>{{ type.vlan }}</td>
-            <td>{{ type.ouverture_ports }}</td>
-            <td class="text-right">
-                {% can_edit type %}
-                {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
-                {% acl_end %}
-                {% history_button type %}
-            </td>
-        </tr>
+            <tr>
+                <td>{{ type.type }}</td>
+                <td>{{ type.extension }}</td>
+                <td>{{ type.need_infra|tick }}</td>
+                <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </u></b>
+                    {{ type.ip_network }}{% endif %}</td>
+                <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
+                <td>{{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}</td>
+                <td>{{ type.vlan }}</td>
+                <td>{{ type.ouverture_ports }}</td>
+                <td class="text-right">
+                    {% can_edit type %}
+                    {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
+                    {% acl_end %}
+                    {% history_button type %}
+                </td>
+            </tr>
         {% endfor %}
     </table>
 </div>
-

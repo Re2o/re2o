@@ -27,14 +27,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if room_list.paginator %}
-{% include "pagination.html" with list=room_list %}
+    {% include 'pagination.html' with list=room_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
             {% trans "Room" as tr_room %}
-            <th>{% include "buttons/sort.html" with prefix='room' col='name' text=tr_room %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='room' col='name' text=tr_room %}</th>
             <th>{% trans "Details" %}</th>
             <th></th>
         </tr>
@@ -45,15 +45,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <td>{{ room.details }}</td>
         <td class="text-right">
             {% can_edit room %}
-            <a class="btn btn-primary btn-sm" role="button" title={% trans "Edit" %} href="{% url 'topologie:edit-room' room.id %}">
-                <i class="fa fa-edit"></i>
-            </a>
+            {% include 'buttons/edit.html' with href='topologie:edit-room' id=room.id %}
             {% acl_end %}
             {% history_button room %}
             {% can_delete room %}
-            <a class="btn btn-danger btn-sm" role="button" title={% trans "Delete" %} href="{% url 'topologie:del-room' room.id %}">
-                <i class="fa fa-trash"></i>
-            </a>
+            {% include 'buttons/suppr.html' with href='topologie:del-room' id=room.id %}
             {% acl_end %}
         </td>
     </tr>
@@ -61,6 +57,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </table>
 
 {% if room_list.paginator %}
-{% include "pagination.html" with list=room_list %}
+    {% include 'pagination.html' with list=room_list %}
 {% endif %}
 
