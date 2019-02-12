@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-12 15:13+0100\n"
+"POT-Creation-Date: 2019-02-12 08:58+0100\n"
 "PO-Revision-Date: 2018-06-24 15:54+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,235 +30,245 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: acl.py:42
+#: preferences/acl.py:42
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: forms.py:63 templates/preferences/display_preferences.html:142
+#: preferences/forms.py:66
+#: preferences/templates/preferences/display_preferences.html:142
 msgid "Telephone number required"
 msgstr "Numéro de téléphone requis"
 
-#: forms.py:65
+#: preferences/forms.py:68
 msgid "GPG fingerprint"
 msgstr "Empreinte GPG"
 
-#: forms.py:66
+#: preferences/forms.py:69
 msgid "All can create a club"
 msgstr "Tous peuvent créer un club"
 
-#: forms.py:67
+#: preferences/forms.py:70
 msgid "All can create a member"
 msgstr "Tous peuvent créer un adhérent"
 
-#: forms.py:68 templates/preferences/display_preferences.html:120
+#: preferences/forms.py:71
+#: preferences/templates/preferences/display_preferences.html:120
 msgid "Self registration"
 msgstr "Autoinscription"
 
-#: forms.py:69
+#: preferences/forms.py:72
 msgid "Default shell"
 msgstr "Interface en ligne de commande par défaut"
 
-#: forms.py:85
+#: preferences/forms.py:88
 msgid "Possibility to set a password per machine"
 msgstr "Possibilité de mettre un mot de passe par machine"
 
-#: forms.py:87 templates/preferences/display_preferences.html:172
+#: preferences/forms.py:90
+#: preferences/templates/preferences/display_preferences.html:172
 msgid "Maximum number of interfaces allowed for a standard user"
 msgstr "Nombre maximum d'interfaces autorisé pour un utilisateur standard"
 
-#: forms.py:91 templates/preferences/display_preferences.html:176
+#: preferences/forms.py:94
+#: preferences/templates/preferences/display_preferences.html:176
 msgid "Maximum number of DNS aliases allowed for a standard user"
 msgstr "Nombre maximum d'alias DNS autorisé pour un utilisateur standard"
 
-#: forms.py:94
+#: preferences/forms.py:97
 msgid "IPv6 mode"
 msgstr "Mode IPv6"
 
-#: forms.py:95
+#: preferences/forms.py:98
 msgid "Can create a machine"
 msgstr "Peut créer une machine"
 
-#: forms.py:141
+#: preferences/forms.py:144
 msgid "General message in French"
 msgstr "Message général en français"
 
-#: forms.py:142
+#: preferences/forms.py:145
 msgid "General message in English"
 msgstr "Message général en anglais"
 
-#: forms.py:143 templates/preferences/display_preferences.html:58
+#: preferences/forms.py:146
+#: preferences/templates/preferences/display_preferences.html:58
 msgid "Number of results displayed when searching"
 msgstr "Nombre de résultats affichés lors de la recherche"
 
-#: forms.py:146
+#: preferences/forms.py:149
 msgid "Number of items per page, standard size (e.g. users)"
 msgstr "Nombre d'éléments par page, taille standard (ex : utilisateurs)"
 
-#: forms.py:149
+#: preferences/forms.py:152
 msgid "Number of items per page, large size (e.g. machines)"
 msgstr "Nombre d'éléments par page, taille importante (ex : machines)"
 
-#: forms.py:152 templates/preferences/display_preferences.html:66
+#: preferences/forms.py:155
+#: preferences/templates/preferences/display_preferences.html:66
 msgid "Time before expiration of the reset password link (in hours)"
 msgstr ""
 "Temps avant expiration du lien de réinitialisation de mot de passe (en "
 "heures)"
 
-#: forms.py:155 templates/preferences/display_preferences.html:52
+#: preferences/forms.py:158
+#: preferences/templates/preferences/display_preferences.html:52
 msgid "Website name"
 msgstr "Nom du site"
 
-#: forms.py:156 templates/preferences/display_preferences.html:54
+#: preferences/forms.py:159
+#: preferences/templates/preferences/display_preferences.html:54
 msgid "Email address for automatic emailing"
 msgstr "Adresse mail pour les mails automatiques"
 
-#: forms.py:158 templates/preferences/display_preferences.html:76
+#: preferences/forms.py:161
+#: preferences/templates/preferences/display_preferences.html:76
 msgid "Summary of the General Terms of Use"
 msgstr "Résumé des Conditions Générales d'Utilisation"
 
-#: forms.py:160 templates/preferences/display_preferences.html:78
+#: preferences/forms.py:163
+#: preferences/templates/preferences/display_preferences.html:78
 msgid "General Terms of Use"
 msgstr "Conditions Générales d'Utilisation"
 
-#: forms.py:176
+#: preferences/forms.py:179
 msgid "Organisation name"
 msgstr "Nom de l'association"
 
-#: forms.py:177 templates/preferences/display_preferences.html:323
+#: preferences/forms.py:180
+#: preferences/templates/preferences/display_preferences.html:323
 msgid "SIRET number"
 msgstr "Numéro SIRET"
 
-#: forms.py:178
+#: preferences/forms.py:181
 msgid "Address (line 1)"
 msgstr "Adresse (ligne 1)"
 
-#: forms.py:179
+#: preferences/forms.py:182
 msgid "Address (line 2)"
 msgstr "Adresse (ligne 2)"
 
-#: forms.py:180 models.py:476
-#: templates/preferences/display_preferences.html:331
+#: preferences/forms.py:183 preferences/models.py:477
+#: preferences/templates/preferences/display_preferences.html:331
 msgid "Contact email address"
 msgstr "Adresse mail de contact"
 
-#: forms.py:181 templates/preferences/display_preferences.html:335
+#: preferences/forms.py:184
+#: preferences/templates/preferences/display_preferences.html:335
 msgid "Telephone number"
 msgstr "Numéro de téléphone"
 
-#: forms.py:182 templates/preferences/display_preferences.html:337
+#: preferences/forms.py:185
+#: preferences/templates/preferences/display_preferences.html:337
 msgid "Usual name"
 msgstr "Nom d'usage"
 
-#: forms.py:183
+#: preferences/forms.py:186
 msgid "Account used for editing from /admin"
 msgstr "Compte utilisé pour les modifications depuis /admin"
 
-#: forms.py:185
-msgid "Payment"
-msgstr "Paiement"
-
-#: forms.py:186
-msgid "Payment ID"
-msgstr "ID de paiement"
-
-#: forms.py:187
-msgid "Payment password"
-msgstr "Mot de passe de paiement"
-
-#: forms.py:188 forms.py:267 templates/preferences/aff_service.html:33
+#: preferences/forms.py:188 preferences/forms.py:274
+#: preferences/templates/preferences/aff_service.html:33
 msgid "Description"
 msgstr "Description"
 
-#: forms.py:204
+#: preferences/forms.py:204
 msgid "Message for the French welcome email"
 msgstr "Message pour le mail de bienvenue en français"
 
-#: forms.py:206
+#: preferences/forms.py:206
 msgid "Message for the English welcome email"
 msgstr "Message pour le mail de bienvenue en anglais"
 
-#: forms.py:223
+#: preferences/forms.py:223
 msgid "Facebook URL"
 msgstr "URL du compte Facebook"
 
-#: forms.py:224
+#: preferences/forms.py:224
 msgid "Twitter URL"
 msgstr "URL du compte Twitter"
 
-#: forms.py:225 templates/preferences/display_preferences.html:445
+#: preferences/forms.py:225
+#: preferences/templates/preferences/display_preferences.html:495
 msgid "Twitter account name"
 msgstr "Nom du compte Twitter"
 
-#: forms.py:247
+#: preferences/forms.py:247
 msgid "You chose to set vlan but did not set any VLAN."
 msgstr ""
 "Vous avez choisi de paramétrer vlan mais vous n'avez indiqué aucun VLAN."
 
-#: forms.py:251
+#: preferences/forms.py:251
 msgid "Please, choose a VLAN."
 msgstr "Veuillez choisir un VLAN."
 
-#: forms.py:265 templates/preferences/aff_service.html:31
-#: templates/preferences/display_preferences.html:321
+#: preferences/forms.py:272
+#: preferences/templates/preferences/aff_service.html:31
+#: preferences/templates/preferences/display_preferences.html:321
 msgid "Name"
 msgstr "Nom"
 
-#: forms.py:266 templates/preferences/aff_service.html:32
+#: preferences/forms.py:273
+#: preferences/templates/preferences/aff_service.html:32
 msgid "URL"
 msgstr "URL"
 
-#: forms.py:268 templates/preferences/aff_service.html:34
+#: preferences/forms.py:275
+#: preferences/templates/preferences/aff_service.html:34
 msgid "Image"
 msgstr "Image"
 
-#: forms.py:275
+#: preferences/forms.py:282
 msgid "Current services"
 msgstr "Services actuels"
 
-#: forms.py:362
+#: preferences/forms.py:369
 msgid "Current email addresses"
 msgstr "Adresses mail actuelles"
 
-#: models.py:76
+#: preferences/forms.py:403
+msgid "Available document templates"
+msgstr ""
+
+#: preferences/models.py:77
 msgid "Users can create a club."
 msgstr "Les utilisateurs peuvent créer un club."
 
-#: models.py:80
+#: preferences/models.py:81
 msgid "Users can create a member."
 msgstr "Les utilisateurs peuvent créer un adhérent."
 
-#: models.py:91
+#: preferences/models.py:92
 msgid "Users can edit their shell."
 msgstr "Les utilisateurs peuvent modifier leur interface en ligne de commande."
 
-#: models.py:95
+#: preferences/models.py:96
 msgid "Users can edit their room."
 msgstr "Les utilisateurs peuvent modifier leur chambre."
 
-#: models.py:99
+#: preferences/models.py:100
 msgid "Enable local email accounts for users."
 msgstr "Activer les comptes mail locaux pour les utilisateurs."
 
-#: models.py:104
+#: preferences/models.py:105
 msgid "Domain to use for local email accounts"
 msgstr "Domaine à utiliser pour les comptes mail locaux"
 
-#: models.py:108
+#: preferences/models.py:109
 msgid "Maximum number of local email addresses for a standard user."
 msgstr ""
 "Nombre maximum d'adresses mail locales autorisé pour un utilisateur standard."
 
-#: models.py:113
+#: preferences/models.py:114
 msgid "Not yet active users will be deleted after this number of days."
 msgstr ""
 "Les utilisateurs n'ayant jamais adhéré seront supprimés après ce nombre de "
 "jours."
 
-#: models.py:118
+#: preferences/models.py:119
 msgid "A new user can create their account on Re2o."
 msgstr "Un nouvel utilisateur peut créer son compte sur Re2o."
 
-#: models.py:122
+#: preferences/models.py:123
 msgid ""
 "If True, all new created and connected users are active. If False, only when "
 "a valid registration has been paid."
@@ -266,154 +276,160 @@ msgstr ""
 "Si True, tous les nouveaux utilisations créés et connectés sont actifs. Si "
 "False, seulement quand une inscription validée a été payée."
 
-#: models.py:128
+#: preferences/models.py:129
 msgid "Can view the user options"
 msgstr "Peut voir les options d'utilisateur"
 
-#: models.py:130
+#: preferences/models.py:131
 msgid "user options"
 msgstr "options d'utilisateur"
 
-#: models.py:137
+#: preferences/models.py:138
 msgid "Email domain must begin with @"
 msgstr "Un domaine mail doit commencer par @"
 
-#: models.py:155
+#: preferences/models.py:156
 msgid "Autoconfiguration by RA"
 msgstr "Configuration automatique par RA"
 
-#: models.py:156
+#: preferences/models.py:157
 msgid "IP addresses assigning by DHCPv6"
 msgstr "Attribution d'adresses IP par DHCPv6"
 
-#: models.py:157
+#: preferences/models.py:158
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: models.py:179
+#: preferences/models.py:180
 msgid "Can view the machine options"
 msgstr "Peut voir les options de machine"
 
-#: models.py:181
+#: preferences/models.py:182
 msgid "machine options"
 msgstr "options de machine"
 
-#: models.py:200 models.py:592
+#: preferences/models.py:201 preferences/models.py:599
 msgid "On the IP range's VLAN of the machine"
 msgstr "Sur le VLAN de la plage d'IP de la machine"
 
-#: models.py:201 models.py:593
+#: preferences/models.py:202 preferences/models.py:600
 msgid "Preset in 'VLAN for machines accepted by RADIUS'"
 msgstr "Prédéfinie dans 'VLAN pour les machines acceptées par RADIUS'"
 
-#: models.py:210 templates/preferences/display_preferences.html:246
+#: preferences/models.py:211
+#: preferences/templates/preferences/display_preferences.html:246
 msgid "Web management, activated in case of automatic provision"
 msgstr "Gestion web, activée en cas de provision automatique"
 
-#: models.py:214
+#: preferences/models.py:215
 msgid ""
 "SSL web management, make sure that a certificate is installed on the switch"
 msgstr ""
 "Gestion web SSL, vérifiez qu'un certificat est installé sur le commutateur "
 "réseau"
 
-#: models.py:219 templates/preferences/display_preferences.html:248
+#: preferences/models.py:220
+#: preferences/templates/preferences/display_preferences.html:248
 msgid "REST management, activated in case of automatic provision"
 msgstr "Gestion REST, activée en cas de provision automatique"
 
-#: models.py:226 templates/preferences/display_preferences.html:262
+#: preferences/models.py:227
+#: preferences/templates/preferences/display_preferences.html:262
 msgid "IP range for the management of switches"
 msgstr "Plage d'IP pour la gestion des commutateurs réseau"
 
-#: models.py:232 templates/preferences/display_preferences.html:270
+#: preferences/models.py:233
+#: preferences/templates/preferences/display_preferences.html:270
 msgid "Provision of configuration mode for switches"
 msgstr "Mode de provision de configuration pour les commutateurs réseau"
 
-#: models.py:238
+#: preferences/models.py:239
 msgid "SFTP login for switches"
 msgstr "Identifiant SFTP pour les commutateurs réseau"
 
-#: models.py:244
+#: preferences/models.py:245
 msgid "SFTP password"
 msgstr "Mot de passe SFTP"
 
-#: models.py:303
+#: preferences/models.py:304
 msgid "Can view the topology options"
 msgstr "Peut voir les options de topologie"
 
-#: models.py:305
+#: preferences/models.py:306
 msgid "topology options"
 msgstr "options de topologie"
 
-#: models.py:319 models.py:337
+#: preferences/models.py:320 preferences/models.py:338
 msgid "RADIUS key"
 msgstr "Clé RADIUS"
 
-#: models.py:325
+#: preferences/models.py:326
 msgid "Comment for this key"
 msgstr "Commentaire pour cette clé"
 
-#: models.py:330
+#: preferences/models.py:331
 msgid "Default key for switches"
 msgstr "Clé par défaut pour les commutateurs réseau"
 
-#: models.py:335
+#: preferences/models.py:336
 msgid "Can view a RADIUS key object"
 msgstr "Peut voir un objet clé RADIUS"
 
-#: models.py:338 templates/preferences/display_preferences.html:221
+#: preferences/models.py:339
+#: preferences/templates/preferences/display_preferences.html:221
 msgid "RADIUS keys"
 msgstr "clés RADIUS"
 
-#: models.py:341
+#: preferences/models.py:342
 msgid "RADIUS key "
 msgstr "clé RADIUS "
 
-#: models.py:348 templates/preferences/aff_switchmanagementcred.html:31
+#: preferences/models.py:349
+#: preferences/templates/preferences/aff_switchmanagementcred.html:31
 msgid "Switch login"
 msgstr "Identifiant du commutateur réseau"
 
-#: models.py:352
+#: preferences/models.py:353
 msgid "Password"
 msgstr "Mot de passe"
 
-#: models.py:357
+#: preferences/models.py:358
 msgid "Default credentials for switches"
 msgstr "Identifiants par défaut pour les commutateurs réseau"
 
-#: models.py:362
+#: preferences/models.py:363
 msgid "Can view a switch management credentials object"
 msgstr "Peut voir un objet identifiants de gestion de commutateur réseau"
 
-#: models.py:365
+#: preferences/models.py:366
 msgid "switch management credentials"
 msgstr "identifiants de gestion de commutateur réseau"
 
-#: models.py:368
+#: preferences/models.py:369
 msgid "Switch login "
 msgstr "Identifiant du commutateur réseau "
 
-#: models.py:380
+#: preferences/models.py:381
 msgid "Delay between the email and the membership's end"
 msgstr "Délai entre le mail et la fin d'adhésion"
 
-#: models.py:387
+#: preferences/models.py:388
 msgid "Message displayed specifically for this reminder"
 msgstr "Message affiché spécifiquement pour ce rappel"
 
-#: models.py:392
+#: preferences/models.py:393
 msgid "Can view a reminder object"
 msgstr "Peut voir un objet rappel"
 
-#: models.py:394
+#: preferences/models.py:395
 msgid "reminder"
 msgstr "rappel"
 
-#: models.py:395
+#: preferences/models.py:396
 msgid "reminders"
 msgstr "rappels"
 
-#: models.py:412
+#: preferences/models.py:413
 msgid ""
 "General message displayed on the French version of the website (e.g. in case "
 "of maintenance)"
@@ -421,7 +437,7 @@ msgstr ""
 "Message général affiché sur la version française du site (ex : en cas de "
 "maintenance)"
 
-#: models.py:418
+#: preferences/models.py:419
 msgid ""
 "General message displayed on the English version of the website (e.g. in "
 "case of maintenance)"
@@ -429,131 +445,140 @@ msgstr ""
 "Message général affiché sur la version anglaise du site (ex : en cas de "
 "maintenance)"
 
-#: models.py:441
+#: preferences/models.py:442
 msgid "Can view the general options"
 msgstr "Peut voir les options générales"
 
-#: models.py:443
+#: preferences/models.py:444
 msgid "general options"
 msgstr "options générales"
 
-#: models.py:463
+#: preferences/models.py:464
 msgid "Can view the service options"
 msgstr "Peut voir les options de service"
 
-#: models.py:465
+#: preferences/models.py:466
 msgid "service"
 msgstr "service"
 
-#: models.py:466
+#: preferences/models.py:467
 msgid "services"
 msgstr "services"
 
-#: models.py:482
+#: preferences/models.py:483
 msgid "Description of the associated email address."
 msgstr "Description de l'adresse mail associée."
 
-#: models.py:492
+#: preferences/models.py:493
 msgid "Can view a contact email address object"
 msgstr "Peut voir un objet adresse mail de contact"
 
-#: models.py:494
+#: preferences/models.py:495
 msgid "contact email address"
 msgstr "adresse mail de contact"
 
-#: models.py:495
+#: preferences/models.py:496
 msgid "contact email addresses"
 msgstr "adresses mail de contact"
 
-#: models.py:505
+#: preferences/models.py:506
 msgid "Networking organisation school Something"
 msgstr "Association de réseau de l'école Machin"
 
-#: models.py:509
+#: preferences/models.py:510
 msgid "Threadneedle Street"
 msgstr "1 rue de la Vrillière"
 
-#: models.py:510
+#: preferences/models.py:511
 msgid "London EC2R 8AH"
 msgstr "75001 Paris"
 
-#: models.py:513
+#: preferences/models.py:514
 msgid "Organisation"
 msgstr "Association"
 
-#: models.py:527
+#: preferences/models.py:528
+#: preferences/templates/preferences/display_preferences.html:347
+msgid "President of the association"
+msgstr "Président de l'association"
+
+#: preferences/models.py:529
+msgid "Displayed on subscription vouchers"
+msgstr ""
+
+#: preferences/models.py:534
 msgid "Can view the organisation options"
 msgstr "Peut voir les options d'association"
 
-#: models.py:529
+#: preferences/models.py:536
 msgid "organisation options"
 msgstr "options d'association"
 
-#: models.py:558
+#: preferences/models.py:565
 msgid "Can view the homepage options"
 msgstr "Peut voir les options de page d'accueil"
 
-#: models.py:560
+#: preferences/models.py:567
 msgid "homepage options"
 msgstr "options de page d'accueil"
 
-#: models.py:573
+#: preferences/models.py:580
 msgid "Welcome email in French"
 msgstr "Mail de bienvenue en français"
 
-#: models.py:574
+#: preferences/models.py:581
 msgid "Welcome email in English"
 msgstr "Mail de bienvenue en anglais"
 
-#: models.py:578
+#: preferences/models.py:585
 msgid "Can view the email message options"
 msgstr "Peut voir les options de message pour les mails"
 
-#: models.py:581
+#: preferences/models.py:588
 msgid "email message options"
 msgstr "options de messages pour les mails"
 
-#: models.py:586
+#: preferences/models.py:593
 msgid "RADIUS policy"
 msgstr "Politique de RADIUS"
 
-#: models.py:587
+#: preferences/models.py:594
 msgid "RADIUS policies"
 msgstr "Politiques de RADIUS"
 
-#: models.py:598
+#: preferences/models.py:605
 msgid "Reject the machine"
 msgstr "Rejeter la machine"
 
-#: models.py:599
+#: preferences/models.py:606
 msgid "Place the machine on the VLAN"
 msgstr "Placer la machine sur le VLAN"
 
-#: models.py:610
+#: preferences/models.py:617
 msgid "Policy for unknown machines"
 msgstr "Politique pour les machines inconnues"
 
-#: models.py:618
+#: preferences/models.py:625
 msgid "Unknown machines VLAN"
 msgstr "VLAN pour les machines inconnues"
 
-#: models.py:619
+#: preferences/models.py:626
 msgid "VLAN for unknown machines if not rejected"
 msgstr "VLAN pour les machines inconnues si non rejeté"
 
-#: models.py:625
+#: preferences/models.py:632
 msgid "Policy for unknown ports"
 msgstr "Politique pour les ports inconnus"
 
-#: models.py:633
+#: preferences/models.py:640
 msgid "Unknown ports VLAN"
 msgstr "VLAN pour les ports inconnus"
 
-#: models.py:634
+#: preferences/models.py:641
 msgid "VLAN for unknown ports if not rejected"
 msgstr "VLAN pour les ports inconnus si non rejeté"
 
-#: models.py:640
+#: preferences/models.py:647
 msgid ""
 "Policy for machines connecting from unregistered rooms (relevant on ports "
 "with STRICT RADIUS mode)"
@@ -561,67 +586,107 @@ msgstr ""
 "Politique pour les machines se connectant depuis des chambre non "
 "enregistrées (pertinent pour les ports avec le mode de RADIUS STRICT)"
 
-#: models.py:649
+#: preferences/models.py:656
 msgid "Unknown rooms VLAN"
 msgstr "VLAN pour les chambres inconnues"
 
-#: models.py:650
+#: preferences/models.py:657
 msgid "VLAN for unknown rooms if not rejected"
 msgstr "VLAN pour les chambres inconnues si non rejeté"
 
-#: models.py:656
+#: preferences/models.py:663
 msgid "Policy for non members"
 msgstr "Politique pour les non adhérents"
 
-#: models.py:664
+#: preferences/models.py:671
 msgid "Non members VLAN"
 msgstr "VLAN pour les non adhérents"
 
-#: models.py:665
+#: preferences/models.py:672
 msgid "VLAN for non members if not rejected"
 msgstr "VLAN pour les non adhérents si non rejeté"
 
-#: models.py:671
+#: preferences/models.py:678
 msgid "Policy for banned users"
 msgstr "Politique pour les utilisateurs bannis"
 
-#: models.py:679
+#: preferences/models.py:686
 msgid "Banned users VLAN"
 msgstr "VLAN pour les utilisateurs bannis"
 
-#: models.py:680
+#: preferences/models.py:687
 msgid "VLAN for banned users if not rejected"
 msgstr "VLAN pour les utilisateurs bannis si non rejeté"
 
-#: templates/preferences/aff_mailcontact.html:31
-#: templates/preferences/display_preferences.html:327
+#: preferences/models.py:716
+msgid "cotisations options"
+msgstr "options de cotisation"
+
+#: preferences/models.py:720
+msgid "Template for invoices"
+msgstr ""
+
+#: preferences/models.py:727
+msgid "Template for subscription voucher"
+msgstr ""
+
+#: preferences/models.py:733
+msgid "Send voucher by email when the invoice is controlled."
+msgstr ""
+
+#: preferences/models.py:744
+msgid "template"
+msgstr ""
+
+#: preferences/models.py:748
+msgid "name"
+msgstr ""
+
+#: preferences/models.py:753
+msgid "document template"
+msgstr ""
+
+#: preferences/models.py:754
+msgid "document templates"
+msgstr ""
+
+#: preferences/templates/preferences/aff_document_template.html:32
+msgid "Document template"
+msgstr ""
+
+#: preferences/templates/preferences/aff_document_template.html:33
+msgid "File"
+msgstr ""
+
+#: preferences/templates/preferences/aff_mailcontact.html:31
+#: preferences/templates/preferences/display_preferences.html:327
 msgid "Address"
 msgstr "Adresse"
 
-#: templates/preferences/aff_mailcontact.html:32
-#: templates/preferences/aff_radiuskey.html:32
+#: preferences/templates/preferences/aff_mailcontact.html:32
+#: preferences/templates/preferences/aff_radiuskey.html:32
 msgid "Comment"
 msgstr "Commentaire"
 
-#: templates/preferences/aff_radiuskey.html:31
+#: preferences/templates/preferences/aff_radiuskey.html:31
 msgid "RADIUS key ID"
 msgstr "ID de la clé RADIUS"
 
-#: templates/preferences/aff_radiuskey.html:33
+#: preferences/templates/preferences/aff_radiuskey.html:33
 msgid "Default RADIUS key for switches"
 msgstr "Clé RADIUS par défaut pour les commutateurs réseau"
 
-#: templates/preferences/aff_radiuskey.html:34
+#: preferences/templates/preferences/aff_radiuskey.html:34
 msgid "RADIUS key used by the swithes"
 msgstr "Clé RADIUS utilisée par les commutateurs réseau"
 
-#: templates/preferences/aff_radiusoptions.html:28
-#: templates/preferences/display_preferences.html:204
+#: preferences/templates/preferences/aff_radiusoptions.html:28
+#: preferences/templates/preferences/display_preferences.html:204
 msgid "General policy for VLAN setting"
 msgstr "Politique générale pour le placement sur un VLAN"
 
-#: templates/preferences/aff_radiusoptions.html:30
-#: templates/preferences/display_preferences.html:206
+#: preferences/templates/preferences/aff_radiusoptions.html:30
+#: preferences/templates/preferences/display_preferences.html:206
 msgid ""
 "This setting defines the VLAN policy after acceptance by RADIUS: either on "
 "the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines "
@@ -631,98 +696,98 @@ msgstr ""
 "par RADIUS: soit sur le VLAN de la plage d'IP de la machine, soit sur le "
 "VLAN prédéfini dans 'VLAN pour les machines acceptées par RADIUS'"
 
-#: templates/preferences/aff_radiusoptions.html:33
-#: templates/preferences/display_preferences.html:210
+#: preferences/templates/preferences/aff_radiusoptions.html:33
+#: preferences/templates/preferences/display_preferences.html:210
 msgid "VLAN for machines accepted by RADIUS"
 msgstr "VLAN pour les machines acceptées par RADIUS"
 
-#: templates/preferences/aff_radiusoptions.html:34
+#: preferences/templates/preferences/aff_radiusoptions.html:34
 #, python-format
 msgid "VLAN %(vlan_decision_ok)s"
 msgstr "VLAN %(vlan_decision_ok)s"
 
-#: templates/preferences/aff_radiusoptions.html:41
+#: preferences/templates/preferences/aff_radiusoptions.html:41
 msgid "Situation"
 msgstr "Situation"
 
-#: templates/preferences/aff_radiusoptions.html:42
+#: preferences/templates/preferences/aff_radiusoptions.html:42
 msgid "Behaviour"
 msgstr "Comportement"
 
-#: templates/preferences/aff_radiusoptions.html:46
+#: preferences/templates/preferences/aff_radiusoptions.html:46
 msgid "Unknown machine"
 msgstr "Machine inconnue"
 
-#: templates/preferences/aff_radiusoptions.html:49
-#: templates/preferences/aff_radiusoptions.html:59
-#: templates/preferences/aff_radiusoptions.html:69
-#: templates/preferences/aff_radiusoptions.html:79
-#: templates/preferences/aff_radiusoptions.html:89
+#: preferences/templates/preferences/aff_radiusoptions.html:49
+#: preferences/templates/preferences/aff_radiusoptions.html:59
+#: preferences/templates/preferences/aff_radiusoptions.html:69
+#: preferences/templates/preferences/aff_radiusoptions.html:79
+#: preferences/templates/preferences/aff_radiusoptions.html:89
 msgid "Reject"
 msgstr "Rejeter"
 
-#: templates/preferences/aff_radiusoptions.html:51
+#: preferences/templates/preferences/aff_radiusoptions.html:51
 #, python-format
 msgid "VLAN %(unknown_machine_vlan)s"
 msgstr "VLAN %(unknown_machine_vlan)s"
 
-#: templates/preferences/aff_radiusoptions.html:56
+#: preferences/templates/preferences/aff_radiusoptions.html:56
 msgid "Unknown port"
 msgstr "Port inconnu"
 
-#: templates/preferences/aff_radiusoptions.html:61
+#: preferences/templates/preferences/aff_radiusoptions.html:61
 #, python-format
 msgid "VLAN %(unknown_port_vlan)s"
 msgstr "VLAN %(unknown_port_vlan)s"
 
-#: templates/preferences/aff_radiusoptions.html:66
+#: preferences/templates/preferences/aff_radiusoptions.html:66
 msgid "Unknown room"
 msgstr "Chambre inconnue"
 
-#: templates/preferences/aff_radiusoptions.html:71
+#: preferences/templates/preferences/aff_radiusoptions.html:71
 #, python-format
 msgid "VLAN %(unknown_room_vlan)s"
 msgstr "VLAN %(unknown_room_vlan)s"
 
-#: templates/preferences/aff_radiusoptions.html:76
+#: preferences/templates/preferences/aff_radiusoptions.html:76
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: templates/preferences/aff_radiusoptions.html:81
+#: preferences/templates/preferences/aff_radiusoptions.html:81
 #, python-format
 msgid "VLAN %(non_member_vlan)s"
 msgstr "VLAN %(non_member_vlan)s"
 
-#: templates/preferences/aff_radiusoptions.html:86
+#: preferences/templates/preferences/aff_radiusoptions.html:86
 msgid "Banned user"
 msgstr "Utilisateur banni"
 
-#: templates/preferences/aff_radiusoptions.html:91
+#: preferences/templates/preferences/aff_radiusoptions.html:91
 #, python-format
 msgid "VLAN %(banned_vlan)s"
 msgstr "VLAN %(banned_vlan)s"
 
-#: templates/preferences/aff_reminder.html:31
+#: preferences/templates/preferences/aff_reminder.html:31
 msgid "Number of days before the reminder"
 msgstr "Nombre de jours avant le rappel"
 
-#: templates/preferences/aff_reminder.html:32
+#: preferences/templates/preferences/aff_reminder.html:32
 msgid "Message for this reminder"
 msgstr "Message pour ce rappel"
 
-#: templates/preferences/aff_switchmanagementcred.html:32
+#: preferences/templates/preferences/aff_switchmanagementcred.html:32
 msgid "Default switch management credentials"
 msgstr "Identifiants de gestion de commutateur réseau par défaut"
 
-#: templates/preferences/aff_switchmanagementcred.html:33
+#: preferences/templates/preferences/aff_switchmanagementcred.html:33
 msgid "Management credentials used by the switches"
 msgstr "Identifiants de gestion utilisés par les commutateurs réseau"
 
-#: templates/preferences/delete.html:29
+#: preferences/templates/preferences/delete.html:29
 msgid "Deletion of preferences"
 msgstr "Suppression de préférences"
 
-#: templates/preferences/delete.html:35
+#: preferences/templates/preferences/delete.html:35
 #, python-format
 msgid ""
 "Warning: are you sure you want to delete this %(objet_name)s object "
@@ -731,346 +796,375 @@ msgstr ""
 "Attention : voulez-vous vraiment supprimer cet objet %(objet_name)s "
 "( %(objet)s ) ?"
 
-#: templates/preferences/delete.html:36
+#: preferences/templates/preferences/delete.html:36
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: templates/preferences/display_preferences.html:31
-#: templates/preferences/edit_preferences.html:30
-#: templates/preferences/preferences.html:30
+#: preferences/templates/preferences/display_preferences.html:31
+#: preferences/templates/preferences/edit_preferences.html:30
+#: preferences/templates/preferences/preferences.html:30
 msgid "Preferences"
 msgstr "Préférences"
 
-#: templates/preferences/display_preferences.html:39
+#: preferences/templates/preferences/display_preferences.html:39
 msgid "General preferences"
 msgstr "Préférences générales"
 
-#: templates/preferences/display_preferences.html:46
-#: templates/preferences/display_preferences.html:108
-#: templates/preferences/display_preferences.html:165
-#: templates/preferences/display_preferences.html:199
-#: templates/preferences/display_preferences.html:240
-#: templates/preferences/display_preferences.html:301
-#: templates/preferences/display_preferences.html:316
-#: templates/preferences/display_preferences.html:360
-#: templates/preferences/display_preferences.html:438
-#: templates/preferences/edit_preferences.html:46 views.py:178 views.py:226
-#: views.py:272 views.py:321 views.py:381
+#: preferences/templates/preferences/display_preferences.html:46
+#: preferences/templates/preferences/display_preferences.html:108
+#: preferences/templates/preferences/display_preferences.html:165
+#: preferences/templates/preferences/display_preferences.html:199
+#: preferences/templates/preferences/display_preferences.html:240
+#: preferences/templates/preferences/display_preferences.html:301
+#: preferences/templates/preferences/display_preferences.html:316
+#: preferences/templates/preferences/display_preferences.html:410
+#: preferences/templates/preferences/display_preferences.html:488
+#: preferences/templates/preferences/edit_preferences.html:46
+#: preferences/views.py:186 preferences/views.py:234 preferences/views.py:280
+#: preferences/views.py:329 preferences/views.py:389 preferences/views.py:461
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/preferences/display_preferences.html:60
+#: preferences/templates/preferences/display_preferences.html:60
 msgid "Number of items per page (standard size)"
 msgstr "Nombre d'éléments par page (taille standard)"
 
-#: templates/preferences/display_preferences.html:64
+#: preferences/templates/preferences/display_preferences.html:64
 msgid "Number of items per page (large size)"
 msgstr "Nombre d'éléments par page (taille importante)"
 
-#: templates/preferences/display_preferences.html:70
+#: preferences/templates/preferences/display_preferences.html:70
 msgid "General message displayed on the website"
 msgstr "Message général affiché sur le site"
 
-#: templates/preferences/display_preferences.html:72
+#: preferences/templates/preferences/display_preferences.html:72
 msgid "Main site URL"
 msgstr "URL du site principal"
 
-#: templates/preferences/display_preferences.html:84
+#: preferences/templates/preferences/display_preferences.html:84
 msgid "Local email accounts enabled"
 msgstr "Comptes mail locaux activés"
 
-#: templates/preferences/display_preferences.html:86
+#: preferences/templates/preferences/display_preferences.html:86
 msgid "Local email domain"
 msgstr "Domaine de mail local"
 
-#: templates/preferences/display_preferences.html:90
+#: preferences/templates/preferences/display_preferences.html:90
 msgid "Maximum number of email aliases allowed"
 msgstr "Nombre maximum d'alias mail autorisé pour un utilisateur standard"
 
-#: templates/preferences/display_preferences.html:100
+#: preferences/templates/preferences/display_preferences.html:100
 msgid "User preferences"
 msgstr "Préférences d'utilisateur"
 
-#: templates/preferences/display_preferences.html:114
+#: preferences/templates/preferences/display_preferences.html:114
 msgid "Creation of members by everyone"
 msgstr "Création d'adhérents par tous"
 
-#: templates/preferences/display_preferences.html:116
+#: preferences/templates/preferences/display_preferences.html:116
 msgid "Creation of clubs by everyone"
 msgstr "Création de clubs par tous"
 
-#: templates/preferences/display_preferences.html:122
+#: preferences/templates/preferences/display_preferences.html:122
 msgid "Delete not yet active users after"
 msgstr "Suppression des utilisateurs n'ayant jamais adhéré après"
 
-#: templates/preferences/display_preferences.html:123
+#: preferences/templates/preferences/display_preferences.html:123
 #, python-format
 msgid "%(delete_notyetactive)s days"
 msgstr "%(delete_notyetactive)s jours"
 
-#: templates/preferences/display_preferences.html:126
+#: preferences/templates/preferences/display_preferences.html:126
 msgid "All users are active by default"
 msgstr "Tous les utilisateurs sont actifs par défault"
 
-#: templates/preferences/display_preferences.html:131
+#: preferences/templates/preferences/display_preferences.html:131
 msgid "Users general permissions"
 msgstr "Permissions générales des utilisateurs"
 
-#: templates/preferences/display_preferences.html:134
+#: preferences/templates/preferences/display_preferences.html:134
 msgid "Default shell for users"
 msgstr "Interface en ligne de commande par défaut pour les utilisateurs"
 
-#: templates/preferences/display_preferences.html:136
+#: preferences/templates/preferences/display_preferences.html:136
 msgid "Users can edit their shell"
 msgstr "Les utilisateurs peuvent modifier leur interface en ligne de commande"
 
-#: templates/preferences/display_preferences.html:140
+#: preferences/templates/preferences/display_preferences.html:140
 msgid "Users can edit their room"
 msgstr "Les utilisateurs peuvent modifier leur chambre"
 
-#: templates/preferences/display_preferences.html:146
+#: preferences/templates/preferences/display_preferences.html:146
 msgid "GPG fingerprint field"
 msgstr "Champ empreinte GPG"
 
-#: templates/preferences/display_preferences.html:157
+#: preferences/templates/preferences/display_preferences.html:157
 msgid "Machines preferences"
 msgstr "Préférences de machines"
 
-#: templates/preferences/display_preferences.html:170
+#: preferences/templates/preferences/display_preferences.html:170
 msgid "Password per machine"
 msgstr "Mot de passe par machine"
 
-#: templates/preferences/display_preferences.html:178
+#: preferences/templates/preferences/display_preferences.html:178
 msgid "IPv6 support"
 msgstr "Support de l'IPv6"
 
-#: templates/preferences/display_preferences.html:182
+#: preferences/templates/preferences/display_preferences.html:182
 msgid "Creation of machines"
 msgstr "Création de machines"
 
-#: templates/preferences/display_preferences.html:192
+#: preferences/templates/preferences/display_preferences.html:192
 msgid "Topology preferences"
 msgstr "Préférences de topologie"
 
-#: templates/preferences/display_preferences.html:212
+#: preferences/templates/preferences/display_preferences.html:212
 msgid "VLAN for machines rejected by RADIUS"
 msgstr "VLAN pour les machines rejetées par RADIUS"
 
-#: templates/preferences/display_preferences.html:216
+#: preferences/templates/preferences/display_preferences.html:216
 msgid "VLAN for non members machines"
 msgstr "VLAN pour les machines des non adhérents"
 
-#: templates/preferences/display_preferences.html:223
+#: preferences/templates/preferences/display_preferences.html:223
 msgid " Add a RADIUS key"
 msgstr " Ajouter une clé RADIUS"
 
-#: templates/preferences/display_preferences.html:233
+#: preferences/templates/preferences/display_preferences.html:233
 msgid "Configuration of switches"
 msgstr "Configuration de commutateurs réseau"
 
-#: templates/preferences/display_preferences.html:255
+#: preferences/templates/preferences/display_preferences.html:255
 msgid "Provision of configuration for switches"
 msgstr "Provision de configuration pour les commutateurs réseau"
 
-#: templates/preferences/display_preferences.html:258
+#: preferences/templates/preferences/display_preferences.html:258
 msgid "Switches with automatic provision"
 msgstr "Commutateurs réseau avec provision automatique"
 
-#: templates/preferences/display_preferences.html:259
-#: templates/preferences/display_preferences.html:263
-#: templates/preferences/display_preferences.html:267
-#: templates/preferences/display_preferences.html:275
-#: templates/preferences/display_preferences.html:279
-#: templates/preferences/display_preferences.html:289
+#: preferences/templates/preferences/display_preferences.html:259
+#: preferences/templates/preferences/display_preferences.html:263
+#: preferences/templates/preferences/display_preferences.html:267
+#: preferences/templates/preferences/display_preferences.html:275
+#: preferences/templates/preferences/display_preferences.html:279
+#: preferences/templates/preferences/display_preferences.html:289
 msgid "OK"
 msgstr "OK"
 
-#: templates/preferences/display_preferences.html:259
-#: templates/preferences/display_preferences.html:263
-#: templates/preferences/display_preferences.html:267
-#: templates/preferences/display_preferences.html:289
+#: preferences/templates/preferences/display_preferences.html:259
+#: preferences/templates/preferences/display_preferences.html:263
+#: preferences/templates/preferences/display_preferences.html:267
+#: preferences/templates/preferences/display_preferences.html:289
 msgid "Missing"
 msgstr "Manquant"
 
-#: templates/preferences/display_preferences.html:266
+#: preferences/templates/preferences/display_preferences.html:266
 msgid "Server for the configuration of switches"
 msgstr "Serveur pour la configuration des commutateurs réseau"
 
-#: templates/preferences/display_preferences.html:274
+#: preferences/templates/preferences/display_preferences.html:274
 msgid "TFTP mode"
 msgstr "Mode TFTP"
 
-#: templates/preferences/display_preferences.html:278
+#: preferences/templates/preferences/display_preferences.html:278
 msgid "SFTP mode"
 msgstr "Mode SFTP"
 
-#: templates/preferences/display_preferences.html:279
+#: preferences/templates/preferences/display_preferences.html:279
 msgid "Missing credentials"
 msgstr "Identifiants manquants"
 
-#: templates/preferences/display_preferences.html:283
+#: preferences/templates/preferences/display_preferences.html:283
 msgid "Switch management credentials"
 msgstr "Identifiants de gestion de commutateur réseau"
 
-#: templates/preferences/display_preferences.html:285
+#: preferences/templates/preferences/display_preferences.html:285
 msgid " Add switch management credentials"
 msgstr " Ajouter des identifiants de gestion de commutateur réseau"
 
-#: templates/preferences/display_preferences.html:296
+#: preferences/templates/preferences/display_preferences.html:296
 msgid "RADIUS preferences"
 msgstr "Préférences RADIUS"
 
-#: templates/preferences/display_preferences.html:310
+#: preferences/templates/preferences/display_preferences.html:310
 msgid "Information about the organisation"
 msgstr "Informations sur l'association"
 
-#: templates/preferences/display_preferences.html:341
+#: preferences/templates/preferences/display_preferences.html:341
 msgid "User object of the organisation"
 msgstr "Objet utilisateur de l'association"
 
-#: templates/preferences/display_preferences.html:343
+#: preferences/templates/preferences/display_preferences.html:343
 msgid "Description of the organisation"
 msgstr "Description de l'association"
 
-#: templates/preferences/display_preferences.html:353
+#: preferences/templates/preferences/display_preferences.html:356
+msgid "Document templates"
+msgstr ""
+
+#: preferences/templates/preferences/display_preferences.html:362
+msgid "Add a document template"
+msgstr "Ajouter un modèle de document"
+
+#: preferences/templates/preferences/display_preferences.html:366
+msgid "Delete one or several document templates"
+msgstr " Supprimer un ou plusieurs modèles de document"
+
+#: preferences/templates/preferences/display_preferences.html:375
+msgid "Cotisation's options"
+msgstr "options de cotisation"
+
+#: preferences/templates/preferences/display_preferences.html:384
+msgid "Send voucher by email"
+msgstr ""
+
+#: preferences/templates/preferences/display_preferences.html:388
+msgid "Invoices' template"
+msgstr ""
+
+#: preferences/templates/preferences/display_preferences.html:392
+msgid "Vouchers' template"
+msgstr ""
+
+#: preferences/templates/preferences/display_preferences.html:403
 msgid "Message for emails"
 msgstr "Message pour les mails"
 
-#: templates/preferences/display_preferences.html:366
+#: preferences/templates/preferences/display_preferences.html:416
 msgid "Welcome email (in French)"
 msgstr "Mail de bienvenue (en français)"
 
-#: templates/preferences/display_preferences.html:370
+#: preferences/templates/preferences/display_preferences.html:420
 msgid "Welcome email (in English)"
 msgstr "Mail de bienvenue (en anglais)"
 
-#: templates/preferences/display_preferences.html:380
+#: preferences/templates/preferences/display_preferences.html:430
 msgid "Options for the membership's end email"
 msgstr "Options pour le mail de fin d'adhésion"
 
-#: templates/preferences/display_preferences.html:386
+#: preferences/templates/preferences/display_preferences.html:436
 msgid " Add a reminder"
 msgstr " Ajouter un rappel"
 
-#: templates/preferences/display_preferences.html:397
+#: preferences/templates/preferences/display_preferences.html:447
 msgid "List of services and homepage preferences"
 msgstr "Liste des services et préférences de page d'accueil"
 
-#: templates/preferences/display_preferences.html:403
+#: preferences/templates/preferences/display_preferences.html:453
 msgid " Add a service"
 msgstr " Ajouter un service"
 
-#: templates/preferences/display_preferences.html:414
+#: preferences/templates/preferences/display_preferences.html:464
 msgid "List of contact email addresses"
 msgstr "Liste des adresses mail de contact"
 
-#: templates/preferences/display_preferences.html:420
+#: preferences/templates/preferences/display_preferences.html:470
 msgid " Add an address"
 msgstr " Ajouter une adresse"
 
-#: templates/preferences/display_preferences.html:422
+#: preferences/templates/preferences/display_preferences.html:472
 msgid " Delete one or several addresses"
 msgstr " Supprimer une ou plusieurs adresses"
 
-#: templates/preferences/display_preferences.html:431
+#: preferences/templates/preferences/display_preferences.html:481
 msgid "Social networks"
 msgstr "Réseaux sociaux"
 
-#: templates/preferences/display_preferences.html:443
+#: preferences/templates/preferences/display_preferences.html:493
 msgid "Twitter account URL"
 msgstr "URL du compte Twitter"
 
-#: templates/preferences/display_preferences.html:449
+#: preferences/templates/preferences/display_preferences.html:499
 msgid "Facebook account URL"
 msgstr "URL du compte Facebook"
 
-#: templates/preferences/edit_preferences.html:35
+#: preferences/templates/preferences/edit_preferences.html:35
 msgid "Editing of preferences"
 msgstr "Modification des préférences"
 
-#: views.py:114
+#: preferences/views.py:122
 msgid "Unknown object."
 msgstr "Objet inconnu."
 
-#: views.py:120
+#: preferences/views.py:128
 msgid "You don't have the right to edit this option."
 msgstr "Vous n'avez pas le droit de modifier cette option."
 
-#: views.py:137
+#: preferences/views.py:145
 msgid "The preferences were edited."
 msgstr "Les préférences ont été modifiées."
 
-#: views.py:155
+#: preferences/views.py:163
 msgid "The service was added."
 msgstr "Le service a été ajouté."
 
-#: views.py:158
+#: preferences/views.py:166
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: views.py:175
+#: preferences/views.py:183
 msgid "The service was edited."
 msgstr "Le service a été modifié."
 
-#: views.py:189
+#: preferences/views.py:197
 msgid "The service was deleted."
 msgstr "Le service a été supprimé."
 
-#: views.py:204
+#: preferences/views.py:212
 msgid "The reminder was added."
 msgstr "Le rappel a été ajouté."
 
-#: views.py:207
+#: preferences/views.py:215
 msgid "Add a reminder"
 msgstr "Ajouter un rappel"
 
-#: views.py:223
+#: preferences/views.py:231
 msgid "The reminder was edited."
 msgstr "Le rappel a été modifié."
 
-#: views.py:239
+#: preferences/views.py:247
 msgid "The reminder was deleted."
 msgstr "Le rappel a été supprimé."
 
-#: views.py:255
+#: preferences/views.py:263
 msgid "The RADIUS key was added."
 msgstr "La clé RADIUS a été ajoutée."
 
-#: views.py:258
+#: preferences/views.py:266
 msgid "Add a RADIUS key"
 msgstr "Ajouter une clé RADIUS"
 
-#: views.py:269
+#: preferences/views.py:277
 msgid "The RADIUS key was edited."
 msgstr "La clé RADIUS a été modifiée."
 
-#: views.py:285
+#: preferences/views.py:293
 msgid "The RADIUS key was deleted."
 msgstr "La clé RADIUS a été supprimée."
 
-#: views.py:287
+#: preferences/views.py:295
 msgid "The RADIUS key is assigned to at least one switch, you can't delete it."
 msgstr ""
 "La clé RADIUS est assignée a au moins un commutateur réseau, vous ne pouvez "
 "pas la supprimer."
 
-#: views.py:304
+#: preferences/views.py:312
 msgid "The switch management credentials were added."
 msgstr "Les identifiants de gestion de commutateur réseay ont été ajoutés."
 
-#: views.py:307
+#: preferences/views.py:315
 msgid "Add switch management credentials"
 msgstr "Ajouter des identifiants de gestion de commutateur réseau"
 
-#: views.py:318
+#: preferences/views.py:326
 msgid "The switch management credentials were edited."
 msgstr "Les identifiants de gestion de commutateur réseau ont été modifiés."
 
-#: views.py:334
+#: preferences/views.py:342
 msgid "The switch management credentials were deleted."
 msgstr "Les identifiants de gestion de commutateur réseau ont été supprimés."
 
-#: views.py:336
+#: preferences/views.py:344
 msgid ""
 "The switch management credentials are assigned to at least one switch, you "
 "can't delete them."
@@ -1078,22 +1172,58 @@ msgstr ""
 "Les identifiants de gestion de commutateur réseau sont assignés à au moins "
 "un commutateur réseau , vous ne pouvez pas les supprimer."
 
-#: views.py:357
+#: preferences/views.py:365
 msgid "The contact email address was created."
 msgstr "L'adresse mail de contact a été supprimée."
 
-#: views.py:361
+#: preferences/views.py:369
 msgid "Add a contact email address"
 msgstr "Ajouter une adresse mail de contact"
 
-#: views.py:378
+#: preferences/views.py:386
 msgid "The contact email address was edited."
 msgstr "L'adresse mail de contact a été modifiée."
 
-#: views.py:400
+#: preferences/views.py:408
 msgid "The contact email adress was deleted."
 msgstr "L'adresse mail de contact a été supprimée."
 
-#: views.py:403
+#: preferences/views.py:411 preferences/views.py:496
 msgid "Delete"
 msgstr "Supprimer"
+
+#: preferences/views.py:431
+msgid "The document template was created."
+msgstr "Le modèle de document a été créé."
+
+#: preferences/views.py:436
+msgid "Add"
+msgstr "Ajouter"
+
+#: preferences/views.py:437
+msgid "New document template"
+msgstr "Nouveau modèle de document"
+
+#: preferences/views.py:456
+msgid "The document template was edited."
+msgstr "Le modèle de document a été édité."
+
+#: preferences/views.py:462
+msgid "Edit document template"
+msgstr "Modifier le modèle de document"
+
+#: preferences/views.py:481
+#, python-format
+msgid "The document template %(document_template)s was deleted."
+msgstr "Le modèle de document %(document_template)s a été supprimé."
+
+#: preferences/views.py:488
+#, python-format
+msgid ""
+"The document template %(document_template)s can't be "
+"deleted                     because it is currently being used."
+msgstr ""
+
+#: preferences/views.py:497
+msgid "Delete document template"
+msgstr "Supprimer le modèle de document"
