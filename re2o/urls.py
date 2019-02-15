@@ -57,7 +57,6 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^about/$', about_page, name='about'),
     url(r'^contact/$', contact_page, name='contact'),
-    url('^logout/', auth_views.logout, {'next_page': '/'}),
     url('^', include('django.contrib.auth.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include(admin.site.urls)),
