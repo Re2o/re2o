@@ -29,6 +29,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
+    {% if user.is_authenticated %}
+        <p class="errornote">
+            {% blocktrans trimmed %}
+                You are authenticated as {{ username }}, but are not authorized to
+                access this page. Would you like to login to a different account?
+            {% endblocktrans %}
+        </p>
+    {% endif %}
+
     <form method="post" action="">
         {% csrf_token %}
         {% bootstrap_form form %}
