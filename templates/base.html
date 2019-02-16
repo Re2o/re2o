@@ -54,6 +54,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <link href="{% static 'css/bootstrap-tokenfield.css' %}" rel="stylesheet">
         <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
         <link href="{% static 'css/base.css' %}" rel="stylesheet">
+        {% block extrastyle %}{% endblock %}
 
         {# Favicon with iOS, Android, touchbar support #}
         <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
@@ -68,6 +69,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ name_website }} : {% block title %}{% trans "Home" %}{% endblock %}</title>
+
+        {% block extrahead %}{% endblock %}
     </head>
 
     <body id="main">
@@ -188,6 +191,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </div>
                 </div>
                 <div class="col-sm-8 text-left pt4">
+                    {# Display breadcrumbs #}
+                    {% block breadcrumbs %}{% endblock %}
+
                     {# Display django.contrib.messages as Bootstrap alerts #}
                     {% bootstrap_messages %}
                     {% block content %}{% endblock %}
