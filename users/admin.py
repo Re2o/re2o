@@ -32,6 +32,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
+from re2o.admin import user_admin_site
+
 from .models import (
     User,
     EMailAddress,
@@ -216,6 +218,7 @@ admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
 admin.site.register(LdapServiceUser, LdapServiceUserAdmin)
 admin.site.register(LdapServiceUserGroup, LdapServiceUserGroupAdmin)
 admin.site.register(School, SchoolAdmin)
+user_admin_site.register(School, SchoolAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
 admin.site.register(Ban, BanAdmin)

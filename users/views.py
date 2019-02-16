@@ -598,68 +598,6 @@ def edit_email_settings(request, user_instance, **_kwargs):
 
 
 @login_required
-@can_create(School)
-def add_school(request):
-    """ Ajouter un établissement d'enseignement à la base de donnée,
-    need cableur"""
-    school = SchoolForm(request.POST or None)
-    if school.is_valid():
-        school.save()
-        messages.success(request, _("The school was added."))
-        return redirect(reverse('users:index-school'))
-    return form(
-        {'userform': school, 'action_name': _("Add a school")},
-        'users/user.html',
-        request
-    )
-
-
-@login_required
-@can_edit(School)
-def edit_school(request, school_instance, **_kwargs):
-    """ Editer un établissement d'enseignement à partir du schoolid dans
-    la base de donnée, need cableur"""
-    school = SchoolForm(request.POST or None, instance=school_instance)
-    if school.is_valid():
-        if school.changed_data:
-            school.save()
-            messages.success(request, _("The school was edited."))
-        return redirect(reverse('users:index-school'))
-    return form(
-        {'userform': school, 'action_name': _("Edit a school")},
-        'users/user.html',
-        request
-    )
-
-
-@login_required
-@can_delete_set(School)
-def del_school(request, instances):
-    """ Supprimer un établissement d'enseignement à la base de donnée,
-    need cableur
-    Objet protégé, possible seulement si aucun user n'est affecté à
-    l'établissement """
-    school = DelSchoolForm(request.POST or None, instances=instances)
-    if school.is_valid():
-        school_dels = school.cleaned_data['schools']
-        for school_del in school_dels:
-            try:
-                school_del.delete()
-                messages.success(request, _("The school was deleted."))
-            except ProtectedError:
-                messages.error(
-                    request,
-                    _("The school %s is assigned to at least one user,"
-                      " impossible to delete it.") % school_del)
-        return redirect(reverse('users:index-school'))
-    return form(
-        {'userform': school, 'action_name': _("Delete")},
-        'users/user.html',
-        request
-    )
-
-
-@login_required
 @can_create(ListShell)
 def add_shell(request):
     """ Ajouter un shell à la base de donnée"""

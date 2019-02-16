@@ -65,7 +65,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </a>
     {% acl_end %}
     {% can_view_all School %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-school' %}">
+        <a class="list-group-item list-group-item-info" href="{% url 'user_admin:users_school_changelist' %}">
             <i class="fa fa-list-ul"></i>
 	    {% trans "Schools" %}
         </a>
