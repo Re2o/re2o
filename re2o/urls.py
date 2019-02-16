@@ -48,6 +48,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from .admin import user_admin_site
 from .views import index, about_page, contact_page
 
 handler500 = 're2o.views.handler500'
@@ -61,6 +62,7 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^manage/', include(user_admin_site.urls)),
     url(r'^users/', include('users.urls', namespace='users')),
     url(r'^search/', include('search.urls', namespace='search')),
     url(
