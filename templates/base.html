@@ -30,8 +30,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% self_adhesion as var_sa %}
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head prefix="og: http://ogp.me/ns#">
         {# Open Graph for social media #}
         <meta property="og:title" content="{{ name_website }}" />
