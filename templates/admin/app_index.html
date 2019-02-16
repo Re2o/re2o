@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="home">
+            <a href="{% url 'index' %}" title="{% trans 'Home' %}">
+                <span class="glyphicon glyphicon-home"></span>
+            </a>
+        </li>
+        <li class="active">{% for app in app_list %}{{ app.name }}{% endfor %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    {% if app_list %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Models" %}</h3>
+            </div>
+            <div class="panel-body">
+                <ul>
+                    {% for app in app_list %}
+                        {% for model in app.models %}
+                            <li class="model-name model-{{ model.object_name|lower }}">
+                                <a href="{% if model.admin_url %}{{ model.admin_url }}{% else %}#{% endif %}"
+                                   {% if not model.admin_url %}class="disabled"{% endif %}>{{ model.name }}</a>
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <p>{% trans "You don't have permission to edit anything." %}</p>
+    {% endif %}
+{% endblock %}
