@@ -39,6 +39,7 @@ from .models import (
     AccessPoint,
     SwitchBay,
     Building,
+    Dormitory,
     PortProfile,
 )
 
@@ -87,6 +88,12 @@ class BuildingAdmin(VersionAdmin):
     """Administration d'un batiment"""
     pass
 
+
+class DormitoryAdmin(VersionAdmin):
+    """Administration d'une residence"""
+    pass
+
+
 class PortProfileAdmin(VersionAdmin):
     """Administration of a port profile"""
     pass
@@ -99,5 +106,6 @@ admin.site.register(Stack, StackAdmin)
 admin.site.register(ModelSwitch, ModelSwitchAdmin)
 admin.site.register(ConstructorSwitch, ConstructorSwitchAdmin)
 admin.site.register(Building, BuildingAdmin)
+admin.site.register(Dormitory, DormitoryAdmin)
 admin.site.register(SwitchBay, SwitchBayAdmin)
 admin.site.register(PortProfile, PortProfileAdmin)

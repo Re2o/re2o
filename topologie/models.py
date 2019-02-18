@@ -558,6 +558,10 @@ class Building(AclMixin, RevMixin, models.Model):
         """Returns all ap of the building"""
         return AccessPoint.all_ap_in(self)
 
+    @cached_property
+    def cached_name(self):
+        return self.__str__()
+
     def __str__(self):
         if Dormitory.objects.count() > 1:
             return self.dormitory.name + " : " + self.name
@@ -749,10 +753,7 @@ class Room(AclMixin, RevMixin, models.Model):
         unique_together = ('name', 'building')
 
     def __str__(self):
-        if Dormitory.objects.count() > 1:
-            return self.building.dormitory.name + " : " + self.building.name + self.name
-        else:
-            return self.building.name + self.name
+        return self.building.cached_name + self.name
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):
