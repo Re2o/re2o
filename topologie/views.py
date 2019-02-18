@@ -84,6 +84,7 @@ from .models import (
     AccessPoint,
     SwitchBay,
     Building,
+    Dormitory,
     Server,
     PortProfile,
     ModuleSwitch,
@@ -103,6 +104,7 @@ from .forms import (
     EditAccessPointForm,
     EditSwitchBayForm,
     EditBuildingForm,
+    EditDormitoryForm,
     EditPortProfileForm,
     EditModuleForm,
     EditSwitchModuleForm,
@@ -254,7 +256,7 @@ def index_ap(request):
 
 
 @login_required
-@can_view_all(Stack, Building, SwitchBay)
+@can_view_all(Stack, Building, Dormitory, SwitchBay)
 def index_physical_grouping(request):
     """Affichage de la liste des stacks (affiche l'ensemble des switches)"""
     stack_list = (Stack.objects
@@ -262,6 +264,7 @@ def index_physical_grouping(request):
                       'switch_set__interface_set__domain__extension'
                   ))
     building_list = Building.objects.all()
+    dormitory_list = Dormitory.objects.all()
     switch_bay_list = SwitchBay.objects.select_related('building')
     stack_list = SortTable.sort(
         stack_list,
@@ -274,6 +277,12 @@ def index_physical_grouping(request):
         request.GET.get('col'),
         request.GET.get('order'),
         SortTable.TOPOLOGIE_INDEX_BUILDING
+    )
+    dormitory_list = SortTable.sort(
+        dormitory_list,
+        request.GET.get('col'),
+        request.GET.get('order'),
+        SortTable.TOPOLOGIE_INDEX_DORMITORY
     )
     switch_bay_list = SortTable.sort(
         switch_bay_list,
@@ -288,6 +297,7 @@ def index_physical_grouping(request):
             'stack_list': stack_list,
             'switch_bay_list': switch_bay_list,
             'building_list': building_list,
+            'dormitory_list': dormitory_list,
         }
     )
 
@@ -951,6 +961,61 @@ def del_building(request, building, **_kwargs):
         return redirect(reverse('topologie:index-physical-grouping'))
     return form(
         {'objet': building, 'objet_name': _("Building")},
+        'topologie/delete.html',
+        request
+    )
+
+
+@login_required
+@can_create(Dormitory)
+def new_dormitory(request):
+    """Nouvelle residence"""
+    dormitory = EditDormitoryForm(request.POST or None)
+    if dormitory.is_valid():
+        dormitory.save()
+        messages.success(request, _("The dormitory was created."))
+        return redirect(reverse('topologie:index-physical-grouping'))
+    return form(
+        {'topoform': dormitory, 'action_name': _("Create")},
+        'topologie/topo.html',
+        request
+    )
+
+
+@login_required
+@can_edit(Dormitory)
+def edit_dormitory(request, dormitory, **_kwargs):
+    """ Edition d'une residence"""
+    dormitory = EditDormitoryForm(request.POST or None, instance=dormitory)
+    if dormitory.is_valid():
+        if dormitory.changed_data:
+            dormitory.save()
+            messages.success(request, _("The dormitory was edited."))
+        return redirect(reverse('topologie:index-physical-grouping'))
+    return form(
+        {'topoform': dormitory, 'action_name': _("Edit")},
+        'topologie/topo.html',
+        request
+    )
+
+
+@login_required
+@can_delete(Dormitory)
+def del_dormitory(request, dormitory, **_kwargs):
+    """ Suppression d'une residence"""
+    if request.method == "POST":
+        try:
+            dormitory.delete()
+            messages.success(request, _("The dormitory was deleted."))
+        except ProtectedError:
+            messages.error(
+                request,
+                (_("The dormitory %s is used by another object, impossible"
+                   " to delete it.") % dormitory)
+            )
+        return redirect(reverse('topologie:index-physical-grouping'))
+    return form(
+        {'objet': dormitory, 'objet_name': _("Dormitory")},
         'topologie/delete.html',
         request
     )

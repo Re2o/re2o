@@ -516,10 +516,36 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
         return self.name
 
 
+class Dormitory(AclMixin, RevMixin, models.Model):
+    """Une résidence universitaire
+    A residence"""
+
+    name = models.CharField(max_length=255)
+
+
+    class Meta:
+        permissions = (
+            ("view_dormitory", _("Can view a dormitory object")),
+        )
+        verbose_name = _("dormitory")
+        verbose_name_plural = _("dormitories")
+
+    def all_ap_in(self):
+        """Returns all ap of the dorms"""
+        return AccessPoint.all_ap_in(self.building_set.all())
+
+    def __str__(self):
+        return self.name
+
+
 class Building(AclMixin, RevMixin, models.Model):
     """Un batiment"""
 
     name = models.CharField(max_length=255)
+    dormitory = models.ForeignKey(
+        'Dormitory',
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
         permissions = (
@@ -533,7 +559,10 @@ class Building(AclMixin, RevMixin, models.Model):
         return AccessPoint.all_ap_in(self)
 
     def __str__(self):
-        return self.name
+        if Dormitory.objects.count() > 1:
+            return self.dormitory.name + " : " + self.name
+        else:
+            return self.name
 
 
 class Port(AclMixin, RevMixin, models.Model):
@@ -703,19 +732,27 @@ class Port(AclMixin, RevMixin, models.Model):
 class Room(AclMixin, RevMixin, models.Model):
     """Une chambre/local contenant une prise murale"""
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     details = models.CharField(max_length=255, blank=True)
+    building = models.ForeignKey(
+        'Building',
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ['building__name']
         permissions = (
             ("view_room", _("Can view a room object")),
         )
         verbose_name = _("room")
         verbose_name_plural = _("rooms")
+        unique_together = ('name', 'building')
 
     def __str__(self):
-        return self.name
+        if Dormitory.objects.count() > 1:
+            return self.building.dormitory.name + " : " + self.building.name + self.name
+        else:
+            return self.building.name + self.name
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):

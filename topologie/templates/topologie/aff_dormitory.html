@@ -26,40 +26,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
-{% if room_list.paginator %}
-    {% include 'pagination.html' with list=room_list %}
+{% if dormitory_list.paginator %}
+    {% include 'pagination.html' with list=dormitory_list %}
 {% endif %}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            {% trans "Room" as tr_room %}
-            {% trans "Building" as tr_building %}
-            <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
-            <th>{% include 'buttons/sort.html' with prefix='room' col='name' text=tr_room %}</th>
-            <th>{% trans "Details" %}</th>
+            {% trans "Dormitory" as tr_dormitory %}
+            <th>{% include 'buttons/sort.html' with prefix='dormitory' col='name' text=tr_dormitory %}</th>
+            <th>{% trans "Building" %}</th>
             <th></th>
         </tr>
     </thead>
-    {% for room in room_list %}
+    {% for dormitory in dormitory_list %}
     <tr>
-        <td>{{ room.building }}</td>
-        <td>{{ room.name }}</td>
-        <td>{{ room.details }}</td>
+        <td>{{ dormitory.name }}</td>
+        <td>{% for building in dormitory.building_set.all %} {{ building }} {% endfor %}</td>
         <td class="text-right">
-            {% can_edit room %}
-            {% include 'buttons/edit.html' with href='topologie:edit-room' id=room.id %}
+            {% can_edit dormitory %}
+            {% include 'buttons/edit.html' with href='topologie:edit-dormitory' id=dormitory.id %}
             {% acl_end %}
-            {% history_button room %}
-            {% can_delete room %}
-            {% include 'buttons/suppr.html' with href='topologie:del-room' id=room.id %}
+            {% history_button dormitory %}
+            {% can_delete dormitory %}
+	    {% include 'buttons/suppr.html' with href='topologie:del-dormitory' id=dormitory.id %}
             {% acl_end %}
         </td>
     </tr>
     {% endfor %}
 </table>
 
-{% if room_list.paginator %}
-    {% include 'pagination.html' with list=room_list %}
+{% if dormitory_list.paginator %}
+    {% include 'pagination.html' with list=dormitory_list %}
 {% endif %}
 

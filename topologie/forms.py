@@ -54,6 +54,7 @@ from .models import (
     AccessPoint,
     SwitchBay,
     Building,
+    Dormitory,
     PortProfile,
     ModuleSwitch,
     ModuleOnSwitch,
@@ -258,6 +259,18 @@ class EditBuildingForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(EditBuildingForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class EditDormitoryForm(FormRevMixin, ModelForm):
+    """Permet d'éditer la residence"""
+    class Meta:
+        model = Dormitory
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(EditDormitoryForm, self).__init__(*args, prefix=prefix, **kwargs)
+
 
 class EditPortProfileForm(FormRevMixin, ModelForm):
     """Form to edit a port profile"""
