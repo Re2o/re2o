@@ -194,10 +194,15 @@ class SortTable:
     }
     TOPOLOGIE_INDEX_ROOM = {
         'room_name': ['name'],
-        'default': ['name']
+        'building_name': ['building__name'],
+        'default': ['building__name', 'name']
     }
     TOPOLOGIE_INDEX_BUILDING = {
         'building_name': ['name'],
+        'default': ['name']
+    }
+    TOPOLOGIE_INDEX_DORMITORY = {
+        'dormitory_name': ['name'],
         'default': ['name']
     }
     TOPOLOGIE_INDEX_BORNE = {

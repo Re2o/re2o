@@ -35,13 +35,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             {% trans "Building" as tr_building %}
             <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
-            <th>{% trans "Access points" %}</th>
+	    <th>{% trans "Access points" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for building in building_list %}
     <tr>
-        <td>{{ building.name }}</td>
+        <td>{{ building.cached_name }}</td>
         <td>{% for ap in building.all_ap_in %} {{ ap.short_name }} {% endfor %}</td>
         <td class="text-right">
             {% can_edit building %}

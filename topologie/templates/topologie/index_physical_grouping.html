@@ -55,5 +55,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <hr>
     {% acl_end %}
     {% include 'topologie/aff_building.html' with building_list=building_list %}
+
+
+    <h2>{% trans "Dormitories" %}</h2>
+    {% can_create Dormitory %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-dormitory' %}">
+	<i class="fa fa-plus"></i>{% trans " Add a dormitory" %}
+    </a>
+    <hr>
+    {% acl_end %}
+    {% include 'topologie/aff_dormitory.html' with dormitory_list=dormitory_list %}
 {% endblock %}
 
