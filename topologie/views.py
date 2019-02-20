@@ -914,7 +914,8 @@ def del_switch_bay(request, switch_bay, **_kwargs):
 @login_required
 @can_create(Building)
 def new_building(request):
-    """Nouveau batiment"""
+    """New Building of a dorm
+    Nouveau batiment"""
     building = EditBuildingForm(request.POST or None)
     if building.is_valid():
         building.save()
@@ -930,7 +931,8 @@ def new_building(request):
 @login_required
 @can_edit(Building)
 def edit_building(request, building, **_kwargs):
-    """ Edition d'un batiment"""
+    """Edit a building
+    Edition d'un batiment"""
     building = EditBuildingForm(request.POST or None, instance=building)
     if building.is_valid():
         if building.changed_data:
@@ -947,7 +949,8 @@ def edit_building(request, building, **_kwargs):
 @login_required
 @can_delete(Building)
 def del_building(request, building, **_kwargs):
-    """ Suppression d'un batiment"""
+    """Delete a building
+    Suppression d'un batiment"""
     if request.method == "POST":
         try:
             building.delete()
@@ -969,7 +972,8 @@ def del_building(request, building, **_kwargs):
 @login_required
 @can_create(Dormitory)
 def new_dormitory(request):
-    """Nouvelle residence"""
+    """A new dormitory
+    Nouvelle residence"""
     dormitory = EditDormitoryForm(request.POST or None)
     if dormitory.is_valid():
         dormitory.save()
@@ -985,7 +989,8 @@ def new_dormitory(request):
 @login_required
 @can_edit(Dormitory)
 def edit_dormitory(request, dormitory, **_kwargs):
-    """ Edition d'une residence"""
+    """Edit a dormitory
+    Edition d'une residence"""
     dormitory = EditDormitoryForm(request.POST or None, instance=dormitory)
     if dormitory.is_valid():
         if dormitory.changed_data:
@@ -1002,7 +1007,8 @@ def edit_dormitory(request, dormitory, **_kwargs):
 @login_required
 @can_delete(Dormitory)
 def del_dormitory(request, dormitory, **_kwargs):
-    """ Suppression d'une residence"""
+    """Delete a dormitory
+    Suppression d'une residence"""
     if request.method == "POST":
         try:
             dormitory.delete()
