@@ -517,8 +517,8 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
 
 
 class Dormitory(AclMixin, RevMixin, models.Model):
-    """Une résidence universitaire
-    A residence"""
+    """A student accomodation/dormitory
+    Une résidence universitaire"""
 
     name = models.CharField(max_length=255)
 
@@ -539,7 +539,8 @@ class Dormitory(AclMixin, RevMixin, models.Model):
 
 
 class Building(AclMixin, RevMixin, models.Model):
-    """Un batiment"""
+    """A building of a dormitory
+    Un batiment"""
 
     name = models.CharField(max_length=255)
     dormitory = models.ForeignKey(
