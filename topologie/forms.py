@@ -262,7 +262,7 @@ class EditBuildingForm(FormRevMixin, ModelForm):
 
 
 class EditDormitoryForm(FormRevMixin, ModelForm):
-    """Permet d'éditer la residence"""
+    """Enable dormitory edition"""
     class Meta:
         model = Dormitory
         fields = '__all__'
