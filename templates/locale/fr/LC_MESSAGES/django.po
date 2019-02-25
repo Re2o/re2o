@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-12 08:58+0100\n"
+"POT-Creation-Date: 2019-02-25 20:36+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,161 +30,380 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/base.html:43 templates/errors/404.html:35
+#: templates/admin/actions.html:5
+msgid "Run the selected action"
+msgstr ""
+
+#: templates/admin/actions.html:5
+msgid "Go"
+msgstr ""
+
+#: templates/admin/actions.html:11
+msgid "Click here to select the objects across all pages"
+msgstr ""
+
+#: templates/admin/actions.html:11
+#, python-format
+msgid "Select all %(total_count)s %(module_name)s"
+msgstr ""
+
+#: templates/admin/actions.html:13
+msgid "Clear selection"
+msgstr ""
+
+#: templates/admin/app_index.html:10 templates/admin/change_form.html:19
+#: templates/admin/change_list.html:32
+#: templates/admin/delete_confirmation.html:15
+#: templates/admin/delete_selected_confirmation.html:15
+#: templates/admin/object_history.html:7 templates/base.html:72
+msgid "Home"
+msgstr ""
+
+#: templates/admin/base_site.html:7
+msgid "Django administration"
+msgstr "Administration Django"
+
+#: templates/admin/change_form.html:22 templates/admin/change_list.html:50
+#, python-format
+msgid "Add %(name)s"
+msgstr ""
+
+#: templates/admin/change_form.html:34 templates/admin/object_history.html:11
+#: templates/buttons/history.html:26 templates/buttons/history.html:27
+msgid "History"
+msgstr ""
+
+#: templates/admin/change_form.html:36
+#: templates/admin/edit_inline/stacked.html:22
+#: templates/admin/edit_inline/tabular.html:36
+msgid "View on site"
+msgstr ""
+
+#: templates/admin/change_form.html:48 templates/admin/change_list.html:59
+msgid "Please correct the error below."
+msgstr ""
+
+#: templates/admin/change_form.html:48 templates/admin/change_list.html:59
+msgid "Please correct the errors below."
+msgstr ""
+
+#: templates/admin/change_list.html:70
+msgid "Filter"
+msgstr ""
+
+#: templates/admin/change_list_results.html:18
+msgid "Remove from sorting"
+msgstr ""
+
+#: templates/admin/change_list_results.html:19
+#, python-format
+msgid "Sorting priority: %(priority_number)s"
+msgstr ""
+
+#: templates/admin/change_list_results.html:20
+msgid "Toggle sorting"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:19
+#: templates/admin/submit_line.html:12 templates/admin/submit_line.html:15
+#: templates/buttons/suppr.html:27
+msgid "Delete"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:25
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
+"related objects, but your account doesn't have permission to delete the "
+"following types of objects:"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:32
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
+"following protected related objects:"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:39
+#, python-format
+msgid ""
+"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
+"All of the following related items will be deleted:"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:41
+#: templates/admin/delete_selected_confirmation.html:40
+msgid "Objects"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:48
+#: templates/admin/delete_selected_confirmation.html:51
+msgid "Yes, I'm sure"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:49
+#: templates/admin/delete_selected_confirmation.html:52
+msgid "No, take me back"
+msgstr ""
+
+#: templates/admin/delete_selected_confirmation.html:18
+msgid "Delete multiple objects"
+msgstr ""
+
+#: templates/admin/delete_selected_confirmation.html:24
+#, python-format
+msgid ""
+"Deleting the selected %(objects_name)s would result in deleting related "
+"objects, but your account doesn't have permission to delete the following "
+"types of objects:"
+msgstr ""
+
+#: templates/admin/delete_selected_confirmation.html:31
+#, python-format
+msgid ""
+"Deleting the selected %(objects_name)s would require deleting the following "
+"protected related objects:"
+msgstr ""
+
+#: templates/admin/delete_selected_confirmation.html:38
+#, python-format
+msgid ""
+"Are you sure you want to delete the selected %(objects_name)s? All of the "
+"following objects and their related items will be deleted:"
+msgstr ""
+
+#: templates/admin/edit_inline/tabular.html:21
+msgid "Delete?"
+msgstr ""
+
+#: templates/admin/index.html:19
+#, python-format
+msgid "Models in the %(name)s application"
+msgstr ""
+
+#: templates/admin/index.html:34
+msgid "You don't have permission to edit anything."
+msgstr ""
+
+#: templates/admin/object_history.html:23
+msgid "Date/time"
+msgstr ""
+
+#: templates/admin/object_history.html:24
+msgid "User"
+msgstr ""
+
+#: templates/admin/object_history.html:25
+msgid "Action"
+msgstr ""
+
+#: templates/admin/object_history.html:39
+msgid ""
+"This object doesn't have a change history. It probably wasn't added via this "
+"admin site."
+msgstr ""
+
+#: templates/admin/pagination.html:11 templates/admin/search_form.html:13
+msgid "Show all"
+msgstr ""
+
+#: templates/admin/pagination.html:12 templates/admin/submit_line.html:5
+#: templates/admin/submit_line.html:7
+msgid "Save"
+msgstr ""
+
+#: templates/admin/related_widget_wrapper.html:10
+#, python-format
+msgid "Change selected %(model)s"
+msgstr ""
+
+#: templates/admin/related_widget_wrapper.html:17
+#, python-format
+msgid "Add another %(model)s"
+msgstr ""
+
+#: templates/admin/related_widget_wrapper.html:24
+#, python-format
+msgid "Delete selected %(model)s"
+msgstr ""
+
+#: templates/admin/search_form.html:6 templates/admin/search_form.html:8
+#: templates/base.html:169
+msgid "Search"
+msgstr ""
+
+#: templates/admin/search_form.html:13
+#, python-format
+msgid "%(counter)s result"
+msgid_plural "%(counter)s results"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/admin/search_form.html:13
+#, python-format
+msgid "%(full_result_count)s total"
+msgstr ""
+
+#: templates/admin/submit_line.html:19 templates/admin/submit_line.html:21
+msgid "Save as new"
+msgstr ""
+
+#: templates/admin/submit_line.html:25 templates/admin/submit_line.html:28
+msgid "Save and add another"
+msgstr ""
+
+#: templates/admin/submit_line.html:32 templates/admin/submit_line.html:35
+msgid "Save and continue editing"
+msgstr ""
+
+#: templates/base.html:44 templates/errors/404.html:35
 msgid "Networking managing website endorsed by FedeRez."
 msgstr "Site de gestion de réseau soutenu par FedeRez."
 
-#: templates/base.html:70
-msgid "Home"
-msgstr "Accueil"
-
-#: templates/base.html:91
+#: templates/base.html:96
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: templates/base.html:94
+#: templates/base.html:99
 msgid "Manage the users"
 msgstr "Gérer les utilisateurs"
 
-#: templates/base.html:95
+#: templates/base.html:102
 msgid "Manage the clubs"
 msgstr "Gérer les clubs"
 
-#: templates/base.html:98
+#: templates/base.html:106
 msgid "Manage the machines"
 msgstr "Gérer les machines"
 
-#: templates/base.html:101
+#: templates/base.html:110
 msgid "Manage the subscriptions"
 msgstr "Gérer les cotisations"
 
-#: templates/base.html:108
+#: templates/base.html:118
 msgid "Topology"
 msgstr "Topologie"
 
-#: templates/base.html:110
+#: templates/base.html:121
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: templates/base.html:111
+#: templates/base.html:124
 msgid "Access points"
 msgstr "Points d'accès sans fil"
 
-#: templates/base.html:112
+#: templates/base.html:125
 msgid "Rooms"
 msgstr "Chambres"
 
-#: templates/base.html:117
+#: templates/base.html:131
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/base.html:122
+#: templates/base.html:136
 msgid "Administration"
 msgstr "Administration"
 
-#: templates/base.html:129
+#: templates/base.html:144
 msgid "More information"
 msgstr "Plus d'informations"
 
-#: templates/base.html:131
+#: templates/base.html:147
 msgid "About"
 msgstr "À propos"
 
-#: templates/base.html:132
+#: templates/base.html:148
 msgid "Contact"
 msgstr "Contact"
 
-#: templates/base.html:139
+#: templates/base.html:155
 msgid "Sign up"
 msgstr "S'inscrire"
 
-#: templates/base.html:145 templates/registration/login.html:29
+#: templates/base.html:161 templates/registration/login.html:29
 #: templates/registration/login.html:36
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/base.html:153
-msgid "Search"
-msgstr "Rechercher"
-
-#: templates/base.html:167
+#: templates/base.html:188
 msgid "My profile"
 msgstr "Mon profil"
 
-#: templates/base.html:168
+#: templates/base.html:190
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/base.html:203
+#: templates/base.html:231
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:207
+#: templates/base.html:235
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:211
+#: templates/base.html:239
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: templates/base.html:214
+#: templates/base.html:243
 #, python-format
 msgid "Until %(end_access_date)s"
-msgstr "Jusqu'au %(end_access_date)s"
+msgstr ""
 
-#: templates/base.html:216
+#: templates/base.html:246
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/base.html:221
+#: templates/base.html:251
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:224
+#: templates/base.html:255
 #, python-format
 msgid "Until %(end_adhesion_date)s"
 msgstr "Jusqu'au %(end_adhesion_date)s"
 
-#: templates/base.html:226
+#: templates/base.html:258
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: templates/base.html:234
+#: templates/base.html:267
 msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:239
+#: templates/base.html:272
 msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
-#: templates/base.html:246
+#: templates/base.html:279
 #, python-format
 msgid "%(nb)s active machine"
 msgid_plural "%(nb)s active machines"
 msgstr[0] "%(nb)s machine active"
 msgstr[1] "%(nb)s machines actives"
 
-#: templates/base.html:255
+#: templates/base.html:289
 msgid "View my machines"
 msgstr "Voir mes machines"
 
-#: templates/base.html:268
+#: templates/base.html:302
 msgid "Back to top"
 msgstr "Retour en haut"
 
-#: templates/base.html:270
+#: templates/base.html:304
 msgid "powered by"
 msgstr "propulsé par"
 
-#: templates/base.html:272
+#: templates/base.html:306
 msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
 msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
 
-#: templates/base.html:275
+#: templates/base.html:309
 msgid "About this website"
 msgstr "À propos de ce site"
 
-#: templates/base.html:278
+#: templates/base.html:312
 msgid ""
 "This software is under the terms of the <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
@@ -200,10 +419,6 @@ msgstr "Ajouter"
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/buttons/history.html:26 templates/buttons/history.html:27
-msgid "History"
-msgstr "Historique"
-
 #: templates/buttons/setlang.html:34
 msgid "Translation in development"
 msgstr "Traduction en développement"
@@ -215,10 +430,6 @@ msgstr "Tri croissant"
 #: templates/buttons/sort.html:36
 msgid "Descending sort"
 msgstr "Tri décroissant"
-
-#: templates/buttons/suppr.html:27
-msgid "Delete"
-msgstr "Supprimer"
 
 #: templates/errors/404.html:39
 msgid "404 error: page not found"
@@ -318,3 +529,8 @@ msgstr "Dernière page"
 #: templates/registration/login.html:40
 msgid "Forgotten password?"
 msgstr "Mot de passe oublié ?"
+
+#: templates/reversion/change_list.html:8
+#, python-format
+msgid "Recover deleted %(name)s"
+msgstr "Récupérer des %(name)s supprimés"

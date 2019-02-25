@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-12 08:58+0100\n"
+"POT-Creation-Date: 2019-02-25 20:36+0100\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -761,7 +761,6 @@ msgstr[1] "Total: %(perm_count)s permissions"
 #: users/templates/users/index_emailaddress.html:29
 #: users/templates/users/index_listright.html:30
 #: users/templates/users/index_rights.html:29
-#: users/templates/users/index_schools.html:30
 #: users/templates/users/index_serviceusers.html:30
 #: users/templates/users/index_shell.html:30
 #: users/templates/users/index_whitelist.html:29
@@ -835,22 +834,6 @@ msgstr " Supprimer un ou plusieurs groupes de droits"
 #: users/templates/users/index_rights.html:32
 msgid "Rights"
 msgstr "Droits"
-
-#: users/templates/users/index_schools.html:33
-msgid "List of schools"
-msgstr "Liste des établissements"
-
-#: users/templates/users/index_schools.html:34
-msgid "List of schools for created users"
-msgstr "Liste des établissements pour les utilisateurs créés"
-
-#: users/templates/users/index_schools.html:36
-msgid " Add a school"
-msgstr " Ajouter un établissement"
-
-#: users/templates/users/index_schools.html:38
-msgid " Delete one or several schools"
-msgstr " Supprimer un ou plusieurs établissements"
 
 #: users/templates/users/index_serviceusers.html:33
 msgid "List of LDAP service users"
@@ -971,7 +954,7 @@ msgstr " Informations détaillées"
 msgid "Edit"
 msgstr "Modifier"
 
-#: users/templates/users/profil.html:138 users/views.py:286 users/views.py:1084
+#: users/templates/users/profil.html:138 users/views.py:286 users/views.py:1022
 msgid "Change the password"
 msgstr "Changer le mot de passe"
 
@@ -1252,7 +1235,7 @@ msgstr "Modifier l'état"
 msgid "The groups were edited."
 msgstr "Les groupes ont été modifiés."
 
-#: users/views.py:280 users/views.py:1081
+#: users/views.py:280 users/views.py:1019
 msgid "The password was changed."
 msgstr "Le mot de passe a été changé."
 
@@ -1358,79 +1341,47 @@ msgstr "Les paramètres mail ont été modifiés."
 msgid "Edit the email settings"
 msgstr "Modifier les paramètres mail"
 
-#: users/views.py:608
-msgid "The school was added."
-msgstr "L'établissement a été ajouté."
-
-#: users/views.py:611
-msgid "Add a school"
-msgstr "Ajouter un établissement"
-
-#: users/views.py:626
-msgid "The school was edited."
-msgstr "L'établissement a été modifié."
-
-#: users/views.py:629
-msgid "Edit a school"
-msgstr "Modifier un établissement"
-
-#: users/views.py:648
-msgid "The school was deleted."
-msgstr "L'établissement a été supprimé."
-
-#: users/views.py:652
-#, python-format
-msgid ""
-"The school %s is assigned to at least one user, impossible to delete it."
-msgstr ""
-"L'établissement %s est assigné à au moins un utilisateur, impossible de le "
-"supprimer."
-
-#: users/views.py:656 users/views.py:768
-msgid "Delete"
-msgstr "Supprimer"
-
-#: users/views.py:669
+#: users/views.py:607
 msgid "The shell was added."
 msgstr "L'interface en ligne de commande a été ajoutée."
 
-#: users/views.py:672
+#: users/views.py:610
 msgid "Add a shell"
 msgstr "Ajouter une interface en ligne de commande"
 
-#: users/views.py:686
+#: users/views.py:624
 msgid "The shell was edited."
 msgstr "L'interface en ligne de commande a été modifiée."
 
-#: users/views.py:689
+#: users/views.py:627
 msgid "Edit a shell"
 msgstr "Modifier une interface en ligne de commande"
 
-#: users/views.py:701
+#: users/views.py:639
 msgid "The shell was deleted."
 msgstr "L'interface en ligne de commande a été supprimée."
 
-#: users/views.py:718
+#: users/views.py:656
 msgid "The group of rights was added."
 msgstr "Le groupe de droits a été ajouté."
 
-#: users/views.py:721
+#: users/views.py:659
 msgid "Add a group of rights"
 msgstr "Ajouter un groupe de droits"
 
-#: users/views.py:739
+#: users/views.py:677
 msgid "The group of rights was edited."
 msgstr "Le groupe de droits a été modifié."
 
-#: users/views.py:742
+#: users/views.py:680
 msgid "Edit a group of rights"
 msgstr "Modifier un groupe de droits"
 
-#: users/views.py:759
+#: users/views.py:697
 msgid "The group of rights was deleted."
 msgstr "Le groupe de droits a été supprimé."
 
-#: users/views.py:764
+#: users/views.py:702
 #, python-format
 msgid ""
 "The group of rights %s is assigned to at least one user, impossible to "
@@ -1439,40 +1390,44 @@ msgstr ""
 "Le groupe de droits %s est assigné à au moins un utilisateur, impossible de "
 "le supprimer."
 
-#: users/views.py:792
+#: users/views.py:706
+msgid "Delete"
+msgstr "Supprimer"
+
+#: users/views.py:730
 msgid "Archiving"
 msgstr "Archivage"
 
-#: users/views.py:793
+#: users/views.py:731
 #, python-format
 msgid "%s users were archived."
 msgstr "%s utilisateurs ont été archivés."
 
-#: users/views.py:1043
+#: users/views.py:981
 msgid "The user doesn't exist."
 msgstr "L'utilisateur n'existe pas."
 
-#: users/views.py:1045 users/views.py:1053
+#: users/views.py:983 users/views.py:991
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: users/views.py:1050
+#: users/views.py:988
 msgid "An email to reset the password was sent."
 msgstr "Un mail pour réinitialiser le mot de passe a été envoyé."
 
-#: users/views.py:1067
+#: users/views.py:1005
 msgid "Error: please contact an admin."
 msgstr "Erreur : veuillez contacter un admin."
 
-#: users/views.py:1079
+#: users/views.py:1017
 msgid "Password reset"
 msgstr "Réinitialisation du mot de passe"
 
-#: users/views.py:1096
+#: users/views.py:1034
 msgid "Incorrect URL, or already registered device."
 msgstr "URL incorrect, ou appareil déjà enregistré."
 
-#: users/views.py:1104
+#: users/views.py:1042
 msgid ""
 "Successful registration! Please disconnect and reconnect your Ethernet cable "
 "to get Internet access."
@@ -1480,7 +1435,7 @@ msgstr ""
 "Enregistrement réussi ! Veuillez débrancher et rebrancher votre câble "
 "Ethernet pour avoir accès à Internet."
 
-#: users/views.py:1148 users/views.py:1172 users/views.py:1187
+#: users/views.py:1086 users/views.py:1110 users/views.py:1125
 msgid "The mailing list doesn't exist."
 msgstr "La liste de diffusion n'existe pas."
 

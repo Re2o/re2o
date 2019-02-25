@@ -240,8 +240,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <td class="text-right">
                                 {% if request_user.has_access %}
                                     <i class="text-success">
-                                        {% blocktrans with end_access_date=request.user.end_access|date:"d b Y" %}Until
-                                            {{ end_access_date }}{% endblocktrans %}</i>
+                                        {% blocktrans with end_access_date=request.user.end_access|date:"d b Y" %}Until {{ end_access_date }}{% endblocktrans %}</i>
                                 {% else %}
                                     <i class="text-danger">{% trans "Disabled" %}</i>
                                 {% endif %}
@@ -252,8 +251,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <td class="text-right">
                                 {% if request_user.is_adherent %}
                                     <i class="text-success">
-                                        {% blocktrans with end_adhesion_date=request_user.end_adhesion|date:"d b Y" %}
-                                            Until {{ end_adhesion_date }}{% endblocktrans %}</i>
+                                        {% blocktrans with end_adhesion_date=request_user.end_adhesion|date:"d b Y" %}Until {{ end_adhesion_date }}{% endblocktrans %}</i>
                                 {% else %}
                                     <i class="text-danger">{% trans "Non member" %}</i>
                                 {% endif %}
@@ -276,8 +274,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if request_user.is_authenticated %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} active machine{% plural %}{{ nb }}
-                            active machines{% endblocktrans %}</h4>
+                        <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} active machine{% plural %}{{ nb }} active machines{% endblocktrans %}</h4>
                     </div>
                     <ul class="list-group">
                         {% for interface in interfaces|slice:":5" %}
