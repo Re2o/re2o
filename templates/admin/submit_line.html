@@ -1,63 +1,38 @@
-{% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
-se veut agnostique au réseau considéré, de manière à être installable en
-quelques clics.
-
-Copyright © 2019 Alexandre Iooss
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-{% endcomment %}
-
+{# Please keep this template in sync with django/contrib/admin one #}
 {% load i18n admin_urls %}
-<div class="btn-group-vertical">
-    {% if show_save %}
-        <button type="submit" title="{% trans 'Save' %}" class="btn btn-success" name="_save">
-            <span class="glyphicon glyphicon-floppy-disk"></span>
-            <span class="text">{% trans 'Save' %}</span>
-        </button>
-    {% endif %}
-
-    {% if show_delete_link %}
-        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
-        <a title="{% trans "Delete" %}" class="btn btn-danger"
-           href="{% add_preserved_filters delete_url %}">
-            <span class="glyphicon glyphicon-trash"></span>
-            <span class="text">{% trans "Delete" %}</span>
-        </a>
-    {% endif %}
-
-    {% if show_save_as_new %}
-        <button type="submit" class="btn btn-success" title="{% trans 'Save as new' %}" name="_saveasnew">
-            <span class="glyphicon glyphicon-plus"></span>
-            <span class="text">{% trans 'Save as new' %}</span>
-        </button>
-    {% endif %}
-
-    {% if show_save_and_add_another %}
-        <button type="submit" class="btn btn-default" title="{% trans 'Save and add another' %}" name="_addanother"
-                style="white-space:normal !important; word-wrap: break-word;">
-            <span class="glyphicon glyphicon-plus"></span>
-            <span class="text">{% trans 'Save and add another' %}</span>
-        </button>
-    {% endif %}
-
-    {% if show_save_and_continue %}
-        <button type="submit" class="btn btn-default" title="{% trans 'Save and continue editing' %}" name="_continue"
-                style="white-space:normal !important; word-wrap: break-word;">
-            <span class="glyphicon glyphicon-pencil"></span>
-            <span class="text">{% trans 'Save and continue editing' %}</span>
-        </button>
-    {% endif %}
+<div class="submit-row">
+{% if show_save %}
+    <button type="submit" title="{% trans 'Save' %}" class="btn btn-success" name="_save">
+        <span class="glyphicon glyphicon-floppy-disk"></span>
+        <span class="text">{% trans 'Save' %}</span>
+    </button>
+{% endif %}
+{% if show_delete_link %}
+    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+    <a title="{% trans "Delete" %}" class="btn btn-danger"
+       href="{% add_preserved_filters delete_url %}">
+        <span class="glyphicon glyphicon-trash"></span>
+        <span class="text">{% trans "Delete" %}</span>
+    </a>
+{% endif %}
+{% if show_save_as_new %}
+    <button type="submit" class="btn btn-success" title="{% trans 'Save as new' %}" name="_saveasnew">
+        <span class="glyphicon glyphicon-plus"></span>
+        <span class="text">{% trans 'Save as new' %}</span>
+    </button>
+{% endif %}
+{% if show_save_and_add_another %}
+    <button type="submit" class="btn btn-default" title="{% trans 'Save and add another' %}" name="_addanother"
+            style="white-space:normal !important; word-wrap: break-word;">
+        <span class="glyphicon glyphicon-plus"></span>
+        <span class="text">{% trans 'Save and add another' %}</span>
+    </button>
+{% endif %}
+{% if show_save_and_continue %}
+    <button type="submit" class="btn btn-default" title="{% trans 'Save and continue editing' %}" name="_continue"
+            style="white-space:normal !important; word-wrap: break-word;">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="text">{% trans 'Save and continue editing' %}</span>
+    </button>
+{% endif %}
 </div>

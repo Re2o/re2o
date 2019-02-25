@@ -1,0 +1,11 @@
+{# Please keep this template in sync with reversion one #}
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+
+{% block object-tools-items %}
+    {% if not is_popup and has_add_permission and has_change_permission %}
+        <li><a href="{% url opts|admin_urlname:'recoverlist' %}" class="recoverlink btn btn-default btn-sm"><span class="glyphicon glyphicon-repeat"></span> {% blocktrans with cl.opts.verbose_name_plural|escape as name %}Recover deleted {{name}}{% endblocktrans %}</a></li>
+    {% endif %}
+    {{block.super}}
+{% endblock %}
