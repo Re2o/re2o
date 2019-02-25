@@ -349,7 +349,7 @@ msgstr "Accès Internet"
 #: templates/base.html:243
 #, python-format
 msgid "Until %(end_access_date)s"
-msgstr ""
+msgstr "Jusqu'au %(end_access_date)s"
 
 #: templates/base.html:246
 msgid "Disabled"
