@@ -6,11 +6,11 @@
     {% if actions_selection_counter %}
         <span class="action-counter label label-info" data-actions-icnt="{{ cl.result_list|length }}">{{ selection_note }}</span>
         {% if cl.result_count != cl.result_list|length %}
-        <span class="all label label-info">{{ selection_note_all }}</span>
-        <span class="question label label-primary">
+        <span class="all label label-info" style="display: none;">{{ selection_note_all }}</span>
+        <span class="question label label-primary" style="display: none;">
             <a href="#" title="{% trans "Click here to select the objects across all pages" %}">{% blocktrans with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktrans %}</a>
         </span>
-        <span class="clear label label-warning"><a href="#">{% trans "Clear selection" %}</a></span>
+        <span class="clear label label-warning" style="display: none;"><a href="#">{% trans "Clear selection" %}</a></span>
         {% endif %}
     {% endif %}
 </div>
