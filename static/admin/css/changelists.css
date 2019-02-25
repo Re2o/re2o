@@ -1,0 +1,27 @@
+/* Keep hidden fields hidden, can be removed with Bootstrap 4 */
+.hiddenfields {
+    display: none;
+}
+
+/* Checkbox column should be small */
+#result_list .action-checkbox-column,
+#result_list .action-checkbox {
+    width: 40px;
+    text-align: center;
+}
+
+/* For sortable columns */
+.sortable .text {
+    float: left;
+}
+
+.sortoptions {
+    float: right;
+    font-size: 12px;
+    position: relative;
+    top: 2px;
+}
+
+.sortoptions .sortpriority {
+    display: none;
+}
