@@ -45,48 +45,44 @@ dupliqués.
 
 from __future__ import unicode_literals
 
-import re
-import uuid
 import datetime
+import re
 import sys
+import traceback
+import uuid
 
-from django.db import models
-from django.db.models import Q
+import ldapdb.models.fields
 from django import forms
-from django.forms import ValidationError
-from django.db.models.signals import post_save, post_delete, m2m_changed
-from django.dispatch import receiver
-from django.utils.functional import cached_property
-from django.template import Context, loader
-from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
-from django.db import transaction
-from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
     Group
 )
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
-import traceback
+from django.db import models
+from django.db import transaction
+from django.db.models import Q
+from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.dispatch import receiver
+from django.forms import ValidationError
+from django.template import Context, loader
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-
 from reversion import revisions as reversion
-
-import ldapdb.models
-import ldapdb.models.fields
-
-from re2o.settings import LDAP, GID_RANGES, UID_RANGES
-from re2o.login import hashNT
-from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin, RevMixin
-from re2o.base import smtp_check
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
+from re2o.base import smtp_check
+from re2o.field_permissions import FieldPermissionModelMixin
+from re2o.login import hashNT
+from re2o.mixins import AclMixin, RevMixin
+from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 
 
 # Utilitaires généraux
@@ -1323,7 +1319,10 @@ def service_user_post_delete(**kwargs):
 class School(RevMixin, AclMixin, models.Model):
     """ Etablissement d'enseignement"""
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        verbose_name=_("name"),
+        max_length=255
+    )
 
     class Meta:
         permissions = (
@@ -1407,7 +1406,11 @@ class ListShell(RevMixin, AclMixin, models.Model):
     """Un shell possible. Pas de check si ce shell existe, les
     admin sont des grands"""
 
-    shell = models.CharField(max_length=255, unique=True)
+    shell = models.CharField(
+        verbose_name=_("shell"),
+        max_length=255,
+        unique=True
+    )
 
     class Meta:
         permissions = (
@@ -1415,7 +1418,6 @@ class ListShell(RevMixin, AclMixin, models.Model):
         )
         verbose_name = _("shell")
         verbose_name_plural = _("shells")
-
 
     def get_pretty_name(self):
         """Return the canonical name of the shell"""
