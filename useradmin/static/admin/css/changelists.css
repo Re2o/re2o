@@ -3,6 +3,11 @@
     display: none;
 }
 
+/* Actions buttons should not be glued to table */
+.results {
+    margin-top: 20px;
+}
+
 /* Checkbox column should be small */
 #result_list .action-checkbox-column,
 #result_list .action-checkbox {
