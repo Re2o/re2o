@@ -87,7 +87,7 @@ class LdapServiceUserGroupAdmin(admin.ModelAdmin):
 
 class SchoolAdmin(VersionAdmin):
     """Administration, gestion des écoles"""
-    pass
+    list_display = ('name',)
 
 
 class ListRightAdmin(VersionAdmin):
@@ -98,7 +98,7 @@ class ListRightAdmin(VersionAdmin):
 
 class ListShellAdmin(VersionAdmin):
     """Gestion de la liste des shells coté admin"""
-    pass
+    list_display = ('shell',)
 
 
 class RequestAdmin(admin.ModelAdmin):
