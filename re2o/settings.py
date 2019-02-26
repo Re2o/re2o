@@ -55,6 +55,9 @@ LOGIN_URL = '/login/'           # The URL for login page
 LOGIN_REDIRECT_URL = '/'        # The URL for redirecting after login
 
 # Application definition
+CUSTOM_ADMIN = (
+    'useradmin',
+)
 DJANGO_CONTRIB_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,6 +82,7 @@ LOCAL_APPS = (
     'logs',
 )
 INSTALLED_APPS = (
+    CUSTOM_ADMIN +
     DJANGO_CONTRIB_APPS +
     EXTERNAL_CONTRIB_APPS +
     LOCAL_APPS +

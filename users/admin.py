@@ -32,7 +32,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from re2o.admin import user_admin_site
+from useradmin.admin import user_admin_site
 
 from .models import (
     User,

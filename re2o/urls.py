@@ -48,7 +48,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from .admin import user_admin_site
+from useradmin.admin import user_admin_site
 from .views import index, about_page, contact_page
 
 handler500 = 're2o.views.handler500'
