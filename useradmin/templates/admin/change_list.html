@@ -80,6 +80,7 @@
       {% endif %}
 
       {% block result_list %}
+          {% if action_form and cl.show_admin_actions %}{% admin_actions %}{% endif %}
           {% result_list cl %}
           {% if action_form and cl.show_admin_actions %}{% admin_actions %}{% endif %}
       {% endblock %}
