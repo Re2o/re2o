@@ -71,7 +71,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </a>
     {% acl_end %}
     {% can_view_all ListShell %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-shell' %}">
+        <a class="list-group-item list-group-item-info" href="{% url 'user_admin:users_listshell_changelist' %}">
             <i class="fa fa-list-ul"></i>
 	    {% trans "Shells" %}
         </a>

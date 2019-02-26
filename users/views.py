@@ -598,54 +598,6 @@ def edit_email_settings(request, user_instance, **_kwargs):
 
 
 @login_required
-@can_create(ListShell)
-def add_shell(request):
-    """ Ajouter un shell à la base de donnée"""
-    shell = ShellForm(request.POST or None)
-    if shell.is_valid():
-        shell.save()
-        messages.success(request, _("The shell was added."))
-        return redirect(reverse('users:index-shell'))
-    return form(
-        {'userform': shell, 'action_name': _("Add a shell")},
-        'users/user.html',
-        request
-    )
-
-
-@login_required
-@can_edit(ListShell)
-def edit_shell(request, shell_instance, **_kwargs):
-    """ Editer un shell à partir du listshellid"""
-    shell = ShellForm(request.POST or None, instance=shell_instance)
-    if shell.is_valid():
-        if shell.changed_data:
-            shell.save()
-            messages.success(request, _("The shell was edited."))
-        return redirect(reverse('users:index-shell'))
-    return form(
-        {'userform': shell, 'action_name': _("Edit a shell")},
-        'users/user.html',
-        request
-    )
-
-
-@login_required
-@can_delete(ListShell)
-def del_shell(request, shell, **_kwargs):
-    """Destruction d'un shell"""
-    if request.method == "POST":
-        shell.delete()
-        messages.success(request, _("The shell was deleted."))
-        return redirect(reverse('users:index-shell'))
-    return form(
-        {'objet': shell, 'objet_name': 'shell'},
-        'users/delete.html',
-        request
-    )
-
-
-@login_required
 @can_create(ListRight)
 def add_listright(request):
     """ Ajouter un droit/groupe, nécessite droit bureau.
@@ -828,18 +780,6 @@ def index_school(request):
         request,
         'users/index_schools.html',
         {'school_list': school_list}
-    )
-
-
-@login_required
-@can_view_all(ListShell)
-def index_shell(request):
-    """ Affiche l'ensemble des shells"""
-    shell_list = ListShell.objects.order_by('shell')
-    return render(
-        request,
-        'users/index_shell.html',
-        {'shell_list': shell_list}
     )
 
 
