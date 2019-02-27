@@ -88,6 +88,7 @@ class LdapServiceUserGroupAdmin(admin.ModelAdmin):
 class SchoolAdmin(VersionAdmin):
     """Administration, gestion des écoles"""
     list_display = ('name',)
+    actions_on_bottom = True
 
 
 class ListRightAdmin(VersionAdmin):
@@ -99,6 +100,7 @@ class ListRightAdmin(VersionAdmin):
 class ListShellAdmin(VersionAdmin):
     """Gestion de la liste des shells coté admin"""
     list_display = ('shell',)
+    actions_on_bottom = True
 
 
 class RequestAdmin(admin.ModelAdmin):
