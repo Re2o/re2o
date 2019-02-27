@@ -28,11 +28,11 @@
 
 {% if not is_popup %}
 {% block breadcrumbs %}
-<ol class="breadcrumb"><li class="home">
+<div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-</li><li><a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
-</li><li class="active">{{ cl.opts.verbose_name_plural|capfirst }}
-</li></ol>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+&rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+</div>
 {% endblock %}
 {% endif %}
 
