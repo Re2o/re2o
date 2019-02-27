@@ -211,7 +211,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
         <div class="col-sm-8 text-left pt4">
             {# Display breadcrumbs #}
-            {% block breadcrumbs %}{% endblock %}
+            {# it is disabled until all page are fully integrated with it #}
+            {# {% block breadcrumbs %}{% endblock %} #}
 
             {# Some pages need a title block #}
             {% block content_title %}{% if title %}<h2>{{ title }}</h2>{% endif %}{% endblock %}
