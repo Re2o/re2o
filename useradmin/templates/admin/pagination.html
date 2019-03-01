@@ -4,7 +4,7 @@
 {% if pagination_required %}
 <ul class="paginator pagination">
 {% for i in page_range %}
-<li {% if cl.page_num == i %}class="active"{% endif %}>{% paginator_number cl i %}</li>
+<li {% if cl.page_num == i %}class="active"{% endif %}>{% if '.' == i %}<span>...</span>{% else %}{% paginator_number cl i %}{% endif %}</li>
 {% endfor %}
 </ul>
 {% endif %}
