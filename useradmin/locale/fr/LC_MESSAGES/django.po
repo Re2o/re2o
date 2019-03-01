@@ -1,14 +1,9 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-26 09:52+0100\n"
+"POT-Creation-Date: 2019-03-01 17:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +21,7 @@ msgstr ""
 msgid "Go"
 msgstr ""
 
-#: useradmin/templates/admin/actions.html:11
+#: useradmin/templates/admin/actions.html:10
 msgid "Click here to select the objects across all pages"
 msgstr ""
 
@@ -39,47 +34,28 @@ msgstr ""
 msgid "Clear selection"
 msgstr ""
 
-#: useradmin/templates/admin/app_index.html:10
-#: useradmin/templates/admin/change_form.html:19
-#: useradmin/templates/admin/change_list.html:32
-#: useradmin/templates/admin/delete_confirmation.html:15
-#: useradmin/templates/admin/delete_selected_confirmation.html:15
-#: useradmin/templates/admin/object_history.html:7
-msgid "Home"
-msgstr ""
-
 #: useradmin/templates/admin/base_site.html:7
 msgid "Django administration"
 msgstr "Administration Django"
 
-#: useradmin/templates/admin/change_form.html:22
-#: useradmin/templates/admin/change_list.html:50
+#: useradmin/templates/admin/change_list.html:32
+msgid "Home"
+msgstr ""
+
+#: useradmin/templates/admin/change_list.html:52
 #, python-format
 msgid "Add %(name)s"
 msgstr ""
 
-#: useradmin/templates/admin/change_form.html:34
-#: useradmin/templates/admin/object_history.html:11
-msgid "History"
-msgstr ""
-
-#: useradmin/templates/admin/change_form.html:36
-#: useradmin/templates/admin/edit_inline/stacked.html:22
-#: useradmin/templates/admin/edit_inline/tabular.html:36
-msgid "View on site"
-msgstr ""
-
-#: useradmin/templates/admin/change_form.html:48
-#: useradmin/templates/admin/change_list.html:59
+#: useradmin/templates/admin/change_list.html:61
 msgid "Please correct the error below."
 msgstr ""
 
-#: useradmin/templates/admin/change_form.html:48
-#: useradmin/templates/admin/change_list.html:59
+#: useradmin/templates/admin/change_list.html:61
 msgid "Please correct the errors below."
 msgstr ""
 
-#: useradmin/templates/admin/change_list.html:70
+#: useradmin/templates/admin/change_list.html:72
 msgid "Filter"
 msgstr ""
 
@@ -96,73 +72,10 @@ msgstr ""
 msgid "Toggle sorting"
 msgstr ""
 
-#: useradmin/templates/admin/delete_confirmation.html:19
-#: useradmin/templates/admin/submit_line.html:12
-#: useradmin/templates/admin/submit_line.html:15
-msgid "Delete"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:25
-#, python-format
-msgid ""
-"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
-"related objects, but your account doesn't have permission to delete the "
-"following types of objects:"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:32
-#, python-format
-msgid ""
-"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
-"following protected related objects:"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:39
-#, python-format
-msgid ""
-"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
-"All of the following related items will be deleted:"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:41
-#: useradmin/templates/admin/delete_selected_confirmation.html:40
-msgid "Objects"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:48
-#: useradmin/templates/admin/delete_selected_confirmation.html:51
-msgid "Yes, I'm sure"
-msgstr ""
-
-#: useradmin/templates/admin/delete_confirmation.html:49
-#: useradmin/templates/admin/delete_selected_confirmation.html:52
-msgid "No, take me back"
-msgstr ""
-
-#: useradmin/templates/admin/delete_selected_confirmation.html:18
-msgid "Delete multiple objects"
-msgstr ""
-
-#: useradmin/templates/admin/delete_selected_confirmation.html:24
-#, python-format
-msgid ""
-"Deleting the selected %(objects_name)s would result in deleting related "
-"objects, but your account doesn't have permission to delete the following "
-"types of objects:"
-msgstr ""
-
-#: useradmin/templates/admin/delete_selected_confirmation.html:31
-#, python-format
-msgid ""
-"Deleting the selected %(objects_name)s would require deleting the following "
-"protected related objects:"
-msgstr ""
-
-#: useradmin/templates/admin/delete_selected_confirmation.html:38
-#, python-format
-msgid ""
-"Are you sure you want to delete the selected %(objects_name)s? All of the "
-"following objects and their related items will be deleted:"
+#: useradmin/templates/admin/edit_inline/stacked.html:22
+#: useradmin/templates/admin/edit_inline/tabular.html:36
+#: useradmin/templates/useradmin/change_form.html:33
+msgid "View on site"
 msgstr ""
 
 #: useradmin/templates/admin/edit_inline/tabular.html:21
@@ -178,30 +91,7 @@ msgstr ""
 msgid "You don't have permission to edit anything."
 msgstr ""
 
-#: useradmin/templates/admin/object_history.html:23
-msgid "Date/time"
-msgstr ""
-
-#: useradmin/templates/admin/object_history.html:24
-msgid "User"
-msgstr ""
-
-#: useradmin/templates/admin/object_history.html:25
-msgid "Action"
-msgstr ""
-
-#: useradmin/templates/admin/object_history.html:39
-msgid ""
-"This object doesn't have a change history. It probably wasn't added via this "
-"admin site."
-msgstr ""
-
 #: useradmin/templates/admin/pagination.html:11
-#: useradmin/templates/admin/search_form.html:13
-msgid "Show all"
-msgstr ""
-
-#: useradmin/templates/admin/pagination.html:12
 #: useradmin/templates/admin/submit_line.html:5
 #: useradmin/templates/admin/submit_line.html:7
 msgid "Save"
@@ -239,6 +129,15 @@ msgstr[1] ""
 msgid "%(full_result_count)s total"
 msgstr ""
 
+#: useradmin/templates/admin/search_form.html:13
+msgid "Show all"
+msgstr ""
+
+#: useradmin/templates/admin/submit_line.html:12
+#: useradmin/templates/admin/submit_line.html:15
+msgid "Delete"
+msgstr ""
+
 #: useradmin/templates/admin/submit_line.html:19
 #: useradmin/templates/admin/submit_line.html:21
 msgid "Save as new"
@@ -258,3 +157,66 @@ msgstr ""
 #, python-format
 msgid "Recover deleted %(name)s"
 msgstr "Récupérer des %(name)s supprimés"
+
+#: useradmin/templates/useradmin/change_form.html:31
+msgid "History"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:27
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
+"related objects, but your account doesn't have permission to delete the "
+"following types of objects:"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:34
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
+"following protected related objects:"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:41
+#, python-format
+msgid ""
+"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
+"All of the following related items will be deleted:"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:43
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:43
+msgid "Objects"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:50
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:54
+msgid "Yes, I'm sure"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_confirmation.html:51
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:55
+msgid "No, take me back"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:27
+#, python-format
+msgid ""
+"Deleting the selected %(objects_name)s would result in deleting related "
+"objects, but your account doesn't have permission to delete the following "
+"types of objects:"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:34
+#, python-format
+msgid ""
+"Deleting the selected %(objects_name)s would require deleting the following "
+"protected related objects:"
+msgstr ""
+
+#: useradmin/templates/useradmin/delete_selected_confirmation.html:41
+#, python-format
+msgid ""
+"Are you sure you want to delete the selected %(objects_name)s? All of the "
+"following objects and their related items will be deleted:"
+msgstr ""
