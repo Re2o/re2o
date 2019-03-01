@@ -32,8 +32,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from reversion.admin import VersionAdmin
 
-from useradmin.admin import user_admin_site
-
+from useradmin.admin import ModelUserAdmin, user_admin_site
 from .models import (
     User,
     EMailAddress,
@@ -85,10 +84,9 @@ class LdapServiceUserGroupAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class SchoolAdmin(VersionAdmin):
+class SchoolAdmin(VersionAdmin, ModelUserAdmin):
     """Administration, gestion des écoles"""
     list_display = ('name',)
-    actions_on_bottom = True
 
 
 class ListRightAdmin(VersionAdmin):
@@ -97,10 +95,9 @@ class ListRightAdmin(VersionAdmin):
     list_display = ('unix_name',)
 
 
-class ListShellAdmin(VersionAdmin):
+class ListShellAdmin(VersionAdmin, ModelUserAdmin):
     """Gestion de la liste des shells coté admin"""
     list_display = ('shell',)
-    actions_on_bottom = True
 
 
 class RequestAdmin(admin.ModelAdmin):
