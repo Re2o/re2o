@@ -1,5 +1,11 @@
 {# Please keep this template in sync with django/contrib/admin one #}
 {% extends "users/sidebar.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "useradmin/css/base.css" %}" />
+{% endblock %}
 
 {% block title %}{{ title }}{% endblock %}
 

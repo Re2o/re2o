@@ -20,18 +20,13 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
-{% load i18n admin_urls admin_modify %}
+{% load i18n admin_urls %}
 
-{% block object-tools %}
-{% if change %}{% if not is_popup %}
-  <ul class="object-tools list-inline">
-    {% block object-tools-items %}
-    <li class="btn-group">
-        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
-        <a href="{% add_preserved_filters history_url %}" class="historylink btn btn-default"><span class="glyphicon glyphicon-list-alt"></span> {% trans "History" %}</a>
-    </li>
-    {% if has_absolute_url %}<li class="btn-group"><a href="{{ absolute_url }}" class="viewsitelink btn btn-default"><span class="glyphicon glyphicon-new-window"></span> {% trans "View on site" %}</a></li>{% endif %}
-    {% endblock %}
-  </ul>
-{% endif %}{% endif %}
+{# Add buttons style and icons #}
+{% block object-tools-items %}
+<li class="btn-group">
+    {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+    <a href="{% add_preserved_filters history_url %}" class="historylink btn btn-default"><span class="glyphicon glyphicon-list-alt"></span> {% trans "History" %}</a>
+</li>
+{% if has_absolute_url %}<li class="btn-group"><a href="{{ absolute_url }}" class="viewsitelink btn btn-default"><span class="glyphicon glyphicon-new-window"></span> {% trans "View on site" %}</a></li>{% endif %}
 {% endblock %}

@@ -1,0 +1,49 @@
+/* Make admin buttons look like Bootstrap */
+
+.button, input[type=submit] {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+    background: #fff none;
+}
+
+.button:hover, .button:active, .button:focus,
+input[type=submit]:hover, input[type=submit]:active, input[type=submit]:focus {
+    text-decoration: none;
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+.button:focus, input[type=submit]:focus {
+    border-color: #8c8c8c;
+}
+
+.button:active:focus, .button:active:hover,
+input[type=submit]:active:focus, input[type=submit]:active:hover {
+    background-color: #d4d4d4;
+}
+
+/* Object tools should be inline */
+
+.object-tools {
+    padding-left: 0;
+    margin-left: -5px;
+    list-style: none;
+}

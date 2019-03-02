@@ -39,8 +39,6 @@ class ModelUserAdmin(admin.ModelAdmin):
 
     # Custom templates
     change_form_template = 'useradmin/change_form.html'
-    delete_confirmation_template = 'useradmin/delete_confirmation.html'
-    delete_selected_confirmation_template = 'useradmin/delete_selected_confirmation.html'
 
 
 # Defines new management site
