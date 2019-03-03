@@ -126,7 +126,7 @@ def filter_active_interfaces(interface_set):
                 ).filter(active=True)
             ).select_related('domain')
             .select_related('machine')
-            .select_related('type')
+            .select_related('machine_type')
             .select_related('ipv4')
             .select_related('domain__extension')
             .select_related('ipv4__ip_type')

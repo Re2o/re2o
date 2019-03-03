@@ -965,7 +965,7 @@ def profil(request, users, **_kwargs):
     machines = Machine.objects.filter(user=users).select_related('user')\
         .prefetch_related('interface_set__domain__extension')\
         .prefetch_related('interface_set__ipv4__ip_type__extension')\
-        .prefetch_related('interface_set__type')\
+        .prefetch_related('interface_set__machine_type')\
         .prefetch_related('interface_set__domain__related_domain__extension')
     machines = SortTable.sort(
         machines,

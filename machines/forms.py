@@ -90,15 +90,15 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['machine', 'type', 'ipv4', 'mac_address', 'details']
+        fields = ['machine', 'machine_type', 'ipv4', 'mac_address', 'details']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         user = kwargs.get('user')
         super(EditInterfaceForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['mac_address'].label = _("MAC address")
-        self.fields['type'].label = _("Machine type")
-        self.fields['type'].empty_label = _("Select a machine type")
+        self.fields['machine_type'].label = _("Machine type")
+        self.fields['machine_type'].empty_label = _("Select a machine type")
         if "ipv4" in self.fields:
             self.fields['ipv4'].empty_label = _("Automatic IPv4 assignment")
             self.fields['ipv4'].queryset = IpList.objects.filter(
@@ -122,7 +122,7 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 .select_related('user')
         can_use_all_machinetype, _reason = MachineType.can_use_all(user)
         if not can_use_all_machinetype:
-            self.fields['type'].queryset = MachineType.objects.filter(
+            self.fields['machine_type'].queryset = MachineType.objects.filter(
                 ip_type__in=IpType.objects.filter(need_infra=False)
             )
 
@@ -132,7 +132,7 @@ class AddInterfaceForm(EditInterfaceForm):
     affiche ou non l'ensemble des ip disponibles"""
 
     class Meta(EditInterfaceForm.Meta):
-        fields = ['type', 'ipv4', 'mac_address', 'details']
+        fields = ['machine_type', 'ipv4', 'mac_address', 'details']
 
 
 class AliasForm(FormRevMixin, ModelForm):
@@ -191,12 +191,12 @@ class MachineTypeForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = MachineType
-        fields = ['type', 'ip_type']
+        fields = ['name', 'ip_type']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MachineTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['type'].label = _("Machine type to add")
+        self.fields['name'].label = _("Machine type to add")
         self.fields['ip_type'].label = _("Related IP type")
 
 
@@ -228,7 +228,7 @@ class IpTypeForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(IpTypeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['type'].label = _("IP type to add")
+        self.fields['name'].label = _("IP type to add")
 
 
 class EditIpTypeForm(IpTypeForm):
@@ -236,7 +236,7 @@ class EditIpTypeForm(IpTypeForm):
     synchroniser les objets iplist"""
 
     class Meta(IpTypeForm.Meta):
-        fields = ['extension', 'type', 'need_infra', 'domaine_ip_network', 'domaine_ip_netmask',
+        fields = ['extension', 'name', 'need_infra', 'domaine_ip_network', 'domaine_ip_netmask',
                   'prefix_v6', 'prefix_v6_length',
                   'vlan', 'reverse_v4', 'reverse_v6',
                   'ouverture_ports']

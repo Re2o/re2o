@@ -241,7 +241,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
 
 class MachineType(RevMixin, AclMixin, models.Model):
     """ Type de machine, relié à un type d'ip, affecté aux interfaces"""
-    type = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     ip_type = models.ForeignKey(
         'IpType',
         on_delete=models.PROTECT,
@@ -260,7 +260,7 @@ class MachineType(RevMixin, AclMixin, models.Model):
     def all_interfaces(self):
         """ Renvoie toutes les interfaces (cartes réseaux) de type
         machinetype"""
-        return Interface.objects.filter(type=self)
+        return Interface.objects.filter(machine_type=self)
 
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
@@ -278,12 +278,12 @@ class MachineType(RevMixin, AclMixin, models.Model):
         return True, None
 
     def __str__(self):
-        return self.type
+        return self.name
 
 
 class IpType(RevMixin, AclMixin, models.Model):
     """ Type d'ip, définissant un range d'ip, affecté aux machine types"""
-    type = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     extension = models.ForeignKey('Extension', on_delete=models.PROTECT)
     need_infra = models.BooleanField(default=False)
     domaine_ip_start = models.GenericIPAddressField(protocol='IPv4')
@@ -456,7 +456,7 @@ class IpType(RevMixin, AclMixin, models.Model):
         else:
             for ipv6 in Ipv6List.objects.filter(
                     interface__in=Interface.objects.filter(
-                        type__in=MachineType.objects.filter(ip_type=self)
+                        machine_type__in=MachineType.objects.filter(ip_type=self)
                     )
             ):
                 ipv6.check_and_replace_prefix(prefix=self.prefix_v6)
@@ -465,7 +465,7 @@ class IpType(RevMixin, AclMixin, models.Model):
         from re2o.utils import all_active_assigned_interfaces
         if self.reverse_v4:
             return (all_active_assigned_interfaces()
-                    .filter(type__ip_type=self)
+                    .filter(machine_type__ip_type=self)
                     .filter(ipv4__isnull=False))
         else:
             return None
@@ -474,7 +474,7 @@ class IpType(RevMixin, AclMixin, models.Model):
         from re2o.utils import all_active_interfaces
         if self.reverse_v6:
             return (all_active_interfaces(full=True)
-                    .filter(type__ip_type=self))
+                    .filter(machine_type__ip_type=self))
         else:
             return None
 
@@ -519,7 +519,7 @@ class IpType(RevMixin, AclMixin, models.Model):
         return user_request.has_perm('machines.use_all_iptype'), None
 
     def __str__(self):
-        return self.type
+        return self.name
 
 
 class Vlan(RevMixin, AclMixin, models.Model):
@@ -724,19 +724,19 @@ class Extension(RevMixin, AclMixin, models.Model):
     def get_associated_sshfp_records(self):
         from re2o.utils import all_active_assigned_interfaces
         return (all_active_assigned_interfaces()
-                .filter(type__ip_type__extension=self)
+                .filter(machine_type__ip_type__extension=self)
                 .filter(machine__id__in=SshFp.objects.values('machine')))
 
     def get_associated_a_records(self):
         from re2o.utils import all_active_assigned_interfaces
         return (all_active_assigned_interfaces()
-                .filter(type__ip_type__extension=self)
+                .filter(machine_type__ip_type__extension=self)
                 .filter(ipv4__isnull=False))
 
     def get_associated_aaaa_records(self):
         from re2o.utils import all_active_interfaces
         return (all_active_interfaces(full=True)
-                .filter(type__ip_type__extension=self))
+                .filter(machine_type__ip_type__extension=self))
 
     def get_associated_cname_records(self):
         from re2o.utils import all_active_assigned_interfaces
@@ -1003,7 +1003,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     )
     mac_address = MACAddressField(integer=False)
     machine = models.ForeignKey('Machine', on_delete=models.CASCADE)
-    type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
+    machine_type = models.ForeignKey('MachineType', on_delete=models.PROTECT)
     details = models.CharField(max_length=255, blank=True)
     port_lists = models.ManyToManyField('OuverturePortList', blank=True)
 
@@ -1027,9 +1027,9 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     def ipv6_slaac(self):
         """ Renvoie un objet type ipv6 à partir du prefix associé à
         l'iptype parent"""
-        if self.type.ip_type.prefix_v6:
+        if self.machine_type.ip_type.prefix_v6:
             return EUI(self.mac_address).ipv6(
-                IPNetwork(self.type.ip_type.prefix_v6).network
+                IPNetwork(self.machine_type.ip_type.prefix_v6).network
             )
         else:
             return None
@@ -1037,7 +1037,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     @cached_property
     def gen_ipv6_dhcpv6(self):
         """Cree une ip, à assigner avec dhcpv6 sur une machine"""
-        prefix_v6 = self.type.ip_type.prefix_v6.encode().decode('utf-8')
+        prefix_v6 = self.machine_type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return None
         return IPv6Address(
@@ -1122,7 +1122,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def assign_ipv4(self):
         """ Assigne une ip à l'interface """
-        free_ips = self.type.ip_type.free_ip()
+        free_ips = self.machine_type.ip_type.free_ip()
         if free_ips:
             self.ipv4 = free_ips[0]
         else:
@@ -1162,16 +1162,16 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         # instance.
         # But in our case, it's impossible to create a type value so we raise
         # the error.
-        if not hasattr(self, 'type'):
+        if not hasattr(self, 'machine_type'):
             raise ValidationError(_("The selected IP type is invalid."))
         self.filter_macaddress()
-        if not self.ipv4 or self.type.ip_type != self.ipv4.ip_type:
+        if not self.ipv4 or self.machine_type.ip_type != self.ipv4.ip_type:
             self.assign_ipv4()
         super(Interface, self).clean(*args, **kwargs)
 
     def validate_unique(self, *args, **kwargs):
         super(Interface, self).validate_unique(*args, **kwargs)
-        interfaces_similar = Interface.objects.filter(mac_address=self.mac_address, type__ip_type=self.type.ip_type)
+        interfaces_similar = Interface.objects.filter(mac_address=self.mac_address, machine_type__ip_type=self.machine_type.ip_type)
         if interfaces_similar and interfaces_similar.first() != self:
             raise ValidationError(_("Mac address already registered in this Machine Type/Subnet"))
 
@@ -1179,7 +1179,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         self.filter_macaddress()
         # On verifie la cohérence en forçant l'extension par la méthode
         if self.ipv4:
-            if self.type.ip_type != self.ipv4.ip_type:
+            if self.machine_type.ip_type != self.ipv4.ip_type:
                 raise ValidationError(_("The IPv4 address and the machine type"
                                         " don't match."))
         self.validate_unique()
@@ -1381,7 +1381,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def check_and_replace_prefix(self, prefix=None):
         """Si le prefixe v6 est incorrect, on maj l'ipv6"""
-        prefix_v6 = prefix or self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+        prefix_v6 = prefix or self.interface.machine_type.ip_type.prefix_v6.encode().decode('utf-8')
         if not prefix_v6:
             return
         if (IPv6Address(self.ipv6.encode().decode('utf-8')).exploded[:20] !=
@@ -1398,7 +1398,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 .exclude(id=self.id)):
             raise ValidationError(_("A SLAAC IP address is already registered."))
         try:
-            prefix_v6 = self.interface.type.ip_type.prefix_v6.encode().decode('utf-8')
+            prefix_v6 = self.interface.machine_type.ip_type.prefix_v6.encode().decode('utf-8')
         except AttributeError: # Prevents from crashing when there is no defined prefix_v6
             prefix_v6 = None
         if prefix_v6:
@@ -1453,7 +1453,7 @@ class Domain(RevMixin, AclMixin, models.Model):
         """ Retourne l'extension de l'interface parente si c'est un A
          Retourne l'extension propre si c'est un cname, renvoie None sinon"""
         if self.interface_parent:
-            return self.interface_parent.type.ip_type.extension
+            return self.interface_parent.machine_type.ip_type.extension
         elif hasattr(self, 'extension'):
             return self.extension
         else:

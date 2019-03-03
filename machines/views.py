@@ -144,7 +144,7 @@ def f_type_id(is_type_tt):
     """ The id that will be used in HTML to store the value of the field
     type. Depends on the fact that type is generate using typeahead or not
     """
-    return 'id_Interface-type_hidden' if is_type_tt else 'id_Interface-type'
+    return 'id_Interface-machine_type_hidden' if is_type_tt else 'id_Interface-machine_type'
 
 
 def generate_ipv4_choices(form_obj):
@@ -170,7 +170,7 @@ def generate_ipv4_choices(form_obj):
             v=ip.ipv4
         )
 
-    for t in form_obj.fields['type'].queryset.exclude(id__in=used_mtype_id):
+    for t in form_obj.fields['machine_type'].queryset.exclude(id__in=used_mtype_id):
         choices += '], "' + str(t.id) + '": ['
         choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
     choices += ']}'
@@ -184,11 +184,11 @@ def generate_ipv4_engine(is_type_tt):
         'new Bloodhound( {{'
         'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
         'queryTokenizer: Bloodhound.tokenizers.whitespace,'
-        'local: choices_ipv4[ $( "#{type_id}" ).val() ],'
+        'local: choices_ipv4[ $( "#{machine_type_id}" ).val() ],'
         'identify: function( obj ) {{ return obj.key; }}'
         '}} )'
     ).format(
-        type_id=f_type_id(is_type_tt)
+        machine_type_id=f_type_id(is_type_tt)
     )
 
 
@@ -198,7 +198,7 @@ def generate_ipv4_match_func(is_type_tt):
     return (
         'function(q, sync) {{'
         'if (q === "") {{'
-        'var first = choices_ipv4[$("#{type_id}").val()].slice(0, 5);'
+        'var first = choices_ipv4[$("#{machine_type_id}").val()].slice(0, 5);'
         'first = first.map( function (obj) {{ return obj.key; }} );'
         'sync(engine_ipv4.get(first));'
         '}} else {{'
@@ -206,7 +206,7 @@ def generate_ipv4_match_func(is_type_tt):
         '}}'
         '}}'
     ).format(
-        type_id=f_type_id(is_type_tt)
+        machine_type_id=f_type_id(is_type_tt)
     )
 
 
@@ -1388,7 +1388,7 @@ def index(request):
                      .prefetch_related('interface_set__domain__extension')
                      .prefetch_related('interface_set__ipv4__ip_type')
                      .prefetch_related(
-        'interface_set__type__ip_type__extension'
+        'interface_set__machine_type__ip_type__extension'
     ).prefetch_related(
         'interface_set__domain__related_domain__extension'
     ).prefetch_related('interface_set__ipv6list'))
@@ -1417,7 +1417,7 @@ def index_iptype(request):
     iptype_list = (IpType.objects
                    .select_related('extension')
                    .select_related('vlan')
-                   .order_by('type'))
+                   .order_by('name'))
     return render(
         request,
         'machines/index_iptype.html',
@@ -1443,7 +1443,7 @@ def index_machinetype(request):
     """ View displaying the list of existing types of machines """
     machinetype_list = (MachineType.objects
                         .select_related('ip_type')
-                        .order_by('type'))
+                        .order_by('name'))
     return render(
         request,
         'machines/index_machinetype.html',
