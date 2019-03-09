@@ -148,7 +148,7 @@ def authorize(data):
     # Toutes les reuquètes non proxifiées
     nas_type = None
     if nas_instance:
-        nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
+        nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
     if not nas_type or nas_type.port_access_mode == '802.1X':
         user = data.get('User-Name', '').decode('utf-8', errors='replace')
         user = user.split('@', 1)[0]
@@ -193,7 +193,7 @@ def post_auth(data):
     if not nas_instance:
         logger.info(u"Requete proxifiee, nas inconnu".encode('utf-8'))
         return radiusd.RLM_MODULE_OK
-    nas_type = Nas.objects.filter(nas_type=nas_instance.type).first()
+    nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
     if not nas_type:
         logger.info(
             u"Type de nas non enregistre dans la bdd!".encode('utf-8')
@@ -280,7 +280,7 @@ def find_nas_from_request(nas_id):
                Q(domain=Domain.objects.filter(name=nas_id)) |
                Q(ipv4=IpList.objects.filter(ipv4=nas_id))
            )
-           .select_related('type')
+           .select_related('machine_type')
            .select_related('machine__switch__stack'))
     return nas.first()
 
@@ -531,7 +531,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number,
             # Si on choisi de placer les machines sur le vlan
             # correspondant à leur type :
             if RadiusOption.get_cached_value('radius_general_policy') == 'MACHINE':
-                DECISION_VLAN = interface.type.ip_type.vlan.vlan_id
+                DECISION_VLAN = interface.machine_type.ip_type.vlan.vlan_id
             if not interface.ipv4:
                 interface.assign_ipv4()
                 return (

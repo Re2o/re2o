@@ -136,7 +136,7 @@ class OuverturePortListAdmin(VersionAdmin):
 
 class InterfaceAdmin(VersionAdmin):
     """ Admin view of a Interface object """
-    list_display = ('machine', 'type', 'mac_address', 'ipv4', 'details')
+    list_display = ('machine', 'machine_type', 'mac_address', 'ipv4', 'details')
 
 
 class DomainAdmin(VersionAdmin):

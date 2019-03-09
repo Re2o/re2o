@@ -150,7 +150,7 @@ class MachineTypeSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.MachineType
-        fields = ('type', 'ip_type', 'api_url')
+        fields = ('name', 'ip_type', 'api_url')
 
 
 class IpTypeSerializer(NamespacedHMSerializer):
@@ -159,7 +159,7 @@ class IpTypeSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.IpType
-        fields = ('type', 'extension', 'need_infra', 'domaine_ip_start',
+        fields = ('name', 'extension', 'need_infra', 'domaine_ip_start',
                   'domaine_ip_stop', 'prefix_v6', 'vlan', 'ouverture_ports',
                   'api_url')
 
@@ -267,7 +267,7 @@ class InterfaceSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.Interface
-        fields = ('ipv4', 'mac_address', 'machine', 'type', 'details',
+        fields = ('ipv4', 'mac_address', 'machine', 'machine_type', 'details',
                   'port_lists', 'active', 'api_url')
 
 
@@ -747,7 +747,7 @@ class InterfaceVlanSerializer(NamespacedHMSerializer):
     domain = serializers.CharField(read_only=True)
     ipv4 = serializers.CharField(read_only=True)
     ipv6 = Ipv6ListSerializer(read_only=True, many=True)
-    vlan_id = serializers.IntegerField(source='type.ip_type.vlan.vlan_id', read_only=True)
+    vlan_id = serializers.IntegerField(source='machine_type.ip_type.vlan.vlan_id', read_only=True)
 
     class Meta:
         model = machines.Interface
@@ -865,7 +865,7 @@ class SubnetPortsOpenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.IpType
-        fields = ('type', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
+        fields = ('name', 'domaine_ip_start', 'domaine_ip_stop', 'complete_prefixv6', 'ouverture_ports')
 
 
 class InterfacePortsOpenSerializer(serializers.ModelSerializer):
@@ -1080,7 +1080,7 @@ class DNSReverseZonesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.IpType
-        fields = ('type', 'extension', 'soa', 'ns_records', 'mx_records',
+        fields = ('name', 'extension', 'soa', 'ns_records', 'mx_records',
                   'txt_records', 'ptr_records', 'ptr_v6_records', 'cidrs',
                   'prefix_v6', 'prefix_v6_length')
 

@@ -45,7 +45,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </thead>
         {% for type in iptype_list %}
             <tr>
-                <td>{{ type.type }}</td>
+                <td>{{ type.name }}</td>
                 <td>{{ type.extension }}</td>
                 <td>{{ type.need_infra|tick }}</td>
                 <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </u></b>
