@@ -105,8 +105,10 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             A tuple with a boolean stating if edition is allowed and an
             explanation message.
         """
-        return (user_request.has_perm('machines.change_machine_user'),
-                _("You don't have the right to change the machine's user."))
+        if user_request.has_perm('machines.change_machine_user'):
+            return True, None
+        else:
+            return False, _("You don't have the right to change the machine's user.")
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -1245,8 +1247,10 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     def can_change_machine(user_request, *_args, **_kwargs):
         """Check if a user can change the machine associated with an
         Interface object """
-        return (user_request.has_perm('machines.change_interface_machine'),
-                _("Permission required to edit the machine."))
+        if user_request.has_perm('machines.change_interface_machine'):
+            return True, None
+        else:
+            return False, _("Permission required to edit the machine.")
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -1350,9 +1354,10 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     @staticmethod
     def can_change_slaac_ip(user_request, *_args, **_kwargs):
         """ Check if a user can change the slaac value """
-        return (user_request.has_perm('machines.change_ipv6list_slaac_ip'),
-                _("Permission required to change the SLAAC value of an IPv6"
-                  " address"))
+        if user_request.has_perm('machines.change_ipv6list_slaac_ip'):
+            return True, None
+        else:
+            return False, _("Permission required to change the SLAAC value of an IPv6 address")
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
