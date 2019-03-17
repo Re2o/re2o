@@ -858,6 +858,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_request one of its member, or if user_request is self, or if
             user_request has the 'cableur' right.
         """
+        if self.state == self.STATE_FULL_ARCHIVE:
+            return False, _("You can't edit a full archived user. Please set active before.")
         if self.is_class_club and user_request.is_class_adherent:
             if (self == user_request or
                     user_request.has_perm('users.change_user') or
@@ -942,10 +944,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a state
         """
-        return (
-            user_request.has_perm('users.change_user_state'),
-            _("Permission required to change the state.")
-        )
+        if user_request.has_perm('users.change_user_state'):
+            return True, None
+        else:
+            return False, _("Permission required to change the state.")
 
     def can_change_shell(self, user_request, *_args, **_kwargs):
         """ Check if a user can change a shell
@@ -968,10 +970,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a redirection
         """
-        return (
-            OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled.")
-        )
+        if OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return True, None
+        else:
+            return False, _("Local email accounts must be enabled.")
 
     @staticmethod
     def can_change_local_email_enabled(user_request, *_args, **_kwargs):
@@ -981,10 +983,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change internal address
         """
-        return (
-            OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled.")
-        )
+        if OptionalUser.get_cached_value('local_email_accounts_enabled'):
+            return True, None
+        else:
+            return False, _("Local email accounts must be enabled.")
+
 
     @staticmethod
     def can_change_force(user_request, *_args, **_kwargs):
@@ -994,10 +997,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a force
         """
-        return (
-            user_request.has_perm('users.change_user_force'),
-            _("Permission required to force the move.")
-        )
+        if user_request.has_perm('users.change_user_force'):
+            return True, None
+        else:
+            return False, _("Permission required to force the move.")
 
     @staticmethod
     def can_change_groups(user_request, *_args, **_kwargs):
@@ -1007,10 +1010,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a group
         """
-        return (
-            user_request.has_perm('users.change_user_groups'),
-            _("Permission required to edit the user's groups of rights.")
-        )
+        if user_request.has_perm('users.change_user_groups'):
+            return True, None
+        else:
+            return False, _("Permission required to edit the user's groups of rights.")
 
     @staticmethod
     def can_change_is_superuser(user_request, *_args, **_kwargs):
@@ -1019,10 +1022,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :param user_request: The user who request
         :returns: a message and a boolean which is True if permission is granted.
         """
-        return (
-            user_request.is_superuser,
-            _("'superuser' right required to edit the superuser flag.")
-        )
+        if user_request.is_superuser:
+            return True, None
+        else:
+            return False, _("'superuser' right required to edit the superuser flag.")
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if an user can view an user object.
@@ -1032,18 +1035,23 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: A boolean telling if the acces is granted and an explanation
             text
         """
+        extra_msg = None
+        if self.state == self.STATE_FULL_ARCHIVE and self != user_request:
+            extra_msg = _("Warning, this user is not active. ")
+            if not self.can_change_state(user_request):
+                extra_msg = _("Warning, this user is not active. Please contact your network administrator")
         if self.is_class_club and user_request.is_class_adherent:
             if (self == user_request or
                     user_request.has_perm('users.view_user') or
                     user_request.adherent in self.club.administrators.all() or
                     user_request.adherent in self.club.members.all()):
-                return True, None
+                return True, extra_msg
             else:
                 return False, _("You don't have the right to view this club.")
         else:
             if (self == user_request or
                     user_request.has_perm('users.view_user')):
-                return True, None
+                return True, extra_msg
             else:
                 return False, (_("You don't have the right to view another"
                                  " user."))
@@ -1056,10 +1064,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: True if the user can view the list and an explanation
             message.
         """
-        return (
-            user_request.has_perm('users.view_user'),
-            _("You don't have the right to view the list of users.")
-        )
+        if user_request.has_perm('users.view_user'):
+            return True, None
+        else:
+            return False, _("You don't have the right to view the list of users.")
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Check if an user can delete an user object.
@@ -1069,10 +1077,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: True if user_request has the right 'bureau', and a
             message.
         """
-        return (
-            user_request.has_perm('users.delete_user'),
-            _("You don't have the right to delete this user.")
-        )
+        if user_request.has_perm('users.delete_user'):
+            return True, None
+        else:
+            return False, _("You don't have the right to delete this user.")
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -1163,11 +1171,10 @@ class Adherent(User):
             if (OptionalUser.get_cached_value('all_can_create_adherent') or
                     OptionalUser.get_cached_value('self_adhesion')):
                 return True, None
+            elif user_request.has_perm('users.add_user'):
+                return True, None
             else:
-                return (
-                    user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a user.")
-                )
+                return False, _("You don't have the right to create a user.")
 
     def clean(self, *args, **kwargs):
         """Format the GPG fingerprint"""
@@ -1218,11 +1225,10 @@ class Club(User):
         else:
             if OptionalUser.get_cached_value('all_can_create_club'):
                 return True, None
+            elif user_request.has_perm('users.add_user'):
+                return True, None
             else:
-                return (
-                    user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a club.")
-                )
+                return False, _("You don't have the right to create a club.")
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -1634,6 +1640,7 @@ def whitelist_post_save(**kwargs):
     whitelist = kwargs['instance']
     user = whitelist.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    user.set_active()
     is_created = kwargs['created']
     regen('mailing')
     if is_created:

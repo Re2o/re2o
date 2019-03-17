@@ -104,13 +104,10 @@ class AclMixin(object):
         un object
         :param user_request: instance utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        return (
-            user_request.has_perm(
-                cls.get_modulename() + '.add_' + cls.get_classname()
-            ),
-            (_("You don't have the right to create a %s object.")
-                % cls.get_classname())
-        )
+        if user_request.has_perm(cls.get_modulename() + '.add_' + cls.get_classname()):
+            return True, None
+        else:
+            return False, _("You don't have the right to create a %s object.") % cls.get_classname()
 
     def can_edit(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour editer
@@ -118,13 +115,10 @@ class AclMixin(object):
         :param self: Instance à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        return (
-            user_request.has_perm(
-                self.get_modulename() + '.change_' + self.get_classname()
-            ),
-            (_("You don't have the right to edit a %s object.")
-                % self.get_classname())
-        )
+        if user_request.has_perm(self.get_modulename() + '.change_' + self.get_classname()):
+            return True, None
+        else:
+            return False, _("You don't have the right to edit a %s object.") % self.get_classname()
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour delete
@@ -132,13 +126,10 @@ class AclMixin(object):
         :param self: Instance à delete
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
-        return (
-            user_request.has_perm(
-                self.get_modulename() + '.delete_' + self.get_classname()
-            ),
-            (_("You don't have the right to delete a %s object.")
-                % self.get_classname())
-        )
+        if user_request.has_perm(self.get_modulename() + '.delete_' + self.get_classname()):
+            return True, None
+        else:
+            return False, _("You don't have the right to delete a %s object.") % self.get_classname()
 
     @classmethod
     def can_view_all(cls, user_request, *_args, **_kwargs):
@@ -146,13 +137,10 @@ class AclMixin(object):
         droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        return (
-            user_request.has_perm(
-                cls.get_modulename() + '.view_' + cls.get_classname()
-            ),
-            (_("You don't have the right to view every %s object.")
-                % cls.get_classname())
-        )
+        if user_request.has_perm(cls.get_modulename() + '.view_' + cls.get_classname()):
+            return True, None
+        else:
+            return False, _("You don't have the right to view every %s object.") % cls.get_classname()
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
@@ -160,11 +148,8 @@ class AclMixin(object):
         :param self: instance à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        return (
-            user_request.has_perm(
-                self.get_modulename() + '.view_' + self.get_classname()
-            ),
-            (_("You don't have the right to view a %s object.")
-                % self.get_classname())
-        )
+        if user_request.has_perm(self.get_modulename() + '.view_' + self.get_classname()):
+            return True, None
+        else:
+            return False, _("You don't have the right to view a %s object.") % self.get_classname()
 
