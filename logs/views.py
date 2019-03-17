@@ -104,8 +104,8 @@ from re2o.utils import (
     all_adherent,
     all_active_assigned_interfaces_count,
     all_active_interfaces_count,
-) 
-from re2o.base import (   
+)
+from re2o.base import (
     re2o_paginator,
     SortTable
 )
@@ -256,6 +256,14 @@ def stats_general(request):
                      .filter(state=Adherent.STATE_ARCHIVE)
                      .count()),
                     Club.objects.filter(state=Club.STATE_ARCHIVE).count()
+                ],
+                'full_archive_users': [
+                    _("Full Archived users"),
+                    User.objects.filter(state=User.STATE_FULL_ARCHIVE).count(),
+                    (Adherent.objects
+                     .filter(state=Adherent.STATE_FULL_ARCHIVE)
+                     .count()),
+                    Club.objects.filter(state=Club.STATE_FULL_ARCHIVE).count()
                 ],
                 'not_active_users': [
                     _("Not yet active users"),

@@ -253,6 +253,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <dd><i class="text-danger">{% trans "Archived" %}</i></dd>
                         {% elif users.state == 3 %}
                             <dd><i class="text-danger">{% trans "Not yet member" %}</i></dd>
+                        {% elif users.state == 4 %}
+                            <dd><i class="text-danger">{% trans "Full Archived" %}</i></dd>
                         {% endif %}
                     </div>
 

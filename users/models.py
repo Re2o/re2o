@@ -188,11 +188,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     STATE_DISABLED = 1
     STATE_ARCHIVE = 2
     STATE_NOT_YET_ACTIVE = 3
+    STATE_FULL_ARCHIVE = 4
     STATES = (
         (0, _("Active")),
         (1, _("Disabled")),
         (2, _("Archived")),
         (3, _("Not yet active")),
+        (4, _("Full Archived")),
     )
 
     surname = models.CharField(max_length=255)
@@ -335,11 +337,17 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE
 
     def set_active(self):
-        """Enable this user if he subscribed successfully one time before"""
+        """Enable this user if he subscribed successfully one time before
+        Reenable it if it was archived
+        Do nothing if disabed"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(Q(vente__type_cotisation='All') | Q(vente__type_cotisation='Adhesion')).exists() or OptionalUser.get_cached_value('all_users_active'):
                 self.state = self.STATE_ACTIVE
                 self.save()
+        if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
+            self.state = self.STATE_ACTIVE
+            self.unarchive()
+            self.save()
 
     @property
     def is_staff(self):
@@ -519,12 +527,17 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )['total'] or 0
         return somme_credit - somme_debit
 
-    def user_interfaces(self, active=True):
+    def user_interfaces(self, active=True, all_interfaces=False):
         """ Renvoie toutes les interfaces dont les machines appartiennent à
         self. Par defaut ne prend que les interfaces actives"""
-        return Interface.objects.filter(
-            machine__in=Machine.objects.filter(user=self, active=active)
-        ).select_related('domain__extension')
+        if all_interfaces:
+            return Interface.objects.filter(
+                machine__in=Machine.objects.filter(user=self)
+            ).select_related('domain__extension')
+        else:
+            return Interface.objects.filter(
+                machine__in=Machine.objects.filter(user=self, active=active)
+            ).select_related('domain__extension')
 
     def assign_ips(self):
         """ Assign une ipv4 aux machines d'un user """
@@ -547,25 +560,37 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     def disable_email(self):
         """Disable email account and redirection"""
-        self.email = ""
         self.local_email_enabled = False
         self.local_email_redirect = False
+
+    def delete_data(self):
+        """This user will be completely archived, so only keep mandatory data"""
+        self.disabled_email()
+        self.user_interfaces(all_interfaces=True).delete()
+        self.ldap_del()
 
     def archive(self):
         """ Filling the user; no more active"""
         self.unassign_ips()
-        self.disable_email()
+
+    def full_archive(self):
+        """Full Archive = Archive + Service access complete deletion"""
+        self.archive()
+        self.delete_data()
 
     def unarchive(self):
         """Unfilling the user"""
         self.assign_ips()
+        self.ldap_sync()
 
     def state_sync(self):
         """Archive, or unarchive, if the user was not active/or archived before"""
-        if self.__original_state != self.STATE_ACTIVE and self.state == self.STATE_ACTIVE:
+        if self.__original_state != self.STATE_ACTIVE  and self.state == self.STATE_ACTIVE:
             self.unarchive()
         elif self.__original_state != self.STATE_ARCHIVE and self.state == self.STATE_ARCHIVE:
             self.archive()
+        elif self.__original_state != self.STATE_FULL_ARCHIVE and self.state == self.STATE_FULL_ARCHIVE:
+            self.full_archive()
 
     def ldap_sync(self, base=True, access_refresh=True, mac_refresh=True,
                   group_refresh=False):
@@ -578,15 +603,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         mac_refresh : synchronise les machines de l'user
         group_refresh : synchronise les group de l'user
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
-        if sys.version_info[0] >= 3 and self.state != self.STATE_ARCHIVE and\
-           self.state != self.STATE_DISABLED:
+        if sys.version_info[0] >= 3 and (self.state == self.STATE_ACTIVE or self.state == self.STATE_ARCHIVE or self.state == self.STATE_DISABLED):
             self.refresh_from_db()
             try:
                 user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
             except LdapUser.DoesNotExist:
-                #  Freshly created users are NOT synced in ldap base
-                if self.state == self.STATE_NOT_YET_ACTIVE:
-                    return
                 user_ldap = LdapUser(uidNumber=self.uid_number)
                 base = True
                 access_refresh = True
@@ -1025,7 +1046,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             .filter(local_part=self.pseudo.lower()).exclude(user_id=self.id)
             ):
             raise ValidationError(_("This username is already used."))
-        if not self.local_email_enabled and not self.email and not (self.state == self.STATE_ARCHIVE):
+        if not self.local_email_enabled and not self.email and not (self.state == self.STATE_FULL_ARCHIVE):
             raise ValidationError(_("There is neither a local email address nor an external"
                       " email address for this user.")
             )
