@@ -618,6 +618,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Full Archive = Archive + Service access complete deletion"""
         self.archive()
         self.delete_data()
+        LdapUser.objects.filter(name__in=self.pseudo)
 
     def unarchive(self):
         """Unfilling the user"""
