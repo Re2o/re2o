@@ -527,47 +527,78 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         )['total'] or 0
         return somme_credit - somme_debit
 
-    def user_interfaces(self, active=True, all_interfaces=False):
+    @classmethod
+    def users_interfaces(cls, users, active=True, all_interfaces=False):
         """ Renvoie toutes les interfaces dont les machines appartiennent à
         self. Par defaut ne prend que les interfaces actives"""
         if all_interfaces:
             return Interface.objects.filter(
-                machine__in=Machine.objects.filter(user=self)
+                machine__in=Machine.objects.filter(user__in=users)
             ).select_related('domain__extension')
         else:
             return Interface.objects.filter(
-                machine__in=Machine.objects.filter(user=self, active=active)
+                machine__in=Machine.objects.filter(user__in=users, active=active)
             ).select_related('domain__extension')
+
+    def user_interfaces(self, active=True, all_interfaces=False):
+        """ Renvoie toutes les interfaces dont les machines appartiennent à
+        self. Par defaut ne prend que les interfaces actives"""
+        return self.users_interfaces([self], active=active, all_interfaces=all_interfaces)
 
     def assign_ips(self):
         """ Assign une ipv4 aux machines d'un user """
         interfaces = self.user_interfaces()
-        for interface in interfaces:
-            if not interface.ipv4:
-                with transaction.atomic(), reversion.create_revision():
-                    interface.assign_ipv4()
-                    reversion.set_comment(_("IPv4 assigning"))
-                    interface.save()
+        with transaction.atomic(), reversion.create_revision():
+            Interface.mass_assign_ipv4(interfaces)
+            reversion.set_comment(_("IPv4 assigning"))
 
     def unassign_ips(self):
         """ Désassigne les ipv4 aux machines de l'user"""
         interfaces = self.user_interfaces()
-        for interface in interfaces:
-            with transaction.atomic(), reversion.create_revision():
-                interface.unassign_ipv4()
-                reversion.set_comment(_("IPv4 unassigning"))
-                interface.save()
+        with transaction.atomic(), reversion.create_revision():
+            Interface.mass_unassign_ipv4(interfaces)
+            reversion.set_comment(_("IPv4 unassigning"))
+
+    @classmethod
+    def mass_unassign_ips(cls, users_list):
+        interfaces = cls.users_interfaces(users_list)
+        with transaction.atomic(), reversion.create_revision():
+            Interface.mass_unassign_ipv4(interfaces)
+            reversion.set_comment(_("IPv4 assigning"))
+
+    @classmethod
+    def mass_disable_email(cls, queryset_users):
+        """Disable email account and redirection"""
+        queryset_users.update(local_email_enabled=False)
+        queryset_users.update(local_email_redirect=False)
+
+    @classmethod
+    def mass_delete_data(cls, queryset_users):
+        """This users will be completely archived, so only keep mandatory data"""
+        cls.mass_disable_email(queryset_users)
+        Machine.objects.filter(user__in=queryset_users).delete()
+        cls.ldap_delete_users(queryset_users)
 
     def disable_email(self):
         """Disable email account and redirection"""
-        self.local_email_enabled = False
-        self.local_email_redirect = False
+        self.local_email_enabled=False
+        self.local_email_redirect=False
 
     def delete_data(self):
         """This user will be completely archived, so only keep mandatory data"""
-        self.disabled_email()
-        self.user_interfaces(all_interfaces=True).delete()
-        self.ldap_del()
+        self.disable_email()
+        self.machine_set.all().delete()
+
+    @classmethod
+    def mass_archive(cls, users_list):
+        cls.mass_unassign_ips(users_list)
+        users_list.update(state=User.STATE_ARCHIVE)
+
+    @classmethod
+    def mass_full_archive(cls, users_list):
+        cls.mass_unassign_ips(users_list)
+        cls.mass_delete_data(users_list)
+        users_list.update(state=User.STATE_FULL_ARCHIVE)
 
     def archive(self):
         """ Filling the user; no more active"""
@@ -659,6 +690,11 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_ldap.delete()
         except LdapUser.DoesNotExist:
             pass
+
+    @classmethod
+    def ldap_delete_users(cls, queryset_users):
+        """Delete multiple users in ldap"""
+        LdapUser.objects.filter(name__in=list(queryset_users.values_list('pseudo', flat=True)))
 
     def notif_inscription(self):
         """ Prend en argument un objet user, envoie un mail de bienvenue """

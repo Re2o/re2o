@@ -41,6 +41,8 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils import timezone
+from django.db import transaction
+from reversion import revisions as reversion
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import MACAddressField, default_dialect
@@ -1133,6 +1135,21 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     def unassign_ipv4(self):
         """ Sans commentaire, désassigne une ipv4"""
         self.ipv4 = None
+
+    @classmethod
+    def mass_unassign_ipv4(cls, interface_list):
+        """Unassign ipv4 to multiple interfaces"""
+        with transaction.atomic(), reversion.create_revision():
+            interface_list.update(ipv4=None)
+            reversion.set_comment(_("IPv4 unassigning"))
+
+    @classmethod
+    def mass_assign_ipv4(cls, interface_list):
+        for interface in interface_list:
+            with transaction.atomic(), reversion.create_revision():
+                interface.assign_ipv4()
+                interface.save()
+                reversion.set_comment(_("IPv4 assigning"))
 
     def update_type(self):
         """ Lorsque le machinetype est changé de type d'ip, on réassigne"""

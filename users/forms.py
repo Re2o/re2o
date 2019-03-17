@@ -297,6 +297,11 @@ class MassArchiveForm(forms.Form):
     du formulaire la date de depart avant laquelle archiver les
     users"""
     date = forms.DateTimeField(help_text='%d/%m/%y')
+    full_archive = forms.BooleanField(
+        label=_("Make a full archive operation ? (WARNING : CRITICAL OPERATION IF TRUE)"),
+        initial=False,
+        required=False
+    )
 
     def clean(self):
         cleaned_data = super(MassArchiveForm, self).clean()
