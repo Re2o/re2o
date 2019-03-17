@@ -591,11 +591,21 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
 
     @classmethod
     def mass_archive(cls, users_list):
+        """Mass Archive several users, take a queryset
+        Copy Queryset to avoid eval problem with queryset update"""
+        #Force eval of queryset
+        bool(users_list)
+        users_list = users_list.all()
         cls.mass_unassign_ips(users_list)
         users_list.update(state=User.STATE_ARCHIVE)
 
     @classmethod
     def mass_full_archive(cls, users_list):
+        """Mass Archive several users, take a queryset
+        Copy Queryset to avoid eval problem with queryset update"""
+        #Force eval of queryset
+        bool(users_list)
+        users_list = users_list.all()
         cls.mass_unassign_ips(users_list)
         cls.mass_delete_data(users_list)
         users_list.update(state=User.STATE_FULL_ARCHIVE)

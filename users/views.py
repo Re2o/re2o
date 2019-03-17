@@ -785,14 +785,13 @@ def mass_archive(request):
         to_archive_list = User.objects.exclude(id__in=all_has_access()).exclude(id__in=all_has_access(search_time=date)).exclude(state=User.STATE_NOT_YET_ACTIVE).exclude(state=User.STATE_FULL_ARCHIVE)
         if not full_archive:
             to_archive_list = to_archive_list.exclude(state=User.STATE_ARCHIVE)
-        number_to_archive = to_archive_list.count()
         if "valider" in request.POST:
             if full_archive:
                 User.mass_full_archive(to_archive_list)
             else:
                 User.mass_archive(to_archive_list)
             messages.success(request, _("%s users were archived.") %
-                number_to_archive
+                to_archive_list.count()
             )
             return redirect(reverse('users:index'))
         to_archive_list = re2o_paginator(request, to_archive_list, pagination_number)
