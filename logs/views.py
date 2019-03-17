@@ -217,8 +217,8 @@ def stats_general(request):
         ).count()
         ip_dict[ip_range] = [ip_range, ip_range.vlan, all_ip.count(),
                              used_ip, active_ip, all_ip.count()-used_ip]
-    _all_adherent = all_adherent()
-    _all_has_access = all_has_access()
+    _all_adherent = all_adherent(including_asso=False)
+    _all_has_access = all_has_access(including_asso=False)
     _all_baned = all_baned()
     _all_whitelisted = all_whitelisted()
     _all_active_interfaces_count = all_active_interfaces_count()

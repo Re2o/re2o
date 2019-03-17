@@ -44,15 +44,15 @@ from machines.models import Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import AssoOption
 
-def all_adherent(search_time=None):
+def all_adherent(search_time=None, including_asso=True):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est
     qu'une seule requete sql
     Inspecte les factures de l'user et ses cotisation, regarde si elles
     sont posterieur à now (end_time)"""
     if search_time is None:
         search_time = timezone.now()
-    return User.objects.filter(
-        facture__in=Facture.objects.filter(
+    filter_user = (
+        Q(facture__in=Facture.objects.filter(
             vente__in=Vente.objects.filter(
                 Q(type_cotisation='All') | Q(type_cotisation='Adhesion'),
                 cotisation__in=Cotisation.objects.filter(
@@ -62,7 +62,12 @@ def all_adherent(search_time=None):
                 ).filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time))
             )
         )
-    ).distinct()
+    ))
+    if including_asso:
+        asso_user = AssoOption.get_cached_value('utilisateur_asso')
+        if asso_user:
+            filter_user |= Q(id=asso_user.id)
+    return User.objects.filter(filter_user).distinct()
 
 
 def all_baned(search_time=None):
@@ -87,7 +92,7 @@ def all_whitelisted(search_time=None):
     ).distinct()
 
 
-def all_has_access(search_time=None):
+def all_has_access(search_time=None, including_asso=True):
     """ Return all connected users : active users and whitelisted +
     asso_user defined in AssoOption pannel
     ----
@@ -111,9 +116,10 @@ def all_has_access(search_time=None):
              )
          )))
     )
-    asso_user = AssoOption.get_cached_value('utilisateur_asso')
-    if asso_user:
-        filter_user |= Q(id=asso_user.id)
+    if including_asso:
+        asso_user = AssoOption.get_cached_value('utilisateur_asso')
+        if asso_user:
+            filter_user |= Q(id=asso_user.id)
     return User.objects.filter(filter_user).distinct()
 
 
