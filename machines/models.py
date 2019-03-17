@@ -41,6 +41,8 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils import timezone
+from django.db import transaction
+from reversion import revisions as reversion
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import MACAddressField, default_dialect
@@ -221,6 +223,16 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     def get_name(self):
         """Return a name : user provided name or first interface name"""
         return self.name or self.short_name
+
+    @classmethod
+    def mass_delete(cls, machine_queryset):
+        """Mass delete for machine queryset"""
+        Domain.objects.filter(cname__interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Domain.objects.filter(interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Ipv6List.objects.filter(interface__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Interface.objects.filter(machine__in=machine_queryset).filter(port_lists__isnull=False).delete()
+        Interface.objects.filter(machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        machine_queryset._raw_delete(machine_queryset.db)
 
     @cached_property
     def all_complete_names(self):
@@ -1133,6 +1145,21 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     def unassign_ipv4(self):
         """ Sans commentaire, désassigne une ipv4"""
         self.ipv4 = None
+
+    @classmethod
+    def mass_unassign_ipv4(cls, interface_list):
+        """Unassign ipv4 to multiple interfaces"""
+        with transaction.atomic(), reversion.create_revision():
+            interface_list.update(ipv4=None)
+            reversion.set_comment(_("IPv4 unassigning"))
+
+    @classmethod
+    def mass_assign_ipv4(cls, interface_list):
+        for interface in interface_list:
+            with transaction.atomic(), reversion.create_revision():
+                interface.assign_ipv4()
+                interface.save()
+                reversion.set_comment(_("IPv4 assigning"))
 
     def update_type(self):
         """ Lorsque le machinetype est changé de type d'ip, on réassigne"""

@@ -776,26 +776,27 @@ def del_listright(request, instances):
 @can_change(User, 'state')
 def mass_archive(request):
     """ Permet l'archivage massif"""
-    to_archive_date = MassArchiveForm(request.POST or None)
+    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    to_archive_form = MassArchiveForm(request.POST or None)
     to_archive_list = []
-    if to_archive_date.is_valid():
-        date = to_archive_date.cleaned_data['date']
-        to_archive_list = [user for user in
-                           User.objects.exclude(state=User.STATE_ARCHIVE)
-                           if not user.end_access()
-                           or user.end_access() < date]
+    if to_archive_form.is_valid():
+        date = to_archive_form.cleaned_data['date']
+        full_archive = to_archive_form.cleaned_data['full_archive']
+        to_archive_list = User.objects.exclude(id__in=all_has_access()).exclude(id__in=all_has_access(search_time=date)).exclude(state=User.STATE_NOT_YET_ACTIVE).exclude(state=User.STATE_FULL_ARCHIVE)
+        if not full_archive:
+            to_archive_list = to_archive_list.exclude(state=User.STATE_ARCHIVE)
         if "valider" in request.POST:
-            for user in to_archive_list:
-                with transaction.atomic(), reversion.create_revision():
-                    user.archive()
-                    user.save()
-                    reversion.set_comment(_("Archiving"))
-            messages.success(request, _("%s users were archived.") % len(
-                to_archive_list
-            ))
+            if full_archive:
+                User.mass_full_archive(to_archive_list)
+            else:
+                User.mass_archive(to_archive_list)
+            messages.success(request, _("%s users were archived.") %
+                to_archive_list.count()
+            )
             return redirect(reverse('users:index'))
+        to_archive_list = re2o_paginator(request, to_archive_list, pagination_number)
     return form(
-        {'userform': to_archive_date, 'to_archive_list': to_archive_list},
+        {'userform': to_archive_form, 'to_archive_list': to_archive_list},
         'users/mass_archive.html',
         request
     )

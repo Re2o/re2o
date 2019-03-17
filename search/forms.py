@@ -34,6 +34,7 @@ CHOICES_USER = (
     ('1', _("Disabled")),
     ('2', _("Archived")),
     ('3', _("Not yet active")),
+    ('4', _("Full archived")),
 )
 
 CHOICES_AFF = (
