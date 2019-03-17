@@ -148,20 +148,19 @@ ModelC)
                     can_change_fct = getattr(target, 'can_change_' + field)
                     yield can_change_fct(request.user, *args, **kwargs)
 
-            error_messages = [
-                x[1] for x in chain.from_iterable(
-                    process_target(x[0], x[1]) for x in group_targets()
-                ) if not x[0]
-            ]
-            if error_messages:
-                for msg in error_messages:
+            for accept, msg in chain.from_iterable(process_target(x[0], x[1]) for x in group_targets()):
+                if not accept:
                     messages.error(
                         request, msg or _("You don't have the right to access"
-                                          " this menu."))
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                        " this menu.")
+                    )
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
+                elif msg:
+                    messages.warning(request, msg)
+
             return view(request, *chain(instances, args), **kwargs)
         return wrapper
     return decorator
