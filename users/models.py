@@ -576,7 +576,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def mass_delete_data(cls, queryset_users):
         """This users will be completely archived, so only keep mandatory data"""
         cls.mass_disable_email(queryset_users)
-        Machine.objects.filter(user__in=queryset_users).delete()
+        Machine.mass_delete(Machine.objects.filter(user__in=queryset_users))
         cls.ldap_delete_users(queryset_users)
 
     def disable_email(self):

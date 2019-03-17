@@ -224,6 +224,16 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         """Return a name : user provided name or first interface name"""
         return self.name or self.short_name
 
+    @classmethod
+    def mass_delete(cls, machine_queryset):
+        """Mass delete for machine queryset"""
+        Domain.objects.filter(cname__interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Domain.objects.filter(interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Ipv6List.objects.filter(interface__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        Interface.objects.filter(machine__in=machine_queryset).filter(port_lists__isnull=False).delete()
+        Interface.objects.filter(machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        machine_queryset._raw_delete(machine_queryset.db)
+
     @cached_property
     def all_complete_names(self):
         """Renvoie tous les tls complets de la machine"""
