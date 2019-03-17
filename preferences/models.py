@@ -256,7 +256,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         """Return the ip of the interface that the switch have to contact to get it's config"""
         if self.switchs_ip_type:
             from machines.models import Role, Interface
-            return Interface.objects.filter(machine__interface__in=Role.interface_for_roletype("switch-conf-server")).filter(type__ip_type=self.switchs_ip_type).first()
+            return Interface.objects.filter(machine__interface__in=Role.interface_for_roletype("switch-conf-server")).filter(machine_type__ip_type=self.switchs_ip_type).first()
         else:
             return None
 
@@ -282,11 +282,11 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         def return_ips_dict(interfaces):
             return {'ipv4' : [str(interface.ipv4) for interface in interfaces], 'ipv6' : Ipv6List.objects.filter(interface__in=interfaces).values_list('ipv6', flat=True)}
 
-        ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(type__ip_type=self.switchs_ip_type)
-        log_servers = Role.all_interfaces_for_roletype("log-server").filter(type__ip_type=self.switchs_ip_type)
-        radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(type__ip_type=self.switchs_ip_type)
+        ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(machine_type__ip_type=self.switchs_ip_type)
+        log_servers = Role.all_interfaces_for_roletype("log-server").filter(machine_type__ip_type=self.switchs_ip_type)
+        radius_servers = Role.all_interfaces_for_roletype("radius-server").filter(machine_type__ip_type=self.switchs_ip_type)
         dhcp_servers = Role.all_interfaces_for_roletype("dhcp-server")
-        dns_recursive_servers = Role.all_interfaces_for_roletype("dns-recursive-server").filter(type__ip_type=self.switchs_ip_type)
+        dns_recursive_servers = Role.all_interfaces_for_roletype("dns-recursive-server").filter(machine_type__ip_type=self.switchs_ip_type)
         subnet = None
         subnet6 = None
         if self.switchs_ip_type:

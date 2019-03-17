@@ -361,12 +361,12 @@ class Switch(AclMixin, Machine):
     @cached_property
     def interfaces_subnet(self):
         """Return dict ip:subnet for all ip of the switch"""
-        return dict((str(interface.ipv4), interface.type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
+        return dict((str(interface.ipv4), interface.machine_type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
 
     @cached_property
     def interfaces6_subnet(self):
         """Return dict ip6:subnet for all ipv6 of the switch"""
-        return dict((str(interface.ipv6().first()), interface.type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
+        return dict((str(interface.ipv6().first()), interface.machine_type.ip_type.ip6_set_full_info) for interface in self.interface_set.all())
 
     @cached_property
     def list_modules(self):
