@@ -33,83 +33,77 @@ msgstr ""
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: cotisations/forms.py:66 cotisations/forms.py:299
+#: cotisations/forms.py:65 cotisations/forms.py:283
 msgid "Select a payment method"
 msgstr "Sélectionnez un moyen de paiement"
 
-#: cotisations/forms.py:69 cotisations/models.py:603
+#: cotisations/forms.py:68 cotisations/models.py:603
 msgid "Member"
 msgstr "Adhérent"
 
-#: cotisations/forms.py:71
+#: cotisations/forms.py:70
 msgid "Select the proprietary member"
 msgstr "Sélectionnez l'adhérent propriétaire"
 
-#: cotisations/forms.py:72
+#: cotisations/forms.py:71
 msgid "Validated invoice"
 msgstr "Facture validée"
 
-#: cotisations/forms.py:85
+#: cotisations/forms.py:84
 msgid "A payment method must be specified."
 msgstr "Un moyen de paiement doit être renseigné."
 
-#: cotisations/forms.py:97
+#: cotisations/forms.py:96
 #: cotisations/templates/cotisations/aff_article.html:33
 #: cotisations/templates/cotisations/facture.html:67
 msgid "Article"
 msgstr "Article"
 
-#: cotisations/forms.py:101
+#: cotisations/forms.py:100
 #: cotisations/templates/cotisations/edit_facture.html:50
 msgid "Quantity"
 msgstr "Quantité"
 
-#: cotisations/forms.py:119
-msgid "Discount is on percentage."
+#: cotisations/forms.py:118
+#, fuzzy
+#| msgid "Discount is on percentage."
+msgid "Discount is in percentage."
 msgstr "La réduction est en pourcentage."
 
-#: cotisations/forms.py:123 cotisations/templates/cotisations/facture.html:78
+#: cotisations/forms.py:122 cotisations/templates/cotisations/facture.html:78
 msgid "Discount"
 msgstr "Réduction"
 
-#: cotisations/forms.py:140
+#: cotisations/forms.py:139
 #, python-format
 msgid "{}% discount"
 msgstr "{}% de réduction"
 
-#: cotisations/forms.py:140
+#: cotisations/forms.py:139
 msgid "{}€ discount"
 msgstr "{}€ de réduction"
 
-#: cotisations/forms.py:179
-msgid "Article name"
-msgstr "Nom de l'article"
-
-#: cotisations/forms.py:189 cotisations/templates/cotisations/sidebar.html:55
+#: cotisations/forms.py:183 cotisations/templates/cotisations/sidebar.html:55
 msgid "Available articles"
 msgstr "Articles disponibles"
 
-#: cotisations/forms.py:217
+#: cotisations/forms.py:210
 msgid "Payment method name"
 msgstr "Nom du moyen de paiement"
 
-#: cotisations/forms.py:229
+#: cotisations/forms.py:221
 msgid "Available payment methods"
 msgstr "Moyens de paiement disponibles"
 
-#: cotisations/forms.py:255
-msgid "Bank name"
-msgstr "Nom de la banque"
-
-#: cotisations/forms.py:267
+#: cotisations/forms.py:252
 msgid "Available banks"
 msgstr "Banques disponibles"
 
-#: cotisations/forms.py:286
+#: cotisations/forms.py:270
 msgid "Amount"
 msgstr "Montant"
 
-#: cotisations/forms.py:292
+#: cotisations/forms.py:276
 #: cotisations/templates/cotisations/aff_cost_estimate.html:42
 #: cotisations/templates/cotisations/aff_cotisations.html:44
 #: cotisations/templates/cotisations/aff_custom_invoice.html:42
@@ -117,7 +111,7 @@ msgstr "Montant"
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: cotisations/forms.py:313
+#: cotisations/forms.py:297
 #, python-format
 msgid ""
 "Requested amount is too high. Your balance can't exceed "
@@ -574,7 +568,7 @@ msgstr "Mode production"
 
 #: cotisations/payment_methods/comnpay/models.py:69
 msgid "When enabled it will use production URL instead of homologation"
-msgstr
+msgstr ""
 "Quand activé, l'URL de production sera utilisée au lieu de celle "
 "d'homologation"
 
