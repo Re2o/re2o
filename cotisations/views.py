@@ -75,12 +75,12 @@ from .forms import (
     FactureForm,
     ArticleForm,
     DelArticleForm,
-    PaiementForm,
-    DelPaiementForm,
-    BanqueForm,
-    DelBanqueForm,
+    PaymentForm,
+    DelPaymentForm,
+    BankForm,
+    DelBankForm,
     SelectArticleForm,
-    RechargeForm,
+    RefillBalanceForm,
     CustomInvoiceForm,
     DiscountForm,
     CostEstimateForm,
@@ -673,7 +673,7 @@ def add_paiement(request):
     """
     View used to add a payment method.
     """
-    payment = PaiementForm(request.POST or None, prefix='payment')
+    payment = PaymentForm(request.POST or None, prefix='payment')
     payment_method = payment_method_factory(
         payment.instance,
         request.POST or None,
@@ -702,7 +702,7 @@ def edit_paiement(request, paiement_instance, **_kwargs):
     """
     View used to edit a payment method.
     """
-    payment = PaiementForm(
+    payment = PaymentForm(
         request.POST or None,
         instance=paiement_instance,
         prefix="payment"
@@ -738,7 +738,7 @@ def del_paiement(request, instances):
     """
     View used to delete a set of payment methods.
     """
-    payment = DelPaiementForm(request.POST or None, instances=instances)
+    payment = DelPaymentForm(request.POST or None, instances=instances)
     if payment.is_valid():
         payment_dels = payment.cleaned_data['paiements']
         for payment_del in payment_dels:
@@ -773,7 +773,7 @@ def add_banque(request):
     """
     View used to add a bank.
     """
-    bank = BanqueForm(request.POST or None)
+    bank = BankForm(request.POST or None)
     if bank.is_valid():
         bank.save()
         messages.success(
@@ -795,7 +795,7 @@ def edit_banque(request, banque_instance, **_kwargs):
     """
     View used to edit a bank.
     """
-    bank = BanqueForm(request.POST or None, instance=banque_instance)
+    bank = BankForm(request.POST or None, instance=banque_instance)
     if bank.is_valid():
         if bank.changed_data:
             bank.save()
@@ -818,7 +818,7 @@ def del_banque(request, instances):
     """
     View used to delete a set of banks.
     """
-    bank = DelBanqueForm(request.POST or None, instances=instances)
+    bank = DelBankForm(request.POST or None, instances=instances)
     if bank.is_valid():
         bank_dels = bank.cleaned_data['banques']
         for bank_del in bank_dels:
@@ -1021,7 +1021,7 @@ def credit_solde(request, user, **_kwargs):
             kwargs={'userid': user.id}
         ))
 
-    refill_form = RechargeForm(
+    refill_form = RefillBalanceForm(
         request.POST or None, user=user, user_source=request.user)
     if refill_form.is_valid():
         price = refill_form.cleaned_data['value']

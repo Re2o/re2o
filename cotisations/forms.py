@@ -37,7 +37,6 @@ of each of the method.
 from __future__ import unicode_literals
 
 from django import forms
-from django.db.models import Q
 from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
 
@@ -116,7 +115,7 @@ class DiscountForm(Form):
     Form used in oder to create a discount on an invoice.
     """
     is_relative = forms.BooleanField(
-        label=_("Discount is on percentage."),
+        label=_("Discount is in percentage."),
         required=False,
     )
     discount = forms.DecimalField(
@@ -173,11 +172,6 @@ class ArticleForm(FormRevMixin, ModelForm):
         model = Article
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(ArticleForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = _("Article name")
-
 
 class DelArticleForm(FormRevMixin, Form):
     """
@@ -199,8 +193,7 @@ class DelArticleForm(FormRevMixin, Form):
             self.fields['articles'].queryset = Article.objects.all()
 
 
-# TODO : change Paiement to Payment
-class PaiementForm(FormRevMixin, ModelForm):
+class PaymentForm(FormRevMixin, ModelForm):
     """
     Form used to create a new payment method.
     The 'cheque' type is used to associate a specific behaviour requiring
@@ -213,12 +206,11 @@ class PaiementForm(FormRevMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(PaiementForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(PaymentForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields['moyen'].label = _("Payment method name")
 
 
-# TODO : change paiement to payment
-class DelPaiementForm(FormRevMixin, Form):
+class DelPaymentForm(FormRevMixin, Form):
     """
     Form used to delete one or more payment methods.
     The user must choose the one to delete by checking the boxes.
@@ -232,31 +224,24 @@ class DelPaiementForm(FormRevMixin, Form):
 
     def __init__(self, *args, **kwargs):
         instances = kwargs.pop('instances', None)
-        super(DelPaiementForm, self).__init__(*args, **kwargs)
+        super(DelPaymentForm, self).__init__(*args, **kwargs)
         if instances:
             self.fields['paiements'].queryset = instances
         else:
             self.fields['paiements'].queryset = Paiement.objects.all()
 
 
-# TODO : change banque to bank
-class BanqueForm(FormRevMixin, ModelForm):
+class BankForm(FormRevMixin, ModelForm):
     """
     Form used to create a bank.
     """
     class Meta:
         # TODO : change banque to bank
         model = Banque
-        fields = ['name']
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        super(BanqueForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields['name'].label = _("Bank name")
+        fields = '__all__'
 
 
-# TODO : change banque to bank
-class DelBanqueForm(FormRevMixin, Form):
+class DelBankForm(FormRevMixin, Form):
     """
     Form used to delete one or more banks.
     The use must choose the one to delete by checking the boxes.
@@ -270,15 +255,14 @@ class DelBanqueForm(FormRevMixin, Form):
 
     def __init__(self, *args, **kwargs):
         instances = kwargs.pop('instances', None)
-        super(DelBanqueForm, self).__init__(*args, **kwargs)
+        super(DelBankForm, self).__init__(*args, **kwargs)
         if instances:
             self.fields['banques'].queryset = instances
         else:
             self.fields['banques'].queryset = Banque.objects.all()
 
 
-# TODO : Better name and docstring
-class RechargeForm(FormRevMixin, Form):
+class RefillBalanceForm(FormRevMixin, Form):
     """
     Form used to refill a user's balance
     """
@@ -294,7 +278,7 @@ class RechargeForm(FormRevMixin, Form):
 
     def __init__(self, *args, user=None, user_source=None, **kwargs):
         self.user = user
-        super(RechargeForm, self).__init__(*args, **kwargs)
+        super(RefillBalanceForm, self).__init__(*args, **kwargs)
         self.fields['payment'].empty_label = \
             _("Select a payment method")
         self.fields['payment'].queryset = Paiement.find_allowed_payments(
