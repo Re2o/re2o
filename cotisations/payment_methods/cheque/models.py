@@ -33,7 +33,7 @@ class ChequePayment(PaymentMethodMixin, models.Model):
     """
 
     class Meta:
-        verbose_name = _("Cheque")
+        verbose_name = _("cheque")
 
     payment = models.OneToOneField(
         Paiement,

@@ -45,19 +45,19 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         editable=False
     )
     payment_credential = models.CharField(
+        verbose_name=_("ComNpay VAT Number"),
         max_length=255,
         default='',
         blank=True,
-        verbose_name=_("ComNpay VAT Number"),
     )
     payment_pass = AESEncryptedField(
+        verbose_name=_("ComNpay secret key"),
         max_length=255,
         null=True,
         blank=True,
-        verbose_name=_("ComNpay secret key"),
     )
     minimum_payment = models.DecimalField(
-        verbose_name=_("Minimum payment"),
+        verbose_name=_("minimum payment"),
         help_text=_("The minimal amount of money you have to use when paying"
                      " with ComNpay"),
         max_digits=5,
@@ -65,8 +65,10 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         default=1,
     )
     production = models.BooleanField(
+        verbose_name=_("Production mode"),
+        help_text=_("When enabled it will use production URL instead of "
+                    "homologation"),
         default=True,
-        verbose_name=_("Production mode enabled (production URL, instead of homologation)"),
     )
 
     def return_url_comnpay(self):

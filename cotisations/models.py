@@ -59,8 +59,8 @@ from cotisations.validators import check_no_balance
 
 class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     date = models.DateTimeField(
+        verbose_name=_("date"),
         auto_now_add=True,
-        verbose_name=_("Date")
     )
 
     # TODO : change prix to price
@@ -134,19 +134,19 @@ class Facture(BaseInvoice):
     )
     # TODO : maybe change to cheque nummber because not evident
     cheque = models.CharField(
+        verbose_name=_("cheque number"),
         max_length=255,
         blank=True,
-        verbose_name=_("cheque number")
     )
     # TODO : change name to validity for clarity
     valid = models.BooleanField(
+        verbose_name=_("validated"),
         default=False,
-        verbose_name=_("validated")
     )
     # TODO : changed name to controlled for clarity
     control = models.BooleanField(
+        verbose_name=_("controlled"),
         default=False,
-        verbose_name=_("controlled")
     )
 
     class Meta:
@@ -295,23 +295,23 @@ class CustomInvoice(BaseInvoice):
             ('view_custominvoice', _("Can view a custom invoice object")),
         )
     recipient = models.CharField(
+        verbose_name=_("recipient"),
         max_length=255,
-        verbose_name=_("Recipient")
     )
     payment = models.CharField(
+        verbose_name=_("payment type"),
         max_length=255,
-        verbose_name=_("Payment type")
     )
     address = models.CharField(
+        verbose_name=_("address"),
         max_length=255,
-        verbose_name=_("Address")
     )
     paid = models.BooleanField(
-        verbose_name=_("Paid"),
+        verbose_name=_("paid"),
         default=False
     )
     remark = models.TextField(
-        verbose_name=_("Remark"),
+        verbose_name=_("remark"),
         blank=True,
         null=True
     )
@@ -323,7 +323,7 @@ class CostEstimate(CustomInvoice):
             ('view_costestimate', _("Can view a cost estimate object")),
         )
     validity = models.DurationField(
-        verbose_name=_("Period of validity"),
+        verbose_name=_("period of validity"),
         help_text="DD HH:MM:SS"
     )
     final_invoice = models.ForeignKey(
@@ -397,33 +397,34 @@ class Vente(RevMixin, AclMixin, models.Model):
     )
     # TODO : change number to amount for clarity
     number = models.IntegerField(
+        verbose_name=_("amount"),
         validators=[MinValueValidator(1)],
-        verbose_name=_("amount")
     )
     # TODO : change this field for a ForeinKey to Article
     name = models.CharField(
+        verbose_name=_("article"),
         max_length=255,
-        verbose_name=_("article")
     )
     # TODO : change prix to price
     # TODO : this field is not needed if you use Article ForeignKey
     prix = models.DecimalField(
+        verbose_name=_("price"),
         max_digits=5,
         decimal_places=2,
-        verbose_name=_("price"))
+    )
     # TODO : this field is not needed if you use Article ForeignKey
     duration = models.PositiveIntegerField(
+        verbose_name=_("duration (in months)"),
         blank=True,
         null=True,
-        verbose_name=_("duration (in months)")
     )
     # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
+        verbose_name=_("subscription type"),
         choices=COTISATION_TYPE,
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("subscription type")
     )
 
     class Meta:
@@ -611,38 +612,38 @@ class Article(RevMixin, AclMixin, models.Model):
     )
 
     name = models.CharField(
+        verbose_name=_("designation"),
         max_length=255,
-        verbose_name=_("designation")
     )
     # TODO : change prix to price
     prix = models.DecimalField(
+        verbose_name=_("unit price"),
         max_digits=5,
         decimal_places=2,
-        verbose_name=_("unit price")
     )
     duration = models.PositiveIntegerField(
+        verbose_name=_("duration (in months)"),
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in months)")
     )
     type_user = models.CharField(
+        verbose_name=_("type of users concerned"),
         choices=USER_TYPES,
         default='All',
         max_length=255,
-        verbose_name=_("type of users concerned")
     )
     type_cotisation = models.CharField(
+        verbose_name=_("subscription type"),
         choices=COTISATION_TYPE,
         default=None,
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("subscription type")
     )
     available_for_everyone = models.BooleanField(
+        verbose_name=_("is available for every user"),
         default=False,
-        verbose_name=_("is available for every user")
     )
 
     unique_together = ('name', 'type_user')
@@ -723,6 +724,7 @@ class Banque(RevMixin, AclMixin, models.Model):
     """
 
     name = models.CharField(
+        verbose_name=_("name"),
         max_length=255,
     )
 
@@ -748,17 +750,17 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
     # TODO : change moyen to method
     moyen = models.CharField(
+        verbose_name=_("method"),
         max_length=255,
-        verbose_name=_("method")
     )
     available_for_everyone = models.BooleanField(
+        verbose_name=_("is available for every user"),
         default=False,
-        verbose_name=_("is available for every user")
     )
     is_balance = models.BooleanField(
+        verbose_name=_("is user balance"),
         default=False,
         editable=False,
-        verbose_name=_("is user balance"),
         help_text=_("There should be only one balance payment method."),
         validators=[check_no_balance]
     )
@@ -882,13 +884,12 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         'Vente',
         on_delete=models.CASCADE,
         null=True,
-        verbose_name=_("purchase")
     )
     type_cotisation = models.CharField(
+        verbose_name=_("subscription type"),
         choices=COTISATION_TYPE,
         max_length=255,
         default='All',
-        verbose_name=_("subscription type")
     )
     date_start = models.DateTimeField(
         verbose_name=_("start date")

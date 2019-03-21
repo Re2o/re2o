@@ -41,21 +41,23 @@ class NotePayment(PaymentMethodMixin, models.Model):
 
     payment = models.OneToOneField(
         Paiement,
-        on_delete = models.CASCADE,
-        related_name = 'payment_method',
-        editable = False
+        on_delete=models.CASCADE,
+        related_name='payment_method',
+        editable=False
     )
     server = models.CharField(
+        verbose_name=_("server"),
         max_length=255,
-        verbose_name=_("server")
     )
     port = models.PositiveIntegerField(
-        blank = True,
-        null = True
+        verbose_name=_("port"),
+        blank=True,
+        null=True
     )
     id_note = models.PositiveIntegerField(
-        blank = True,
-        null = True
+        verbose_name=_("id of destination note"),
+        blank=True,
+        null=True
     )
 
     def end_payment(self, invoice, request):

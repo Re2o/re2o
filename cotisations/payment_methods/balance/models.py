@@ -44,7 +44,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         editable=False
     )
     minimum_balance = models.DecimalField(
-        verbose_name=_("Minimum balance"),
+        verbose_name=_("minimum balance"),
         help_text=_("The minimal amount of money allowed for the balance"
                      " at the end of a payment. You can specify negative "
                      "amount."
@@ -54,7 +54,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         default=0,
     )
     maximum_balance = models.DecimalField(
-        verbose_name=_("Maximum balance"),
+        verbose_name=_("maximum balance"),
         help_text=_("The maximal amount of money allowed for the balance."),
         max_digits=5,
         decimal_places=2,
@@ -63,7 +63,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         null=True,
     )
     credit_balance_allowed = models.BooleanField(
-        verbose_name=_("Allow user to credit their balance"),
+        verbose_name=_("allow user to credit their balance"),
         default=False,
     )
 
