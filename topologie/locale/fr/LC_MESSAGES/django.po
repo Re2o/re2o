@@ -987,7 +987,8 @@ msgstr "La résidence a été supprimée."
 #: topologie/views.py:1019
 #, python-format
 msgid "The dormitory %s is used by another object, impossible to delete it."
-msgstr "La résidence %s est utilisée par un autre objet, impossible de la supprimer."
+msgstr ""
+"La résidence %s est utilisée par un autre objet, impossible de la supprimer."
 
 #: topologie/views.py:1037
 msgid "The switch constructor was created."

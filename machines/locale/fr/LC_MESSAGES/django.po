@@ -558,9 +558,8 @@ msgstr "Le type d'IP sélectionné est invalide."
 
 #: machines/models.py:1203
 msgid "Mac address already registered in this Machine Type/Subnet"
-msgstr
-"Cette adresse MAC est déjà enregistrée dans ce type de "
-"machine/sous-réseau"
+msgstr ""
+"Cette adresse MAC est déjà enregistrée dans ce type de machine/sous-réseau"
 
 #: machines/models.py:1210
 msgid "The IPv4 address and the machine type don't match."
