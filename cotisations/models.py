@@ -872,8 +872,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         ('All', _("Both of them")),
     )
 
-    # TODO : change vente to purchase
-    vente = models.OneToOneField(
+    purchase = models.OneToOneField(
         'Vente',
         on_delete=models.CASCADE,
         null=True,
@@ -903,8 +902,8 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm('cotisations.change_cotisation'):
             return False, _("You don't have the right to edit a subscription.")
         elif not user_request.has_perm('cotisations.change_all_cotisation') \
-                and (self.vente.invoice.control or
-                     not self.vente.invoice.valid):
+                and (self.purchase.invoice.control or
+                     not self.purchase.invoice.valid):
             return False, _("You don't have the right to edit a subscription "
                             "already controlled or invalidated.")
         else:
@@ -914,7 +913,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm('cotisations.delete_cotisation'):
             return False, _("You don't have the right to delete a "
                             "subscription.")
-        if self.vente.invoice.control or not self.vente.invoice.valid:
+        if self.purchase.invoice.control or not self.purchase.invoice.valid:
             return False, _("You don't have the right to delete a subscription "
                             "already controlled or invalidated.")
         else:
@@ -922,14 +921,14 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
-                self.vente.invoice.user != user_request:
+                self.purchase.invoice.user != user_request:
             return False, _("You don't have the right to view someone else's "
                             "subscription history.")
         else:
             return True, None
 
     def __str__(self):
-        return str(self.vente)
+        return str(self.purchase)
 
 
 @receiver(post_save, sender=Cotisation)
