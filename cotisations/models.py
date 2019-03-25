@@ -385,14 +385,12 @@ class Vente(RevMixin, AclMixin, models.Model):
         ('All', _("Both of them")),
     )
 
-    # TODO : change facture to invoice
-    facture = models.ForeignKey(
+    invoice = models.ForeignKey(
         'BaseInvoice',
         on_delete=models.CASCADE,
         verbose_name=_("invoice")
     )
-    # TODO : change number to amount for clarity
-    number = models.IntegerField(
+    amount = models.IntegerField(
         verbose_name=_("amount"),
         validators=[MinValueValidator(1)],
     )
@@ -401,9 +399,8 @@ class Vente(RevMixin, AclMixin, models.Model):
         verbose_name=_("article"),
         max_length=255,
     )
-    # TODO : change prix to price
     # TODO : this field is not needed if you use Article ForeignKey
-    prix = models.DecimalField(
+    price = models.DecimalField(
         verbose_name=_("price"),
         max_digits=5,
         decimal_places=2,
@@ -436,7 +433,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         """
         Returns: the total of price for this amount of items.
         """
-        return self.prix*self.number
+        return self.price * self.amount
 
     def update_cotisation(self):
         """
@@ -446,7 +443,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number)
+                months=self.duration*self.amount)
         return
 
     def create_cotis(self, date_start=False):
@@ -456,7 +453,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         a cotisation)
         """
         try:
-            invoice = self.facture.facture
+            invoice = self.invoice.facture
         except Facture.DoesNotExist:
             return
         if not hasattr(self, 'cotisation') and self.type_cotisation:
@@ -483,7 +480,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             date_max = max(end_cotisation, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number
+                months=self.duration*self.amount
             )
         return
 
@@ -505,13 +502,13 @@ class Vente(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm('cotisations.change_vente'):
             return False, _("You don't have the right to edit the purchases.")
         elif (not user_request.has_perm('cotisations.change_all_facture') and
-              not self.facture.user.can_edit(
+              not self.invoice.user.can_edit(
                   user_request, *args, **kwargs
         )[0]):
             return False, _("You don't have the right to edit this user's "
                             "purchases.")
         elif (not user_request.has_perm('cotisations.change_all_vente') and
-              (self.facture.control or not self.facture.valid)):
+              (self.invoice.control or not self.invoice.valid)):
             return False, _("You don't have the right to edit a purchase "
                             "already controlled or invalidated.")
         else:
@@ -520,10 +517,10 @@ class Vente(RevMixin, AclMixin, models.Model):
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_vente'):
             return False, _("You don't have the right to delete a purchase.")
-        if not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
+        if not self.invoice.user.can_edit(user_request, *args, **kwargs)[0]:
             return False, _("You don't have the right to delete this user's "
                             "purchases.")
-        if self.facture.control or not self.facture.valid:
+        if self.invoice.control or not self.invoice.valid:
             return False, _("You don't have the right to delete a purchase "
                             "already controlled or invalidated.")
         else:
@@ -531,14 +528,14 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     def can_view(self, user_request, *_args, **_kwargs):
         if (not user_request.has_perm('cotisations.view_vente') and
-                self.facture.user != user_request):
+                self.invoice.user != user_request):
             return False, _("You don't have the right to view someone "
                             "else's purchase history.")
         else:
             return True, None
 
     def __str__(self):
-        return str(self.name) + ' ' + str(self.facture)
+        return str(self.name) + ' ' + str(self.invoice)
 
 
 # TODO : change vente to purchase
@@ -906,8 +903,8 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm('cotisations.change_cotisation'):
             return False, _("You don't have the right to edit a subscription.")
         elif not user_request.has_perm('cotisations.change_all_cotisation') \
-                and (self.vente.facture.control or
-                     not self.vente.facture.valid):
+                and (self.vente.invoice.control or
+                     not self.vente.invoice.valid):
             return False, _("You don't have the right to edit a subscription "
                             "already controlled or invalidated.")
         else:
@@ -917,7 +914,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm('cotisations.delete_cotisation'):
             return False, _("You don't have the right to delete a "
                             "subscription.")
-        if self.vente.facture.control or not self.vente.facture.valid:
+        if self.vente.invoice.control or not self.vente.invoice.valid:
             return False, _("You don't have the right to delete a subscription "
                             "already controlled or invalidated.")
         else:
@@ -925,7 +922,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
-                self.vente.facture.user != user_request:
+                self.vente.invoice.user != user_request:
             return False, _("You don't have the right to view someone else's "
                             "subscription history.")
         else:

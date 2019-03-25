@@ -151,7 +151,7 @@ def new_facture(request, user, userid):
             if price_ok:
                 new_invoice_instance.save()
                 for p in purchases:
-                    p.facture = new_invoice_instance
+                    p.invoice = new_invoice_instance
                     p.save()
 
                 return new_invoice_instance.paiement.end_payment(
@@ -347,7 +347,7 @@ def edit_facture(request, facture, **_kwargs):
     purchases_objects = Vente.objects.filter(facture=facture)
     purchase_form_set = modelformset_factory(
         Vente,
-        fields=('name', 'number'),
+        fields=('name', 'amount'),
         extra=0,
         max_num=len(purchases_objects)
     )
@@ -401,7 +401,7 @@ def edit_cost_estimate(request, invoice, **kwargs):
     purchases_objects = Vente.objects.filter(facture=invoice)
     purchase_form_set = modelformset_factory(
         Vente,
-        fields=('name', 'number'),
+        fields=('name', 'amount'),
         extra=0,
         max_num=len(purchases_objects)
     )
@@ -450,7 +450,7 @@ def edit_custom_invoice(request, invoice, **kwargs):
     purchases_objects = Vente.objects.filter(facture=invoice)
     purchase_form_set = modelformset_factory(
         Vente,
-        fields=('name', 'number'),
+        fields=('name', 'amount'),
         extra=0,
         max_num=len(purchases_objects)
     )
