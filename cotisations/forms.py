@@ -68,7 +68,7 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
             self.fields['user'].label = _("Member")
             self.fields['user'].empty_label = \
                 _("Select the proprietary member")
-            self.fields['valid'].label = _("Validated invoice")
+            self.fields['validity'].label = _("Validated invoice")
         else:
             self.fields = {'paiement': self.fields['paiement']}
 

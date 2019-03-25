@@ -865,7 +865,7 @@ def control(request):
     )
     control_invoices_formset = modelformset_factory(
         Facture,
-        fields=('control', 'valid'),
+        fields=('controlled', 'validity'),
         extra=0
     )
     invoice_list = re2o_paginator(request, invoice_list, pagination_number)

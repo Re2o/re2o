@@ -41,7 +41,7 @@ def cheque(request, invoice_pk):
     """This view validate an invoice with the data from a cheque."""
     invoice = get_object_or_404(Invoice, pk=invoice_pk)
     payment_method = find_payment_method(invoice.paiement)
-    if invoice.valid or not isinstance(payment_method, ChequePayment):
+    if invoice.validity or not isinstance(payment_method, ChequePayment):
         messages.error(
             request,
             _("You can't pay this invoice with a cheque.")

@@ -47,7 +47,7 @@ def accept_payment(request, factureid):
     accepted.
     """
     invoice = get_object_or_404(Facture, id=factureid)
-    if invoice.valid:
+    if invoice.validity:
         messages.success(
             request,
             _("The payment of %(amount)s € was accepted.") % {
@@ -130,7 +130,7 @@ def ipn(request):
         # received the failure information.
         return HttpResponse("HTTP/1.1 200 OK")
 
-    facture.valid = True
+    facture.validity = True
     facture.save()
 
     # Everything worked we send a reponse to Comnpay indicating that

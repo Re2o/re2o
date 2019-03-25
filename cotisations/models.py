@@ -125,26 +125,22 @@ class Facture(BaseInvoice):
     user = models.ForeignKey('users.User', on_delete=models.PROTECT)
     # TODO : change paiement to payment
     paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
-    # TODO : change banque to bank
-    banque = models.ForeignKey(
+    bank = models.ForeignKey(
         'Banque',
         on_delete=models.PROTECT,
         blank=True,
         null=True
     )
-    # TODO : maybe change to cheque nummber because not evident
-    cheque = models.CharField(
+    cheque_number = models.CharField(
         verbose_name=_("cheque number"),
         max_length=255,
         blank=True,
     )
-    # TODO : change name to validity for clarity
-    valid = models.BooleanField(
+    validity = models.BooleanField(
         verbose_name=_("validated"),
         default=False,
     )
-    # TODO : changed name to controlled for clarity
-    control = models.BooleanField(
+    controlled = models.BooleanField(
         verbose_name=_("controlled"),
         default=False,
     )
@@ -176,7 +172,7 @@ class Facture(BaseInvoice):
             return False, _("You don't have the right to edit this user's "
                             "invoices.")
         elif not user_request.has_perm('cotisations.change_all_facture') and \
-                (self.control or not self.valid):
+                (self.controlled or not self.validity):
             return False, _("You don't have the right to edit an invoice "
                             "already controlled or invalidated.")
         else:
@@ -190,7 +186,7 @@ class Facture(BaseInvoice):
             return False, _("You don't have the right to delete this user's "
                             "invoices.")
         elif not user_request.has_perm('cotisations.change_all_facture') and \
-                (self.control or not self.valid):
+                (self.controlled or not self.validity):
             return False, _("You don't have the right to delete an invoice "
                             "already controlled or invalidated.")
         else:
@@ -201,7 +197,7 @@ class Facture(BaseInvoice):
             if self.user != user_request:
                 return False, _("You don't have the right to view someone else's "
                                 "invoices history.")
-            elif not self.valid:
+            elif not self.validity:
                 return False, _("The invoice has been invalidated.")
             else:
                 return True, None
@@ -238,8 +234,8 @@ class Facture(BaseInvoice):
         self.field_permissions = {
             'control': self.can_change_control,
         }
-        self.__original_valid = self.valid
-        self.__original_control = self.control
+        self.__original_valid = self.validity
+        self.__original_control = self.controlled
 
     def get_subscription(self):
         """Returns every subscription associated with this invoice."""
@@ -256,11 +252,11 @@ class Facture(BaseInvoice):
 
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
-        if not self.__original_valid and self.valid:
+        if not self.__original_valid and self.validity:
             send_mail_invoice(self)
         if self.is_subscription() \
                 and not self.__original_control \
-                and self.control \
+                and self.controlled \
                 and CotisationsOption.get_cached_value('send_voucher_mail'):
             send_mail_voucher(self)
 
