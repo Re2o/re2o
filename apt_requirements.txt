@@ -16,5 +16,6 @@ libjs-jquery-timepicker
 libjs-bootstrap
 fonts-font-awesome
 graphviz
+python3-matplotlib
 git
 gettext
