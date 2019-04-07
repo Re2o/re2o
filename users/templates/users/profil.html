@@ -150,6 +150,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </a>
                 {% acl_end %}
                 {% history_button users text=True %}
+                <a class="btn btn-warning btn-sm" role="button" href="{% url 'users:download-data' user.id %}">
+                    <i class="fa fa-archive"></i> CSV
+                </a>
                 </ul>
             </div>
             <div class="panel-body">

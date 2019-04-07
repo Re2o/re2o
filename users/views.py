@@ -225,6 +225,12 @@ def edit_info(request, user, userid):
         request
     )
 
+@login_required
+@can_edit(User)
+def download_data(request, user, userid):
+    """ Call the create_data_file method from user and push the file to download """
+    return user.create_data_file()
+
 
 @login_required
 @can_edit(User, 'state')

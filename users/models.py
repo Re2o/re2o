@@ -49,6 +49,7 @@ import re
 import uuid
 import datetime
 import sys
+import csv
 
 from django.db import models
 from django.db.models import Q
@@ -59,6 +60,7 @@ from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.template import Context, loader
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
@@ -348,6 +350,41 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             self.state = self.STATE_ACTIVE
             self.unarchive()
             self.save()
+
+    def create_data_file(self):
+        """Génère le fichier contenant toutes les infos que l'on a sur l'user:
+        - Infos perso
+        - Machines
+        - Cotisations
+        - Paramètres mail
+        - Historique sur les objects.
+        renvoit le chemin du fichier pour lancer le téléchargement.
+        """
+        interfaces = self.users_interfaces([self])
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}_data.csv"'.format(self.get_full_name())
+
+        writer = csv.writer(response)
+        writer.writerow(["Ce fichier contient toutes les données que Re2o possède pour l\'utilisateur {}".format(self.get_full_name())])
+        writer.writerow(["Nom de la variable","Valeur","Commentaire"])
+        writer.writerow(["Informations personnelles"])
+        writer.writerow(["Prénom",str(self.name)])
+        writer.writerow(["Nom",str(self.surname)])
+        writer.writerow(["Téléphone",str(self.telephone)])
+        writer.writerow(["Commentaire",str(self.comment)])
+        writer.writerow(["École",str(self.school)])
+        writer.writerow(["Chambre",str(self.room)])
+        writer.writerow(["Date d'inscription",str(self.registered)])
+        writer.writerow(["Dernière connexion",str(self.last_login)])
+        writer.writerow(["Solde",str(self.solde)])
+
+        return response
+
+
+
+
+
 
     @property
     def is_staff(self):

@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^new_user/$', views.new_user, name='new-user'),
     url(r'^new_club/$', views.new_club, name='new-club'),
     url(r'^edit_info/(?P<userid>[0-9]+)$', views.edit_info, name='edit-info'),
+    url(r'^download_data/(?P<userid>[0-9]+)$', views.download_data, name='download-data'),
     url(r'^edit_club_admin_members/(?P<clubid>[0-9]+)$',
         views.edit_club_admin_members,
         name='edit-club-admin-members'),
