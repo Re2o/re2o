@@ -46,9 +46,14 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView
 
 from .views import index, about_page, contact_page
+
+# Admin site configuration
+admin.site.index_title = _('Homepage')
+admin.site.index_template = 'admin/custom_index.html'
 
 handler500 = 're2o.views.handler500'
 handler404 = 're2o.views.handler404'
