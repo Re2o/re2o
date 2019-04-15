@@ -46,7 +46,6 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 
 from .views import index, about_page, contact_page
@@ -58,7 +57,6 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^about/$', about_page, name='about'),
     url(r'^contact/$', contact_page, name='contact'),
-    url('^logout/', auth_views.logout, {'next_page': '/'}),
     url('^', include('django.contrib.auth.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include(admin.site.urls)),
