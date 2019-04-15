@@ -47,6 +47,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 
 from .views import index, about_page, contact_page
 
@@ -74,6 +75,9 @@ urlpatterns = [
         r'^preferences/',
         include('preferences.urls', namespace='preferences')
     ),
+
+    # manage/login/ is redirected to the non-admin login page
+    url(r'^manage/login/$', RedirectView.as_view(pattern_name='login')),
 ]
 # Add debug_toolbar URLs if activated
 if 'debug_toolbar' in settings.INSTALLED_APPS:
