@@ -157,9 +157,9 @@ class MD5PasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         salt = hash_password_salt(encoded)
-        return constant_time_compare(
-            b64encode(hashlib.md5(password.encode() + salt).digest() + salt),
-            encoded.encode())
+        return constant_time_compare(self.algorithm + "$" +
+            b64encode(hashlib.md5(password.encode() + salt).digest() + salt).decode(),
+            encoded)
 
     def safe_summary(self, encoded):
         """
