@@ -46,9 +46,14 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import RedirectView
 
 from .views import index, about_page, contact_page
+
+# Admin site configuration
+admin.site.index_title = _('Homepage')
+admin.site.index_template = 'admin/custom_index.html'
 
 handler500 = 're2o.views.handler500'
 handler404 = 're2o.views.handler404'
@@ -57,10 +62,7 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^about/$', about_page, name='about'),
     url(r'^contact/$', contact_page, name='contact'),
-    url('^logout/', auth_views.logout, {'next_page': '/'}),
-    url('^', include('django.contrib.auth.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include('users.urls', namespace='users')),
     url(r'^search/', include('search.urls', namespace='search')),
     url(
@@ -74,6 +76,12 @@ urlpatterns = [
         r'^preferences/',
         include('preferences.urls', namespace='preferences')
     ),
+
+    # Include contrib auth and contrib admin
+    # manage/login/ is redirected to the non-admin login page
+    url(r'^', include('django.contrib.auth.urls')),
+    url(r'^admin/login/$', RedirectView.as_view(pattern_name='login')),
+    url(r'^admin/', include(admin.site.urls)),
 ]
 # Add debug_toolbar URLs if activated
 if 'debug_toolbar' in settings.INSTALLED_APPS:

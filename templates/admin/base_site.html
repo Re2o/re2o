@@ -1,0 +1,91 @@
+{% extends "admin/base.html" %}
+{% comment %}
+SPDX-License-Identifier: GPL-2.0-or-later
+
+Copyright © 2019  Alexandre Iooss
+{% endcomment %}
+
+{% load i18n staticfiles %}
+
+{% block title %}{{ title }} | {{ name_website }}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'index' %}">
+            <img class="banding-logo" src="{% static 'images/logo_re2o_navbar.svg' %}" alt=""/>
+        </a>
+        <a href="{% url 'index' %}">
+            {{ name_website }}
+        </a>
+    </h1>
+{% endblock %}
+
+{% block nav-global %}
+    <div id="nav">
+        {% if available_apps %}
+            {% for app in available_apps %}
+                <div class="dropdown">
+                    {% if app_list|length == 1 and app.name == app_list.0.name %}
+                        <a href="{{ app.app_url }}" class="activated">{{ app.name }}</a>
+                    {% else %}
+                        <a href="{{ app.app_url }}">{{ app.name }}</a>
+                    {% endif %}
+                    <div class="dropdown-content">
+                        {% for model in app.models %}
+                            {% if model.admin_url %}
+                                <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if not forloop.last %}/{% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extrahead %}
+    {# Favicon with iOS, Android, touchbar support #}
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}">
+    <meta name="theme-color" content="#ffffff">
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/admin.css" %}"/>
+{% endblock %}
+
+{% block footer %}
+    <div id="footer">
+        <p>
+            {{ name_website }} {% trans "powered by" %}
+            <a href="{% url 'about' %}">Re2o 2016&ndash;2019</a>.
+        </p>
+        <p>
+            {% blocktrans trimmed %}
+                This software is under the terms of the
+                <a href="http://www.gnu.org/licenses/gpl-2.0.txt" target="_blank" rel="nofollow">GPLv2</a> License.
+            {% endblocktrans %}
+        </p>
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select title="language" name="language" onchange="this.form.submit()">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                        {{ language.name_local }} ({{ language.code }})
+                    </option>
+                {% endfor %}
+            </select>
+            <noscript>
+                <input type="submit">
+            </noscript>
+        </form>
+    </div>
+{% endblock %}

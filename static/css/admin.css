@@ -1,0 +1,158 @@
+/*
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Copyright © 2019  Alexandre Iooss
+ *
+ * This is the custom style for Django Contrib Admin
+ */
+
+/* Colors */
+#header {
+    background-color: #222;
+    border-bottom: solid 3px #f9a01b;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #e6e0d8;
+    color: #222;
+}
+
+a.section:link, a.section:visited {
+    color: #222;
+}
+
+#user-tools a {
+    border-bottom: none;
+    font-weight: bold;
+}
+
+div.breadcrumbs {
+    background: #3c3c3c;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #d8a456;
+}
+
+.button:active, input[type=submit]:active, input[type=button]:active, .button:focus, input[type=submit]:focus,
+input[type=button]:focus, .button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: #b98d4a;
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: #b98d4a;
+}
+
+.button.default:active, input[type=submit].default:active, .button.default:focus, input[type=submit].default:focus,
+.button.default:hover, input[type=submit].default:hover {
+    background: #a7752b;
+}
+
+/* Image in branding */
+img.banding-logo {
+    margin-top: -3px;
+    height: 32px;
+}
+
+/* Navbar menu */
+#nav {
+    padding: 0;
+    margin: 0 0 0 20px;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+#nav a {
+    border-bottom: none;
+    font-weight: bold;
+    display: inline-block;
+}
+
+#nav div.dropdown:hover > a, #nav div.dropdown:focus > a {
+    text-decoration: none;
+    color: #79aec8;
+}
+
+#nav a.activated {
+    text-decoration: underline;
+}
+
+#nav div.dropdown {
+    position: relative; /* needed to position the dropdown content */
+    display: inline-block;
+}
+
+#nav div.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #444444;
+    min-width: 220px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+#nav div.dropdown-content a {
+    color: #fff;
+    padding: 7px 8px;
+    text-decoration: none;
+    display: block;
+    line-height: 16px;
+}
+
+#nav div.dropdown-content a:hover {
+    background-color: #636363;
+}
+
+#nav div.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Fix navigation hidden */
+#header {
+    overflow: visible;
+}
+
+.login #header {
+    overflow: hidden;
+}
+
+/* Footer */
+#footer {
+    padding: 20px 40px;
+    color: #999;
+}
+
+.login #footer {
+    padding: 10px;
+}
+
+#footer a {
+    color: #777;
+}
+
+#footer select {
+    height: 24px;
+    padding: 0;
+}
+
+/* Pull footer to bottom */
+#content {
+    min-height: calc(100vh - 310px);
+}
+
+.login #content {
+    min-height: 0;
+}
+
+/* Recenter login button */
+.login .submit-row {
+    padding: 1em 0 0 8.5em !important;
+}
+
+/* Dashboard should take all page */
+.dashboard #content {
+    width: auto;
+}
