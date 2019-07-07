@@ -284,8 +284,7 @@ class RechargeForm(FormRevMixin, Form):
     """
     value = forms.DecimalField(
         label=_("Amount"),
-        min_value=0.01,
-        validators=[]
+        decimal_places=2,
     )
     payment = forms.ModelChoiceField(
         queryset=Paiement.objects.none(),
