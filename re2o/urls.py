@@ -70,6 +70,7 @@ urlpatterns = [
         include('cotisations.urls', namespace='cotisations')
     ),
     url(r'^machines/', include('machines.urls', namespace='machines')),
+    url(r'^tickets/', include('tickets.urls', namespace='tickets')),
     url(r'^topologie/', include('topologie.urls', namespace='topologie')),
     url(r'^logs/', include('logs.urls', namespace='logs')),
     url(
