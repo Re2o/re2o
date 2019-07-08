@@ -100,6 +100,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 {% can_view_app cotisations %}
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
+                                <li><a href="{% url 'tickets:aff-tickets' %}"><i class="fa fa-ticket"></i> {% trans "Tickets" %}</a></li>
                             </ul>
                         </li>
                         {% acl_end %}
