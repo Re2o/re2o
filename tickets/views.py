@@ -19,6 +19,12 @@ def new_ticket(request,user):
         'ticket/ticket.html',
         request
     )
+
+def aff_ticket(request,ticketid):
+    """Vue d'affichage d'un ticket"""
+    ticket = Ticket.objects.filter(id=ticketid).get()
+    return render(request,'tickets/aff_ticket.html',{'ticket':ticket})
+    
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
     tickets = Ticket.objects.all()
