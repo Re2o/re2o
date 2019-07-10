@@ -1,24 +1,35 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.forms import modelformset_factory
+from re2o.views import form
 
 from .models import(
     Ticket
 )
 
-def new_ticket(request,user):
-    """ Vue de création d'un ticket """
-    ticket = NewTicketForm(request.POST or None, user=request.user)
-    if ticket.is_valid():
-        new_ticket_obj = machine.save(commit=False)
-        nex_ticket_obj.user = user
-        new_machine_obj.save()
+from .forms import (
+    NewTicketForm
+)
 
-    return form(
-        {
-            'ticketform':ticket,
-        },
-        'ticket/ticket.html',
-        request
-    )
+def new_ticket(request):
+    """ Vue de création d'un ticket """
+    ticketform = NewTicketForm(request.POST or None)#, user=request.user)
+
+    if request.method == 'POST':
+        ticketform = NewTicketForm(request.POST)
+
+        if ticketform.is_valid():
+            ticket = ticketform.save(commit=False)
+            ticket.user = request.user
+            ticket.save()
+            messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
+            return redirect(reverse('users:profil',kwargs={'userid':str(request.user.id)}))
+        else:
+            messages.error(request, 'Formulaire invalide')
+    else:
+        ticketform = NewTicketForm
+    return form({'ticketform':ticketform,},'tickets/form_ticket.html',request)
 
 def aff_ticket(request,ticketid):
     """Vue d'affichage d'un ticket"""

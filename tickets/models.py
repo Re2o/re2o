@@ -15,7 +15,7 @@ class Ticket(models.Model):
         help_text=_("Nom du ticket"),
         blank=False,
         null=False,)
-    description = models.CharField(
+    description = models.TextField(
         max_length=3000,
         help_text=_("Description du ticket"),
         blank=False,
@@ -25,7 +25,7 @@ class Ticket(models.Model):
         'users.User',
         on_delete=models.PROTECT,
         related_name="tickets_assigned",
-        blank=False,
+        blank=True,
         null=True)
     #categories = models.OneToManyFiled('Category')
     solved = models.BooleanField(default=False)
