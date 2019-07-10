@@ -39,5 +39,5 @@ def aff_ticket(request,ticketid):
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
     tickets = Ticket.objects.all()
-    return render(request,'tickets/aff_tickets.html',
+    return render(request,'tickets/index.html',
                     {'tickets_list':tickets})
