@@ -62,6 +62,7 @@ DJANGO_CONTRIB_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 )
 EXTERNAL_CONTRIB_APPS = (
     'bootstrap3',

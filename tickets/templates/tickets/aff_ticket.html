@@ -25,11 +25,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load i18n %}
+{% load humanize %}
 
 {% block title %}{% trans "Tickets" %}{% endblock %}
 
 {% block content %}
 
-{{ ticket.title }}
+<h2> Ticket #{{ticket.id}} </h2>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+    {% trans "Opened by" %} 
+    <a href="{% url 'users:profil' ticket.user.id%}">
+        {{ ticket.user.get_full_name }}
+    </a>
+    {{ ticket.date | naturalday}}.
+</div>
+<div class="panel-body">
+
+    <p><b>{% trans "Title:" %}</b> {{ticket.title}}</p>
+    <p><b>{% trans "Description" %}</b> {{ ticket.description }}</p>
+    
+</div>
+</div>
 
 {% endblock %}
