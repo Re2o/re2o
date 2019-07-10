@@ -53,6 +53,10 @@ from reversion import revisions as reversion
 
 from cotisations.models import Facture, Paiement
 from machines.models import Machine
+
+# A IMPORTER SOUS CONDITION QUE TICKET SOIT INSTALLED
+from tickets.models import Ticket
+
 from preferences.models import OptionalUser, GeneralOption, AssoOption
 from re2o.views import form
 from re2o.utils import (
@@ -974,6 +978,8 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
+    tickets = Ticket.objects.filter(user=users).all()
+    nb_tickets = tickets.count()
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'
     )
@@ -1016,6 +1022,8 @@ def profil(request, users, **_kwargs):
             'users': users,
             'machines_list': machines,
             'nb_machines': nb_machines,
+            'tickets_list': tickets,
+            'nb_tickets': nb_tickets,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,
