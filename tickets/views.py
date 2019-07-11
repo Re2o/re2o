@@ -38,6 +38,6 @@ def aff_ticket(request,ticketid):
     
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
-    tickets = Ticket.objects.all().order_by('date')
+    tickets = Ticket.objects.all().order_by('-date')
     return render(request,'tickets/index.html',
                     {'tickets_list':tickets})

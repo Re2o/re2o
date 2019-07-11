@@ -46,6 +46,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p><b>{% trans "Title:" %}</b> {{ticket.title}}</p>
     <p><b>{% trans "Description" %}</b> {{ ticket.description }}</p>
     
+<div class="text-right">
+{% if not ticket.solved %}
+<a class="btn btn-success" role="button">
+    <i class="fa fa-check"></i>{% trans "Mark as Solved" %}
+{% else %}
+<a class="btn btn-warning" role="button">
+    <i class="fa fa-cross"></i>{% trans "Mark as Not Solved" %}
+{% endif %}
+</a>
+</div>
 </div>
 </div>
 

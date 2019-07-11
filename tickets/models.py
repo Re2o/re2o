@@ -33,3 +33,6 @@ class Ticket(models.Model):
     class Meta:
         verbose_name = _("Ticket")
         verbose_name_plural = _("Tickets")
+
+    def __str__(self):
+        return "Ticket de {} date: {}".format(self.user.surname,self.date)
