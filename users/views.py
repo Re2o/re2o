@@ -978,7 +978,7 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
-    tickets = Ticket.objects.filter(user=users).all()
+    tickets = Ticket.objects.filter(user=users).all().order_by('date')
     nb_tickets = tickets.count()
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'
