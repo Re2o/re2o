@@ -40,9 +40,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </div>
 {% endfor %}
 
-<form method="post">
+<form class="form" method="post">
     {% csrf_token %}
-    {% bootstrap_form ticketform %}
+    {% if not user.is_authenticated %}
+    <p>{% trans "Vous n'êtes pas authentifié. Veuillez fournir une adresse mail afin que nous puissions vous recontacter." %}</p>
+        {% bootstrap_field ticketform.email %}
+    {% endif %}
+        {% bootstrap_field ticketform.title %}
+        <br>
+        <p>{% trans "Description de votre problème. Veuillez fournir le plus d'informations possible afin de faciliter la recherche de solution. Voici quelques informations dont nous pourions avoir besoin:" %}</p>
+        <ul class="list">
+            <li>
+                <p> {% trans "Le type de votre problème (adhesion, connexion, paiement ou autre)." %}</p>
+            </li>
+            <li>
+                <p> {% trans "Les conditions dans lesquelles vous rencontrez le problème (Wifi/filaire, sur tout les apareils ou sur un seul. Est-ce une nouvelle machine ?" %}</p>
+            </li>
+            <li>
+                <p> {% trans "Les endroits dans lequels le problème survient (chez vous, dans une partie commune, dans un batiment en particulier)." %}</p>
+        </ul>
+        {% bootstrap_field ticketform.description %}
     {% bootstrap_button "Ouvrir le Ticket" button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
 {% endblock %}

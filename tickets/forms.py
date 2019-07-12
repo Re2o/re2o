@@ -25,9 +25,12 @@ class EditTicketForm(FormRevMixin, ModelForm):
 
 class NewTicketForm(ModelForm):
     """ Creation d'une machine"""
+    
+    email = forms.EmailField(required=False)
+
     class Meta:
         model = Ticket
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'email']
 
     #def __init(self,*args, **kwargs):
         #prefix = kwargs.pop('prefix', self.Meta.model.__name__)

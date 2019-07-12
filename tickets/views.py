@@ -20,13 +20,22 @@ def new_ticket(request):
         ticketform = NewTicketForm(request.POST)
 
         if ticketform.is_valid():
+            email = ticketform.cleaned_data.get('email')
             ticket = ticketform.save(commit=False)
-            ticket.user = request.user
-            ticket.save()
-            messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
-            return redirect(reverse('users:profil',kwargs={'userid':str(request.user.id)}))
-        else:
-            messages.error(request, 'Formulaire invalide')
+            #raise ValueError("email: {} type: {}".format(email,type(email))) 
+            if request.user.is_authenticated:
+                ticket.user = request.user
+                ticket.save()
+                messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
+                return redirect(reverse('users:profil',kwargs={'userid':str(request.user.id)}))
+            if not request.user.is_authenticated and email != "":
+                ticket.save()
+                messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
+                return redirect(reverse('index'))
+            else:    
+                messages.error(request,"Vous n'êtes pas authentifié, veuillez vous authentifier ou fournir une adresse mail pour que nous puissions vous recontacter")
+                return form({'ticketform':ticketform,},'tickets/form_ticket.html',request)
+            
     else:
         ticketform = NewTicketForm
     return form({'ticketform':ticketform,},'tickets/form_ticket.html',request)

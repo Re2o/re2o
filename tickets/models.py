@@ -9,7 +9,9 @@ class Ticket(models.Model):
     user = models.ForeignKey(
         'users.User', 
         on_delete=models.CASCADE,
-        related_name="tickets")
+        related_name="tickets",
+        blank=True,
+        null=True)
     title = models.CharField(
         max_length=255,
         help_text=_("Nom du ticket"),
@@ -21,6 +23,10 @@ class Ticket(models.Model):
         blank=False,
         null=False)
     date = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField(
+        help_text = _("Une adresse mail pour vous recontacter"),
+        max_length=100, 
+        null=True)
     assigned_staff = models.ForeignKey(
         'users.User',
         on_delete=models.PROTECT,
