@@ -35,11 +35,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="panel panel-default">
 <div class="panel-heading">
-    {% trans "Opened by" %} 
-    <a href="{% url 'users:profil' ticket.user.id%}">
-        {{ ticket.user.get_full_name }}
-    </a>
+    {% trans "Opened by" %}
+    {% if ticket.user %} 
+        <a href="{% url 'users:profil' ticket.user.id%}">
+            {{ ticket.user.get_full_name }}
+        </a>
+    {% else %}
+        {% trans "Anonymous User" %}
+    {% endif %}
     {{ ticket.date | naturalday}}.
+    {% if not ticket.user %}
+    {% trans "Response address: " %}<A HREF="mailto:{{ticket.email}}?subject={% trans "Response to your ticket"%}&cc=cableurs@crans.org">{{ticket.email}}</A>
+    {% endif %}
 </div>
 <div class="panel-body">
 
