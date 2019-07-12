@@ -380,8 +380,7 @@ class Reminder(AclMixin, models.Model):
         unique=True,
         help_text=_("Delay between the email and the membership's end")
     )
-    message = models.CharField(
-        max_length=255,
+    message = models.TextField(
         default="",
         null=True,
         blank=True,
