@@ -29,7 +29,7 @@ def delete_type(apps, schema_editor):
     Vente = apps.get_model('cotisations', 'Vente')
     Article = apps.get_model('cotisations', 'Article')
     db_alias = schema_editor.connection.alias
-    articles = Articles.objects.using(db_alias).all()
+    articles = Article.objects.using(db_alias).all()
     ventes = Vente.objects.using(db_alias).all()
     for article in articles:
         if article.type_cotisation:
