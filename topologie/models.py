@@ -379,6 +379,14 @@ class Switch(AclMixin, Machine):
                 modules.append((module_of_self.slot, module_of_self.module.reference))
         return modules
 
+    @cached_property
+    def get_dormitory(self):
+        """Returns the dormitory of that switch"""
+        if self.switchbay:
+            return self.switchbay.building.dormitory
+        else:
+            return None
+
     def __str__(self):
         return str(self.get_name)
 
@@ -647,10 +655,18 @@ class Port(AclMixin, RevMixin, models.Model):
     @cached_property
     def get_port_profile(self):
         """Return the config profil for this port
-        :returns: the profile of self (port)"""
+        :returns: the profile of self (port)
+       
+        If is defined a custom profile, returns it
+        elIf a default profile is defined for its dormitory, returns it
+        Else, returns the global default profil
+        If not exists, create a nothing profile"""
         def profile_or_nothing(profile):
-            port_profile = PortProfile.objects.filter(
-                profil_default=profile).filter(switch__switchbay__building__dormitory).first()
+            if self.switch.get_dormitory:
+                port_profile = PortProfile.objects.filter(
+                    profil_default=profile).filter(on_dormitory=self.switch.get_dormitory).first()
+            if not port_profile:
+                port_profile = PortProfile.objects.filter(profil_default=profile).first()
             if port_profile:
                 return port_profile
             else:
