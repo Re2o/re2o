@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <thead>
             <tr>
                 <th>{% trans "Name" %}</th>
-                <th>{% trans "Default for" %}</th>
+                <th>{% trans "Default for and place" %}</th>
                 <th>{% trans "VLANs" %}</th>
                 <th>{% trans "RADIUS settings" %}</th>
                 <th>{% trans "Speed limit" %}</th>
@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for port_profile in port_profile_list %}
         <tr>
             <td>{{ port_profile.name }}</td>
-            <td>{{ port_profile.profil_default }}</td>
+	    <td>{{ port_profile.profil_default }} {% if port_profile.profil_default%}<b> - {% if port_profile.on_dormitory %} on {{ port_profile.on_dormitory }} {% else %} Everywhere {% endif %}</b>{% endif %}</td>
             <td>
                 {% if port_profile.vlan_untagged %}
                 <b>{% trans "Untagged: " %}</b>{{ port_profile.vlan_untagged }}

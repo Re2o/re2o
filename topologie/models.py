@@ -650,7 +650,7 @@ class Port(AclMixin, RevMixin, models.Model):
         :returns: the profile of self (port)"""
         def profile_or_nothing(profile):
             port_profile = PortProfile.objects.filter(
-                profil_default=profile).first()
+                profil_default=profile).filter(switch__switchbay__building__dormitory).first()
             if port_profile:
                 return port_profile
             else:
@@ -791,8 +791,15 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         choices=PROFIL_DEFAULT,
         blank=True,
         null=True,
-        unique=True,
         verbose_name=_("Default profile")
+    )
+    on_dormitory = models.ForeignKey(
+        'topologie.Dormitory',
+        related_name='dormitory_ofprofil',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name=_("Profil on dormitory")
     )
     vlan_untagged = models.ForeignKey(
         'machines.Vlan',
@@ -871,6 +878,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         )
         verbose_name = _("port profile")
         verbose_name_plural = _("port profiles")
+        unique_together = ['on_dormitory', 'profil_default']
 
     security_parameters_fields = [
         'loop_protect',
@@ -892,6 +900,14 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     @cached_property
     def security_parameters_as_str(self):
         return ','.join(self.security_parameters_enabled)
+
+    def clean(self):
+        """ Check that there is only one generic profil default"""
+        super(PortProfile, self).clean()
+        if self.profil_default and not self.on_dormitory and PortProfile.objects.exclude(id=self.id).filter(profil_default=self.profil_default).exclude(on_dormitory__isnull=False).exists():
+            raise ValidationError(
+            {'profil_default': _("A default profile for all dormitory of that type already exists.")}
+            )
 
     def __str__(self):
         return self.name
