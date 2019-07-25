@@ -47,6 +47,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _
+from django.template import loader
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
@@ -54,10 +55,9 @@ from reversion import revisions as reversion
 from cotisations.models import Facture, Paiement
 from machines.models import Machine
 
-# A IMPORTER SOUS CONDITION QUE TICKET SOIT INSTALLED
-from tickets.models import Ticket
-
 from preferences.models import OptionalUser, GeneralOption, AssoOption
+from importlib import import_module
+from re2o.settings_local import OPTIONNAL_APPS
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
@@ -978,8 +978,10 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
-    tickets = Ticket.objects.filter(user=users).all().order_by('-date')
-    nb_tickets = tickets.count()
+    
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS]
+    optionnal_templates_list = [app.views.profil(request,users) for app in optionnal_apps]
+
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'
     )
@@ -1022,8 +1024,7 @@ def profil(request, users, **_kwargs):
             'users': users,
             'machines_list': machines,
             'nb_machines': nb_machines,
-            'tickets_list': tickets,
-            'nb_tickets': nb_tickets,
+            'optionnal_templates_list': optionnal_templates_list,
             'facture_list': factures,
             'ban_list': bans,
             'white_list': whitelists,

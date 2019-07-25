@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.forms import modelformset_factory
 from re2o.views import form
@@ -50,3 +51,8 @@ def aff_tickets(request):
     tickets = Ticket.objects.all().order_by('-date')
     return render(request,'tickets/index.html',
                     {'tickets_list':tickets})
+def profil(request,user):
+    """ Vue cannonique d'affichage des tickets dans l'accordeon du profil"""
+    tickets = Ticket.objects.filter(user=user).all().order_by('-date')
+    context = {'tickets_list':tickets}
+    return render_to_string('tickets/profil.html', context=context, request=request, using=None)

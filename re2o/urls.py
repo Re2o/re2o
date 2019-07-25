@@ -49,6 +49,8 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView
 
+from .settings_local import OPTIONNAL_APPS
+
 from .views import index, about_page, contact_page
 
 # Admin site configuration
@@ -70,7 +72,6 @@ urlpatterns = [
         include('cotisations.urls', namespace='cotisations')
     ),
     url(r'^machines/', include('machines.urls', namespace='machines')),
-    url(r'^tickets/', include('tickets.urls', namespace='tickets')),
     url(r'^topologie/', include('topologie.urls', namespace='topologie')),
     url(r'^logs/', include('logs.urls', namespace='logs')),
     url(
@@ -84,6 +85,10 @@ urlpatterns = [
     url(r'^admin/login/$', RedirectView.as_view(pattern_name='login')),
     url(r'^admin/', include(admin.site.urls)),
 ]
+
+
+urlpatterns += [url(r'^{}/'.format(app), include('{}.urls'.format(app), namespace=app)) for app in OPTIONNAL_APPS]
+
 # Add debug_toolbar URLs if activated
 if 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar

@@ -100,7 +100,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 {% can_view_app cotisations %}
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
+                                
+                                {% comment %}
                                 <li><a href="{% url 'tickets:aff-tickets' %}"><i class="fa fa-ticket"></i> {% trans "Tickets" %}</a></li>
+                                {% endcomment %}
                             </ul>
                         </li>
                         {% acl_end %}
@@ -131,7 +134,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
                                 <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a></li>
+                                {% comment %}
                                 <li><a href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Ouvrir un ticket" %}</a><li>
+                                {% endcomment %}
                             </ul>
                         </li>
                         {% if not request.user.is_authenticated %}
