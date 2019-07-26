@@ -387,6 +387,50 @@ class Switch(AclMixin, Machine):
         else:
             return None
 
+    @classmethod
+    def nothing_profile(cls):
+        """Return default nothing port profile"""
+        nothing_profile, _created = PortProfile.objects.get_or_create(
+            profil_default='nothing',
+            name='nothing',
+            radius_type='NO'
+        )
+        return nothing_profile
+
+    def profile_type_or_nothing(self, profile_type):
+        """Return the profile for a profile_type of this switch
+        
+        If exists, returns the defined default profile for a profile type on the dormitory which
+        the switch belongs
+        
+        Otherwise, returns the nothing profile"""
+        profile_queryset = PortProfile.objects.filter(profil_default=profile_type)
+        if self.get_dormitory:
+            port_profile = profile_queryset.filter(on_dormitory=self.get_dormitory).first() or profile_queryset.first()
+        else:
+            port_profile = profile_queryset.first()
+        return port_profile or Switch.nothing_profile
+
+    @cached_property
+    def default_uplink_profile(self):
+        """Default uplink profile for that switch -- in cache"""
+        return self.profile_type_or_nothing('uplink')
+
+    @cached_property
+    def default_access_point_profile(self):
+        """Default ap profile for that switch -- in cache"""
+        return self.profile_type_or_nothing('access_point')
+
+    @cached_property
+    def default_room_profile(self):
+        """Default room profile for that switch -- in cache"""
+        return self.profile_type_or_nothing('room')
+
+    @cached_property
+    def default_asso_machine_profile(self):
+        """Default asso machine profile for that switch -- in cache"""
+        return self.profile_type_or_nothing('asso_machine')
+
     def __str__(self):
         return str(self.get_name)
 
@@ -661,35 +705,20 @@ class Port(AclMixin, RevMixin, models.Model):
         elIf a default profile is defined for its dormitory, returns it
         Else, returns the global default profil
         If not exists, create a nothing profile"""
-        def profile_or_nothing(profile):
-            if self.switch.get_dormitory:
-                port_profile = PortProfile.objects.filter(
-                    profil_default=profile).filter(on_dormitory=self.switch.get_dormitory).first()
-            if not port_profile:
-                port_profile = PortProfile.objects.filter(profil_default=profile).first()
-            if port_profile:
-                return port_profile
-            else:
-                nothing_profile, _created = PortProfile.objects.get_or_create(
-                    profil_default='nothing',
-                    name='nothing',
-                    radius_type='NO'
-                )
-                return nothing_profile
 
         if self.custom_profile:
             return self.custom_profile
         elif self.related:
-            return profile_or_nothing('uplink')
+            return self.switch.default_uplink_profile
         elif self.machine_interface:
             if hasattr(self.machine_interface.machine, 'accesspoint'):
-                return profile_or_nothing('access_point')
+                return self.switch.default_access_point_profile
             else:
-                return profile_or_nothing('asso_machine')
+                return self.switch.default_asso_machine_profile
         elif self.room:
-            return profile_or_nothing('room')
+            return self.switch.default_room_profile
         else:
-            return profile_or_nothing('nothing')
+            return Switch.nothing_profile
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):
