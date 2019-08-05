@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.core.mail import send_mail
+from django.template import Context, loader
 
 import users.models
 
@@ -42,3 +44,23 @@ class Ticket(models.Model):
 
     def __str__(self):
         return "Ticket de {} date: {}".format(self.user.surname,self.date)
+
+    def publish_mail(self):
+        template = loader.get_template('ticket/mail_publish_ticket')
+        context = Context({'ticket':self})
+        send_mail(
+            'Nouvelle ouverture de ticket',
+            '',
+            'ticket_app_re2o@crans.org',
+            '',
+            html_message=template.render(context))
+
+class Preferences(models.Model):
+    """ Class cannonique définissants les préférences des tickets """
+
+    publish_address = models.EmailField(
+        help_text = _("Adresse mail pour annoncer les nouveau tickets (laisser vide pour ne rien annoncer)"),
+        max_length = 1000,
+        null = True)
+    class Meta:
+        verbose_name = _("Préférences des tickets")
