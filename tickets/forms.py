@@ -28,3 +28,10 @@ class EditPreferencesForm(ModelForm):
     class Meta:
         model = Preferences
         fields = '__all__'
+
+class ChangeStatusTicketForm(ModelForm):
+    """ Passe un Ticket en résolu """
+    class Meta:
+        model = Ticket
+        fields = []
+

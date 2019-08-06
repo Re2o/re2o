@@ -12,6 +12,7 @@ from .models import(
 
 from .forms import (
     NewTicketForm,
+    ChangeStatusTicketForm,
     EditPreferencesForm,
 )
 
@@ -47,7 +48,11 @@ def new_ticket(request):
 def aff_ticket(request,ticketid):
     """Vue d'affichage d'un ticket"""
     ticket = Ticket.objects.filter(id=ticketid).get()
-    return render(request,'tickets/aff_ticket.html',{'ticket':ticket})
+    changestatusform = ChangeStatusTicketForm(request.POST)
+    if request.method == 'POST':
+        ticket.solved = not ticket.solved
+        ticket.save()
+    return render(request,'tickets/aff_ticket.html',{'ticket':ticket,'changestatusform':changestatusform})
     
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """

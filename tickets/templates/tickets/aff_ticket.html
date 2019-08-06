@@ -54,14 +54,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <p><b>{% trans "Description" %}</b> {{ ticket.description }}</p>
     
 <div class="text-right">
-{% if not ticket.solved %}
-<a class="btn btn-success" role="button">
-    <i class="fa fa-check"></i>{% trans "Mark as Solved" %}
-{% else %}
-<a class="btn btn-warning" role="button">
-    <i class="fa fa-cross"></i>{% trans "Mark as Not Solved" %}
-{% endif %}
-</a>
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form changestatusform %}
+
+    {% if not ticket.solved %}
+        {% bootstrap_button "Résoudre" button_type="submit" button_class='btn-info' %}
+    {% else %}
+        {% bootstrap_button "Ouvrir" button_type="submit" button_class='btn-warning' %}
+    {% endif %}
+</form>
 </div>
 </div>
 </div>
