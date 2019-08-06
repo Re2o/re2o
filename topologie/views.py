@@ -217,7 +217,7 @@ def index_port(request, switch, switchid):
 @can_view_all(Room)
 def index_room(request):
     """ Affichage de l'ensemble des chambres"""
-    room_list = Room.objects
+    room_list = Room.objects.select_related('building__dormitory')
     room_list = SortTable.sort(
         room_list,
         request.GET.get('col'),
