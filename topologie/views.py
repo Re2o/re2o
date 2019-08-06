@@ -165,8 +165,10 @@ def index(request):
 @can_view_all(PortProfile)
 def index_port_profile(request):
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    port_profile_list = PortProfile.objects.all().select_related(
-        'vlan_untagged')
+    port_profile_list = PortProfile.objects.all()\
+    .select_related('vlan_untagged')\
+    .select_related('on_dormitory')\
+    .prefetch_related('vlan_tagged')
     port_profile_list = re2o_paginator(
         request, port_profile_list, pagination_number)
     vlan_list = Vlan.objects.all().order_by('vlan_id')
