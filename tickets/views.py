@@ -57,8 +57,15 @@ def aff_ticket(request,ticketid):
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
     tickets = Ticket.objects.all().order_by('-date')
-    return render(request,'tickets/index.html',
-                    {'tickets_list':tickets})
+    last_ticket_date = tickets.first().date
+    nbr_tickets = tickets.count()
+    nbr_tickets_unsolved = Ticket.objects.filter(solved=False).count()
+    context = {'tickets_list':tickets,
+                'last_ticket_date':last_ticket_date,
+                'nbr_tickets':nbr_tickets,
+                'nbr_tickets_unsolved':nbr_tickets_unsolved}
+
+    return render(request,'tickets/index.html',context=context)
 
 def edit_preferences(request):
     """ Vue d'édition des préférences des tickets """

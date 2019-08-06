@@ -28,8 +28,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Tickets" %}{% endblock %}
 
 {% block content %}
+
+
+<div class="container-fluid">
+<hr class="col-sm-12">
+  <div class="row justify-content-start">
+    <div class="col-sm-4">
+      <span class="badge badge-light">{{ nbr_tickets }}</span> {% trans "Tickets" %}
+    </div>
+    <div class="col-sm-4">
+      <span class="badge badge-light">{{ nbr_tickets_unsolved }}</span>{% trans "Not Solved Tickets" %}
+    </div>
+    <div class="col-sm-4">
+      <span>{% trans "Last Ticket:" %} {{ last_ticket_date }}</span>
+    </div>
+  </div>
+<hr class="col-sm-12">
+</div>
+
 <div class="table-responsiv">
-    <table class="table" id="machines_table">
+    <table class="table">
     <thead>
         <tr>
             <th scope="col"></th>

@@ -31,7 +31,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 
-<h2> Ticket #{{ticket.id}} </h2>
+<h2> Ticket #{{ticket.id}} 
+{% if ticket.solved %}
+<span class="badge badge-success">{% trans "Solved" %}</span>
+{% else %}
+<span class="badge badge-danger">{% trans "Not Solved" %}</span>
+{% endif %}
+</h2>
 
 <div class="panel panel-default">
 <div class="panel-heading">
@@ -59,13 +65,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% bootstrap_form changestatusform %}
 
     {% if not ticket.solved %}
-        {% bootstrap_button "Résoudre" button_type="submit" button_class='btn-info' %}
+        {% bootstrap_button "Mark as Solved" button_type="submit" button_class='btn-info' %}
     {% else %}
-        {% bootstrap_button "Ouvrir" button_type="submit" button_class='btn-warning' %}
+        {% bootstrap_button "Mark as not Solved" button_type="submit" button_class='btn-warning' %}
     {% endif %}
 </form>
 </div>
 </div>
+</div>
+
+
+<div class="text-right">
+    <a type="button" href="{% url 'tickets:aff-tickets' %}" class="btn btn-primary"><p>{% trans "Tous les tickets" %}</p></a>
 </div>
 
 {% endblock %}
