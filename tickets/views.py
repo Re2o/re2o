@@ -11,13 +11,14 @@ from .models import(
 )
 
 from .forms import (
-    NewTicketForm
+    NewTicketForm,
+    EditPreferencesForm,
 )
 
 
 def new_ticket(request):
     """ Vue de création d'un ticket """
-    ticketform = NewTicketForm(request.POST or None)#, user=request.user)
+    ticketform = NewTicketForm(request.POST or None)
 
     if request.method == 'POST':
         ticketform = NewTicketForm(request.POST)
@@ -54,6 +55,23 @@ def aff_tickets(request):
     return render(request,'tickets/index.html',
                     {'tickets_list':tickets})
 
+def edit_preferences(request):
+    """ Vue d'édition des préférences des tickets """
+
+    preferences_instance, created = Preferences.objects.get_or_create(id=1)
+    preferencesform = EditPreferencesForm(
+        request.POST or None,
+        instance = preferences_instance,)
+    
+    if preferencesform.is_valid():
+        if preferencesform.changed_data:
+            preferencesform.save()
+            messages.success(request,'Préférences des Tickets mises à jour')
+            return redirect(reverse('preferences:display-options',))
+        else:
+            messages.error(request,'Formulaire Invalide')
+            return form({'preferencesform':preferencesform,},'tickets/form_preferences.html',request)
+    return form({'preferencesform':preferencesform,},'tickets/form_preferences.html',request)
     
 # views cannoniques des apps optionnels    
 def profil(request,user):
