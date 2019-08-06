@@ -267,9 +267,9 @@ def index_physical_grouping(request):
                   .prefetch_related(
                       'switch_set__interface_set__domain__extension'
                   ))
-    building_list = Building.objects.all()
-    dormitory_list = Dormitory.objects.all()
-    switch_bay_list = SwitchBay.objects.select_related('building')
+    building_list = Building.objects.all().select_related('dormitory')
+    dormitory_list = Dormitory.objects.all().prefetch_related('building_set')
+    switch_bay_list = SwitchBay.objects.select_related('building__dormitory').prefetch_related('switch_set__interface_set__domain')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
