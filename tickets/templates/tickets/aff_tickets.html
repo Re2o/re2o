@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       <span class="badge badge-light">{{ nbr_tickets }}</span> {% trans "Tickets" %}
     </div>
     <div class="col-sm-4">
-      <span class="badge badge-light">{{ nbr_tickets_unsolved }}</span>{% trans "Not Solved Tickets" %}
+      <span class="badge badge-light"> {{ nbr_tickets_unsolved }}</span>{% trans "Not Solved Tickets" %}
     </div>
     <div class="col-sm-4">
       <span>{% trans "Last Ticket:" %} {{ last_ticket_date }}</span>
@@ -46,8 +46,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <hr class="col-sm-12">
 </div>
 
+
+
 <div class="table-responsiv">
-    <table class="table">
+
+	<table class="table">
     <thead>
         <tr>
             <th scope="col"></th>
@@ -76,5 +79,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         
     </thead>
     </table>
+
+	{% if tickets_list.paginator %}
+    	{% include 'pagination.html' with list=tickets_list go_to_id="tickets" %}
+	{% endif %}
 </div>
 {% endblock %}

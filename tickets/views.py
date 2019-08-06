@@ -5,6 +5,11 @@ from django.urls import reverse
 from django.forms import modelformset_factory
 from re2o.views import form
 
+from re2o.base import (
+    re2o_paginator,
+)
+
+from preferences.models import GeneralOption
 from .models import(
     Ticket,
     Preferences,
@@ -56,10 +61,20 @@ def aff_ticket(request,ticketid):
     
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
-    tickets = Ticket.objects.all().order_by('-date')
-    last_ticket_date = tickets.first().date
-    nbr_tickets = tickets.count()
-    nbr_tickets_unsolved = Ticket.objects.filter(solved=False).count()
+    tickets_list = Ticket.objects.all().order_by('-date')
+    last_ticket_date = tickets_list.first().date
+    nbr_tickets = tickets_list.count()
+    nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
+    
+    pagination_number = (GeneralOption
+                               .get_cached_value('pagination_number'))
+
+    tickets = re2o_paginator(
+		request,
+		tickets_list,
+		pagination_number,
+    )
+
     context = {'tickets_list':tickets,
                 'last_ticket_date':last_ticket_date,
                 'nbr_tickets':nbr_tickets,
