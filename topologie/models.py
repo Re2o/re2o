@@ -802,7 +802,7 @@ class Room(AclMixin, RevMixin, models.Model):
         unique_together = ('name', 'building')
 
     def __str__(self):
-        return self.building.cached_name + self.name
+        return self.building.cached_name + ' ' + self.name
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):
