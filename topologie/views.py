@@ -310,7 +310,7 @@ def index_physical_grouping(request):
 @can_view_all(ModelSwitch, ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
-    model_switch_list = ModelSwitch.objects.select_related('constructor')
+    model_switch_list = ModelSwitch.objects.select_related('constructor').prefetch_related('switch_set__interface_set__domain')
     constructor_switch_list = ConstructorSwitch.objects
     model_switch_list = SortTable.sort(
         model_switch_list,
