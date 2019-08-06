@@ -186,16 +186,18 @@ def index_port(request, switch, switchid):
     """ Affichage de l'ensemble des ports reliés à un switch particulier"""
     port_list = (Port.objects
                  .filter(switch=switch)
-                 .select_related('room')
+                 .select_related('room__building__dormitory')
                  .select_related('machine_interface__domain__extension')
                  .select_related('machine_interface__machine__user')
-                 .select_related('related__switch')
+                 .select_related('machine_interface__machine__accesspoint')
+                 .select_related('related__switch__switchbay__building__dormitory')
                  .prefetch_related(Prefetch(
                      'related__switch__interface_set',
                      queryset=(Interface.objects
                                .select_related('domain__extension'))
                  ))
-                 .select_related('switch'))
+                 .select_related('switch__switchbay__building__dormitory')
+                 .select_related('switch__model__constructor'))
     port_list = SortTable.sort(
         port_list,
         request.GET.get('col'),
