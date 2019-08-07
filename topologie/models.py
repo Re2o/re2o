@@ -42,6 +42,7 @@ import itertools
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.utils.functional import cached_property
+from django.core.cache import cache
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -586,6 +587,14 @@ class Dormitory(AclMixin, RevMixin, models.Model):
         """Returns all ap of the dorms"""
         return AccessPoint.all_ap_in(self.building_set.all())
 
+    @classmethod
+    def is_multiple_dorms(cls):
+        multiple_dorms = cache.get('multiple_dorms')
+        if multiple_dorms:
+            return multiple_dorms
+        else:
+            return cache.get_or_set('multiple_dorms', cls.objects.count() > 1)
+
     def __str__(self):
         return self.name
 
@@ -612,7 +621,7 @@ class Building(AclMixin, RevMixin, models.Model):
         return AccessPoint.all_ap_in(self)
 
     def get_name(self):
-        if Dormitory.objects.count() > 1:
+        if Dormitory.is_multiple_dorms():
             return self.dormitory.name + " : " + self.name
         else:
             return self.name
