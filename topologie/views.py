@@ -129,7 +129,9 @@ def index(request):
                                  .select_related('ipv4__ip_type__extension')
                                  .select_related('domain__extension'))
                    ))
-                   .select_related('stack'))
+                   .select_related('stack')
+                   .select_related('switchbay__building__dormitory')
+                   .select_related('model__constructor'))
     switch_list = SortTable.sort(
         switch_list,
         request.GET.get('col'),
@@ -163,8 +165,10 @@ def index(request):
 @can_view_all(PortProfile)
 def index_port_profile(request):
     pagination_number = GeneralOption.get_cached_value('pagination_number')
-    port_profile_list = PortProfile.objects.all().select_related(
-        'vlan_untagged')
+    port_profile_list = PortProfile.objects.all()\
+    .select_related('vlan_untagged')\
+    .select_related('on_dormitory')\
+    .prefetch_related('vlan_tagged')
     port_profile_list = re2o_paginator(
         request, port_profile_list, pagination_number)
     vlan_list = Vlan.objects.all().order_by('vlan_id')
@@ -182,16 +186,18 @@ def index_port(request, switch, switchid):
     """ Affichage de l'ensemble des ports reliés à un switch particulier"""
     port_list = (Port.objects
                  .filter(switch=switch)
-                 .select_related('room')
+                 .select_related('room__building__dormitory')
                  .select_related('machine_interface__domain__extension')
                  .select_related('machine_interface__machine__user')
-                 .select_related('related__switch')
+                 .select_related('machine_interface__machine__accesspoint')
+                 .select_related('related__switch__switchbay__building__dormitory')
                  .prefetch_related(Prefetch(
                      'related__switch__interface_set',
                      queryset=(Interface.objects
                                .select_related('domain__extension'))
                  ))
-                 .select_related('switch'))
+                 .select_related('switch__switchbay__building__dormitory')
+                 .select_related('switch__model__constructor'))
     port_list = SortTable.sort(
         port_list,
         request.GET.get('col'),
@@ -213,7 +219,7 @@ def index_port(request, switch, switchid):
 @can_view_all(Room)
 def index_room(request):
     """ Affichage de l'ensemble des chambres"""
-    room_list = Room.objects
+    room_list = Room.objects.select_related('building__dormitory')
     room_list = SortTable.sort(
         room_list,
         request.GET.get('col'),
@@ -263,9 +269,9 @@ def index_physical_grouping(request):
                   .prefetch_related(
                       'switch_set__interface_set__domain__extension'
                   ))
-    building_list = Building.objects.all()
-    dormitory_list = Dormitory.objects.all()
-    switch_bay_list = SwitchBay.objects.select_related('building')
+    building_list = Building.objects.all().select_related('dormitory')
+    dormitory_list = Dormitory.objects.all().prefetch_related('building_set')
+    switch_bay_list = SwitchBay.objects.select_related('building__dormitory').prefetch_related('switch_set__interface_set__domain')
     stack_list = SortTable.sort(
         stack_list,
         request.GET.get('col'),
@@ -306,7 +312,7 @@ def index_physical_grouping(request):
 @can_view_all(ModelSwitch, ConstructorSwitch)
 def index_model_switch(request):
     """ Affichage de l'ensemble des modèles de switches"""
-    model_switch_list = ModelSwitch.objects.select_related('constructor')
+    model_switch_list = ModelSwitch.objects.select_related('constructor').prefetch_related('switch_set__interface_set__domain')
     constructor_switch_list = ConstructorSwitch.objects
     model_switch_list = SortTable.sort(
         model_switch_list,
@@ -335,7 +341,8 @@ def index_model_switch(request):
 def index_module(request):
     """Display all modules of switchs"""
     module_list = ModuleSwitch.objects.all()
-    modular_switchs = Switch.objects.filter(model__is_modular=True)
+    modular_switchs = Switch.objects.filter(model__is_modular=True)\
+    .select_related('model').prefetch_related('moduleonswitch_set__module')
     pagination_number = GeneralOption.get_cached_value('pagination_number')
     module_list = re2o_paginator(request, module_list, pagination_number)
     return render(
@@ -1265,7 +1272,14 @@ def make_machine_graph():
             'head_server': "#1c3777"
         }
     }
-    missing = list(Switch.objects.all())
+    missing = list(Switch.objects.prefetch_related(Prefetch(
+        'interface_set',
+        queryset=(
+            Interface.objects
+                .select_related('ipv4__ip_type__extension')
+                .select_related('domain__extension')
+        )
+    ))) 
     detected = []
     for building in Building.objects.all():  # Visit all buildings
 
@@ -1279,9 +1293,16 @@ def make_machine_graph():
             }
         )
         # Visit all switchs in this building
-        for switch in Switch.objects.filter(switchbay__building=building):
+        for switch in Switch.objects.filter(switchbay__building=building).prefetch_related(
+            Prefetch(
+                'interface_set',
+                 queryset=(
+                     Interface.objects
+                         .select_related('ipv4__ip_type__extension')
+                         .select_related('domain__extension')
+                ))).select_related('switchbay__building').select_related('switchbay__building__dormitory').select_related('model__constructor'):
             dico['subs'][-1]['switchs'].append({
-                'name': switch.main_interface().domain.name,
+                'name': switch.get_name,
                 'nombre': switch.number,
                 'model': switch.model,
                 'id': switch.id,
@@ -1289,27 +1310,42 @@ def make_machine_graph():
                 'ports': []
             })
             # visit all ports of this switch and add the switchs linked to it
-            for port in switch.ports.filter(related__isnull=False):
+            for port in switch.ports.filter(related__isnull=False).select_related('related__switch'):
                 dico['subs'][-1]['switchs'][-1]['ports'].append({
                     'numero': port.port,
-                    'related': port.related.switch.main_interface().domain.name
+                    'related': port.related.switch.get_name,
                 })
 
-        for ap in AccessPoint.all_ap_in(building):
+        for ap in AccessPoint.all_ap_in(building).prefetch_related(Prefetch(
+            'interface_set',
+                 queryset=(
+                     Interface.objects
+                         .select_related('ipv4__ip_type__extension')
+                         .select_related('domain__extension')
+                ))
+            ):
+            switch = ap.switch().first()
             dico['subs'][-1]['bornes'].append({
                 'name': ap.short_name,
-                'switch': ap.switch()[0].main_interface().domain.name,
-                'port': ap.switch()[0].ports.filter(
+                'switch': switch.get_name,
+                'port': switch.ports.filter(
                     machine_interface__machine=ap
-                )[0].port
+                ).first().port
             })
-        for server in Server.all_server_in(building):
+        for server in Server.all_server_in(building).prefetch_related(Prefetch(
+            'interface_set',
+                 queryset=(
+                     Interface.objects
+                         .select_related('ipv4__ip_type__extension')
+                         .select_related('domain__extension')
+                ))
+            ):
             dico['subs'][-1]['machines'].append({
                 'name': server.short_name,
-                'switch': server.switch()[0].main_interface().domain.name,
+                'switch': server.switch().first().get_name,
                 'port': Port.objects.filter(
                     machine_interface__machine=server
-                )[0].port
+                ).first().port
             })
 
     # While the list of forgotten ones is not empty
@@ -1330,7 +1366,7 @@ def make_machine_graph():
             switchbay__isnull=True).exclude(ports__related__isnull=False):
         dico['alone'].append({
             'id': switch.id,
-            'name': switch.main_interface().domain.name
+            'name': switch.get_name,
         })
 
     # generate the dot file
