@@ -101,9 +101,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
                                 
-                                {% comment %}
-                                <li><a href="{% url 'tickets:aff-tickets' %}"><i class="fa fa-ticket"></i> {% trans "Tickets" %}</a></li>
-                                {% endcomment %}
+                                {% for template in optionnal_templates_navbar_list%}
+                                    {{ template }}
+                                {% endfor %}
                             </ul>
                         </li>
                         {% acl_end %}

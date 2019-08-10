@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+from django.views.decorators.cache import cache_page
 from django.urls import reverse
 from django.forms import modelformset_factory
 from re2o.views import form
@@ -128,3 +129,7 @@ def preferences(request):
     preferences = Preferences.objects.first()
     context = {'preferences':preferences}
     return render_to_string('tickets/preferences.html', context=context, request=request, using=None)
+
+def navbar(request):
+    """Vue cannonique d'affichage des tickets dans la navbar"""
+    return render_to_string('tickets/navbar.html') 
