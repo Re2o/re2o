@@ -64,7 +64,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <i class="fa fa-ticket"></i>
                 </a>
             </td>
-            <td>{{ ticket.user }}</td>
+            {% if ticket.user %}
+            <td><a href="{% url 'users:profil' ticket.user.id%}" role="button">{{ ticket.user.id }}</a></td>
+            {% else %}
+            <td> Anonyme </td>
+            {% endif %}
             <td>{{ ticket.title }}</td>
             <td>{{ ticket.date }}</td>
             {% if ticket.solved %}
