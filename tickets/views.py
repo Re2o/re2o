@@ -103,8 +103,24 @@ def edit_preferences(request):
 # views cannoniques des apps optionnels    
 def profil(request,user):
     """ Vue cannonique d'affichage des tickets dans l'accordeon du profil"""
-    tickets = Ticket.objects.filter(user=user).all().order_by('-date')
-    context = {'tickets_list':tickets}
+    tickets_list = Ticket.objects.filter(user=user).all().order_by('-date')
+    last_ticket_date = tickets_list.first().date
+    nbr_tickets = tickets_list.count()
+    nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
+    
+    pagination_number = (GeneralOption
+                               .get_cached_value('pagination_large_number'))
+
+    tickets = re2o_paginator(
+		request,
+		tickets_list,
+		pagination_number,
+    )
+
+    context = {'tickets_list':tickets,
+                'last_ticket_date':last_ticket_date,
+                'nbr_tickets':nbr_tickets,
+                'nbr_tickets_unsolved':nbr_tickets_unsolved}
     return render_to_string('tickets/profil.html', context=context, request=request, using=None)
 
 def preferences(request):
