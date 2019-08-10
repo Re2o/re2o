@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.template import Context, loader
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import users.models
 
@@ -46,21 +48,30 @@ class Ticket(models.Model):
         return "Ticket de {} date: {}".format(self.user.surname,self.date)
 
     def publish_mail(self):
-        template = loader.get_template('ticket/mail_publish_ticket')
+        to_addr = Preferences.objects.first().publish_address
+        template = loader.get_template('tickets/publication_mail')
         context = Context({'ticket':self})
         send_mail(
             'Nouvelle ouverture de ticket',
-            '',
-            'ticket_app_re2o@crans.org',
-            '',
-            html_message=template.render(context))
+            template.render(context),
+            'grisel-davy@crans.org',
+            [to_addr],
+            fail_silently = False)
 
 class Preferences(models.Model):
     """ Class cannonique définissants les préférences des tickets """
-
+    
     publish_address = models.EmailField(
         help_text = _("Adresse mail pour annoncer les nouveau tickets (laisser vide pour ne rien annoncer)"),
         max_length = 1000,
         null = True)
     class Meta:
         verbose_name = _("Préférences des tickets")
+
+
+@receiver(post_save, sender=Ticket)
+def ticket_post_save(**kwargs):
+    """Envoit du mail de publication du ticket"""
+    if Preferences.objects.first().publish_address:
+        ticket = kwargs['instance']
+        ticket.publish_mail()

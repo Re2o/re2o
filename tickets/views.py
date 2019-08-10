@@ -36,11 +36,11 @@ def new_ticket(request):
             if request.user.is_authenticated:
                 ticket.user = request.user
                 ticket.save()
-                messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
+                messages.success(request,'Votre ticket a été ouvert. Nous vous répondrons le plus rapidement possible.')
                 return redirect(reverse('users:profil',kwargs={'userid':str(request.user.id)}))
             if not request.user.is_authenticated and email != "":
                 ticket.save()
-                messages.success(request,'Votre ticket à été ouvert. Nous vous répondront le plus rapidement possible.')
+                messages.success(request,'Votre ticket a été ouvert. Nous vous répondront le plus rapidement possible.')
                 return redirect(reverse('index'))
             else:    
                 messages.error(request,"Vous n'êtes pas authentifié, veuillez vous authentifier ou fournir une adresse mail pour que nous puissions vous recontacter")

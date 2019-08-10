@@ -1,0 +1,12 @@
+{% if ticket.user %} 
+{{ ticket.user.get_full_name }} à ouvert un ticket.
+Répondre à l'adresse: {{ticket.user.get_mail}}.
+
+{% else %} 
+Un utilisateur anonyme (non connecté) à ouvert un ticket.
+Répondre à l'adresse: {{ticket.email}}.
+{% endif %}
+
+Titre: {{ticket.title}}
+
+Description: {{ticket.description}}
