@@ -72,6 +72,7 @@ class Preferences(models.Model):
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
     """Envoit du mail de publication du ticket"""
-    if Preferences.objects.first().publish_address:
-        ticket = kwargs['instance']
-        ticket.publish_mail()
+    if kwargs['created']:
+        if Preferences.objects.first().publish_address:
+            ticket = kwargs['instance']
+            ticket.publish_mail()
