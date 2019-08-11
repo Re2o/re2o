@@ -31,6 +31,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% blocktrans %}Contact the organisation {{asso_name}}{% endblocktrans %}</h2>
 </br>
+
+{% for template in optionnal_templates_contact_list %}
+    {{template}}
+{% endfor %}
     
 {% for contact in contacts %}
 

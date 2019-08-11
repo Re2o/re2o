@@ -148,6 +148,16 @@ def preferences(request):
     context = {'preferences':preferences}
     return render_to_string('tickets/preferences.html', context=context, request=request, using=None)
 
+def contact(request):
+    """Vue cannonique d'affichage d'une adresse dans la page contact.
+    Utilisée ici pour proposer l'ouverture d'un ticket"""
+    return render_to_string('tickets/contact.html')
+
 def navbar_user(request):
     """Vue cannonique d'affichage des tickets dans la navbar"""
-    return render_to_string('tickets/navbar.html') 
+    return render_to_string('tickets/navbar.html')
+
+def navbar_logout(request):
+    """Vue cannonique d'affichage du lien de creation de ticket
+    lorsque l'utilisateur est déconnecté dans la navbar"""
+    return render_to_string('tickets/navbar_logout.html')

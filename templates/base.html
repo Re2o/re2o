@@ -101,7 +101,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
                                 
-                                {% for template in optionnal_templates_navbar_list%}
+                                {% for template in optionnal_templates_navbar_user_list%}
                                     {{ template }}
                                 {% endfor %}
                             </ul>
@@ -140,6 +140,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             </ul>
                         </li>
                         {% if not request.user.is_authenticated %}
+                            {% for template in optionnal_templates_navbar_logout_list %}
+                                {{ template }}
+                            {% endfor %}
                             {% if var_sa %}
                             <li>
                                 <a href="{% url 'users:new-user' %}">
