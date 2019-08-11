@@ -41,7 +41,7 @@ from django.utils.translation import ugettext as _
 from reversion import revisions as reversion
 
 from importlib import import_module
-from re2o.settings_local import OPTIONNAL_APPS
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
 from re2o.acl import can_create, can_edit, can_delete_set, can_view_all, can_delete
 
@@ -97,7 +97,7 @@ def display_options(request):
     cotisationsoptions, _created = CotisationsOption.objects.get_or_create()
     document_template_list = DocumentTemplate.objects.order_by('name')
 
-    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS]
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_list = [app.views.preferences(request) for app in optionnal_apps]
 
     return form({

@@ -57,7 +57,7 @@ from machines.models import Machine
 
 from preferences.models import OptionalUser, GeneralOption, AssoOption
 from importlib import import_module
-from re2o.settings_local import OPTIONNAL_APPS
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
 from re2o.utils import (
     all_has_access,
@@ -979,7 +979,7 @@ def profil(request, users, **_kwargs):
         SortTable.MACHINES_INDEX
     )
     
-    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS]
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_list = [app.views.profil(request,users) for app in optionnal_apps]
 
     pagination_large_number = GeneralOption.get_cached_value(

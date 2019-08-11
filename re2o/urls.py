@@ -49,7 +49,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView
 
-from .settings_local import OPTIONNAL_APPS
+from .settings_local import OPTIONNAL_APPS_RE2O
 
 from .views import index, about_page, contact_page
 
@@ -87,7 +87,7 @@ urlpatterns = [
 ]
 
 
-urlpatterns += [url(r'^{}/'.format(app), include('{}.urls'.format(app), namespace=app)) for app in OPTIONNAL_APPS]
+urlpatterns += [url(r'^{}/'.format(app), include('{}.urls'.format(app), namespace=app)) for app in OPTIONNAL_APPS_RE2O]
 
 # Add debug_toolbar URLs if activated
 if 'debug_toolbar' in settings.INSTALLED_APPS:

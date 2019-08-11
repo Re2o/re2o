@@ -44,7 +44,7 @@ from preferences.models import (
 
 from .contributors import CONTRIBUTORS
 from importlib import import_module
-from re2o.settings_local import OPTIONNAL_APPS
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def form(ctx, template, request):
@@ -115,7 +115,7 @@ def contact_page(request):
     """
     address = MailContact.objects.all()
 
-    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS]
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_contact_list = [app.views.contact(request) for app in optionnal_apps]
 
     return render(
