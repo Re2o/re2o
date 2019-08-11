@@ -61,9 +61,8 @@ def new_ticket(request):
 
 @login_required
 @can_view(Ticket)
-def aff_ticket(request,ticketid):
+def aff_ticket(request, ticket, ticketid):
     """Vue d'affichage d'un ticket"""
-    ticket = Ticket.objects.filter(id=ticketid).get()
     changestatusform = ChangeStatusTicketForm(request.POST)
     if request.method == 'POST':
         ticket.solved = not ticket.solved
@@ -97,6 +96,7 @@ def aff_tickets(request):
                 'nbr_tickets_unsolved':nbr_tickets_unsolved}
 
     return render(request,'tickets/index.html',context=context)
+
 
 def edit_preferences(request):
     """ Vue d'édition des préférences des tickets """
