@@ -5,6 +5,8 @@ from django.template import Context, loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from preferences.models import GeneralOption
+
 import users.models
 
 class Ticket(models.Model):
@@ -54,7 +56,7 @@ class Ticket(models.Model):
         send_mail(
             'Nouvelle ouverture de ticket',
             template.render(context),
-            'grisel-davy@crans.org',
+            GeneralOption.get_cached_value('email_from'),
             [to_addr],
             fail_silently = False)
 
