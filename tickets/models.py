@@ -5,11 +5,13 @@ from django.template import Context, loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from re2o.mixins import AclMixin
+
 from preferences.models import GeneralOption
 
 import users.models
 
-class Ticket(models.Model):
+class Ticket(AclMixin, models.Model):
     """Class définissant un ticket"""
 
     user = models.ForeignKey(
@@ -59,6 +61,26 @@ class Ticket(models.Model):
             GeneralOption.get_cached_value('email_from'),
             [to_addr],
             fail_silently = False)
+    
+    def can_view(self, user_request, *_args, **_kwargs):
+        """Verifie que la personne à le droit pour voir le ticket
+        ou qu'elle est l'auteur du ticket"""
+        if (not user_request.has_perm('tickets.view_ticket') and self.user != user_request):
+            return False, _("You don't have the right to view other Tickets than yours.")
+        else:
+            return True, None
+    
+    @staticmethod
+    def can_view_all(user_request, *_args, **_kwargs):
+        """Vérifie si l'user a acccés à la liste de tous les tickets"""
+        return(
+            user_request.has_perm('tickets.view_tickets'),
+            _("You don't have the right to view the list of tickets.")
+        )
+
+    def can_create(user_request,*_args, **_kwargs):
+        """Autorise tout les utilisateurs à créer des tickets"""
+        return True,None
 
 class Preferences(models.Model):
     """ Class cannonique définissants les préférences des tickets """

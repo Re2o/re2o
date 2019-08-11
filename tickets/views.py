@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.cache import cache_page
@@ -8,6 +9,13 @@ from re2o.views import form
 
 from re2o.base import (
     re2o_paginator,
+)
+
+from re2o.acl import(
+    can_view,
+    can_view_all,
+    can_edit,
+    can_create,
 )
 
 from preferences.models import GeneralOption
@@ -51,6 +59,8 @@ def new_ticket(request):
         ticketform = NewTicketForm
     return form({'ticketform':ticketform,},'tickets/form_ticket.html',request)
 
+@login_required
+@can_view(Ticket)
 def aff_ticket(request,ticketid):
     """Vue d'affichage d'un ticket"""
     ticket = Ticket.objects.filter(id=ticketid).get()
@@ -59,13 +69,18 @@ def aff_ticket(request,ticketid):
         ticket.solved = not ticket.solved
         ticket.save()
     return render(request,'tickets/aff_ticket.html',{'ticket':ticket,'changestatusform':changestatusform})
-    
+
+@login_required
+@can_view_all(Ticket)
 def aff_tickets(request):
     """ Vue d'affichage de tout les tickets """
     tickets_list = Ticket.objects.all().order_by('-date')
-    last_ticket_date = tickets_list.first().date
     nbr_tickets = tickets_list.count()
     nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
+    if nbr_tickets: 
+        last_ticket_date = tickets_list.first().date
+    else:
+        last_ticket_date = "Jamais"
     
     pagination_number = (GeneralOption
                                .get_cached_value('pagination_number'))
@@ -105,10 +120,13 @@ def edit_preferences(request):
 def profil(request,user):
     """ Vue cannonique d'affichage des tickets dans l'accordeon du profil"""
     tickets_list = Ticket.objects.filter(user=user).all().order_by('-date')
-    last_ticket_date = tickets_list.first().date
     nbr_tickets = tickets_list.count()
     nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
-    
+    if nbr_tickets: 
+        last_ticket_date = tickets_list.first().date
+    else:
+        last_ticket_date = "Jamais"
+
     pagination_number = (GeneralOption
                                .get_cached_value('pagination_large_number'))
 
