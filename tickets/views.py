@@ -130,6 +130,6 @@ def preferences(request):
     context = {'preferences':preferences}
     return render_to_string('tickets/preferences.html', context=context, request=request, using=None)
 
-def navbar(request):
+def navbar_user(request):
     """Vue cannonique d'affichage des tickets dans la navbar"""
     return render_to_string('tickets/navbar.html') 

@@ -62,7 +62,7 @@ def context_optionnal_apps(request):
     """Fonction de context pour générer la navbar en fonction des
     apps optionnels"""
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS]
-    optionnal_templates_navbar_list = [app.views.navbar(request) for app in optionnal_apps]
+    optionnal_templates_navbar_list = [app.views.navbar_user(request) for app in optionnal_apps]
     return {'optionnal_templates_navbar_list':optionnal_templates_navbar_list}
 
 
