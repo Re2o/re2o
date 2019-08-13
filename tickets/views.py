@@ -19,16 +19,24 @@ from re2o.acl import(
 )
 
 from preferences.models import GeneralOption
+
 from .models import(
     Ticket,
+)
+
+from .preferences.models import(
     Preferences,
 )
 
 from .forms import (
     NewTicketForm,
     ChangeStatusTicketForm,
+)
+
+from .preferences.forms import (
     EditPreferencesForm,
 )
+
 
 
 def new_ticket(request):

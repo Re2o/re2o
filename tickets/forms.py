@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import(
     Ticket,
-    Preferences,
 )
 
 class EditTicketForm(FormRevMixin, ModelForm):
@@ -22,12 +21,12 @@ class NewTicketForm(ModelForm):
     class Meta:
         model = Ticket
         fields = ['title', 'description', 'email']
-
+"""
 class EditPreferencesForm(ModelForm):
-    """ Edition des préférences des tickets """
     class Meta:
         model = Preferences
         fields = '__all__'
+"""
 
 class ChangeStatusTicketForm(ModelForm):
     """ Passe un Ticket en résolu """

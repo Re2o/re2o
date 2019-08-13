@@ -81,9 +81,8 @@ class Ticket(AclMixin, models.Model):
     def can_create(user_request,*_args, **_kwargs):
         """Autorise tout les utilisateurs à créer des tickets"""
         return True,None
-
+"""
 class Preferences(models.Model):
-    """ Class cannonique définissants les préférences des tickets """
     
     publish_address = models.EmailField(
         help_text = _("Adresse mail pour annoncer les nouveau tickets (laisser vide pour ne rien annoncer)"),
@@ -91,7 +90,7 @@ class Preferences(models.Model):
         null = True)
     class Meta:
         verbose_name = _("Préférences des tickets")
-
+"""
 
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
