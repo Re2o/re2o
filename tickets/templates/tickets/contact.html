@@ -5,7 +5,7 @@
     <div class="panel-body">
         <div class="row">
         <div class="col-sm-9">
-		{% blocktrans %} Si vous rencontrez des problème concernant les services proposés par l'association {{ asso_name }}, il vous est possible d'ouvir un ticket qui sera traité par les membres actifs de l'association. Si vous souhaitez nous contacter pour une question autres qu'un problème technique, choisissez l'une des adresses mail ci-dessous. {% endblocktrans %}
+        {% blocktrans %}If you are experiencing issues with the services offered by {{asso_name}}, you can open a ticket that will be taken care of. If you want to contact us on any other topic, please choose one address below.{% endblocktrans %}
 		</div>
         <div class="col-sm-3"><a class="btn btn-primary" href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Ouvrir un ticket" %}</a></div>
     </div> 

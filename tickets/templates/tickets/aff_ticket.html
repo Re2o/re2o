@@ -51,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {{ ticket.date | naturalday}}.
     {% if not ticket.user %}
-    {% trans "Response address: " %}<A HREF="mailto:{{ticket.email}}?subject={% trans "Response to your ticket"%}&cc=cableurs@crans.org">{{ticket.email}}</A>
+    {% trans "Response address: " %}<A HREF="mailto:{{ticket.email}}?subject={% trans "Response to your ticket"%}">{{ticket.email}}</A>
     {% endif %}
 </div>
 <div class="panel-body">
