@@ -1,5 +1,5 @@
-{% if ticket.user %} 
-{{ ticket.user.get_full_name }} à ouvert un ticket.
+{% if ticket.user %} {{ ticket.user.get_full_name }} à ouvert un ticket.
+Profile: {{site_url}}{% url 'users:profil' ticket.user.id%}
 Répondre à l'adresse: {{ticket.user.get_mail}}.
 
 {% else %} 

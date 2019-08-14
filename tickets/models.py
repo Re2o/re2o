@@ -11,6 +11,8 @@ from preferences.models import GeneralOption
 
 import users.models
 
+from .preferences.models import Preferences
+
 class Ticket(AclMixin, models.Model):
     """Class définissant un ticket"""
 
@@ -49,12 +51,16 @@ class Ticket(AclMixin, models.Model):
         verbose_name_plural = _("Tickets")
 
     def __str__(self):
-        return "Ticket de {} date: {}".format(self.user.surname,self.date)
+        if self.user:
+            return "Ticket de {}. Date: {}".format(self.user.surname,self.date)
+        else:
+            return "Ticket anonyme. Date: {}".format(self.date)
 
     def publish_mail(self):
+        site_url = GeneralOption.objects.first().main_site_url
         to_addr = Preferences.objects.first().publish_address
         template = loader.get_template('tickets/publication_mail')
-        context = Context({'ticket':self})
+        context = Context({'ticket':self,'site_url':site_url})
         send_mail(
             'Nouvelle ouverture de ticket',
             template.render(context),
