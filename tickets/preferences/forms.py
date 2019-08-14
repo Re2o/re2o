@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from .models import Preferences
 
 class EditPreferencesForm(ModelForm):
-    """ Edition des préférences des tickets """
+    """ Edit the ticket's settings"""
     class Meta:
         model = Preferences
         fields = '__all__'

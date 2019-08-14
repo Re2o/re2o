@@ -14,7 +14,7 @@ import users.models
 from .preferences.models import Preferences
 
 class Ticket(AclMixin, models.Model):
-    """Class définissant un ticket"""
+    """Model of a ticket"""
 
     user = models.ForeignKey(
         'users.User', 
@@ -24,26 +24,19 @@ class Ticket(AclMixin, models.Model):
         null=True)
     title = models.CharField(
         max_length=255,
-        help_text=_("Nom du ticket"),
+        help_text=_("Title of the ticket"),
         blank=False,
         null=False,)
     description = models.TextField(
         max_length=3000,
-        help_text=_("Description du ticket"),
+        help_text=_("Description of the ticket"),
         blank=False,
         null=False)
     date = models.DateTimeField(auto_now_add=True)
     email = models.EmailField(
-        help_text = _("Une adresse mail pour vous recontacter"),
+        help_text = _("An email address to get back to you"),
         max_length=100, 
         null=True)
-    assigned_staff = models.ForeignKey(
-        'users.User',
-        on_delete=models.PROTECT,
-        related_name="tickets_assigned",
-        blank=True,
-        null=True)
-    #categories = models.OneToManyFiled('Category')
     solved = models.BooleanField(default=False)
 
     class Meta:
@@ -52,9 +45,9 @@ class Ticket(AclMixin, models.Model):
 
     def __str__(self):
         if self.user:
-            return "Ticket de {}. Date: {}".format(self.user.surname,self.date)
+            return "Ticket from {}. Date: {}".format(self.user.surname,self.date)
         else:
-            return "Ticket anonyme. Date: {}".format(self.date)
+            return "Anonymous Ticket. Date: {}".format(self.date)
 
     def publish_mail(self):
         site_url = GeneralOption.objects.first().main_site_url
@@ -69,38 +62,28 @@ class Ticket(AclMixin, models.Model):
             fail_silently = False)
     
     def can_view(self, user_request, *_args, **_kwargs):
-        """Verifie que la personne à le droit pour voir le ticket
-        ou qu'elle est l'auteur du ticket"""
+        """ Check that the user has the right to view the ticket
+        or that it is the author"""
         if (not user_request.has_perm('tickets.view_ticket') and self.user != user_request):
-            return False, _("You don't have the right to view other Tickets than yours.")
+            return False, _("You don't have the right to view other tickets than yours.")
         else:
             return True, None
     
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
-        """Vérifie si l'user a acccés à la liste de tous les tickets"""
+        """ Check that the user has access to the list of all tickets"""
         return(
             user_request.has_perm('tickets.view_tickets'),
             _("You don't have the right to view the list of tickets.")
         )
 
     def can_create(user_request,*_args, **_kwargs):
-        """Autorise tout les utilisateurs à créer des tickets"""
+        """ Authorise all users to open tickets """
         return True,None
-"""
-class Preferences(models.Model):
-    
-    publish_address = models.EmailField(
-        help_text = _("Adresse mail pour annoncer les nouveau tickets (laisser vide pour ne rien annoncer)"),
-        max_length = 1000,
-        null = True)
-    class Meta:
-        verbose_name = _("Préférences des tickets")
-"""
 
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
-    """Envoit du mail de publication du ticket"""
+    """ Send the mail to publish the new ticket """
     if kwargs['created']:
         if Preferences.objects.first().publish_address:
             ticket = kwargs['instance']

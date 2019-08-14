@@ -8,28 +8,16 @@ from .models import(
     Ticket,
 )
 
-class EditTicketForm(FormRevMixin, ModelForm):
-    """Formulaire d'edition d'un Ticket"""
-    class Meta:
-        model = Ticket
-        exclude = ['user','assigned_staff','date']
-
 
 class NewTicketForm(ModelForm):
-    """ Creation d'une machine"""
+    """ Creation of a ticket"""
     email = forms.EmailField(required=False)
     class Meta:
         model = Ticket
         fields = ['title', 'description', 'email']
-"""
-class EditPreferencesForm(ModelForm):
-    class Meta:
-        model = Preferences
-        fields = '__all__'
-"""
 
 class ChangeStatusTicketForm(ModelForm):
-    """ Passe un Ticket en résolu """
+    """ Change ticket status"""
     class Meta:
         model = Ticket
         fields = []
