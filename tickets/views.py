@@ -179,8 +179,8 @@ def profil(request,user):
 
 def preferences(request):
     """ View to display the settings of the tickets in the preferences page"""
-    preferences = Preferences.objects.first()
-    context = {'preferences':preferences}
+    pref = Preferences.objects.first()
+    context = {'preferences':pref,'language':str(pref.LANGUES[pref.mail_language][1])}
     return render_to_string('tickets/preferences.html', context=context, request=request, using=None)
 
 def contact(request):

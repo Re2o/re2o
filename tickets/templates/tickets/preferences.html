@@ -18,14 +18,17 @@
         <div class="table-responsive">
         <table class="table">
 			<tr>
-			    <th><p>Email de publication</p></th>
-
+                <th><p>{% trans "Publication email address"%}</p></th>
                 {% if preferences.publish_address %}
 			        <td><p>{{ preferences.publish_address }}</p></td>
                 {% else %}
                     <td><p>{% trans "Pas d'adresse, les tickets ne sont pas annoncés" %}</p></td>
                 {% endif %}
 			</tr>
+            <tr>
+                <th><p>{% trans "Email language" %}</p></th>
+                <td><p>{{ language }}</p></th>
+            </tr>
   		<table class="table">
   		</table>
 		</div>
