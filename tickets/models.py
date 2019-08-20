@@ -52,10 +52,17 @@ class Ticket(AclMixin, models.Model):
     def publish_mail(self):
         site_url = GeneralOption.objects.first().main_site_url
         to_addr = Preferences.objects.first().publish_address
-        template = loader.get_template('tickets/publication_mail')
         context = Context({'ticket':self,'site_url':site_url})
+
+        lang = Preferences.objects.first().mail_language
+        if(lang == 0):
+            obj = 'Nouvelle ouverture de ticket'
+            template = loader.get_template('tickets/publication_mail_fr')
+        else:
+            obj = 'New ticket opened'
+            template = loader.get_template('tickets/publication_mail_en')
         send_mail(
-            'Nouvelle ouverture de ticket',
+            obj,
             template.render(context),
             GeneralOption.get_cached_value('email_from'),
             [to_addr],
