@@ -33,13 +33,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2> Ouverture d'un Ticket </h2>
 
-{% for message in messages %}
-<div class="{{ message| bootstrap_message_classes }} alert-dismissable">
-    <button type="button" class="close" data_dismiss="alert" aria-hidden="true">&#125;</button>
-    {{ message | safe }}
-</div>
-{% endfor %}
-
 <form class="form" method="post">
     {% csrf_token %}
     {% if not user.is_authenticated %}
