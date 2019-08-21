@@ -1,3 +1,10 @@
+## MR 427: Tickets
+Manually edit `settings_local.py` to provide the new `OPTIONNAL_APPS` lists:
+```python
+OPTIONNAL_APPS_RE2O = ('tickets',)
+OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + (...,...,)
+```
+
 ## MR 160: Datepicker
 
 Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
