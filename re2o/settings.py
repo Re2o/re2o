@@ -62,6 +62,7 @@ DJANGO_CONTRIB_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 )
 EXTERNAL_CONTRIB_APPS = (
     'bootstrap3',
@@ -131,6 +132,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 're2o.context_processors.context_user',
+                're2o.context_processors.context_optionnal_apps',
                 're2o.context_processors.date_now',
             ],
         },

@@ -1,0 +1,89 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+<hr class="col-sm-12">
+  <div class="row justify-content-start">
+    <div class="col-sm-4">
+      <span class="badge badge-light">{{ nbr_tickets }}</span> {% trans "Tickets" %}
+    </div>
+    <div class="col-sm-4">
+      <span class="badge badge-light"> {{ nbr_tickets_unsolved }}</span>{% trans "Not Solved Tickets" %}
+    </div>
+    <div class="col-sm-4">
+      <span>{% trans "Last Ticket:" %} {{ last_ticket_date }}</span>
+    </div>
+  </div>
+<hr class="col-sm-12">
+</div>
+
+
+
+<div class="table-responsiv">
+
+	<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">User</th>
+            <th scope="col">Titre</th>
+            <th scope="col">Date</th>
+            <th scope="col">Résolu</th> 
+        </tr>
+        {% for ticket in tickets_list %}
+        <tr>
+            <td>
+                <a href="{% url 'tickets:aff-ticket' ticket.id%}" class="btn btn-primary btn-sm" role="button">
+                        <i class="fa fa-ticket"></i>
+                </a>
+            </td>
+            {% if ticket.user %}
+            <td><a href="{% url 'users:profil' ticket.user.id%}" role="button">{{ ticket.user.get_short_name }}</a></td>
+            {% else %}
+            <td> Anonyme </td>
+            {% endif %}
+            <td>{{ ticket.title }}</td>
+            <td>{{ ticket.date }}</td>
+            {% if ticket.solved %}
+            <td><i class="fa fa-check" style="color:green"></i></td>
+            {% else %}
+            <td><i class="fa fa-times" style="color:red"></i></td>
+            {% endif %}        
+        </tr>
+        {% endfor %}
+        
+    </thead>
+    </table>
+
+	{% if tickets_list.paginator %}
+    	{% include 'pagination.html' with list=tickets_list go_to_id="tickets" %}
+	{% endif %}
+</div>
+{% endblock %}

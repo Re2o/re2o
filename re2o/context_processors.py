@@ -29,7 +29,8 @@ from django.contrib import messages
 from django.http import HttpRequest
 from preferences.models import GeneralOption, OptionalMachine
 from django.utils.translation import get_language
-
+from importlib import import_module
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
@@ -56,6 +57,15 @@ def context_user(request):
         'name_website': GeneralOption.get_cached_value('site_name'),
         'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
     }
+
+def context_optionnal_apps(request):
+    """Fonction de context pour générer la navbar en fonction des
+    apps optionnels"""
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
+    optionnal_templates_navbar_user_list = [app.views.navbar_user(request) for app in optionnal_apps]
+    optionnal_templates_navbar_logout_list = [app.views.navbar_logout(request) for app in optionnal_apps]
+    return {'optionnal_templates_navbar_user_list':optionnal_templates_navbar_user_list,
+            'optionnal_templates_navbar_logout_list':optionnal_templates_navbar_logout_list}
 
 
 def date_now(request):

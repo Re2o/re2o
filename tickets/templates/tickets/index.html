@@ -1,4 +1,4 @@
-{% extends 're2o/sidebar.html' %}
+{% extends 'users/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -26,29 +26,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load i18n %}
 
-{% block title %}{% trans "Contact" %}{% endblock %}
+{% block title%}{% trans "Tickets" %}{% endblock %}
 
 {% block content %}
-<h2>{% blocktrans %}Contact the organisation {{asso_name}}{% endblocktrans %}</h2>
-</br>
-
-{% for template in optionnal_templates_contact_list %}
-    {{template}}
-{% endfor %}
-    
-{% for contact in contacts %}
-
-<div class="panel panel-info">
-    <div class="panel-heading"><h4>{{ contact.get_name }}</h4></div>
-    <div class="panel-body">
-        <div class="row">
-        <div class="col-sm-9">{{ contact.commentary}}</div>
-        <div class="col-sm-3"><a href="mailto:{{ contact.address }}">{{ contact.address }}</a></div>
-    </div> 
-    </div>
-</div>
-
-{% endfor %}
-
+	<h2>{% trans "Tickets" %}</h2>
+	{% include 'tickets/aff_tickets.html' with tickets_list=tickets_list %}
 {% endblock %}
-
