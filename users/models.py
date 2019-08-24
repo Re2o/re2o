@@ -85,7 +85,8 @@ from re2o.base import smtp_check
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
-from preferences.models import GeneralOption, AssoOption, OptionalUser
+from preferences.models import GeneralOption, AssoOption
+from .preferences.models import PreferencesUser as OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
 

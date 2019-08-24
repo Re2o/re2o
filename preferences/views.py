@@ -57,7 +57,6 @@ from .forms import (
 from .models import (
     Service,
     MailContact,
-    OptionalUser,
     OptionalMachine,
     AssoOption,
     MailMessageOption,
@@ -71,6 +70,8 @@ from .models import (
     CotisationsOption,
     DocumentTemplate
 )
+
+from users.preferences.models import PreferencesUser as OptionalUser
 from . import models
 from . import forms
 

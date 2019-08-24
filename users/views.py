@@ -55,7 +55,8 @@ from reversion import revisions as reversion
 from cotisations.models import Facture, Paiement
 from machines.models import Machine
 
-from preferences.models import OptionalUser, GeneralOption, AssoOption
+from preferences.models import GeneralOption, AssoOption
+from .preferences.models import PreferencesUser as OptionalUser
 from importlib import import_module
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form

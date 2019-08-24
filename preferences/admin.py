@@ -29,7 +29,6 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import (
-    OptionalUser,
     OptionalMachine,
     OptionalTopologie,
     GeneralOption,
@@ -44,6 +43,7 @@ from .models import (
     DocumentTemplate
 )
 
+from users.preferences.models import PreferencesUser as OptionalUser
 
 class OptionalUserAdmin(VersionAdmin):
     """Class admin options user"""

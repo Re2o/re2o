@@ -44,7 +44,7 @@ from django.utils.safestring import mark_safe
 
 from machines.models import Interface, Machine, Nas
 from topologie.models import Port
-from preferences.models import OptionalUser
+from .preferences.models import PreferencesUser as OptionalUser
 from re2o.utils import remove_user_room
 from re2o.base import get_input_formats_help_text
 from re2o.mixins import FormRevMixin

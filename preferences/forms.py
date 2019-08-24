@@ -30,7 +30,6 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from re2o.mixins import FormRevMixin
 from .models import (
-    OptionalUser,
     OptionalMachine,
     OptionalTopologie,
     GeneralOption,
@@ -46,6 +45,7 @@ from .models import (
     CotisationsOption,
     DocumentTemplate
 )
+from users.preferences.models import PreferencesUser as OptionalUser
 from topologie.models import Switch
 
 
