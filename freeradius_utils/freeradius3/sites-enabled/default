@@ -92,19 +92,20 @@ server radius-wifi {
 authorize {
         rewrite_calling_station_id
 
-        if (User-Name =~ /^(.*)@(.*)/){
-            if (User-Name !~ /^(.*)@(.*)example(.*)/){
-                update control{
-                    Proxy-To-Realm := 'FEDEREZ'
-                }
-            }
+	# A decommenter pour activer le radius federez
+        #if (User-Name =~ /^(.*)@(.*)/){
+        #    if (User-Name !~ /^(.*)@(.*)example(.*)/){
+        #        update control{
+        #            Proxy-To-Realm := 'FEDEREZ'
+        #        }
+        #    }
 
-            if ("%{request:User-Name}" =~ /^(.*)@(.*)example(.*)/){
-                update request{
-                    Stripped-User-Name := "%{1}"
-                }
-            }
-        }
+        #    if ("%{request:User-Name}" =~ /^(.*)@(.*)example(.*)/){
+        #        update request{
+        #            Stripped-User-Name := "%{1}"
+        #        }
+        #    }
+        #}
 
 	filter_username
 

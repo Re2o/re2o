@@ -78,7 +78,6 @@ import ldapdb.models
 import ldapdb.models.fields
 
 from re2o.settings import LDAP, GID_RANGES, UID_RANGES
-from re2o.login import hashNT
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 from re2o.base import smtp_check
@@ -817,6 +816,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
+        from re2o.login import hashNT
         super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
