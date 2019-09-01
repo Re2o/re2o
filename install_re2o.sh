@@ -10,6 +10,14 @@ PIP_REQ_FILE="pip_requirements.txt"
 LDIF_DB_FILE="install_utils/db.ldiff"
 LDIF_SCHEMA_FILE="install_utils/schema.ldiff"
 
+FREERADIUS_CLIENTS="freeradius_utils/freeradius3/clients.conf"
+FREERADIUS_AUTH="freeradius_utils/auth.py"
+FREERADIUS_RADIUSD="freeradius_utils/freeradius3/radiusd.conf"
+FREERADIUS_MOD_PYTHON="freeradius_utils/freeradius3/mods-enabled/python"
+FREERADIUS_MOD_EAP="freeradius_utils/freeradius3/mods-enabled/eap"
+FREERADIUS_SITE_DEFAULT="freeradius_utils/freeradius3/sites-enabled/default"
+FREERADIUS_SITE_INNER_TUNNEL="freeradius_utils/freeradius3/sites-enabled/inner-tunnel"
+
 
 VALUE= # global value used to return values by some functions
 
@@ -75,7 +83,7 @@ install_requirements() {
 
 
 install_radius_requirements() {
-    ### Usage: install_requirements
+    ### Usage: install_radius_requirements
     #
     #   This function will install the required packages from APT repository
     #   and Pypi repository. Those packages are all required for Re2o to work
@@ -88,6 +96,28 @@ install_radius_requirements() {
     echo "Setting up the required packages: Done"
 }
 
+
+configure_radius() {
+    ### Usage: configure_radius
+    #
+    #   This function configures freeradius.
+    ###
+    echo "Configuring Freeradius ..."
+
+    cat $FREERADIUS_CLIENTS >> /etc/freeradius/3.0/clients.conf
+    ln -fs $(pwd)/$FREERADIUS_AUTH /etc/freeradius/3.0/auth.py
+    ln -fs $(pwd)/$FREERADIUS_RADIUSD /etc/freeradius/3.0/radiusd.conf
+    ln -fs $(pwd)/$FREERADIUS_MOD_PYTHON /etc/freeradius/3.0/mods-enabled/python
+    ln -fs $(pwd)/$FREERADIUS_MOD_EAP /etc/freeradius/3.0/mods-enabled/eap
+    ln -fs $(pwd)/$FREERADIUS_SITE_DEFAULT /etc/freeradius/3.0/sites-enabled/default
+    ln -fs $(pwd)/$FREERADIUS_SITE_INNER_TUNNEL /etc/freeradius/3.0/sites-enabled/inner-tunnel
+    _ask_value "Edit clients.conf ?" "yes"
+    $EDITOR /etc/freeradius/3.0/clients.conf
+
+
+    echo "Configuring Freeradius: Done"
+    
+}
 
 
 
@@ -821,6 +851,7 @@ main_function() {
 
 	radius )
             install_radius_requirements
+	    configure_radius
 	    ;;
 
         copy-templates-files )
