@@ -1,7 +1,7 @@
 from django.forms.widgets import Input 
 from django.forms.utils import flatatt 
 from django.utils.safestring import mark_safe 
-from django.template import Context, Template 
+from django.template import Template 
 from django.template.loader import get_template 
 from django.conf import settings 
 from django.utils.translation import ugettext_lazy as _, get_language_bidi 
@@ -28,7 +28,7 @@ class DateTimePicker(Input):
     def render(self, name, value, attrs=None): 
         super().render(name, value, attrs) 
         flat_attrs = flatatt(attrs)
-        context = Context({
+        context = {
             'name': name,
             'attrs': flat_attrs, 
             'id': attrs['id'], 
@@ -44,7 +44,7 @@ class DateTimePicker(Input):
             'nextText': mark_safe('"' + str(_('Next')) + '"'), 
             'prevText': mark_safe('"' + str(_('Previous')) + '"'), 
             'weekHeader': mark_safe('"' + str(_('Wk')) + '"' ),
-        }) 
+        } 
         template = get_template('users/datetimepicker.html')
         return template.render(context) 
 

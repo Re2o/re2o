@@ -33,7 +33,6 @@ from datetime import datetime
 
 from django.db import models
 from django.template.loader import get_template
-from django.template import Context
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
@@ -105,7 +104,7 @@ def create_pdf(template, ctx={}):
     Returns:
         The content of the temporary PDF file generated.
     """
-    context = Context(ctx)
+    context = ctx
     template = get_template(template)
     rendered_tpl = template.render(context).encode('utf-8')
 
