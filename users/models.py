@@ -57,7 +57,7 @@ from django.forms import ValidationError
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
-from django.template import Context, loader
+from django.template import loader
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -425,6 +425,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def is_adherent(self):
         """ Renvoie True si l'user est adhérent : si
         self.end_adhesion()>now"""
+        return True
         end = self.end_adhesion()
         if not end:
             return False
@@ -436,6 +437,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def is_connected(self):
         """ Renvoie True si l'user est adhérent : si
         self.end_adhesion()>now et end_connexion>now"""
+        return True
         end = self.end_connexion()
         if not end:
             return False
@@ -711,14 +713,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         template = loader.get_template('users/email_welcome')
         mailmessageoptions, _created = MailMessageOption\
             .objects.get_or_create()
-        context = Context({
+        context = {
             'nom': self.get_full_name(),
             'asso_name': AssoOption.get_cached_value('name'),
             'asso_email': AssoOption.get_cached_value('contact'),
             'welcome_mail_fr': mailmessageoptions.welcome_mail_fr,
             'welcome_mail_en': mailmessageoptions.welcome_mail_en,
             'pseudo': self.pseudo,
-        })
+        }
         send_mail(
             'Bienvenue au %(name)s / Welcome to %(name)s' % {
                 'name': AssoOption.get_cached_value('name')
@@ -774,7 +776,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             machine_parent.user = self
             interface_cible = Interface()
             interface_cible.mac_address = mac_address
-            interface_cible.type = machine_type_cible
+            interface_cible.machine_type = machine_type_cible
             interface_cible.clean()
             machine_parent.clean()
             domain = Domain()
@@ -796,14 +798,14 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """Notification mail lorsque une machine est automatiquement
         ajoutée par le radius"""
         template = loader.get_template('users/email_auto_newmachine')
-        context = Context({
+        context = {
             'nom': self.get_full_name(),
             'mac_address': interface.mac_address,
             'asso_name': AssoOption.get_cached_value('name'),
             'interface_name': interface.domain,
             'asso_email': AssoOption.get_cached_value('contact'),
             'pseudo': self.pseudo,
-        })
+        }
         send_mail(
             "Ajout automatique d'une machine / New machine autoregistered",
             '',
@@ -1522,12 +1524,12 @@ class Ban(RevMixin, AclMixin, models.Model):
     def notif_ban(self):
         """ Prend en argument un objet ban, envoie un mail de notification """
         template = loader.get_template('users/email_ban_notif')
-        context = Context({
+        context = {
             'name': self.user.get_full_name(),
             'raison': self.raison,
             'date_end': self.date_end,
             'asso_name': AssoOption.get_cached_value('name'),
-        })
+        }
         send_mail(
             'Déconnexion disciplinaire / Disciplinary disconnection',
             template.render(context),

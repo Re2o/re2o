@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
-from django.template import Context, loader
+from django.template import loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -52,7 +52,7 @@ class Ticket(AclMixin, models.Model):
     def publish_mail(self):
         site_url = GeneralOption.objects.first().main_site_url
         to_addr = Preferences.objects.first().publish_address
-        context = Context({'ticket':self,'site_url':site_url})
+        context = {'ticket':self,'site_url':site_url}
 
         lang = Preferences.objects.first().mail_language
         if(lang == 0):
