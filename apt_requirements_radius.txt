@@ -1,0 +1,22 @@
+python-django
+python-dateutil
+texlive-latex-base
+texlive-fonts-recommended
+python-djangorestframework
+python-django-reversion
+python-pip
+libsasl2-dev libldap2-dev
+libssl-dev
+python-crypto
+python-git
+javascript-common
+libjs-jquery
+libjs-jquery-ui
+libjs-jquery-timepicker
+libjs-bootstrap
+fonts-font-awesome
+graphviz
+git
+gettext
+freeradius-common
+freeradius-python2

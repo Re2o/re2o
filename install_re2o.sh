@@ -4,6 +4,7 @@ SETTINGS_LOCAL_FILE='re2o/settings_local.py'
 SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 
 APT_REQ_FILE="apt_requirements.txt"
+APT_RADIUS_REQ_FILE="apt_requirements_radius.txt"
 PIP_REQ_FILE="pip_requirements.txt"
 
 LDIF_DB_FILE="install_utils/db.ldiff"
@@ -71,6 +72,22 @@ install_requirements() {
     pip3 install -r $PIP_REQ_FILE
     echo "Setting up the required packages: Done"
 }
+
+
+install_radius_requirements() {
+    ### Usage: install_requirements
+    #
+    #   This function will install the required packages from APT repository
+    #   and Pypi repository. Those packages are all required for Re2o to work
+    #   properly.
+    ###
+
+    echo "Setting up the required packages ..."
+    cat $APT_RADIUS_REQ_FILE | xargs apt-get -y install
+    python -m pip install -r $PIP_REQ_FILE
+    echo "Setting up the required packages: Done"
+}
+
 
 
 
@@ -801,6 +818,10 @@ main_function() {
             copy_templates_files
             update_django
             ;;
+
+	radius )
+            install_radius_requirements
+	    ;;
 
         copy-templates-files )
             copy_templates_files
