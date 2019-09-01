@@ -4,11 +4,21 @@ SETTINGS_LOCAL_FILE='re2o/settings_local.py'
 SETTINGS_EXAMPLE_FILE='re2o/settings_local.example.py'
 
 APT_REQ_FILE="apt_requirements.txt"
+APT_RADIUS_REQ_FILE="apt_requirements_radius.txt"
 PIP_REQ_FILE="pip_requirements.txt"
+PIP_RADIUS_REQ_FILE="pip_requirements_radius.txt"
 
 LDIF_DB_FILE="install_utils/db.ldiff"
 LDIF_SCHEMA_FILE="install_utils/schema.ldiff"
 
+FREERADIUS_CLIENTS="freeradius_utils/freeradius3/clients.conf"
+FREERADIUS_AUTH="freeradius_utils/auth.py"
+FREERADIUS_RADIUSD="freeradius_utils/freeradius3/radiusd.conf"
+FREERADIUS_MOD_PYTHON="freeradius_utils/freeradius3/mods-enabled/python"
+FREERADIUS_MOD_EAP="freeradius_utils/freeradius3/mods-enabled/eap"
+FREERADIUS_SITE_DEFAULT="freeradius_utils/freeradius3/sites-enabled/default"
+FREERADIUS_SITE_INNER_TUNNEL="freeradius_utils/freeradius3/sites-enabled/inner-tunnel"
+EDITOR="nano"
 
 VALUE= # global value used to return values by some functions
 
@@ -70,6 +80,44 @@ install_requirements() {
     cat $APT_REQ_FILE | xargs apt-get -y install
     pip3 install -r $PIP_REQ_FILE
     echo "Setting up the required packages: Done"
+}
+
+
+install_radius_requirements() {
+    ### Usage: install_radius_requirements
+    #
+    #   This function will install the required packages from APT repository
+    #   and Pypi repository. Those packages are all required for Re2o to work
+    #   properly.
+    ###
+
+    echo "Setting up the required packages ..."
+    cat $APT_RADIUS_REQ_FILE | xargs apt-get -y install
+    python -m pip install -r $PIP_RADIUS_REQ_FILE
+    echo "Setting up the required packages: Done"
+}
+
+
+configure_radius() {
+    ### Usage: configure_radius
+    #
+    #   This function configures freeradius.
+    ###
+    echo "Configuring Freeradius ..."
+
+    cat $FREERADIUS_CLIENTS >> /etc/freeradius/3.0/clients.conf
+    ln -fs $(pwd)/$FREERADIUS_AUTH /etc/freeradius/3.0/auth.py
+    ln -fs $(pwd)/$FREERADIUS_RADIUSD /etc/freeradius/3.0/radiusd.conf
+    ln -fs $(pwd)/$FREERADIUS_MOD_PYTHON /etc/freeradius/3.0/mods-enabled/python
+    ln -fs $(pwd)/$FREERADIUS_MOD_EAP /etc/freeradius/3.0/mods-enabled/eap
+    ln -fs $(pwd)/$FREERADIUS_SITE_DEFAULT /etc/freeradius/3.0/sites-enabled/default
+    ln -fs $(pwd)/$FREERADIUS_SITE_INNER_TUNNEL /etc/freeradius/3.0/sites-enabled/inner-tunnel
+    _ask_value "Ready to edit clients.conf ?" "yes"
+    $EDITOR /etc/freeradius/3.0/clients.conf
+
+
+    echo "Configuring Freeradius: Done"
+
 }
 
 
@@ -715,6 +763,265 @@ interactive_guide() {
 
 
 
+interactive_radius_guide() {
+    ### Usage: interactive_radius_guide
+    #
+    #   This function will guide through the automated setup of radius with
+    #   Re2o by asking the user for some informations and some installation
+    #   choices. It will then proceed to setup and configuration of the
+    #   required tools according to the user choices.
+    ###
+
+    echo "Re2o setup !"
+    echo "This tool will help you setup re2o radius. It is highly recommended to use a Debian clean server for this operation."
+
+    echo "Installing basic packages required for this script to work  ..."
+    apt-get -y install sudo dialog
+    echo "Installing basic packages required for this script to work: Done"
+
+    # Common setup for the dialog prompts
+    export DEBIAN_FRONTEND=noninteractive
+    HEIGHT=20
+    WIDTH=60
+    CHOICE_HEIGHT=4
+
+
+
+    #############
+    ## Welcome ##
+    #############
+
+    BACKTITLE="Re2o setup"
+
+    # Welcome prompt
+    TITLE="Welcome"
+    MSGBOX="This tool will help you setup re2o. It is highly recommended to use a Debian clean server for this operation."
+    init="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --msgbox "$MSGBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+
+
+    ######################
+    ## Database options ##
+    ######################
+
+    BACKTITLE="Re2o setup - configuration of the database"
+
+    # Prompt for choosing the database engine
+    TITLE="Database engine"
+    MENU="Which engine should be used as the database ?"
+    OPTIONS=(1 "mysql"
+             2 "postgresql")
+    sql_bdd_type="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --menu "$MENU" \
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
+
+    # Prompt for choosing the database location
+    TITLE="SQL location"
+    MENU="Where to install the SQL database ?
+    * 'Local' will setup everything automatically but is not recommended for production
+    * 'Remote' will ask you to manually perform some setup commands on the remote server"
+    OPTIONS=(1 "Local"
+             2 "Remote")
+    sql_is_local="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --menu "$MENU" \
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
+
+    if [ $sql_is_local == 2 ]; then
+        # Prompt to enter the remote database hostname
+        TITLE="SQL hostname"
+        INPUTBOX="The hostname of the remote SQL database"
+        sql_host="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --inputbox "$INPUTBOX" \
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+        # Prompt to enter the remote database name
+        TITLE="SQL database name"
+        INPUTBOX="The name of the remote SQL database"
+        sql_name="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --inputbox "$INPUTBOX" \
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+        # Prompt to enter the remote database username
+        TITLE="SQL username"
+        INPUTBOX="The username to access the remote SQL database"
+        sql_login="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --inputbox "$INPUTBOX" \
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+        clear
+    else
+        # Use of default values for local setup
+        sql_name="re2o"
+        sql_login="re2o"
+        sql_host="localhost"
+    fi
+
+    # Prompt to enter the database password
+    TITLE="SQL password"
+    INPUTBOX="The password to access the SQL database"
+    sql_password="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --inputbox "$INPUTBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+
+
+    ##################
+    ## LDAP options ##
+    ##################
+
+    BACKTITLE="Re2o setup - configuration of the LDAP"
+
+    # Prompt to choose the LDAP location
+    TITLE="LDAP location"
+    MENU="Where would you like to install the LDAP ?
+    * 'Local' will setup everything automatically but is not recommended for production
+    * 'Remote' will ask you to manually perform some setup commands on the remote server"
+    OPTIONS=(1 "Local"
+             2 "Remote")
+    ldap_is_local="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --menu "$MENU" \
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
+
+    # Prompt to enter the LDAP domain extension
+    TITLE="Domain extension"
+    INPUTBOX="The local domain extension to use (e.g. 'example.net'). This is used in the LDAP configuration."
+    extension_locale="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --inputbox "$INPUTBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+    # Building the DN of the LDAP from the extension
+    IFS='.' read -a extension_locale_array <<< $extension_locale
+    for i in "${extension_locale_array[@]}"
+    do
+        ldap_dn+="dc=$i,"
+    done
+    ldap_dn="${ldap_dn::-1}"
+
+    if [ "$ldap_is_local" == 2 ]; then
+        # Prompt to enter the remote LDAP hostname
+        TITLE="LDAP hostname"
+        INPUTBOX="The hostname of the remote LDAP"
+        ldap_host="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --inputbox "$INPUTBOX" \
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+        # Prompt to choose if TLS should be activated or not for the LDAP
+        TITLE="TLS on LDAP"
+        MENU="Would you like to activate TLS for communicating with the remote LDAP ?"
+        OPTIONS=(1 "Yes"
+                 2 "No")
+        ldap_tls="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --MENU "$MENU" \
+            $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
+
+        # Prompt to enter the admin's CN of the remote LDAP
+        TITLE="CN of amdin user"
+        INPUTBOX="The CN entry for the admin user of the remote LDAP"
+        ldap_cn="$(dialog --clear --backtitle "$BACKTITLE" \
+            --title "$TITLE" --inputbox "$INPUTBOX" \
+            $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+    else
+        ldap_cn="cn=admin,"
+        ldap_cn+="$ldap_dn"
+        ldap_host="localhost"
+        ldap_tls=2
+    fi
+
+    # Prompt to enter the LDAP password
+    TITLE="LDAP password"
+    INPUTBOX="The password to access the LDAP"
+    ldap_password="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --inputbox "$INPUTBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+
+
+    #########################
+    ## Mail server options ##
+    #########################
+
+    BACKTITLE="Re2o setup - configuration of the mail server"
+
+    # Prompt to enter the hostname of the mail server
+    TITLE="Mail server hostname"
+    INPUTBOX="The hostname of the mail server to use"
+    email_host="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --inputbox "$TITLE" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+    # Prompt to choose the port of the mail server
+    TITLE="Mail server port"
+    MENU="Which port (thus which protocol) to use to contact the mail server"
+    OPTIONS=(25 "SMTP"
+             465 "SMTPS"
+             587 "Submission")
+    email_port="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --menu "$MENU" \
+        $HEIGHT $WIDTH $CHOICE_HEIGHT "${OPTIONS[@]}" 2>&1 >/dev/tty)"
+
+
+
+    ###############################
+    ## End of configuration step ##
+    ###############################
+
+    BACKTITLE="Re2o setup"
+
+    # Prompt to inform the config setup is over
+    TITLE="End of configuration step"
+    MSGBOX="The configuration step is now finished. The script will now perform the following actions:
+    * Install the required packages
+    * Install and setup the requested database if 'local' has been selected
+    * Install and setup the ldap if 'local' has been selected
+    * Write a local version of 'settings_local.py' file with the previously given informations
+    * Apply the Django migrations for the project
+    * Install and setup freeradius"
+    end_config="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --msgbox "$MSGBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+    clear
+
+
+
+    ################################
+    ## Perform the actual actions ##
+    ################################
+
+    install_radius_requirements
+
+    configure_radius
+
+    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password"
+
+    install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn"
+
+
+    write_settings_file "$sql_bdd_type" "$sql_host" "$sql_name" "$sql_login" "$sql_password" \
+                        "$ldap_cn" "$ldap_tls" "$ldap_password" "$ldap_host" "$ldap_dn" \
+                        "$email_host" "$email_port" "$extension_locale" "$url_server"
+
+    update_django
+
+
+    ###########################
+    ## End of the setup step ##
+    ###########################
+
+    BACKTITLE="Re2o setup"
+
+    # Prompt to inform the installation process is over
+    TITLE="End of the setup"
+    MSGBOX="You can now use your RADIUS server."
+    end="$(dialog --clear --backtitle "$BACKTITLE" \
+        --title "$TITLE" --msgbox "$MSGBOX" \
+        $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+}
+
+
+
+
 
 interactive_update_settings() {
     ### Usage: interactvie_update_settings
@@ -763,9 +1070,13 @@ main_function() {
         echo "  * {help} ---------- Display this quick usage documentation"
         echo "  * {setup} --------- Launch the full interactive guide to setup entirely"
         echo "                      re2o from scratch"
+        echo "  * {setup-radius} -- Launch the full interactive guide to setup entirely"
+        echo "                      re2o radius from scratch"
         echo "  * {update} -------- Collect frontend statics, install the missing APT"
         echo "                      and pip packages, copy LaTeX templates files"
 	echo "                      and apply the migrations to the DB"
+        echo "  * {update-radius} - Update radius apt and pip packages and copy radius"
+        echo "                      configuration files to their proper location."
         echo "  * {update-django} - Apply Django migration and collect frontend statics"
         echo "  * {copy-template-files} - Copy LaTeX templates files to media/templates"
         echo "  * {update-packages} Install the missing APT and pip packages"
@@ -797,10 +1108,19 @@ main_function() {
            interactive_guide
            ;;
 
+        setup-radius )
+            interactive_radius_guide
+            ;;
+
         update )
             install_requirements
             copy_templates_files
             update_django
+            ;;
+
+        update-radius )
+            install_radius_requirements
+            configure_radius
             ;;
 
         copy-templates-files )
