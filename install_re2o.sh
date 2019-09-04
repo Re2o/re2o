@@ -763,8 +763,9 @@ main_function() {
         echo "  * {help} ---------- Display this quick usage documentation"
         echo "  * {setup} --------- Launch the full interactive guide to setup entirely"
         echo "                      re2o from scratch"
-        echo "  * {update} -------- Collect frontend statics, install the missing APT and copy LaTeX templates files"
-        echo "                      and pip packages and apply the migrations to the DB"
+        echo "  * {update} -------- Collect frontend statics, install the missing APT"
+        echo "                      and pip packages, copy LaTeX templates files"
+	echo "                      and apply the migrations to the DB"
         echo "  * {update-django} - Apply Django migration and collect frontend statics"
         echo "  * {copy-template-files} - Copy LaTeX templates files to media/templates"
         echo "  * {update-packages} Install the missing APT and pip packages"
@@ -840,7 +841,7 @@ main_function() {
                     db_username="re2o"
                 fi
                 install_database "$db_engine_type" 1 "$db_name" "$db_username" "$db_password"
-		update-django
+		update_django
             else
                 echo "Invalid arguments !"
                 echo "Usage: install_re2o setup-db <db_password> [<db_engine_type>] [<db_name>] [<db_username>]"
