@@ -103,7 +103,7 @@ install_database() {
     if [ "$engine_type" == 1 ]; then
 
         echo "Installing MySQL client ..."
-        apt-get -y install python3-mysqldb mysql-client
+        apt-get -y install python3-mysqldb default-mysql-client
         echo "Installing MySQL client: Done"
 
         mysql_command="CREATE DATABASE $db_name collate='utf8_general_ci';
@@ -113,7 +113,7 @@ install_database() {
 
         if [ "$local_setup" == 1 ]; then
             echo "Setting up local MySQL server ..."
-            apt-get -y install mysql-server
+            apt-get -y install default-mysql-server
             mysql -u root --execute="$mysql_command"
             echo "Setting up local MySQL server: Done"
         else
