@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-12 08:58+0100\n"
+"POT-Creation-Date: 2019-09-05 19:48+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,11 +30,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: templates/admin/base_site.html:65 templates/base.html:281
+msgid "powered by"
+msgstr "propulsé par"
+
+#: templates/admin/base_site.html:69 templates/base.html:289
+msgid ""
+"This software is under the terms of the <a href=\"http://www.gnu.org/"
+"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
+msgstr ""
+"Ce logiciel est sous les termes de la licence <a href=\"http://www.gnu.org/"
+"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a>."
+
+#: templates/admin/custom_index.html:11
+#, python-format
+msgid "Welcome to %(name_website)s"
+msgstr ""
+
+#: templates/admin/custom_index.html:17
+msgid ""
+"You are on the operator interface. Here you will be able to manage the "
+"network and users\n"
+"                from the top left menu. You can also go read the developer "
+"documentation."
+msgstr ""
+
+#: templates/admin/custom_index.html:21
+msgid ""
+"To go back to the main site, click \"View site\" button in top right menu."
+msgstr ""
+
+#: templates/admin/custom_index.html:29
+msgid "My account"
+msgstr ""
+
+#: templates/admin/custom_index.html:30
+msgid "My recent actions"
+msgstr ""
+
+#: templates/admin/custom_index.html:34
+msgid "None available"
+msgstr ""
+
+#: templates/admin/custom_index.html:49
+msgid "Unknown content"
+msgstr ""
+
 #: templates/base.html:43 templates/errors/404.html:35
 msgid "Networking managing website endorsed by FedeRez."
 msgstr "Site de gestion de réseau soutenu par FedeRez."
 
-#: templates/base.html:70
+#: templates/base.html:70 templates/registration/logged_out.html:11
+#: templates/registration/password_change_done.html:11
+#: templates/registration/password_change_form.html:11
+#: templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_confirm.html:11
+#: templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_form.html:11
 msgid "Home"
 msgstr "Accueil"
 
@@ -58,145 +110,133 @@ msgstr "Gérer les machines"
 msgid "Manage the subscriptions"
 msgstr "Gérer les cotisations"
 
-#: templates/base.html:108
+#: templates/base.html:112
 msgid "Topology"
 msgstr "Topologie"
 
-#: templates/base.html:110
+#: templates/base.html:114
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: templates/base.html:111
+#: templates/base.html:115
 msgid "Access points"
 msgstr "Points d'accès sans fil"
 
-#: templates/base.html:112
+#: templates/base.html:116
 msgid "Rooms"
 msgstr "Chambres"
 
-#: templates/base.html:117
+#: templates/base.html:121
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/base.html:122
+#: templates/base.html:126
 msgid "Administration"
 msgstr "Administration"
 
-#: templates/base.html:129
-msgid "More information"
-msgstr "Plus d'informations"
+#: templates/base.html:133
+msgid "Information and contact"
+msgstr ""
 
-#: templates/base.html:131
+#: templates/base.html:135
 msgid "About"
 msgstr "À propos"
 
-#: templates/base.html:132
+#: templates/base.html:136
 msgid "Contact"
 msgstr "Contact"
 
-#: templates/base.html:139
+#: templates/base.html:150
 msgid "Sign up"
 msgstr "S'inscrire"
 
-#: templates/base.html:145 templates/registration/login.html:29
+#: templates/base.html:156 templates/registration/login.html:29
 #: templates/registration/login.html:36
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/base.html:153
+#: templates/base.html:164
 msgid "Search"
 msgstr "Rechercher"
 
-#: templates/base.html:167
+#: templates/base.html:178
 msgid "My profile"
 msgstr "Mon profil"
 
-#: templates/base.html:168
+#: templates/base.html:179
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/base.html:203
+#: templates/base.html:214
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:207
+#: templates/base.html:218
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:211
+#: templates/base.html:222
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: templates/base.html:214
+#: templates/base.html:225
 #, python-format
 msgid "Until %(end_access_date)s"
 msgstr "Jusqu'au %(end_access_date)s"
 
-#: templates/base.html:216
+#: templates/base.html:227
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/base.html:221
+#: templates/base.html:232
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:224
+#: templates/base.html:235
 #, python-format
 msgid "Until %(end_adhesion_date)s"
 msgstr "Jusqu'au %(end_adhesion_date)s"
 
-#: templates/base.html:226
+#: templates/base.html:237
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: templates/base.html:234
+#: templates/base.html:245
 msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:239
+#: templates/base.html:250
 msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
-#: templates/base.html:246
+#: templates/base.html:257
 #, python-format
 msgid "%(nb)s active machine"
 msgid_plural "%(nb)s active machines"
 msgstr[0] "%(nb)s machine active"
 msgstr[1] "%(nb)s machines actives"
 
-#: templates/base.html:255
+#: templates/base.html:266
 msgid "View my machines"
 msgstr "Voir mes machines"
 
-#: templates/base.html:268
+#: templates/base.html:279
 msgid "Back to top"
 msgstr "Retour en haut"
 
-#: templates/base.html:270
-msgid "powered by"
-msgstr "propulsé par"
-
-#: templates/base.html:272
+#: templates/base.html:283
 msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
 msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
 
-#: templates/base.html:275
+#: templates/base.html:286
 msgid "About this website"
 msgstr "À propos de ce site"
-
-#: templates/base.html:278
-msgid ""
-"This software is under the terms of the <a href=\"http://www.gnu.org/"
-"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
-msgstr ""
-"Ce logiciel est sous les termes de la licence <a href=\"http://www.gnu.org/"
-"licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a>."
 
 #: templates/buttons/add.html:27
 msgid "Add"
 msgstr "Ajouter"
 
-#: templates/buttons/edit.html:27
+#: templates/buttons/edit.html:27 tickets/templates/tickets/preferences.html:14
 msgid "Edit"
 msgstr "Modifier"
 
@@ -315,6 +355,236 @@ msgstr "Suivant"
 msgid "Last"
 msgstr "Dernière page"
 
+#: templates/registration/logged_out.html:16
+msgid "Thanks for spending some quality time with the Web site today."
+msgstr ""
+
+#: templates/registration/logged_out.html:17
+#, fuzzy
+#| msgid "Log in"
+msgid "Log in again"
+msgstr "Se connecter"
+
 #: templates/registration/login.html:40
 msgid "Forgotten password?"
 msgstr "Mot de passe oublié ?"
+
+#: templates/registration/password_change_done.html:11
+#: templates/registration/password_change_form.html:11
+msgid "Password change"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_form.html:11
+msgid "Password reset"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:11
+#, fuzzy
+#| msgid "More information"
+msgid "Password reset confirmation"
+msgstr "Plus d'informations"
+
+#: templates/registration/password_reset_email.html:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+
+#: templates/registration/password_reset_email.html:4
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:9
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:11
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: tickets/models.py:27
+msgid "Title of the ticket"
+msgstr ""
+
+#: tickets/models.py:32
+msgid "Description of the ticket"
+msgstr ""
+
+#: tickets/models.py:37
+msgid "An email address to get back to you"
+msgstr ""
+
+#: tickets/models.py:43 tickets/templates/tickets/form_preferences.html:30
+#: tickets/templates/tickets/form_ticket.html:31
+msgid "Ticket"
+msgstr ""
+
+#: tickets/models.py:44 tickets/templates/tickets/aff_ticket.html:30
+#: tickets/templates/tickets/aff_tickets.html:35
+#: tickets/templates/tickets/index.html:29
+#: tickets/templates/tickets/index.html:32
+#: tickets/templates/tickets/navbar.html:2
+#: tickets/templates/tickets/preferences.html:6
+msgid "Tickets"
+msgstr ""
+
+#: tickets/models.py:75
+msgid "You don't have the right to view other tickets than yours."
+msgstr ""
+
+#: tickets/models.py:84
+msgid "You don't have the right to view the list of tickets."
+msgstr ""
+
+#: tickets/preferences/models.py:8
+msgid ""
+"Email address to publish the new tickets (leave empty for no publications)"
+msgstr ""
+
+#: tickets/preferences/models.py:14
+msgid "Français"
+msgstr ""
+
+#: tickets/preferences/models.py:15
+msgid "English"
+msgstr ""
+
+#: tickets/preferences/models.py:19
+msgid "Ticket's settings"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:36
+msgid "Solved"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:38
+msgid "Not Solved"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:44
+#, fuzzy
+#| msgid "powered by"
+msgid "Opened by"
+msgstr "propulsé par"
+
+#: tickets/templates/tickets/aff_ticket.html:50
+msgid "Anonymous User"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:54
+msgid "Response address: "
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:54
+msgid "Response to your ticket"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:59
+msgid "Title:"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:60
+msgid "Description"
+msgstr ""
+
+#: tickets/templates/tickets/aff_ticket.html:79
+msgid "Tous les tickets"
+msgstr ""
+
+#: tickets/templates/tickets/aff_tickets.html:38
+msgid "Not Solved Tickets"
+msgstr ""
+
+#: tickets/templates/tickets/aff_tickets.html:41
+msgid "Last Ticket:"
+msgstr ""
+
+#: tickets/templates/tickets/contact.html:8
+#, python-format
+msgid ""
+"If you are experiencing issues with the services offered by %(asso_name)s, "
+"you can open a ticket that will be taken care of. If you want to contact us "
+"on any other topic, please choose one address below."
+msgstr ""
+
+#: tickets/templates/tickets/contact.html:10
+#: tickets/templates/tickets/navbar_logout.html:4
+msgid "Ouvrir un ticket"
+msgstr ""
+
+#: tickets/templates/tickets/form_preferences.html:33
+msgid "Tickets settings modification"
+msgstr ""
+
+#: tickets/templates/tickets/form_ticket.html:39
+msgid ""
+"Vous n'êtes pas authentifié. Veuillez fournir une adresse mail afin que nous "
+"puissions vous recontacter."
+msgstr ""
+
+#: tickets/templates/tickets/form_ticket.html:44
+msgid ""
+"Description de votre problème. Veuillez fournir le plus d'informations "
+"possible afin de faciliter la recherche de solution. Voici quelques "
+"informations dont nous pourions avoir besoin:"
+msgstr ""
+
+#: tickets/templates/tickets/form_ticket.html:47
+msgid "Le type de votre problème (adhesion, connexion, paiement ou autre)."
+msgstr ""
+
+#: tickets/templates/tickets/form_ticket.html:50
+msgid ""
+"Les conditions dans lesquelles vous rencontrez le problème (Wifi/filaire, "
+"sur tout les apareils ou sur un seul. Est-ce une nouvelle machine ?"
+msgstr ""
+
+#: tickets/templates/tickets/form_ticket.html:53
+msgid ""
+"Les endroits dans lequels le problème survient (chez vous, dans une partie "
+"commune, dans un batiment en particulier)."
+msgstr ""
+
+#: tickets/templates/tickets/preferences.html:21
+msgid "Publication email address"
+msgstr ""
+
+#: tickets/templates/tickets/preferences.html:25
+msgid "Pas d'adresse, les tickets ne sont pas annoncés"
+msgstr ""
+
+#: tickets/templates/tickets/preferences.html:29
+msgid "Email language"
+msgstr ""
+
+#: tickets/templates/tickets/profil.html:6
+msgid " Tickets"
+msgstr ""
+
+#: tickets/templates/tickets/profil.html:12
+msgid " Open a Ticket"
+msgstr ""
+
+#: tickets/templates/tickets/profil.html:19
+msgid "No tickets"
+msgstr ""
+
+#: tickets/views.py:83 tickets/views.py:87
+msgid ""
+"Your ticket has been succesfully open. We will take care of it as soon as "
+"possible."
+msgstr ""
+
+#: tickets/views.py:90
+msgid ""
+"You are not authenticated. Please login or provide an email address so we "
+"can get back to you."
+msgstr ""
+
+#: tickets/views.py:117 tickets/views.py:163
+msgid "Never"
+msgstr ""
