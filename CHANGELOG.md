@@ -1,10 +1,3 @@
-## MR 427: Tickets
-Manually edit `settings_local.py` to provide the new `OPTIONNAL_APPS` lists:
-```python
-OPTIONNAL_APPS_RE2O = ('tickets',)
-OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + (...,...,)
-```
-
 ## MR 160: Datepicker
 
 Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
@@ -185,3 +178,12 @@ Be carefull, you need the proper rights to edit a DocumentTemplate.
 Re2o now sends subscription voucher when an invoice is controlled. It uses one
 of the templates. You also need to set the name of the president of your association
 to be set in your settings.
+
+## MR 427: Tickets
+Manually edit `settings_local.py` to provide the new `OPTIONNAL_APPS` lists:
+```python
+OPTIONNAL_APPS_RE2O = ('tickets',)
+OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + (...,...,)
+```
+
+Don't forget to run migrations afterwards.
