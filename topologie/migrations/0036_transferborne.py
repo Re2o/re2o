@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         machinetype = apps.get_model("machines", "MachineType")
         borne = apps.get_model("topologie", "Borne")
         interface =  apps.get_model("machines", "Interface")
-        bornes_list = machinetype.objects.using(db_alias).filter(type__icontains='borne')
+        bornes_list = machinetype.objects.using(db_alias).filter(ip_type__name__icontains='borne')
         if bornes_list:
-            for inter in interface.objects.using(db_alias).filter(type=bornes_list.first()):
+            for inter in interface.objects.using(db_alias).filter(machine_type=bornes_list.first()):
                 borne_object = borne()
                 borne_object.interface_ptr_id = inter.pk
-                borne_object.__dict__.update(inter.__dict__) 
+                borne_object.__dict__.update(inter.__dict__)
                 borne_object.save()
 
     def untransfer_bornes(apps, schema_editor):
