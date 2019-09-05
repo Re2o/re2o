@@ -158,10 +158,15 @@ ModelC)
                     messages.error(
                         request, msg or _("You don't have the right to access"
                                           " this menu."))
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                if request.user.id is not None:
+                    return redirect(reverse(
+                        'users:profil',
+                        kwargs={'userid': str(request.user.id)}
+                    ))
+                else:
+                    return redirect(reverse(
+                        'index',
+                    ))
             return view(request, *chain(instances, args), **kwargs)
         return wrapper
     return decorator
