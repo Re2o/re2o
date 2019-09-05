@@ -232,7 +232,7 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
 class RecryptBackend(ModelBackend):
     def authenticate(self, username=None, password=None):
         # we obtain from the classical auth backend the user
-        user = super(RecryptBackend, self).authenticate(username, password)
+        user = super(RecryptBackend, self).authenticate(None, username, password)
         if user:
             if not(user.pwd_ntlm):
                 # if we dont have NT hash, we create it
