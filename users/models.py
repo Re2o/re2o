@@ -864,29 +864,38 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             if (self == user_request or
                     user_request.has_perm('users.change_user') or
                     user_request.adherent in self.club.administrators.all()):
-                return True, None
+                return True, None, None
             else:
-                return False, _("You don't have the right to edit this club.")
+                return False, _("You don't have the right to edit this club."), ('users.change_user',)
         else:
             if self == user_request:
-                return True, None
+                return True, None, None
             elif user_request.has_perm('users.change_all_users'):
-                return True, None
+                return True, None, None
             elif user_request.has_perm('users.change_user'):
                 if self.groups.filter(listright__critical=True):
-                    return False, (_("User with critical rights, can't be"
-                                     " edited."))
+                    return (
+                        False,
+                        _("User with critical rights, can't be edited. "),
+                        ('users.change_all_users',)
+                    )
                 elif self == AssoOption.get_cached_value('utilisateur_asso'):
-                    return False, (_("Impossible to edit the organisation's"
-                                     " user without the 'change_all_users'"
-                                     " right."))
+                    return (
+                        False,
+                        _("Impossible to edit the organisation's"
+                          " user without the 'change_all_users' right."),
+                        ('users.change_all_users', )
+                    )
                 else:
-                    return True, None
+                    return True, None, None
             elif user_request.has_perm('users.change_all_users'):
-                return True, None
+                return True, None, None
             else:
-                return False, (_("You don't have the right to edit another"
-                                 " user."))
+                return (
+                    False,
+                    _("You don't have the right to edit another user."),
+                    ('users.change_user', 'users.change_all_users')
+                )
 
     def can_change_password(self, user_request, *_args, **_kwargs):
         """Check if a user can change a user's password
@@ -901,21 +910,28 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             if (self == user_request or
                     user_request.has_perm('users.change_user_password') or
                     user_request.adherent in self.club.administrators.all()):
-                return True, None
+                return True, None, None
             else:
-                return False, _("You don't have the right to edit this club.")
+                return (
+                    False,
+                    _("You don't have the right to edit this club."),
+                    ('users.change_user_password',)
+                )
         else:
             if (self == user_request or
                     user_request.has_perm('users.change_user_groups')):
                 # Peut éditer les groupes d'un user,
                 # c'est un privilège élevé, True
-                return True, None
+                return True, None, None
             elif (user_request.has_perm('users.change_user') and
                   not self.groups.all()):
-                return True, None
+                return True, None, None
             else:
-                return False, (_("You don't have the right to edit another"
-                                 " user."))
+                return (
+                    False,
+                    _("You don't have the right to edit another user."),
+                    ('users.change_user_groups', 'users.change_user')
+                )
 
     def check_selfpasswd(self, user_request, *_args, **_kwargs):
         """ Returns (True, None) if user_request is self, else returns
@@ -932,9 +948,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_room'))
             or user_request.has_perm('users.change_user')):
-            return False, _("Permission required to change the room.")
+            return (
+                False,
+                _("Permission required to change the room."),
+                ('users.change_user',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     @staticmethod
     def can_change_state(user_request, *_args, **_kwargs):
@@ -946,7 +966,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_state'),
-            _("Permission required to change the state.")
+            _("Permission required to change the state."),
+            ('users.change_user_state',)
         )
 
     def can_change_shell(self, user_request, *_args, **_kwargs):
@@ -958,9 +979,13 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         if not ((self.pk == user_request.pk and OptionalUser.get_cached_value('self_change_shell'))
             or user_request.has_perm('users.change_user_shell')):
-            return False, _("Permission required to change the shell.")
+            return (
+                False,
+                _("Permission required to change the shell."),
+                ('users.change_user_shell',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     @staticmethod
     def can_change_local_email_redirect(user_request, *_args, **_kwargs):
@@ -972,7 +997,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled.")
+            _("Local email accounts must be enabled."),
+            None
         )
 
     @staticmethod
@@ -985,7 +1011,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled.")
+            _("Local email accounts must be enabled."),
+            None
         )
 
     @staticmethod
@@ -998,7 +1025,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_force'),
-            _("Permission required to force the move.")
+            _("Permission required to force the move."),
+            ('users.change_user_force',)
         )
 
     @staticmethod
@@ -1011,7 +1039,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.change_user_groups'),
-            _("Permission required to edit the user's groups of rights.")
+            _("Permission required to edit the user's groups of rights."),
+            ('users.change_user_groups')
         )
 
     @staticmethod
@@ -1023,7 +1052,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.is_superuser,
-            _("'superuser' right required to edit the superuser flag.")
+            _("'superuser' right required to edit the superuser flag."),
+            []
         )
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1039,16 +1069,23 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                     user_request.has_perm('users.view_user') or
                     user_request.adherent in self.club.administrators.all() or
                     user_request.adherent in self.club.members.all()):
-                return True, None
+                return True, None, None
             else:
-                return False, _("You don't have the right to view this club.")
+                return (
+                    False,
+                    _("You don't have the right to view this club."),
+                    ('users.view_user',)
+                )
         else:
             if (self == user_request or
                     user_request.has_perm('users.view_user')):
-                return True, None
+                return True, None, None
             else:
-                return False, (_("You don't have the right to view another"
-                                 " user."))
+                return (
+                    False,
+                    _("You don't have the right to view another user."),
+                    ('users.view_user',)
+                )
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -1060,7 +1097,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.view_user'),
-            _("You don't have the right to view the list of users.")
+            _("You don't have the right to view the list of users."),
+            ('users.view_user',)
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
@@ -1073,7 +1111,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         """
         return (
             user_request.has_perm('users.delete_user'),
-            _("You don't have the right to delete this user.")
+            _("You don't have the right to delete this user."),
+            ('users.delete_user',)
         )
 
     def __init__(self, *args, **kwargs):
@@ -1160,15 +1199,16 @@ class Adherent(User):
         """
         if (not user_request.is_authenticated and
                 not OptionalUser.get_cached_value('self_adhesion')):
-            return False, None
+            return False, _("Self adhesion is disabled."), None
         else:
             if (OptionalUser.get_cached_value('all_can_create_adherent') or
                     OptionalUser.get_cached_value('self_adhesion')):
-                return True, None
+                return True, None, None
             else:
                 return (
                     user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a user.")
+                    _("You don't have the right to create a user."),
+                    ('users.add_user',)
                 )
 
     def clean(self, *args, **kwargs):
@@ -1216,14 +1256,15 @@ class Club(User):
             an user or if the `options.all_can_create` is set.
         """
         if not user_request.is_authenticated:
-            return False, None
+            return False, _("You must be authenticated."), None
         else:
             if OptionalUser.get_cached_value('all_can_create_club'):
-                return True, None
+                return True, None, None
             else:
                 return (
                     user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a club.")
+                    _("You don't have the right to create a club."),
+                    ('users.add_user',)
                 )
 
     @staticmethod
@@ -1235,13 +1276,17 @@ class Club(User):
             message.
         """
         if user_request.has_perm('users.view_user'):
-            return True, None
+            return True, None, None
         if (hasattr(user_request, 'is_class_adherent') and
                 user_request.is_class_adherent):
             if (user_request.adherent.club_administrator.all() or
                     user_request.adherent.club_members.all()):
-                return True, None
-        return False, _("You don't have the right to view the list of users.")
+                return True, None, None
+        return (
+            False,
+            _("You don't have the right to view the list of users."),
+            ('users.view_user',)
+        )
 
     @classmethod
     def get_instance(cls, clubid, *_args, **_kwargs):
@@ -1553,10 +1598,13 @@ class Ban(RevMixin, AclMixin, models.Model):
         """
         if (not user_request.has_perm('users.view_ban') and
                 self.user != user_request):
-            return False, (_("You don't have the right to view bans other"
-                             " than yours."))
+            return (
+                False,
+                _("You don't have the right to view bans other than yours."),
+                ('users.view_ban',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -1620,10 +1668,13 @@ class Whitelist(RevMixin, AclMixin, models.Model):
         """
         if (not user_request.has_perm('users.view_whitelist') and
                 self.user != user_request):
-            return False, (_("You don't have the right to view whitelists"
-                             " other than yours."))
+            return (
+                False,
+                _("You don't have the right to view whitelists other than yours."),
+                ('users.view_whitelist',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.raison)
@@ -1892,17 +1943,29 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             a local email account.
         """
         if user_request.has_perm('users.add_emailaddress'):
-            return True, None
+            return True, None, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, _("The local email accounts are not enabled.")
-        if int(user_request.id) != int(userid):
-            return False, _("You don't have the right to add a local email"
-                            " account to another user.")
-        elif user_request.email_address.count() >= OptionalUser.get_cached_value('max_email_address'):
-            return False, _("You reached the limit of {} local email accounts.").format(
-                OptionalUser.get_cached_value('max_email_address')
+            return (
+                False,
+                _("The local email accounts are not enabled."),
+                None
             )
-        return True, None
+        if int(user_request.id) != int(userid):
+            return (
+                False,
+                _("You don't have the right to add a local email"
+                  " account to another user."),
+                ('users.add_emailaddress',)
+            )
+        elif user_request.email_address.count() >= OptionalUser.get_cached_value('max_email_address'):
+            return (
+                False,
+                _("You reached the limit of {} local email accounts.").format(
+                    OptionalUser.get_cached_value('max_email_address')
+                ),
+                None
+            )
+        return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if a user can view the local email account
@@ -1915,13 +1978,21 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             the local email account.
         """
         if user_request.has_perm('users.view_emailaddress'):
-            return True, None
+            return True, None, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, _("The local email accounts are not enabled.")
+            return (
+                False,
+                _("The local email accounts are not enabled."),
+                None
+            )
         if user_request == self.user:
-            return True, None
-        return False, _("You don't have the right to edit another user's local"
-                        " email account.")
+            return True, None, None
+        return (
+            False,
+            _("You don't have the right to edit another user's local"
+              " email account."),
+            ('users.view_emailaddress',)
+        )
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Check if a user can delete the alias
@@ -1934,16 +2005,24 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             the local email account.
         """
         if self.local_part == self.user.pseudo.lower():
-            return False, _("You can't delete a local email account whose"
-                            " local part is the same as the username.")
+            return (
+                False,
+                _("You can't delete a local email account whose"
+                  " local part is the same as the username."),
+                None
+            )
         if user_request.has_perm('users.delete_emailaddress'):
-            return True, None
+            return True, None, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, _("The local email accounts are not enabled.")
+            return False, _("The local email accounts are not enabled."), None
         if user_request == self.user:
-            return True, None
-        return False, _("You don't have the right to delete another user's"
-                       " local email account")
+            return True, None, None
+        return (
+            False,
+            _("You don't have the right to delete another user's"
+              " local email account"),
+            ('users.delete_emailaddress',)
+        )
 
     def can_edit(self, user_request, *_args, **_kwargs):
         """Check if a user can edit the alias
@@ -1956,16 +2035,24 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             the local email account.
         """
         if self.local_part == self.user.pseudo.lower():
-            return False, _("You can't edit a local email account whose local"
-                            " part is the same as the username.")
+            return (
+                False,
+                _("You can't edit a local email account whose local"
+                            " part is the same as the username."),
+                None
+            )
         if user_request.has_perm('users.change_emailaddress'):
-            return True, None
+            return True, None, None
         if not OptionalUser.get_cached_value('local_email_accounts_enabled'):
-            return False, _("The local email accounts are not enabled.")
+            return False, _("The local email accounts are not enabled."), None
         if user_request == self.user:
-            return True, None
-        return False, _("You don't have the right to edit another user's local"
-                        " email account.")
+            return True, None, None
+        return (
+            False,
+            _("You don't have the right to edit another user's local"
+                        " email account."),
+            ('users.change_emailaddress',)
+        )
 
     def clean(self, *args, **kwargs):
         self.local_part = self.local_part.lower()
