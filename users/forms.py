@@ -38,6 +38,7 @@ from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from django.utils.functional import lazy
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -390,8 +391,6 @@ class AdherentCreationForm(AdherentForm):
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
-    #gtu_check.label = mark_safe("{} <a href='/media/{}' download='CGU'>{}</a>{}".format(
-    #    _("I commit to accept the"), GeneralOption.get_cached_value('GTU'), _("General Terms of Use"), _(".")))
 
     class Meta:
         model = Adherent
@@ -409,6 +408,15 @@ class AdherentCreationForm(AdherentForm):
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
+        self.fields['gtu_check'].label = mark_safe(
+            "%s <a href='%s' download='CGU'>%s</a>." % (
+                _("I commit to accept the"),
+                GeneralOption.get_cached_value('GTU').url,
+                _("General Terms of Use")
+            )
+        )
+
+
 
 class AdherentEditForm(AdherentForm):
     """Formulaire d'édition d'un user.

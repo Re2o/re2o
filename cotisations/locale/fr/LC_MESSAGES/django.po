@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-12 08:58+0100\n"
+"POT-Creation-Date: 2019-09-05 19:48+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language: fr_FR\n"
@@ -33,7 +33,7 @@ msgstr ""
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: cotisations/forms.py:66 cotisations/forms.py:299
+#: cotisations/forms.py:66 cotisations/forms.py:298
 msgid "Select a payment method"
 msgstr "Sélectionnez un moyen de paiement"
 
@@ -109,7 +109,7 @@ msgstr "Banques disponibles"
 msgid "Amount"
 msgstr "Montant"
 
-#: cotisations/forms.py:292
+#: cotisations/forms.py:291
 #: cotisations/templates/cotisations/aff_cost_estimate.html:42
 #: cotisations/templates/cotisations/aff_cotisations.html:44
 #: cotisations/templates/cotisations/aff_custom_invoice.html:42
@@ -117,7 +117,7 @@ msgstr "Montant"
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: cotisations/forms.py:313
+#: cotisations/forms.py:312
 #, python-format
 msgid ""
 "Requested amount is too high. Your balance can't exceed "

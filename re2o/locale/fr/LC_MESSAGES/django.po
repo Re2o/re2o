@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-12 08:58+0100\n"
+"POT-Creation-Date: 2019-09-05 19:48+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,11 +34,11 @@ msgstr ""
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: re2o/acl.py:159 re2o/acl.py:224
+#: re2o/acl.py:159 re2o/acl.py:229
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: re2o/acl.py:274
+#: re2o/acl.py:279
 msgid "You don't have the right to edit the history."
 msgstr "Vous n'avez pas le droit de modifier l'historique."
 
@@ -75,11 +75,11 @@ msgstr "Vous n'avez pas le droit de voir tous les objets %s."
 msgid "You don't have the right to view a %s object."
 msgstr "Vous n'avez pas le droit de voir un objet %s."
 
-#: re2o/settings.py:156
+#: re2o/settings.py:158
 msgid "English"
 msgstr "Anglais"
 
-#: re2o/settings.py:157
+#: re2o/settings.py:159
 msgid "French"
 msgstr "Français"
 
@@ -264,6 +264,12 @@ msgstr "Tweets de @%(twitter_account_name)s"
 msgid "Follow @%(twitter_account_name)s"
 msgstr "Suivre @%(twitter_account_name)s"
 
-#: re2o/views.py:87
+#: re2o/urls.py:57
+#, fuzzy
+#| msgid "Home"
+msgid "Homepage"
+msgstr "Accueil"
+
+#: re2o/views.py:89
 msgid "Unable to get the information."
 msgstr "Impossible d'obtenir l'information."
