@@ -40,7 +40,11 @@ def can_view(user):
     """
     can = user.has_module_perms('cotisations')
     if can:
-        return can, None
+        return can, None, ('cotisations',)
     else:
-        return can, _("You don't have the right to view this application.")
+        return (
+            can,
+            _("You don't have the right to view this application."),
+            ('cotisations',)
+        )
 
