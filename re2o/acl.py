@@ -39,12 +39,24 @@ from django.utils.translation import ugettext as _
 from re2o.utils import get_group_having_permission
 
 
-def group_list(permissions):
-    """Create a string listing every groups having one of the given
-    `permissions`."""
-    return ", ".join([
+def acl_error_message(msg, permissions):
+    """Create an error message for msg and permissions."""
+    groups = ", ".join([
         g.name for g in get_group_having_permission(*permissions)
     ])
+    message = msg or _("You don't have the right to edit"
+                                         " this option.")
+    if groups:
+        return message + _(
+                " You need to be a member of one of those"
+                " groups : %s"
+            ) % groups
+    else:
+        return message + " No group have the %s permission(s) !" % " or ".join([
+            ",".join(permissions[:-1]),
+            permissions[-1]]
+            if len(permissions) > 2 else permissions
+        )
 
 
 def acl_base_decorator(method_name, *targets, on_instance=True):
@@ -163,23 +175,8 @@ ModelC)
             for target, fields in group_targets():
                 for can, msg, permissions in process_target(target, fields):
                     if not can:
-                        groups = group_list(permissions)
-                        if groups:
-                            error_messages.append(
-                                msg + _(
-                                    " You need to be a member of one of those"
-                                    " groups : %s"
-                                ) % groups
-                            )
-                        else:
-                            error_messages.append(
-                                msg + " No group have the %s permission(s) !" \
-                                % " or ".join([
-                                    ",".join(permissions[:-1]),
-                                    permissions[-1]]
-                                    if len(permissions) > 2 else permissions
-                                )
-                            )
+                        error_messages.append(acl_error_message(msg, permissions))
+
             if error_messages:
                 for msg in error_messages:
                     messages.error(

@@ -43,7 +43,7 @@ from reversion import revisions as reversion
 from importlib import import_module
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
-from re2o.acl import can_create, can_edit, can_delete_set, can_view_all, can_delete
+from re2o.acl import can_create, can_edit, can_delete_set, can_view_all, can_delete, acl_error_message
 
 from .forms import MailContactForm, DelMailContactForm
 from .forms import (
@@ -130,10 +130,9 @@ def edit_options(request, section):
         return redirect(reverse('preferences:display-options'))
 
     options_instance, _created = model.objects.get_or_create()
-    can, msg = options_instance.can_edit(request.user)
+    can, msg, permissions = options_instance.can_edit(request.user)
     if not can:
-        messages.error(request, msg or _("You don't have the right to edit"
-                                         " this option."))
+        messages.error(request, acl_error_message(msg, permissions))
         return redirect(reverse('index'))
     options = form_instance(
         request.POST or None,
