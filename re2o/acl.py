@@ -42,15 +42,9 @@ from re2o.utils import get_group_having_permission
 def group_list(permissions):
     """Create a string listing every groups having one of the given
     `permissions`."""
-    if permissions:
-        return ", ".join([
-            g.name for g in get_group_having_permission(*permissions)
-        ]) or "No group have the %s permission(s) !" % " or ".join([
-            ",".join(permissions[:-1]),
-            permissions[-1]] if len(permissions) > 2 else permissions
-        )
-    else:
-        return ""
+    return ", ".join([
+        g.name for g in get_group_having_permission(*permissions)
+    ])
 
 
 def acl_base_decorator(method_name, *targets, on_instance=True):
@@ -169,12 +163,23 @@ ModelC)
             for target, fields in group_targets():
                 for can, msg, permissions in process_target(target, fields):
                     if not can:
-                        error_messages.append(
-                            msg + _(
-                                " You need to be a member of one of those"
-                                " groups : %s"
-                            ) % group_list(permissions)
-                        )
+                        groups = group_list(permissions)
+                        if groups:
+                            error_messages.append(
+                                msg + _(
+                                    " You need to be a member of one of those"
+                                    " groups : %s"
+                                ) % groups
+                            )
+                        else:
+                            error_messages.append(
+                                msg + " No group have the %s permission(s) !" \
+                                % " or ".join([
+                                    ",".join(permissions[:-1]),
+                                    permissions[-1]]
+                                    if len(permissions) > 2 else permissions
+                                )
+                            )
             if error_messages:
                 for msg in error_messages:
                     messages.error(
