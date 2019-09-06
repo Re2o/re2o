@@ -934,10 +934,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                 )
 
     def check_selfpasswd(self, user_request, *_args, **_kwargs):
-        """ Returns (True, None) if user_request is self, else returns
-        (False, None)
+        """ Returns (True, None, None) if user_request is self, else returns
+        (False, None, None)
         """
-        return user_request == self, None
+        return user_request == self, None, None
 
     def can_change_room(self, user_request, *_args, **_kwargs):
         """ Check if a user can change a room
