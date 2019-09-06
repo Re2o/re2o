@@ -17,7 +17,7 @@ class Ticket(AclMixin, models.Model):
     """Model of a ticket"""
 
     user = models.ForeignKey(
-        'users.User', 
+        'users.User',
         on_delete=models.CASCADE,
         related_name="tickets",
         blank=True,
@@ -35,7 +35,7 @@ class Ticket(AclMixin, models.Model):
     date = models.DateTimeField(auto_now_add=True)
     email = models.EmailField(
         help_text = _("An email address to get back to you"),
-        max_length=100, 
+        max_length=100,
         null=True)
     solved = models.BooleanField(default=False)
 
@@ -67,26 +67,31 @@ class Ticket(AclMixin, models.Model):
             GeneralOption.get_cached_value('email_from'),
             [to_addr],
             fail_silently = False)
-    
+
     def can_view(self, user_request, *_args, **_kwargs):
         """ Check that the user has the right to view the ticket
         or that it is the author"""
         if (not user_request.has_perm('tickets.view_ticket') and self.user != user_request):
-            return False, _("You don't have the right to view other tickets than yours.")
+            return (
+                False,
+                _("You don't have the right to view other tickets than yours."),
+                ('tickets.view_ticket',)
+            )
         else:
-            return True, None
-    
+            return True, None, None
+
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
         """ Check that the user has access to the list of all tickets"""
         return(
             user_request.has_perm('tickets.view_tickets'),
-            _("You don't have the right to view the list of tickets.")
+            _("You don't have the right to view the list of tickets."),
+            ('tickets.view_tickets',)
         )
 
     def can_create(user_request,*_args, **_kwargs):
         """ Authorise all users to open tickets """
-        return True,None
+        return True, None, None
 
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
