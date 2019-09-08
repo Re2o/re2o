@@ -109,7 +109,7 @@ install_database() {
         mysql_command="CREATE DATABASE $db_name collate='utf8_general_ci';
             CREATE USER '$username'@'localhost' IDENTIFIED BY '$password';
             GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'localhost';
-            FLUSH PRIVILEGES;"
+            FLUSH PRIVILEGES;SET GLOBAL SQL_MODE=ANSI_QUOTES;"
 
         if [ "$local_setup" == 1 ]; then
             echo "Setting up local MySQL server ..."

@@ -187,3 +187,11 @@ OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + (...,...,)
 ```
 
 Don't forget to run migrations afterwards.
+
+## MR 433 : upgrade django-ldapdb to 1.3.0
+
+If you use MySQL, please run 
+
+```
+SET GLOBAL SQL_MODE=ANSI_QUOTES;
+```
