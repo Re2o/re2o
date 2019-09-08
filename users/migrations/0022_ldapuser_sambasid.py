@@ -34,10 +34,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ldapuser',
-            name='sambaSID',
-            field=ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True, null=True),
-            preserve_default=False,
-        ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='ldapuser',
+                    name='sambaSID',
+                    field=ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True, null=True),
+                    preserve_default=False,
+                ),
+            ],
+            database_operations=[
+                migrations.RunSQL('ALTER TABLE "users_ldapuser" ADD COLUMN "sambaSID" integer NULL UNIQUE;'),
+            ],
+        )
     ]

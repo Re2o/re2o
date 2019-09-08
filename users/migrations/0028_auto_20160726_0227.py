@@ -35,25 +35,34 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ldapuser',
-            name='display_name',
-            field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='displayName'),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='ldapuser',
+                    name='display_name',
+                    field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='displayName'),
+                ),
+                migrations.AddField(
+                    model_name='ldapuser',
+                    name='sambat_nt_password',
+                    field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='sambaNTPassword'),
+                ),
+                migrations.AddField(
+                    model_name='ldapuser',
+                    name='user_password',
+                    field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='userPassword'),
+                ),
+            ],
+            database_operations=[
+                migrations.RunSQL('ALTER TABLE users_ldapuser ADD COLUMN "displayName" varchar(200) NULL;'),
+                migrations.RunSQL('ALTER TABLE users_ldapuser ADD COLUMN "sambaNTPassword" varchar(200) NULL;'),
+                migrations.RunSQL('ALTER TABLE users_ldapuser ADD COLUMN "userPassword" varchar(200) NULL;'),
+            ]
         ),
         migrations.AddField(
             model_name='ldapuser',
             name='macs',
             field=ldapdb.models.fields.ListField(null=True, blank=True, max_length=200, db_column='radiusCallingStationId'),
-        ),
-        migrations.AddField(
-            model_name='ldapuser',
-            name='sambat_nt_password',
-            field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='sambaNTPassword'),
-        ),
-        migrations.AddField(
-            model_name='ldapuser',
-            name='user_password',
-            field=ldapdb.models.fields.CharField(null=True, blank=True, max_length=200, db_column='userPassword'),
         ),
         migrations.AddField(
             model_name='listright',
