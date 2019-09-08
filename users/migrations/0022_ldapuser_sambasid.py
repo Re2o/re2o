@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             database_operations=[
-                migrations.RunSQL('ALTER TABLE `users_ldapuser` ADD COLUMN `sambaSID` integer NULL UNIQUE;'),
+                migrations.RunSQL('ALTER TABLE "users_ldapuser" ADD COLUMN "sambaSID" integer NULL UNIQUE;'),
             ],
         )
     ]

@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             database_operations=[
-                migrations.RunSQL('ALTER TABLE `users_ldapuser` ADD COLUMN `loginShell` varchar(200) NULL;')
+                migrations.RunSQL('ALTER TABLE "users_ldapuser" ADD COLUMN "loginShell" varchar(200) NULL;')
             ],
         ),
         migrations.AddField(
