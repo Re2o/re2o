@@ -190,6 +190,14 @@ Don't forget to run migrations afterwards.
 
 ## MR 433 : upgrade django-ldapdb to 1.3.0
 
+Uninstall the existing django-ldapdb installation
+
+    pip3 uninstall django-ldapdb
+    
+Install debian(buster) supported version 
+
+    apt install python3-django-ldapdb
+
 If you use MySQL, please run 
 
 ```
