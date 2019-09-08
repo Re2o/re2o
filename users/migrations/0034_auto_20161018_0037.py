@@ -36,10 +36,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ldapuser',
-            name='login_shell',
-            field=ldapdb.models.fields.CharField(blank=True, db_column='loginShell', max_length=200, null=True),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='ldapuser',
+                    name='login_shell',
+                    field=ldapdb.models.fields.CharField(blank=True, db_column='loginShell', max_length=200, null=True),
+                ),
+            ],
+            database_operations=[
+                migrations.RunSQL('ALTER TABLE `users_ldapuser` ADD COLUMN `loginShell` varchar(200) NULL;')
+            ],
         ),
         migrations.AddField(
             model_name='user',
