@@ -637,6 +637,9 @@ class RadiusAttribute(RevMixin, AclMixin, models.Model):
     def __str__(self):
         return ' '.join([self.attribute, self.operator, self.value])
 
+    def as_tuple(self):
+        return (self.attribute, self.operator, self.value)
+
 
 class RadiusOption(AclMixin, PreferencesModel):
     class Meta:
@@ -785,6 +788,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         verbose_name=_("Accepted users attributes."),
         help_text=_("Answer attributes for accepted users."),
     )
+
+    @classmethod
+    def get_attributes(cls, name):
+        return (
+            attribute.as_tuple()
+            for attribute in cls.get_cached_value(name).all()
+        )
 
 
 def default_invoice():
