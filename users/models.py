@@ -859,18 +859,23 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
             user_request one of its member, or if user_request is self, or if
             user_request has the 'cableur' right.
         """
+        if self.state in (self.STATE_ARCHIVE, self.STATE_FULL_ARCHIVE):
+            warning_message = _("This user is archived.")
+        else:
+            warning_message = None
+
         if self.is_class_club and user_request.is_class_adherent:
             if (self == user_request or
                     user_request.has_perm('users.change_user') or
                     user_request.adherent in self.club.administrators.all()):
-                return True, None, None
+                return True, warning_message, None
             else:
                 return False, _("You don't have the right to edit this club."), ('users.change_user',)
         else:
             if self == user_request:
-                return True, None, None
+                return True, warning_message, None
             elif user_request.has_perm('users.change_all_users'):
-                return True, None, None
+                return True, warning_message, None
             elif user_request.has_perm('users.change_user'):
                 if self.groups.filter(listright__critical=True):
                     return (
@@ -886,9 +891,9 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
                         ('users.change_all_users', )
                     )
                 else:
-                    return True, None, None
+                    return True, warning_message, None
             elif user_request.has_perm('users.change_all_users'):
-                return True, None, None
+                return True, warning_message, None
             else:
                 return (
                     False,
