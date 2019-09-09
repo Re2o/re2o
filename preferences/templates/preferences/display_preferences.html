@@ -298,11 +298,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <h4 class="panel-title"><a><i class="fa fa-circle"></i>   {% trans "RADIUS preferences" %}</h4></a>
     </div>
     <div id="collapse_radius" class="panel-collapse panel-body collapse">
+        <h5>{% trans "RADIUS policies" %}</h5>
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'RadiusOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
         {% include 'preferences/aff_radiusoptions.html' %}
+        <h5>{% trans "Available RADIUS attributes"%}</h5>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiusattribute'  %}"><i class="fa fa-plus"></i>{% trans " Add an attribute" %}</a>
+        {% include 'preferences/aff_radiusattributes.html' %}
     </div>
 </div>
 

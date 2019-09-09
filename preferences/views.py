@@ -52,7 +52,9 @@ from .forms import (
     RadiusKeyForm,
     SwitchManagementCredForm,
     DocumentTemplateForm,
-    DelDocumentTemplateForm
+    DelDocumentTemplateForm,
+    RadiusAttributeForm,
+    DelRadiusAttributeForm
 )
 from .models import (
     Service,
@@ -69,7 +71,8 @@ from .models import (
     SwitchManagementCred,
     RadiusOption,
     CotisationsOption,
-    DocumentTemplate
+    DocumentTemplate,
+    RadiusAttribute
 )
 from . import models
 from . import forms
@@ -94,6 +97,7 @@ def display_options(request):
     radiuskey_list = RadiusKey.objects.all()
     switchmanagementcred_list = SwitchManagementCred.objects.all()
     radiusoptions, _ = RadiusOption.objects.get_or_create()
+    radius_attributes = RadiusAttribute.objects.all()
     cotisationsoptions, _created = CotisationsOption.objects.get_or_create()
     document_template_list = DocumentTemplate.objects.order_by('name')
 
@@ -114,6 +118,7 @@ def display_options(request):
         'radiuskey_list' : radiuskey_list,
         'switchmanagementcred_list': switchmanagementcred_list,
         'radiusoptions' : radiusoptions,
+        'radius_attributes' : radius_attributes,
         'cotisationsoptions': cotisationsoptions,
         'optionnal_templates_list': optionnal_templates_list,
         'document_template_list': document_template_list,
@@ -502,3 +507,54 @@ def del_document_template(request, instances):
         'action_name': _("Delete"),
         'title': _("Delete document template")
     }, 'preferences/preferences.html', request)
+
+
+@login_required
+@can_create(RadiusAttribute)
+def add_radiusattribute(request):
+    """Create a RADIUS attribute."""
+    attribute = RadiusAttributeForm(request.POST or None)
+    if attribute.is_valid():
+        attribute.save()
+        messages.success(request, _("The attribute was added."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': attribute, 'action_name': _("Add a RADIUS attribute")},
+        'preferences/preferences.html',
+        request
+        )
+
+
+@login_required
+@can_edit(RadiusAttribute)
+def edit_radiusattribute(request, radiusattribute_instance, **_kwargs):
+    """Edit a RADIUS attribute."""
+    attribute = RadiusAttributeForm(
+        request.POST or None,
+        instance=radiusattribute_instance
+    )
+    if attribute.is_valid():
+        attribute.save()
+        messages.success(request, _("The attribute was edited."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': attribute, 'action_name': _("Edit")},
+        'preferences/preferences.html',
+        request
+    )
+
+@login_required
+@can_delete(RadiusAttribute)
+def del_radiusattribute(request, radiusattribute_instance, **_kwargs):
+    """Delete a RADIUS attribute."""
+    if request.method == "POST":
+        radiusattribute_instance.delete()
+        messages.success(request, _("The attribute was deleted."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': radiusattribute_instance, 'objet_name': 'attribute'},
+        'preferences/delete.html',
+        request
+        )
+
+
