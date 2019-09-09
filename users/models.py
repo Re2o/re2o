@@ -333,7 +333,8 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     @property
     def is_active(self):
         """ Renvoie si l'user est à l'état actif"""
-        return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE
+        allow_archived = OptionalUser.get_cached_value('allow_archived_connexion')
+        return self.state == self.STATE_ACTIVE or self.state == self.STATE_NOT_YET_ACTIVE or (allow_archived and self.state in (self.STATE_ARCHIVE, self.STATE_FULL_ARCHIVE))
 
     def set_active(self):
         """Enable this user if he subscribed successfully one time before
