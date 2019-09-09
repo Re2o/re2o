@@ -968,9 +968,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a state
         """
+        can = user_request.has_perm('users.change_user_state')
         return (
-            user_request.has_perm('users.change_user_state'),
-            _("Permission required to change the state."),
+            can,
+            _("Permission required to change the state.") if not can else None,
             ('users.change_user_state',)
         )
 
@@ -999,9 +1000,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a redirection
         """
+        can = OptionalUser.get_cached_value('local_email_accounts_enabled')
         return (
-            OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled."),
+            can,
+            _("Local email accounts must be enabled.") if not can else None,
             None
         )
 
@@ -1013,9 +1015,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change internal address
         """
+        can = OptionalUser.get_cached_value('local_email_accounts_enabled')
         return (
-            OptionalUser.get_cached_value('local_email_accounts_enabled'),
-            _("Local email accounts must be enabled."),
+            can,
+            _("Local email accounts must be enabled.") if not can else None,
             None
         )
 
@@ -1027,9 +1030,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a force
         """
+        can = user_request.has_perm('users.change_user_force')
         return (
-            user_request.has_perm('users.change_user_force'),
-            _("Permission required to force the move."),
+            can,
+            _("Permission required to force the move.") if not can else None,
             ('users.change_user_force',)
         )
 
@@ -1041,9 +1045,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :returns: a message and a boolean which is True if the user has
         the right to change a group
         """
+        can = user_request.has_perm('users.change_user_grou')
         return (
-            user_request.has_perm('users.change_user_groups'),
-            _("Permission required to edit the user's groups of rights."),
+            can,
+            _("Permission required to edit the user's groups of rights.") if not can else None,
             ('users.change_user_groups')
         )
 
@@ -1054,9 +1059,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :param user_request: The user who request
         :returns: a message and a boolean which is True if permission is granted.
         """
+        can = user_request.is_superuser
         return (
-            user_request.is_superuser,
-            _("'superuser' right required to edit the superuser flag."),
+            can,
+            _("'superuser' right required to edit the superuser flag.") if not can else None,
             []
         )
 
@@ -1099,9 +1105,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: True if the user can view the list and an explanation
             message.
         """
+        can = user_request.has_perm('use.view_user')
         return (
-            user_request.has_perm('users.view_user'),
-            _("You don't have the right to view the list of users."),
+            can,
+            _("You don't have the right to view the list of users.") if not can else None,
             ('users.view_user',)
         )
 
@@ -1113,9 +1120,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: True if user_request has the right 'bureau', and a
             message.
         """
+        can = user_request.has_perm('users.delete_user')
         return (
-            user_request.has_perm('users.delete_user'),
-            _("You don't have the right to delete this user."),
+            can,
+            _("You don't have the right to delete this user.") if not can else None,
             ('users.delete_user',)
         )
 
@@ -1209,9 +1217,10 @@ class Adherent(User):
                     OptionalUser.get_cached_value('self_adhesion')):
                 return True, None, None
             else:
+                can = user_request.has_perm('users.add_user')
                 return (
-                    user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a user."),
+                    can,
+                    _("You don't have the right to create a user.") if not can else None,
                     ('users.add_user',)
                 )
 
@@ -1265,9 +1274,10 @@ class Club(User):
             if OptionalUser.get_cached_value('all_can_create_club'):
                 return True, None, None
             else:
+                can = user_request.has_perm('users.add_user')
                 return (
-                    user_request.has_perm('users.add_user'),
-                    _("You don't have the right to create a club."),
+                    can,
+                    _("You don't have the right to create a club.") if not can else None,
                     ('users.add_user',)
                 )
 
