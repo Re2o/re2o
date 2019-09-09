@@ -38,11 +38,22 @@ from __future__ import unicode_literals
 
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib.auth.models import Permission
 
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
 from users.models import Adherent, User, Ban, Whitelist
 from preferences.models import AssoOption
+
+def get_group_having_permission(*permission_name):
+    """Returns every group having the permission `permission_name`
+    """
+    groups = set()
+    for name in permission_name:
+        app_label, codename = name.split('.')
+        permission = Permission.objects.get(content_type__app_label=app_label, codename=codename)
+        groups = groups.union(permission.group_set.all())
+    return groups
 
 def all_adherent(search_time=None, including_asso=True):
     """ Fonction renvoyant tous les users adherents. Optimisee pour n'est

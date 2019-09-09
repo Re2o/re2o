@@ -147,6 +147,7 @@ def get_callback(tag_name, obj=None):
         return acl_fct(
             lambda x: (
                 not any(not sys.modules[o].can_view(x)[0] for o in obj),
+                None,
                 None
             ),
             False
@@ -155,28 +156,29 @@ def get_callback(tag_name, obj=None):
         return acl_fct(
             lambda x: (
                 not any(not sys.modules[o].can_view(x)[0] for o in obj),
+                None,
                 None
             ),
             True
         )
     if tag_name == 'can_edit_history':
         return acl_fct(
-            lambda user: (user.has_perm('admin.change_logentry'), None),
+            lambda user: (user.has_perm('admin.change_logentry'), None, None),
             False
         )
     if tag_name == 'cannot_edit_history':
         return acl_fct(
-            lambda user: (user.has_perm('admin.change_logentry'), None),
+            lambda user: (user.has_perm('admin.change_logentry'), None, None),
             True
         )
     if tag_name == 'can_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None, None),
             False
         )
     if tag_name == 'cannot_view_any_app':
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None, None),
             True
         )
 
@@ -194,8 +196,8 @@ def acl_fct(callback, reverse):
 
     def acl_fct_reverse(user, *args, **kwargs):
         """The cannot_xxx checker callback"""
-        can, msg = callback(user, *args, **kwargs)
-        return not can, msg
+        can, msg, permissions = callback(user, *args, **kwargs)
+        return not can, msg, permissions
 
     return acl_fct_reverse if reverse else acl_fct_normal
 
@@ -217,7 +219,7 @@ def acl_history_filter(parser, token):
 
     assert token.contents == 'acl_end'
 
-    return AclNode(callback, oknodes, konodes)
+    return AclNode(tag_name, callback, oknodes, konodes)
 
 
 @register.tag('can_view_any_app')
@@ -254,7 +256,7 @@ def acl_app_filter(parser, token):
 
     assert token.contents == 'acl_end'
 
-    return AclNode(callback, oknodes, konodes)
+    return AclNode(tag_name, callback, oknodes, konodes)
 
 
 @register.tag('can_change')
@@ -264,7 +266,7 @@ def acl_change_filter(parser, token):
 
     try:
         tag_content = token.split_contents()
-        # tag_name = tag_content[0]
+        tag_name = tag_content[0]
         model_name = tag_content[1]
         field_name = tag_content[2]
         args = tag_content[3:]
@@ -291,7 +293,7 @@ def acl_change_filter(parser, token):
     # {% can_create_end %}
     assert token.contents == 'acl_end'
 
-    return AclNode(callback, oknodes, konodes, *args)
+    return AclNode(tag_name, callback, oknodes, konodes, *args)
 
 
 @register.tag('can_create')
@@ -333,7 +335,7 @@ def acl_model_filter(parser, token):
     # {% can_create_end %}
     assert token.contents == 'acl_end'
 
-    return AclNode(callback, oknodes, konodes, *args)
+    return AclNode(tag_name, callback, oknodes, konodes, *args)
 
 
 @register.tag('can_edit')
@@ -377,7 +379,8 @@ class AclNode(Node):
     """A node for the compiled ACL block when acl callback doesn't require
     context."""
 
-    def __init__(self, callback, oknodes, konodes, *args):
+    def __init__(self, tag_name, callback, oknodes, konodes, *args):
+        self.tag_name = tag_name
         self.callback = callback
         self.oknodes = oknodes
         self.konodes = konodes
@@ -388,10 +391,13 @@ class AclNode(Node):
         if context['user'].is_anonymous():
             can = False
         else:
-            can, _ = self.callback(context['user'], *(resolved_args))
+            can, _, _ = self.callback(context['user'], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
+
+    def __repr__(self):
+        return '<AclNode %s>' % self.tag_name
 
 
 class AclInstanceNode(Node):
@@ -410,7 +416,10 @@ class AclInstanceNode(Node):
         if context['user'].is_anonymous():
             can = False
         else:
-            can, _ = callback(context['user'], *(resolved_args))
+            can, _, _  = callback(context['user'], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
+
+    def __repr__(self):
+        return '<AclInstanceNode %s>' % self.tag_name

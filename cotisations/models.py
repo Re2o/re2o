@@ -169,44 +169,78 @@ class Facture(BaseInvoice):
         return self.vente_set.all()
 
     def can_edit(self, user_request, *args, **kwargs):
+        user_can, _, permissions = self.user.can_edit(
+            user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.change_facture'):
-            return False, _("You don't have the right to edit an invoice.")
+            return (
+                False,
+                _("You don't have the right to edit an invoice."),
+                ('cotisations.change_facture',)
+            )
         elif not user_request.has_perm('cotisations.change_all_facture') and \
-                not self.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, _("You don't have the right to edit this user's "
-                            "invoices.")
+                not user_can:
+            return (
+                False,
+                _("You don't have the right to edit this user's invoices."),
+                ('cotisations.change_all_facture',) + permissions
+            )
         elif not user_request.has_perm('cotisations.change_all_facture') and \
                 (self.control or not self.valid):
-            return False, _("You don't have the right to edit an invoice "
-                            "already controlled or invalidated.")
+            return (
+                False,
+                _("You don't have the right to edit an invoice "
+                  "already controlled or invalidated."),
+                ('cotisations.change_all_facture',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
+        user_can, _, permissions = self.user.can_edit(
+            user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.delete_facture'):
-            return False, _("You don't have the right to delete an invoice.")
+            return (
+                False,
+                _("You don't have the right to delete an invoice."),
+                ('cotisations.delete_facture',)
+            )
         elif not user_request.has_perm('cotisations.change_all_facture') and \
-                not self.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, _("You don't have the right to delete this user's "
-                            "invoices.")
+                not user_can:
+            return (
+                False,
+                _("You don't have the right to delete this user's invoices."),
+                ('cotisations.change_all_facture',) + permissions
+            )
         elif not user_request.has_perm('cotisations.change_all_facture') and \
                 (self.control or not self.valid):
-            return False, _("You don't have the right to delete an invoice "
-                            "already controlled or invalidated.")
+            return (
+                False,
+                _("You don't have the right to delete an invoice "
+                            "already controlled or invalidated."),
+                ('cotisations.change_all_facture',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_facture'):
             if self.user != user_request:
-                return False, _("You don't have the right to view someone else's "
-                                "invoices history.")
+                return (
+                    False,
+                    _("You don't have the right to view someone else's "
+                                "invoices history."),
+                    ('cotisations.view_facture',)
+                )
             elif not self.valid:
-                return False, _("The invoice has been invalidated.")
+                return (
+                    False,
+                    _("The invoice has been invalidated."),
+                    ('cotisations.view_facture',)
+                )
             else:
-                return True, None
+                return True, None, None
         else:
-            return True, None
+            return True, None, None
 
     @staticmethod
     def can_change_control(user_request, *_args, **_kwargs):
@@ -214,7 +248,8 @@ class Facture(BaseInvoice):
         this invoice """
         return (
             user_request.has_perm('cotisations.change_facture_control'),
-            _("You don't have the right to edit the \"controlled\" state.")
+            _("You don't have the right to edit the \"controlled\" state."),
+            ('cotisations.change_facture_control',)
         )
 
     @staticmethod
@@ -226,12 +261,12 @@ class Facture(BaseInvoice):
             an invoice or if the `options.allow_self_subscription` is set.
         """
         if user_request.has_perm('cotisations.add_facture'):
-            return True, None
+            return True, None, None
         if len(Paiement.find_allowed_payments(user_request)) <= 0:
-            return False, _("There are no payment method which you can use.")
+            return False, _("There are no payment method which you can use."), ('cotisations.add_facture',)
         if len(Article.find_allowed_articles(user_request, user_request)) <= 0:
-            return False, _("There are no article that you can buy.")
-        return True, None
+            return False, _("There are no article that you can buy."), ('cotisations.add_facture',)
+        return True, None, None
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
@@ -360,12 +395,18 @@ class CostEstimate(CustomInvoice):
 
     def can_delete(self, user_request, *args, **kwargs):
         if not user_request.has_perm('cotisations.delete_costestimate'):
-            return False, _("You don't have the right "
-                            "to delete a cost estimate.")
+            return (
+                False,
+                _("You don't have the right to delete a cost estimate."),
+                ('cotisations.delete_costestimate',)
+            )
         if self.final_invoice is not None:
-            return False, _("The cost estimate has an "
-                            "invoice and can't be deleted.")
-        return True, None
+            return (
+                False,
+                _("The cost estimate has an invoice and can't be deleted."),
+                None
+            )
+        return True, None, None
 
 
 # TODO : change Vente to Purchase
@@ -505,40 +546,66 @@ class Vente(RevMixin, AclMixin, models.Model):
         super(Vente, self).save(*args, **kwargs)
 
     def can_edit(self, user_request, *args, **kwargs):
+        user_can, _, permissions = self.facture.user.can_edit(
+            user_request, *args, **kwargs
+        )
         if not user_request.has_perm('cotisations.change_vente'):
-            return False, _("You don't have the right to edit the purchases.")
-        elif (not user_request.has_perm('cotisations.change_all_facture') and
-              not self.facture.user.can_edit(
-                  user_request, *args, **kwargs
-        )[0]):
-            return False, _("You don't have the right to edit this user's "
-                            "purchases.")
+            return (
+                False,
+                _("You don't have the right to edit the purchases."),
+                ('cotisations.change_vente',)
+            )
+        elif not (
+            user_request.has_perm('cotisations.change_all_facture') or
+            user_can):
+            return (
+                False,
+                _("You don't have the right to edit this user's purchases."),
+                ('cotisations.change_all_facture',) + permissions
+            )
         elif (not user_request.has_perm('cotisations.change_all_vente') and
               (self.facture.control or not self.facture.valid)):
-            return False, _("You don't have the right to edit a purchase "
-                            "already controlled or invalidated.")
+            return (
+                False,
+                _("You don't have the right to edit a purchase "
+                            "already controlled or invalidated."),
+                ('cotisations.change_all_vente',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
+        user_can, _, permissions = self.facture.user.can_edit(
+            user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.delete_vente'):
-            return False, _("You don't have the right to delete a purchase.")
-        if not self.facture.user.can_edit(user_request, *args, **kwargs)[0]:
-            return False, _("You don't have the right to delete this user's "
-                            "purchases.")
+            return (
+                False,
+                _("You don't have the right to delete a purchase."),
+                ('cotisations.delete_vente',)
+            )
+        if not user_can:
+            return (
+                False,
+                _("You don't have the right to delete this user's purchases."),
+                permissions
+            )
         if self.facture.control or not self.facture.valid:
             return False, _("You don't have the right to delete a purchase "
-                            "already controlled or invalidated.")
+                            "already controlled or invalidated."), None
         else:
-            return True, None
+            return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         if (not user_request.has_perm('cotisations.view_vente') and
                 self.facture.user != user_request):
-            return False, _("You don't have the right to view someone "
-                            "else's purchase history.")
+            return (
+                False,
+                _("You don't have the right to view someone "
+                            "else's purchase history."),
+                ('cotisations.view_vente',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def __str__(self):
         return str(self.name) + ' ' + str(self.facture)
@@ -683,7 +750,8 @@ class Article(RevMixin, AclMixin, models.Model):
             self.available_for_everyone
             or user.has_perm('cotisations.buy_every_article')
             or user.has_perm('cotisations.add_facture'),
-            _("You can't buy this article.")
+            _("You can't buy this article."),
+            ('cotisations.buy_every_article', 'cotisations.add_facture')
         )
 
     @classmethod
@@ -838,7 +906,8 @@ class Paiement(RevMixin, AclMixin, models.Model):
             self.available_for_everyone
             or user.has_perm('cotisations.use_every_payment')
             or user.has_perm('cotisations.add_facture'),
-            _("You can't use this payment method.")
+            _("You can't use this payment method."),
+            ('cotisations.use_every_payment', 'cotisations.add_facture')
         )
 
     @classmethod
@@ -907,32 +976,51 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     def can_edit(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.change_cotisation'):
-            return False, _("You don't have the right to edit a subscription.")
+            return (
+                False,
+                _("You don't have the right to edit a subscription."),
+                ('cotisations.change_cotisation',)
+            )
         elif not user_request.has_perm('cotisations.change_all_cotisation') \
                 and (self.vente.facture.control or
                      not self.vente.facture.valid):
-            return False, _("You don't have the right to edit a subscription "
-                            "already controlled or invalidated.")
+            return (
+                False,
+                _("You don't have the right to edit a subscription "
+                            "already controlled or invalidated."),
+                ('cotisations.change_all_cotisation',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def can_delete(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.delete_cotisation'):
-            return False, _("You don't have the right to delete a "
-                            "subscription.")
+            return (
+                False,
+                _("You don't have the right to delete a subscription."),
+                ('cotisations.delete_cotisation',)
+            )
         if self.vente.facture.control or not self.vente.facture.valid:
-            return False, _("You don't have the right to delete a subscription "
-                            "already controlled or invalidated.")
+            return (
+                False,
+                _("You don't have the right to delete a subscription "
+                            "already controlled or invalidated."),
+                None
+            )
         else:
-            return True, None
+            return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         if not user_request.has_perm('cotisations.view_cotisation') and\
                 self.vente.facture.user != user_request:
-            return False, _("You don't have the right to view someone else's "
-                            "subscription history.")
+            return (
+                False,
+                _("You don't have the right to view someone else's "
+                            "subscription history."),
+                ('cotisations.view_cotisation',)
+            )
         else:
-            return True, None
+            return True, None, None
 
     def __str__(self):
         return str(self.vente)

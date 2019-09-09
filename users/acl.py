@@ -38,6 +38,10 @@ def can_view(user):
         viewing is granted and msg is a message (can be None).
     """
     can = user.has_module_perms('users')
-    return can, None if can else _("You don't have the right to view this"
-                                   " application.")
+    return (
+        can,
+        None if can else _("You don't have the right to view this"
+                                   " application."),
+        ('users',)
+    )
 

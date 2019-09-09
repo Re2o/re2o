@@ -36,6 +36,28 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
+from re2o.utils import get_group_having_permission
+
+
+def acl_error_message(msg, permissions):
+    """Create an error message for msg and permissions."""
+    groups = ", ".join([
+        g.name for g in get_group_having_permission(*permissions)
+    ])
+    message = msg or _("You don't have the right to edit"
+                                         " this option.")
+    if groups:
+        return message + _(
+                " You need to be a member of one of those"
+                " groups : %s"
+            ) % groups
+    else:
+        return message + " No group have the %s permission(s) !" % " or ".join([
+            ",".join(permissions[:-1]),
+            permissions[-1]]
+            if len(permissions) > 2 else permissions
+        )
+
 
 def acl_base_decorator(method_name, *targets, on_instance=True):
     """Base decorator for acl. It checks if the `request.user` has the
@@ -53,9 +75,10 @@ def acl_base_decorator(method_name, *targets, on_instance=True):
             then no error will be triggered, the decorator will act as if
             permission was granted. This is to allow you to run ACL tests on
             fields only. If the method exists, it has to return a 2-tuple
-            `(can, reason)` with `can` being a boolean stating whether the
-            access is granted and `reason` a message to be displayed if `can`
-            equals `False` (can be `None`)
+            `(can, reason, permissions)` with `can` being a boolean stating
+            whether the access is granted, `reason` a message to be
+            displayed if `can` equals `False` (can be `None`) and `permissions`
+            a list of permissions needed for access (can be `None`).
         *targets: The targets. Targets are specified like a sequence of models
             and fields names. As an example
             ```
@@ -139,7 +162,7 @@ ModelC)
                         target = target.get_instance(*args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
-                        yield False, _("Nonexistent entry.")
+                        yield False, _("Nonexistent entry."), []
                         return
                 if hasattr(target, method_name):
                     can_fct = getattr(target, method_name)
@@ -148,11 +171,12 @@ ModelC)
                     can_change_fct = getattr(target, 'can_change_' + field)
                     yield can_change_fct(request.user, *args, **kwargs)
 
-            error_messages = [
-                x[1] for x in chain.from_iterable(
-                    process_target(x[0], x[1]) for x in group_targets()
-                ) if not x[0]
-            ]
+            error_messages = []
+            for target, fields in group_targets():
+                for can, msg, permissions in process_target(target, fields):
+                    if not can:
+                        error_messages.append(acl_error_message(msg, permissions))
+
             if error_messages:
                 for msg in error_messages:
                     messages.error(

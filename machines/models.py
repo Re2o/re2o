@@ -105,8 +105,11 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             A tuple with a boolean stating if edition is allowed and an
             explanation message.
         """
-        return (user_request.has_perm('machines.change_machine_user'),
-                _("You don't have the right to change the machine's user."))
+        return (
+            user_request.has_perm('machines.change_machine_user'),
+            _("You don't have the right to change the machine's user."),
+            ('machines.change_machine_user',)
+        )
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
@@ -115,9 +118,12 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if not user_request.has_perm('machines.view_machine'):
-            return False, _("You don't have the right to view all the"
-                            " machines.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to view all the machines."),
+                ('machines.view_machine',)
+            )
+        return True, None, None
 
     @staticmethod
     def can_create(user_request, userid, *_args, **_kwargs):
@@ -129,7 +135,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         try:
             user = users.models.User.objects.get(pk=userid)
         except users.models.User.DoesNotExist:
-            return False, _("Nonexistent user.")
+            return False, _("Nonexistent user."), None
         max_lambdauser_interfaces = (preferences.models.OptionalMachine
             .get_cached_value(
             'max_lambdauser_interfaces'
@@ -137,15 +143,23 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         if not user_request.has_perm('machines.add_machine'):
             if not (preferences.models.OptionalMachine
                     .get_cached_value('create_machine')):
-                return False, (_("You don't have the right to add a machine."))
+                return (
+                    False,
+                    _("You don't have the right to add a machine."),
+                    ('machines.add_machine',)
+                )
             if user != user_request:
-                return False, (_("You don't have the right to add a machine"
-                                 " to another user."))
+                return (
+                    False,
+                    _("You don't have the right to add a machine"
+                      " to another user."),
+                    ('machines.add_machine',)
+                )
             if user.user_interfaces().count() >= max_lambdauser_interfaces:
-                return False, (_("You reached the maximum number of interfaces"
+                return False, _("You reached the maximum number of interfaces"
                                  " that you are allowed to create yourself"
-                                 " (%s)." % max_lambdauser_interfaces))
-        return True, None
+                                 " (%s)." % max_lambdauser_interfaces), None
+        return True, None, None
 
     def can_edit(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien éditer cette instance particulière (soit
@@ -154,16 +168,22 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison le cas échéant"""
         if self.user != user_request:
-            if (not user_request.has_perm('machines.change_interface') or
-                    not self.user.can_edit(
-                        self.user,
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, (_("You don't have the right to edit a machine"
-                                 " of another user."))
-        return True, None
+            can_user, _, permissions = self.user.can_edit(
+                self.user,
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (
+                user_request.has_perm('machines.change_interface') and
+                can_user):
+                return (
+                    False,
+                    _("You don't have the right to edit a machine"
+                                 " of another user."),
+                    ('machines.change_interface',) + permissions
+                )
+        return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
         """Vérifie qu'on peut bien supprimer cette instance particulière (soit
@@ -172,16 +192,22 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if self.user != user_request:
-            if (not user_request.has_perm('machines.change_interface') or
-                    not self.user.can_edit(
-                        self.user,
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, _("You don't have the right to delete a machine"
-                                " of another user.")
-        return True, None
+            can_user, _, permissions = self.user.can_edit(
+                self.user,
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (
+                user_request.has_perm('machines.change_interface') and
+                can_user):
+                return (
+                    False,
+                    _("You don't have the right to delete a machine"
+                      " of another user."),
+                    ('machines.change_interface',) + permissions
+                )
+        return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière (soit
@@ -191,9 +217,13 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_machine') and
                 self.user != user_request):
-            return False, _("You don't have the right to view other machines"
-                            " than yours.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to view other machines"
+                  " than yours."),
+                ('machines.view_machine',)
+            )
+        return True, None, None
 
     @cached_property
     def short_name(self):
@@ -285,9 +315,12 @@ class MachineType(RevMixin, AclMixin, models.Model):
             message is acces is not allowed.
         """
         if not user_request.has_perm('machines.use_all_machinetype'):
-            return False, (_("You don't have the right to use all machine"
-                             " types."))
-        return True, None
+            return (
+                False,
+                _("You don't have the right to use all machine types."),
+                ('machines.use_all_machinetype',)
+            )
+        return True, None, None
 
     def __str__(self):
         return self.name
@@ -528,7 +561,11 @@ class IpType(RevMixin, AclMixin, models.Model):
         restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.use_all_iptype'), None
+        return (
+            user_request.has_perm('machines.use_all_iptype'),
+            None,
+            ('machines.use_all_iptype',)
+        )
 
     def __str__(self):
         return self.name
@@ -766,7 +803,11 @@ class Extension(RevMixin, AclMixin, models.Model):
         restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
-        return user_request.has_perm('machines.use_all_extension'), None
+        return (
+            user_request.has_perm('machines.use_all_extension'),
+            _("You cannot use all extensions."),
+            ('machines.use_all_extension',)
+        )
 
     def __str__(self):
         return self.name
@@ -1222,31 +1263,42 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             machine = Machine.objects.get(pk=machineid)
         except Machine.DoesNotExist:
-            return False, _("Nonexistent machine.")
+            return False, _("Nonexistent machine."), None
         if not user_request.has_perm('machines.add_interface'):
             if not (preferences.models.OptionalMachine
                     .get_cached_value('create_machine')):
-                return False, _("You can't add a machine.")
+                return False, _("You can't add a machine."), ('machines.add_interface',)
             max_lambdauser_interfaces = (preferences.models.OptionalMachine
                 .get_cached_value(
                 'max_lambdauser_interfaces'
             ))
             if machine.user != user_request:
-                return False, _("You don't have the right to add an interface"
-                                " to a machine of another user.")
+                return (
+                    False,
+                    _("You don't have the right to add an interface"
+                      " to a machine of another user."),
+                    ('machines.add_interface',)
+                )
             if (machine.user.user_interfaces().count() >=
                     max_lambdauser_interfaces):
-                return False, (_("You reached the maximum number of interfaces"
-                                 " that you are allowed to create yourself"
-                                 " (%s)." % max_lambdauser_interfaces))
-        return True, None
+                return (
+                    False,
+                    _("You reached the maximum number of interfaces"
+                      " that you are allowed to create yourself"
+                      " (%s)." % max_lambdauser_interfaces),
+                    ('machines.add_interface',)
+                )
+        return True, None, None
 
     @staticmethod
     def can_change_machine(user_request, *_args, **_kwargs):
         """Check if a user can change the machine associated with an
         Interface object """
-        return (user_request.has_perm('machines.change_interface_machine'),
-                _("Permission required to edit the machine."))
+        return (
+            user_request.has_perm('machines.change_interface_machine'),
+            _("Permission required to edit the machine."),
+            ('machines.change_interface_machine',)
+        )
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -1255,15 +1307,21 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            if (not user_request.has_perm('machines.change_interface') or
-                    not self.machine.user.can_edit(
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, _("You don't have the right to edit a machine of"
-                                " another user.")
-        return True, None
+            can_user, _, permissions = self.machine.user.can_edit(
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (
+                user_request.has_perm('machines.change_interface') and
+                can_user ):
+                return (
+                    False,
+                    _("You don't have the right to edit a machine of"
+                      " another user."),
+                    ('machines.change_interface',) + permissions
+                )
+        return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits delete object pour del
@@ -1272,15 +1330,21 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            if (not user_request.has_perm('machines.change_interface') or
-                    not self.machine.user.can_edit(
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, _("You don't have the right to edit a machine of"
-                                " another user.")
-        return True, None
+            can_user, _, permissions = self.machine.user.can_edit(
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (
+                user_request.has_perm('machines.change_interface') and
+                can_user):
+                return (
+                    False,
+                    _("You don't have the right to edit a machine of"
+                      " another user."),
+                    ('machines.change_interface',) + permissions
+                )
+        return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
@@ -1290,9 +1354,12 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_interface') and
                 self.machine.user != user_request):
-            return False, _("You don't have the right to view machines other"
-                            " than yours.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to view machines other than yours."),
+                ('machines.view_interface',)
+            )
+        return True, None, None
 
     def __init__(self, *args, **kwargs):
         super(Interface, self).__init__(*args, **kwargs)
@@ -1340,19 +1407,26 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             interface = Interface.objects.get(pk=interfaceid)
         except Interface.DoesNotExist:
-            return False, _("Nonexistent interface.")
+            return False, _("Nonexistent interface."), None
         if not user_request.has_perm('machines.add_ipv6list'):
             if interface.machine.user != user_request:
-                return False, _("You don't have the right to add an alias to a"
-                                " machine of another user.")
-        return True, None
+                return (
+                    False,
+                    _("You don't have the right to add an alias to a"
+                      " machine of another user."),
+                    ('machines.add_ipv6list',)
+                )
+        return True, None, None
 
     @staticmethod
     def can_change_slaac_ip(user_request, *_args, **_kwargs):
         """ Check if a user can change the slaac value """
-        return (user_request.has_perm('machines.change_ipv6list_slaac_ip'),
-                _("Permission required to change the SLAAC value of an IPv6"
-                  " address"))
+        return (
+            user_request.has_perm('machines.change_ipv6list_slaac_ip'),
+            _("Permission required to change the SLAAC value of an IPv6"
+              " address"),
+            ('machines.change_ipv6list_slaac_ip',)
+        )
 
     def can_edit(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits infra pour editer
@@ -1361,15 +1435,21 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            if (not user_request.has_perm('machines.change_ipv6list') or
-                    not self.interface.machine.user.can_edit(
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, _("You don't have the right to edit a machine of"
-                                " another user.")
-        return True, None
+            can_user, _, permissions = self.interface.machine.user.can_edit(
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (
+                user_request.has_perm('machines.change_ipv6list') and
+                can_user):
+                return (
+                    False,
+                    _("You don't have the right to edit a machine of"
+                      " another user."),
+                    ('machines.change_ipv6list',)
+                )
+        return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
         """Verifie que l'user a les bons droits delete object pour del
@@ -1378,15 +1458,20 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            if (not user_request.has_perm('machines.change_ipv6list') or
-                    not self.interface.machine.user.can_edit(
-                        user_request,
-                        *args,
-                        **kwargs
-                    )[0]):
-                return False, _("You don't have the right to edit a machine of"
-                                " another user.")
-        return True, None
+            can_user, _, permissions = self.interface.machine.user.can_edit(
+                user_request,
+                *args,
+                **kwargs
+            )
+            if not (user_request.has_perm('machines.change_ipv6list') and
+                can_user):
+                return (
+                    False,
+                    _("You don't have the right to edit a machine of"
+                      " another user."),
+                    ('machines.change_ipv6list',) + permissions
+                )
+        return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
@@ -1396,9 +1481,12 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_ipv6list') and
                 self.interface.machine.user != user_request):
-            return False, _("You don't have the right to view machines other"
-                            " than yours.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to view machines other than yours."),
+                ('machines.view_ipv6list',)
+            )
+        return True, None, None
 
     def __init__(self, *args, **kwargs):
         super(Ipv6List, self).__init__(*args, **kwargs)
@@ -1554,25 +1642,33 @@ class Domain(RevMixin, AclMixin, models.Model):
         try:
             interface = Interface.objects.get(pk=interfaceid)
         except Interface.DoesNotExist:
-            return False, _("Nonexistent interface.")
+            return False, _("Nonexistent interface."), None
         if not user_request.has_perm('machines.add_domain'):
             max_lambdauser_aliases = (preferences.models.OptionalMachine
                 .get_cached_value(
                 'max_lambdauser_aliases'
             ))
             if interface.machine.user != user_request:
-                return False, _("You don't have the right to add an alias to a"
-                                " machine of another user.")
+                return (
+                    False,
+                    _("You don't have the right to add an alias to a"
+                      " machine of another user."),
+                    ('machines.add_domain',)
+                )
             if Domain.objects.filter(
                     cname__in=Domain.objects.filter(
                         interface_parent__in=(interface.machine.user
                                 .user_interfaces())
                     )
             ).count() >= max_lambdauser_aliases:
-                return False, _("You reached the maximum number of alias that"
-                                " you are allowed to create yourself (%s). "
-                                % max_lambdauser_aliases)
-        return True, None
+                return (
+                    False,
+                    _("You reached the maximum number of alias that"
+                      " you are allowed to create yourself (%s). "
+                      % max_lambdauser_aliases),
+                    ('machines.add_domain',)
+                )
+        return True, None, None
 
     def can_edit(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits pour editer
@@ -1582,9 +1678,13 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: soit True, soit False avec la raison de l'échec"""
         if (not user_request.has_perm('machines.change_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, _("You don't have the right to edit an alias of a"
-                            " machine of another user.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to edit an alias of a"
+                  " machine of another user."),
+                ('machines.change_domain',)
+            )
+        return True, None, None
 
     def can_delete(self, user_request, *_args, **_kwargs):
         """Verifie que l'user a les bons droits delete object pour del
@@ -1594,9 +1694,13 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: soit True, soit False avec la raison de l'échec"""
         if (not user_request.has_perm('machines.delete_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, _("You don't have the right to delete an alias of a"
-                            " machine of another user.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to delete an alias of a"
+                  " machine of another user."),
+                ('machines.delete_domain',)
+            )
+        return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Vérifie qu'on peut bien voir cette instance particulière avec
@@ -1606,9 +1710,12 @@ class Domain(RevMixin, AclMixin, models.Model):
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if (not user_request.has_perm('machines.view_domain') and
                 self.get_source_interface.machine.user != user_request):
-            return False, _("You don't have the right to view machines other"
-                            " than yours.")
-        return True, None
+            return (
+                False,
+                _("You don't have the right to view machines other than yours."),
+                ('machines.view_domain',)
+            )
+        return True, None, None
 
     def __str__(self):
         return str(self.name) + str(self.extension)
@@ -1840,11 +1947,14 @@ class OuverturePortList(RevMixin, AclMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if not user_request.has_perm('machines.delete_ouvertureportlist'):
-            return False, _("You don't have the right to delete a ports"
-                            " opening list.")
+            return (
+                False,
+                _("You don't have the right to delete a ports opening list."),
+                ('machines.delete_ouvertureportlist',)
+            )
         if self.interface_set.all():
-            return False, _("This ports opening list is used.")
-        return True, None
+            return False, _("This ports opening list is used."), None
+        return True, None, None
 
     def __str__(self):
         return self.name

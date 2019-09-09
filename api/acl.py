@@ -33,7 +33,7 @@ from django.utils.translation import ugettext as _
 
 def _create_api_permission():
     """Creates the 'use_api' permission if not created.
-    
+
     The 'use_api' is a fake permission in the sense it is not associated with an
     existing model and this ensure the permission is created every time this file
     is imported.
@@ -70,6 +70,7 @@ def can_view(user):
         'app_label': settings.API_CONTENT_TYPE_APP_LABEL,
         'codename': settings.API_PERMISSION_CODENAME
     }
-    can = user.has_perm('%(app_label)s.%(codename)s' % kwargs)
+    permission = '%(app_label)s.%(codename)s' % kwargs
+    can = user.has_perm(permission)
     return can, None if can else _("You don't have the right to see this"
-                                   " application.")
+                                   " application."), (permission,)
