@@ -371,8 +371,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def clean_force(self):
         """On supprime l'ancien user de la chambre si et seulement si la
         case est cochée"""
-        if self.cleaned_data.get('force', False):
-            remove_user_room(self.cleaned_data.get('room'))
+        room = self.cleaned_data.get('room')
+        if self.cleaned_data.get('force', False) and room:
+            remove_user_room(room)
         return
 
 
