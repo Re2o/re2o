@@ -596,32 +596,10 @@ class RadiusAttribute(RevMixin, AclMixin, models.Model):
         verbose_name = _("RADIUS attribute")
         verbose_name_plural = _("RADIUS attributes")
 
-    CHOICE_OPERATOR = (
-        ('=' , '=' ),
-        (':=', ':='),
-        ('==', '=='),
-        ('+=', '+='),
-        ('!=', '!='),
-        ('>' , '>' ),
-        ('>=', '>='),
-        ('<' , '<' ),
-        ('<=', '<='),
-        ('=~', '=~'),
-        ('!~', '!~'),
-        ('=*', '=*'),
-        ('!*', '!*')
-    )
     attribute = models.CharField(
         max_length=255,
         verbose_name=_("Attribute"),
         help_text=_("See http://freeradius.org/rfc/attributes.html"),
-    )
-    operator = models.CharField(
-        max_length=2,
-        verbose_name=_("Operator"),
-        help_text=_("See https://wiki.freeradius.org/config/Operators"),
-        choices=CHOICE_OPERATOR,
-        default=':='
     )
     value = models.CharField(
         max_length=255,
@@ -637,8 +615,6 @@ class RadiusAttribute(RevMixin, AclMixin, models.Model):
     def __str__(self):
         return ' '.join([self.attribute, self.operator, self.value])
 
-    def as_tuple(self):
-        return (self.attribute, self.operator, self.value)
 
 
 class RadiusOption(AclMixin, PreferencesModel):
@@ -790,9 +766,12 @@ class RadiusOption(AclMixin, PreferencesModel):
     )
 
     @classmethod
-    def get_attributes(cls, name):
+    def get_attributes(cls, name, attribute_kwargs={}):
         return (
-            attribute.as_tuple()
+            (
+                str(attribute.attribute),
+                str(attribute.value % attribute_kwargs)
+            )
             for attribute in cls.get_cached_value(name).all()
         )
 

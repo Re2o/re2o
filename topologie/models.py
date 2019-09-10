@@ -400,17 +400,17 @@ class Switch(AclMixin, Machine):
 
     def profile_type_or_nothing(self, profile_type):
         """Return the profile for a profile_type of this switch
-        
+
         If exists, returns the defined default profile for a profile type on the dormitory which
         the switch belongs
-        
+
         Otherwise, returns the nothing profile"""
         profile_queryset = PortProfile.objects.filter(profil_default=profile_type)
         if self.get_dormitory:
             port_profile = profile_queryset.filter(on_dormitory=self.get_dormitory).first() or profile_queryset.first()
         else:
             port_profile = profile_queryset.first()
-        return port_profile or Switch.nothing_profile
+        return port_profile or Switch.nothing_profile()
 
     @cached_property
     def default_uplink_profile(self):
@@ -628,7 +628,7 @@ class Building(AclMixin, RevMixin, models.Model):
 
     @cached_property
     def cached_name(self):
-        return self.get_name() 
+        return self.get_name()
 
     def __str__(self):
         return self.cached_name
@@ -712,7 +712,7 @@ class Port(AclMixin, RevMixin, models.Model):
     def get_port_profile(self):
         """Return the config profil for this port
         :returns: the profile of self (port)
-       
+
         If is defined a custom profile, returns it
         elIf a default profile is defined for its dormitory, returns it
         Else, returns the global default profil
@@ -730,7 +730,7 @@ class Port(AclMixin, RevMixin, models.Model):
         elif self.room:
             return self.switch.default_room_profile
         else:
-            return Switch.nothing_profile
+            return Switch.nothing_profile()
 
     @classmethod
     def get_instance(cls, portid, *_args, **kwargs):
