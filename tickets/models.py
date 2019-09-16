@@ -40,6 +40,9 @@ class Ticket(AclMixin, models.Model):
     solved = models.BooleanField(default=False)
 
     class Meta:
+        permissions = (
+            ("view_tickets", _("Can view a ticket object")),
+        )
         verbose_name = _("Ticket")
         verbose_name_plural = _("Tickets")
 

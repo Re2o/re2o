@@ -42,6 +42,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Ticket',
                 'verbose_name_plural': 'Tickets',
+                'permissions': (('view_tickets', 'Can view a ticket object'),), 'verbose_name': 'Ticket', 'verbose_name_plural': 'Tickets',
             },
             bases=(re2o.mixins.AclMixin, models.Model),
         ),
