@@ -425,7 +425,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def is_adherent(self):
         """ Renvoie True si l'user est adhérent : si
         self.end_adhesion()>now"""
-        return True
         end = self.end_adhesion()
         if not end:
             return False
@@ -437,7 +436,6 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def is_connected(self):
         """ Renvoie True si l'user est adhérent : si
         self.end_adhesion()>now et end_connexion>now"""
-        return True
         end = self.end_connexion()
         if not end:
             return False

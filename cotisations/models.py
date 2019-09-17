@@ -169,7 +169,7 @@ class Facture(BaseInvoice):
         return self.vente_set.all()
 
     def can_edit(self, user_request, *args, **kwargs):
-        user_can, _, permissions = self.user.can_edit(
+        user_can, _message, permissions = self.user.can_edit(
             user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.change_facture'):
             return (
@@ -196,7 +196,7 @@ class Facture(BaseInvoice):
             return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        user_can, _, permissions = self.user.can_edit(
+        user_can, _message, permissions = self.user.can_edit(
             user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.delete_facture'):
             return (
@@ -546,7 +546,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         super(Vente, self).save(*args, **kwargs)
 
     def can_edit(self, user_request, *args, **kwargs):
-        user_can, _, permissions = self.facture.user.can_edit(
+        user_can, _message, permissions = self.facture.user.can_edit(
             user_request, *args, **kwargs
         )
         if not user_request.has_perm('cotisations.change_vente'):
@@ -575,7 +575,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
-        user_can, _, permissions = self.facture.user.can_edit(
+        user_can, _message, permissions = self.facture.user.can_edit(
             user_request, *args, **kwargs)
         if not user_request.has_perm('cotisations.delete_vente'):
             return (

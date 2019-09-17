@@ -168,7 +168,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison le cas échéant"""
         if self.user != user_request:
-            can_user, _, permissions = self.user.can_edit(
+            can_user, _message, permissions = self.user.can_edit(
                 self.user,
                 user_request,
                 *args,
@@ -192,7 +192,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
         if self.user != user_request:
-            can_user, _, permissions = self.user.can_edit(
+            can_user, _message, permissions = self.user.can_edit(
                 self.user,
                 user_request,
                 *args,
@@ -1307,7 +1307,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            can_user, _, permissions = self.machine.user.can_edit(
+            can_user, _message, permissions = self.machine.user.can_edit(
                 user_request,
                 *args,
                 **kwargs
@@ -1330,7 +1330,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.machine.user != user_request:
-            can_user, _, permissions = self.machine.user.can_edit(
+            can_user, _message, permissions = self.machine.user.can_edit(
                 user_request,
                 *args,
                 **kwargs
@@ -1435,7 +1435,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            can_user, _, permissions = self.interface.machine.user.can_edit(
+            can_user, _message, permissions = self.interface.machine.user.can_edit(
                 user_request,
                 *args,
                 **kwargs
@@ -1458,7 +1458,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
         if self.interface.machine.user != user_request:
-            can_user, _, permissions = self.interface.machine.user.can_edit(
+            can_user, _message, permissions = self.interface.machine.user.can_edit(
                 user_request,
                 *args,
                 **kwargs
