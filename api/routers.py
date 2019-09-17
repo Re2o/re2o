@@ -76,7 +76,7 @@ class AllViewsRouter(DefaultRouter):
         """
         return pattern.split('/')[-1]
 
-    def get_api_root_view(self, schema_urls=None):
+    def get_api_root_view(self, schema_urls=None, api_urls=None):
         """Create a class-based view to use as the API root.
 
         Highly inspired by the base class. See details on the implementation
