@@ -51,9 +51,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	<td>{% if room.port_set.all %}<span class="label label-success">AURORE{% else %}<span class="label label-danger">{% trans "Other operator" %}{% endif %}</span></td>
 	<td>{% if room.adherent %}<a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>{% else %} {% trans "Aucun" %}{% endif %}</td>
         <td>{{ room.details }}</td>
-        <td>{% if room.user.is_adherent %}{{ room.user.end_adhesion }}{% else %}{% trans "Not a member" %}{% endif %}</td>
+        <td>{% if room.adherent.is_adherent %}{{ room.adherent.end_adhesion }}{% else %}{% trans "Not a member" %}{% endif %}</td>
         <td>
-            {% if room.user.has_access == True %}
+            {% if room.adherent.has_access == True %}
             <i class="text-success">{% trans "Active" %}</i>
             {% else %}
             <i class="text-danger">{% trans "Disabled" %}</i>
