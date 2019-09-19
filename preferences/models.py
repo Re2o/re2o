@@ -591,6 +591,32 @@ class MailMessageOption(AclMixin, models.Model):
         verbose_name = _("email message options")
 
 
+class RadiusAttribute(RevMixin, AclMixin, models.Model):
+    class Meta:
+        verbose_name = _("RADIUS attribute")
+        verbose_name_plural = _("RADIUS attributes")
+
+    attribute = models.CharField(
+        max_length=255,
+        verbose_name=_("Attribute"),
+        help_text=_("See http://freeradius.org/rfc/attributes.html"),
+    )
+    value = models.CharField(
+        max_length=255,
+        verbose_name=_("Value")
+    )
+    comment = models.TextField(
+        verbose_name=_("Comment"),
+        help_text=_("Use this field to document this attribute."),
+        blank=True,
+        default=""
+    )
+
+    def __str__(self):
+        return ' '.join([self.attribute, self.operator, self.value])
+
+
+
 class RadiusOption(AclMixin, PreferencesModel):
     class Meta:
         verbose_name = _("RADIUS policy")
@@ -628,6 +654,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         verbose_name=_("Unknown machines VLAN"),
         help_text=_("VLAN for unknown machines if not rejected")
     )
+    unknown_machine_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='unknown_machine_attribute',
+        blank=True,
+        verbose_name=_("Unknown machines attributes."),
+        help_text=_("Answer attributes for unknown machines."),
+    )
     unknown_port = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
@@ -642,6 +675,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         null=True,
         verbose_name=_("Unknown ports VLAN"),
         help_text=_("VLAN for unknown ports if not rejected")
+    )
+    unknown_port_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='unknown_port_attribute',
+        blank=True,
+        verbose_name=_("Unknown ports attributes."),
+        help_text=_("Answer attributes for unknown ports."),
     )
     unknown_room = models.CharField(
         max_length=32,
@@ -659,6 +699,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         verbose_name=_("Unknown rooms VLAN"),
         help_text=_("VLAN for unknown rooms if not rejected")
     )
+    unknown_room_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='unknown_room_attribute',
+        blank=True,
+        verbose_name=_("Unknown rooms attributes."),
+        help_text=_("Answer attributes for unknown rooms."),
+    )
     non_member = models.CharField(
         max_length=32,
         choices=CHOICE_POLICY,
@@ -673,6 +720,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         null=True,
         verbose_name=_("Non members VLAN"),
         help_text=_("VLAN for non members if not rejected")
+    )
+    non_member_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='non_member_attribute',
+        blank=True,
+        verbose_name=_("Non member attributes."),
+        help_text=_("Answer attributes for non members."),
     )
     banned = models.CharField(
         max_length=32,
@@ -689,6 +743,13 @@ class RadiusOption(AclMixin, PreferencesModel):
         verbose_name=_("Banned users VLAN"),
         help_text=_("VLAN for banned users if not rejected")
     )
+    banned_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='banned_attribute',
+        blank=True,
+        verbose_name=_("Banned attributes."),
+        help_text=_("Answer attributes for banned users."),
+    )
     vlan_decision_ok = models.OneToOneField(
         'machines.Vlan',
         on_delete=models.PROTECT,
@@ -696,6 +757,23 @@ class RadiusOption(AclMixin, PreferencesModel):
         blank=True,
         null=True
     )
+    ok_attributes = models.ManyToManyField(
+        RadiusAttribute,
+        related_name='ok_attribute',
+        blank=True,
+        verbose_name=_("Accepted users attributes."),
+        help_text=_("Answer attributes for accepted users."),
+    )
+
+    @classmethod
+    def get_attributes(cls, name, attribute_kwargs={}):
+        return (
+            (
+                str(attribute.attribute),
+                str(attribute.value % attribute_kwargs)
+            )
+            for attribute in cls.get_cached_value(name).all()
+        )
 
 
 def default_invoice():

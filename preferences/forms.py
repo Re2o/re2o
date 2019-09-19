@@ -44,7 +44,8 @@ from .models import (
     SwitchManagementCred,
     RadiusOption,
     CotisationsOption,
-    DocumentTemplate
+    DocumentTemplate,
+    RadiusAttribute
 )
 from topologie.models import Switch
 
@@ -411,3 +412,33 @@ class DelDocumentTemplateForm(FormRevMixin, Form):
             self.fields['document_templates'].queryset = instances
         else:
             self.fields['document_templates'].queryset = Banque.objects.all()
+
+
+class RadiusAttributeForm(ModelForm):
+    """Edit and add RADIUS attributes."""
+    class Meta:
+        model = RadiusAttribute
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(RadiusAttributeForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+
+class DelRadiusAttributeForm(Form):
+    """Delete RADIUS attributes"""
+    attributes = forms.ModelMultipleChoiceField(
+        queryset=RadiusAttribute.objects.none(),
+        label=_("Current attributes"),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        instances = kwargs.pop('instances', None)
+        super(DelServiceForm, self).__init__(*args, **kwargs)
+        if instances:
+            self.fields['attributes'].queryset = instances
+        else:
+            self.fields['attributes'].queryset = Attributes.objects.all()
+
+

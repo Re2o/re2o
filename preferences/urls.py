@@ -126,5 +126,12 @@ urlpatterns = [
         views.del_document_template,
         name='del-document-template'
     ),
+    url(r'^add_radiusattribute/$', views.add_radiusattribute, name='add-radiusattribute'),
+    url(
+        r'^edit_radiusattribute/(?P<radiusattributeid>[0-9]+)$',
+        views.edit_radiusattribute,
+        name='edit-radiusattribute'
+        ),
+    url(r'^del_radiusattribute/(?P<radiusattributeid>[0-9]+)$', views.del_radiusattribute, name='del-radiusattribute'),
     url(r'^$', views.display_options, name='display-options'),
 ]
