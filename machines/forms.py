@@ -104,7 +104,7 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
-            can_use_all_iptype, _reason, _message = IpType.can_use_all(user)
+            can_use_all_iptype, _reason, _permissions = IpType.can_use_all(user)
             if not can_use_all_iptype:
                 self.fields['ipv4'].queryset = IpList.objects.filter(
                     interface__isnull=True
