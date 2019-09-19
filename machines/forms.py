@@ -104,7 +104,7 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields['ipv4'].queryset = IpList.objects.filter(
                 interface__isnull=True
             )
-            can_use_all_iptype, _reason = IpType.can_use_all(user)
+            can_use_all_iptype, _reason, _permissions = IpType.can_use_all(user)
             if not can_use_all_iptype:
                 self.fields['ipv4'].queryset = IpList.objects.filter(
                     interface__isnull=True
@@ -120,7 +120,7 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         if "machine" in self.fields:
             self.fields['machine'].queryset = Machine.objects.all() \
                 .select_related('user')
-        can_use_all_machinetype, _reason = MachineType.can_use_all(user)
+        can_use_all_machinetype, _reason, _permissions = MachineType.can_use_all(user)
         if not can_use_all_machinetype:
             self.fields['machine_type'].queryset = MachineType.objects.filter(
                 ip_type__in=IpType.objects.filter(need_infra=False)
@@ -146,7 +146,7 @@ class AliasForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         user = kwargs.pop('user')
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
-        can_use_all, _reason = Extension.can_use_all(user)
+        can_use_all, _reason, _permissions = Extension.can_use_all(user)
         if not can_use_all:
             self.fields['extension'].queryset = Extension.objects.filter(
                 need_infra=False
