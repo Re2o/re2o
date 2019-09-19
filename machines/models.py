@@ -105,9 +105,10 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
             A tuple with a boolean stating if edition is allowed and an
             explanation message.
         """
+        can = user_request.has_perm('machines.change_machine_user')
         return (
-            user_request.has_perm('machines.change_machine_user'),
-            _("You don't have the right to change the machine's user."),
+            can,
+            _("You don't have the right to change the machine's user.") if not can else None,
             ('machines.change_machine_user',)
         )
 
@@ -803,9 +804,10 @@ class Extension(RevMixin, AclMixin, models.Model):
         restrictions
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
+        can = user_request.has_perm('machines.use_all_extension')
         return (
-            user_request.has_perm('machines.use_all_extension'),
-            _("You cannot use all extensions."),
+            can,
+            _("You cannot use all extensions.") if not can else None,
             ('machines.use_all_extension',)
         )
 
@@ -1294,9 +1296,10 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     def can_change_machine(user_request, *_args, **_kwargs):
         """Check if a user can change the machine associated with an
         Interface object """
+        can = user_request.has_perm('machines.change_interface_machine')
         return (
-            user_request.has_perm('machines.change_interface_machine'),
-            _("Permission required to edit the machine."),
+            can,
+            _("Permission required to edit the machine.") if not can else None,
             ('machines.change_interface_machine',)
         )
 
@@ -1421,10 +1424,11 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     @staticmethod
     def can_change_slaac_ip(user_request, *_args, **_kwargs):
         """ Check if a user can change the slaac value """
+        can = user_request.has_perm('machines.change_ipv6list_slaac_ip')
         return (
-            user_request.has_perm('machines.change_ipv6list_slaac_ip'),
+            can,
             _("Permission required to change the SLAAC value of an IPv6"
-              " address"),
+              " address") if not can else None,
             ('machines.change_ipv6list_slaac_ip',)
         )
 

@@ -123,6 +123,10 @@ class OptionalUser(AclMixin, PreferencesModel):
         help_text=_("If True, all new created and connected users are active."
                     " If False, only when a valid registration has been paid.")
     )
+    allow_archived_connexion = models.BooleanField(
+        default=False,
+        help_text=_("If True, archived users are allowed to connect.")
+    )
 
     class Meta:
         permissions = (

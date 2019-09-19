@@ -86,9 +86,10 @@ class Ticket(AclMixin, models.Model):
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
         """ Check that the user has access to the list of all tickets"""
+        can = user_request.has_perm('tickets.view_tickets')
         return(
-            user_request.has_perm('tickets.view_tickets'),
-            _("You don't have the right to view the list of tickets."),
+            can,
+            _("You don't have the right to view the list of tickets.") if not can else None,
             ('tickets.view_tickets',)
         )
 

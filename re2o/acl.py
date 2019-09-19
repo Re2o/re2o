@@ -41,6 +41,8 @@ from re2o.utils import get_group_having_permission
 
 def acl_error_message(msg, permissions):
     """Create an error message for msg and permissions."""
+    if permissions is None:
+        return msg
     groups = ", ".join([
         g.name for g in get_group_having_permission(*permissions)
     ])
@@ -76,9 +78,11 @@ def acl_base_decorator(method_name, *targets, on_instance=True):
             permission was granted. This is to allow you to run ACL tests on
             fields only. If the method exists, it has to return a 2-tuple
             `(can, reason, permissions)` with `can` being a boolean stating
-            whether the access is granted, `reason` a message to be
+            whether the access is granted, `reason` an arror message to be
             displayed if `can` equals `False` (can be `None`) and `permissions`
-            a list of permissions needed for access (can be `None`).
+            a list of permissions needed for access (can be `None`). If can is
+            True and permission is not `None`, a warning message will be
+            displayed.
         *targets: The targets. Targets are specified like a sequence of models
             and fields names. As an example
             ```
@@ -172,10 +176,17 @@ ModelC)
                     yield can_change_fct(request.user, *args, **kwargs)
 
             error_messages = []
+            warning_messages = []
             for target, fields in group_targets():
                 for can, msg, permissions in process_target(target, fields):
                     if not can:
                         error_messages.append(acl_error_message(msg, permissions))
+                    elif msg:
+                        warning_messages.append(acl_error_message(msg, permissions))
+
+            if warning_messages:
+                for msg in warning_messages:
+                    messages.warning(request, msg)
 
             if error_messages:
                 for msg in error_messages:
