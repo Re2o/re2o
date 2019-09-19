@@ -521,7 +521,7 @@ def history(request, application, object_name, object_id):
             'users:profil',
             kwargs={'userid': str(request.user.id)}
         ))
-    can, msg, _extra_msg = instance.can_view(request.user)
+    can, msg, _permissions = instance.can_view(request.user)
     if not can:
         messages.error(request, msg or _("You don't have the right to access this menu."))
         return redirect(reverse(
