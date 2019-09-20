@@ -1109,7 +1109,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         :return: True if the user can view the list and an explanation
             message.
         """
-        can = user_request.has_perm('use.view_user')
+        can = user_request.has_perm('users.view_user')
         return (
             can,
             _("You don't have the right to view the list of users.") if not can else None,
