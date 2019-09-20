@@ -613,7 +613,7 @@ class RadiusAttribute(RevMixin, AclMixin, models.Model):
     )
 
     def __str__(self):
-        return ' '.join([self.attribute, self.operator, self.value])
+        return ' '.join([self.attribute, '=', self.value])
 
 
 
