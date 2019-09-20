@@ -173,6 +173,10 @@ class OptionalMachine(AclMixin, PreferencesModel):
     create_machine = models.BooleanField(
         default=True
     )
+    dns_ttl = models.IntegerField(
+        default=86400,
+        verbose_name=_("Time To Live for DNS records")
+    )
 
     @cached_property
     def ipv6(self):

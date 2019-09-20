@@ -183,6 +183,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Creation of machines" %}</th>
                 <td>{{ machineoptions.create_machine|tick }}</td>
+                <th>{% trans "Time To Live for DNS records" %}</th>
+                <td>{{ machineoptions.dns_ttl }}</td>
             </tr>
         </table>
     </div>

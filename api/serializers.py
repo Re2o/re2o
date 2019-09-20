@@ -381,7 +381,7 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
         model = preferences.OptionalMachine
         fields = ('password_machine', 'max_lambdauser_interfaces',
                   'max_lambdauser_aliases', 'ipv6_mode', 'create_machine',
-                  'ipv6')
+                  'ipv6', 'dns_ttl')
 
 
 class OptionalTopologieSerializer(NamespacedHMSerializer):
