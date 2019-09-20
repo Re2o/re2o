@@ -409,10 +409,11 @@ class AdherentCreationForm(AdherentForm):
 
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
+        gtu_file = GeneralOption.get_cached_value('GTU')
         self.fields['gtu_check'].label = mark_safe(
-            "%s <a href='%s' download='CGU'>%s</a>." % (
+            "%s <a href='%s' target='_blank' download='CGU'>%s</a>." % (
                 _("I commit to accept the"),
-                GeneralOption.get_cached_value('GTU').url,
+                gtu_file.url if gtu_file else "https://en.wikipedia.org/wiki/Llama",
                 _("General Terms of Use")
             )
         )
