@@ -441,7 +441,8 @@ class AdherentEditForm(AdherentForm):
             'telephone',
             'room',
             'shell',
-            'gpg_fingerprint'
+            'gpg_fingerprint',
+            'shortcuts_enabled',
         ]
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):

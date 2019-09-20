@@ -305,6 +305,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <dd>{{ users.shell }}</dd>
                         </div>
                     {% endif %}
+                    <div class="col-md-6 col-xs-12">
+                        <dt>{% trans "Shortcuts enabled" %}</dt>
+                        <dd>{{ users.shortcuts_enabled | tick }}</dd>
+                    </div>
                 </dl>
             </div>
         </div>
