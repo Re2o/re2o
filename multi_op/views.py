@@ -161,13 +161,9 @@ def edit_preferences(request):
     return form({'preferencesform':preferencesform,},'multi_op/form_preferences.html',request)
    
 
-def navbar_user(request):
+def navbar_user():
     """View to display the app in user's dropdown in the navbar"""
-    return render_to_string('multi_op/navbar.html')
-
-def navbar_logout(request):
-    """View to display the app in user's dropdown in the navbar"""
-    return None
+    return ('topologie', render_to_string('multi_op/navbar.html'))
 
 
 def preferences(request):

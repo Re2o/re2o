@@ -101,9 +101,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
 
-                                {% for template in optionnal_templates_navbar_user_list%}
-                                    {{ template }}
-                                {% endfor %}
+                                {% for app, template in optionnal_templates_navbar_user_list %}
+				    {% if app != 'topologie' %}
+                                       {{ template }}
+				    {% endif %}
+				{% endfor %}
                             </ul>
                         </li>
                         {% acl_end %}
@@ -114,6 +116,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'topologie:index' %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
                                 <li><a href="{% url 'topologie:index-ap' %}"><i class="fa fa-wifi"></i> {% trans "Access points" %}</a></li>
                                 <li><a href="{% url 'topologie:index-room' %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
+                                {% for app, template in optionnal_templates_navbar_user_list %}
+				    {% if app == 'topologie' %}
+                                       {{ template }}
+				    {% endif %}
+				{% endfor %}
                             </ul>
                         </li>
                         {% acl_end %}
