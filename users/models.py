@@ -247,6 +247,10 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
         blank=True,
         null=True
     )
+    shortcuts_enabled = models.BooleanField(
+        verbose_name=_("Enable shortcuts on Re2o website"),
+        default=True
+    )
 
     USERNAME_FIELD = 'pseudo'
     REQUIRED_FIELDS = ['surname', 'email']
