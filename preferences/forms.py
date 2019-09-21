@@ -45,7 +45,8 @@ from .models import (
     RadiusOption,
     CotisationsOption,
     DocumentTemplate,
-    RadiusAttribute
+    RadiusAttribute,
+    Mandate
 )
 from topologie.models import Switch
 
@@ -259,6 +260,17 @@ class EditCotisationsOptionForm(ModelForm):
     class Meta:
         model = CotisationsOption
         fields = '__all__'
+
+
+class MandateForm(ModelForm):
+    """Edit Mandates"""
+    class Meta:
+        model = Mandate
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop('prefix', self.Meta.model.__name__)
+        super(MandateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
 
 class ServiceForm(ModelForm):

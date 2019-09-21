@@ -501,6 +501,41 @@ class MailContact(AclMixin, models.Model):
     def __str__(self):
         return(self.address)
 
+class Mandate(RevMixin, AclMixin, models.Model):
+    class Meta:
+        verbose_name = _("Mandate")
+        verbose_name_plural = _("Mandates")
+        permissions = (
+            ("view_mandate", _("Can view a mandate")),
+        )
+
+    president = models.ForeignKey(
+        'users.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("President of the association"),
+        help_text=_("Displayed on subscription vouchers")
+    )
+    start_date = models.DateTimeField(
+        verbose_name=_("start date")
+    )
+    end_date = models.DateTimeField(
+        verbose_name=_("end date"),
+        blank=True,
+        null=True
+    )
+
+    @classmethod
+    def get_mandate(cls, date=timezone.now):
+        if callable(date):
+            date = date()
+        return cls.objects.get(
+            start_date__gte=date, end_date__lte=date
+        )
+
+    def is_over(self):
+        return self.end_date is None
 
 class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""

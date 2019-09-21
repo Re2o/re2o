@@ -1,0 +1,52 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2018  Hugo Levy-Falk
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+{% load i18n %}
+{% load acl %}
+{% load logs_extra %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Start date" %}</th>
+            <th>{% trans "End date" %}</th>
+            <th>{% trans "President" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for mandate in mandate_list %}
+    <tr>
+        <td>{{mandate.start_date|date:"d/m/Y"}}</td>
+        <td>{% if mandate.end_date %}{{mandate.end_date|date:"d/m/Y"}}{% else %}{% trans "In progress." %}{% endif %}</td>
+        <td><a href="{% url 'users:profil' userid=mandate.president.id %}">{{mandate.president.name}} {{mandate.president.surname}}</a></td>
+        <td class="text-right">
+            {% can_edit mandate%}
+            {% include 'buttons/edit.html' with href='preferences:edit-mandate' id=mandate.id %}
+            {% acl_end %}
+            {% can_delete mandate %}
+            {% include 'buttons/suppr.html' with href='preferences:del-mandate' id=mandate.id %}
+            {% acl_end %}
+            {% history_button mandate %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
