@@ -142,6 +142,18 @@ def aff_pending_disconnection(request):
     )
 
 
+@login_required
+@can_edit(Room)
+def disconnect_room(request, room, roomid):
+    """Action of disconnecting a room"""
+    room.port_set.clear()
+    room.save()
+    messages.success(request,'Room %s disconnected' % room)
+    return redirect(reverse(
+        'multi_op:aff-pending-disconnection'
+    ))
+
+
 def edit_preferences(request):
     """ View to edit the settings of the tickets """
 

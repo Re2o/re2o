@@ -34,5 +34,5 @@ urlpatterns = [
     url(r'^(?P<dormitoryid>[0-9]+)$', views.aff_state_dormitory, name='aff-state-dormitory'),
     url(r'^pending-connection$', views.aff_pending_connection, name='aff-pending-connection'),
     url(r'^pending-disconnection$', views.aff_pending_disconnection, name='aff-pending-disconnection'),
-    #    url(r'^multi_op/edit-preferences-multiop$', views.edit_preferences, name='edit-preferences-multiop'),
+    url(r'^disconnect-room/(?P<roomid>[0-9]+)$', views.disconnect_room, name='disconnect-room'),
 ]
