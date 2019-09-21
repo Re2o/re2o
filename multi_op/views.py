@@ -154,34 +154,10 @@ def disconnect_room(request, room, roomid):
     ))
 
 
-def edit_preferences(request):
-    """ View to edit the settings of the tickets """
-
-    preferences_instance, created = Preferences.objects.get_or_create(id=1)
-    preferencesform = EditPreferencesForm(
-        request.POST or None,
-        instance = preferences_instance,)
-    
-    if preferencesform.is_valid():
-        if preferencesform.changed_data:
-            preferencesform.save()
-            messages.success(request,'Preferences updated')
-            return redirect(reverse('preferences:display-options',))
-        else:
-            messages.error(request,'Formulaire Invalide')
-            return form({'preferencesform':preferencesform,},'multi_op/form_preferences.html',request)
-    return form({'preferencesform':preferencesform,},'multi_op/form_preferences.html',request)
-   
-
 def navbar_user():
     """View to display the app in user's dropdown in the navbar"""
     return ('topologie', render_to_string('multi_op/navbar.html'))
 
 
-def preferences(request):
-    """ View to display the settings of the tickets in the preferences page"""
-    pref, created = Preferences.objects.get_or_create(id=1)
-    context = {'preferences':pref,'language':str(pref.LANGUES[pref.mail_language][1])}
-    return render_to_string('tickets/preferences.html', context=context, request=request, using=None)
 
 
