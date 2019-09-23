@@ -304,8 +304,7 @@ def edit_interface(request, interface_instance, **_kwargs):
             new_machine_obj.save()
         if interface_form.changed_data:
             new_interface_obj.save()
-        if domain_form.changed_data:
-            new_domain_obj.save()
+        new_domain_obj.save()
         messages.success(request, _("The machine was edited."))
         return redirect(reverse(
             'users:profil',
