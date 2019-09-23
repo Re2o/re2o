@@ -297,7 +297,8 @@ class Facture(BaseInvoice):
         if self.is_subscription() \
                 and not self.__original_control \
                 and self.control \
-                and CotisationsOption.get_cached_value('send_voucher_mail'):
+                and CotisationsOption.get_cached_value('send_voucher_mail') \
+                and self.user.is_adherent():
             send_mail_voucher(self)
 
     def __str__(self):
