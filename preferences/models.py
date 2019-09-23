@@ -528,27 +528,21 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def get_mandate(cls, date=timezone.now):
-        """"Find the mandate taking place at the given date. If none is found
-        look for the nearest in the future. If none is found (again), look
-        for the nearest in the past."""
+        """"Find the mandate taking place at the given date."""
         if callable(date):
             date = date()
-        try:
-            return cls.objects.get(
-                start_date__gte=date, end_date__lte=date
-            )
-        except cls.DoesNotExist:
-            try:
-                return cls.objects.filter(start_date__gte=date).earliest('start_date')
-            except cls.DoesNotExist:
-                try:
-                    return cls.objects.filter(start_date__lte=date).latest('start_date')
-                except cls.DoesNotExist:
-                    raise cls.DoesNotExist("No mandate have been created. Please go to the preferences page to create one.")
+        mandate = cls.objects.filter(start_date__lte=date).order_by('-start_date').first()
+        if not mandate:
+            raise cls.DoesNotExist("No mandate have been created. Please go to the preferences page to create one.")
+        return mandate
 
 
     def is_over(self):
         return self.end_date is None
+        
+    def __str__(self):
+        return str(self.president) + ' ' + str(self.start_date.year)
+
 
 class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""
