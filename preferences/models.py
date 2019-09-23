@@ -531,7 +531,7 @@ class Mandate(RevMixin, AclMixin, models.Model):
         """"Find the mandate taking place at the given date."""
         if callable(date):
             date = date()
-        mandate = cls.objects.filter(start_date__lte=date).order_by('-start_date').first()
+        mandate = cls.objects.exclude(end_date__lte=date).order_by('start_date').first() or cls.objects.order_by('start_date').last()
         if not mandate:
             raise cls.DoesNotExist("No mandate have been created. Please go to the preferences page to create one.")
         return mandate
