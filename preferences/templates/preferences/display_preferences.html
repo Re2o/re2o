@@ -325,10 +325,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Description of the organisation" %}</th>
                 <td>{{ assooptions.description|safe }}</td>
             </tr>
-            <tr>
-                <th>{% trans "President of the association"%}</th>
-                <td>{{ assooptions.pres_name }}</td>
-            </tr>
         </table>
         <h5>{% trans "Mandates" %}</h5>
         {% can_create Mandate %}

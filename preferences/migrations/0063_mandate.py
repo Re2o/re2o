@@ -13,7 +13,8 @@ def create_current_mandate(apps, schema_editor):
     AssoOption = apps.get_model('preferences', 'AssoOption')
     Mandate = apps.get_model('preferences', 'Mandate')
     Adherent = apps.get_model('users', 'Adherent')
-    pres_name = AssoOption.objects.get_or_create()[0].pres_name
+    assooption = AssoOption.objects.get_or_create()[0]
+    pres_name = assooption.pres_name
     l = pres_name.split(' ')
     try:
         name, surname = l[0], l[1]
@@ -23,7 +24,11 @@ def create_current_mandate(apps, schema_editor):
             start_date=timezone.now(),
         )
     except Exception as e:
-        print("Warning : I was unable to find an adherent corresponding to %s. You might want to edit your preferences afterward." % pres_name)
+        print("Warning : I was unable to find an adherent corresponding to %s. You might want to edit your preferences afterward. I will disable the sending of vouchers by email." % pres_name)
+        CotisationsOption = apps.get_model('preferences', 'CotisationsOption')
+        cotisoption = CotisationsOption.objects.get_or_create()[0]
+        cotisoption.send_voucher_mail = False
+        cotisoption.save()
 
 
 
@@ -55,5 +60,9 @@ class Migration(migrations.Migration):
             model_name='cotisationsoption',
             name='send_voucher_mail',
             field=models.BooleanField(default=False, help_text='Be carefull, if no mandate is defined on the preferences page, errors will be triggered when generating vouchers.', verbose_name='Send voucher by email when the invoice is controlled.'),
+        ),
+        migrations.RemoveField(
+            model_name='assooption',
+            name='pres_name',
         ),
     ]
