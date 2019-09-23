@@ -528,11 +528,24 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def get_mandate(cls, date=timezone.now):
+        """"Find the mandate taking place at the given date. If none is found
+        look for the nearest in the future. If none is found (again), look
+        for the nearest in the past."""
         if callable(date):
             date = date()
-        return cls.objects.get(
-            start_date__gte=date, end_date__lte=date
-        )
+        try:
+            return cls.objects.get(
+                start_date__gte=date, end_date__lte=date
+            )
+        except cls.DoesNotExist:
+            try:
+                return cls.objects.filter(start_date__gte=date).earliest('start_date')
+            except cls.DoesNotExist:
+                try:
+                    return cls.objects.filter(start_date__lte=date).latest('start_date')
+                except cls.DoesNotExist:
+                    raise cls.DoesNotExist("No mandate have been created. Please go to the preferences page to create one.")
+
 
     def is_over(self):
         return self.end_date is None
@@ -847,6 +860,7 @@ class CotisationsOption(AclMixin, PreferencesModel):
     )
     send_voucher_mail = models.BooleanField(
         verbose_name=_("Send voucher by email when the invoice is controlled."),
+        help_text=_("Be carefull, if no mandate is defined on the preferences page, errors will be triggered when generating vouchers."),
         default=False,
     )
 

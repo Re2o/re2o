@@ -51,4 +51,9 @@ class Migration(migrations.Migration):
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
         migrations.RunPython(create_current_mandate),
+        migrations.AlterField(
+            model_name='cotisationsoption',
+            name='send_voucher_mail',
+            field=models.BooleanField(default=False, help_text='Be carefull, if no mandate is defined on the preferences page, errors will be triggered when generating vouchers.', verbose_name='Send voucher by email when the invoice is controlled.'),
+        ),
     ]
