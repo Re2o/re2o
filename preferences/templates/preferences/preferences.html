@@ -38,7 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% if preferenceform %}
-    {% massive_bootstrap_form preferenceform 'members' %}
+    {% massive_bootstrap_form preferenceform 'members,president' %}
     {% endif %}
     {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
 </form>

@@ -26,6 +26,7 @@ Formulaire d'edition des réglages : user, machine, topologie, asso...
 from __future__ import unicode_literals
 
 from django.forms import ModelForm, Form
+from django.db.models import Q
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from re2o.mixins import FormRevMixin
@@ -271,6 +272,60 @@ class MandateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
         super(MandateForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+    def clean_start_date(self):
+        date = self.cleaned_data.get('start_date')
+        existing_mandates = Mandate.objects.filter(
+            start_date__gte=date, end_date__lt=date
+        )
+        if existing_mandates:
+            raise forms.ValidationError(
+                _("There is already a mandate taking place at the specified start date.")
+            )
+        return date
+
+    def clean_end_date(self):
+        date = self.cleaned_data.get('end_date')
+        if date is None:
+            return None
+        existing_mandates = Mandate.objects.filter(
+            start_date__gte=date, end_date__lt=date
+        )
+        if existing_mandates:
+            raise forms.ValidationError(
+                _("There is already a mandate taking place at the specified end date.")
+            )
+        return date
+
+    def clean(self):
+        cleaned_data = super(MandateForm, self).clean()
+        start_date, end_date = cleaned_data['start_date'], cleaned_data['end_date']
+        included_mandates = Mandate.objects.filter(
+            Q(start_date__gte=start_date, start_date__lt=end_date)
+            | Q(end_date__gt=start_date, end_date__lte=end_date)
+        )
+        if included_mandates:
+            raise forms.ValidationError(
+                _("The specified dates overlap with an existing mandate."),
+                code='invalid'
+            )
+        return cleaned_data
+
+    def save(self, commit=True):
+        """Warning, side effect : if a mandate with a null end_date
+        exists, its end_date will be set to instance.start_date, no matter the
+        value of commit."""
+        instance = super(MandateForm, self).save(commit=False)
+        if instance.end_date is None:
+            try:
+                previous_mandate = Mandate.objects.get(end_date__isnull=True)
+                previous_mandate.end_date = instance.start_date
+                previous_mandate.save()
+            except Mandate.DoesNotExist:
+                pass
+        if commit:
+            instance.save()
+        return instance
 
 
 class ServiceForm(ModelForm):
