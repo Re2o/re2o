@@ -117,7 +117,8 @@ def send_mail_voucher(invoice):
             invoice.user.surname
         ),
         'asso_email': AssoOption.get_cached_value('contact'),
-        'asso_name': AssoOption.get_cached_value('name')
+        'asso_name': AssoOption.get_cached_value('name'),
+        'date_end': invoice.get_subscription().latest('date_end').date_end,
     }
 
     mail = EmailMessage(

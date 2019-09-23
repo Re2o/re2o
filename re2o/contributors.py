@@ -14,7 +14,6 @@ CONTRIBUTORS = [
     'Matthieu "Lebanni" Michelet',
     'Arthur "Grizzly" Grisel-Davy',
     'Simon "Rezatoune" Brélivet',
-    'Sellem Lev-Arcady',
     'David "5-1" Sinquin',
     'Pierre "Redstorm" Cadart',
     'Éloi "Goslig" Alain',
