@@ -300,15 +300,16 @@ class MandateForm(ModelForm):
     def clean(self):
         cleaned_data = super(MandateForm, self).clean()
         start_date, end_date = cleaned_data['start_date'], cleaned_data['end_date']
-        included_mandates = Mandate.objects.filter(
-            Q(start_date__gte=start_date, start_date__lt=end_date)
-            | Q(end_date__gt=start_date, end_date__lte=end_date)
-        )
-        if included_mandates:
-            raise forms.ValidationError(
-                _("The specified dates overlap with an existing mandate."),
-                code='invalid'
+        if end_date:
+            included_mandates = Mandate.objects.filter(
+                Q(start_date__gte=start_date, start_date__lt=end_date)
+                | Q(end_date__gt=start_date, end_date__lte=end_date)
             )
+            if included_mandates:
+                raise forms.ValidationError(
+                    _("The specified dates overlap with an existing mandate."),
+                    code='invalid'
+                )
         return cleaned_data
 
     def save(self, commit=True):
