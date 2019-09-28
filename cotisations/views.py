@@ -1068,7 +1068,7 @@ def voucher_pdf(request, invoice, **_kwargs):
             _("Could not find a voucher for that invoice.")
         )
         return redirect(reverse('cotisations:index'))
-    president = Mandate.get_mandate().president
+    president = Mandate.get_mandate(invoice.date).president
     return render_voucher(request, {
         'asso_name': AssoOption.get_cached_value('name'),
         'pres_name': ' '.join([president.name, president.surname]),

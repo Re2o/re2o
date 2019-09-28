@@ -99,7 +99,7 @@ def send_mail_invoice(invoice):
 
 def send_mail_voucher(invoice):
     """Creates a voucher from an invoice and sends it by email to the client"""
-    president = Mandate.get_mandate().president
+    president = Mandate.get_mandate(invoice.date).president
     ctx = {
         'asso_name': AssoOption.get_cached_value('name'),
         'pres_name': ' '.join([president.name, president.surname]),
