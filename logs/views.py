@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2018  Gabriel Détraz
-# Copyright © 2018  Goulven Kermarec
+# Copyright © 2018  Lara Kermarec
 # Copyright © 2018  Augustin Lemesle
 # Copyright © 2018  Hugo Levy-Falk
 #

@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # App de gestion des users pour re2o
-# Goulven Kermarec, Gabriel Détraz, Lemesle Augustin
+# Lara Kermarec, Gabriel Détraz, Lemesle Augustin
 # Gplv2
 
 from django.contrib import messages

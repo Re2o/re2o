@@ -8,7 +8,7 @@ CONTRIBUTORS = [
     'Maël "MoaMoaK" Kervella',
     'Hugo "Klafyvel" Levy--Falk',
     'Augustin "Dahlaro" Lemesle',
-    'Goulven "Lhark" Kermarec',
+    'Lara "Lhark" Kermarec',
     'Guillaume "Guimoz" Goessel',
     'Yoann "Nanoy" Pietri',
     'Matthieu "Lebanni" Michelet',
