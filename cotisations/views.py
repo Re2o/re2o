@@ -123,7 +123,7 @@ def new_facture(request, user, userid):
     if invoice_form.is_valid() and article_formset.is_valid():
         new_invoice_instance = invoice_form.save(commit=False)
         articles = article_formset
-        # Check if at leat one article has been selected
+        # Check if at least one article has been selected
         if any(art.cleaned_data for art in articles):
             # Building a purchase for each article sold
             purchases = []
