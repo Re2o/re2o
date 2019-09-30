@@ -919,18 +919,15 @@ def index_listright(request):
                   .order_by('name')
                   .prefetch_related('permissions')
                   .prefetch_related('user_set')
-                  .prefetch_related('user_set__facture_set__vente_set__cotisation')
                  ):
         rights[right] = (right.user_set
                          .annotate(action_number=Count('revision'),
-                                   last_seen=Max('revision__date_created'),
-                                   end_adhesion=Max('facture__vente__cotisation__date_end'))
+                                   last_seen=Max('revision__date_created'))
                         )
     superusers = (User.objects
                   .filter(is_superuser=True)
                   .annotate(action_number=Count('revision'),
-                            last_seen=Max('revision__date_created'),
-                            end_adhesion=Max('facture__vente__cotisation__date_end'))
+                            last_seen=Max('revision__date_created'))
                  )
     return render(
         request,
@@ -978,7 +975,7 @@ def profil(request, users, **_kwargs):
         request.GET.get('order'),
         SortTable.MACHINES_INDEX
     )
-    
+
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_list = [app.views.profil(request,users) for app in optionnal_apps]
 
