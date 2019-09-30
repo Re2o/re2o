@@ -196,30 +196,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
     <div id="collapse_topo" class="panel-collapse panel-body collapse">
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:edit-options' 'OptionalTopologie' %}">
-            <i class="fa fa-edit"></i>
-            {% trans "Edit" %}
-        </a>
-        <p></p>
-        <table class="table table-striped">
-            <tr>
-                <th>{% trans "General policy for VLAN setting" %}</th>
-                <td>{{ topologieoptions.radius_general_policy }}</td>
-                <th>{% trans "This setting defines the VLAN policy after acceptance by RADIUS: either on the IP range's VLAN of the machine, or a VLAN preset in 'VLAN for machines accepted by RADIUS'" %}</th>
-                <td></td>
-            </tr>
-            <tr>
-                <th>{% trans "VLAN for machines accepted by RADIUS" %}</th>
-                <td>{{ topologieoptions.vlan_decision_ok }}</td>
-                <th>{% trans "VLAN for machines rejected by RADIUS" %}</th>
-                <td>{{ topologieoptions.vlan_decision_nok }}</td>
-            </tr>
-            <tr>
-                <th>{% trans "VLAN for non members machines" %}</th>
-                <td>{{ topologieoptions.vlan_non_member }}</td>
-            </tr>
-        </table>
-
 	<h4>{% trans "RADIUS keys" %}</h4>
         {% can_create RadiusKey%}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i>{% trans " Add a RADIUS key" %}</a>
