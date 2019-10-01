@@ -25,7 +25,9 @@ from django.template.loader import get_template
 from django.core.mail import EmailMessage
 
 from .tex import create_pdf
-from preferences.models import AssoOption, GeneralOption, CotisationsOption
+from preferences.models import (
+    AssoOption, GeneralOption, CotisationsOption, Mandate
+)
 from re2o.settings import LOGO_PATH
 from re2o import settings
 
@@ -97,9 +99,10 @@ def send_mail_invoice(invoice):
 
 def send_mail_voucher(invoice):
     """Creates a voucher from an invoice and sends it by email to the client"""
+    president = Mandate.get_mandate(invoice.date).president
     ctx = {
         'asso_name': AssoOption.get_cached_value('name'),
-        'pres_name': AssoOption.get_cached_value('pres_name'),
+        'pres_name': ' '.join([president.name, president.surname]),
         'firstname': invoice.user.name,
         'lastname': invoice.user.surname,
         'email': invoice.user.email,

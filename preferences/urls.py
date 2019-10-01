@@ -126,6 +126,21 @@ urlpatterns = [
         views.del_document_template,
         name='del-document-template'
     ),
+    url(
+        r'^add_mandate/$',
+        views.add_mandate,
+        name='add-mandate'
+    ),
+    url(
+        r'^edit_mandate/(?P<mandateid>[0-9]+)$',
+        views.edit_mandate,
+        name='edit-mandate'
+    ),
+    url(
+        r'^del_mandate/(?P<mandateid>[0-9]+)$',
+        views.del_mandate,
+        name='del-mandate'
+    ),
     url(r'^add_radiusattribute/$', views.add_radiusattribute, name='add-radiusattribute'),
     url(
         r'^edit_radiusattribute/(?P<radiusattributeid>[0-9]+)$',

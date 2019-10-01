@@ -501,6 +501,48 @@ class MailContact(AclMixin, models.Model):
     def __str__(self):
         return(self.address)
 
+class Mandate(RevMixin, AclMixin, models.Model):
+    class Meta:
+        verbose_name = _("Mandate")
+        verbose_name_plural = _("Mandates")
+        permissions = (
+            ("view_mandate", _("Can view a mandate")),
+        )
+
+    president = models.ForeignKey(
+        'users.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("President of the association"),
+        help_text=_("Displayed on subscription vouchers")
+    )
+    start_date = models.DateTimeField(
+        verbose_name=_("start date")
+    )
+    end_date = models.DateTimeField(
+        verbose_name=_("end date"),
+        blank=True,
+        null=True
+    )
+
+    @classmethod
+    def get_mandate(cls, date=timezone.now):
+        """"Find the mandate taking place at the given date."""
+        if callable(date):
+            date = date()
+        mandate = cls.objects.exclude(end_date__lte=date).order_by('start_date').first() or cls.objects.order_by('start_date').last()
+        if not mandate:
+            raise cls.DoesNotExist("No mandate have been created. Please go to the preferences page to create one.")
+        return mandate
+
+
+    def is_over(self):
+        return self.end_date is None
+        
+    def __str__(self):
+        return str(self.president) + ' ' + str(self.start_date.year)
+
 
 class AssoOption(AclMixin, PreferencesModel):
     """Options générales de l'asso : siret, addresse, nom, etc"""
@@ -524,12 +566,6 @@ class AssoOption(AclMixin, PreferencesModel):
     description = models.TextField(
         null=True,
         blank=True,
-    )
-    pres_name = models.CharField(
-        max_length=255,
-        default="",
-        verbose_name=_("President of the association"),
-        help_text=_("Displayed on subscription vouchers")
     )
 
     class Meta:
@@ -812,6 +848,7 @@ class CotisationsOption(AclMixin, PreferencesModel):
     )
     send_voucher_mail = models.BooleanField(
         verbose_name=_("Send voucher by email when the invoice is controlled."),
+        help_text=_("Be carefull, if no mandate is defined on the preferences page, errors will be triggered when generating vouchers."),
         default=False,
     )
 

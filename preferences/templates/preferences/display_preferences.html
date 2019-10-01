@@ -325,11 +325,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <th>{% trans "Description of the organisation" %}</th>
                 <td>{{ assooptions.description|safe }}</td>
             </tr>
-            <tr>
-                <th>{% trans "President of the association"%}</th>
-                <td>{{ assooptions.pres_name }}</td>
-            </tr>
         </table>
+        <h5>{% trans "Mandates" %}</h5>
+        {% can_create Mandate %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mandate' %}">
+            <i class="fa fa-plus"></i> {% trans "Add a mandate" %}
+        </a>
+        {% acl_end %}
+        {% include 'preferences/aff_mandate.html' with mandate_list=mandate_list %}
     </div>
 </div>
 <div  class="panel panel-default" id="templates">

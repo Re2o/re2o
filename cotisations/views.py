@@ -60,7 +60,7 @@ from re2o.acl import (
     can_delete_set,
     can_change,
 )
-from preferences.models import AssoOption, GeneralOption
+from preferences.models import AssoOption, GeneralOption, Mandate
 from .models import (
     Facture,
     Article,
@@ -1068,9 +1068,10 @@ def voucher_pdf(request, invoice, **_kwargs):
             _("Could not find a voucher for that invoice.")
         )
         return redirect(reverse('cotisations:index'))
+    president = Mandate.get_mandate(invoice.date).president
     return render_voucher(request, {
         'asso_name': AssoOption.get_cached_value('name'),
-        'pres_name': AssoOption.get_cached_value('pres_name'),
+        'pres_name': ' '.join([president.name, president.surname]),
         'firstname': invoice.user.name,
         'lastname': invoice.user.surname,
         'email': invoice.user.email,

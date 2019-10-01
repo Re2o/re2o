@@ -54,7 +54,8 @@ from .forms import (
     DocumentTemplateForm,
     DelDocumentTemplateForm,
     RadiusAttributeForm,
-    DelRadiusAttributeForm
+    DelRadiusAttributeForm,
+    MandateForm
 )
 from .models import (
     Service,
@@ -72,7 +73,8 @@ from .models import (
     RadiusOption,
     CotisationsOption,
     DocumentTemplate,
-    RadiusAttribute
+    RadiusAttribute,
+    Mandate
 )
 from . import models
 from . import forms
@@ -89,6 +91,7 @@ def display_options(request):
     topologieoptions, _created = OptionalTopologie.objects.get_or_create()
     generaloptions, _created = GeneralOption.objects.get_or_create()
     assooptions, _created = AssoOption.objects.get_or_create()
+    mandate_list = Mandate.objects.order_by('start_date')
     homeoptions, _created = HomeOption.objects.get_or_create()
     mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
     service_list = Service.objects.all()
@@ -110,6 +113,7 @@ def display_options(request):
         'topologieoptions': topologieoptions,
         'generaloptions': generaloptions,
         'assooptions': assooptions,
+        'mandate_list': mandate_list,
         'homeoptions': homeoptions,
         'mailmessageoptions': mailmessageoptions,
         'service_list': service_list,
@@ -556,5 +560,56 @@ def del_radiusattribute(request, radiusattribute_instance, **_kwargs):
         'preferences/delete.html',
         request
         )
+
+
+@login_required
+@can_create(Mandate)
+def add_mandate(request):
+    """Create a mandate."""
+    mandate = MandateForm(request.POST or None)
+    if mandate.is_valid():
+        mandate.save()
+        messages.success(request, _("The mandate was added."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': mandate, 'action_name': _("Add a mandate")},
+        'preferences/preferences.html',
+        request
+        )
+
+
+@login_required
+@can_edit(Mandate)
+def edit_mandate(request, mandate_instance, **_kwargs):
+    """Edit a mandate."""
+    mandate = MandateForm(
+        request.POST or None,
+        instance=mandate_instance
+    )
+    if mandate.is_valid():
+        mandate.save()
+        messages.success(request, _("The mandate was edited."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'preferenceform': mandate, 'action_name': _("Edit")},
+        'preferences/preferences.html',
+        request
+    )
+
+@login_required
+@can_delete(Mandate)
+def del_mandate(request, mandate_instance, **_kwargs):
+    """Delete a mandate."""
+    if request.method == "POST":
+        mandate_instance.delete()
+        messages.success(request, _("The mandate was deleted."))
+        return redirect(reverse('preferences:display-options'))
+    return form(
+        {'objet': mandate_instance, 'objet_name': 'attribute'},
+        'preferences/delete.html',
+        request
+        )
+
+
 
 
