@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 # Copyright © 2018  Hugo Levy-Falk
 #
@@ -22,7 +22,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # App de gestion des users pour re2o
-# Goulven Kermarec, Gabriel Détraz
+# Lara Kermarec, Gabriel Détraz
 # Gplv2
 """cotisations.views
 The different views used in the Cotisations module

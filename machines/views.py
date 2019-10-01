@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2016-2018  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 # Copyright © 2017-2018  Maël Kervella
 # Copyright © 2018  Charlie Jacomme

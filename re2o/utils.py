@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # -*- coding: utf-8 -*-
-# David Sinquin, Gabriel Détraz, Goulven Kermarec
+# David Sinquin, Gabriel Détraz, Lara Kermarec
 """
 Regroupe les fonctions transversales utiles
 

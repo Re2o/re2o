@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """The views for the search app, responsible for finding the matches
-Augustin lemesle, Gabriel Détraz, Goulven Kermarec, Maël Kervella
+Augustin lemesle, Gabriel Détraz, Lara Kermarec, Maël Kervella
 Gplv2"""
 
 
