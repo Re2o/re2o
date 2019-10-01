@@ -105,7 +105,7 @@ def display_options(request):
     document_template_list = DocumentTemplate.objects.order_by('name')
 
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
-    optionnal_templates_list = [app.views.preferences(request) for app in optionnal_apps]
+    optionnal_templates_list = [app.views.preferences(request) for app in optionnal_apps if hasattr(app.views, 'preferences')]
 
     return form({
         'useroptions': useroptions,

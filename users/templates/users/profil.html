@@ -187,9 +187,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <div class="col-md-6">
                         <dt>{% trans "Room" %}</dt>
                         <dd>
-                            {{ users.room }} {% can_view_all Port %}{% if users.room.port_set.all %} /
-                            {{ users.room.port_set.all|join:", " }} {% endif %}{% acl_end %}
-                        </dd>
+			{{ users.room }} {% if users.room.port_set.all %}{% can_view_all Port %}/
+			{{ users.room.port_set.all|join:", " }}  {% acl_else %}
+			<i class="text-success">{% trans "Connected" %}</i>{% acl_end %}
+			{% else %}{% if users.room %}<i class="text-danger">{% trans "Pending connection..." %}</i>{% endif %}
+			{% endif %}
+			</dd>
                     </div>
 
                     <div class="col-md-6">
@@ -222,7 +225,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% if users.end_adhesion != None %}
                             <dd><i class="text-success">{{ users.end_adhesion }}</i></dd>
                         {% else %}
-                            <dd><i class="text-danger">{% trans "Not a member" %}</i></dd>
+                            <dd><i class="text-danger">{% trans "not a member" %}</i></dd>
                         {% endif %}
                     </div>
 

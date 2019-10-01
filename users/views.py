@@ -977,7 +977,7 @@ def profil(request, users, **_kwargs):
     )
 
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
-    optionnal_templates_list = [app.views.profil(request,users) for app in optionnal_apps]
+    optionnal_templates_list = [app.views.profil(request,users) for app in optionnal_apps if hasattr(app.views, 'profil')]
 
     pagination_large_number = GeneralOption.get_cached_value(
         'pagination_large_number'

@@ -186,12 +186,12 @@ def preferences(request):
 def contact(request):
     """View to display a contact address on the contact page
     used here to display a link to open a ticket"""
-    return render_to_string('tickets/contact.html')
+    return ('users', render_to_string('tickets/contact.html'))
 
-def navbar_user(request):
+def navbar_user():
     """View to display the ticket link in thet user's dropdown in the navbar"""
-    return render_to_string('tickets/navbar.html')
+    return ('users', render_to_string('tickets/navbar.html'))
 
-def navbar_logout(request):
+def navbar_logout():
     """View to display the ticket link to log out users"""
     return render_to_string('tickets/navbar_logout.html')

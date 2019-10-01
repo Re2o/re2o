@@ -116,7 +116,7 @@ def contact_page(request):
     address = MailContact.objects.all()
 
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
-    optionnal_templates_contact_list = [app.views.contact(request) for app in optionnal_apps]
+    optionnal_templates_contact_list = [app.views.contact(request) for app in optionnal_apps if hasattr(app.views, 'contact')]
 
     return render(
         request,

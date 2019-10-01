@@ -62,8 +62,8 @@ def context_optionnal_apps(request):
     """Fonction de context pour générer la navbar en fonction des
     apps optionnels"""
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
-    optionnal_templates_navbar_user_list = [app.views.navbar_user(request) for app in optionnal_apps]
-    optionnal_templates_navbar_logout_list = [app.views.navbar_logout(request) for app in optionnal_apps]
+    optionnal_templates_navbar_user_list = [app.views.navbar_user() for app in optionnal_apps if hasattr(app.views, 'navbar_user')]
+    optionnal_templates_navbar_logout_list = [app.views.navbar_logout() for app in optionnal_apps if hasattr(app.views, 'navbar_logout')]
     return {'optionnal_templates_navbar_user_list':optionnal_templates_navbar_user_list,
             'optionnal_templates_navbar_logout_list':optionnal_templates_navbar_logout_list}
 
