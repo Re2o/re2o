@@ -143,3 +143,8 @@ dl.profile-info > div {
     padding: 8px;
     border-top: 1px solid #ddd;
 }
+
+/* Make bootstrap accordions clickable on iOS */
+[data-toggle~="collapse"] {
+    cursor: pointer;
+}
