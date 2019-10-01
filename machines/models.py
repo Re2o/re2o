@@ -258,11 +258,13 @@ class Machine(RevMixin, FieldPermissionModelMixin, models.Model):
     @classmethod
     def mass_delete(cls, machine_queryset):
         """Mass delete for machine queryset"""
+        from topologie.models import AccessPoint
         Domain.objects.filter(cname__interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
         Domain.objects.filter(interface_parent__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
         Ipv6List.objects.filter(interface__machine__in=machine_queryset)._raw_delete(machine_queryset.db)
         Interface.objects.filter(machine__in=machine_queryset).filter(port_lists__isnull=False).delete()
         Interface.objects.filter(machine__in=machine_queryset)._raw_delete(machine_queryset.db)
+        AccessPoint.objects.filter(machine_ptr__in=machine_queryset)._raw_delete(machine_queryset.db)
         machine_queryset._raw_delete(machine_queryset.db)
 
     @cached_property
