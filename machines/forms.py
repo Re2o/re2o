@@ -135,16 +135,16 @@ class AddInterfaceForm(EditInterfaceForm):
         fields = ['machine_type', 'ipv4', 'mac_address', 'details']
 
 
-class AliasForm(FormRevMixin, ModelForm):
+class AliasForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Ajout d'un alias (et edition), CNAME, contenant nom et extension"""
 
     class Meta:
         model = Domain
-        fields = ['name', 'extension']
+        fields = ['name', 'extension', 'ttl']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
-        user = kwargs.pop('user')
+        user = kwargs['user']
         super(AliasForm, self).__init__(*args, prefix=prefix, **kwargs)
         can_use_all, _reason, _permissions = Extension.can_use_all(user)
         if not can_use_all:
@@ -153,16 +153,16 @@ class AliasForm(FormRevMixin, ModelForm):
             )
 
 
-class DomainForm(FormRevMixin, ModelForm):
+class DomainForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Ajout et edition d'un enregistrement de nom, relié à interface"""
 
     class Meta:
         model = Domain
-        fields = ['name']
+        fields = ['name', 'ttl']
 
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs:
-            user = kwargs.pop('user')
+            user = kwargs['user']
             initial = kwargs.get('initial', {})
             initial['name'] = user.get_next_domain_name()
             kwargs['initial'] = initial
@@ -339,7 +339,7 @@ class MxForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = Mx
-        fields = ['zone', 'priority', 'name']
+        fields = ['zone', 'priority', 'name', 'ttl']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)
@@ -373,7 +373,7 @@ class NsForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = Ns
-        fields = ['zone', 'ns']
+        fields = ['zone', 'ns', 'ttl']
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop('prefix', self.Meta.model.__name__)

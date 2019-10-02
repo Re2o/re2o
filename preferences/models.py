@@ -173,6 +173,10 @@ class OptionalMachine(AclMixin, PreferencesModel):
     create_machine = models.BooleanField(
         default=True
     )
+    default_dns_ttl = models.PositiveIntegerField(
+        verbose_name=_("Default Time To Live (TTL) for CNAME, A and AAA records."),
+        default=172800,  # 2 days
+    )
 
     @cached_property
     def ipv6(self):
@@ -545,7 +549,7 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     def is_over(self):
         return self.end_date is None
-        
+
     def __str__(self):
         return str(self.president) + ' ' + str(self.start_date.year)
 

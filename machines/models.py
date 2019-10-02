@@ -834,6 +834,10 @@ class Mx(RevMixin, AclMixin, models.Model):
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     priority = models.PositiveIntegerField()
     name = models.ForeignKey('Domain', on_delete=models.PROTECT)
+    ttl = models.PositiveIntegerField(
+        verbose_name=_("Time To Live (TTL)"),
+        default=172800,  # 2 days
+    )
 
     class Meta:
         permissions = (
@@ -859,6 +863,10 @@ class Ns(RevMixin, AclMixin, models.Model):
     """Liste des enregistrements name servers par zone considéérée"""
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     ns = models.ForeignKey('Domain', on_delete=models.PROTECT)
+    ttl = models.PositiveIntegerField(
+        verbose_name=_("Time To Live (TTL)"),
+        default=172800,  # 2 days
+    )
 
     class Meta:
         permissions = (
@@ -881,6 +889,10 @@ class Txt(RevMixin, AclMixin, models.Model):
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     field1 = models.CharField(max_length=255)
     field2 = models.TextField(max_length=2047)
+    ttl = models.PositiveIntegerField(
+        verbose_name=_("Time To Live (TTL)"),
+        default=172800,  # 2 days
+    )
 
     class Meta:
         permissions = (
@@ -1544,7 +1556,11 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return str(self.ipv6)
 
 
-class Domain(RevMixin, AclMixin, models.Model):
+def get_default_ttl():
+    return preferences.models.OptionalMachine.get_cached_value('default_dns_ttl')
+
+
+class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
     ou cname sont remplis"""
@@ -1566,11 +1582,16 @@ class Domain(RevMixin, AclMixin, models.Model):
         blank=True,
         related_name='related_domain'
     )
+    ttl = models.PositiveIntegerField(
+        verbose_name=_("Time To Live (TTL)"),
+        default=get_default_ttl
+    )
 
     class Meta:
         unique_together = (("name", "extension"),)
         permissions = (
             ("view_domain", _("Can view a domain object")),
+            ("change_ttl", _("Can change TTL of a domain object")),
         )
         verbose_name = _("domain")
         verbose_name_plural = _("domains")
@@ -1727,6 +1748,15 @@ class Domain(RevMixin, AclMixin, models.Model):
                 ('machines.view_domain',)
             )
         return True, None, None
+
+    @staticmethod
+    def can_change_ttl(user_request, *_args, **_kwargs):
+        can = user_request.has_perm('machines.change_ttl')
+        return (
+            can,
+            _("You don't have the right to change the domain's TTL.") if not can else None,
+            ('machines.change_ttl',)
+        )
 
     def __str__(self):
         return str(self.name) + str(self.extension)

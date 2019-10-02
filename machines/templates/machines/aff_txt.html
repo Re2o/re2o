@@ -31,6 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <th>{% trans "Concerned zone" %}</th>
         <th>{% trans "Record" %}</th>
+        <th>{% trans "TTL" %}</th>
         <th></th>
     </tr>
     </thead>
@@ -38,6 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ txt.zone }}</td>
             <td>{{ txt.dns_entry }}</td>
+            <td>{{ txt.ttl }}</td>
             <td class="text-right">
                 {% can_edit txt %}
                 {% include 'buttons/edit.html' with href='machines:edit-txt' id=txt.id %}
