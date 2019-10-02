@@ -915,6 +915,10 @@ class DName(RevMixin, AclMixin, models.Model):
     """A DNAME entry for the DNS."""
     zone = models.ForeignKey('Extension', on_delete=models.PROTECT)
     alias = models.CharField(max_length=255)
+    ttl = models.PositiveIntegerField(
+        verbose_name=_("Time To Live (TTL)"),
+        default=172800,  # 2 days
+    )
 
     class Meta:
         permissions = (
