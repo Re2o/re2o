@@ -460,6 +460,12 @@ class Vente(RevMixin, AclMixin, models.Model):
         null=True,
         verbose_name=_("duration (in months)")
     )
+    duration_days = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration (in days, will be added to duration in months)")
+    )
     # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
@@ -492,7 +498,9 @@ class Vente(RevMixin, AclMixin, models.Model):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number)
+                months=(self.duration or 0)*self.number,
+                days=(self.duration_days or 0)*self.number,
+            )
         return
 
     def create_cotis(self, date_start=False):
@@ -529,7 +537,8 @@ class Vente(RevMixin, AclMixin, models.Model):
             date_max = max(end_cotisation, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number
+                months=(self.duration or 0)*self.number,
+                days=(self.duration_days or 0)*self.number,
             )
         return
 
@@ -540,7 +549,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         effect on the user's cotisation
         """
         # Checking that if a cotisation is specified, there is also a duration
-        if self.type_cotisation and not self.duration:
+        if self.type_cotisation and not (self.duration or self.duration_days):
             raise ValidationError(
                 _("Duration must be specified for a subscription.")
             )
@@ -695,6 +704,12 @@ class Article(RevMixin, AclMixin, models.Model):
         validators=[MinValueValidator(0)],
         verbose_name=_("duration (in months)")
     )
+    duration_days = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration (in days, will be added to duration in months)")
+    )
     type_user = models.CharField(
         choices=USER_TYPES,
         default='All',
@@ -729,7 +744,7 @@ class Article(RevMixin, AclMixin, models.Model):
             raise ValidationError(
                 _("Balance is a reserved article name.")
             )
-        if self.type_cotisation and not self.duration:
+        if self.type_cotisation and not (self.duration or self.duration_days):
             raise ValidationError(
                 _("Duration must be specified for a subscription.")
             )
