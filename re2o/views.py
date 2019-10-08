@@ -39,7 +39,9 @@ from preferences.models import (
     Service,
     MailContact,
     AssoOption,
-    HomeOption
+    HomeOption,
+    GeneralOption,
+    Mandate
 )
 
 from .contributors import CONTRIBUTORS
@@ -77,6 +79,7 @@ def about_page(request):
     Fetch some info about the configuration of the project. If it can't
     get the info from the Git repository, fallback to default string """
     option = AssoOption.objects.get()
+    general = GeneralOption.objects.get()
     git_info_contributors = CONTRIBUTORS
     try:
         git_repo = git.Repo(settings.BASE_DIR)
@@ -98,8 +101,9 @@ def about_page(request):
         request,
         "re2o/about.html",
         {
-            'description': option.description,
-            'AssoName': option.name,
+            'option': option,
+            'gtu': general.GTU,
+            'president': Mandate.get_mandate().president.get_full_name(),
             'git_info_contributors': git_info_contributors,
             'git_info_remote': git_info_remote,
             'git_info_branch': git_info_branch,

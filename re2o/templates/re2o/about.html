@@ -29,8 +29,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "About Re2o" %}{% endblock %}
 
 {% block content %}
-    <h2>{% blocktrans %}About {{AssoName}}{% endblocktrans %}</h2>
-    {{ description | safe }}
+    <h2>{% trans "Legal notes" %}</h2>
+
+    <h4>{% trans "Legal entity" %}</h4>
+    <p>{{ option.name }}</p>
+
+    <h4>{% trans "Registered office" %}</h4> 
+    <p>{{ option.adresse1 }}</p>
+    <p>{{ option.adresse2 }}</p>
+
+    <p>SIRET : {{ option.siret }}</p>
+
+    <h4>{% trans "Publication manager" %}</h4>
+    <p>{{ president }} - {% trans "President of " %} {{ option.pseudo }}</p>
+
+    <h4>{% trans "General conditions of use" %}</h4>
+    <p><a href='{{ gtu.url }}' download='CGU'>{{ gtu }}</a></p>
+
+    {% if option.description %}
+    <h4>Extra informations</h4>
+    <p>{{ option.description }}</p>
+    {% endif %}
 
     <h2>{% trans "About Re2o" %}</h2>
     <p>{% blocktrans trimmed %}
