@@ -616,8 +616,16 @@ def homeoption_post_save(**kwargs):
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
 
-    welcome_mail_fr = models.TextField(default="", help_text=_("Welcome email in French"))
-    welcome_mail_en = models.TextField(default="", help_text=_("Welcome email in English"))
+    welcome_mail_fr = models.TextField(
+        default="",
+        blank=True,
+        help_text=_("Welcome email in French")
+    )
+    welcome_mail_en = models.TextField(
+        default="",
+        blank=True,
+        help_text=_("Welcome email in English")
+    )
 
     class Meta:
         permissions = (
