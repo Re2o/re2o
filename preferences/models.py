@@ -330,8 +330,7 @@ class RadiusKey(AclMixin, models.Model):
         help_text=_("Comment for this key")
     )
     default_switch = models.BooleanField(
-        default=True,
-        unique=True,
+        default=False,
         help_text=_("Default key for switches")
     )
 
@@ -341,6 +340,13 @@ class RadiusKey(AclMixin, models.Model):
         )
         verbose_name = _("RADIUS key")
         verbose_name_plural = _("RADIUS keys")
+
+    def clean(self):
+        """Clean model:
+        Check default switch is unique
+        """
+        if RadiusKey.objects.filter(default_switch=True).count() > 1:
+            raise ValidationError(_("Default radiuskey for switchs already exist"))
 
     def __str__(self):
         return _("RADIUS key ") + str(self.id) + " " + str(self.comment)
