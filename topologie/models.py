@@ -55,7 +55,13 @@ from preferences.models import (
     RadiusKey,
     SwitchManagementCred
 )
-from machines.models import Machine, regen
+from machines.models import (
+    Machine,
+    regen,
+    Role,
+    MachineType,
+    Ipv6List
+)
 from re2o.mixins import AclMixin, RevMixin
 
 
@@ -322,6 +328,16 @@ class Switch(AclMixin, Machine):
             return None
 
     @cached_property
+    def get_radius_servers_objects(self):
+        return Role.all_interfaces_for_roletype("radius-server").filter(machine_type__in=MachineType.objects.filter(interface__in=self.interface_set.all()))
+
+    @cached_property
+    def get_radius_servers(self):
+        def return_ips_dict(interfaces):
+            return {'ipv4' : [str(interface.ipv4) for interface in interfaces], 'ipv6' : Ipv6List.objects.filter(interface__in=interfaces).values_list('ipv6', flat=True)}
+        return return_ips_dict(self.get_radius_servers_objects)
+
+    @cached_property
     def get_management_cred(self):
         """Retourne l'objet des creds de managament de ce switch"""
         return self.management_creds or SwitchManagementCred.objects.filter(default_switch=True).first()
@@ -362,7 +378,7 @@ class Switch(AclMixin, Machine):
     @cached_property
     def interfaces_subnet(self):
         """Return dict ip:subnet for all ip of the switch"""
-        return dict((str(interface.ipv4), interface.machine_type.ip_type.ip_set_full_info) for interface in self.interface_set.all())
+        return dict((str(interface.ipv4), interface.machine_type.ip_type.ip_net_full_info or interface.machine_type.ip_type.ip_set_full_info[0]) for interface in self.interface_set.all())
 
     @cached_property
     def interfaces6_subnet(self):

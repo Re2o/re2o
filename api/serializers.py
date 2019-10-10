@@ -824,7 +824,7 @@ class SwitchPortSerializer(serializers.ModelSerializer):
         fields = ('short_name', 'model', 'switchbay', 'ports', 'ipv4', 'ipv6',
                   'interfaces_subnet', 'interfaces6_subnet', 'automatic_provision', 'rest_enabled',
                   'web_management_enabled', 'get_radius_key_value', 'get_management_cred_value',
-                  'list_modules')
+                  'get_radius_servers', 'list_modules')
 
 # LOCAL EMAILS
 
