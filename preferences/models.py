@@ -330,8 +330,7 @@ class RadiusKey(AclMixin, models.Model):
         help_text=_("Comment for this key")
     )
     default_switch = models.BooleanField(
-        default=True,
-        unique=True,
+        default=False,
         help_text=_("Default key for switches")
     )
 
@@ -341,6 +340,13 @@ class RadiusKey(AclMixin, models.Model):
         )
         verbose_name = _("RADIUS key")
         verbose_name_plural = _("RADIUS keys")
+
+    def clean(self):
+        """Clean model:
+        Check default switch is unique
+        """
+        if RadiusKey.objects.filter(default_switch=True).count() > 1:
+            raise ValidationError(_("Default radiuskey for switchs already exist"))
 
     def __str__(self):
         return _("RADIUS key ") + str(self.id) + " " + str(self.comment)
@@ -616,8 +622,16 @@ def homeoption_post_save(**kwargs):
 class MailMessageOption(AclMixin, models.Model):
     """Reglages, mail de bienvenue et autre"""
 
-    welcome_mail_fr = models.TextField(default="", help_text=_("Welcome email in French"))
-    welcome_mail_en = models.TextField(default="", help_text=_("Welcome email in English"))
+    welcome_mail_fr = models.TextField(
+        default="",
+        blank=True,
+        help_text=_("Welcome email in French")
+    )
+    welcome_mail_en = models.TextField(
+        default="",
+        blank=True,
+        help_text=_("Welcome email in English")
+    )
 
     class Meta:
         permissions = (
