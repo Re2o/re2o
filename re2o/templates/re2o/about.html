@@ -32,13 +32,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "Legal notes" %}</h2>
 
     <h4>{% trans "Legal entity" %}</h4>
-    <p>{{ option.name }}</p>
+    <p>{{ option.name | safe}}</p>
 
     <h4>{% trans "Registered office" %}</h4> 
-    <p>{{ option.adresse1 }}</p>
-    <p>{{ option.adresse2 }}</p>
+    <p>{{ option.adresse1 | safe }}</p>
+    <p>{{ option.adresse2 | safe }}</p>
 
-    <p>SIRET : {{ option.siret }}</p>
+    <p>SIRET : {{ option.siret | safe }}</p>
 
     <h4>{% trans "Publication manager" %}</h4>
     <p>{{ president }} - {% trans "President of " %} {{ option.pseudo }}</p>
@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
     {% if option.description %}
     <h4>Extra informations</h4>
-    <p>{{ option.description }}</p>
+    <p>{{ option.description | safe }}</p>
     {% endif %}
 
     <h2>{% trans "About Re2o" %}</h2>
