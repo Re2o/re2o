@@ -294,7 +294,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         subnet = None
         subnet6 = None
         if self.switchs_ip_type:
-            subnet = self.switchs_ip_type.ip_set_full_info
+            subnet = self.switchs_ip_type.ip_net_full_info or self.switchs_ip_type.ip_set_full_info[0]
             subnet6 = self.switchs_ip_type.ip6_set_full_info
         return {'ntp_servers': return_ips_dict(ntp_servers), 'log_servers': return_ips_dict(log_servers), 'radius_servers': return_ips_dict(radius_servers), 'dhcp_servers': return_ips_dict(dhcp_servers), 'dns_recursive_servers': return_ips_dict(dns_recursive_servers), 'subnet': subnet, 'subnet6': subnet6}
 

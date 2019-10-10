@@ -448,12 +448,17 @@ class IpType(RevMixin, AclMixin, models.Model):
     @cached_property
     def ip_net_full_info(self):
         """Renvoie les infos du network contenant du range"""
-        return {
-            'network': str(self.ip_network.network),
-            'netmask': str(self.ip_network.netmask),
-            'broadcast': str(self.ip_network.broadcast),
-            'netmask_cidr': str(self.ip_network.prefixlen),
-        }
+        if self.ip_network:
+            return {
+                'network': str(self.ip_network.network),
+                'netmask': str(self.ip_network.netmask),
+                'broadcast': str(self.ip_network.broadcast),
+                'netmask_cidr': str(self.ip_network.prefixlen),
+                'vlan': str(self.vlan),
+                'vlan_id': self.vlan.vlan_id
+            }
+        else:
+            return None
 
     @cached_property
     def complete_prefixv6(self):
