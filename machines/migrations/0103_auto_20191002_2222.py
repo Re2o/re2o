@@ -10,14 +10,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('machines', '0102_auto_20190303_1611'),
-        ('preferences', '0064_optionalmachine_default_dns_ttl'),
+        ('preferences', '0066_optionalmachine_default_dns_ttl'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='domain',
             name='ttl',
-            field=models.PositiveIntegerField(default=machines.models.get_default_ttl, verbose_name='Time To Live (TTL)'),
+            field=models.PositiveIntegerField(default=0, verbose_name='Time To Live (TTL)'),
         ),
         migrations.AddField(
             model_name='mx',

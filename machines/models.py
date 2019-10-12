@@ -1560,10 +1560,6 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return str(self.ipv6)
 
 
-def get_default_ttl():
-    return preferences.models.OptionalMachine.get_cached_value('default_dns_ttl')
-
-
 class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     """ Objet domain. Enregistrement A et CNAME en même temps : permet de
     stocker les alias et les nom de machines, suivant si interface_parent
@@ -1588,7 +1584,8 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     )
     ttl = models.PositiveIntegerField(
         verbose_name=_("Time To Live (TTL)"),
-        default=get_default_ttl
+        default=0 # 0 means that the re2o-service for DNS should retrieve the
+        # default TTL
     )
 
     class Meta:
