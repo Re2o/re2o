@@ -768,7 +768,7 @@ class User(RevMixin, FieldPermissionModelMixin, AbstractBaseUser,
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
-        allowed, _message = Machine.can_create(self, self.id)
+        allowed, _message, _rights = Machine.can_create(self, self.id)
         if not allowed:
             return False, _("Maximum number of registered machines reached.")
         if not nas_type:
