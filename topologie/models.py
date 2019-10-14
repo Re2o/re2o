@@ -307,7 +307,7 @@ class Switch(AclMixin, Machine):
         It must the the management interface for that device"""
         switch_iptype = OptionalTopologie.get_cached_value('switchs_ip_type')
         if switch_iptype:
-            return self.interface_set.filter(machine_type__ip_type=switch_iptype).first()
+            return self.interface_set.filter(machine_type__ip_type=switch_iptype).first() or self.interface_set.first()
         return self.interface_set.first()
 
     @cached_property
