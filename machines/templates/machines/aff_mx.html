@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <th>{% trans "Concerned zone" %}</th>
         <th>{% trans "Priority" %}</th>
         <th>{% trans "Record" %}</th>
+        <th>{% trans "TTL" %}</th>
         <th></th>
     </tr>
     </thead>
@@ -40,6 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ mx.zone }}</td>
             <td>{{ mx.priority }}</td>
             <td>{{ mx.name }}</td>
+            <td>{{ mx.ttl }}</td>
             <td class="text-right">
                 {% can_edit mx %}
                 {% include 'buttons/edit.html' with href='machines:edit-mx' id=mx.id %}

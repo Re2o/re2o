@@ -29,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <th>{% trans "Target zone" %}</th>
         <th>{% trans "Record" %}</th>
+        <th>{% trans "TTL" %}</th>
         <th></th>
     </tr>
     </thead>
@@ -36,6 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td>{{ dname.zone }}</td>
             <td>{{ dname.dns_entry }}</td>
+            <td>{{ dname.ttl }}</td>
             <td class="text-right">
                 {% can_edit dname %}
                 {% include 'buttons/edit.html' with href='machines:edit-dname' id=dname.id %}

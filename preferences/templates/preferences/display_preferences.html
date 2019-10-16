@@ -177,10 +177,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Maximum number of DNS aliases allowed for a standard user" %}</th>
                 <td>{{ machineoptions.max_lambdauser_aliases }}</td>
-                <th>{% trans "IPv6 support" %}</th>
-                <td>{{ machineoptions.ipv6_mode }}</td>
+                <th>{% trans "Default Time To Live (TTL) for CNAME, A and AAA records." %}</th>
+                <td>{{ machineoptions.default_dns_ttl }}</td>
             </tr>
             <tr>
+                <th>{% trans "IPv6 support" %}</th>
+                <td>{{ machineoptions.ipv6_mode }}</td>
                 <th>{% trans "Creation of machines" %}</th>
                 <td>{{ machineoptions.create_machine|tick }}</td>
             </tr>

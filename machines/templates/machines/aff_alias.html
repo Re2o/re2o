@@ -30,12 +30,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
     <tr>
         <th>{% trans "Aliases" %}</th>
+        <th>{% trans "TTL" %}</th>
         <th></th>
     </tr>
     </thead>
     {% for alias in alias_list %}
         <tr>
             <td>{{ alias }}</td>
+            <td>{{ alias.ttl }}</td>
             <td class="text-right">
                 {% can_edit alias %}
                 {% include 'buttons/edit.html' with href='machines:edit-alias' id=alias.id %}
