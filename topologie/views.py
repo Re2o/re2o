@@ -69,7 +69,7 @@ from machines.forms import (
 from machines.views import generate_ipv4_mbf_param
 from machines.models import (
     Interface,
-    Service_link, 
+    Service_link,
     Vlan
 )
 from preferences.models import AssoOption, GeneralOption
@@ -524,6 +524,7 @@ def new_switch(request):
     )
     domain = DomainForm(
         request.POST or None,
+        user=request.user
     )
     if switch.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
@@ -570,7 +571,7 @@ def create_ports(request, switchid):
     except Switch.DoesNotExist:
         messages.error(request, _("Nonexistent switch."))
         return redirect(reverse('topologie:index'))
- 
+
     first_port = getattr(switch.ports.order_by('port').first(), 'port', 1)
     last_port = switch.number + first_port - 1
     port_form = CreatePortsForm(
@@ -614,7 +615,8 @@ def edit_switch(request, switch, switchid):
     )
     domain_form = DomainForm(
         request.POST or None,
-        instance=switch.interface_set.first().domain
+        instance=switch.interface_set.first().domain,
+        domain=request.user
     )
     if switch_form.is_valid() and interface_form.is_valid():
         new_switch_obj = switch_form.save(commit=False)
@@ -659,6 +661,7 @@ def new_ap(request):
     )
     domain = DomainForm(
         request.POST or None,
+        user=request.user
     )
     if ap.is_valid() and interface.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
@@ -713,7 +716,8 @@ def edit_ap(request, ap, **_kwargs):
     )
     domain_form = DomainForm(
         request.POST or None,
-        instance=ap.interface_set.first().domain
+        instance=ap.interface_set.first().domain,
+        user=request.user
     )
     if ap_form.is_valid() and interface_form.is_valid():
         user = AssoOption.get_cached_value('utilisateur_asso')
@@ -1279,7 +1283,7 @@ def make_machine_graph():
                 .select_related('ipv4__ip_type__extension')
                 .select_related('domain__extension')
         )
-    ))) 
+    )))
     detected = []
     for building in Building.objects.all():  # Visit all buildings
 

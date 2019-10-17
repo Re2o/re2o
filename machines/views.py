@@ -292,7 +292,8 @@ def edit_interface(request, interface_instance, **_kwargs):
     )
     domain_form = DomainForm(
         request.POST or None,
-        instance=interface_instance.domain
+        instance=interface_instance.domain,
+        user=request.user
     )
     if (machine_form.is_valid() and
             interface_form.is_valid() and
@@ -349,7 +350,7 @@ def new_interface(request, machine, **_kwargs):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
     interface_form = AddInterfaceForm(request.POST or None, user=request.user)
-    domain_form = DomainForm(request.POST or None)
+    domain_form = DomainForm(request.POST or None, user=request.user)
     if interface_form.is_valid():
         new_interface_obj = interface_form.save(commit=False)
         domain_form.instance.interface_parent = new_interface_obj
