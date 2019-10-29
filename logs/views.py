@@ -148,9 +148,7 @@ def index(request):
             versions.object_list[i] = {
                 'rev_id': version.revision.id,
                 'comment': version.revision.comment,
-                'datetime': version.revision.date_created.strftime(
-                    '%d/%m/%y %H:%M:%S'
-                ),
+                'datetime': version.revision.date_created,
                 'username':
                     version.revision.user.get_username()
                     if version.revision.user else '?',

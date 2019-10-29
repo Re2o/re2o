@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for v in versions_list %}
     {% if v.version.content_type.model == 'ban' %}
         <tr class="danger">
-            <td>{{ v.datetime }}</td>
+            <td>{{ v.datetime|date:"j/m/y H:i:s" }}</td>
             <td>
                 {% blocktrans with username=v.username %}{{ username }} has banned{% endblocktrans %}
                 <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
@@ -66,7 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% elif v.version.content_type.model == 'whitelist' %}
         <tr class="success">
-            <td>{{ v.datetime }}</td>
+            <td>{{ v.datetime|date:"j/m/y H:i:s" }}</td>
             <td>
                 {% blocktrans with username=v.username %}{{ username }} has graciously authorised{% endblocktrans %}
                 <a href="{% url 'users:profil' v.version.object.user_id %}">{{ v.version.object.user.get_username }}</a>
@@ -89,7 +89,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% elif v.version.content_type.model == 'user' %}
         <tr>
-            <td>{{ v.datetime }}</td>
+            <td>{{ v.datetime|date:"j/m/y H:i:s" }}</td>
             <td>
                 {% blocktrans with username=v.username %}{{ username }} has updated{% endblocktrans %}
                 <a href="{% url 'users:profil' v.version.object.id %}">{{ v.version.object.get_username }}</a>
@@ -108,7 +108,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% elif v.version.content_type.model == 'vente' %}
         <tr>
-            <td>{{ v.datetime }}</td>
+            <td>{{ v.datetime|date:"j/m/y H:i:s" }}</td>
             <td>
                 {% blocktrans with username=v.username number=v.version.object.number name=v.version.object.name %}{{ username }} has sold {{ number }}x {{ name }}{% endblocktrans %}
                 {% with invoice=v.version.object.facture %}
@@ -132,7 +132,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     {% elif v.version.content_type.model == 'interface' %}
         <tr>
-            <td>{{ v.datetime }}</td>
+            <td>{{ v.datetime|date:"j/m/y H:i:s" }}</td>
             <td>
                 {% blocktrans with username=v.username %}{{ username }} has edited an interface of{% endblocktrans %}
                 <a href="{% url 'users:profil' v.version.object.machine.user_id %}">{{ v.version.object.machine.user.get_username }}</a>
