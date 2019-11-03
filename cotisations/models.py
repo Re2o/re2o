@@ -290,9 +290,22 @@ class Facture(BaseInvoice):
         """Returns True if this invoice contains at least one subscribtion."""
         return bool(self.get_subscription())
 
+    def reorder_purchases(self):
+        date = self.date
+        for purchase in self.vente_set.all():
+            if hasattr(purchase, 'cotisation'):
+                cotisation = purchase.cotisation
+                cotisation.date_start = date
+                date += relativedelta(
+                    months=(purchase.duration or 0)*purchase.number,
+                    days=(purchase.duration_days or 0)*purchase.number,
+                )
+                purchase.save()
+
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
         if not self.__original_valid and self.valid:
+            self.reorder_purchases()
             send_mail_invoice(self)
         if self.is_subscription() \
                 and not self.__original_control \
@@ -540,7 +553,6 @@ class Vente(RevMixin, AclMixin, models.Model):
                 months=(self.duration or 0)*self.number,
                 days=(self.duration_days or 0)*self.number,
             )
-        return
 
     def save(self, *args, **kwargs):
         """
@@ -1042,7 +1054,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             return True, None, None
 
     def __str__(self):
-        return str(self.vente)
+        return str(self.vente) + "from " + str(self.date_start) + " to " + str(self.date_end)
 
 
 @receiver(post_save, sender=Cotisation)
