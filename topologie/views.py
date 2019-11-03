@@ -616,7 +616,7 @@ def edit_switch(request, switch, switchid):
     domain_form = DomainForm(
         request.POST or None,
         instance=switch.interface_set.first().domain,
-        domain=request.user
+        user=request.user
     )
     if switch_form.is_valid() and interface_form.is_valid():
         new_switch_obj = switch_form.save(commit=False)
