@@ -41,7 +41,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method',
+        related_name='payment_method_comnpay',
         editable=False
     )
     payment_credential = models.CharField(

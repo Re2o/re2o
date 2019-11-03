@@ -38,7 +38,7 @@ class FreePayment(PaymentMethodMixin, models.Model):
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method',
+        related_name='payment_method_free',
         editable=False
     )
 
