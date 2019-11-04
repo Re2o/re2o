@@ -30,4 +30,4 @@ from django.apps import AppConfig
 
 
 class MultiOpConfig(AppConfig):
-    name = 'multi_op'
+    name = "multi_op"

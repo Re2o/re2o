@@ -38,24 +38,17 @@ class FreePayment(PaymentMethodMixin, models.Model):
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method_free',
-        editable=False
+        related_name="payment_method_free",
+        editable=False,
     )
 
     def end_payment(self, invoice, request):
         """Ends the payment normally.
         """
-        return invoice.paiement.end_payment(
-            invoice,
-            request,
-            use_payment_method=False
-        )
+        return invoice.paiement.end_payment(invoice, request, use_payment_method=False)
 
     def check_price(self, price, user, *args, **kwargs):
         """Checks that the price meets the requirement to be paid with user
         balance.
         """
-        return (
-            price == 0,
-            _("You cannot validate this invoice for free.")
-        )
+        return (price == 0, _("You cannot validate this invoice for free."))

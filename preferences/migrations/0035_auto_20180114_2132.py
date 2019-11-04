@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0034_auto_20180114_2025'),
-    ]
+    dependencies = [("preferences", "0034_auto_20180114_2025")]
 
     operations = [
         migrations.AlterField(
-            model_name='generaloption',
-            name='GTU',
-            field=models.FileField(default='', upload_to='/var/www/static/'),
-        ),
+            model_name="generaloption",
+            name="GTU",
+            field=models.FileField(default="", upload_to="/var/www/static/"),
+        )
     ]

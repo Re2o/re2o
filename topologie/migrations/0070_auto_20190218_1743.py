@@ -9,9 +9,7 @@ import re2o.mixins
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0069_auto_20190108_1439'),
-    ]
+    dependencies = [("topologie", "0069_auto_20190108_1439")]
 
     def create_dormitory(apps, schema_editor):
         db_alias = schema_editor.connection.alias
@@ -25,23 +23,36 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Dormitory',
+            name="Dormitory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'verbose_name': 'dormitory',
-                'permissions': (('view_dormitory', 'Can view a dormitory object'),),
-                'verbose_name_plural': 'dormitories',
+                "verbose_name": "dormitory",
+                "permissions": (("view_dormitory", "Can view a dormitory object"),),
+                "verbose_name_plural": "dormitories",
             },
             bases=(re2o.mixins.AclMixin, re2o.mixins.RevMixin, models.Model),
         ),
         migrations.AddField(
-            model_name='building',
-            name='dormitory',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='topologie.Dormitory'),
+            model_name="building",
+            name="dormitory",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="topologie.Dormitory",
+            ),
             preserve_default=False,
         ),
-        migrations.RunPython(create_dormitory, delete_dormitory)
+        migrations.RunPython(create_dormitory, delete_dormitory),
     ]

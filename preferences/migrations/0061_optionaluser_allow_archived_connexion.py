@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0060_auto_20190712_1821'),
-    ]
+    dependencies = [("preferences", "0060_auto_20190712_1821")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='allow_archived_connexion',
-            field=models.BooleanField(default=False, help_text='If True, archived users are allowed to connect.'),
-        ),
+            model_name="optionaluser",
+            name="allow_archived_connexion",
+            field=models.BooleanField(
+                default=False,
+                help_text="If True, archived users are allowed to connect.",
+            ),
+        )
     ]

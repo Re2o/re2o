@@ -7,28 +7,37 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0100_auto_20190102_1753'),
-    ]
+    dependencies = [("machines", "0100_auto_20190102_1753")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ouvertureport',
-            options={'verbose_name': 'ports opening', 'verbose_name_plural': 'ports openings'},
+            name="ouvertureport",
+            options={
+                "verbose_name": "ports opening",
+                "verbose_name_plural": "ports openings",
+            },
         ),
         migrations.AlterField(
-            model_name='nas',
-            name='port_access_mode',
-            field=models.CharField(choices=[('802.1X', '802.1X'), ('Mac-address', 'MAC-address')], default='802.1X', max_length=32),
+            model_name="nas",
+            name="port_access_mode",
+            field=models.CharField(
+                choices=[("802.1X", "802.1X"), ("Mac-address", "MAC-address")],
+                default="802.1X",
+                max_length=32,
+            ),
         ),
         migrations.AlterField(
-            model_name='vlan',
-            name='igmp',
-            field=models.BooleanField(default=False, help_text='v4 multicast management'),
+            model_name="vlan",
+            name="igmp",
+            field=models.BooleanField(
+                default=False, help_text="v4 multicast management"
+            ),
         ),
         migrations.AlterField(
-            model_name='vlan',
-            name='mld',
-            field=models.BooleanField(default=False, help_text='v6 multicast management'),
+            model_name="vlan",
+            name="mld",
+            field=models.BooleanField(
+                default=False, help_text="v6 multicast management"
+            ),
         ),
     ]

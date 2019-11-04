@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0065_auto_20191010_1227'),
-    ]
+    dependencies = [("preferences", "0065_auto_20191010_1227")]
 
     operations = [
         migrations.AddField(
-            model_name='optionalmachine',
-            name='default_dns_ttl',
-            field=models.PositiveIntegerField(default=172800, verbose_name='Default Time To Live (TTL) for CNAME, A and AAA records.'),
-        ),
+            model_name="optionalmachine",
+            name="default_dns_ttl",
+            field=models.PositiveIntegerField(
+                default=172800,
+                verbose_name="Default Time To Live (TTL) for CNAME, A and AAA records.",
+            ),
+        )
     ]

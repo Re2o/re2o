@@ -28,10 +28,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0034_iplist_need_infra'),
-    ]
+    dependencies = [("machines", "0034_iplist_need_infra")]
 
-    operations = [
-            migrations.RenameModel('Alias', 'Domain')
-    ]
+    operations = [migrations.RenameModel("Alias", "Domain")]

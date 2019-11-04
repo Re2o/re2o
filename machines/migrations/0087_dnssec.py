@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0086_role'),
-    ]
+    dependencies = [("machines", "0086_role")]
 
     operations = [
         migrations.AddField(
-            model_name='iptype',
-            name='dnssec_reverse_v4',
-            field=models.BooleanField(default=False, help_text='Activer DNSSEC sur le reverse DNS IPv4'),
+            model_name="iptype",
+            name="dnssec_reverse_v4",
+            field=models.BooleanField(
+                default=False, help_text="Activer DNSSEC sur le reverse DNS IPv4"
+            ),
         ),
         migrations.AddField(
-            model_name='iptype',
-            name='dnssec_reverse_v6',
-            field=models.BooleanField(default=False, help_text='Activer DNSSEC sur le reverse DNS IPv6'),
+            model_name="iptype",
+            name="dnssec_reverse_v6",
+            field=models.BooleanField(
+                default=False, help_text="Activer DNSSEC sur le reverse DNS IPv6"
+            ),
         ),
     ]

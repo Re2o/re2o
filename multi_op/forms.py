@@ -32,23 +32,18 @@ from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from django.utils.translation import ugettext_lazy as _
 
-from topologie.models import(
-    Dormitory,
-)
+from topologie.models import Dormitory
 
 
 class DormitoryForm(FormRevMixin, Form):
     """Select a dorm"""
+
     dormitory = forms.ModelMultipleChoiceField(
         queryset=Dormitory.objects.all(),
         label=_("Dormitory"),
         widget=forms.CheckboxSelectMultiple,
-        required=False
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
         super(DormitoryForm, self).__init__(*args, **kwargs)
-
-
-
-

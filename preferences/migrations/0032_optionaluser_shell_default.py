@@ -9,14 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0070_auto_20180324_1906'),
-        ('preferences', '0031_auto_20180323_0218'),
+        ("users", "0070_auto_20180324_1906"),
+        ("preferences", "0031_auto_20180323_0218"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='shell_default',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.ListShell'),
-        ),
+            model_name="optionaluser",
+            name="shell_default",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="users.ListShell",
+            ),
+        )
     ]

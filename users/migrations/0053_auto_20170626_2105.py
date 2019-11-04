@@ -8,14 +8,14 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0052_ldapuser_shadowexpire'),
-    ]
+    dependencies = [("users", "0052_ldapuser_shadowexpire")]
 
     operations = [
         migrations.AlterField(
-            model_name='ldapuser',
-            name='shadowexpire',
-            field=ldapdb.models.fields.IntegerField(blank=True, db_column='shadowExpire', null=True),
-        ),
+            model_name="ldapuser",
+            name="shadowexpire",
+            field=ldapdb.models.fields.IntegerField(
+                blank=True, db_column="shadowExpire", null=True
+            ),
+        )
     ]

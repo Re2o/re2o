@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0030_auto_20180111_2346'),
-    ]
+    dependencies = [("preferences", "0030_auto_20180111_2346")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='self_adhesion',
-            field=models.BooleanField(default=False, help_text='Un nouvel utilisateur peut se créer son compte sur re2o'),
-        ),
+            model_name="optionaluser",
+            name="self_adhesion",
+            field=models.BooleanField(
+                default=False,
+                help_text="Un nouvel utilisateur peut se créer son compte sur re2o",
+            ),
+        )
     ]

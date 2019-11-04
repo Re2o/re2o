@@ -7,14 +7,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0063_auto_20171020_0040'),
-    ]
+    dependencies = [("machines", "0063_auto_20171020_0040")]
 
     operations = [
         migrations.AlterField(
-            model_name='text',
-            name='field2',
-            field=models.TextField(max_length=2047),
-        ),
+            model_name="text", name="field2", field=models.TextField(max_length=2047)
+        )
     ]

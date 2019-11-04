@@ -83,10 +83,10 @@ def url_insert_param(url="", **kwargs):
 
     # Get existing parameters in the url
     params = {}
-    if '?' in url:
-        url, parameters = url.split('?', maxsplit=1)
-        for parameter in parameters.split('&'):
-            p_name, p_value = parameter.split('=', maxsplit=1)
+    if "?" in url:
+        url, parameters = url.split("?", maxsplit=1)
+        for parameter in parameters.split("&"):
+            p_name, p_value = parameter.split("=", maxsplit=1)
             if p_name not in params:
                 params[p_name] = []
             params[p_name].append(p_value)
@@ -96,10 +96,10 @@ def url_insert_param(url="", **kwargs):
         params[key] = [value]
 
     # Write the url
-    url += '?'
+    url += "?"
     for param, value_list in params.items():
         for value in value_list:
-            url += str(param) + '=' + str(value) + '&'
+            url += str(param) + "=" + str(value) + "&"
 
     # Remove the last '&' (or '?' if no parameters)
     return url[:-1]

@@ -8,14 +8,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0070_auto_20180324_1906'),
-    ]
+    dependencies = [("users", "0070_auto_20180324_1906")]
 
     operations = [
         migrations.AlterField(
-            model_name='listright',
-            name='unix_name',
-            field=models.CharField(max_length=255, unique=True, validators=[django.core.validators.RegexValidator('^[a-z]+$', message='Les groupes unix ne peuvent contenir que des lettres minuscules')]),
-        ),
+            model_name="listright",
+            name="unix_name",
+            field=models.CharField(
+                max_length=255,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[a-z]+$",
+                        message="Les groupes unix ne peuvent contenir que des lettres minuscules",
+                    )
+                ],
+            ),
+        )
     ]

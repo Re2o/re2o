@@ -7,13 +7,18 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0103_auto_20191002_2222'),
-    ]
+    dependencies = [("machines", "0103_auto_20191002_2222")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='domain',
-            options={'permissions': (('view_domain', 'Can view a domain object'), ('change_ttl', 'Can change TTL of a domain object')), 'verbose_name': 'domain', 'verbose_name_plural': 'domains'},
-        ),
+            name="domain",
+            options={
+                "permissions": (
+                    ("view_domain", "Can view a domain object"),
+                    ("change_ttl", "Can change TTL of a domain object"),
+                ),
+                "verbose_name": "domain",
+                "verbose_name_plural": "domains",
+            },
+        )
     ]

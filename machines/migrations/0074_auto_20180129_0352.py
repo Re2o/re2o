@@ -7,13 +7,19 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0073_auto_20180128_2203'),
-    ]
+    dependencies = [("machines", "0073_auto_20180128_2203")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ipv6list',
-            options={'permissions': (('view_ipv6list', 'Peut voir un objet ipv6'), ('change_ipv6list_slaac_ip', 'Peut changer la valeur slaac sur une ipv6'))},
-        ),
+            name="ipv6list",
+            options={
+                "permissions": (
+                    ("view_ipv6list", "Peut voir un objet ipv6"),
+                    (
+                        "change_ipv6list_slaac_ip",
+                        "Peut changer la valeur slaac sur une ipv6",
+                    ),
+                )
+            },
+        )
     ]

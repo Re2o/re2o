@@ -8,34 +8,57 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0040_auto_20191002_2335'),
-    ]
+    dependencies = [("cotisations", "0040_auto_20191002_2335")]
 
     operations = [
         migrations.AlterField(
-            model_name='balancepayment',
-            name='payment',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method_balance', to='cotisations.Paiement'),
+            model_name="balancepayment",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payment_method_balance",
+                to="cotisations.Paiement",
+            ),
         ),
         migrations.AlterField(
-            model_name='chequepayment',
-            name='payment',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method_cheque', to='cotisations.Paiement'),
+            model_name="chequepayment",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payment_method_cheque",
+                to="cotisations.Paiement",
+            ),
         ),
         migrations.AlterField(
-            model_name='comnpaypayment',
-            name='payment',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method_comnpay', to='cotisations.Paiement'),
+            model_name="comnpaypayment",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payment_method_comnpay",
+                to="cotisations.Paiement",
+            ),
         ),
         migrations.AlterField(
-            model_name='freepayment',
-            name='payment',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method_free', to='cotisations.Paiement'),
+            model_name="freepayment",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payment_method_free",
+                to="cotisations.Paiement",
+            ),
         ),
         migrations.AlterField(
-            model_name='notepayment',
-            name='payment',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method_note', to='cotisations.Paiement'),
+            model_name="notepayment",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payment_method_note",
+                to="cotisations.Paiement",
+            ),
         ),
     ]

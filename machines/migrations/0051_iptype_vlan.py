@@ -8,14 +8,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0050_auto_20170826_0022'),
-    ]
+    dependencies = [("machines", "0050_auto_20170826_0022")]
 
     operations = [
         migrations.AddField(
-            model_name='iptype',
-            name='vlan',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='machines.Vlan'),
-        ),
+            model_name="iptype",
+            name="vlan",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="machines.Vlan",
+            ),
+        )
     ]

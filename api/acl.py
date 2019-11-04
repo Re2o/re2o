@@ -40,14 +40,14 @@ def _create_api_permission():
     """
     api_content_type, created = ContentType.objects.get_or_create(
         app_label=settings.API_CONTENT_TYPE_APP_LABEL,
-        model=settings.API_CONTENT_TYPE_MODEL
+        model=settings.API_CONTENT_TYPE_MODEL,
     )
     if created:
         api_content_type.save()
     api_permission, created = Permission.objects.get_or_create(
         name=settings.API_PERMISSION_NAME,
         content_type=api_content_type,
-        codename=settings.API_PERMISSION_CODENAME
+        codename=settings.API_PERMISSION_CODENAME,
     )
     if created:
         api_permission.save()
@@ -67,10 +67,13 @@ def can_view(user):
         viewing is granted and msg is a message (can be None).
     """
     kwargs = {
-        'app_label': settings.API_CONTENT_TYPE_APP_LABEL,
-        'codename': settings.API_PERMISSION_CODENAME
+        "app_label": settings.API_CONTENT_TYPE_APP_LABEL,
+        "codename": settings.API_PERMISSION_CODENAME,
     }
-    permission = '%(app_label)s.%(codename)s' % kwargs
+    permission = "%(app_label)s.%(codename)s" % kwargs
     can = user.has_perm(permission)
-    return can, None if can else _("You don't have the right to see this"
-                                   " application."), (permission,)
+    return (
+        can,
+        None if can else _("You don't have the right to see this" " application."),
+        (permission,),
+    )

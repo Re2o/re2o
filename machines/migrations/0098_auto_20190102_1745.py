@@ -7,14 +7,32 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0097_extension_dnssec'),
-    ]
+    dependencies = [("machines", "0097_extension_dnssec")]
 
     operations = [
         migrations.AlterField(
-            model_name='role',
-            name='specific_role',
-            field=models.CharField(blank=True, choices=[('dhcp-server', 'DHCP server'), ('switch-conf-server', 'Switches configuration server'), ('dns-recursif-server', 'Recursive DNS server'), ('dns-recursive-server', 'Recursive DNS server'), ('ntp-server', 'NTP server'), ('radius-server', 'RADIUS server'), ('log-server', 'Log server'), ('ldap-master-server', 'LDAP master server'), ('ldap-backup-server', 'LDAP backup server'), ('smtp-server', 'SMTP server'), ('postgresql-server', 'postgreSQL server'), ('mysql-server', 'mySQL server'), ('sql-client', 'SQL client'), ('gateway', 'Gateway')], max_length=32, null=True),
-        ),
+            model_name="role",
+            name="specific_role",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("dhcp-server", "DHCP server"),
+                    ("switch-conf-server", "Switches configuration server"),
+                    ("dns-recursif-server", "Recursive DNS server"),
+                    ("dns-recursive-server", "Recursive DNS server"),
+                    ("ntp-server", "NTP server"),
+                    ("radius-server", "RADIUS server"),
+                    ("log-server", "Log server"),
+                    ("ldap-master-server", "LDAP master server"),
+                    ("ldap-backup-server", "LDAP backup server"),
+                    ("smtp-server", "SMTP server"),
+                    ("postgresql-server", "postgreSQL server"),
+                    ("mysql-server", "mySQL server"),
+                    ("sql-client", "SQL client"),
+                    ("gateway", "Gateway"),
+                ],
+                max_length=32,
+                null=True,
+            ),
+        )
     ]

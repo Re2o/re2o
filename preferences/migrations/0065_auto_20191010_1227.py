@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0064_auto_20191008_1335'),
-    ]
+    dependencies = [("preferences", "0064_auto_20191008_1335")]
 
     operations = [
         migrations.AlterField(
-            model_name='radiuskey',
-            name='default_switch',
-            field=models.BooleanField(default=False, help_text='Default key for switches'),
-        ),
+            model_name="radiuskey",
+            name="default_switch",
+            field=models.BooleanField(
+                default=False, help_text="Default key for switches"
+            ),
+        )
     ]

@@ -8,19 +8,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0039_freepayment'),
-    ]
+    dependencies = [("cotisations", "0039_freepayment")]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='duration_days',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(0)], verbose_name='duration (in days, will be added to duration in months)'),
+            model_name="article",
+            name="duration_days",
+            field=models.PositiveIntegerField(
+                blank=True,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="duration (in days, will be added to duration in months)",
+            ),
         ),
         migrations.AddField(
-            model_name='vente',
-            name='duration_days',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(0)], verbose_name='duration (in days, will be added to duration in months)'),
+            model_name="vente",
+            name="duration_days",
+            field=models.PositiveIntegerField(
+                blank=True,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="duration (in days, will be added to duration in months)",
+            ),
         ),
     ]

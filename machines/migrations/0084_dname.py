@@ -9,23 +9,35 @@ import re2o.mixins
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0083_remove_duplicate_rights'),
-    ]
+    dependencies = [("machines", "0083_remove_duplicate_rights")]
 
     operations = [
         migrations.CreateModel(
-            name='DName',
+            name="DName",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('alias', models.CharField(max_length=255)),
-                ('zone', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.Extension')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("alias", models.CharField(max_length=255)),
+                (
+                    "zone",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="machines.Extension",
+                    ),
+                ),
             ],
             options={
-                'permissions': (('view_dname', 'Can see a dname object'),),
-                'verbose_name': 'DNAME entry',
-                'verbose_name_plural': 'DNAME entries'
+                "permissions": (("view_dname", "Can see a dname object"),),
+                "verbose_name": "DNAME entry",
+                "verbose_name_plural": "DNAME entries",
             },
             bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
-        ),
+        )
     ]

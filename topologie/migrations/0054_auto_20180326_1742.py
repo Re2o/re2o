@@ -8,31 +8,31 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0053_finalsw'),
-    ]
+    dependencies = [("topologie", "0053_finalsw")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='accesspoint',
-            options={'permissions': (('view_ap', 'Peut voir une borne'),)},
+            name="accesspoint",
+            options={"permissions": (("view_ap", "Peut voir une borne"),)},
         ),
         migrations.AlterModelOptions(
-            name='switch',
-            options={'permissions': (('view_switch', 'Peut voir un objet switch'),)},
+            name="switch",
+            options={"permissions": (("view_switch", "Peut voir un objet switch"),)},
         ),
         migrations.AlterField(
-            model_name='port',
-            name='switch',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ports', to='topologie.Switch'),
+            model_name="port",
+            name="switch",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ports",
+                to="topologie.Switch",
+            ),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(
-            name='port',
-            unique_together=set([('switch', 'port')]),
+            name="port", unique_together=set([("switch", "port")])
         ),
         migrations.AlterUniqueTogether(
-            name='switch',
-            unique_together=set([('stack', 'stack_member_id')]),
+            name="switch", unique_together=set([("stack", "stack_member_id")])
         ),
     ]

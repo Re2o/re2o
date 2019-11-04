@@ -7,9 +7,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0039_port_new_switch'),
-    ]
+    dependencies = [("topologie", "0039_port_new_switch")]
 
     def transfer_port(apps, schema_editor):
         db_alias = schema_editor.connection.alias
@@ -17,12 +15,12 @@ class Migration(migrations.Migration):
         switch = apps.get_model("topologie", "NewSwitch")
         port_list = port.objects.using(db_alias).all()
         for p in port_list:
-            p.new_switch = switch.objects.filter(interface_ptr=p.switch.switch_interface).first()
+            p.new_switch = switch.objects.filter(
+                interface_ptr=p.switch.switch_interface
+            ).first()
             p.save()
 
     def untransfer_port(apps, schema_editor):
         return
 
-    operations = [
-    migrations.RunPython(transfer_port, untransfer_port),
-    ]
+    operations = [migrations.RunPython(transfer_port, untransfer_port)]

@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0058_auto_20171002_0350'),
-    ]
+    dependencies = [("machines", "0058_auto_20171002_0350")]
 
     operations = [
         migrations.AddField(
-            model_name='iptype',
-            name='prefix_v6',
-            field=models.GenericIPAddressField(blank=True, null=True, protocol='IPv6'),
-        ),
+            model_name="iptype",
+            name="prefix_v6",
+            field=models.GenericIPAddressField(blank=True, null=True, protocol="IPv6"),
+        )
     ]

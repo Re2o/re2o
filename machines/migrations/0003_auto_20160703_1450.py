@@ -29,14 +29,12 @@ import macaddress.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0002_auto_20160703_1444'),
-    ]
+    dependencies = [("machines", "0002_auto_20160703_1444")]
 
     operations = [
         migrations.AlterField(
-            model_name='interface',
-            name='mac_address',
+            model_name="interface",
+            name="mac_address",
             field=macaddress.fields.MACAddressField(integer=True, unique=True),
-        ),
+        )
     ]

@@ -9,29 +9,37 @@ import machines.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0102_auto_20190303_1611'),
-        ('preferences', '0066_optionalmachine_default_dns_ttl'),
+        ("machines", "0102_auto_20190303_1611"),
+        ("preferences", "0066_optionalmachine_default_dns_ttl"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domain',
-            name='ttl',
-            field=models.PositiveIntegerField(default=0, verbose_name='Time To Live (TTL)'),
+            model_name="domain",
+            name="ttl",
+            field=models.PositiveIntegerField(
+                default=0, verbose_name="Time To Live (TTL)"
+            ),
         ),
         migrations.AddField(
-            model_name='mx',
-            name='ttl',
-            field=models.PositiveIntegerField(default=172800, verbose_name='Time To Live (TTL)'),
+            model_name="mx",
+            name="ttl",
+            field=models.PositiveIntegerField(
+                default=172800, verbose_name="Time To Live (TTL)"
+            ),
         ),
         migrations.AddField(
-            model_name='ns',
-            name='ttl',
-            field=models.PositiveIntegerField(default=172800, verbose_name='Time To Live (TTL)'),
+            model_name="ns",
+            name="ttl",
+            field=models.PositiveIntegerField(
+                default=172800, verbose_name="Time To Live (TTL)"
+            ),
         ),
         migrations.AddField(
-            model_name='txt',
-            name='ttl',
-            field=models.PositiveIntegerField(default=172800, verbose_name='Time To Live (TTL)'),
+            model_name="txt",
+            name="ttl",
+            field=models.PositiveIntegerField(
+                default=172800, verbose_name="Time To Live (TTL)"
+            ),
         ),
     ]

@@ -37,13 +37,14 @@ from django.db import models
 from django import forms
 from django.conf import settings
 
-EOD_asbyte = b'`%EofD%`'  # This should be something that will not occur in strings
-EOD = EOD_asbyte.decode('utf-8')
+EOD_asbyte = b"`%EofD%`"  # This should be something that will not occur in strings
+EOD = EOD_asbyte.decode("utf-8")
+
 
 def genstring(length=16, chars=string.printable):
     """ Generate a random string of length `length` and composed of
     the characters in `chars` """
-    return ''.join([choice(chars) for i in range(length)])
+    return "".join([choice(chars) for i in range(length)])
 
 
 def encrypt(key, secret):
@@ -54,7 +55,7 @@ def encrypt(key, secret):
         saltlength = 16 - datalength
     else:
         saltlength = 16 - datalength % 16
-    encrypted_secret = ''.join([secret, EOD, genstring(saltlength)])
+    encrypted_secret = "".join([secret, EOD, genstring(saltlength)])
     return obj.encrypt(encrypted_secret)
 
 
@@ -74,14 +75,17 @@ class AESEncryptedField(models.CharField):
     of AES ecnrypted fields """
 
     def save_form_data(self, instance, data):
-        setattr(instance, self.name, binascii.b2a_base64(
-            encrypt(settings.AES_KEY, data)).decode('utf-8'))
+        setattr(
+            instance,
+            self.name,
+            binascii.b2a_base64(encrypt(settings.AES_KEY, data)).decode("utf-8"),
+        )
 
     def to_python(self, value):
         if value is None:
             return None
         try:
-            return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode('utf-8')
+            return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode("utf-8")
         except UnicodeDecodeError as e:
             raise ValueError(
                 "Could not decode your field %s, your settings.AES_KEY "
@@ -92,7 +96,7 @@ class AESEncryptedField(models.CharField):
         if value is None:
             return value
         try:
-            return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode('utf-8')
+            return decrypt(settings.AES_KEY, binascii.a2b_base64(value)).decode("utf-8")
         except UnicodeDecodeError as e:
             raise ValueError(
                 "Could not decode your field %s, your settings.AES_KEY "
@@ -102,9 +106,9 @@ class AESEncryptedField(models.CharField):
     def get_prep_value(self, value):
         if value is None:
             return value
-        return binascii.b2a_base64(encrypt(settings.AES_KEY, value)).decode('utf-8')
+        return binascii.b2a_base64(encrypt(settings.AES_KEY, value)).decode("utf-8")
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': AESEncryptedFormField}
+        defaults = {"form_class": AESEncryptedFormField}
         defaults.update(kwargs)
         return super().formfield(**defaults)

@@ -51,106 +51,127 @@ from .models import IpType, Machine, MachineType, Domain, IpList, Interface
 
 class MachineAdmin(VersionAdmin):
     """ Admin view of a Machine object """
+
     pass
 
 
 class Ipv6ListAdmin(VersionAdmin):
     """ Admin view of a Ipv6List object """
+
     pass
 
 
 class IpTypeAdmin(VersionAdmin):
     """ Admin view of a IpType object """
+
     pass
 
 
 class MachineTypeAdmin(VersionAdmin):
     """ Admin view of a MachineType object """
+
     pass
 
 
 class VlanAdmin(VersionAdmin):
     """ Admin view of a Vlan object """
+
     pass
 
 
 class ExtensionAdmin(VersionAdmin):
     """ Admin view of a Extension object """
+
     pass
 
 
 class SOAAdmin(VersionAdmin):
     """ Admin view of a SOA object """
+
     pass
 
 
 class MxAdmin(VersionAdmin):
     """ Admin view of a MX object """
+
     pass
 
 
 class NsAdmin(VersionAdmin):
     """ Admin view of a NS object """
+
     pass
 
 
 class TxtAdmin(VersionAdmin):
     """ Admin view of a TXT object """
+
     pass
 
 
 class DNameAdmin(VersionAdmin):
     """ Admin view of a DName object """
+
     pass
 
 
 class SrvAdmin(VersionAdmin):
     """ Admin view of a SRV object """
+
     pass
 
 
 class SshFpAdmin(VersionAdmin):
     """ Admin view of a SSHFP object """
+
     pass
 
 
 class NasAdmin(VersionAdmin):
     """ Admin view of a Nas object """
+
     pass
 
 
 class IpListAdmin(VersionAdmin):
     """ Admin view of a Ipv4List object """
+
     pass
 
 
 class OuverturePortAdmin(VersionAdmin):
     """ Admin view of a OuverturePort object """
+
     pass
 
 
 class OuverturePortListAdmin(VersionAdmin):
     """ Admin view of a OuverturePortList object """
+
     pass
 
 
 class InterfaceAdmin(VersionAdmin):
     """ Admin view of a Interface object """
-    list_display = ('machine', 'machine_type', 'mac_address', 'ipv4', 'details')
+
+    list_display = ("machine", "machine_type", "mac_address", "ipv4", "details")
 
 
 class DomainAdmin(VersionAdmin):
     """ Admin view of a Domain object """
-    list_display = ('interface_parent', 'name', 'extension', 'cname')
+
+    list_display = ("interface_parent", "name", "extension", "cname")
 
 
 class ServiceAdmin(VersionAdmin):
     """ Admin view of a ServiceAdmin object """
-    list_display = ('service_type', 'min_time_regen', 'regular_time_regen')
+
+    list_display = ("service_type", "min_time_regen", "regular_time_regen")
 
 
 class RoleAdmin(VersionAdmin):
     """ Admin view of a RoleAdmin object """
+
     pass
 
 

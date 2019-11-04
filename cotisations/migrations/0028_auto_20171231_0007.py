@@ -7,33 +7,56 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0027_auto_20171029_1156'),
-    ]
+    dependencies = [("cotisations", "0027_auto_20171029_1156")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='article',
-            options={'permissions': (('view_article', 'Peut voir un objet article'),)},
+            name="article",
+            options={"permissions": (("view_article", "Peut voir un objet article"),)},
         ),
         migrations.AlterModelOptions(
-            name='banque',
-            options={'permissions': (('view_banque', 'Peut voir un objet banque'),)},
+            name="banque",
+            options={"permissions": (("view_banque", "Peut voir un objet banque"),)},
         ),
         migrations.AlterModelOptions(
-            name='cotisation',
-            options={'permissions': (('view_cotisation', 'Peut voir un objet cotisation'), ('change_all_cotisation', 'Superdroit, peut modifier toutes les cotisations'))},
+            name="cotisation",
+            options={
+                "permissions": (
+                    ("view_cotisation", "Peut voir un objet cotisation"),
+                    (
+                        "change_all_cotisation",
+                        "Superdroit, peut modifier toutes les cotisations",
+                    ),
+                )
+            },
         ),
         migrations.AlterModelOptions(
-            name='facture',
-            options={'permissions': (('change_facture_control', "Peut changer l'etat de controle"), ('change_facture_pdf', 'Peut éditer une facture pdf'), ('view_facture', 'Peut voir un objet facture'), ('change_all_facture', 'Superdroit, peut modifier toutes les factures'))},
+            name="facture",
+            options={
+                "permissions": (
+                    ("change_facture_control", "Peut changer l'etat de controle"),
+                    ("change_facture_pdf", "Peut éditer une facture pdf"),
+                    ("view_facture", "Peut voir un objet facture"),
+                    (
+                        "change_all_facture",
+                        "Superdroit, peut modifier toutes les factures",
+                    ),
+                )
+            },
         ),
         migrations.AlterModelOptions(
-            name='paiement',
-            options={'permissions': (('view_paiement', 'Peut voir un objet paiement'),)},
+            name="paiement",
+            options={
+                "permissions": (("view_paiement", "Peut voir un objet paiement"),)
+            },
         ),
         migrations.AlterModelOptions(
-            name='vente',
-            options={'permissions': (('view_vente', 'Peut voir un objet vente'), ('change_all_vente', 'Superdroit, peut modifier toutes les ventes'))},
+            name="vente",
+            options={
+                "permissions": (
+                    ("view_vente", "Peut voir un objet vente"),
+                    ("change_all_vente", "Superdroit, peut modifier toutes les ventes"),
+                )
+            },
         ),
     ]

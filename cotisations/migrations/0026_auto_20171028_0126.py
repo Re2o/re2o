@@ -6,73 +6,94 @@ from django.db import migrations, models
 
 
 def create_type(apps, schema_editor):
-    Cotisation = apps.get_model('cotisations', 'Cotisation')
-    Vente = apps.get_model('cotisations', 'Vente')
-    Article = apps.get_model('cotisations', 'Article')
+    Cotisation = apps.get_model("cotisations", "Cotisation")
+    Vente = apps.get_model("cotisations", "Vente")
+    Article = apps.get_model("cotisations", "Article")
     db_alias = schema_editor.connection.alias
     articles = Article.objects.using(db_alias).all()
     ventes = Vente.objects.using(db_alias).all()
     cotisations = Cotisation.objects.using(db_alias).all()
     for article in articles:
         if article.iscotisation:
-            article.type_cotisation='All'
+            article.type_cotisation = "All"
             article.save(using=db_alias)
     for vente in ventes:
         if vente.iscotisation:
-            vente.type_cotisation='All'
+            vente.type_cotisation = "All"
             vente.save(using=db_alias)
     for cotisation in cotisations:
-        cotisation.type_cotisation='All'
+        cotisation.type_cotisation = "All"
         cotisation.save(using=db_alias)
 
+
 def delete_type(apps, schema_editor):
-    Vente = apps.get_model('cotisations', 'Vente')
-    Article = apps.get_model('cotisations', 'Article')
+    Vente = apps.get_model("cotisations", "Vente")
+    Article = apps.get_model("cotisations", "Article")
     db_alias = schema_editor.connection.alias
     articles = Article.objects.using(db_alias).all()
     ventes = Vente.objects.using(db_alias).all()
     for article in articles:
         if article.type_cotisation:
-            article.iscotisation=True
+            article.iscotisation = True
         else:
-            article.iscotisation=False
+            article.iscotisation = False
         article.save(using=db_alias)
     for vente in ventes:
         if vente.iscotisation:
-            vente.iscotisation=True
+            vente.iscotisation = True
         else:
-            vente.iscotisation=False
+            vente.iscotisation = False
         vente.save(using=db_alias)
+
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0025_article_type_user'),
-    ]
+    dependencies = [("cotisations", "0025_article_type_user")]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='type_cotisation',
-            field=models.CharField(blank=True, choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], default=None, max_length=255, null=True),
+            model_name="article",
+            name="type_cotisation",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Connexion", "Connexion"),
+                    ("Adhesion", "Adhesion"),
+                    ("All", "All"),
+                ],
+                default=None,
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='cotisation',
-            name='type_cotisation',
-            field=models.CharField(choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], max_length=255, default='All'),
+            model_name="cotisation",
+            name="type_cotisation",
+            field=models.CharField(
+                choices=[
+                    ("Connexion", "Connexion"),
+                    ("Adhesion", "Adhesion"),
+                    ("All", "All"),
+                ],
+                max_length=255,
+                default="All",
+            ),
         ),
         migrations.AddField(
-            model_name='vente',
-            name='type_cotisation',
-            field=models.CharField(blank=True, choices=[('Connexion', 'Connexion'), ('Adhesion', 'Adhesion'), ('All', 'All')], max_length=255, null=True),
+            model_name="vente",
+            name="type_cotisation",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Connexion", "Connexion"),
+                    ("Adhesion", "Adhesion"),
+                    ("All", "All"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.RunPython(create_type, delete_type),
-        migrations.RemoveField(
-            model_name='article',
-            name='iscotisation',
-        ),
-        migrations.RemoveField(
-            model_name='vente',
-            name='iscotisation',
-        ),
+        migrations.RemoveField(model_name="article", name="iscotisation"),
+        migrations.RemoveField(model_name="vente", name="iscotisation"),
     ]

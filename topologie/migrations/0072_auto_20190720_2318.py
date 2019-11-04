@@ -8,27 +8,49 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0071_auto_20190218_1936'),
-    ]
+    dependencies = [("topologie", "0071_auto_20190218_1936")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='room',
-            options={'ordering': ['building__name'], 'permissions': (('view_room', 'Can view a room object'),), 'verbose_name': 'room', 'verbose_name_plural': 'rooms'},
+            name="room",
+            options={
+                "ordering": ["building__name"],
+                "permissions": (("view_room", "Can view a room object"),),
+                "verbose_name": "room",
+                "verbose_name_plural": "rooms",
+            },
         ),
         migrations.AddField(
-            model_name='portprofile',
-            name='on_dormitory',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='dormitory_ofprofil', to='topologie.Dormitory', verbose_name='Profil on dormitory'),
+            model_name="portprofile",
+            name="on_dormitory",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="dormitory_ofprofil",
+                to="topologie.Dormitory",
+                verbose_name="Profil on dormitory",
+            ),
         ),
         migrations.AlterField(
-            model_name='portprofile',
-            name='profil_default',
-            field=models.CharField(blank=True, choices=[('room', 'Room'), ('access_point', 'Access point'), ('uplink', 'Uplink'), ('asso_machine', 'Organisation machine'), ('nothing', 'Nothing')], max_length=32, null=True, verbose_name='Default profile'),
+            model_name="portprofile",
+            name="profil_default",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("room", "Room"),
+                    ("access_point", "Access point"),
+                    ("uplink", "Uplink"),
+                    ("asso_machine", "Organisation machine"),
+                    ("nothing", "Nothing"),
+                ],
+                max_length=32,
+                null=True,
+                verbose_name="Default profile",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='portprofile',
-            unique_together=set([('on_dormitory', 'profil_default')]),
+            name="portprofile",
+            unique_together=set([("on_dormitory", "profil_default")]),
         ),
     ]

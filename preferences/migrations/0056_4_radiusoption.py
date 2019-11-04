@@ -7,14 +7,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0056_3_radiusoption'),
-    ]
+    dependencies = [("preferences", "0056_3_radiusoption")]
 
     operations = [
         migrations.AlterField(
-            model_name='radiusoption',
-            name='unknown_port',
-            field=models.CharField(choices=[('REJECT', 'Reject the machine'), ('SET_VLAN', 'Place the machine on the VLAN')], default='REJECT', max_length=32, verbose_name='Policy for unknown port'),
-        ),
+            model_name="radiusoption",
+            name="unknown_port",
+            field=models.CharField(
+                choices=[
+                    ("REJECT", "Reject the machine"),
+                    ("SET_VLAN", "Place the machine on the VLAN"),
+                ],
+                default="REJECT",
+                max_length=32,
+                verbose_name="Policy for unknown port",
+            ),
+        )
     ]

@@ -8,21 +8,40 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0036_custominvoice_remark'),
-    ]
+    dependencies = [("cotisations", "0036_custominvoice_remark")]
 
     operations = [
         migrations.CreateModel(
-            name='CostEstimate',
+            name="CostEstimate",
             fields=[
-                ('custominvoice_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='cotisations.CustomInvoice')),
-                ('validity', models.DurationField(verbose_name='Period of validity')),
-                ('final_invoice', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='origin_cost_estimate', to='cotisations.CustomInvoice')),
+                (
+                    "custominvoice_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="cotisations.CustomInvoice",
+                    ),
+                ),
+                ("validity", models.DurationField(verbose_name="Period of validity")),
+                (
+                    "final_invoice",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="origin_cost_estimate",
+                        to="cotisations.CustomInvoice",
+                    ),
+                ),
             ],
             options={
-                'permissions': (('view_costestimate', 'Can view a cost estimate object'),),
+                "permissions": (
+                    ("view_costestimate", "Can view a cost estimate object"),
+                )
             },
-            bases=('cotisations.custominvoice',),
-        ),
+            bases=("cotisations.custominvoice",),
+        )
     ]

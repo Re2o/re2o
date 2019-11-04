@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0053_optionaluser_self_change_room'),
-    ]
+    dependencies = [("preferences", "0053_optionaluser_self_change_room")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='main_site_url',
-            field=models.URLField(default='http://re2o.example.org', max_length=255),
-        ),
+            model_name="generaloption",
+            name="main_site_url",
+            field=models.URLField(default="http://re2o.example.org", max_length=255),
+        )
     ]

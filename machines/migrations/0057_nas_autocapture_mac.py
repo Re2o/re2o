@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0056_nas_port_access_mode'),
-    ]
+    dependencies = [("machines", "0056_nas_port_access_mode")]
 
     operations = [
         migrations.AddField(
-            model_name='nas',
-            name='autocapture_mac',
+            model_name="nas",
+            name="autocapture_mac",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

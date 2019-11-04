@@ -7,17 +7,23 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0016_auto_20170902_1520'),
-    ]
+    dependencies = [("preferences", "0016_auto_20170902_1520")]
 
     operations = [
         migrations.CreateModel(
-            name='MailMessageOption',
+            name="MailMessageOption",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('welcome_mail_fr', models.TextField(default='')),
-                ('welcome_mail_en', models.TextField(default='')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("welcome_mail_fr", models.TextField(default="")),
+                ("welcome_mail_en", models.TextField(default="")),
             ],
-        ),
+        )
     ]

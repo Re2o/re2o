@@ -51,17 +51,12 @@ from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
-from cotisations.utils import (
-    find_payment_method, send_mail_invoice, send_mail_voucher
-)
+from cotisations.utils import find_payment_method, send_mail_invoice, send_mail_voucher
 from cotisations.validators import check_no_balance
 
 
 class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
-    date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("Date")
-    )
+    date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
 
     # TODO : change prix to price
     def prix(self):
@@ -69,9 +64,9 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         Returns: the raw price without the quantities.
         Deprecated, use :total_price instead.
         """
-        price = Vente.objects.filter(
-            facture=self
-        ).aggregate(models.Sum('prix'))['prix__sum']
+        price = Vente.objects.filter(facture=self).aggregate(models.Sum("prix"))[
+            "prix__sum"
+        ]
         return price
 
     # TODO : change prix to price
@@ -81,23 +76,24 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         and take the quantities into account.
         """
         # TODO : change Vente to somethingelse
-        return Vente.objects.filter(
-            facture=self
-        ).aggregate(
-            total=models.Sum(
-                models.F('prix')*models.F('number'),
-                output_field=models.DecimalField()
-            )
-        )['total'] or 0
+        return (
+            Vente.objects.filter(facture=self).aggregate(
+                total=models.Sum(
+                    models.F("prix") * models.F("number"),
+                    output_field=models.DecimalField(),
+                )
+            )["total"]
+            or 0
+        )
 
     def name(self):
         """
         Returns : a string with the name of all the articles in the invoice.
         Used for reprensenting the invoice with a string.
         """
-        name = ' - '.join(Vente.objects.filter(
-            facture=self
-        ).values_list('name', flat=True))
+        name = " - ".join(
+            Vente.objects.filter(facture=self).values_list("name", flat=True)
+        )
         return name
 
 
@@ -122,43 +118,29 @@ class Facture(BaseInvoice):
     necessary in case of non-payment.
     """
 
-    user = models.ForeignKey('users.User', on_delete=models.PROTECT)
+    user = models.ForeignKey("users.User", on_delete=models.PROTECT)
     # TODO : change paiement to payment
-    paiement = models.ForeignKey('Paiement', on_delete=models.PROTECT)
+    paiement = models.ForeignKey("Paiement", on_delete=models.PROTECT)
     # TODO : change banque to bank
     banque = models.ForeignKey(
-        'Banque',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
+        "Banque", on_delete=models.PROTECT, blank=True, null=True
     )
     # TODO : maybe change to cheque nummber because not evident
     cheque = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name=_("cheque number")
+        max_length=255, blank=True, verbose_name=_("cheque number")
     )
     # TODO : change name to validity for clarity
-    valid = models.BooleanField(
-        default=False,
-        verbose_name=_("validated")
-    )
+    valid = models.BooleanField(default=False, verbose_name=_("validated"))
     # TODO : changed name to controlled for clarity
-    control = models.BooleanField(
-        default=False,
-        verbose_name=_("controlled")
-    )
+    control = models.BooleanField(default=False, verbose_name=_("controlled"))
 
     class Meta:
         abstract = False
         permissions = (
             # TODO : change facture to invoice
-            ('change_facture_control',
-             _("Can edit the \"controlled\" state")),
-            ('view_facture',
-             _("Can view an invoice object")),
-            ('change_all_facture',
-             _("Can edit all the previous invoices")),
+            ("change_facture_control", _('Can edit the "controlled" state')),
+            ("view_facture", _("Can view an invoice object")),
+            ("change_all_facture", _("Can edit all the previous invoices")),
         )
         verbose_name = _("invoice")
         verbose_name_plural = _("invoices")
@@ -170,72 +152,84 @@ class Facture(BaseInvoice):
 
     def can_edit(self, user_request, *args, **kwargs):
         user_can, _message, permissions = self.user.can_edit(
-            user_request, *args, **kwargs)
-        if not user_request.has_perm('cotisations.change_facture'):
+            user_request, *args, **kwargs
+        )
+        if not user_request.has_perm("cotisations.change_facture"):
             return (
                 False,
                 _("You don't have the right to edit an invoice."),
-                ('cotisations.change_facture',)
+                ("cotisations.change_facture",),
             )
-        elif not user_request.has_perm('cotisations.change_all_facture') and \
-                not user_can:
+        elif (
+            not user_request.has_perm("cotisations.change_all_facture") and not user_can
+        ):
             return (
                 False,
                 _("You don't have the right to edit this user's invoices."),
-                ('cotisations.change_all_facture',) + permissions
+                ("cotisations.change_all_facture",) + permissions,
             )
-        elif not user_request.has_perm('cotisations.change_all_facture') and \
-                (self.control or not self.valid):
+        elif not user_request.has_perm("cotisations.change_all_facture") and (
+            self.control or not self.valid
+        ):
             return (
                 False,
-                _("You don't have the right to edit an invoice "
-                  "already controlled or invalidated."),
-                ('cotisations.change_all_facture',)
+                _(
+                    "You don't have the right to edit an invoice "
+                    "already controlled or invalidated."
+                ),
+                ("cotisations.change_all_facture",),
             )
         else:
             return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
         user_can, _message, permissions = self.user.can_edit(
-            user_request, *args, **kwargs)
-        if not user_request.has_perm('cotisations.delete_facture'):
+            user_request, *args, **kwargs
+        )
+        if not user_request.has_perm("cotisations.delete_facture"):
             return (
                 False,
                 _("You don't have the right to delete an invoice."),
-                ('cotisations.delete_facture',)
+                ("cotisations.delete_facture",),
             )
-        elif not user_request.has_perm('cotisations.change_all_facture') and \
-                not user_can:
+        elif (
+            not user_request.has_perm("cotisations.change_all_facture") and not user_can
+        ):
             return (
                 False,
                 _("You don't have the right to delete this user's invoices."),
-                ('cotisations.change_all_facture',) + permissions
+                ("cotisations.change_all_facture",) + permissions,
             )
-        elif not user_request.has_perm('cotisations.change_all_facture') and \
-                (self.control or not self.valid):
+        elif not user_request.has_perm("cotisations.change_all_facture") and (
+            self.control or not self.valid
+        ):
             return (
                 False,
-                _("You don't have the right to delete an invoice "
-                            "already controlled or invalidated."),
-                ('cotisations.change_all_facture',)
+                _(
+                    "You don't have the right to delete an invoice "
+                    "already controlled or invalidated."
+                ),
+                ("cotisations.change_all_facture",),
             )
         else:
             return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.view_facture'):
+        if not user_request.has_perm("cotisations.view_facture"):
             if self.user != user_request:
                 return (
                     False,
-                    _("You don't have the right to view someone else's "
-                                "invoices history."),
-                    ('cotisations.view_facture',)
+                    _(
+                        "You don't have the right to view someone else's "
+                        "invoices history."
+                    ),
+                    ("cotisations.view_facture",),
                 )
             elif not self.valid:
                 return (
                     False,
                     _("The invoice has been invalidated."),
-                    ('cotisations.view_facture',)
+                    ("cotisations.view_facture",),
                 )
             else:
                 return True, None, None
@@ -246,11 +240,13 @@ class Facture(BaseInvoice):
     def can_change_control(user_request, *_args, **_kwargs):
         """ Returns True if the user can change the 'controlled' status of
         this invoice """
-        can = user_request.has_perm('cotisations.change_facture_control')
+        can = user_request.has_perm("cotisations.change_facture_control")
         return (
             can,
-            _("You don't have the right to edit the \"controlled\" state.") if not can else None,
-            ('cotisations.change_facture_control',)
+            _('You don\'t have the right to edit the "controlled" state.')
+            if not can
+            else None,
+            ("cotisations.change_facture_control",),
         )
 
     @staticmethod
@@ -261,19 +257,25 @@ class Facture(BaseInvoice):
         :return: a message and a boolean which is True if the user can create
             an invoice or if the `options.allow_self_subscription` is set.
         """
-        if user_request.has_perm('cotisations.add_facture'):
+        if user_request.has_perm("cotisations.add_facture"):
             return True, None, None
         if len(Paiement.find_allowed_payments(user_request)) <= 0:
-            return False, _("There are no payment method which you can use."), ('cotisations.add_facture',)
+            return (
+                False,
+                _("There are no payment method which you can use."),
+                ("cotisations.add_facture",),
+            )
         if len(Article.find_allowed_articles(user_request, user_request)) <= 0:
-            return False, _("There are no article that you can buy."), ('cotisations.add_facture',)
+            return (
+                False,
+                _("There are no article that you can buy."),
+                ("cotisations.add_facture",),
+            )
         return True, None, None
 
     def __init__(self, *args, **kwargs):
         super(Facture, self).__init__(*args, **kwargs)
-        self.field_permissions = {
-            'control': self.can_change_control,
-        }
+        self.field_permissions = {"control": self.can_change_control}
         self.__original_valid = self.valid
         self.__original_control = self.control
 
@@ -281,8 +283,7 @@ class Facture(BaseInvoice):
         """Returns every subscription associated with this invoice."""
         return Cotisation.objects.filter(
             vente__in=self.vente_set.filter(
-                Q(type_cotisation='All') |
-                Q(type_cotisation='Adhesion')
+                Q(type_cotisation="All") | Q(type_cotisation="Adhesion")
             )
         )
 
@@ -293,12 +294,12 @@ class Facture(BaseInvoice):
     def reorder_purchases(self):
         date = self.date
         for purchase in self.vente_set.all():
-            if hasattr(purchase, 'cotisation'):
+            if hasattr(purchase, "cotisation"):
                 cotisation = purchase.cotisation
                 cotisation.date_start = date
                 date += relativedelta(
-                    months=(purchase.duration or 0)*purchase.number,
-                    days=(purchase.duration_days or 0)*purchase.number,
+                    months=(purchase.duration or 0) * purchase.number,
+                    days=(purchase.duration_days or 0) * purchase.number,
                 )
                 purchase.save()
 
@@ -307,15 +308,17 @@ class Facture(BaseInvoice):
         if not self.__original_valid and self.valid:
             self.reorder_purchases()
             send_mail_invoice(self)
-        if self.is_subscription() \
-                and not self.__original_control \
-                and self.control \
-                and CotisationsOption.get_cached_value('send_voucher_mail') \
-                and self.user.is_adherent():
+        if (
+            self.is_subscription()
+            and not self.__original_control
+            and self.control
+            and CotisationsOption.get_cached_value("send_voucher_mail")
+            and self.user.is_adherent()
+        ):
             send_mail_voucher(self)
 
     def __str__(self):
-        return str(self.user) + ' ' + str(self.date)
+        return str(self.user) + " " + str(self.date)
 
 
 @receiver(post_save, sender=Facture)
@@ -323,7 +326,7 @@ def facture_post_save(**kwargs):
     """
     Synchronise the LDAP user after an invoice has been saved.
     """
-    facture = kwargs['instance']
+    facture = kwargs["instance"]
     if facture.valid:
         user = facture.user
         user.set_active()
@@ -335,46 +338,27 @@ def facture_post_delete(**kwargs):
     """
     Synchronise the LDAP user after an invoice has been deleted.
     """
-    user = kwargs['instance'].user
+    user = kwargs["instance"].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
 
 class CustomInvoice(BaseInvoice):
     class Meta:
-        permissions = (
-            ('view_custominvoice', _("Can view a custom invoice object")),
-        )
-    recipient = models.CharField(
-        max_length=255,
-        verbose_name=_("Recipient")
-    )
-    payment = models.CharField(
-        max_length=255,
-        verbose_name=_("Payment type")
-    )
-    address = models.CharField(
-        max_length=255,
-        verbose_name=_("Address")
-    )
-    paid = models.BooleanField(
-        verbose_name=_("Paid"),
-        default=False
-    )
-    remark = models.TextField(
-        verbose_name=_("Remark"),
-        blank=True,
-        null=True
-    )
+        permissions = (("view_custominvoice", _("Can view a custom invoice object")),)
+
+    recipient = models.CharField(max_length=255, verbose_name=_("Recipient"))
+    payment = models.CharField(max_length=255, verbose_name=_("Payment type"))
+    address = models.CharField(max_length=255, verbose_name=_("Address"))
+    paid = models.BooleanField(verbose_name=_("Paid"), default=False)
+    remark = models.TextField(verbose_name=_("Remark"), blank=True, null=True)
 
 
 class CostEstimate(CustomInvoice):
     class Meta:
-        permissions = (
-            ('view_costestimate', _("Can view a cost estimate object")),
-        )
+        permissions = (("view_costestimate", _("Can view a cost estimate object")),)
+
     validity = models.DurationField(
-        verbose_name=_("Period of validity"),
-        help_text="DD HH:MM:SS"
+        verbose_name=_("Period of validity"), help_text="DD HH:MM:SS"
     )
     final_invoice = models.ForeignKey(
         CustomInvoice,
@@ -382,7 +366,7 @@ class CostEstimate(CustomInvoice):
         null=True,
         blank=True,
         related_name="origin_cost_estimate",
-        primary_key=False
+        primary_key=False,
     )
 
     def create_invoice(self):
@@ -401,25 +385,22 @@ class CostEstimate(CustomInvoice):
         self.save()
         for sale in self.vente_set.all():
             Vente.objects.create(
-                facture=invoice,
-                name=sale.name,
-                prix=sale.prix,
-                number=sale.number,
+                facture=invoice, name=sale.name, prix=sale.prix, number=sale.number
             )
         return invoice
 
     def can_delete(self, user_request, *args, **kwargs):
-        if not user_request.has_perm('cotisations.delete_costestimate'):
+        if not user_request.has_perm("cotisations.delete_costestimate"):
             return (
                 False,
                 _("You don't have the right to delete a cost estimate."),
-                ('cotisations.delete_costestimate',)
+                ("cotisations.delete_costestimate",),
             )
         if self.final_invoice is not None:
             return (
                 False,
                 _("The cost estimate has an invoice and can't be deleted."),
-                None
+                None,
             )
         return True, None, None
 
@@ -440,44 +421,33 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     # TODO : change this to English
     COTISATION_TYPE = (
-        ('Connexion', _("Connection")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ("Connexion", _("Connection")),
+        ("Adhesion", _("Membership")),
+        ("All", _("Both of them")),
     )
 
     # TODO : change facture to invoice
     facture = models.ForeignKey(
-        'BaseInvoice',
-        on_delete=models.CASCADE,
-        verbose_name=_("invoice")
+        "BaseInvoice", on_delete=models.CASCADE, verbose_name=_("invoice")
     )
     # TODO : change number to amount for clarity
     number = models.IntegerField(
-        validators=[MinValueValidator(1)],
-        verbose_name=_("amount")
+        validators=[MinValueValidator(1)], verbose_name=_("amount")
     )
     # TODO : change this field for a ForeinKey to Article
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_("article")
-    )
+    name = models.CharField(max_length=255, verbose_name=_("article"))
     # TODO : change prix to price
     # TODO : this field is not needed if you use Article ForeignKey
-    prix = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        verbose_name=_("price"))
+    prix = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("price"))
     # TODO : this field is not needed if you use Article ForeignKey
     duration = models.PositiveIntegerField(
-        blank=True,
-        null=True,
-        verbose_name=_("duration (in months)")
+        blank=True, null=True, verbose_name=_("duration (in months)")
     )
     duration_days = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in days, will be added to duration in months)")
+        verbose_name=_("duration (in days, will be added to duration in months)"),
     )
     # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
@@ -485,13 +455,13 @@ class Vente(RevMixin, AclMixin, models.Model):
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("subscription type")
+        verbose_name=_("subscription type"),
     )
 
     class Meta:
         permissions = (
-            ('view_vente', _("Can view a purchase object")),
-            ('change_all_vente', _("Can edit all the previous purchases")),
+            ("view_vente", _("Can view a purchase object")),
+            ("change_all_vente", _("Can edit all the previous purchases")),
         )
         verbose_name = _("purchase")
         verbose_name_plural = _("purchases")
@@ -501,18 +471,18 @@ class Vente(RevMixin, AclMixin, models.Model):
         """
         Returns: the total of price for this amount of items.
         """
-        return self.prix*self.number
+        return self.prix * self.number
 
     def update_cotisation(self):
         """
         Update the related object 'cotisation' if there is one. Based on the
         duration of the purchase.
         """
-        if hasattr(self, 'cotisation'):
+        if hasattr(self, "cotisation"):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=(self.duration or 0)*self.number,
-                days=(self.duration_days or 0)*self.number,
+                months=(self.duration or 0) * self.number,
+                days=(self.duration_days or 0) * self.number,
             )
         return
 
@@ -526,21 +496,25 @@ class Vente(RevMixin, AclMixin, models.Model):
             invoice = self.facture.facture
         except Facture.DoesNotExist:
             return
-        if not hasattr(self, 'cotisation') and self.type_cotisation:
+        if not hasattr(self, "cotisation") and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
             if date_start:
-                end_cotisation = Cotisation.objects.filter(
-                    vente__in=Vente.objects.filter(
-                        facture__in=Facture.objects.filter(
-                            user=invoice.user
-                        ).exclude(valid=False))
-                ).filter(
-                    Q(type_cotisation='All') |
-                    Q(type_cotisation=self.type_cotisation)
-                ).filter(
-                    date_start__lt=date_start
-                ).aggregate(Max('date_end'))['date_end__max']
+                end_cotisation = (
+                    Cotisation.objects.filter(
+                        vente__in=Vente.objects.filter(
+                            facture__in=Facture.objects.filter(
+                                user=invoice.user
+                            ).exclude(valid=False)
+                        )
+                    )
+                    .filter(
+                        Q(type_cotisation="All")
+                        | Q(type_cotisation=self.type_cotisation)
+                    )
+                    .filter(date_start__lt=date_start)
+                    .aggregate(Max("date_end"))["date_end__max"]
+                )
             elif self.type_cotisation == "Adhesion":
                 end_cotisation = invoice.user.end_adhesion()
             else:
@@ -550,8 +524,8 @@ class Vente(RevMixin, AclMixin, models.Model):
             date_max = max(end_cotisation, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=(self.duration or 0)*self.number,
-                days=(self.duration_days or 0)*self.number,
+                months=(self.duration or 0) * self.number,
+                days=(self.duration_days or 0) * self.number,
             )
 
     def save(self, *args, **kwargs):
@@ -562,9 +536,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         """
         # Checking that if a cotisation is specified, there is also a duration
         if self.type_cotisation and not (self.duration or self.duration_days):
-            raise ValidationError(
-                _("Duration must be specified for a subscription.")
-            )
+            raise ValidationError(_("Duration must be specified for a subscription."))
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
@@ -572,66 +544,78 @@ class Vente(RevMixin, AclMixin, models.Model):
         user_can, _message, permissions = self.facture.user.can_edit(
             user_request, *args, **kwargs
         )
-        if not user_request.has_perm('cotisations.change_vente'):
+        if not user_request.has_perm("cotisations.change_vente"):
             return (
                 False,
                 _("You don't have the right to edit the purchases."),
-                ('cotisations.change_vente',)
+                ("cotisations.change_vente",),
             )
-        elif not (
-            user_request.has_perm('cotisations.change_all_facture') or
-            user_can):
+        elif not (user_request.has_perm("cotisations.change_all_facture") or user_can):
             return (
                 False,
                 _("You don't have the right to edit this user's purchases."),
-                ('cotisations.change_all_facture',) + permissions
+                ("cotisations.change_all_facture",) + permissions,
             )
-        elif (not user_request.has_perm('cotisations.change_all_vente') and
-              (self.facture.control or not self.facture.valid)):
+        elif not user_request.has_perm("cotisations.change_all_vente") and (
+            self.facture.control or not self.facture.valid
+        ):
             return (
                 False,
-                _("You don't have the right to edit a purchase "
-                            "already controlled or invalidated."),
-                ('cotisations.change_all_vente',)
+                _(
+                    "You don't have the right to edit a purchase "
+                    "already controlled or invalidated."
+                ),
+                ("cotisations.change_all_vente",),
             )
         else:
             return True, None, None
 
     def can_delete(self, user_request, *args, **kwargs):
         user_can, _message, permissions = self.facture.user.can_edit(
-            user_request, *args, **kwargs)
-        if not user_request.has_perm('cotisations.delete_vente'):
+            user_request, *args, **kwargs
+        )
+        if not user_request.has_perm("cotisations.delete_vente"):
             return (
                 False,
                 _("You don't have the right to delete a purchase."),
-                ('cotisations.delete_vente',)
+                ("cotisations.delete_vente",),
             )
         if not user_can:
             return (
                 False,
                 _("You don't have the right to delete this user's purchases."),
-                permissions
+                permissions,
             )
         if self.facture.control or not self.facture.valid:
-            return False, _("You don't have the right to delete a purchase "
-                            "already controlled or invalidated."), None
+            return (
+                False,
+                _(
+                    "You don't have the right to delete a purchase "
+                    "already controlled or invalidated."
+                ),
+                None,
+            )
         else:
             return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
-        if (not user_request.has_perm('cotisations.view_vente') and
-                self.facture.user != user_request):
+        if (
+            not user_request.has_perm("cotisations.view_vente")
+            and self.facture.user != user_request
+        ):
             return (
                 False,
-                _("You don't have the right to view someone "
-                            "else's purchase history."),
-                ('cotisations.view_vente',)
+                _(
+                    "You don't have the right to view someone "
+                    "else's purchase history."
+                ),
+                ("cotisations.view_vente",),
             )
         else:
             return True, None, None
 
     def __str__(self):
-        return str(self.name) + ' ' + str(self.facture)
+        return str(self.name) + " " + str(self.facture)
 
 
 # TODO : change vente to purchase
@@ -641,12 +625,12 @@ def vente_post_save(**kwargs):
     Creates a 'cotisation' related object if needed and synchronise the
     LDAP user when a purchase has been saved.
     """
-    purchase = kwargs['instance']
+    purchase = kwargs["instance"]
     try:
         purchase.facture.facture
     except Facture.DoesNotExist:
         return
-    if hasattr(purchase, 'cotisation'):
+    if hasattr(purchase, "cotisation"):
         purchase.cotisation.vente = purchase
         purchase.cotisation.save()
     if purchase.type_cotisation:
@@ -663,7 +647,7 @@ def vente_post_delete(**kwargs):
     """
     Synchronise the LDAP user after a purchase has been deleted.
     """
-    purchase = kwargs['instance']
+    purchase = kwargs["instance"]
     try:
         invoice = purchase.facture.facture
     except Facture.DoesNotExist:
@@ -689,44 +673,39 @@ class Article(RevMixin, AclMixin, models.Model):
 
     # TODO : Either use TYPE or TYPES in both choices but not both
     USER_TYPES = (
-        ('Adherent', _("Member")),
-        ('Club', _("Club")),
-        ('All', _("Both of them")),
+        ("Adherent", _("Member")),
+        ("Club", _("Club")),
+        ("All", _("Both of them")),
     )
 
     COTISATION_TYPE = (
-        ('Connexion', _("Connection")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ("Connexion", _("Connection")),
+        ("Adhesion", _("Membership")),
+        ("All", _("Both of them")),
     )
 
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_("designation")
-    )
+    name = models.CharField(max_length=255, verbose_name=_("designation"))
     # TODO : change prix to price
     prix = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        verbose_name=_("unit price")
+        max_digits=5, decimal_places=2, verbose_name=_("unit price")
     )
     duration = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in months)")
+        verbose_name=_("duration (in months)"),
     )
     duration_days = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in days, will be added to duration in months)")
+        verbose_name=_("duration (in days, will be added to duration in months)"),
     )
     type_user = models.CharField(
         choices=USER_TYPES,
-        default='All',
+        default="All",
         max_length=255,
-        verbose_name=_("type of users concerned")
+        verbose_name=_("type of users concerned"),
     )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
@@ -734,32 +713,27 @@ class Article(RevMixin, AclMixin, models.Model):
         blank=True,
         null=True,
         max_length=255,
-        verbose_name=_("subscription type")
+        verbose_name=_("subscription type"),
     )
     available_for_everyone = models.BooleanField(
-        default=False,
-        verbose_name=_("is available for every user")
+        default=False, verbose_name=_("is available for every user")
     )
 
-    unique_together = ('name', 'type_user')
+    unique_together = ("name", "type_user")
 
     class Meta:
         permissions = (
-            ('view_article', _("Can view an article object")),
-            ('buy_every_article', _("Can buy every article"))
+            ("view_article", _("Can view an article object")),
+            ("buy_every_article", _("Can buy every article")),
         )
         verbose_name = "article"
         verbose_name_plural = "articles"
 
     def clean(self):
-        if self.name.lower() == 'solde':
-            raise ValidationError(
-                _("Balance is a reserved article name.")
-            )
+        if self.name.lower() == "solde":
+            raise ValidationError(_("Balance is a reserved article name."))
         if self.type_cotisation and not (self.duration or self.duration_days):
-            raise ValidationError(
-                _("Duration must be specified for a subscription.")
-            )
+            raise ValidationError(_("Duration must be specified for a subscription."))
 
     def __str__(self):
         return self.name
@@ -775,13 +749,15 @@ class Article(RevMixin, AclMixin, models.Model):
             A boolean stating if usage is granted and an explanation
             message if the boolean is `False`.
         """
-        can = self.available_for_everyone \
-            or user.has_perm('cotisations.buy_every_article') \
-            or user.has_perm('cotisations.add_facture')
+        can = (
+            self.available_for_everyone
+            or user.has_perm("cotisations.buy_every_article")
+            or user.has_perm("cotisations.add_facture")
+        )
         return (
             can,
             _("You can't buy this article.") if not can else None,
-            ('cotisations.buy_every_article', 'cotisations.add_facture')
+            ("cotisations.buy_every_article", "cotisations.add_facture"),
         )
 
     @classmethod
@@ -793,20 +769,18 @@ class Article(RevMixin, AclMixin, models.Model):
             target_user: The user to sell articles
         """
         if target_user is None:
-            objects_pool = cls.objects.filter(Q(type_user='All'))
+            objects_pool = cls.objects.filter(Q(type_user="All"))
         elif target_user.is_class_club:
-            objects_pool = cls.objects.filter(
-                Q(type_user='All') | Q(type_user='Club')
-            )
+            objects_pool = cls.objects.filter(Q(type_user="All") | Q(type_user="Club"))
         else:
             objects_pool = cls.objects.filter(
-                Q(type_user='All') | Q(type_user='Adherent')
+                Q(type_user="All") | Q(type_user="Adherent")
             )
         if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
-                Q(type_cotisation='All') | Q(type_cotisation='Adhesion')
+                Q(type_cotisation="All") | Q(type_cotisation="Adhesion")
             )
-        if user.has_perm('cotisations.buy_every_article'):
+        if user.has_perm("cotisations.buy_every_article"):
             return objects_pool
         return objects_pool.filter(available_for_everyone=True)
 
@@ -820,14 +794,10 @@ class Banque(RevMixin, AclMixin, models.Model):
     it's easier to use simple object for the banks.
     """
 
-    name = models.CharField(
-        max_length=255,
-    )
+    name = models.CharField(max_length=255)
 
     class Meta:
-        permissions = (
-            ('view_banque', _("Can view a bank object")),
-        )
+        permissions = (("view_banque", _("Can view a bank object")),)
         verbose_name = _("bank")
         verbose_name_plural = _("banks")
 
@@ -845,26 +815,22 @@ class Paiement(RevMixin, AclMixin, models.Model):
     """
 
     # TODO : change moyen to method
-    moyen = models.CharField(
-        max_length=255,
-        verbose_name=_("method")
-    )
+    moyen = models.CharField(max_length=255, verbose_name=_("method"))
     available_for_everyone = models.BooleanField(
-        default=False,
-        verbose_name=_("is available for every user")
+        default=False, verbose_name=_("is available for every user")
     )
     is_balance = models.BooleanField(
         default=False,
         editable=False,
         verbose_name=_("is user balance"),
         help_text=_("There should be only one balance payment method."),
-        validators=[check_no_balance]
+        validators=[check_no_balance],
     )
 
     class Meta:
         permissions = (
-            ('view_paiement', _("Can view a payment method object")),
-            ('use_every_payment', _("Can use every payment method")),
+            ("view_paiement", _("Can view a payment method object")),
+            ("use_every_payment", _("Can use every payment method")),
         )
         verbose_name = _("payment method")
         verbose_name_plural = _("payment methods")
@@ -905,22 +871,19 @@ class Paiement(RevMixin, AclMixin, models.Model):
         if any(sell.type_cotisation for sell in invoice.vente_set.all()):
             messages.success(
                 request,
-                _("The subscription of %(member_name)s was extended to"
-                  " %(end_date)s.") % {
-                    'member_name': invoice.user.pseudo,
-                    'end_date': invoice.user.end_adhesion()
-                }
+                _(
+                    "The subscription of %(member_name)s was extended to"
+                    " %(end_date)s."
+                )
+                % {
+                    "member_name": invoice.user.pseudo,
+                    "end_date": invoice.user.end_adhesion(),
+                },
             )
         # Else, only tell the invoice was created
         else:
-            messages.success(
-                request,
-                _("The invoice was created.")
-            )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': invoice.user.pk}
-        ))
+            messages.success(request, _("The invoice was created."))
+        return redirect(reverse("users:profil", kwargs={"userid": invoice.user.pk}))
 
     def can_use_payment(self, user, *_args, **_kwargs):
         """Check if a user can use this payment.
@@ -932,13 +895,15 @@ class Paiement(RevMixin, AclMixin, models.Model):
             A boolean stating if usage is granted and an explanation
             message if the boolean is `False`.
         """
-        can = self.available_for_everyone \
-            or user.has_perm('cotisations.use_every_payment') \
-            or user.has_perm('cotisations.add_facture')
+        can = (
+            self.available_for_everyone
+            or user.has_perm("cotisations.use_every_payment")
+            or user.has_perm("cotisations.add_facture")
+        )
         return (
             can,
             _("You can't use this payment method.") if not can else None,
-            ('cotisations.use_every_payment', 'cotisations.add_facture')
+            ("cotisations.use_every_payment", "cotisations.add_facture"),
         )
 
     @classmethod
@@ -948,7 +913,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         Args:
             user: The user requesting payment methods.
         """
-        if user.has_perm('cotisations.use_every_payment'):
+        if user.has_perm("cotisations.use_every_payment"):
             return cls.objects.all()
         return cls.objects.filter(available_for_everyone=True)
 
@@ -972,89 +937,96 @@ class Cotisation(RevMixin, AclMixin, models.Model):
     """
 
     COTISATION_TYPE = (
-        ('Connexion', _("Connection")),
-        ('Adhesion', _("Membership")),
-        ('All', _("Both of them")),
+        ("Connexion", _("Connection")),
+        ("Adhesion", _("Membership")),
+        ("All", _("Both of them")),
     )
 
     # TODO : change vente to purchase
     vente = models.OneToOneField(
-        'Vente',
-        on_delete=models.CASCADE,
-        null=True,
-        verbose_name=_("purchase")
+        "Vente", on_delete=models.CASCADE, null=True, verbose_name=_("purchase")
     )
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
         max_length=255,
-        default='All',
-        verbose_name=_("subscription type")
+        default="All",
+        verbose_name=_("subscription type"),
     )
-    date_start = models.DateTimeField(
-        verbose_name=_("start date")
-    )
-    date_end = models.DateTimeField(
-        verbose_name=_("end date")
-    )
+    date_start = models.DateTimeField(verbose_name=_("start date"))
+    date_end = models.DateTimeField(verbose_name=_("end date"))
 
     class Meta:
         permissions = (
-            ('view_cotisation', _("Can view a subscription object")),
-            ('change_all_cotisation', _("Can edit the previous subscriptions")),
+            ("view_cotisation", _("Can view a subscription object")),
+            ("change_all_cotisation", _("Can edit the previous subscriptions")),
         )
         verbose_name = _("subscription")
         verbose_name_plural = _("subscriptions")
 
     def can_edit(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.change_cotisation'):
+        if not user_request.has_perm("cotisations.change_cotisation"):
             return (
                 False,
                 _("You don't have the right to edit a subscription."),
-                ('cotisations.change_cotisation',)
+                ("cotisations.change_cotisation",),
             )
-        elif not user_request.has_perm('cotisations.change_all_cotisation') \
-                and (self.vente.facture.control or
-                     not self.vente.facture.valid):
+        elif not user_request.has_perm("cotisations.change_all_cotisation") and (
+            self.vente.facture.control or not self.vente.facture.valid
+        ):
             return (
                 False,
-                _("You don't have the right to edit a subscription "
-                            "already controlled or invalidated."),
-                ('cotisations.change_all_cotisation',)
+                _(
+                    "You don't have the right to edit a subscription "
+                    "already controlled or invalidated."
+                ),
+                ("cotisations.change_all_cotisation",),
             )
         else:
             return True, None, None
 
     def can_delete(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.delete_cotisation'):
+        if not user_request.has_perm("cotisations.delete_cotisation"):
             return (
                 False,
                 _("You don't have the right to delete a subscription."),
-                ('cotisations.delete_cotisation',)
+                ("cotisations.delete_cotisation",),
             )
         if self.vente.facture.control or not self.vente.facture.valid:
             return (
                 False,
-                _("You don't have the right to delete a subscription "
-                            "already controlled or invalidated."),
-                None
+                _(
+                    "You don't have the right to delete a subscription "
+                    "already controlled or invalidated."
+                ),
+                None,
             )
         else:
             return True, None, None
 
     def can_view(self, user_request, *_args, **_kwargs):
-        if not user_request.has_perm('cotisations.view_cotisation') and\
-                self.vente.facture.user != user_request:
+        if (
+            not user_request.has_perm("cotisations.view_cotisation")
+            and self.vente.facture.user != user_request
+        ):
             return (
                 False,
-                _("You don't have the right to view someone else's "
-                            "subscription history."),
-                ('cotisations.view_cotisation',)
+                _(
+                    "You don't have the right to view someone else's "
+                    "subscription history."
+                ),
+                ("cotisations.view_cotisation",),
             )
         else:
             return True, None, None
 
     def __str__(self):
-        return str(self.vente) + "from " + str(self.date_start) + " to " + str(self.date_end)
+        return (
+            str(self.vente)
+            + "from "
+            + str(self.date_start)
+            + " to "
+            + str(self.date_end)
+        )
 
 
 @receiver(post_save, sender=Cotisation)
@@ -1063,10 +1035,10 @@ def cotisation_post_save(**_kwargs):
     Mark some services as needing a regeneration after the edition of a
     cotisation. Indeed the membership status may have changed.
     """
-    regen('dns')
-    regen('dhcp')
-    regen('mac_ip_list')
-    regen('mailing')
+    regen("dns")
+    regen("dhcp")
+    regen("mac_ip_list")
+    regen("mailing")
 
 
 @receiver(post_delete, sender=Cotisation)
@@ -1075,5 +1047,5 @@ def cotisation_post_delete(**_kwargs):
     Mark some services as needing a regeneration after the deletion of a
     cotisation. Indeed the membership status may have changed.
     """
-    regen('mac_ip_list')
-    regen('mailing')
+    regen("mac_ip_list")
+    regen("mailing")

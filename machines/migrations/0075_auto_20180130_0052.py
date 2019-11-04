@@ -7,13 +7,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0074_auto_20180129_0352'),
-    ]
+    dependencies = [("machines", "0074_auto_20180129_0352")]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='ipv6list',
-            unique_together=set([]),
-        ),
+        migrations.AlterUniqueTogether(name="ipv6list", unique_together=set([]))
     ]

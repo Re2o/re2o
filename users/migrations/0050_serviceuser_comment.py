@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0049_auto_20170618_1424'),
-    ]
+    dependencies = [("users", "0049_auto_20170618_1424")]
 
     operations = [
         migrations.AddField(
-            model_name='serviceuser',
-            name='comment',
-            field=models.CharField(blank=True, help_text='Commentaire', max_length=255),
-        ),
+            model_name="serviceuser",
+            name="comment",
+            field=models.CharField(blank=True, help_text="Commentaire", max_length=255),
+        )
     ]

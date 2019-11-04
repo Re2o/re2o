@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-#re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -29,12 +29,12 @@ register = template.Library()
 @register.filter(needs_autoescape=False)
 def tick(valeur, autoescape=False):
 
-    if isinstance(valeur,bool):
+    if isinstance(valeur, bool):
         if valeur == True:
             result = '<i style="color: #1ECA18;" class="fa fa-check"></i>'
         else:
             result = '<i style="color: #D10115;" class="fa fa-times"></i>'
         return mark_safe(result)
 
-    else: #  if the value is not a boolean, display it as if tick was not called 
+    else:  #  if the value is not a boolean, display it as if tick was not called
         return valeur

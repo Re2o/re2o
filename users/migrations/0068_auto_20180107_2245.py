@@ -7,18 +7,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0067_serveurpermission'),
-    ]
+    dependencies = [("users", "0067_serveurpermission")]
 
     def transfer_permissions(apps, schema_editor):
-        critical_rights = ['adm', 'admin', 'bureau', 'infra', 'tresorier', 'serveur', 'bofh']
+        critical_rights = [
+            "adm",
+            "admin",
+            "bureau",
+            "infra",
+            "tresorier",
+            "serveur",
+            "bofh",
+        ]
         db_alias = schema_editor.connection.alias
         rights = apps.get_model("users", "ListRight")
         for right in critical_rights:
             rg = rights.objects.using(db_alias).filter(unix_name=right).first()
             if rg:
-                rg.critical=True
+                rg.critical = True
                 rg.save()
 
     def untransfer_permissions(apps, schema_editor):
@@ -26,12 +32,28 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name='user',
-            options={'permissions': (('change_user_password', "Peut changer le mot de passe d'un user"), ('change_user_state', "Peut éditer l'etat d'un user"), ('change_user_force', 'Peut forcer un déménagement'), ('change_user_shell', "Peut éditer le shell d'un user"), ('change_user_groups', "Peut éditer les groupes d'un user ! Permission critique"), ('change_all_users', 'Peut éditer tous les users, y compris ceux dotés de droits. Superdroit'), ('view_user', 'Peut voir un objet user quelquonque'))},
+            name="user",
+            options={
+                "permissions": (
+                    ("change_user_password", "Peut changer le mot de passe d'un user"),
+                    ("change_user_state", "Peut éditer l'etat d'un user"),
+                    ("change_user_force", "Peut forcer un déménagement"),
+                    ("change_user_shell", "Peut éditer le shell d'un user"),
+                    (
+                        "change_user_groups",
+                        "Peut éditer les groupes d'un user ! Permission critique",
+                    ),
+                    (
+                        "change_all_users",
+                        "Peut éditer tous les users, y compris ceux dotés de droits. Superdroit",
+                    ),
+                    ("view_user", "Peut voir un objet user quelquonque"),
+                )
+            },
         ),
         migrations.AddField(
-            model_name='listright',
-            name='critical',
+            model_name="listright",
+            name="critical",
             field=models.BooleanField(default=False),
         ),
         migrations.RunPython(transfer_permissions, untransfer_permissions),

@@ -28,18 +28,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0009_remove_cotisation_user'),
-    ]
+    dependencies = [("cotisations", "0009_remove_cotisation_user")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='article',
-            name='duration',
-            ),
+        migrations.RemoveField(model_name="article", name="duration"),
         migrations.AddField(
-            model_name='article',
-            name='duration',
-            field=models.IntegerField(null=True, help_text='Durée exprimée en mois entiers', blank=True),
+            model_name="article",
+            name="duration",
+            field=models.IntegerField(
+                null=True, help_text="Durée exprimée en mois entiers", blank=True
+            ),
         ),
     ]

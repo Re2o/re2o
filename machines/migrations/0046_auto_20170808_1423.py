@@ -8,14 +8,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0045_auto_20170808_0348'),
-    ]
+    dependencies = [("machines", "0045_auto_20170808_0348")]
 
     operations = [
         migrations.AlterField(
-            model_name='service',
-            name='time_regen',
+            model_name="service",
+            name="time_regen",
             field=models.DurationField(default=datetime.timedelta(0, 60)),
-        ),
+        )
     ]

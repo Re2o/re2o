@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0033_generaloption_gtu_sum_up'),
-    ]
+    dependencies = [("preferences", "0033_generaloption_gtu_sum_up")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='GTU',
-            field=models.FileField(default='', upload_to='GTU'),
+            model_name="generaloption",
+            name="GTU",
+            field=models.FileField(default="", upload_to="GTU"),
         ),
         migrations.AlterField(
-            model_name='generaloption',
-            name='GTU_sum_up',
-            field=models.TextField(blank=True, default=''),
+            model_name="generaloption",
+            name="GTU_sum_up",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

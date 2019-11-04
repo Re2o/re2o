@@ -8,19 +8,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0092_auto_20180807_0926'),
-    ]
+    dependencies = [("machines", "0092_auto_20180807_0926")]
 
     operations = [
         migrations.AlterField(
-            model_name='mx',
-            name='name',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.Domain'),
+            model_name="mx",
+            name="name",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="machines.Domain"
+            ),
         ),
         migrations.AlterField(
-            model_name='mx',
-            name='priority',
-            field=models.PositiveIntegerField(),
+            model_name="mx", name="priority", field=models.PositiveIntegerField()
         ),
     ]

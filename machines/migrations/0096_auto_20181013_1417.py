@@ -9,14 +9,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0095_auto_20180919_2225'),
-    ]
+    dependencies = [("machines", "0095_auto_20180919_2225")]
 
     operations = [
         migrations.AlterField(
-            model_name='machine',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
+            model_name="machine",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
+        )
     ]

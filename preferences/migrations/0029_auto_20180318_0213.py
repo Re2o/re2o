@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0028_assooption_description'),
-    ]
+    dependencies = [("preferences", "0028_assooption_description")]
 
     operations = [
         migrations.AlterField(
-            model_name='assooption',
-            name='description',
+            model_name="assooption",
+            name="description",
             field=models.TextField(blank=True, null=True),
-        ),
+        )
     ]

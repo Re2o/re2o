@@ -8,23 +8,45 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0048_ap_machine'),
-    ]
-
-
+    dependencies = [("topologie", "0048_ap_machine")]
 
     operations = [
         migrations.CreateModel(
-            name='NewSw',
+            name="NewSw",
             fields=[
-                ('machine_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='machines.Machine')),
-                ('location', models.CharField(max_length=255)),
-                ('number', models.PositiveIntegerField()),
-                ('stack_member_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('model', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.ModelSwitch')),
-                ('stack', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.Stack')),
+                (
+                    "machine_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="machines.Machine",
+                    ),
+                ),
+                ("location", models.CharField(max_length=255)),
+                ("number", models.PositiveIntegerField()),
+                ("stack_member_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "model",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="topologie.ModelSwitch",
+                    ),
+                ),
+                (
+                    "stack",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="topologie.Stack",
+                    ),
+                ),
             ],
-            bases=('machines.machine',),
-        ),
+            bases=("machines.machine",),
+        )
     ]

@@ -7,14 +7,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0064_switch_automatic_provision'),
-    ]
+    dependencies = [("topologie", "0064_switch_automatic_provision")]
 
     operations = [
         migrations.AlterField(
-            model_name='portprofile',
-            name='profil_default',
-            field=models.CharField(blank=True, choices=[('room', 'room'), ('access_point', 'access_point'), ('uplink', 'uplink'), ('asso_machine', 'asso_machine'), ('nothing', 'nothing')], max_length=32, null=True, unique=True, verbose_name='Default profile'),
-        ),
+            model_name="portprofile",
+            name="profil_default",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("room", "room"),
+                    ("access_point", "access_point"),
+                    ("uplink", "uplink"),
+                    ("asso_machine", "asso_machine"),
+                    ("nothing", "nothing"),
+                ],
+                max_length=32,
+                null=True,
+                unique=True,
+                verbose_name="Default profile",
+            ),
+        )
     ]

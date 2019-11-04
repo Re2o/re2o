@@ -7,13 +7,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0018_optionaltopologie_mac_autocapture'),
-    ]
+    dependencies = [("preferences", "0018_optionaltopologie_mac_autocapture")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='mac_autocapture',
-        ),
+        migrations.RemoveField(model_name="optionaltopologie", name="mac_autocapture")
     ]

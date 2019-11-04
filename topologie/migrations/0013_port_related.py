@@ -28,14 +28,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0012_port_machine_interface'),
-    ]
+    dependencies = [("topologie", "0012_port_machine_interface")]
 
     operations = [
         migrations.AddField(
-            model_name='port',
-            name='related',
-            field=models.OneToOneField(null=True, to='topologie.Port', blank=True, related_name='related_port'),
-        ),
+            model_name="port",
+            name="related",
+            field=models.OneToOneField(
+                null=True, to="topologie.Port", blank=True, related_name="related_port"
+            ),
+        )
     ]

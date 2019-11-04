@@ -8,18 +8,15 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0042_ns_ns'),
-    ]
+    dependencies = [("machines", "0042_ns_ns")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='iplist',
-            name='need_infra',
-        ),
+        migrations.RemoveField(model_name="iplist", name="need_infra"),
         migrations.AlterField(
-            model_name='iplist',
-            name='ip_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.IpType'),
+            model_name="iplist",
+            name="ip_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="machines.IpType"
+            ),
         ),
     ]

@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0055_nas'),
-    ]
+    dependencies = [("machines", "0055_nas")]
 
     operations = [
         migrations.AddField(
-            model_name='nas',
-            name='port_access_mode',
-            field=models.CharField(choices=[('802.1X', '802.1X'), ('Mac-address', 'Mac-address')], default='802.1X', max_length=32),
-        ),
+            model_name="nas",
+            name="port_access_mode",
+            field=models.CharField(
+                choices=[("802.1X", "802.1X"), ("Mac-address", "Mac-address")],
+                default="802.1X",
+                max_length=32,
+            ),
+        )
     ]

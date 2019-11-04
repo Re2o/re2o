@@ -7,10 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0042_transferswitch'),
-    ]
+    dependencies = [("topologie", "0042_transferswitch")]
 
-    operations = [
-    migrations.RenameModel(old_name='NewSwitch', new_name='Switch'),
-    ]
+    operations = [migrations.RenameModel(old_name="NewSwitch", new_name="Switch")]

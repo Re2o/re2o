@@ -7,19 +7,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0058_auto_20171025_0154'),
-    ]
+    dependencies = [("users", "0058_auto_20171025_0154")]
 
     operations = [
         migrations.RenameField(
-            model_name='adherent',
-            old_name='room_adherent',
-            new_name='room',
+            model_name="adherent", old_name="room_adherent", new_name="room"
         ),
         migrations.RenameField(
-            model_name='club',
-            old_name='room_club',
-            new_name='room',
+            model_name="club", old_name="room_club", new_name="room"
         ),
     ]

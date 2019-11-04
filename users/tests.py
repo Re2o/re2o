@@ -62,26 +62,23 @@ class LdapUserTestCase(TestCase):
             user_password="{SSHA}aBcDeFgHiJkLmNoPqRsTuVwXyZ012345",
             sambat_nt_password="0123456789ABCDEF0123456789ABCDEF",
             macs=[],
-            shadowexpire="0"
+            shadowexpire="0",
         )
-        self.assertEqual(g.name, 'users_test_ldapuser')
+        self.assertEqual(g.name, "users_test_ldapuser")
 
 
 class LdapUserGroupTestCase(TestCase):
     def test_create_ldap_user_group(self):
         g = models.LdapUserGroup.objects.create(
-            gid="501",
-            members=[],
-            name="users_test_ldapusergroup"
+            gid="501", members=[], name="users_test_ldapusergroup"
         )
-        self.assertEqual(g.name, 'users_test_ldapusergroup')
+        self.assertEqual(g.name, "users_test_ldapusergroup")
 
 
 class LdapServiceUserTestCase(TestCase):
     def test_create_ldap_service_user(self):
         g = models.LdapServiceUser.objects.create(
             name="users_test_ldapserviceuser",
-            user_password="{SSHA}AbCdEfGhIjKlMnOpQrStUvWxYz987654"
+            user_password="{SSHA}AbCdEfGhIjKlMnOpQrStUvWxYz987654",
         )
-        self.assertEqual(g.name, 'users_test_ldapserviceuser')
-
+        self.assertEqual(g.name, "users_test_ldapserviceuser")

@@ -8,18 +8,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0056_building_switchbay'),
-    ]
+    dependencies = [("topologie", "0056_building_switchbay")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='switchbay',
-            name='members',
-        ),
+        migrations.RemoveField(model_name="switchbay", name="members"),
         migrations.AddField(
-            model_name='switch',
-            name='switchbay',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.SwitchBay'),
+            model_name="switch",
+            name="switchbay",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="topologie.SwitchBay",
+            ),
         ),
     ]

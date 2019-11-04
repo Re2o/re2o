@@ -8,14 +8,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0076_auto_20180130_1623'),
-    ]
+    dependencies = [("machines", "0076_auto_20180130_1623")]
 
     operations = [
         migrations.AlterField(
-            model_name='extension',
-            name='origin',
-            field=models.ForeignKey(blank=True, help_text='Enregistrement A associé à la zone', null=True, on_delete=django.db.models.deletion.PROTECT, to='machines.IpList'),
-        ),
+            model_name="extension",
+            name="origin",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Enregistrement A associé à la zone",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="machines.IpList",
+            ),
+        )
     ]

@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0056_4_radiusoption'),
-    ]
+    dependencies = [("preferences", "0056_4_radiusoption")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='all_users_active',
-            field=models.BooleanField(default=False, help_text='If True, all new created and connected users are active.                    If False, only when a valid registration has been paid'),
-        ),
+            model_name="optionaluser",
+            name="all_users_active",
+            field=models.BooleanField(
+                default=False,
+                help_text="If True, all new created and connected users are active.                    If False, only when a valid registration has been paid",
+            ),
+        )
     ]

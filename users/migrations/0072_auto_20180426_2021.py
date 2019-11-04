@@ -7,19 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0071_auto_20180415_1252'),
-    ]
+    dependencies = [("users", "0071_auto_20180415_1252")]
 
     operations = [
         migrations.AlterField(
-            model_name='ban',
-            name='date_end',
-            field=models.DateTimeField(),
+            model_name="ban", name="date_end", field=models.DateTimeField()
         ),
         migrations.AlterField(
-            model_name='whitelist',
-            name='date_end',
-            field=models.DateTimeField(),
+            model_name="whitelist", name="date_end", field=models.DateTimeField()
         ),
     ]

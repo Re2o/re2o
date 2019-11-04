@@ -7,9 +7,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0051_switchs_machine'),
-    ]
+    dependencies = [("topologie", "0051_switchs_machine")]
 
     def transfer_port(apps, schema_editor):
         db_alias = schema_editor.connection.alias
@@ -24,14 +22,8 @@ class Migration(migrations.Migration):
         return
 
     operations = [
-    migrations.AlterUniqueTogether(
-        name='port',
-        unique_together=set([]),
-    ),
-    migrations.RunPython(transfer_port, untransfer_port),
-    migrations.RemoveField(
-    model_name='port',
-    name='switch',
-    ),
-    migrations.RenameField('Port', 'new_sw', 'switch')
+        migrations.AlterUniqueTogether(name="port", unique_together=set([])),
+        migrations.RunPython(transfer_port, untransfer_port),
+        migrations.RemoveField(model_name="port", name="switch"),
+        migrations.RenameField("Port", "new_sw", "switch"),
     ]

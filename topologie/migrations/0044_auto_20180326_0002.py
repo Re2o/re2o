@@ -8,21 +8,16 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0043_renamenewswitch'),
-    ]
+    dependencies = [("topologie", "0043_renamenewswitch")]
 
     operations = [
-        migrations.RenameModel(
-            old_name='Borne',
-            new_name='AccessPoint',
+        migrations.RenameModel(old_name="Borne", new_name="AccessPoint"),
+        migrations.AlterModelOptions(
+            name="accesspoint",
+            options={"permissions": (("view_ap", "Peut voir une borne"),)},
         ),
         migrations.AlterModelOptions(
-            name='accesspoint',
-            options={'permissions': (('view_ap', 'Peut voir une borne'),)},
-        ),
-        migrations.AlterModelOptions(
-            name='switch',
-            options={'permissions': (('view_switch', 'Peut voir un objet switch'),)},
+            name="switch",
+            options={"permissions": (("view_switch", "Peut voir un objet switch"),)},
         ),
     ]

@@ -7,13 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0045_auto_20180326_0123'),
-    ]
+    dependencies = [("topologie", "0045_auto_20180326_0123")]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='port',
-            unique_together=set([('switch', 'port')]),
-        ),
+            name="port", unique_together=set([("switch", "port")])
+        )
     ]

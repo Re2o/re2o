@@ -18,7 +18,7 @@ CONTRIBUTORS = [
     'Pierre "Redstorm" Cadart',
     'Éloi "Goslig" Alain',
     'Laouen "Volgarr" Fernet',
-    'Joanne Steiner',
+    "Joanne Steiner",
     '"Krokmou"',
     'Thibault "Tipunchetrhum" de Boutray',
     'Baptiste "B" Fournier',

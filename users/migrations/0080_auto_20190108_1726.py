@@ -7,14 +7,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0079_auto_20181228_2039'),
-    ]
+    dependencies = [("users", "0079_auto_20181228_2039")]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='state',
-            field=models.IntegerField(choices=[(0, 'Active'), (1, 'Disabled'), (2, 'Archived'), (3, 'Not yet active')], default=3),
-        ),
+            model_name="user",
+            name="state",
+            field=models.IntegerField(
+                choices=[
+                    (0, "Active"),
+                    (1, "Disabled"),
+                    (2, "Archived"),
+                    (3, "Not yet active"),
+                ],
+                default=3,
+            ),
+        )
     ]

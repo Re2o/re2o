@@ -8,24 +8,30 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0037_costestimate'),
-    ]
+    dependencies = [("cotisations", "0037_costestimate")]
 
     operations = [
         migrations.AlterField(
-            model_name='costestimate',
-            name='final_invoice',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='origin_cost_estimate', to='cotisations.CustomInvoice'),
+            model_name="costestimate",
+            name="final_invoice",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="origin_cost_estimate",
+                to="cotisations.CustomInvoice",
+            ),
         ),
         migrations.AlterField(
-            model_name='costestimate',
-            name='validity',
-            field=models.DurationField(help_text='DD HH:MM:SS', verbose_name='Period of validity'),
+            model_name="costestimate",
+            name="validity",
+            field=models.DurationField(
+                help_text="DD HH:MM:SS", verbose_name="Period of validity"
+            ),
         ),
         migrations.AlterField(
-            model_name='custominvoice',
-            name='paid',
-            field=models.BooleanField(default=False, verbose_name='Paid'),
+            model_name="custominvoice",
+            name="paid",
+            field=models.BooleanField(default=False, verbose_name="Paid"),
         ),
     ]

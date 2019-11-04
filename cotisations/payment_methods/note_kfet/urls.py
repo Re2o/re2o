@@ -23,8 +23,6 @@ from . import views
 
 urlpatterns = [
     url(
-        r'^note_payment/(?P<factureid>[0-9]+)$',
-        views.note_payment,
-        name='note_payment'
-    ),
+        r"^note_payment/(?P<factureid>[0-9]+)$", views.note_payment, name="note_payment"
+    )
 ]

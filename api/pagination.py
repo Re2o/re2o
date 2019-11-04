@@ -38,8 +38,9 @@ class PageSizedPagination(pagination.PageNumberPagination):
         max_page_size: The maximum number of results a page can output no
             matter what is requested.
     """
-    page_size_query_param = 'page_size'
-    all_pages_strings = ('all',)
+
+    page_size_query_param = "page_size"
+    all_pages_strings = ("all",)
     max_page_size = 10000
 
     def get_page_size(self, request):
