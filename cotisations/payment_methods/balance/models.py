@@ -40,7 +40,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method',
+        related_name='payment_method_balance',
         editable=False
     )
     minimum_balance = models.DecimalField(

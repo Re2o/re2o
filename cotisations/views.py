@@ -139,6 +139,7 @@ def new_facture(request, user, userid):
                         prix=article.prix,
                         type_cotisation=article.type_cotisation,
                         duration=article.duration,
+                        duration_days=article.duration_days,
                         number=quantity
                     )
                     purchases.append(new_purchase)

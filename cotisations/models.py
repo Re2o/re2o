@@ -290,9 +290,22 @@ class Facture(BaseInvoice):
         """Returns True if this invoice contains at least one subscribtion."""
         return bool(self.get_subscription())
 
+    def reorder_purchases(self):
+        date = self.date
+        for purchase in self.vente_set.all():
+            if hasattr(purchase, 'cotisation'):
+                cotisation = purchase.cotisation
+                cotisation.date_start = date
+                date += relativedelta(
+                    months=(purchase.duration or 0)*purchase.number,
+                    days=(purchase.duration_days or 0)*purchase.number,
+                )
+                purchase.save()
+
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
         if not self.__original_valid and self.valid:
+            self.reorder_purchases()
             send_mail_invoice(self)
         if self.is_subscription() \
                 and not self.__original_control \
@@ -460,6 +473,12 @@ class Vente(RevMixin, AclMixin, models.Model):
         null=True,
         verbose_name=_("duration (in months)")
     )
+    duration_days = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration (in days, will be added to duration in months)")
+    )
     # TODO : this field is not needed if you use Article ForeignKey
     type_cotisation = models.CharField(
         choices=COTISATION_TYPE,
@@ -492,7 +511,9 @@ class Vente(RevMixin, AclMixin, models.Model):
         if hasattr(self, 'cotisation'):
             cotisation = self.cotisation
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number)
+                months=(self.duration or 0)*self.number,
+                days=(self.duration_days or 0)*self.number,
+            )
         return
 
     def create_cotis(self, date_start=False):
@@ -529,9 +550,9 @@ class Vente(RevMixin, AclMixin, models.Model):
             date_max = max(end_cotisation, date_start)
             cotisation.date_start = date_max
             cotisation.date_end = cotisation.date_start + relativedelta(
-                months=self.duration*self.number
+                months=(self.duration or 0)*self.number,
+                days=(self.duration_days or 0)*self.number,
             )
-        return
 
     def save(self, *args, **kwargs):
         """
@@ -540,7 +561,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         effect on the user's cotisation
         """
         # Checking that if a cotisation is specified, there is also a duration
-        if self.type_cotisation and not self.duration:
+        if self.type_cotisation and not (self.duration or self.duration_days):
             raise ValidationError(
                 _("Duration must be specified for a subscription.")
             )
@@ -695,6 +716,12 @@ class Article(RevMixin, AclMixin, models.Model):
         validators=[MinValueValidator(0)],
         verbose_name=_("duration (in months)")
     )
+    duration_days = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration (in days, will be added to duration in months)")
+    )
     type_user = models.CharField(
         choices=USER_TYPES,
         default='All',
@@ -729,7 +756,7 @@ class Article(RevMixin, AclMixin, models.Model):
             raise ValidationError(
                 _("Balance is a reserved article name.")
             )
-        if self.type_cotisation and not self.duration:
+        if self.type_cotisation and not (self.duration or self.duration_days):
             raise ValidationError(
                 _("Duration must be specified for a subscription.")
             )
@@ -1027,7 +1054,7 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             return True, None, None
 
     def __str__(self):
-        return str(self.vente)
+        return str(self.vente) + "from " + str(self.date_start) + " to " + str(self.date_end)
 
 
 @receiver(post_save, sender=Cotisation)
