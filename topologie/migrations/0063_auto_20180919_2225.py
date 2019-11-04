@@ -9,24 +9,36 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0051_auto_20180919_2225'),
-        ('topologie', '0062_auto_20180815_1918'),
+        ("preferences", "0051_auto_20180919_2225"),
+        ("topologie", "0062_auto_20180815_1918"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='modelswitch',
-            name='firmware',
+            model_name="modelswitch",
+            name="firmware",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='switch',
-            name='management_creds',
-            field=models.ForeignKey(blank=True, help_text='Identifiant de management de ce switch', null=True, on_delete=django.db.models.deletion.PROTECT, to='preferences.SwitchManagementCred'),
+            model_name="switch",
+            name="management_creds",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Identifiant de management de ce switch",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="preferences.SwitchManagementCred",
+            ),
         ),
         migrations.AddField(
-            model_name='switch',
-            name='radius_key',
-            field=models.ForeignKey(blank=True, help_text='Clef radius du switch', null=True, on_delete=django.db.models.deletion.PROTECT, to='preferences.RadiusKey'),
+            model_name="switch",
+            name="radius_key",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Clef radius du switch",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="preferences.RadiusKey",
+            ),
         ),
     ]

@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0065_auto_20180927_1836'),
-    ]
+    dependencies = [("topologie", "0065_auto_20180927_1836")]
 
     operations = [
         migrations.AddField(
-            model_name='modelswitch',
-            name='commercial_name',
+            model_name="modelswitch",
+            name="commercial_name",
             field=models.CharField(blank=True, max_length=255, null=True),
-        ),
+        )
     ]

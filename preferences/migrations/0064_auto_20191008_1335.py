@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0063_mandate'),
-    ]
+    dependencies = [("preferences", "0063_mandate")]
 
     operations = [
         migrations.AlterField(
-            model_name='mailmessageoption',
-            name='welcome_mail_en',
-            field=models.TextField(blank=True, default='', help_text='Welcome email in English'),
+            model_name="mailmessageoption",
+            name="welcome_mail_en",
+            field=models.TextField(
+                blank=True, default="", help_text="Welcome email in English"
+            ),
         ),
         migrations.AlterField(
-            model_name='mailmessageoption',
-            name='welcome_mail_fr',
-            field=models.TextField(blank=True, default='', help_text='Welcome email in French'),
+            model_name="mailmessageoption",
+            name="welcome_mail_fr",
+            field=models.TextField(
+                blank=True, default="", help_text="Welcome email in French"
+            ),
         ),
     ]

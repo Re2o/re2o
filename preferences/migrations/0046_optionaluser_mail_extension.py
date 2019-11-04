@@ -7,24 +7,31 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0045_remove_unused_payment_fields'),
-    ]
+    dependencies = [("preferences", "0045_remove_unused_payment_fields")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='local_email_accounts_enabled',
-            field=models.BooleanField(default=False, help_text='Enable local email accounts for users'),
+            model_name="optionaluser",
+            name="local_email_accounts_enabled",
+            field=models.BooleanField(
+                default=False, help_text="Enable local email accounts for users"
+            ),
         ),
         migrations.AddField(
-            model_name='optionaluser',
-            name='local_email_domain',
-            field=models.CharField(default='@example.org', help_text='Domain to use for local email accounts', max_length=32),
+            model_name="optionaluser",
+            name="local_email_domain",
+            field=models.CharField(
+                default="@example.org",
+                help_text="Domain to use for local email accounts",
+                max_length=32,
+            ),
         ),
         migrations.AddField(
-            model_name='optionaluser',
-            name='max_email_address',
-            field=models.IntegerField(default=15, help_text='Maximum number of local email address for a standard user'),
+            model_name="optionaluser",
+            name="max_email_address",
+            field=models.IntegerField(
+                default=15,
+                help_text="Maximum number of local email address for a standard user",
+            ),
         ),
     ]

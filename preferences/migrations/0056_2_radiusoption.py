@@ -8,16 +8,17 @@ import re2o.mixins
 
 
 def create_radius_policy(apps, schema_editor):
-    OptionalTopologie = apps.get_model('preferences', 'OptionalTopologie')
-    RadiusOption = apps.get_model('preferences', 'RadiusOption')
+    OptionalTopologie = apps.get_model("preferences", "OptionalTopologie")
+    RadiusOption = apps.get_model("preferences", "RadiusOption")
 
-    option,_ = OptionalTopologie.objects.get_or_create()
+    option, _ = OptionalTopologie.objects.get_or_create()
 
     radius_option = RadiusOption()
     radius_option.radius_general_policy = option.radius_general_policy
     radius_option.vlan_decision_ok = option.vlan_decision_ok
 
     radius_option.save()
+
 
 def revert_radius(apps, schema_editor):
     pass
@@ -26,11 +27,9 @@ def revert_radius(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0095_auto_20180919_2225'),
-        ('preferences', '0055_generaloption_main_site_url'),
-        ('preferences', '0056_1_radiusoption'),
+        ("machines", "0095_auto_20180919_2225"),
+        ("preferences", "0055_generaloption_main_site_url"),
+        ("preferences", "0056_1_radiusoption"),
     ]
 
-    operations = [
-        migrations.RunPython(create_radius_policy, revert_radius),
-    ]
+    operations = [migrations.RunPython(create_radius_policy, revert_radius)]

@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0030_custom_payment'),
-    ]
+    dependencies = [("cotisations", "0030_custom_payment")]
 
     operations = [
         migrations.AddField(
-            model_name='comnpaypayment',
-            name='production',
-            field=models.BooleanField(default=True, verbose_name='Production mode enabled (production url, instead of homologation)'),
-        ),
+            model_name="comnpaypayment",
+            name="production",
+            field=models.BooleanField(
+                default=True,
+                verbose_name="Production mode enabled (production url, instead of homologation)",
+            ),
+        )
     ]

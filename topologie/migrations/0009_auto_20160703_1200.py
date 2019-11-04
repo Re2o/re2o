@@ -29,14 +29,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0008_port_room'),
-    ]
+    dependencies = [("topologie", "0008_port_room")]
 
     operations = [
         migrations.AlterField(
-            model_name='port',
-            name='room',
-            field=models.ForeignKey(to='topologie.Room', on_delete=django.db.models.deletion.PROTECT, blank=True, null=True),
-        ),
+            model_name="port",
+            name="room",
+            field=models.ForeignKey(
+                to="topologie.Room",
+                on_delete=django.db.models.deletion.PROTECT,
+                blank=True,
+                null=True,
+            ),
+        )
     ]

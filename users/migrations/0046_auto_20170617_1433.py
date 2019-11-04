@@ -7,33 +7,35 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0045_merge'),
-    ]
+    dependencies = [("users", "0045_merge")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='user',
-            name='ssh_public_key',
+        migrations.RemoveField(model_name="user", name="ssh_public_key"),
+        migrations.AlterField(
+            model_name="ban",
+            name="state",
+            field=models.IntegerField(
+                choices=[
+                    (0, "HARD (aucun accès)"),
+                    (1, "SOFT (accès local seulement)"),
+                    (2, "BRIDAGE (bridage du débit)"),
+                ],
+                default=0,
+            ),
         ),
         migrations.AlterField(
-            model_name='ban',
-            name='state',
-            field=models.IntegerField(choices=[(0, 'HARD (aucun accès)'), (1, 'SOFT (accès local seulement)'), (2, 'BRIDAGE (bridage du débit)')], default=0),
-        ),
-        migrations.AlterField(
-            model_name='ldapserviceuser',
-            name='dn',
+            model_name="ldapserviceuser",
+            name="dn",
             field=models.CharField(max_length=200, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='ldapuser',
-            name='dn',
+            model_name="ldapuser",
+            name="dn",
             field=models.CharField(max_length=200, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='ldapusergroup',
-            name='dn',
+            model_name="ldapusergroup",
+            name="dn",
             field=models.CharField(max_length=200, primary_key=True, serialize=False),
         ),
     ]

@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0057_auto_20180408_0316'),
-    ]
+    dependencies = [("topologie", "0057_auto_20180408_0316")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='switch',
-            name='location',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="switch", name="location")]

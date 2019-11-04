@@ -41,9 +41,7 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         user, token = base.authenticate_credentials(key)
 
         # Check that the genration time of the token is not too old
-        token_duration = datetime.timedelta(
-            seconds=settings.API_TOKEN_DURATION
-        )
+        token_duration = datetime.timedelta(seconds=settings.API_TOKEN_DURATION)
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         if token.created < utc_now - token_duration:
             raise exceptions.AuthenticationFailed(_("The token has expired."))

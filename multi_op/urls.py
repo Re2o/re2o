@@ -30,9 +30,25 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.aff_state_global, name='aff-state-global'),
-    url(r'^(?P<dormitoryid>[0-9]+)$', views.aff_state_dormitory, name='aff-state-dormitory'),
-    url(r'^pending-connection$', views.aff_pending_connection, name='aff-pending-connection'),
-    url(r'^pending-disconnection$', views.aff_pending_disconnection, name='aff-pending-disconnection'),
-    url(r'^disconnect-room/(?P<roomid>[0-9]+)$', views.disconnect_room, name='disconnect-room'),
+    url(r"^$", views.aff_state_global, name="aff-state-global"),
+    url(
+        r"^(?P<dormitoryid>[0-9]+)$",
+        views.aff_state_dormitory,
+        name="aff-state-dormitory",
+    ),
+    url(
+        r"^pending-connection$",
+        views.aff_pending_connection,
+        name="aff-pending-connection",
+    ),
+    url(
+        r"^pending-disconnection$",
+        views.aff_pending_disconnection,
+        name="aff-pending-disconnection",
+    ),
+    url(
+        r"^disconnect-room/(?P<roomid>[0-9]+)$",
+        views.disconnect_room,
+        name="disconnect-room",
+    ),
 ]

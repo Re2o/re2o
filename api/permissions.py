@@ -55,17 +55,21 @@ def _get_param_in_view(view, param_name):
         AssertionError: None of the getter function or the attribute are
             defined in the view.
     """
-    assert hasattr(view, 'get_' + param_name) \
-           or getattr(view, param_name, None) is not None, (
-        'cannot apply {} on a view that does not set '
-        '`.{}` or have a `.get_{}()` method.'
-    ).format(self.__class__.__name__, param_name, param_name)
+    assert (
+        hasattr(view, "get_" + param_name)
+        or getattr(view, param_name, None) is not None
+    ), (
+        "cannot apply {} on a view that does not set "
+        "`.{}` or have a `.get_{}()` method."
+    ).format(
+        self.__class__.__name__, param_name, param_name
+    )
 
-    if hasattr(view, 'get_' + param_name):
-        param = getattr(view, 'get_' + param_name)()
-        assert param is not None, (
-            '{}.get_{}() returned None'
-        ).format(view.__class__.__name__, param_name)
+    if hasattr(view, "get_" + param_name):
+        param = getattr(view, "get_" + param_name)()
+        assert param is not None, ("{}.get_{}() returned None").format(
+            view.__class__.__name__, param_name
+        )
         return param
     return getattr(view, param_name)
 
@@ -97,7 +101,7 @@ class ACLPermission(permissions.BasePermission):
             rest_framework.exception.MethodNotAllowed: The requested method
                 is not allowed for this view.
         """
-        perms_map = _get_param_in_view(view, 'perms_map')
+        perms_map = _get_param_in_view(view, "perms_map")
 
         if method not in perms_map:
             raise exceptions.MethodNotAllowed(method)
@@ -123,7 +127,7 @@ class ACLPermission(permissions.BasePermission):
         """
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
-        if getattr(view, '_ignore_model_permissions', False):
+        if getattr(view, "_ignore_model_permissions", False):
             return True
 
         if not request.user or not request.user.is_authenticated:
@@ -148,22 +152,22 @@ class AutodetectACLPermission(permissions.BasePermission):
     """
 
     perms_map = {
-        'GET': [can_see_api, lambda model: model.can_view_all],
-        'OPTIONS': [can_see_api, lambda model: model.can_view_all],
-        'HEAD': [can_see_api, lambda model: model.can_view_all],
-        'POST': [can_see_api, lambda model: model.can_create],
-        'PUT': [],  # No restrictions, apply to objects
-        'PATCH': [],  # No restrictions, apply to objects
-        'DELETE': [],  # No restrictions, apply to objects
+        "GET": [can_see_api, lambda model: model.can_view_all],
+        "OPTIONS": [can_see_api, lambda model: model.can_view_all],
+        "HEAD": [can_see_api, lambda model: model.can_view_all],
+        "POST": [can_see_api, lambda model: model.can_create],
+        "PUT": [],  # No restrictions, apply to objects
+        "PATCH": [],  # No restrictions, apply to objects
+        "DELETE": [],  # No restrictions, apply to objects
     }
     perms_obj_map = {
-        'GET': [can_see_api, lambda obj: obj.can_view],
-        'OPTIONS': [can_see_api, lambda obj: obj.can_view],
-        'HEAD': [can_see_api, lambda obj: obj.can_view],
-        'POST': [],  # No restrictions, apply to models
-        'PUT': [can_see_api, lambda obj: obj.can_edit],
-        'PATCH': [can_see_api, lambda obj: obj.can_edit],
-        'DELETE': [can_see_api, lambda obj: obj.can_delete],
+        "GET": [can_see_api, lambda obj: obj.can_view],
+        "OPTIONS": [can_see_api, lambda obj: obj.can_view],
+        "HEAD": [can_see_api, lambda obj: obj.can_view],
+        "POST": [],  # No restrictions, apply to models
+        "PUT": [can_see_api, lambda obj: obj.can_edit],
+        "PATCH": [can_see_api, lambda obj: obj.can_edit],
+        "DELETE": [can_see_api, lambda obj: obj.can_delete],
     }
 
     def get_required_permissions(self, method, model):
@@ -210,7 +214,7 @@ class AutodetectACLPermission(permissions.BasePermission):
 
     @staticmethod
     def _queryset(view):
-        return _get_param_in_view(view, 'queryset')
+        return _get_param_in_view(view, "queryset")
 
     def has_permission(self, request, view):
         """Check that the user has the model-based permissions to perform
@@ -232,7 +236,7 @@ class AutodetectACLPermission(permissions.BasePermission):
         """
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
-        if getattr(view, '_ignore_model_permissions', False):
+        if getattr(view, "_ignore_model_permissions", False):
             return True
 
         if not request.user or not request.user.is_authenticated:
@@ -274,7 +278,7 @@ class AutodetectACLPermission(permissions.BasePermission):
                 # to make another lookup.
                 raise Http404
 
-            read_perms = self.get_required_object_permissions('GET', obj)
+            read_perms = self.get_required_object_permissions("GET", obj)
             if not read_perms(request.user)[0]:
                 raise Http404
 

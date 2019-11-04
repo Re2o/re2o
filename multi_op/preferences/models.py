@@ -26,14 +26,15 @@ Fichier définissant les administration des models de preference
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+
 class Preferences(models.Model):
     """ Definition of the app settings"""
 
     enabled_dorm = models.ManyToManyField(
-        'topologie.Dormitory',
-        related_name='vlan_tagged',
+        "topologie.Dormitory",
+        related_name="vlan_tagged",
         blank=True,
-        verbose_name=_("Enabled dorm")
+        verbose_name=_("Enabled dorm"),
     )
 
     class Meta:

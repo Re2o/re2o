@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0064_auto_20171115_0253'),
-    ]
+    dependencies = [("machines", "0064_auto_20171115_0253")]
 
-    operations = [
-        migrations.RenameModel(
-            old_name='Text',
-            new_name='Txt',
-        ),
-    ]
+    operations = [migrations.RenameModel(old_name="Text", new_name="Txt")]

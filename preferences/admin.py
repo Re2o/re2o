@@ -41,70 +41,85 @@ from .models import (
     RadiusKey,
     SwitchManagementCred,
     Reminder,
-    DocumentTemplate
+    DocumentTemplate,
 )
 
 
 class OptionalUserAdmin(VersionAdmin):
     """Class admin options user"""
+
     pass
 
 
 class OptionalTopologieAdmin(VersionAdmin):
     """Class admin options topologie"""
+
     pass
 
 
 class OptionalMachineAdmin(VersionAdmin):
     """Class admin options machines"""
+
     pass
 
 
 class GeneralOptionAdmin(VersionAdmin):
     """Class admin options générales"""
+
     pass
 
 
 class ServiceAdmin(VersionAdmin):
     """Class admin gestion des services de la page d'accueil"""
+
     pass
 
 
 class MailContactAdmin(VersionAdmin):
     """Admin class for contact email adresses"""
+
     pass
 
 
 class AssoOptionAdmin(VersionAdmin):
     """Class admin options de l'asso"""
+
     pass
 
 
 class MailMessageOptionAdmin(VersionAdmin):
     """Class admin options mail"""
+
     pass
 
 
 class HomeOptionAdmin(VersionAdmin):
     """Class admin options home"""
+
     pass
 
 
 class RadiusKeyAdmin(VersionAdmin):
     """Class radiuskey"""
+
     pass
+
 
 class SwitchManagementCredAdmin(VersionAdmin):
     """Class managementcred for switch"""
+
     pass
+
 
 class ReminderAdmin(VersionAdmin):
     """Class reminder for switch"""
+
     pass
 
 
 class DocumentTemplateAdmin(VersionAdmin):
     """Admin class for DocumentTemplate"""
+
     pass
 
 

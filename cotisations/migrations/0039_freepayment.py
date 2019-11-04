@@ -9,20 +9,32 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0038_auto_20181231_1657'),
-    ]
+    dependencies = [("cotisations", "0038_auto_20181231_1657")]
 
     operations = [
         migrations.CreateModel(
-            name='FreePayment',
+            name="FreePayment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "payment",
+                    models.OneToOneField(
+                        editable=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payment_method",
+                        to="cotisations.Paiement",
+                    ),
+                ),
             ],
-            options={
-                'verbose_name': 'Free payment',
-            },
+            options={"verbose_name": "Free payment"},
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
-        ),
+        )
     ]

@@ -10,22 +10,17 @@ import re2o.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0095_auto_20180919_2225'),
-        ('preferences', '0055_generaloption_main_site_url'),
-        ('preferences', '0056_2_radiusoption'),
+        ("machines", "0095_auto_20180919_2225"),
+        ("preferences", "0055_generaloption_main_site_url"),
+        ("preferences", "0056_2_radiusoption"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='radius_general_policy',
+            model_name="optionaltopologie", name="radius_general_policy"
         ),
         migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='vlan_decision_nok',
+            model_name="optionaltopologie", name="vlan_decision_nok"
         ),
-        migrations.RemoveField(
-            model_name='optionaltopologie',
-            name='vlan_decision_ok',
-        ),
+        migrations.RemoveField(model_name="optionaltopologie", name="vlan_decision_ok"),
     ]

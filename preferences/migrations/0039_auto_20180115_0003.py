@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0038_auto_20180114_2209'),
-    ]
+    dependencies = [("preferences", "0038_auto_20180114_2209")]
 
     operations = [
         migrations.AddField(
-            model_name='assooption',
-            name='payment_id',
+            model_name="assooption",
+            name="payment_id",
             field=models.CharField(max_length=255, null=True),
-        ),
+        )
     ]

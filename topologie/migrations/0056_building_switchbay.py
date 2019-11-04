@@ -9,33 +9,68 @@ import re2o.mixins
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0055_auto_20180329_0431'),
-    ]
+    dependencies = [("topologie", "0055_auto_20180329_0431")]
 
     operations = [
         migrations.CreateModel(
-            name='Building',
+            name="Building",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'permissions': (('view_building', 'Peut voir un objet batiment'),),
+                "permissions": (("view_building", "Peut voir un objet batiment"),)
             },
             bases=(re2o.mixins.AclMixin, re2o.mixins.RevMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='SwitchBay',
+            name="SwitchBay",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('info', models.CharField(blank=True, help_text='Informations particulières', max_length=255, null=True)),
-                ('building', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='topologie.Building')),
-                ('members', models.ManyToManyField(blank=True, related_name='bay_switches', to='topologie.Switch')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "info",
+                    models.CharField(
+                        blank=True,
+                        help_text="Informations particulières",
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "building",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="topologie.Building",
+                    ),
+                ),
+                (
+                    "members",
+                    models.ManyToManyField(
+                        blank=True, related_name="bay_switches", to="topologie.Switch"
+                    ),
+                ),
             ],
             options={
-                'permissions': (('view_switchbay', 'Peut voir un objet baie de brassage'),),
+                "permissions": (
+                    ("view_switchbay", "Peut voir un objet baie de brassage"),
+                )
             },
             bases=(re2o.mixins.AclMixin, re2o.mixins.RevMixin, models.Model),
         ),

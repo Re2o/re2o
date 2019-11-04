@@ -7,14 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0035_optionaluser_allow_self_subscription'),
-    ]
+    dependencies = [("preferences", "0035_optionaluser_allow_self_subscription")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='assooption',
-            name='payment_pass',
-        ),
-    ]
-
+    operations = [migrations.RemoveField(model_name="assooption", name="payment_pass")]

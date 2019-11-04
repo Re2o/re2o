@@ -7,23 +7,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0041_merge_20180130_0052'),
-    ]
+    dependencies = [("preferences", "0041_merge_20180130_0052")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='optionaluser',
-            name='all_can_create',
+        migrations.RemoveField(model_name="optionaluser", name="all_can_create"),
+        migrations.AddField(
+            model_name="optionaluser",
+            name="all_can_create_adherent",
+            field=models.BooleanField(
+                default=False, help_text="Les users peuvent créer d'autres adhérents"
+            ),
         ),
         migrations.AddField(
-            model_name='optionaluser',
-            name='all_can_create_adherent',
-            field=models.BooleanField(default=False, help_text="Les users peuvent créer d'autres adhérents"),
-        ),
-        migrations.AddField(
-            model_name='optionaluser',
-            name='all_can_create_club',
-            field=models.BooleanField(default=False, help_text='Les users peuvent créer un club'),
+            model_name="optionaluser",
+            name="all_can_create_club",
+            field=models.BooleanField(
+                default=False, help_text="Les users peuvent créer un club"
+            ),
         ),
     ]

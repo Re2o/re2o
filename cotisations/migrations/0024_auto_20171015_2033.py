@@ -8,19 +8,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0023_auto_20170902_1303'),
-    ]
+    dependencies = [("cotisations", "0023_auto_20170902_1303")]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='duration',
-            field=models.PositiveIntegerField(blank=True, help_text='Durée exprimée en mois entiers', null=True, validators=[django.core.validators.MinValueValidator(0)]),
+            model_name="article",
+            name="duration",
+            field=models.PositiveIntegerField(
+                blank=True,
+                help_text="Durée exprimée en mois entiers",
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
         ),
         migrations.AlterField(
-            model_name='vente',
-            name='duration',
-            field=models.PositiveIntegerField(blank=True, help_text='Durée exprimée en mois entiers', null=True),
+            model_name="vente",
+            name="duration",
+            field=models.PositiveIntegerField(
+                blank=True, help_text="Durée exprimée en mois entiers", null=True
+            ),
         ),
     ]

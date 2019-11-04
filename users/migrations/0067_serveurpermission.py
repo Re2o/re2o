@@ -7,30 +7,32 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0066_grouppermissions'),
-    ]
+    dependencies = [("users", "0066_grouppermissions")]
 
     def transfer_permissions(apps, schema_editor):
         db_alias = schema_editor.connection.alias
-        contenttype =  apps.get_model("contenttypes", "ContentType")
+        contenttype = apps.get_model("contenttypes", "ContentType")
         rights = apps.get_model("users", "ListRight")
         permissions = apps.get_model("auth", "Permission")
         groups = apps.get_model("auth", "Group")
         machine = apps.get_model("machines", "Machine")
-        perm = permissions.objects.using(db_alias).filter(codename='serveur').first()
+        perm = permissions.objects.using(db_alias).filter(codename="serveur").first()
         if not perm:
             perm = permissions.objects.using(db_alias).create(
-            codename='serveur',
-            name='Serveur',
-            content_type=contenttype.objects.get_for_model(machine)
+                codename="serveur",
+                name="Serveur",
+                content_type=contenttype.objects.get_for_model(machine),
             )
-        group_object = rights.objects.using(db_alias).filter(unix_name='serveur').first()
+        group_object = (
+            rights.objects.using(db_alias).filter(unix_name="serveur").first()
+        )
         if not group_object:
-            last_gid = rights.objects.using(db_alias).all().order_by('gid').last().gid
+            last_gid = rights.objects.using(db_alias).all().order_by("gid").last().gid
             gid = last_gid + 1
-            abstract_group = groups.objects.using(db_alias).create(name='serveur')
-            group_object = rights.objects.using(db_alias).create(group_ptr=abstract_group, unix_name='serveur', gid=gid)
+            abstract_group = groups.objects.using(db_alias).create(name="serveur")
+            group_object = rights.objects.using(db_alias).create(
+                group_ptr=abstract_group, unix_name="serveur", gid=gid
+            )
         group_object = group_object.group_ptr
         group_object.permissions.add(perm)
         group_object.save()
@@ -38,6 +40,4 @@ class Migration(migrations.Migration):
     def untransfer_permissions(apps, schema_editor):
         return
 
-    operations = [
-    migrations.RunPython(transfer_permissions, untransfer_permissions),
-    ]
+    operations = [migrations.RunPython(transfer_permissions, untransfer_permissions)]

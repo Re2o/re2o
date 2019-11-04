@@ -8,14 +8,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0047_auto_20170809_0606'),
-    ]
+    dependencies = [("machines", "0047_auto_20170809_0606")]
 
     operations = [
         migrations.AlterField(
-            model_name='iptype',
-            name='domaine_range',
-            field=models.IntegerField(validators=[django.core.validators.MinValueValidator(16), django.core.validators.MaxValueValidator(32)]),
-        ),
+            model_name="iptype",
+            name="domaine_range",
+            field=models.IntegerField(
+                validators=[
+                    django.core.validators.MinValueValidator(16),
+                    django.core.validators.MaxValueValidator(32),
+                ]
+            ),
+        )
     ]

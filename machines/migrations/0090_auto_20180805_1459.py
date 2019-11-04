@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0089_auto_20180805_1148'),
-    ]
+    dependencies = [("machines", "0089_auto_20180805_1148")]
 
     operations = [
         migrations.AlterField(
-            model_name='ipv6list',
-            name='ipv6',
-            field=models.GenericIPAddressField(protocol='IPv6'),
-        ),
+            model_name="ipv6list",
+            name="ipv6",
+            field=models.GenericIPAddressField(protocol="IPv6"),
+        )
     ]

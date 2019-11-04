@@ -7,14 +7,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0048_auto_20170618_0210'),
-    ]
+    dependencies = [("users", "0048_auto_20170618_0210")]
 
     operations = [
         migrations.AlterField(
-            model_name='serviceuser',
-            name='access_group',
-            field=models.CharField(choices=[('auth', 'auth'), ('readonly', 'readonly'), ('usermgmt', 'usermgmt')], default='readonly', max_length=32),
-        ),
+            model_name="serviceuser",
+            name="access_group",
+            field=models.CharField(
+                choices=[
+                    ("auth", "auth"),
+                    ("readonly", "readonly"),
+                    ("usermgmt", "usermgmt"),
+                ],
+                default="readonly",
+                max_length=32,
+            ),
+        )
     ]

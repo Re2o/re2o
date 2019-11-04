@@ -7,14 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0059_auto_20190120_1739'),
-    ]
+    dependencies = [("preferences", "0059_auto_20190120_1739")]
 
     operations = [
         migrations.AlterField(
-            model_name='reminder',
-            name='message',
-            field=models.TextField(blank=True, default='', help_text='Message displayed specifically for this reminder', null=True),
-        ),
+            model_name="reminder",
+            name="message",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="Message displayed specifically for this reminder",
+                null=True,
+            ),
+        )
     ]

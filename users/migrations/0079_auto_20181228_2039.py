@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0078_auto_20181011_1405'),
-    ]
+    dependencies = [("users", "0078_auto_20181011_1405")]
 
     operations = [
         migrations.AlterField(
-            model_name='adherent',
-            name='gpg_fingerprint',
+            model_name="adherent",
+            name="gpg_fingerprint",
             field=models.CharField(blank=True, max_length=49, null=True),
-        ),
+        )
     ]

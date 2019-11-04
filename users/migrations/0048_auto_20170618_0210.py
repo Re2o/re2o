@@ -8,14 +8,14 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0047_auto_20170618_0156'),
-    ]
+    dependencies = [("users", "0047_auto_20170618_0156")]
 
     operations = [
         migrations.AlterField(
-            model_name='ldapserviceusergroup',
-            name='name',
-            field=ldapdb.models.fields.CharField(db_column='cn', max_length=200, primary_key=True, serialize=False),
-        ),
+            model_name="ldapserviceusergroup",
+            name="name",
+            field=ldapdb.models.fields.CharField(
+                db_column="cn", max_length=200, primary_key=True, serialize=False
+            ),
+        )
     ]

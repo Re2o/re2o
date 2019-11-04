@@ -8,36 +8,68 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0057_nas_autocapture_mac'),
-    ]
+    dependencies = [("machines", "0057_nas_autocapture_mac")]
 
     operations = [
         migrations.CreateModel(
-            name='OuverturePort',
+            name="OuverturePort",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('begin', models.IntegerField()),
-                ('end', models.IntegerField()),
-                ('protocole', models.CharField(choices=[('T', 'TCP'), ('U', 'UDP')], default='T', max_length=1)),
-                ('io', models.CharField(choices=[('I', 'IN'), ('O', 'OUT')], default='O', max_length=1)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("begin", models.IntegerField()),
+                ("end", models.IntegerField()),
+                (
+                    "protocole",
+                    models.CharField(
+                        choices=[("T", "TCP"), ("U", "UDP")], default="T", max_length=1
+                    ),
+                ),
+                (
+                    "io",
+                    models.CharField(
+                        choices=[("I", "IN"), ("O", "OUT")], default="O", max_length=1
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='OuverturePortList',
+            name="OuverturePortList",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Nom de la configuration des ports.', max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Nom de la configuration des ports.", max_length=255
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='ouvertureport',
-            name='port_list',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.OuverturePortList'),
+            model_name="ouvertureport",
+            name="port_list",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="machines.OuverturePortList",
+            ),
         ),
         migrations.AddField(
-            model_name='interface',
-            name='port_lists',
-            field=models.ManyToManyField(blank=True, to='machines.OuverturePortList'),
+            model_name="interface",
+            name="port_lists",
+            field=models.ManyToManyField(blank=True, to="machines.OuverturePortList"),
         ),
     ]

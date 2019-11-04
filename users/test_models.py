@@ -6,25 +6,18 @@ from django.utils import timezone
 from users.models import User
 from cotisations.models import Vente, Facture, Paiement
 
+
 class UserModelTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create(
-            pseudo="testUser"
-        )
+        self.user = User.objects.create(pseudo="testUser")
 
     def tearDown(self):
         self.user.facture_set.all().delete()
         self.user.delete()
 
     def test_multiple_cotisations_are_taken_into_account(self):
-        paiement = Paiement.objects.create(
-            moyen="test payment"
-        )
-        invoice = Facture.objects.create(
-            user=self.user,
-            paiement=paiement,
-            valid=True
-        )
+        paiement = Paiement.objects.create(moyen="test payment")
+        invoice = Facture.objects.create(user=self.user, paiement=paiement, valid=True)
         date = timezone.now()
         purchase1 = Vente.objects.create(
             facture=invoice,
@@ -47,5 +40,5 @@ class UserModelTests(TestCase):
         self.assertAlmostEqual(
             self.user.end_connexion() - date,
             datetime.timedelta(days=2),
-            delta=datetime.timedelta(seconds=1)
+            delta=datetime.timedelta(seconds=1),
         )

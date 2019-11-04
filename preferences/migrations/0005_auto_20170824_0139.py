@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0004_assooption_services'),
-    ]
+    dependencies = [("preferences", "0004_assooption_services")]
 
-    operations = [
-        migrations.RenameModel(
-            old_name='Services',
-            new_name='Service',
-        ),
-    ]
+    operations = [migrations.RenameModel(old_name="Services", new_name="Service")]

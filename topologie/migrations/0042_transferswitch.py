@@ -7,12 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0041_transferportsw'),
-    ]
+    dependencies = [("topologie", "0041_transferportsw")]
 
-    operations = [
-    migrations.DeleteModel(
-        name='Switch',
-    ),
-    ]
+    operations = [migrations.DeleteModel(name="Switch")]

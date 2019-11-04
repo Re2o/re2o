@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0063_auto_20180919_2225'),
-    ]
+    dependencies = [("topologie", "0063_auto_20180919_2225")]
 
     operations = [
         migrations.AddField(
-            model_name='switch',
-            name='automatic_provision',
-            field=models.BooleanField(default=False, help_text='Provision automatique de ce switch'),
-        ),
+            model_name="switch",
+            name="automatic_provision",
+            field=models.BooleanField(
+                default=False, help_text="Provision automatique de ce switch"
+            ),
+        )
     ]

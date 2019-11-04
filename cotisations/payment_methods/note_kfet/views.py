@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2018  Gabriel Detraz
-# Copyright © 2018  Pierre-Antoine Comby 
+# Copyright © 2018  Pierre-Antoine Comby
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,12 +39,10 @@ from cotisations.models import Facture
 from cotisations.utils import find_payment_method
 from .models import NotePayment
 from re2o.views import form
-from re2o.acl import (
-    can_create,
-    can_edit
-)
+from re2o.acl import can_create, can_edit
 from .note import login, don
 from .forms import NoteCredentialForm
+
 
 @login_required
 @can_edit(Facture)
@@ -58,40 +56,38 @@ def note_payment(request, facture, factureid):
     payment_method = find_payment_method(facture.paiement)
     if not payment_method or not isinstance(payment_method, NotePayment):
         messages.error(request, _("Unknown error."))
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': user.id}
-         ))
+        return redirect(reverse("users:profil", kwargs={"userid": user.id}))
     noteform = NoteCredentialForm(request.POST or None)
     if noteform.is_valid():
-        pseudo = noteform.cleaned_data['login']
-        password = noteform.cleaned_data['password']
-        result, sock, err = login(payment_method.server, payment_method.port, pseudo, password)
+        pseudo = noteform.cleaned_data["login"]
+        password = noteform.cleaned_data["password"]
+        result, sock, err = login(
+            payment_method.server, payment_method.port, pseudo, password
+        )
         if not result:
             messages.error(request, err)
             return form(
-                {'form': noteform, 'amount': facture.prix_total()},
+                {"form": noteform, "amount": facture.prix_total()},
                 "cotisations/payment.html",
-                request
+                request,
             )
         else:
-            result, err = don(sock, facture.prix_total(), payment_method.id_note, facture)
+            result, err = don(
+                sock, facture.prix_total(), payment_method.id_note, facture
+            )
             if not result:
                 messages.error(request, err)
                 return form(
-                    {'form': noteform, 'amount': facture.prix_total()},
+                    {"form": noteform, "amount": facture.prix_total()},
                     "cotisations/payment.html",
-                    request
+                    request,
                 )
         facture.valid = True
         facture.save()
         messages.success(request, _("The payment with note was done."))
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': user.id}
-         ))
+        return redirect(reverse("users:profil", kwargs={"userid": user.id}))
     return form(
-            {'form': noteform, 'amount': facture.prix_total()},
-            "cotisations/payment.html",
-            request
-        )
+        {"form": noteform, "amount": facture.prix_total()},
+        "cotisations/payment.html",
+        request,
+    )

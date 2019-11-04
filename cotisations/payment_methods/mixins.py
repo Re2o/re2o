@@ -29,5 +29,4 @@ class PaymentMethodMixin:
 
         Must return a HttpResponse-like object.
         """
-        return self.payment.end_payment(
-            invoice, request, use_payment_method=False)
+        return self.payment.end_payment(invoice, request, use_payment_method=False)

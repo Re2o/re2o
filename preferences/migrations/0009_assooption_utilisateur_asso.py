@@ -11,13 +11,18 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('preferences', '0008_auto_20170824_2122'),
+        ("preferences", "0008_auto_20170824_2122"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='assooption',
-            name='utilisateur_asso',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL),
-        ),
+            model_name="assooption",
+            name="utilisateur_asso",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to=settings.AUTH_USER_MODEL,
+            ),
+        )
     ]

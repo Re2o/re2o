@@ -9,23 +9,35 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0034_auto_20180831_1532'),
-    ]
+    dependencies = [("cotisations", "0034_auto_20180831_1532")]
 
     operations = [
         migrations.CreateModel(
-            name='NotePayment',
+            name="NotePayment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('server', models.CharField(max_length=255, verbose_name='server')),
-                ('port', models.PositiveIntegerField(blank=True, null=True)),
-                ('id_note', models.PositiveIntegerField(blank=True, null=True)),
-                ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='payment_method', to='cotisations.Paiement')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("server", models.CharField(max_length=255, verbose_name="server")),
+                ("port", models.PositiveIntegerField(blank=True, null=True)),
+                ("id_note", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "payment",
+                    models.OneToOneField(
+                        editable=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payment_method",
+                        to="cotisations.Paiement",
+                    ),
+                ),
             ],
-            options={
-                'verbose_name': 'NoteKfet',
-            },
+            options={"verbose_name": "NoteKfet"},
             bases=(cotisations.payment_methods.mixins.PaymentMethodMixin, models.Model),
-        ),
+        )
     ]

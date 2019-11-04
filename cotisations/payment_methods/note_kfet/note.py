@@ -12,13 +12,14 @@ import traceback
 
 
 def get_response(socket):
-    length_str = b''
+    length_str = b""
     char = socket.recv(1)
-    while char != b'\n':
+    while char != b"\n":
         length_str += char
         char = socket.recv(1)
     total = int(length_str)
-    return json.loads(socket.recv(total).decode('utf-8'))
+    return json.loads(socket.recv(total).decode("utf-8"))
+
 
 def connect(server, port):
     sock = socket.socket()
@@ -35,7 +36,8 @@ def connect(server, port):
         return (False, sock, "Serveur indisponible")
     return (True, sock, "")
 
-def login(server, port, username, password,  masque = [[], [], True]):
+
+def login(server, port, username, password, masque=[[], [], True]):
     result, sock, err = connect(server, port)
     if not result:
         return (False, None, err)
@@ -43,7 +45,7 @@ def login(server, port, username, password,  masque = [[], [], True]):
         commande = ["login", [username, password, "bdd", masque]]
         sock.send(json.dumps(commande).encode("utf-8"))
         response = get_response(sock)
-        retcode = response['retcode']
+        retcode = response["retcode"]
         if retcode == 0:
             return (True, sock, "")
         elif retcode == 5:
@@ -60,11 +62,28 @@ def don(sock, montant, id_note, facture):
     Faire faire un don à l'id_note
     """
     try:
-        sock.send(json.dumps(["dons", [[id_note], round(montant*100), "Facture : id=%s, designation=%s" % (facture.id, facture.name())]]).encode("utf-8"))
+        sock.send(
+            json.dumps(
+                [
+                    "dons",
+                    [
+                        [id_note],
+                        round(montant * 100),
+                        "Facture : id=%s, designation=%s"
+                        % (facture.id, facture.name()),
+                    ],
+                ]
+            ).encode("utf-8")
+        )
         response = get_response(sock)
-        retcode = response['retcode']
+        retcode = response["retcode"]
         transaction_retcode = response["msg"][0][0]
-        if 0 < retcode < 100 or 200 <= retcode or 0 < transaction_retcode < 100 or 200 <= transaction_retcode:
+        if (
+            0 < retcode < 100
+            or 200 <= retcode
+            or 0 < transaction_retcode < 100
+            or 200 <= transaction_retcode
+        ):
             return (False, "Transaction échouée. (Solde trop négatif ?)")
         elif retcode == 0:
             return (True, "")

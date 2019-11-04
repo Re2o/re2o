@@ -37,51 +37,37 @@ from django.db.models import Q
 from re2o.views import form
 from re2o.utils import all_has_access, all_adherent
 
-from re2o.base import (
-    re2o_paginator,
-    SortTable,
-)
+from re2o.base import re2o_paginator, SortTable
 
-from re2o.acl import(
-    can_view,
-    can_view_all,
-    can_edit,
-    can_create,
-)
+from re2o.acl import can_view, can_view_all, can_edit, can_create
 
 from preferences.models import GeneralOption
 
 from .forms import DormitoryForm
 
-from .preferences.models import(
-    Preferences,
-)
+from .preferences.models import Preferences
 
 from topologie.models import Room, Dormitory
 
-from .preferences.forms import (
-    EditPreferencesForm,
-)
+from .preferences.forms import EditPreferencesForm
 
 
 def display_rooms_connection(request, dormitory=None):
     """View to display global state of connection state"""
-    room_list = Room.objects.select_related('building__dormitory').order_by('building_dormitory', 'port')
+    room_list = Room.objects.select_related("building__dormitory").order_by(
+        "building_dormitory", "port"
+    )
     if dormitory:
         room_list = room_list.filter(building__dormitory=dormitory)
     room_list = SortTable.sort(
         room_list,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.TOPOLOGIE_INDEX_ROOM
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.TOPOLOGIE_INDEX_ROOM,
     )
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
-    return render(
-        request,
-        'multi_op/index_room_state.html',
-        {'room_list': room_list}
-    )
+    return render(request, "multi_op/index_room_state.html", {"room_list": room_list})
 
 
 @login_required
@@ -100,22 +86,29 @@ def aff_state_dormitory(request, dormitory, dormitoryid):
 @can_view_all(Room)
 def aff_pending_connection(request):
     """Aff pending Rooms to connect on our network"""
-    room_list = Room.objects.select_related('building__dormitory').filter(port__isnull=True).filter(adherent__in=all_has_access()).order_by('building_dormitory', 'port')
+    room_list = (
+        Room.objects.select_related("building__dormitory")
+        .filter(port__isnull=True)
+        .filter(adherent__in=all_has_access())
+        .order_by("building_dormitory", "port")
+    )
     dormitory_form = DormitoryForm(request.POST or None)
     if dormitory_form.is_valid():
-        room_list = room_list.filter(building__dormitory__in=dormitory_form.cleaned_data['dormitory'])
+        room_list = room_list.filter(
+            building__dormitory__in=dormitory_form.cleaned_data["dormitory"]
+        )
     room_list = SortTable.sort(
         room_list,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.TOPOLOGIE_INDEX_ROOM
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.TOPOLOGIE_INDEX_ROOM,
     )
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
     return render(
         request,
-        'multi_op/index_room_state.html',
-        {'room_list': room_list, 'dormitory_form': dormitory_form}
+        "multi_op/index_room_state.html",
+        {"room_list": room_list, "dormitory_form": dormitory_form},
     )
 
 
@@ -123,22 +116,29 @@ def aff_pending_connection(request):
 @can_view_all(Room)
 def aff_pending_disconnection(request):
     """Aff pending Rooms to disconnect from our network"""
-    room_list = Room.objects.select_related('building__dormitory').filter(port__isnull=False).exclude(Q(adherent__in=all_has_access()) | Q(adherent__in=all_adherent())).order_by('building_dormitory', 'port')
+    room_list = (
+        Room.objects.select_related("building__dormitory")
+        .filter(port__isnull=False)
+        .exclude(Q(adherent__in=all_has_access()) | Q(adherent__in=all_adherent()))
+        .order_by("building_dormitory", "port")
+    )
     dormitory_form = DormitoryForm(request.POST or None)
     if dormitory_form.is_valid():
-        room_list = room_list.filter(building__dormitory__in=dormitory_form.cleaned_data['dormitory'])
+        room_list = room_list.filter(
+            building__dormitory__in=dormitory_form.cleaned_data["dormitory"]
+        )
     room_list = SortTable.sort(
         room_list,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.TOPOLOGIE_INDEX_ROOM
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.TOPOLOGIE_INDEX_ROOM,
     )
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
     return render(
         request,
-        'multi_op/index_room_state.html',
-        {'room_list': room_list, 'dormitory_form': dormitory_form}
+        "multi_op/index_room_state.html",
+        {"room_list": room_list, "dormitory_form": dormitory_form},
     )
 
 
@@ -148,16 +148,10 @@ def disconnect_room(request, room, roomid):
     """Action of disconnecting a room"""
     room.port_set.clear()
     room.save()
-    messages.success(request,'Room %s disconnected' % room)
-    return redirect(reverse(
-        'multi_op:aff-pending-disconnection'
-    ))
+    messages.success(request, "Room %s disconnected" % room)
+    return redirect(reverse("multi_op:aff-pending-disconnection"))
 
 
 def navbar_user():
     """View to display the app in user's dropdown in the navbar"""
-    return ('topologie', render_to_string('multi_op/navbar.html'))
-
-
-
-
+    return ("topologie", render_to_string("multi_op/navbar.html"))

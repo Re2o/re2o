@@ -25,13 +25,19 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+
 class Command(BaseCommand):
     help = "Delete non members users (not yet active)"
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
-        days = OptionalUser.get_cached_value('delete_notyetactive')
-        users_to_delete = User.objects.filter(state=User.STATE_NOT_YET_ACTIVE).filter(registered__lte=timezone.now() - timedelta(days=days)).exclude(facture__valid=True).distinct()
+        days = OptionalUser.get_cached_value("delete_notyetactive")
+        users_to_delete = (
+            User.objects.filter(state=User.STATE_NOT_YET_ACTIVE)
+            .filter(registered__lte=timezone.now() - timedelta(days=days))
+            .exclude(facture__valid=True)
+            .distinct()
+        )
         print("Deleting " + str(users_to_delete.count()) + " users")
         Facture.objects.filter(user__in=users_to_delete).delete()
         users_to_delete.delete()

@@ -9,8 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0008_alter_user_username_max_length'),
-        ('users', '0061_auto_20171230_2033'),
+        ("auth", "0008_alter_user_username_max_length"),
+        ("users", "0061_auto_20171230_2033"),
     ]
 
     def create_groups(apps, schema_editor):
@@ -19,26 +19,31 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         for gr in listrights.objects.using(db_alias).all():
             grp = group()
-            grp.name=gr.unix_name
+            grp.name = gr.unix_name
             grp.save()
-            gr.group_ptr=grp
+            gr.group_ptr = grp
             gr.save()
 
     def delete_groups(apps, schema_editor):
         group = apps.get_model("auth", "Group")
-        db_alias = schema_editor.connection.alias 
+        db_alias = schema_editor.connection.alias
         group.objects.using(db_alias).all().delete()
 
     operations = [
         migrations.RenameField(
-            model_name='listright',
-            old_name='listright',
-            new_name='unix_name',
+            model_name="listright", old_name="listright", new_name="unix_name"
         ),
         migrations.AddField(
-            model_name='listright',
-            name='group_ptr',
-            field=models.OneToOneField(blank=True, null=True, auto_created=True, on_delete=django.db.models.deletion.CASCADE, serialize=False, to='auth.Group'),
+            model_name="listright",
+            name="group_ptr",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                auto_created=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                serialize=False,
+                to="auth.Group",
+            ),
             preserve_default=False,
         ),
         migrations.RunPython(create_groups, delete_groups),

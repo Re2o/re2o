@@ -9,20 +9,33 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0076_auto_20180130_1623'),
-        ('topologie', '0033_auto_20171231_1743'),
+        ("machines", "0076_auto_20180130_1623"),
+        ("topologie", "0033_auto_20171231_1743"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Borne',
+            name="Borne",
             fields=[
-                ('interface_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='machines.Interface')),
-                ('location', models.CharField(help_text="Détails sur la localisation de l'AP", max_length=255)),
+                (
+                    "interface_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="machines.Interface",
+                    ),
+                ),
+                (
+                    "location",
+                    models.CharField(
+                        help_text="Détails sur la localisation de l'AP", max_length=255
+                    ),
+                ),
             ],
-            options={
-                'permissions': (('view_borne', 'Peut voir une borne'),),
-            },
-            bases=('machines.interface',),
-        ),
+            options={"permissions": (("view_borne", "Peut voir une borne"),)},
+            bases=("machines.interface",),
+        )
     ]

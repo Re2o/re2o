@@ -42,9 +42,9 @@ from re2o.mixins import AclMixin, RevMixin
 from preferences.models import CotisationsOption
 
 
-TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
-CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
-CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 86400)  # 1 day
+TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
+CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
+CACHE_TIMEOUT = getattr(settings, "TEX_CACHE_TIMEOUT", 86400)  # 1 day
 
 
 def render_invoice(_request, ctx={}):
@@ -53,20 +53,20 @@ def render_invoice(_request, ctx={}):
     date, the user, the articles, the prices, ...
     """
     options, _ = CotisationsOption.objects.get_or_create()
-    is_estimate = ctx.get('is_estimate', False)
-    filename = '_'.join([
-        'cost_estimate' if is_estimate else 'invoice',
-        slugify(ctx.get('asso_name', "")),
-        slugify(ctx.get('recipient_name', "")),
-        str(ctx.get('DATE', datetime.now()).year),
-        str(ctx.get('DATE', datetime.now()).month),
-        str(ctx.get('DATE', datetime.now()).day),
-    ])
-    templatename = options.invoice_template.template.name.split('/')[-1]
-    r = render_tex(_request, templatename, ctx)
-    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
-        name=filename
+    is_estimate = ctx.get("is_estimate", False)
+    filename = "_".join(
+        [
+            "cost_estimate" if is_estimate else "invoice",
+            slugify(ctx.get("asso_name", "")),
+            slugify(ctx.get("recipient_name", "")),
+            str(ctx.get("DATE", datetime.now()).year),
+            str(ctx.get("DATE", datetime.now()).month),
+            str(ctx.get("DATE", datetime.now()).day),
+        ]
     )
+    templatename = options.invoice_template.template.name.split("/")[-1]
+    r = render_tex(_request, templatename, ctx)
+    r["Content-Disposition"] = 'attachment; filename="{name}.pdf"'.format(name=filename)
     return r
 
 
@@ -75,20 +75,20 @@ def render_voucher(_request, ctx={}):
     Render a subscribtion voucher.
     """
     options, _ = CotisationsOption.objects.get_or_create()
-    filename = '_'.join([
-        'voucher',
-        slugify(ctx.get('asso_name', "")),
-        slugify(ctx.get('firstname', "")),
-        slugify(ctx.get('lastname', "")),
-        str(ctx.get('date_begin', datetime.now()).year),
-        str(ctx.get('date_begin', datetime.now()).month),
-        str(ctx.get('date_begin', datetime.now()).day),
-    ])
-    templatename = options.voucher_template.template.name.split('/')[-1]
-    r = render_tex(_request, templatename, ctx)
-    r['Content-Disposition'] = 'attachment; filename="{name}.pdf"'.format(
-        name=filename
+    filename = "_".join(
+        [
+            "voucher",
+            slugify(ctx.get("asso_name", "")),
+            slugify(ctx.get("firstname", "")),
+            slugify(ctx.get("lastname", "")),
+            str(ctx.get("date_begin", datetime.now()).year),
+            str(ctx.get("date_begin", datetime.now()).month),
+            str(ctx.get("date_begin", datetime.now()).day),
+        ]
     )
+    templatename = options.voucher_template.template.name.split("/")[-1]
+    r = render_tex(_request, templatename, ctx)
+    r["Content-Disposition"] = 'attachment; filename="{name}.pdf"'.format(name=filename)
     return r
 
 
@@ -106,18 +106,18 @@ def create_pdf(template, ctx={}):
     """
     context = ctx
     template = get_template(template)
-    rendered_tpl = template.render(context).encode('utf-8')
+    rendered_tpl = template.render(context).encode("utf-8")
 
     with tempfile.TemporaryDirectory() as tempdir:
         for _ in range(2):
             with open("/var/www/re2o/out.log", "w") as f:
                 process = Popen(
-                    ['pdflatex', '-output-directory', tempdir],
+                    ["pdflatex", "-output-directory", tempdir],
                     stdin=PIPE,
-                    stdout=f,#PIPE,
+                    stdout=f,  # PIPE,
                 )
                 process.communicate(rendered_tpl)
-        with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
+        with open(os.path.join(tempdir, "texput.pdf"), "rb") as f:
             pdf = f.read()
 
     return pdf
@@ -127,10 +127,7 @@ def escape_chars(string):
     """Escape the '%' and the '€' signs to avoid messing with LaTeX"""
     if not isinstance(string, str):
         return string
-    mapping = (
-        ('€', r'\euro'),
-        ('%', r'\%'),
-    )
+    mapping = (("€", r"\euro"), ("%", r"\%"))
     r = str(string)
     for k, v in mapping:
         r = r.replace(k, v)
@@ -152,6 +149,6 @@ def render_tex(_request, template, ctx={}):
         An HttpResponse with type `application/pdf` containing the PDF file.
     """
     pdf = create_pdf(template, ctx)
-    r = HttpResponse(content_type='application/pdf')
+    r = HttpResponse(content_type="application/pdf")
     r.write(pdf)
     return r

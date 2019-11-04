@@ -7,15 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0017_auto_20170718_2329'),
-    ]
+    dependencies = [("cotisations", "0017_auto_20170718_2329")]
 
     operations = [
         migrations.AddField(
-            model_name='paiement',
-            name='type_paiement',
-            field=models.CharField(choices=[('check', 'Chèque'), (None, 'Autre')], default=None, max_length=255),
+            model_name="paiement",
+            name="type_paiement",
+            field=models.CharField(
+                choices=[("check", "Chèque"), (None, "Autre")],
+                default=None,
+                max_length=255,
+            ),
             preserve_default=False,
-        ),
+        )
     ]

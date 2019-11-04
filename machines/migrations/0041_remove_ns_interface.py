@@ -28,13 +28,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0040_remove_interface_dns'),
-    ]
+    dependencies = [("machines", "0040_remove_interface_dns")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='ns',
-            name='interface',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="ns", name="interface")]

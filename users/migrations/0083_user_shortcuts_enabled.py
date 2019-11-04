@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0082_auto_20190908_1338'),
-    ]
+    dependencies = [("users", "0082_auto_20190908_1338")]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='shortcuts_enabled',
-            field=models.BooleanField(default=True, verbose_name='Enable shortcuts on Re2o website'),
-        ),
+            model_name="user",
+            name="shortcuts_enabled",
+            field=models.BooleanField(
+                default=True, verbose_name="Enable shortcuts on Re2o website"
+            ),
+        )
     ]

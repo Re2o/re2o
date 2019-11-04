@@ -8,32 +8,63 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0043_auto_20170721_0350'),
-    ]
+    dependencies = [("machines", "0043_auto_20170721_0350")]
 
     operations = [
         migrations.CreateModel(
-            name='Service',
+            name="Service",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('service_type', models.CharField(blank=True, max_length=255, unique=True)),
-                ('time_regen', models.DurationField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "service_type",
+                    models.CharField(blank=True, max_length=255, unique=True),
+                ),
+                ("time_regen", models.DurationField()),
             ],
         ),
         migrations.CreateModel(
-            name='Service_link',
+            name="Service_link",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_regen', models.DateTimeField()),
-                ('asked_regen', models.BooleanField()),
-                ('server', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.Interface')),
-                ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.Service')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("last_regen", models.DateTimeField()),
+                ("asked_regen", models.BooleanField()),
+                (
+                    "server",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="machines.Interface",
+                    ),
+                ),
+                (
+                    "service",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="machines.Service",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='service',
-            name='servers',
-            field=models.ManyToManyField(through='machines.Service_link', to='machines.Interface'),
+            model_name="service",
+            name="servers",
+            field=models.ManyToManyField(
+                through="machines.Service_link", to="machines.Interface"
+            ),
         ),
     ]

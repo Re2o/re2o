@@ -31,7 +31,7 @@ class Command(BaseCommand):
     help = "Changer le mot de passe d'un utilisateur"
 
     def add_arguments(self, parser):
-        parser.add_argument('target_username', nargs='?')
+        parser.add_argument("target_username", nargs="?")
 
     def handle(self, *args, **kwargs):
 
@@ -44,13 +44,8 @@ class Command(BaseCommand):
         if not ok:
             raise CommandError(msg)
 
-        self.stdout.write(
-            "Changement du mot de passe de %s" % target_user.pseudo
-        )
+        self.stdout.write("Changement du mot de passe de %s" % target_user.pseudo)
 
         form_cli(
-            PassForm,
-            current_user,
-            "Changement du mot de passe",
-            instance=target_user
+            PassForm, current_user, "Changement du mot de passe", instance=target_user
         )

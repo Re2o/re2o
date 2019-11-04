@@ -7,13 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0070_auto_20171231_1947'),
-    ]
+    dependencies = [("machines", "0070_auto_20171231_1947")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ns',
-            options={'permissions': (('view_ns', 'Peut voir un objet ns'),)},
-        ),
+            name="ns", options={"permissions": (("view_ns", "Peut voir un objet ns"),)}
+        )
     ]

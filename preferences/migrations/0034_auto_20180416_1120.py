@@ -7,17 +7,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0033_accueiloption'),
-    ]
+    dependencies = [("preferences", "0033_accueiloption")]
 
     operations = [
-        migrations.RenameModel(
-            old_name='AccueilOption',
-            new_name='HomeOption',
-        ),
+        migrations.RenameModel(old_name="AccueilOption", new_name="HomeOption"),
         migrations.AlterModelOptions(
-            name='homeoption',
-            options={'permissions': (('view_homeoption', "Peut voir les options de l'accueil"),)},
+            name="homeoption",
+            options={
+                "permissions": (
+                    ("view_homeoption", "Peut voir les options de l'accueil"),
+                )
+            },
         ),
     ]

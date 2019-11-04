@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0019_remove_optionaltopologie_mac_autocapture'),
-    ]
+    dependencies = [("preferences", "0019_remove_optionaltopologie_mac_autocapture")]
 
     operations = [
         migrations.AddField(
-            model_name='optionalmachine',
-            name='ipv6',
+            model_name="optionalmachine",
+            name="ipv6",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

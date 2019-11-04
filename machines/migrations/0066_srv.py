@@ -9,23 +9,68 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0065_auto_20171115_1514'),
-    ]
+    dependencies = [("machines", "0065_auto_20171115_1514")]
 
     operations = [
         migrations.CreateModel(
-            name='Srv',
+            name="Srv",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('service', models.CharField(max_length=31)),
-                ('protocole', models.CharField(choices=[('TCP', 'TCP'), ('UDP', 'UDP')], default='TCP', max_length=3)),
-                ('ttl', models.PositiveIntegerField(default=172800, help_text='Time To Live')),
-                ('priority', models.PositiveIntegerField(validators=[django.core.validators.MaxValueValidator(65535)])),
-                ('weight', models.PositiveIntegerField(validators=[django.core.validators.MaxValueValidator(65535)])),
-                ('port', models.PositiveIntegerField(validators=[django.core.validators.MaxValueValidator(65535)])),
-                ('extension', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.Extension')),
-                ('target', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='machines.Domain')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("service", models.CharField(max_length=31)),
+                (
+                    "protocole",
+                    models.CharField(
+                        choices=[("TCP", "TCP"), ("UDP", "UDP")],
+                        default="TCP",
+                        max_length=3,
+                    ),
+                ),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        default=172800, help_text="Time To Live"
+                    ),
+                ),
+                (
+                    "priority",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)]
+                    ),
+                ),
+                (
+                    "weight",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)]
+                    ),
+                ),
+                (
+                    "port",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)]
+                    ),
+                ),
+                (
+                    "extension",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="machines.Extension",
+                    ),
+                ),
+                (
+                    "target",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="machines.Domain",
+                    ),
+                ),
             ],
-        ),
+        )
     ]

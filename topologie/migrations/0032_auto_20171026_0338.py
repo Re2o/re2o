@@ -8,29 +8,54 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0031_auto_20171015_2033'),
-    ]
+    dependencies = [("topologie", "0031_auto_20171015_2033")]
 
     operations = [
         migrations.CreateModel(
-            name='ConstructorSwitch',
+            name="ConstructorSwitch",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='ModelSwitch',
+            name="ModelSwitch",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reference', models.CharField(max_length=255)),
-                ('constructor', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='topologie.ConstructorSwitch')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("reference", models.CharField(max_length=255)),
+                (
+                    "constructor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="topologie.ConstructorSwitch",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='switch',
-            name='model',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.ModelSwitch'),
+            model_name="switch",
+            name="model",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="topologie.ModelSwitch",
+            ),
         ),
     ]

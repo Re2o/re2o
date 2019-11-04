@@ -8,14 +8,12 @@ import macaddress.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0088_iptype_prefix_v6_length'),
-    ]
+    dependencies = [("machines", "0088_iptype_prefix_v6_length")]
 
     operations = [
         migrations.AlterField(
-            model_name='interface',
-            name='mac_address',
+            model_name="interface",
+            name="mac_address",
             field=macaddress.fields.MACAddressField(integer=False, max_length=17),
-        ),
+        )
     ]

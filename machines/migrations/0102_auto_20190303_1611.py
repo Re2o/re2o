@@ -7,24 +7,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0101_auto_20190108_1623'),
-    ]
+    dependencies = [("machines", "0101_auto_20190108_1623")]
 
     operations = [
         migrations.RenameField(
-            model_name='interface',
-            old_name='type',
-            new_name='machine_type',
+            model_name="interface", old_name="type", new_name="machine_type"
         ),
+        migrations.RenameField(model_name="iptype", old_name="type", new_name="name"),
         migrations.RenameField(
-            model_name='iptype',
-            old_name='type',
-            new_name='name',
-        ),
-        migrations.RenameField(
-            model_name='machinetype',
-            old_name='type',
-            new_name='name',
+            model_name="machinetype", old_name="type", new_name="name"
         ),
     ]

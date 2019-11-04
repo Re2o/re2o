@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0024_auto_20171015_2033'),
-    ]
+    dependencies = [("cotisations", "0024_auto_20171015_2033")]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='type_user',
-            field=models.CharField(choices=[('Adherent', 'Adherent'), ('Club', 'Club'), ('All', 'All')], default='All', max_length=255),
-        ),
+            model_name="article",
+            name="type_user",
+            field=models.CharField(
+                choices=[("Adherent", "Adherent"), ("Club", "Club"), ("All", "All")],
+                default="All",
+                max_length=255,
+            ),
+        )
     ]

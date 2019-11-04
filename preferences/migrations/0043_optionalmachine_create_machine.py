@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0042_auto_20180222_1743'),
-    ]
+    dependencies = [("preferences", "0042_auto_20180222_1743")]
 
     operations = [
         migrations.AddField(
-            model_name='optionalmachine',
-            name='create_machine',
-            field=models.BooleanField(default=True, help_text="Permet à l'user de créer une machine"),
-        ),
+            model_name="optionalmachine",
+            name="create_machine",
+            field=models.BooleanField(
+                default=True, help_text="Permet à l'user de créer une machine"
+            ),
+        )
     ]

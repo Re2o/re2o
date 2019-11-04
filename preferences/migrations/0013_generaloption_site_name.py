@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0012_generaloption_req_expire_hrs'),
-    ]
+    dependencies = [("preferences", "0012_generaloption_req_expire_hrs")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='site_name',
-            field=models.CharField(default='Re2o', max_length=32),
-        ),
+            model_name="generaloption",
+            name="site_name",
+            field=models.CharField(default="Re2o", max_length=32),
+        )
     ]

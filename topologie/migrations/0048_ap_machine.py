@@ -8,9 +8,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0047_ap_machine'),
-    ]
+    dependencies = [("topologie", "0047_ap_machine")]
 
     def transfer_ap(apps, schema_editor):
         db_alias = schema_editor.connection.alias
@@ -29,11 +27,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(transfer_ap, untransfer_ap),
-        migrations.DeleteModel(
-            name='AccessPoint',
-        ),
-        migrations.RenameModel(
-        old_name='NewAccessPoint',
-        new_name='AccessPoint',
-        ),
+        migrations.DeleteModel(name="AccessPoint"),
+        migrations.RenameModel(old_name="NewAccessPoint", new_name="AccessPoint"),
     ]

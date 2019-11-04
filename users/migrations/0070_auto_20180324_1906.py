@@ -7,13 +7,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0069_club_mailing'),
-    ]
+    dependencies = [("users", "0069_club_mailing")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='listshell',
-            options={'permissions': (('view_listshell', "Peut voir un objet shell quelqu'il soit"),)},
-        ),
+            name="listshell",
+            options={
+                "permissions": (
+                    ("view_listshell", "Peut voir un objet shell quelqu'il soit"),
+                )
+            },
+        )
     ]

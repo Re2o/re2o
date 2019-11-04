@@ -50,26 +50,24 @@ def accept_payment(request, factureid):
     if invoice.valid:
         messages.success(
             request,
-            _("The payment of %(amount)s € was accepted.") % {
-                'amount': invoice.prix_total()
-            }
+            _("The payment of %(amount)s € was accepted.")
+            % {"amount": invoice.prix_total()},
         )
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(purchase.type_cotisation
-               for purchase in invoice.vente_set.all()):
+        if any(purchase.type_cotisation for purchase in invoice.vente_set.all()):
             messages.success(
                 request,
-                _("The subscription of %(member_name)s was extended to"
-                  " %(end_date)s.") % {
-                    'member_name': invoice.user.pseudo,
-                    'end_date': invoice.user.end_adhesion()
-                }
+                _(
+                    "The subscription of %(member_name)s was extended to"
+                    " %(end_date)s."
+                )
+                % {
+                    "member_name": invoice.user.pseudo,
+                    "end_date": invoice.user.end_adhesion(),
+                },
             )
-    return redirect(reverse(
-        'users:profil',
-        kwargs={'userid': invoice.user.id}
-    ))
+    return redirect(reverse("users:profil", kwargs={"userid": invoice.user.id}))
 
 
 @csrf_exempt
@@ -79,14 +77,8 @@ def refuse_payment(request):
     The view where the user is redirected when a comnpay payment has been
     refused.
     """
-    messages.error(
-        request,
-        _("The payment was refused.")
-    )
-    return redirect(reverse(
-        'users:profil',
-        kwargs={'userid': request.user.id}
-    ))
+    messages.error(request, _("The payment was refused."))
+    return redirect(reverse("users:profil", kwargs={"userid": request.user.id}))
 
 
 @csrf_exempt
@@ -97,27 +89,26 @@ def ipn(request):
     Comnpay with 400 response if not or with a 200 response if yes.
     """
     p = Transaction()
-    order = ('idTpe', 'idTransaction', 'montant', 'result', 'sec', )
+    order = ("idTpe", "idTransaction", "montant", "result", "sec")
     try:
         data = OrderedDict([(f, request.POST[f]) for f in order])
     except MultiValueDictKeyError:
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
-    idTransaction = request.POST['idTransaction']
+    idTransaction = request.POST["idTransaction"]
     try:
         factureid = int(idTransaction)
     except ValueError:
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
     facture = get_object_or_404(Facture, id=factureid)
-    payment_method = get_object_or_404(
-        ComnpayPayment, payment=facture.paiement)
+    payment_method = get_object_or_404(ComnpayPayment, payment=facture.paiement)
 
     if not p.validSec(data, payment_method.payment_pass):
         return HttpResponseBadRequest("HTTP/1.1 400 Bad Request")
 
-    result = True if (request.POST['result'] == 'OK') else False
-    idTpe = request.POST['idTpe']
+    result = True if (request.POST["result"] == "OK") else False
+    idTpe = request.POST["idTpe"]
 
     # Checking that the payment is actually for us.
     if not idTpe == payment_method.payment_credential:
@@ -136,4 +127,3 @@ def ipn(request):
     # Everything worked we send a reponse to Comnpay indicating that
     # it's ok for them to proceed
     return HttpResponse("HTTP/1.0 200 OK")
-

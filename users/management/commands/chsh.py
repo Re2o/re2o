@@ -32,10 +32,10 @@ from re2o.script_utils import get_user, get_system_user
 
 
 class Command(BaseCommand):
-    help = 'Change the default shell of a user'
+    help = "Change the default shell of a user"
 
     def add_arguments(self, parser):
-        parser.add_argument('target_username', nargs='?')
+        parser.add_argument("target_username", nargs="?")
 
     def handle(self, *args, **options):
 
@@ -60,11 +60,9 @@ class Command(BaseCommand):
             "%s) :" % (target_user.pseudo, current_shell)
         )
         for shell in shells:
-            self.stdout.write("%d - %s (%s)" % (
-                shell.id,
-                shell.get_pretty_name(),
-                shell.shell
-            ))
+            self.stdout.write(
+                "%d - %s (%s)" % (shell.id, shell.get_pretty_name(), shell.shell)
+            )
         shell_id = input("Entrez un nombre : ")
 
         try:
@@ -82,7 +80,9 @@ class Command(BaseCommand):
             reversion.set_user(current_user)
             reversion.set_comment("Shell modifié")
 
-        self.stdout.write(self.style.SUCCESS(
-            "Shell modifié. La modification peut prendre quelques minutes "
-            "pour s'appliquer."
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Shell modifié. La modification peut prendre quelques minutes "
+                "pour s'appliquer."
+            )
+        )

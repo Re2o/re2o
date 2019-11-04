@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0017_mailmessageoption'),
-    ]
+    dependencies = [("preferences", "0017_mailmessageoption")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaltopologie',
-            name='mac_autocapture',
+            model_name="optionaltopologie",
+            name="mac_autocapture",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

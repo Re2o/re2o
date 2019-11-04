@@ -7,19 +7,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0091_auto_20180806_2310'),
-    ]
+    dependencies = [("machines", "0091_auto_20180806_2310")]
 
     operations = [
         migrations.RenameField(
-            model_name='iptype',
-            old_name='dnssec_reverse_v4',
-            new_name='reverse_v4',
+            model_name="iptype", old_name="dnssec_reverse_v4", new_name="reverse_v4"
         ),
         migrations.RenameField(
-            model_name='iptype',
-            old_name='dnssec_reverse_v6',
-            new_name='reverse_v6',
+            model_name="iptype", old_name="dnssec_reverse_v6", new_name="reverse_v6"
         ),
     ]

@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0049_vlan'),
-    ]
+    dependencies = [("machines", "0049_vlan")]
 
     operations = [
         migrations.AlterField(
-            model_name='vlan',
-            name='comment',
+            model_name="vlan",
+            name="comment",
             field=models.CharField(blank=True, max_length=256),
-        ),
+        )
     ]

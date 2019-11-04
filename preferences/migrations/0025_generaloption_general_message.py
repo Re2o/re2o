@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0024_optionaluser_all_can_create'),
-    ]
+    dependencies = [("preferences", "0024_optionaluser_all_can_create")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='general_message',
-            field=models.TextField(default='', help_text='Message général affiché sur le site (maintenance, etc'),
-        ),
+            model_name="generaloption",
+            name="general_message",
+            field=models.TextField(
+                default="",
+                help_text="Message général affiché sur le site (maintenance, etc",
+            ),
+        )
     ]

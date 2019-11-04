@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0096_auto_20181013_1417'),
-    ]
+    dependencies = [("machines", "0096_auto_20181013_1417")]
 
     operations = [
         migrations.AddField(
-            model_name='extension',
-            name='dnssec',
-            field=models.BooleanField(default=False, help_text='Should the zone be signed with DNSSEC'),
-        ),
+            model_name="extension",
+            name="dnssec",
+            field=models.BooleanField(
+                default=False, help_text="Should the zone be signed with DNSSEC"
+            ),
+        )
     ]

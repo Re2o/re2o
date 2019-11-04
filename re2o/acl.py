@@ -43,21 +43,18 @@ def acl_error_message(msg, permissions):
     """Create an error message for msg and permissions."""
     if permissions is None:
         return msg
-    groups = ", ".join([
-        g.name for g in get_group_having_permission(*permissions)
-    ])
-    message = msg or _("You don't have the right to edit"
-                                         " this option.")
+    groups = ", ".join([g.name for g in get_group_having_permission(*permissions)])
+    message = msg or _("You don't have the right to edit" " this option.")
     if groups:
-        return message + _(
-                " You need to be a member of one of those"
-                " groups : %s"
-            ) % groups
+        return (
+            message
+            + _(" You need to be a member of one of those" " groups : %s") % groups
+        )
     else:
-        return message + " No group have the %s permission(s) !" % " or ".join([
-            ",".join(permissions[:-1]),
-            permissions[-1]]
-            if len(permissions) > 2 else permissions
+        return message + " No group have the %s permission(s) !" % " or ".join(
+            [",".join(permissions[:-1]), permissions[-1]]
+            if len(permissions) > 2
+            else permissions
         )
 
 
@@ -151,6 +148,7 @@ ModelC)
     def decorator(view):
         """The decorator to use on a specific view
         """
+
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request"""
             instances = []
@@ -172,7 +170,7 @@ ModelC)
                     can_fct = getattr(target, method_name)
                     yield can_fct(request.user, *args, **kwargs)
                 for field in fields:
-                    can_change_fct = getattr(target, 'can_change_' + field)
+                    can_change_fct = getattr(target, "can_change_" + field)
                     yield can_change_fct(request.user, *args, **kwargs)
 
             error_messages = []
@@ -191,19 +189,19 @@ ModelC)
             if error_messages:
                 for msg in error_messages:
                     messages.error(
-                        request, msg or _("You don't have the right to access"
-                                          " this menu."))
+                        request,
+                        msg or _("You don't have the right to access" " this menu."),
+                    )
                 if request.user.id is not None:
-                    return redirect(reverse(
-                        'users:profil',
-                        kwargs={'userid': str(request.user.id)}
-                    ))
+                    return redirect(
+                        reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                    )
                 else:
-                    return redirect(reverse(
-                        'index',
-                    ))
+                    return redirect(reverse("index"))
             return view(request, *chain(instances, args), **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -212,7 +210,7 @@ def can_create(*models):
     `acl_base_decorator` with the flag `on_instance=False` and the method
     'can_create'. See `acl_base_decorator` documentation for further details.
     """
-    return acl_base_decorator('can_create', *models, on_instance=False)
+    return acl_base_decorator("can_create", *models, on_instance=False)
 
 
 def can_edit(*targets):
@@ -221,7 +219,7 @@ def can_edit(*targets):
     method 'can_edit'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_edit', *targets)
+    return acl_base_decorator("can_edit", *targets)
 
 
 def can_change(*targets):
@@ -231,7 +229,7 @@ def can_change(*targets):
     method 'can_change'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_change', *targets, on_instance=False)
+    return acl_base_decorator("can_change", *targets, on_instance=False)
 
 
 def can_delete(*targets):
@@ -240,15 +238,17 @@ def can_delete(*targets):
     method 'can_edit'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_delete', *targets)
+    return acl_base_decorator("can_delete", *targets)
 
 
 def can_delete_set(model):
     """Decorator which returns a list of detable models by request user.
     If none of them, return an error"""
+
     def decorator(view):
         """The decorator to use on a specific view
         """
+
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request
             """
@@ -263,12 +263,13 @@ def can_delete_set(model):
                 messages.error(
                     request, _("You don't have the right to access this menu.")
                 )
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                return redirect(
+                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                )
             return view(request, instances, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -278,7 +279,7 @@ def can_view(*targets):
     method 'can_view'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_view', *targets)
+    return acl_base_decorator("can_view", *targets)
 
 
 def can_view_all(*targets):
@@ -287,7 +288,7 @@ def can_view_all(*targets):
     method 'can_view_all'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_view_all', *targets, on_instance=False)
+    return acl_base_decorator("can_view_all", *targets, on_instance=False)
 
 
 def can_view_app(*apps_name):
@@ -296,7 +297,7 @@ def can_view_app(*apps_name):
     for app_name in apps_name:
         assert app_name in sys.modules.keys()
     return acl_base_decorator(
-        'can_view',
+        "can_view",
         *chain(sys.modules[app_name] for app_name in apps_name),
         on_instance=False
     )
@@ -304,18 +305,15 @@ def can_view_app(*apps_name):
 
 def can_edit_history(view):
     """Decorator to check if an user can edit history."""
+
     def wrapper(request, *args, **kwargs):
         """The wrapper used for a specific request
         """
-        if request.user.has_perm('admin.change_logentry'):
+        if request.user.has_perm("admin.change_logentry"):
             return view(request, *args, **kwargs)
-        messages.error(
-            request,
-            _("You don't have the right to edit the history.")
+        messages.error(request, _("You don't have the right to edit the history."))
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    return wrapper
 
+    return wrapper

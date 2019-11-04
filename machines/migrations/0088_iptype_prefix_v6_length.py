@@ -8,14 +8,18 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0087_dnssec'),
-    ]
+    dependencies = [("machines", "0087_dnssec")]
 
     operations = [
         migrations.AddField(
-            model_name='iptype',
-            name='prefix_v6_length',
-            field=models.IntegerField(default=64, validators=[django.core.validators.MaxValueValidator(128), django.core.validators.MinValueValidator(0)]),
-        ),
+            model_name="iptype",
+            name="prefix_v6_length",
+            field=models.IntegerField(
+                default=64,
+                validators=[
+                    django.core.validators.MaxValueValidator(128),
+                    django.core.validators.MinValueValidator(0),
+                ],
+            ),
+        )
     ]

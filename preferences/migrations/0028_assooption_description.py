@@ -8,14 +8,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preferences', '0027_merge_20180106_2019'),
-        ('preferences', '0043_optionalmachine_create_machine'),
+        ("preferences", "0027_merge_20180106_2019"),
+        ("preferences", "0043_optionalmachine_create_machine"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='assooption',
-            name='description',
-            field=models.TextField(default=''),
-        ),
+            model_name="assooption",
+            name="description",
+            field=models.TextField(default=""),
+        )
     ]

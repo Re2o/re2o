@@ -9,40 +9,52 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0056_auto_20171015_2033'),
-    ]
+    dependencies = [("users", "0056_auto_20171015_2033")]
 
     operations = [
         migrations.CreateModel(
-            name='Adherent',
+            name="Adherent",
             fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
-                ('usname', models.CharField(max_length=255)),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                ("usname", models.CharField(max_length=255)),
             ],
-            options={
-                'abstract': False,
-            },
-            bases=('users.user',),
+            options={"abstract": False},
+            bases=("users.user",),
         ),
         migrations.CreateModel(
-            name='Club',
+            name="Club",
             fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                )
             ],
-            options={
-                'abstract': False,
-            },
-            bases=('users.user',),
+            options={"abstract": False},
+            bases=("users.user",),
         ),
-        migrations.RunSQL("insert into users_adherent (user_ptr_id, usname) select id, name from users_user", reverse_sql="insert into users_user (name) select usname from users_adherent"),
-        migrations.RemoveField(
-            model_name='user',
-            name='name',
+        migrations.RunSQL(
+            "insert into users_adherent (user_ptr_id, usname) select id, name from users_user",
+            reverse_sql="insert into users_user (name) select usname from users_adherent",
         ),
+        migrations.RemoveField(model_name="user", name="name"),
         migrations.RenameField(
-            model_name='adherent',
-            old_name='usname',
-            new_name='name',
+            model_name="adherent", old_name="usname", new_name="name"
         ),
-]
+    ]

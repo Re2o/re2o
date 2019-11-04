@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0104_auto_20191002_2231'),
-    ]
+    dependencies = [("machines", "0104_auto_20191002_2231")]
 
     operations = [
         migrations.AddField(
-            model_name='dname',
-            name='ttl',
-            field=models.PositiveIntegerField(default=172800, verbose_name='Time To Live (TTL)'),
-        ),
+            model_name="dname",
+            name="ttl",
+            field=models.PositiveIntegerField(
+                default=172800, verbose_name="Time To Live (TTL)"
+            ),
+        )
     ]

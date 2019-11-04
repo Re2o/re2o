@@ -8,9 +8,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0070_auto_20190218_1743'),
-    ]
+    dependencies = [("topologie", "0070_auto_20190218_1743")]
 
     def transfer_room(apps, schema_editor):
         db_alias = schema_editor.connection.alias
@@ -19,7 +17,9 @@ class Migration(migrations.Migration):
         dorm_obj = apps.get_model("topologie", "Dormitory")
         dorm = dorm_obj.objects.using(db_alias).first()
         for room in room_obj.objects.using(db_alias).all():
-            building, created = building_obj.objects.using(db_alias).get_or_create(name=room.name[0].upper(), dormitory=dorm)
+            building, created = building_obj.objects.using(db_alias).get_or_create(
+                name=room.name[0].upper(), dormitory=dorm
+            )
             room.building = building
             room.name = room.name[1:]
             room.save()
@@ -29,28 +29,34 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='room',
-            name='name',
-            field=models.CharField(max_length=255),
+            model_name="room", name="name", field=models.CharField(max_length=255)
         ),
         migrations.AddField(
-            model_name='room',
-            name='building',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='topologie.Building'),
+            model_name="room",
+            name="building",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="topologie.Building",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='room',
-            unique_together=set([('name', 'building')]),
+            name="room", unique_together=set([("name", "building")])
         ),
         migrations.AlterField(
-            model_name='building',
-            name='dormitory',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='topologie.Dormitory'),
+            model_name="building",
+            name="dormitory",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="topologie.Dormitory"
+            ),
         ),
         migrations.RunPython(transfer_room, untransfer_room),
         migrations.AlterField(
-            model_name='room',
-            name='building',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='topologie.Building'),
-        )
+            model_name="room",
+            name="building",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="topologie.Building"
+            ),
+        ),
     ]

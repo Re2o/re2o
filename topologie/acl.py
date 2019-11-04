@@ -38,11 +38,9 @@ def can_view(user):
         A couple (allowed, msg) where allowed is a boolean which is True if
         viewing is granted and msg is a message (can be None).
     """
-    can = user.has_module_perms('topologie')
+    can = user.has_module_perms("topologie")
     return (
         can,
-        None if can else _("You don't have the right to view this"
-                                   " application."),
-        ('topologie',)
+        None if can else _("You don't have the right to view this" " application."),
+        ("topologie",),
     )
-
