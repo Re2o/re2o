@@ -34,8 +34,8 @@ class Preferences(models.Model):
         "topologie.Dormitory",
         related_name="vlan_tagged",
         blank=True,
-        verbose_name=_("Enabled dorm"),
+        verbose_name=_("enabled dorm"),
     )
 
     class Meta:
-        verbose_name = _("Dormitory of connection settings")
+        verbose_name = _("dormitories preferences")

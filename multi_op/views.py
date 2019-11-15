@@ -41,7 +41,7 @@ from re2o.base import re2o_paginator, SortTable
 
 from re2o.acl import can_view, can_view_all, can_edit, can_create
 
-from preferences.models import GeneralOption
+from preferences.models import GeneralOption, AssoOption
 
 from .forms import DormitoryForm
 
@@ -67,7 +67,15 @@ def display_rooms_connection(request, dormitory=None):
     )
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
-    return render(request, "multi_op/index_room_state.html", {"room_list": room_list})
+    asso_name = AssoOption.get_cached_value("pseudo")
+    return render(
+        request,
+        "multi_op/index_room_state.html",
+        {
+            "room_list": room_list,
+            "asso_name": asso_name,
+        },
+    )
 
 
 @login_required
@@ -105,10 +113,15 @@ def aff_pending_connection(request):
     )
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
+    asso_name = AssoOption.get_cached_value("pseudo")
     return render(
         request,
         "multi_op/index_room_state.html",
-        {"room_list": room_list, "dormitory_form": dormitory_form},
+        {
+            "room_list": room_list,
+            "dormitory_form": dormitory_form,
+            "asso_name": asso_name,
+        },
     )
 
 
@@ -135,10 +148,15 @@ def aff_pending_disconnection(request):
     )
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     room_list = re2o_paginator(request, room_list, pagination_number)
+    asso_name = AssoOption.get_cached_value("pseudo")
     return render(
         request,
         "multi_op/index_room_state.html",
-        {"room_list": room_list, "dormitory_form": dormitory_form},
+        {
+            "room_list": room_list,
+            "dormitory_form": dormitory_form,
+            "asso_name": asso_name,
+        },
     )
 
 
@@ -148,7 +166,7 @@ def disconnect_room(request, room, roomid):
     """Action of disconnecting a room"""
     room.port_set.clear()
     room.save()
-    messages.success(request, "Room %s disconnected" % room)
+    messages.success(request, _("The room %s was disconnected.") % room)
     return redirect(reverse("multi_op:aff-pending-disconnection"))
 
 
