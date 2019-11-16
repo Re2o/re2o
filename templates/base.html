@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
         <meta property="og:image:type" content="image/svg"/>
         <meta property="og:image:alt" content="The Re2o logo"/>
-        <meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
+        <meta property="og:description" content="Networking managing website endorsed by FedeRez." />
 
         {# Preload JavaScript #}
         {% bootstrap_javascript %}
@@ -142,7 +142,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
                                 <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a></li>
                                 {% comment %}
-                                <li><a href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Ouvrir un ticket" %}</a><li>
+                                <li><a href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Open a ticket" %}</a><li>
                                 {% endcomment %}
                             </ul>
                         </li>
@@ -284,7 +284,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <p class="pull-right">
                   <a href="#">{% trans "Back to top" %}</a>
                 </p>
-                <p>{{ name_website }} {% trans "powered by" %} Re2o 2016&ndash;2018</p>
+		<p>{{ name_website }} {% trans "powered by" %} Re2o 2016&ndash;2019</p>
                 <p>
                     {% blocktrans trimmed %}
                     Brought to you with <i class="fa fa-heart text-danger"></i>.
