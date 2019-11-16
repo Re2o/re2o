@@ -36,7 +36,6 @@ from django.template.loader import get_template
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
 
 from re2o.mixins import AclMixin, RevMixin
 from preferences.models import CotisationsOption

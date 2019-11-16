@@ -56,7 +56,7 @@ from cotisations.validators import check_no_balance
 
 
 class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
-    date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
+    date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
 
     # TODO : change prix to price
     def prix(self):
@@ -138,7 +138,7 @@ class Facture(BaseInvoice):
         abstract = False
         permissions = (
             # TODO : change facture to invoice
-            ("change_facture_control", _('Can edit the "controlled" state')),
+            ("change_facture_control", _("Can edit the \"controlled\" state")),
             ("view_facture", _("Can view an invoice object")),
             ("change_all_facture", _("Can edit all the previous invoices")),
         )
@@ -174,8 +174,8 @@ class Facture(BaseInvoice):
             return (
                 False,
                 _(
-                    "You don't have the right to edit an invoice "
-                    "already controlled or invalidated."
+                    "You don't have the right to edit an invoice"
+                    " already controlled or invalidated."
                 ),
                 ("cotisations.change_all_facture",),
             )
@@ -206,8 +206,8 @@ class Facture(BaseInvoice):
             return (
                 False,
                 _(
-                    "You don't have the right to delete an invoice "
-                    "already controlled or invalidated."
+                    "You don't have the right to delete an invoice"
+                    " already controlled or invalidated."
                 ),
                 ("cotisations.change_all_facture",),
             )
@@ -220,8 +220,8 @@ class Facture(BaseInvoice):
                 return (
                     False,
                     _(
-                        "You don't have the right to view someone else's "
-                        "invoices history."
+                        "You don't have the right to view someone else's"
+                        " invoices history."
                     ),
                     ("cotisations.view_facture",),
                 )
@@ -243,7 +243,7 @@ class Facture(BaseInvoice):
         can = user_request.has_perm("cotisations.change_facture_control")
         return (
             can,
-            _('You don\'t have the right to edit the "controlled" state.')
+            _("You don't have the right to edit the \"controlled\" state.")
             if not can
             else None,
             ("cotisations.change_facture_control",),
@@ -262,13 +262,13 @@ class Facture(BaseInvoice):
         if len(Paiement.find_allowed_payments(user_request)) <= 0:
             return (
                 False,
-                _("There are no payment method which you can use."),
+                _("There are no payment methods that you can use."),
                 ("cotisations.add_facture",),
             )
         if len(Article.find_allowed_articles(user_request, user_request)) <= 0:
             return (
                 False,
-                _("There are no article that you can buy."),
+                _("There are no articles that you can buy."),
                 ("cotisations.add_facture",),
             )
         return True, None, None
@@ -346,11 +346,11 @@ class CustomInvoice(BaseInvoice):
     class Meta:
         permissions = (("view_custominvoice", _("Can view a custom invoice object")),)
 
-    recipient = models.CharField(max_length=255, verbose_name=_("Recipient"))
-    payment = models.CharField(max_length=255, verbose_name=_("Payment type"))
-    address = models.CharField(max_length=255, verbose_name=_("Address"))
-    paid = models.BooleanField(verbose_name=_("Paid"), default=False)
-    remark = models.TextField(verbose_name=_("Remark"), blank=True, null=True)
+    recipient = models.CharField(max_length=255, verbose_name=_("recipient"))
+    payment = models.CharField(max_length=255, verbose_name=_("payment type"))
+    address = models.CharField(max_length=255, verbose_name=_("address"))
+    paid = models.BooleanField(verbose_name=_("paid"), default=False)
+    remark = models.TextField(verbose_name=_("remark"), blank=True, null=True)
 
 
 class CostEstimate(CustomInvoice):
@@ -358,7 +358,7 @@ class CostEstimate(CustomInvoice):
         permissions = (("view_costestimate", _("Can view a cost estimate object")),)
 
     validity = models.DurationField(
-        verbose_name=_("Period of validity"), help_text="DD HH:MM:SS"
+        verbose_name=_("period of validity"), help_text="DD HH:MM:SS"
     )
     final_invoice = models.ForeignKey(
         CustomInvoice,
@@ -547,7 +547,7 @@ class Vente(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm("cotisations.change_vente"):
             return (
                 False,
-                _("You don't have the right to edit the purchases."),
+                _("You don't have the right to edit a purchase."),
                 ("cotisations.change_vente",),
             )
         elif not (user_request.has_perm("cotisations.change_all_facture") or user_can):
@@ -562,8 +562,8 @@ class Vente(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to edit a purchase "
-                    "already controlled or invalidated."
+                    "You don't have the right to edit a purchase"
+                    " already controlled or invalidated."
                 ),
                 ("cotisations.change_all_vente",),
             )
@@ -590,8 +590,8 @@ class Vente(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to delete a purchase "
-                    "already controlled or invalidated."
+                    "You don't have the right to delete a purchase"
+                    " already controlled or invalidated."
                 ),
                 None,
             )
@@ -606,8 +606,8 @@ class Vente(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to view someone "
-                    "else's purchase history."
+                    "You don't have the right to view someone"
+                    " else's purchase history."
                 ),
                 ("cotisations.view_vente",),
             )
@@ -731,7 +731,7 @@ class Article(RevMixin, AclMixin, models.Model):
 
     def clean(self):
         if self.name.lower() == "solde":
-            raise ValidationError(_("Balance is a reserved article name."))
+            raise ValidationError(_("Solde is a reserved article name."))
         if self.type_cotisation and not (self.duration or self.duration_days):
             raise ValidationError(_("Duration must be specified for a subscription."))
 
@@ -921,7 +921,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         p = find_payment_method(self)
         if p is not None:
             return p._meta.verbose_name
-        return _("No custom payment method.")
+        return _("No custom payment methods.")
 
 
 class Cotisation(RevMixin, AclMixin, models.Model):
@@ -976,8 +976,8 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to edit a subscription "
-                    "already controlled or invalidated."
+                    "You don't have the right to edit a subscription"
+                    " already controlled or invalidated."
                 ),
                 ("cotisations.change_all_cotisation",),
             )
@@ -995,8 +995,8 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to delete a subscription "
-                    "already controlled or invalidated."
+                    "You don't have the right to delete a subscription"
+                    " already controlled or invalidated."
                 ),
                 None,
             )
@@ -1011,8 +1011,8 @@ class Cotisation(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _(
-                    "You don't have the right to view someone else's "
-                    "subscription history."
+                    "You don't have the right to view someone else's"
+                    " subscription history."
                 ),
                 ("cotisations.view_cotisation",),
             )

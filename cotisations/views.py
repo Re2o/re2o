@@ -166,6 +166,7 @@ def new_facture(request, user, userid):
             "articlelist": article_list,
             "balance": balance,
             "action_name": _("Confirm"),
+            "title": _("New invoice"),
         },
         "cotisations/facture.html",
         request,
@@ -222,7 +223,7 @@ def new_cost_estimate(request):
             "articlesformset": articles_formset,
             "articlelist": articles,
             "discount_form": discount_form,
-            "title": _("Cost estimate"),
+            "title": _("New cost estimate"),
         },
         "cotisations/facture.html",
         request,
@@ -278,6 +279,7 @@ def new_custom_invoice(request):
             "articlesformset": articles_formset,
             "articlelist": articles,
             "discount_form": discount_form,
+            "title": _("New custom invoice"),
         },
         "cotisations/facture.html",
         request,
@@ -373,7 +375,7 @@ def del_facture(request, facture, **_kwargs):
         messages.success(request, _("The invoice was deleted."))
         return redirect(reverse("cotisations:index"))
     return form(
-        {"objet": facture, "objet_name": _("Invoice")},
+        {"objet": facture, "objet_name": _("invoice")},
         "cotisations/delete.html",
         request,
     )
@@ -437,7 +439,11 @@ def edit_custom_invoice(request, invoice, **kwargs):
         return redirect(reverse("cotisations:index-custom-invoice"))
 
     return form(
-        {"factureform": invoice_form, "venteform": purchase_form},
+        {
+            "factureform": invoice_form,
+            "venteform": purchase_form,
+            "title": _("Edit custom invoice"),
+        },
         "cotisations/edit_facture.html",
         request,
     )
@@ -501,7 +507,7 @@ def del_cost_estimate(request, estimate, **_kwargs):
         messages.success(request, _("The cost estimate was deleted."))
         return redirect(reverse("cotisations:index-cost-estimate"))
     return form(
-        {"objet": estimate, "objet_name": _("Cost estimate")},
+        {"objet": estimate, "objet_name": _("cost estimate")},
         "cotisations/delete.html",
         request,
     )
@@ -564,7 +570,7 @@ def del_custom_invoice(request, invoice, **_kwargs):
         messages.success(request, _("The invoice was deleted."))
         return redirect(reverse("cotisations:index-custom-invoice"))
     return form(
-        {"objet": invoice, "objet_name": _("Invoice")},
+        {"objet": invoice, "objet_name": _("invoice")},
         "cotisations/delete.html",
         request,
     )
@@ -588,7 +594,11 @@ def add_article(request):
         messages.success(request, _("The article was created."))
         return redirect(reverse("cotisations:index-article"))
     return form(
-        {"factureform": article, "action_name": _("Add"), "title": _("New article")},
+        {
+            "factureform": article,
+            "action_name": _("Add"),
+            "title": _("New article"),
+        },
         "cotisations/facture.html",
         request,
     )
@@ -607,7 +617,11 @@ def edit_article(request, article_instance, **_kwargs):
             messages.success(request, _("The article was edited."))
         return redirect(reverse("cotisations:index-article"))
     return form(
-        {"factureform": article, "action_name": _("Edit"), "title": _("Edit article")},
+        {
+            "factureform": article,
+            "action_name": _("Edit"),
+            "title": _("Edit article"),
+        },
         "cotisations/facture.html",
         request,
     )
@@ -718,8 +732,8 @@ def del_paiement(request, instances):
                 messages.error(
                     request,
                     _(
-                        "The payment method %(method_name)s can't be deleted \
-                    because there are invoices using it."
+                        "The payment method %(method_name)s can't be deleted"
+                        " because there are invoices using it."
                     )
                     % {"method_name": payment_del},
                 )
@@ -748,7 +762,11 @@ def add_banque(request):
         messages.success(request, _("The bank was created."))
         return redirect(reverse("cotisations:index-banque"))
     return form(
-        {"factureform": bank, "action_name": _("Add"), "title": _("New bank")},
+        {
+            "factureform": bank,
+            "action_name": _("Add"),
+            "title": _("New bank"),
+        },
         "cotisations/facture.html",
         request,
     )
@@ -768,7 +786,11 @@ def edit_banque(request, banque_instance, **_kwargs):
             messages.success(request, _("The bank was edited."))
         return redirect(reverse("cotisations:index-banque"))
     return form(
-        {"factureform": bank, "action_name": _("Edit"), "title": _("Edit bank")},
+        {
+            "factureform": bank,
+            "action_name": _("Edit"),
+            "title": _("Edit bank"),
+        },
         "cotisations/facture.html",
         request,
     )
@@ -802,7 +824,11 @@ def del_banque(request, instances):
                 )
         return redirect(reverse("cotisations:index-banque"))
     return form(
-        {"factureform": bank, "action_name": _("Delete"), "title": _("Delete bank")},
+        {
+            "factureform": bank,
+            "action_name": _("Delete"),
+            "title": _("Delete bank"),
+        },
         "cotisations/facture.html",
         request,
     )
@@ -833,7 +859,7 @@ def control(request):
     )
     if control_invoices_form.is_valid():
         control_invoices_form.save()
-        reversion.set_comment("Controle")
+        reversion.set_comment("Control")
         messages.success(
             request, _("Your changes have been properly taken into account.")
         )

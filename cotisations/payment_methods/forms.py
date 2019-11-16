@@ -58,9 +58,9 @@ class PaymentMethodForm(forms.Form):
     payment_method = forms.ChoiceField(
         label=_("Special payment method"),
         help_text=_(
-            "Warning: you will not be able to change the payment "
-            "method later. But you will be allowed to edit the other "
-            "options."
+            "Warning: you will not be able to change the payment"
+            " method later. But you will be allowed to edit the other"
+            " options."
         ),
         required=False,
     )
@@ -71,7 +71,7 @@ class PaymentMethodForm(forms.Form):
         self.fields["payment_method"].choices = [
             (i, p.NAME) for (i, p) in enumerate(PAYMENT_METHODS)
         ]
-        self.fields["payment_method"].choices.insert(0, ("", _("no")))
+        self.fields["payment_method"].choices.insert(0, ("", _("No")))
         self.fields["payment_method"].widget.attrs = {"id": "paymentMethodSelect"}
         self.templates = [
             forms.modelform_factory(p.PaymentMethod, fields="__all__")(prefix=prefix)
