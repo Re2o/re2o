@@ -65,7 +65,7 @@ function toggle_graph() {
 
 <h2>{% trans "Switches" %}</h2>
 {% can_create Switch %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i>{% trans " Add a switch" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-switch' %}"><i class="fa fa-plus"></i> {% trans "Add a switch" %}</a>
 <hr>
 {% acl_end %}
     {% include 'topologie/aff_switch.html' with switch_list=switch_list %}

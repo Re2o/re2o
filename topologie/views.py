@@ -442,7 +442,7 @@ def new_stack(request):
         messages.success(request, _("The stack was created."))
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"topoform": stack, "action_name": _("Create")}, "topologie/topo.html", request
+        {"topoform": stack, "action_name": _("Add")}, "topologie/topo.html", request
     )
 
 
@@ -454,6 +454,7 @@ def edit_stack(request, stack, **_kwargs):
     if stack.is_valid():
         if stack.changed_data:
             stack.save()
+            messages.success(request, _("The stack was edited."))
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
         {"topoform": stack, "action_name": _("Edit")}, "topologie/topo.html", request
@@ -538,7 +539,7 @@ def new_switch(request):
             "machineform": switch,
             "domainform": domain,
             "i_mbf_param": i_mbf_param,
-            "device": "switch",
+            "device": _("switch"),
         },
         "topologie/topo_more.html",
         request,
@@ -611,7 +612,7 @@ def edit_switch(request, switch, switchid):
             "machineform": switch_form,
             "domainform": domain_form,
             "i_mbf_param": i_mbf_param,
-            "device": "switch",
+            "device": _("switch"),
         },
         "topologie/topo_more.html",
         request,
@@ -660,7 +661,7 @@ def new_ap(request):
             "machineform": ap,
             "domainform": domain,
             "i_mbf_param": i_mbf_param,
-            "device": "wifi ap",
+            "device": _("access point"),
         },
         "topologie/topo_more.html",
         request,
@@ -712,7 +713,7 @@ def edit_ap(request, ap, **_kwargs):
             "machineform": ap_form,
             "domainform": domain_form,
             "i_mbf_param": i_mbf_param,
-            "device": "wifi ap",
+            "device": _("access point"),
         },
         "topologie/topo_more.html",
         request,
@@ -729,7 +730,7 @@ def new_room(request):
         messages.success(request, _("The room was created."))
         return redirect(reverse("topologie:index-room"))
     return form(
-        {"topoform": room, "action_name": _("Create")}, "topologie/topo.html", request
+        {"topoform": room, "action_name": _("Add")}, "topologie/topo.html", request
     )
 
 
@@ -769,7 +770,7 @@ def del_room(request, room, **_kwargs):
             )
         return redirect(reverse("topologie:index-room"))
     return form(
-        {"objet": room, "objet_name": _("Room")}, "topologie/delete.html", request
+        {"objet": room, "objet_name": _("room")}, "topologie/delete.html", request
     )
 
 
@@ -783,7 +784,7 @@ def new_model_switch(request):
         messages.success(request, _("The switch model was created."))
         return redirect(reverse("topologie:index-model-switch"))
     return form(
-        {"topoform": model_switch, "action_name": _("Create")},
+        {"topoform": model_switch, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -828,7 +829,7 @@ def del_model_switch(request, model_switch, **_kwargs):
             )
         return redirect(reverse("topologie:index-model-switch"))
     return form(
-        {"objet": model_switch, "objet_name": _("Switch model")},
+        {"objet": model_switch, "objet_name": _("switch model")},
         "topologie/delete.html",
         request,
     )
@@ -844,7 +845,7 @@ def new_switch_bay(request):
         messages.success(request, _("The switch bay was created."))
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"topoform": switch_bay, "action_name": _("Create")},
+        {"topoform": switch_bay, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -888,7 +889,7 @@ def del_switch_bay(request, switch_bay, **_kwargs):
             )
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"objet": switch_bay, "objet_name": _("Switch bay")},
+        {"objet": switch_bay, "objet_name": _("switch bay")},
         "topologie/delete.html",
         request,
     )
@@ -905,7 +906,7 @@ def new_building(request):
         messages.success(request, _("The building was created."))
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"topoform": building, "action_name": _("Create")},
+        {"topoform": building, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -949,7 +950,7 @@ def del_building(request, building, **_kwargs):
             )
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"objet": building, "objet_name": _("Building")},
+        {"objet": building, "objet_name": _("building")},
         "topologie/delete.html",
         request,
     )
@@ -966,7 +967,7 @@ def new_dormitory(request):
         messages.success(request, _("The dormitory was created."))
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"topoform": dormitory, "action_name": _("Create")},
+        {"topoform": dormitory, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -1012,7 +1013,7 @@ def del_dormitory(request, dormitory, **_kwargs):
             )
         return redirect(reverse("topologie:index-physical-grouping"))
     return form(
-        {"objet": dormitory, "objet_name": _("Dormitory")},
+        {"objet": dormitory, "objet_name": _("dormitory")},
         "topologie/delete.html",
         request,
     )
@@ -1028,7 +1029,7 @@ def new_constructor_switch(request):
         messages.success(request, _("The switch constructor was created."))
         return redirect(reverse("topologie:index-model-switch"))
     return form(
-        {"topoform": constructor_switch, "action_name": _("Create")},
+        {"topoform": constructor_switch, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -1075,7 +1076,7 @@ def del_constructor_switch(request, constructor_switch, **_kwargs):
             )
         return redirect(reverse("topologie:index-model-switch"))
     return form(
-        {"objet": constructor_switch, "objet_name": _("Switch constructor")},
+        {"objet": constructor_switch, "objet_name": _("switch constructor")},
         "topologie/delete.html",
         request,
     )
@@ -1091,7 +1092,7 @@ def new_port_profile(request):
         messages.success(request, _("The port profile was created."))
         return redirect(reverse("topologie:index-port-profile"))
     return form(
-        {"topoform": port_profile, "action_name": _("Create")},
+        {"topoform": port_profile, "action_name": _("Add")},
         "topologie/topo.html",
         request,
     )
@@ -1126,7 +1127,7 @@ def del_port_profile(request, port_profile, **_kwargs):
             messages.success(request, _("Impossible to delete the port profile."))
         return redirect(reverse("topologie:index-port-profile"))
     return form(
-        {"objet": port_profile, "objet_name": _("Port profile")},
+        {"objet": port_profile, "objet_name": _("port profile")},
         "topologie/delete.html",
         request,
     )
@@ -1142,7 +1143,7 @@ def add_module(request):
         messages.success(request, _("The module was created."))
         return redirect(reverse("topologie:index-module"))
     return form(
-        {"topoform": module, "action_name": _("Create")}, "topologie/topo.html", request
+        {"topoform": module, "action_name": _("Add")}, "topologie/topo.html", request
     )
 
 
@@ -1182,7 +1183,7 @@ def del_module(request, module, **_kwargs):
             )
         return redirect(reverse("topologie:index-module"))
     return form(
-        {"objet": module, "objet_name": _("Module")}, "topologie/delete.html", request
+        {"objet": module, "objet_name": _("module")}, "topologie/delete.html", request
     )
 
 
@@ -1238,7 +1239,7 @@ def del_module_on(request, module, **_kwargs):
             )
         return redirect(reverse("topologie:index-module"))
     return form(
-        {"objet": module, "objet_name": _("Module")}, "topologie/delete.html", request
+        {"objet": module, "objet_name": _("module")}, "topologie/delete.html", request
     )
 
 

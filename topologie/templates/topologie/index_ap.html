@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% trans "Access points" %}</h2>
 {% can_create AccessPoint %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-ap' %}"><i class="fa fa-plus"></i>{% trans " Add an access point" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-ap' %}"><i class="fa fa-plus"></i> {% trans "Add an access point" %}</a>
 <hr>
 {% acl_end %}
     {% include 'topologie/aff_ap.html' with ap_list=ap_list %}
