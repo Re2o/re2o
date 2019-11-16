@@ -27,7 +27,7 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Delete non members users (not yet active)"
+    help = "Delete non members users (not yet active)."
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
@@ -38,6 +38,6 @@ class Command(BaseCommand):
             .exclude(facture__valid=True)
             .distinct()
         )
-        print("Deleting " + str(users_to_delete.count()) + " users")
+        print("Deleting " + str(users_to_delete.count()) + " users.")
         Facture.objects.filter(user__in=users_to_delete).delete()
         users_to_delete.delete()

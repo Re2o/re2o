@@ -1,8 +1,19 @@
-Bonjour {{name}},
+<p>Bonjour {{ name }},</p>
 
-Vous avez été banni par un administrateur de {{ asso_name }} en raison de {{raison}}. Vous n'avez plus accès au réseau jusqu'au {{date_end}}.
+<p>Vous avez été banni par un administrateur de {{ asso_name }} pour la raison suivante : {{ raison }}. Vous n'avez plus accès au réseau jusqu'au {{ date_end }}.</p>
 
-Pour de plus amples informations, rendez-vous à l'accueil de {{ asso_name }}.
+<p>Pour de plus amples renseignements, contactez le comité de direction de {{ asso_name }}.</p>
 
-Cordialement,
-	L'équipe de {{ asso_name }}. 
+<p>Respectueusement,<br>
+L'équipe de {{ asso_name }}.</p>
+
+<p>---</p>
+
+<p>Hello {{ name }},</p>
+
+<p>You have been banned by a administrator of {{ asso_name }} for the following reason: {{ raison }}. You don't have access to the network anymore until {{ date_end }}.</p>
+
+<p>For more information, contact the steering committee of {{ asso_name }}.</p>
+
+<p>Regards,<br>
+The {{ asso_name }} team.</p>

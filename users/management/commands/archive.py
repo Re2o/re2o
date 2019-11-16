@@ -45,14 +45,14 @@ class Command(BaseCommand):
             "--full",
             "-f",
             action="store_true",
-            help="Full archive users, i.e. delete their email address, machines and remove them from the LDAP.",
+            help="Fully archive users, i.e. delete their email address, machines and remove them from the LDAP.",
         )
         parser.add_argument(
             "--date",
             "-d",
             default=datetime.date.today().strftime("%d/%m/%Y"),
             type=valid_date,
-            help="Users which membership ends sooner than this date will be archived.",
+            help="Users whose membership ends sooner than this date will be archived.",
         )
         parser.add_argument(
             "--show",
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "-y",
             action="store_true",
-            help="Do not ask for confirmation befor full archiving.",
+            help="Do not ask for confirmation before fully archiving.",
         )
 
     def handle(self, *args, **kwargs):
@@ -87,7 +87,7 @@ class Command(BaseCommand):
         if full_archive and not force:
             self.stdout.write(
                 self.style.WARNING(
-                    "Please confirm full archiving (it is a critical operation !) [Y/n]"
+                    "Please confirm fully archiving (it is a critical operation!) [Y/n]"
                 )
             )
             if input() != "Y":
@@ -95,13 +95,13 @@ class Command(BaseCommand):
                 return
         if full_archive:
             self.stdout.write(
-                "Full archiving users with a membership ending prior to %s"
+                "Fully archiving users with a membership ending prior to %s."
                 % date.strftime("%d/%m/%Y")
             )
             User.mass_full_archive(to_archive_list)
         else:
             self.stdout.write(
-                "Archiving users with a membership ending prior to %s"
+                "Archiving users with a membership ending prior to %s."
                 % date.strftime("%d/%m/%Y")
             )
             to_archive_list = to_archive_list.exclude(state=User.STATE_ARCHIVE)

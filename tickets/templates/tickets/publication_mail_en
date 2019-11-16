@@ -1,5 +1,5 @@
 {% if ticket.user %} {{ ticket.user.get_full_name }} opened a ticket.
-Profil: {{site_url}}{% url 'users:profil' ticket.user.id%}
+Profile: {{site_url}}{% url 'users:profil' ticket.user.id%}
 Answer to the address: {{ticket.user.get_mail}}.
 
 {% else %}  

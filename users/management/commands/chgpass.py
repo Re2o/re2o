@@ -28,7 +28,7 @@ from re2o.script_utils import get_user, get_system_user, form_cli
 
 
 class Command(BaseCommand):
-    help = "Changer le mot de passe d'un utilisateur"
+    help = "Change the password of a user."
 
     def add_arguments(self, parser):
         parser.add_argument("target_username", nargs="?")
@@ -44,8 +44,8 @@ class Command(BaseCommand):
         if not ok:
             raise CommandError(msg)
 
-        self.stdout.write("Changement du mot de passe de %s" % target_user.pseudo)
+        self.stdout.write("Password change of %s" % target_user.pseudo)
 
         form_cli(
-            PassForm, current_user, "Changement du mot de passe", instance=target_user
+            PassForm, current_user, "Password change", instance=target_user
         )

@@ -61,7 +61,7 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) altered : %s"
+                "Field(s) edited: %s"
                 % ", ".join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)

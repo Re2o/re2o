@@ -80,21 +80,21 @@ def hash_password_salt(hashed_password):
         try:
             digest = b64decode(hashed_password[6:])
         except TypeError as error:
-            raise ValueError("b64 error for `hashed_password` : %s" % error)
+            raise ValueError("b64 error for `hashed_password`: %s." % error)
         if len(digest) < 20:
-            raise ValueError("`hashed_password` too short")
+            raise ValueError("`hashed_password` too short.")
         return digest[20:]
     elif hashed_password.upper().startswith("{SMD5}"):
         try:
             digest = b64decode(hashed_password[7:])
         except TypeError as error:
-            raise ValueError("b64 error for `hashed_password` : %s" % error)
+            raise ValueError("b64 error for `hashed_password`: %s." % error)
         if len(digest) < 16:
-            raise ValueError("`hashed_password` too short")
+            raise ValueError("`hashed_password` too short.")
         return digest[16:]
     else:
         raise ValueError(
-            "`hashed_password` should start with '{SSHA}' or '{CRYPT}' or '{SMD5}'"
+            "`hashed_password` should start with '{SSHA}' or '{CRYPT}' or '{SMD5}'."
         )
 
 

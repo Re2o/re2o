@@ -1,12 +1,12 @@
-{% if ticket.user %} {{ ticket.user.get_full_name }} à ouvert un ticket.
-Profile: {{site_url}}{% url 'users:profil' ticket.user.id%}
-Répondre à l'adresse: {{ticket.user.get_mail}}.
+{% if ticket.user %} {{ ticket.user.get_full_name }} a ouvert un ticket.
+Profil : {{site_url}}{% url 'users:profil' ticket.user.id%}
+Répondre à l'adresse : {{ticket.user.get_mail}}.
 
 {% else %} 
-Un utilisateur anonyme (non connecté) à ouvert un ticket.
-Répondre à l'adresse: {{ticket.email}}.
+Un utilisateur anonyme (non connecté) a ouvert un ticket.
+Répondre à l'adresse : {{ticket.email}}.
 {% endif %}
 
-Titre: {{ticket.title}}
+Titre : {{ticket.title}}
 
-Description: {{ticket.description}}
+Description : {{ticket.description}}

@@ -96,8 +96,8 @@ def sync_ldap():
 
 class Command(BaseCommand):
     help = (
-        "Destroy the current LDAP data and rebuild it from the DB data. "
-        "Use with caution."
+        "Destroy the current LDAP data and rebuild it from the DB data."
+        " Use with caution."
     )
 
     def handle(self, *args, **options):
@@ -109,6 +109,6 @@ class Command(BaseCommand):
         server = settings.DATABASES["ldap"]["NAME"]
 
         flush_ldap(binddn, bindpass, server, usersdn, groupsdn)
-        self.stdout.write("LDAP emptied")
+        self.stdout.write("LDAP emptied.")
         sync_ldap()
-        self.stdout.write("LDAP rebuilt")
+        self.stdout.write("LDAP rebuilt.")

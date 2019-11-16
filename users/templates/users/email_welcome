@@ -2,7 +2,7 @@
 
 <p>Il vous suffit maintenant de payer l'adhésion pour devenir adhérent de {{asso_name}} et bénéficier des services. Pour avoir accès à Internet, il vous faudra payer la connexion.</p>
 
-<p>Pour ce faire, rien de plus simple. Une fois que vous aurez défini votre mot de passe, il vous suffira d'accéder à votre profil et de cliquer sur 'Payer la connexion'</p>
+<p>Pour ce faire, rien de plus simple. Une fois que vous aurez défini votre mot de passe, il vous suffira d'accéder à votre profil et de cliquer sur « Payer une connexion »</p>
 
 <p>Votre pseudo est : {{pseudo}}</p>
 
@@ -10,21 +10,22 @@
 
 <p>Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.</p>
 
-<p>À bientôt,<br>
+<p>Respectueusement,<br>
 L'équipe de {{asso_name}}.</p>
 
 <p>---</p>
 
-<p>You just need to pay membership to become a full member of {{asso_name}} and benefit from the services. To have Internet access, you will need to pay the connexion. </p>
+<p>Hello {{nom}}!</p>
 
-<p>Nothing could be simpler. Once your password is defined, you just need to visit your profile and click on 'Pay for a connexion'.</p>
+<p>You just need to pay the membership fee to become a contributing member of {{asso_name}} and benefit from the services. To get Internet access, you will need to pay the connection.</p>
 
-<p>Your username is : {{pseudo}}<p>
+<p>Nothing could be simpler. Once your password is defined, you just need to access your profile and click on "Pay for a connection".</p>
+
+<p>Your username is: {{pseudo}}<p>
 
 {{welcome_mail_en|safe}}
 
-<p>For any information, suggestion or problem, you can contact us via email at<br>
-{{asso_email}}.</p>
+<p>To express any comment, suggestion or problem, you can send us an email to {{asso_email}}.</p>
 
 <p>Regards,<br>
 The {{asso_name}} team.</p>

@@ -22,7 +22,7 @@ from users.models import User
 
 
 class Command(BaseCommand):
-    help = "Synchronise le ldap à partir du sql. A utiliser dans un cron"
+    help = "Synchronise the LDAP from SQL. To be used in a cron."
 
     def add_arguments(self, parser):
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             action="store_true",
             dest="full",
             default=False,
-            help="Régénération complète du ldap (y compris des machines)",
+            help="Complete regeneration of the LDAP (including machines).",
         )
 
     def handle(self, *args, **options):

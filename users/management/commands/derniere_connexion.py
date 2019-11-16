@@ -57,8 +57,8 @@ DATE_FORMATS = [
 
 class Command(BaseCommand):
     help = (
-        "Update the time of the latest connection for users by matching "
-        "stdin against a set of regular expressions"
+        "Update the time of the latest connection for users by matching"
+        " stdin against a set of regular expressions."
     )
 
     def handle(self, *args, **options):
