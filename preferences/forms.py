@@ -81,13 +81,13 @@ class EditOptionalMachineForm(ModelForm):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EditOptionalMachineForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["password_machine"].label = _(
-            "Possibility to set a" " password per machine"
+            "Possibility to set a password per machine"
         )
         self.fields["max_lambdauser_interfaces"].label = _(
-            "Maximum number of" " interfaces" " allowed for a" " standard user"
+            "Maximum number of interfaces allowed for a standard user"
         )
         self.fields["max_lambdauser_aliases"].label = _(
-            "Maximum number of DNS" " aliases allowed for" " a standard user"
+            "Maximum number of DNS aliases allowed for a standard user"
         )
         self.fields["ipv6_mode"].label = _("IPv6 mode")
         self.fields["create_machine"].label = _("Can create a machine")
@@ -136,20 +136,20 @@ class EditGeneralOptionForm(ModelForm):
         self.fields["general_message_fr"].label = _("General message in French")
         self.fields["general_message_en"].label = _("General message in English")
         self.fields["search_display_page"].label = _(
-            "Number of results" " displayed when" " searching"
+            "Number of results displayed when searching"
         )
         self.fields["pagination_number"].label = _(
-            "Number of items per page," " standard size (e.g." " users)"
+            "Number of items per page, standard size (e.g. users)"
         )
         self.fields["pagination_large_number"].label = _(
-            "Number of items per" " page, large size" " (e.g. machines)"
+            "Number of items per page, large size (e.g. machines)"
         )
         self.fields["req_expire_hrs"].label = _(
-            "Time before expiration of the" " reset password link (in" " hours)"
+            "Time before expiration of the reset password link (in hours)"
         )
         self.fields["site_name"].label = _("Website name")
-        self.fields["email_from"].label = _("Email address for automatic" " emailing")
-        self.fields["GTU_sum_up"].label = _("Summary of the General Terms of" " Use")
+        self.fields["email_from"].label = _("Email address for automatic emailing")
+        self.fields["GTU_sum_up"].label = _("Summary of the General Terms of Use")
         self.fields["GTU"].label = _("General Terms of Use")
 
 
@@ -171,7 +171,7 @@ class EditAssoOptionForm(ModelForm):
         self.fields["telephone"].label = _("Telephone number")
         self.fields["pseudo"].label = _("Usual name")
         self.fields["utilisateur_asso"].label = _(
-            "Account used for editing" " from /admin"
+            "Account used for editing from /admin"
         )
         self.fields["description"].label = _("Description")
 
@@ -187,10 +187,10 @@ class EditMailMessageOptionForm(ModelForm):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EditMailMessageOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["welcome_mail_fr"].label = _(
-            "Message for the French" " welcome email"
+            "Message for the French welcome email"
         )
         self.fields["welcome_mail_en"].label = _(
-            "Message for the English" " welcome email"
+            "Message for the English welcome email"
         )
 
 
@@ -451,7 +451,7 @@ class DelDocumentTemplateForm(FormRevMixin, Form):
 
     document_templates = forms.ModelMultipleChoiceField(
         queryset=DocumentTemplate.objects.none(),
-        label=_("Available document templates"),
+        label=_("Current document templates"),
         widget=forms.CheckboxSelectMultiple,
     )
 

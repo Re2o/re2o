@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for mandate in mandate_list %}
     <tr>
         <td>{{mandate.start_date|date:"d/m/Y"}}</td>
-        <td>{% if mandate.end_date %}{{mandate.end_date|date:"d/m/Y"}}{% else %}{% trans "In progress." %}{% endif %}</td>
+        <td>{% if mandate.end_date %}{{mandate.end_date|date:"d/m/Y"}}{% else %}{% trans "In progress" %}{% endif %}</td>
         <td><a href="{% url 'users:profil' userid=mandate.president.id %}">{{mandate.president.name}} {{mandate.president.surname}}</a></td>
         <td class="text-right">
             {% can_edit mandate%}

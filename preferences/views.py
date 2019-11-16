@@ -191,7 +191,7 @@ def add_service(request):
         messages.success(request, _("The service was added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": service, "action_name": _("Add a service")},
+        {"preferenceform": service, "action_name": _("Add")},
         "preferences/preferences.html",
         request,
     )
@@ -224,7 +224,7 @@ def del_service(request, service_instance, **_kwargs):
         messages.success(request, _("The service was deleted."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": service_instance, "objet_name": "service"},
+        {"objet": service_instance, "objet_name": _("service")},
         "preferences/delete.html",
         request,
     )
@@ -240,7 +240,7 @@ def add_reminder(request):
         messages.success(request, _("The reminder was added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": reminder, "action_name": _("Add a reminder")},
+        {"preferenceform": reminder, "action_name": _("Add")},
         "preferences/preferences.html",
         request,
     )
@@ -273,7 +273,7 @@ def del_reminder(request, reminder_instance, **_kwargs):
         messages.success(request, _("The reminder was deleted."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": reminder_instance, "objet_name": "reminder"},
+        {"objet": reminder_instance, "objet_name": _("reminder")},
         "preferences/delete.html",
         request,
     )
@@ -289,7 +289,7 @@ def add_radiuskey(request):
         messages.success(request, _("The RADIUS key was added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": radiuskey, "action_name": _("Add a RADIUS key")},
+        {"preferenceform": radiuskey, "action_name": _("Add")},
         "preferences/preferences.html",
         request,
     )
@@ -328,7 +328,7 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
             )
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": radiuskey_instance, "objet_name": "radiuskey"},
+        {"objet": radiuskey_instance, "objet_name": _("RADIUS key")},
         "preferences/delete.html",
         request,
     )
@@ -346,7 +346,7 @@ def add_switchmanagementcred(request):
     return form(
         {
             "preferenceform": switchmanagementcred,
-            "action_name": _("Add switch management credentials"),
+            "action_name": _("Add"),
         },
         "preferences/preferences.html",
         request,
@@ -391,7 +391,7 @@ def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
             )
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": switchmanagementcred_instance, "objet_name": "switchmanagementcred"},
+        {"objet": switchmanagementcred_instance, "objet_name": _("switch management credentials")},
         "preferences/delete.html",
         request,
     )
@@ -409,7 +409,7 @@ def add_mailcontact(request):
     return form(
         {
             "preferenceform": mailcontact,
-            "action_name": _("Add a contact email address"),
+            "action_name": _("Add"),
         },
         "preferences/preferences.html",
         request,
@@ -524,8 +524,8 @@ def del_document_template(request, instances):
                 messages.error(
                     request,
                     _(
-                        "The document template %(document_template)s can't be deleted \
-                    because it is currently being used."
+                        "The document template %(document_template)s can't be"
+                        " deleted because it is currently being used."
                     )
                     % {"document_template": document_template},
                 )
@@ -551,7 +551,7 @@ def add_radiusattribute(request):
         messages.success(request, _("The attribute was added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": attribute, "action_name": _("Add a RADIUS attribute")},
+        {"preferenceform": attribute, "action_name": _("Add")},
         "preferences/preferences.html",
         request,
     )
@@ -584,7 +584,7 @@ def del_radiusattribute(request, radiusattribute_instance, **_kwargs):
         messages.success(request, _("The attribute was deleted."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": radiusattribute_instance, "objet_name": "attribute"},
+        {"objet": radiusattribute_instance, "objet_name": _("attribute")},
         "preferences/delete.html",
         request,
     )
@@ -600,7 +600,7 @@ def add_mandate(request):
         messages.success(request, _("The mandate was added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": mandate, "action_name": _("Add a mandate")},
+        {"preferenceform": mandate, "action_name": _("Add")},
         "preferences/preferences.html",
         request,
     )
@@ -631,7 +631,7 @@ def del_mandate(request, mandate_instance, **_kwargs):
         messages.success(request, _("The mandate was deleted."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"objet": mandate_instance, "objet_name": "attribute"},
+        {"objet": mandate_instance, "objet_name": _("mandate")},
         "preferences/delete.html",
         request,
     )
