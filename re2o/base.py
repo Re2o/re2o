@@ -96,9 +96,9 @@ def convert_datetime_format(format):
 def get_input_formats_help_text(input_formats):
     """Returns a help text about the possible input formats"""
     if len(input_formats) > 1:
-        help_text_template = "Format: {main} {more}"
+        help_text_template = _("Format: {main} {more}")
     else:
-        help_text_template = "Format: {main}"
+        help_text_template = _("Format: {main}")
     more_text_template = '<i class="fa fa-question-circle" title="{}"></i>'
     help_text = help_text_template.format(
         main=convert_datetime_format(input_formats[0]),
