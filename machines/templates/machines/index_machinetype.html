@@ -34,11 +34,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "List of machine types" %}</h2>
     {% can_create MachineType %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-machinetype' %}">
-            <i class="fa fa-plus"></i>{% trans " Add a machine type" %}
+            <i class="fa fa-plus"></i> {% trans "Add a machine type" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-machinetype' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several machine types" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several machine types" %}
     </a>
     {% include 'machines/aff_machinetype.html' with  machinetype_list=machinetype_list %}
     <br/>

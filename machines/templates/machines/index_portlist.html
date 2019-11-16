@@ -11,7 +11,7 @@
     <h2>{% trans "List of ports configurations" %}</h2>
     {% can_create OuverturePortList %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-portlist' %}">
-            <i class="fa fa-plus"></i>{% trans " Add a configuration" %}
+            <i class="fa fa-plus"></i> {% trans "Add a configuration" %}
         </a>
     {% acl_end %}
     <table class="table table-striped">
