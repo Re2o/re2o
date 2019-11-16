@@ -74,6 +74,6 @@ def can_view(user):
     can = user.has_perm(permission)
     return (
         can,
-        None if can else _("You don't have the right to see this" " application."),
+        None if can else _("You don't have the right to view this application."),
         (permission,),
     )
