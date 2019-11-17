@@ -110,13 +110,12 @@ def create_pdf(template, ctx={}):
 
     with tempfile.TemporaryDirectory() as tempdir:
         for _ in range(2):
-            with open("/var/www/re2o/out.log", "w") as f:
-                process = Popen(
-                    ["pdflatex", "-output-directory", tempdir],
-                    stdin=PIPE,
-                    stdout=f,  # PIPE,
-                )
-                process.communicate(rendered_tpl)
+            process = Popen(
+                ["pdflatex", "-output-directory", tempdir],
+                stdin=PIPE,
+                stdout=PIPE,
+            )
+            process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, "texput.pdf"), "rb") as f:
             pdf = f.read()
 
