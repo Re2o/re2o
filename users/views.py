@@ -124,7 +124,7 @@ def new_user(request):
         user.reset_passwd_mail(request)
         messages.success(
             request,
-            _("The user %s was created, an email to set" " the password was sent.")
+            _("The user %s was created, an email to set the password was sent.")
             % user.pseudo,
         )
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
@@ -153,7 +153,7 @@ def new_club(request):
         club.reset_passwd_mail(request)
         messages.success(
             request,
-            _("The club %s was created, an email to set" " the password was sent.")
+            _("The club %s was created, an email to set the password was sent.")
             % club.pseudo,
         )
         return redirect(reverse("users:profil", kwargs={"userid": str(club.id)}))
@@ -181,7 +181,7 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
         {
             "userform": club,
             "showCGU": False,
-            "action_name": _("Edit the admins and members"),
+            "action_name": _("Edit"),
         },
         "users/user.html",
         request,
@@ -208,7 +208,7 @@ def edit_info(request, user, userid):
             messages.success(request, _("The user was edited."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": user_form, "action_name": _("Edit the user")},
+        {"userform": user_form, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -225,7 +225,7 @@ def state(request, user, userid):
             messages.success(request, _("The state was edited."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": state_form, "action_name": _("Edit the state")},
+        {"userform": state_form, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -242,7 +242,7 @@ def groups(request, user, userid):
             messages.success(request, _("The groups were edited."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": group_form, "action_name": _("Edit the groups")},
+        {"userform": group_form, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -297,7 +297,7 @@ def new_serviceuser(request):
         messages.success(request, _("The service user was created."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": user, "action_name": _("Create a service user")},
+        {"userform": user, "action_name": _("Add")},
         "users/user.html",
         request,
     )
@@ -314,7 +314,7 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
         messages.success(request, _("The service user was edited."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": serviceuser, "action_name": _("Edit a service user")},
+        {"userform": serviceuser, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -329,7 +329,7 @@ def del_serviceuser(request, serviceuser, **_kwargs):
         messages.success(request, _("The service user was deleted."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"objet": serviceuser, "objet_name": "service user"},
+        {"objet": serviceuser, "objet_name": _("service user")},
         "users/delete.html",
         request,
     )
@@ -351,7 +351,7 @@ def add_ban(request, user, userid):
     if user.is_ban():
         messages.error(request, _("Warning: this user already has an active ban."))
     return form(
-        {"userform": ban, "action_name": _("Add a ban")}, "users/user.html", request
+        {"userform": ban, "action_name": _("Add")}, "users/user.html", request
     )
 
 
@@ -368,7 +368,7 @@ def edit_ban(request, ban_instance, **_kwargs):
             messages.success(request, _("The ban was edited."))
         return redirect(reverse("users:index"))
     return form(
-        {"userform": ban, "action_name": _("Edit a ban")}, "users/user.html", request
+        {"userform": ban, "action_name": _("Edit")}, "users/user.html", request
     )
 
 
@@ -380,7 +380,7 @@ def del_ban(request, ban, **_kwargs):
         ban.delete()
         messages.success(request, _("The ban was deleted."))
         return redirect(reverse("users:profil", kwargs={"userid": str(ban.user.id)}))
-    return form({"objet": ban, "objet_name": "ban"}, "users/delete.html", request)
+    return form({"objet": ban, "objet_name": _("ban")}, "users/delete.html", request)
 
 
 @login_required
@@ -402,7 +402,7 @@ def add_whitelist(request, user, userid):
             request, _("Warning: this user already has an active whitelist.")
         )
     return form(
-        {"userform": whitelist, "action_name": _("Add a whitelist")},
+        {"userform": whitelist, "action_name": _("Add")},
         "users/user.html",
         request,
     )
@@ -422,7 +422,7 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
             messages.success(request, _("The whitelist was edited."))
         return redirect(reverse("users:index"))
     return form(
-        {"userform": whitelist, "action_name": _("Edit a whitelist")},
+        {"userform": whitelist, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -439,7 +439,7 @@ def del_whitelist(request, whitelist, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(whitelist.user.id)})
         )
     return form(
-        {"objet": whitelist, "objet_name": "whitelist"}, "users/delete.html", request
+        {"objet": whitelist, "objet_name": _("whitelist")}, "users/delete.html", request
     )
 
 
@@ -460,7 +460,7 @@ def add_emailaddress(request, user, userid):
         {
             "userform": emailaddress,
             "showCGU": False,
-            "action_name": _("Add a local email account"),
+            "action_name": _("Add"),
         },
         "users/user.html",
         request,
@@ -487,7 +487,7 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
         {
             "userform": emailaddress,
             "showCGU": False,
-            "action_name": _("Edit a local email account"),
+            "action_name": _("Edit"),
         },
         "users/user.html",
         request,
@@ -505,7 +505,7 @@ def del_emailaddress(request, emailaddress, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(emailaddress.user.id)})
         )
     return form(
-        {"objet": emailaddress, "objet_name": "emailaddress"},
+        {"objet": emailaddress, "objet_name": _("email address")},
         "users/delete.html",
         request,
     )
@@ -530,7 +530,7 @@ def edit_email_settings(request, user_instance, **_kwargs):
             "userform": email_settings,
             "showCGU": False,
             "load_js_file": "/static/js/email_address.js",
-            "action_name": _("Edit the email settings"),
+            "action_name": _("Edit"),
         },
         "users/user.html",
         request,
@@ -548,7 +548,7 @@ def add_school(request):
         messages.success(request, _("The school was added."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Add a school")},
+        {"userform": school, "action_name": _("Add")},
         "users/user.html",
         request,
     )
@@ -566,7 +566,7 @@ def edit_school(request, school_instance, **_kwargs):
             messages.success(request, _("The school was edited."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Edit a school")},
+        {"userform": school, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -597,7 +597,7 @@ def del_school(request, instances):
                 )
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Delete")}, "users/user.html", request
+        {"userform": school, "action_name": _("Confirm")}, "users/user.html", request
     )
 
 
@@ -611,7 +611,7 @@ def add_shell(request):
         messages.success(request, _("The shell was added."))
         return redirect(reverse("users:index-shell"))
     return form(
-        {"userform": shell, "action_name": _("Add a shell")}, "users/user.html", request
+        {"userform": shell, "action_name": _("Add")}, "users/user.html", request
     )
 
 
@@ -626,7 +626,7 @@ def edit_shell(request, shell_instance, **_kwargs):
             messages.success(request, _("The shell was edited."))
         return redirect(reverse("users:index-shell"))
     return form(
-        {"userform": shell, "action_name": _("Edit a shell")},
+        {"userform": shell, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -640,7 +640,7 @@ def del_shell(request, shell, **_kwargs):
         shell.delete()
         messages.success(request, _("The shell was deleted."))
         return redirect(reverse("users:index-shell"))
-    return form({"objet": shell, "objet_name": "shell"}, "users/delete.html", request)
+    return form({"objet": shell, "objet_name": _("shell")}, "users/delete.html", request)
 
 
 @login_required
@@ -654,7 +654,7 @@ def add_listright(request):
         messages.success(request, _("The group of rights was added."))
         return redirect(reverse("users:index-listright"))
     return form(
-        {"userform": listright, "action_name": _("Add a group of rights")},
+        {"userform": listright, "action_name": _("Add")},
         "users/user.html",
         request,
     )
@@ -672,7 +672,7 @@ def edit_listright(request, listright_instance, **_kwargs):
             messages.success(request, _("The group of rights was edited."))
         return redirect(reverse("users:index-listright"))
     return form(
-        {"userform": listright, "action_name": _("Edit a group of rights")},
+        {"userform": listright, "action_name": _("Edit")},
         "users/user.html",
         request,
     )
@@ -689,7 +689,7 @@ def del_listright(request, instances):
         for listright_del in listright_dels:
             try:
                 listright_del.delete()
-                messages.success(request, _("The group of rights was" " deleted."))
+                messages.success(request, _("The group of rights was deleted."))
             except ProtectedError:
                 messages.error(
                     request,
@@ -701,7 +701,7 @@ def del_listright(request, instances):
                 )
         return redirect(reverse("users:index-listright"))
     return form(
-        {"userform": listright, "action_name": _("Delete")}, "users/user.html", request
+        {"userform": listright, "action_name": _("Confirm")}, "users/user.html", request
     )
 
 
@@ -993,7 +993,7 @@ def process_passwd(request, req):
     if u_form.is_valid():
         with transaction.atomic(), reversion.create_revision():
             u_form.save()
-            reversion.set_comment(_("Password reset"))
+            reversion.set_comment("Password reset")
         req.delete()
         messages.success(request, _("The password was changed."))
         return redirect(reverse("index"))

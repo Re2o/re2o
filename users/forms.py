@@ -150,7 +150,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
             return self.cleaned_data.get("email").lower()
         else:
             raise forms.ValidationError(
-                _("You can't use an internal address" " as your external address.")
+                _("You can't use an internal address as your external address.")
             )
 
     class Meta:
@@ -293,7 +293,7 @@ class MassArchiveForm(forms.Form):
     date = forms.DateTimeField(help_text="%d/%m/%y")
     full_archive = forms.BooleanField(
         label=_(
-            "Make a full archive operation ? (WARNING : CRITICAL OPERATION IF TRUE)"
+            "Fully archive users? WARNING: CRITICAL OPERATION IF TRUE"
         ),
         initial=False,
         required=False,
@@ -384,15 +384,14 @@ class AdherentCreationForm(AdherentForm):
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
     former_user_check_info = _(
-        "If you already have an account, please use it. "
-        + "If your lost access to it, please consider "
-        + "using the forgotten password button on the "
-        + "login page or contacting support."
+        "If you already have an account, please use it. If your lost access to"
+        " it, please consider using the forgotten password button on the"
+        " login page or contacting support."
     )
     former_user_check = forms.BooleanField(
         required=True, help_text=former_user_check_info
     )
-    former_user_check.label = _("I certify that I have not had an account before")
+    former_user_check.label = _("I certify that I have not had an account before.")
 
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
@@ -657,7 +656,7 @@ class NewListRightForm(ListRightForm):
     def __init__(self, *args, **kwargs):
         super(NewListRightForm, self).__init__(*args, **kwargs)
         self.fields["gid"].label = _(
-            "GID. Warning: this field must not be" " edited after creation."
+            "GID. Warning: this field must not be edited after creation."
         )
 
 
@@ -734,7 +733,7 @@ class EMailAddressForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EMailAddressForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["local_part"].label = _("Local part of the email address")
-        self.fields["local_part"].help_text = _("Can't contain @")
+        self.fields["local_part"].help_text = _("Can't contain @.")
 
     def clean_local_part(self):
         return self.cleaned_data.get("local_part").lower()
