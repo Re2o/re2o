@@ -7,15 +7,15 @@ class Preferences(models.Model):
 
     publish_address = models.EmailField(
         help_text=_(
-            "Email address to publish the new tickets (leave empty for no publications)"
+            "Email address to publish the new tickets (leave empty for no publication)."
         ),
         max_length=1000,
         null=True,
     )
     LANG_FR = 0
     LANG_EN = 1
-    LANGUES = ((0, _("Français")), (1, _("English")))
+    LANGUES = ((0, _("French")), (1, _("English")))
     mail_language = models.IntegerField(choices=LANGUES, default=LANG_FR)
 
     class Meta:
-        verbose_name = _("Ticket's settings")
+        verbose_name = _("tickets preferences")

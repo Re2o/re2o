@@ -66,7 +66,7 @@ def new_ticket(request):
                 messages.success(
                     request,
                     _(
-                        "Your ticket has been succesfully open. We will take care of it as soon as possible."
+                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
                     ),
                 )
                 return redirect(
@@ -77,7 +77,7 @@ def new_ticket(request):
                 messages.success(
                     request,
                     _(
-                        "Your ticket has been succesfully open. We will take care of it as soon as possible."
+                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
                     ),
                 )
                 return redirect(reverse("index"))
@@ -85,7 +85,7 @@ def new_ticket(request):
                 messages.error(
                     request,
                     _(
-                        "You are not authenticated. Please login or provide an email address so we can get back to you."
+                        "You are not authenticated. Please log in or provide an email address so we can get back to you."
                     ),
                 )
                 return form(
@@ -149,10 +149,10 @@ def edit_preferences(request):
     if preferencesform.is_valid():
         if preferencesform.changed_data:
             preferencesform.save()
-            messages.success(request, "Préférences des Tickets mises à jour")
+            messages.success(request, _("The tickets preferences were edited."))
             return redirect(reverse("preferences:display-options"))
         else:
-            messages.error(request, "Formulaire Invalide")
+            messages.error(request, _("Invalid form."))
             return form(
                 {"preferencesform": preferencesform},
                 "tickets/form_preferences.html",

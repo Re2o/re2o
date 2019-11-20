@@ -1,4 +1,4 @@
-{% extends 'machines/sidebar.html' %}
+{% extends 'users/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -31,28 +31,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Ticket" %}{% endblock %}
 
 {% block content %}
-<h2> Ouverture d'un Ticket </h2>
+<h2>{% trans "Ticket opening" %}</h2>
 
 <form class="form" method="post">
     {% csrf_token %}
     {% if not user.is_authenticated %}
-    <p>{% trans "Vous n'êtes pas authentifié. Veuillez fournir une adresse mail afin que nous puissions vous recontacter." %}</p>
+    <p>{% trans "You are not authenticated. Please log in or provide an email address so we can get back to you." %}</p>
         {% bootstrap_field ticketform.email %}
     {% endif %}
         {% bootstrap_field ticketform.title %}
         <br>
-        <p>{% trans "Description de votre problème. Veuillez fournir le plus d'informations possible afin de faciliter la recherche de solution. Voici quelques informations dont nous pourions avoir besoin:" %}</p>
+        <p>{% trans "Description of your problem. Please give as much information as possible to help us searching for a solution. Here is some information we might need:" %}</p>
         <ul class="list">
             <li>
-                <p> {% trans "Le type de votre problème (adhesion, connexion, paiement ou autre)." %}</p>
+                <p> {% trans "The type of your problem (membership, connection, payment etc.)." %}</p>
             </li>
             <li>
-                <p> {% trans "Les conditions dans lesquelles vous rencontrez le problème (Wifi/filaire, sur tout les apareils ou sur un seul. Est-ce une nouvelle machine ?" %}</p>
+                <p> {% trans "The conditions in which you encounter the problem (Wi-Fi/wired connection, on every machines or only one, on a new machine etc.)." %}</p>
             </li>
             <li>
-                <p> {% trans "Les endroits dans lequels le problème survient (chez vous, dans une partie commune, dans un batiment en particulier)." %}</p>
+                <p> {% trans "The locations where you encounter the problem (in your room, in a common space, in a specific building etc.)." %}</p>
         </ul>
         {% bootstrap_field ticketform.description %}
-    {% bootstrap_button "Ouvrir le Ticket" button_type="submit" icon='ok' button_class='btn-success' %}
+    {% trans "Open the ticket" as tr_open %}
+    {% bootstrap_button tr_open button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
 {% endblock %}

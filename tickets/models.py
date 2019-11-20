@@ -25,30 +25,30 @@ class Ticket(AclMixin, models.Model):
         null=True,
     )
     title = models.CharField(
-        max_length=255, help_text=_("Title of the ticket"), blank=False, null=False
+        max_length=255, help_text=_("Title of the ticket."), blank=False, null=False
     )
     description = models.TextField(
         max_length=3000,
-        help_text=_("Description of the ticket"),
+        help_text=_("Description of the ticket."),
         blank=False,
         null=False,
     )
     date = models.DateTimeField(auto_now_add=True)
     email = models.EmailField(
-        help_text=_("An email address to get back to you"), max_length=100, null=True
+        help_text=_("An email address to get back to you."), max_length=100, null=True
     )
     solved = models.BooleanField(default=False)
 
     class Meta:
         permissions = (("view_tickets", _("Can view a ticket object")),)
-        verbose_name = _("Ticket")
-        verbose_name_plural = _("Tickets")
+        verbose_name = _("ticket")
+        verbose_name_plural = _("tickets")
 
     def __str__(self):
         if self.user:
-            return "Ticket from {}. Date: {}".format(self.user.surname, self.date)
+            return _("Ticket from %(name)s. Date: %(date)s.").format(name=self.user.surname, date=self.date)
         else:
-            return "Anonymous Ticket. Date: {}".format(self.date)
+            return _("Anonymous ticket. Date: %s.") % (self.date)
 
     def publish_mail(self):
         site_url = GeneralOption.objects.first().main_site_url
@@ -57,7 +57,7 @@ class Ticket(AclMixin, models.Model):
 
         lang = Preferences.objects.first().mail_language
         if lang == 0:
-            obj = "Nouvelle ouverture de ticket"
+            obj = "Nouveau ticket ouvert"
             template = loader.get_template("tickets/publication_mail_fr")
         else:
             obj = "New ticket opened"
