@@ -520,6 +520,14 @@ class MBFField:
                     "}} );"
                 )
 
+        # Make sure the visible element doesn't have the same name as the hidden elements
+        # Otherwise, in the POST request, they collide and an incoherent value is sent
+        self.js_script += (
+            '$( "#{input_id}" ).ready( function() {{'
+            '    $( "#{input_id}" ).attr("name", "mbf_{f_name}");'
+            "}} );"
+        )
+
     def fill_js(self):
         """ Fill the template with the correct values """
         self.js_script = self.js_script.format(
