@@ -37,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% trans "Building" as tr_building %}
             <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
             <th>{% include 'buttons/sort.html' with prefix='room' col='name' text=tr_room %}</th>
-	    <th>{% trans "Connnected on" %}</th>
+	    <th>{% trans "Connnected to" %}</th>
 	    <th>{% trans "User" %}</th>
 	    <th>{% trans "Details" %}</th>
             <th>{% trans "End of subscription on" %}</th>
@@ -49,10 +49,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <td>{{ room.building }}</td>
         <td>{{ room.name }}</td>
-	<td>{% if room.port_set.all %}<span class="label label-success">AURORE{% else %}<span class="label label-danger">{% trans "Other operator" %}{% endif %}</span></td>
-	<td>{% if room.adherent %}<a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>{% else %} {% trans "Aucun" %}{% endif %}</td>
+	<td>{% if room.port_set.all %}<span class="label label-success">{{ asso_name }}{% else %}<span class="label label-danger">{% trans "Other operator" %}{% endif %}</span></td>
+	<td>{% if room.adherent %}<a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>{% else %} {% trans "None" %}{% endif %}</td>
         <td>{{ room.details }}</td>
-	<td>{% if room.adherent.is_adherent %}<i class="text-success">{% else %}<i class="text-danger">{% endif %}{% if room.adherent.end_adhesion %}{{ room.adherent.end_adhesion}}{% else %}{% trans "No member" %}{% endif %}</i></td>
+	<td>{% if room.adherent.is_adherent %}<i class="text-success">{% else %}<i class="text-danger">{% endif %}{% if room.adherent.end_adhesion %}{{ room.adherent.end_adhesion}}{% else %}{% trans "Non member" %}{% endif %}</i></td>
         <td>
             {% if room.adherent.has_access == True %}
             <i class="text-success">{% trans "Active" %}</i>

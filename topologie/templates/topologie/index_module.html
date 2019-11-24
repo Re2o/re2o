@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% trans "Switch modules" %}</h2>
 {% can_create ModuleSwitch %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:add-module' %}"><i class="fa fa-plus"></i>{% trans " Add a module" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:add-module' %}"><i class="fa fa-plus"></i> {% trans "Add a module" %}</a>
 <hr>
 {% acl_end %}
     {% include 'topologie/aff_modules.html' with module_list=module_list modular_switchs=modular_switchs %}

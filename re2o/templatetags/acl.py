@@ -88,7 +88,7 @@ def get_model(model_name):
             app_label, name = splitted
         except ValueError:
             raise template.TemplateSyntaxError(
-                "%r is an inconsistent model name" % model_name
+                "%r is an inconsistent model name." % model_name
             )
     else:
         app_label, name = None, splitted[0]
@@ -101,7 +101,7 @@ def get_model(model_name):
             content_type = ContentType.objects.get(model=name.lower())
     except ContentType.DoesNotExist:
         raise template.TemplateSyntaxError(
-            "%r is not a valid model for an acl tag" % model_name
+            "%r is not a valid model for an acl tag." % model_name
         )
     except ContentType.MultipleObjectsReturned:
         raise template.TemplateSyntaxError(
@@ -178,7 +178,7 @@ def get_callback(tag_name, obj=None):
             True,
         )
 
-    raise template.TemplateSyntaxError("%r tag is not a valid can_xxx tag" % tag_name)
+    raise template.TemplateSyntaxError("%r tag is not a valid can_xxx tag." % tag_name)
 
 
 def acl_fct(callback, reverse):
@@ -264,7 +264,7 @@ def acl_change_filter(parser, token):
         args = tag_content[3:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 2 argument: the model and the field"
+            "%r tag require at least 2 argument: the model and the field."
             % token.contents.split()[0]
         )
 
@@ -306,7 +306,7 @@ def acl_model_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument: the model" % token.contents.split()[0]
+            "%r tag require at least 1 argument: the model." % token.contents.split()[0]
         )
 
     model = get_model(model_name)
@@ -345,7 +345,7 @@ def acl_instance_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument: the instance"
+            "%r tag require at least 1 argument: the instance."
             % token.contents.split()[0]
         )
 

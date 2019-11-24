@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <input type="submit" name="valider" value={% trans "Confirm" %} class="btn btn-primary" id="submit-id-submit">
 </form>
 
-<h3>{% blocktrans %}The following users will be archived ({{ to_archive_list|length }}):{% endblocktrans %}</h3>
+<h3>{% blocktrans %}The following users will be archived:{% endblocktrans %}</h3>
 {%  include 'users/aff_users.html' with  users_list=to_archive_list %}
 <br />
 <br />

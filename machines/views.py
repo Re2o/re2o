@@ -250,7 +250,7 @@ def new_machine(request, user, **_kwargs):
             "interfaceform": interface,
             "domainform": domain,
             "i_mbf_param": i_mbf_param,
-            "action_name": _("Create a machine"),
+            "action_name": _("Add"),
         },
         "machines/machine.html",
         request,
@@ -314,7 +314,7 @@ def del_machine(request, machine, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(machine.user.id)})
         )
     return form(
-        {"objet": machine, "objet_name": "machine"}, "machines/delete.html", request
+        {"objet": machine, "objet_name": _("machine")}, "machines/delete.html", request
     )
 
 
@@ -345,7 +345,7 @@ def new_interface(request, machine, **_kwargs):
             "interfaceform": interface_form,
             "domainform": domain_form,
             "i_mbf_param": i_mbf_param,
-            "action_name": _("Create an interface"),
+            "action_name": _("Add"),
         },
         "machines/machine.html",
         request,
@@ -366,7 +366,7 @@ def del_interface(request, interface, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
     return form(
-        {"objet": interface, "objet_name": "interface"}, "machines/delete.html", request
+        {"objet": interface, "objet_name": _("interface")}, "machines/delete.html", request
     )
 
 
@@ -386,7 +386,7 @@ def new_ipv6list(request, interface, **_kwargs):
             reverse("machines:index-ipv6", kwargs={"interfaceid": str(interface.id)})
         )
     return form(
-        {"ipv6form": ipv6, "action_name": _("Create an IPv6 addresses list")},
+        {"ipv6form": ipv6, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -426,7 +426,7 @@ def del_ipv6list(request, ipv6list, **_kwargs):
             reverse("machines:index-ipv6", kwargs={"interfaceid": str(interfaceid)})
         )
     return form(
-        {"objet": ipv6list, "objet_name": "ipv6"}, "machines/delete.html", request
+        {"objet": ipv6list, "objet_name": _("IPv6 addresses list")}, "machines/delete.html", request
     )
 
 
@@ -444,7 +444,7 @@ def new_sshfp(request, machine, **_kwargs):
             reverse("machines:index-sshfp", kwargs={"machineid": str(machine.id)})
         )
     return form(
-        {"sshfpform": sshfp, "action_name": _("Create a SSHFP record")},
+        {"sshfpform": sshfp, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -482,7 +482,7 @@ def del_sshfp(request, sshfp, **_kwargs):
             reverse("machines:index-sshfp", kwargs={"machineid": str(machineid)})
         )
     return form(
-        {"objet": sshfp, "objet_name": "sshfp"}, "machines/delete.html", request
+        {"objet": sshfp, "objet_name": _("SSHFP record")}, "machines/delete.html", request
     )
 
 
@@ -498,7 +498,7 @@ def add_iptype(request):
         messages.success(request, _("The IP type was created."))
         return redirect(reverse("machines:index-iptype"))
     return form(
-        {"iptypeform": iptype, "action_name": _("Create an IP type")},
+        {"iptypeform": iptype, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -563,7 +563,7 @@ def add_machinetype(request):
         messages.success(request, _("The machine type was created."))
         return redirect(reverse("machines:index-machinetype"))
     return form(
-        {"machinetypeform": machinetype, "action_name": _("Create a machine" " type")},
+        {"machinetypeform": machinetype, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -626,7 +626,7 @@ def add_extension(request):
         messages.success(request, _("The extension was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"extensionform": extension, "action_name": _("Create an extension")},
+        {"extensionform": extension, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -688,7 +688,7 @@ def add_soa(request):
         messages.success(request, _("The SOA record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"soaform": soa, "action_name": _("Create an SOA record")},
+        {"soaform": soa, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -740,7 +740,7 @@ def add_mx(request):
         messages.success(request, _("The MX record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"mxform": mx, "action_name": _("Create an MX record")},
+        {"mxform": mx, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -792,7 +792,7 @@ def add_ns(request):
         messages.success(request, _("The NS record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"nsform": ns, "action_name": _("Create an NS record")},
+        {"nsform": ns, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -844,7 +844,7 @@ def add_dname(request):
         messages.success(request, _("The DNAME record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"dnameform": dname, "action_name": _("Create a DNAME record")},
+        {"dnameform": dname, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -899,7 +899,7 @@ def add_txt(request):
         messages.success(request, _("The TXT record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"txtform": txt, "action_name": _("Create a TXT record")},
+        {"txtform": txt, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -951,7 +951,7 @@ def add_srv(request):
         messages.success(request, _("The SRV record was created."))
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"srvform": srv, "action_name": _("Create an SRV record")},
+        {"srvform": srv, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1008,7 +1008,7 @@ def add_alias(request, interface, interfaceid):
             reverse("machines:index-alias", kwargs={"interfaceid": str(interfaceid)})
         )
     return form(
-        {"aliasform": alias, "action_name": _("Create an alias")},
+        {"aliasform": alias, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1069,7 +1069,7 @@ def add_role(request):
         messages.success(request, _("The role was created."))
         return redirect(reverse("machines:index-role"))
     return form(
-        {"roleform": role, "action_name": _("Create a role")},
+        {"roleform": role, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1121,7 +1121,7 @@ def add_service(request):
         messages.success(request, _("The service was created."))
         return redirect(reverse("machines:index-service"))
     return form(
-        {"serviceform": service, "action_name": _("Create a service")},
+        {"serviceform": service, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1187,7 +1187,7 @@ def add_vlan(request):
         messages.success(request, _("The VLAN was created."))
         return redirect(reverse("machines:index-vlan"))
     return form(
-        {"vlanform": vlan, "action_name": _("Create a VLAN")},
+        {"vlanform": vlan, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1239,7 +1239,7 @@ def add_nas(request):
         messages.success(request, _("The NAS device was created."))
         return redirect(reverse("machines:index-nas"))
     return form(
-        {"nasform": nas, "action_name": _("Create a NAS device")},
+        {"nasform": nas, "action_name": _("Add")},
         "machines/machine.html",
         request,
     )
@@ -1558,8 +1558,8 @@ def configure_ports(request, interface_instance, **_kwargs):
             request,
             (
                 _(
-                    "Warning: the IPv4 isn't public, the opening won't have effect"
-                    " in v4."
+                    "Warning: the IP address is not public, the opening won't"
+                    " have any effect in v4."
                 )
             ),
         )
@@ -1572,7 +1572,7 @@ def configure_ports(request, interface_instance, **_kwargs):
             messages.success(request, _("The ports configuration was edited."))
         return redirect(reverse("machines:index"))
     return form(
-        {"interfaceform": interface, "action_name": _("Edit the" " configuration")},
+        {"interfaceform": interface, "action_name": _("Edit")},
         "machines/machine.html",
         request,
     )

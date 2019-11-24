@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "Switch models" %}</h2>
     {% can_create ModelSwitch %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-model-switch' %}">
-	<i class="fa fa-plus"></i>{% trans " Add a switch model" %}
+	<i class="fa fa-plus"></i> {% trans "Add a switch model" %}
     </a>
     <hr>
     {% acl_end %}
@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "Switch constructors" %}</h2>
     {% can_create ConstructorSwitch %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-constructor-switch' %}">
-	<i class="fa fa-plus"></i>{% trans " Add a switch constructor" %}
+	<i class="fa fa-plus"></i> {% trans "Add a switch constructor" %}
     </a>
     <hr>
     {% acl_end %}

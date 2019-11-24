@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load i18n %}
 
-{% block title %}{% trans "Multi Operators" %}{% endblock %}
+{% block title %}{% trans "Multiple operators" %}{% endblock %}
 
 {% block content %}
 
@@ -35,17 +35,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% bootstrap_form_errors dormitory_form %}
 {% endif %}
 
-<h2>{% trans "Rooms connections" %}</h2>
+<h2>{% trans "Room connections" %}</h2>
 
 {% if dormitory_form %}
 <form class="form" method="post">
 	{% csrf_token %}
 	{% bootstrap_form dormitory_form %}
-	{% bootstrap_button "Select Dormitory" icon='ok' button_class='btn-success' %}
+	{% trans "Select dormitory" as tr_select_dorm %}
+	{% bootstrap_button tr_select_dorm icon='ok' button_class='btn-success' %}
 </form>
 {% endif %}
 
-{% include 'multi_op/aff_room_state.html' with room_list=room_list %}
+{% include 'multi_op/aff_room_state.html' with room_list=room_list asso_name=asso_name %}
     <br />
     <br />
     <br />

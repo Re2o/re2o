@@ -53,7 +53,7 @@ def get_user(pseudo):
         raise CommandError("Invalid user.")
     if len(user) > 1:
         raise CommandError(
-            "Several users match this username. This SHOULD" " NOT happen."
+            "Several users match this username. This SHOULD NOT happen."
         )
     return user[0]
 
@@ -95,5 +95,5 @@ def form_cli(Form, user, action, *args, **kwargs):
         reversion.set_comment(action)
 
     sys.stdout.write(
-        "%s : done. The edit may take several minutes to" " apply.\n" % action
+        "%s: done. The edit may take several minutes to apply.\n" % action
     )

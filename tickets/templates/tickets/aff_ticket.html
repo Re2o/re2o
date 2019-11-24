@@ -31,11 +31,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
 
-<h2> Ticket #{{ticket.id}} 
+<h2>{% blocktrans with id=ticket.id %}Ticket #{{id}}{% endblocktrans %} 
 {% if ticket.solved %}
 <span class="badge badge-success">{% trans "Solved" %}</span>
 {% else %}
-<span class="badge badge-danger">{% trans "Not Solved" %}</span>
+<span class="badge badge-danger">{% trans "Not solved" %}</span>
 {% endif %}
 </h2>
 
@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {{ ticket.user.get_full_name }}
         </a>
     {% else %}
-        {% trans "Anonymous User" %}
+        {% trans "Anonymous user" %}
     {% endif %}
     {{ ticket.date | naturalday}}.
     {% if not ticket.user %}
@@ -57,7 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel-body">
 
     <p><b>{% trans "Title:" %}</b> {{ticket.title}}</p>
-    <p><b>{% trans "Description" %}</b> {{ ticket.description }}</p>
+    <p><b>{% trans "Description:" %}</b> {{ ticket.description }}</p>
     
 <div class="text-right">
 <form class="form" method="post">
@@ -65,9 +65,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% bootstrap_form changestatusform %}
 
     {% if not ticket.solved %}
-        {% bootstrap_button "Mark as Solved" button_type="submit" button_class='btn-info' %}
+        {% trans "Mark as solved" as tr_mark_solved %}
+        {% bootstrap_button tr_mark_solved button_type="submit" button_class='btn-info' %}
     {% else %}
-        {% bootstrap_button "Mark as not Solved" button_type="submit" button_class='btn-warning' %}
+        {% trans "Mark as not solved" as tr_mark_not_solved %}
+        {% bootstrap_button tr_mark_not_solved button_type="submit" button_class='btn-warning' %}
     {% endif %}
 </form>
 </div>
@@ -76,7 +78,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 <div class="text-right">
-    <a type="button" href="{% url 'tickets:aff-tickets' %}" class="btn btn-primary"><p>{% trans "Tous les tickets" %}</p></a>
+    <a type="button" href="{% url 'tickets:aff-tickets' %}" class="btn btn-primary"><p>{% trans "All tickets" %}</p></a>
 </div>
 
 {% endblock %}

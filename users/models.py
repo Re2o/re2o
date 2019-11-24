@@ -102,7 +102,7 @@ def linux_user_validator(login):
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
         raise forms.ValidationError(
-            _("The username '%(label)s' contains forbidden characters."),
+            _("The username \"%(label)s\" contains forbidden characters."),
             params={"label": login},
         )
 
@@ -181,7 +181,7 @@ class User(
         (1, _("Disabled")),
         (2, _("Archived")),
         (3, _("Not yet active")),
-        (4, _("Full Archived")),
+        (4, _("Fully archived")),
     )
 
     surname = models.CharField(max_length=255)
@@ -213,7 +213,7 @@ class User(
         "ListShell", on_delete=models.PROTECT, null=True, blank=True
     )
     comment = models.CharField(
-        help_text=_("Comment, school year"), max_length=255, blank=True
+        help_text=_("Comment, school year."), max_length=255, blank=True
     )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
@@ -222,7 +222,7 @@ class User(
     uid_number = models.PositiveIntegerField(default=get_fresh_user_uid, unique=True)
     rezo_rez_uid = models.PositiveIntegerField(unique=True, blank=True, null=True)
     shortcuts_enabled = models.BooleanField(
-        verbose_name=_("Enable shortcuts on Re2o website"), default=True
+        verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
 
     USERNAME_FIELD = "pseudo"
@@ -238,9 +238,9 @@ class User(
             ("change_user_shell", _("Can edit the shell of a user")),
             (
                 "change_user_groups",
-                _("Can edit the groups of rights of a user (critical" " permission)"),
+                _("Can edit the groups of rights of a user (critical permission)"),
             ),
-            ("change_all_users", _("Can edit all users, including those with rights.")),
+            ("change_all_users", _("Can edit all users, including those with rights")),
             ("view_user", _("Can view a user object")),
         )
         verbose_name = _("user (member or club)")
@@ -548,21 +548,21 @@ class User(
         interfaces = self.user_interfaces()
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_assign_ipv4(interfaces)
-            reversion.set_comment(_("IPv4 assigning"))
+            reversion.set_comment("IPv4 assignment")
 
     def unassign_ips(self):
         """ Désassigne les ipv4 aux machines de l'user"""
         interfaces = self.user_interfaces()
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_unassign_ipv4(interfaces)
-            reversion.set_comment(_("IPv4 unassigning"))
+            reversion.set_comment("IPv4 unassignment")
 
     @classmethod
     def mass_unassign_ips(cls, users_list):
         interfaces = cls.users_interfaces(users_list)
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_unassign_ipv4(interfaces)
-            reversion.set_comment(_("IPv4 assigning"))
+            reversion.set_comment("IPv4 assignment")
 
     @classmethod
     def mass_disable_email(cls, queryset_users):
@@ -761,11 +761,10 @@ class User(
             "url": request.build_absolute_uri(
                 reverse("users:process", kwargs={"token": req.token})
             ),
-            "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs"))
-            + " hours",
+            "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
         }
         send_mail(
-            "Changement de mot de passe du %(name)s / Password renewal for "
+            "Changement de mot de passe de %(name)s / Password change for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
@@ -902,7 +901,7 @@ class User(
                 if self.groups.filter(listright__critical=True):
                     return (
                         False,
-                        _("User with critical rights, can't be edited. "),
+                        _("User with critical rights, can't be edited."),
                         ("users.change_all_users",),
                     )
                 elif self == AssoOption.get_cached_value("utilisateur_asso"):
@@ -910,7 +909,7 @@ class User(
                         False,
                         _(
                             "Impossible to edit the organisation's"
-                            " user without the 'change_all_users' right."
+                            " user without the \"change_all_users\" right."
                         ),
                         ("users.change_all_users",),
                     )
@@ -985,7 +984,7 @@ class User(
         ):
             return (
                 False,
-                _("Permission required to change the room."),
+                _("You don't have the right to change the room."),
                 ("users.change_user",),
             )
         else:
@@ -1002,7 +1001,7 @@ class User(
         can = user_request.has_perm("users.change_user_state")
         return (
             can,
-            _("Permission required to change the state.") if not can else None,
+            _("You don't have the right to change the state.") if not can else None,
             ("users.change_user_state",),
         )
 
@@ -1022,7 +1021,7 @@ class User(
         ):
             return (
                 False,
-                _("Permission required to change the shell."),
+                _("You don't have the right to change the shell."),
                 ("users.change_user_shell",),
             )
         else:
@@ -1069,7 +1068,7 @@ class User(
         can = user_request.has_perm("users.change_user_force")
         return (
             can,
-            _("Permission required to force the move.") if not can else None,
+            _("You don't have the right to force the move.") if not can else None,
             ("users.change_user_force",),
         )
 
@@ -1084,7 +1083,7 @@ class User(
         can = user_request.has_perm("users.change_user_grou")
         return (
             can,
-            _("Permission required to edit the user's groups of rights.")
+            _("You don't have the right to edit the user's groups of rights.")
             if not can
             else None,
             ("users.change_user_groups"),
@@ -1100,7 +1099,7 @@ class User(
         can = user_request.is_superuser
         return (
             can,
-            _("'superuser' right required to edit the superuser flag.")
+            _("\"superuser\" right required to edit the superuser flag.")
             if not can
             else None,
             [],
@@ -1241,7 +1240,7 @@ class Adherent(User):
             gpg_fingerprint = self.gpg_fingerprint.replace(" ", "").upper()
             if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
                 raise ValidationError(
-                    _("A GPG fingerprint must contain 40 hexadecimal characters")
+                    _("A GPG fingerprint must contain 40 hexadecimal characters.")
                 )
             self.gpg_fingerprint = gpg_fingerprint
 
@@ -1265,7 +1264,7 @@ class Adherent(User):
         if not user_request.is_authenticated and not OptionalUser.get_cached_value(
             "self_adhesion"
         ):
-            return False, _("Self adhesion is disabled."), None
+            return False, _("Self registration is disabled."), None
         else:
             if OptionalUser.get_cached_value(
                 "all_can_create_adherent"
@@ -1418,7 +1417,7 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         validators=[linux_user_validator],
     )
     access_group = models.CharField(choices=ACCESS, default=readonly, max_length=32)
-    comment = models.CharField(help_text=_("Comment"), max_length=255, blank=True)
+    comment = models.CharField(help_text=_("Comment."), max_length=255, blank=True)
 
     USERNAME_FIELD = "pseudo"
     objects = UserManager()
@@ -1518,13 +1517,13 @@ class ListRight(RevMixin, AclMixin, Group):
         validators=[
             RegexValidator(
                 "^[a-z]+$",
-                message=(_("UNIX groups can only contain lower case letters.")),
+                message=(_("UNIX group names can only contain lower case letters.")),
             )
         ],
     )
     gid = models.PositiveIntegerField(unique=True, null=True)
     critical = models.BooleanField(default=False)
-    details = models.CharField(help_text=_("Description"), max_length=255, blank=True)
+    details = models.CharField(help_text=_("Description."), max_length=255, blank=True)
 
     class Meta:
         permissions = (("view_listright", _("Can view a group of rights object")),)
@@ -1643,7 +1642,7 @@ class Ban(RevMixin, AclMixin, models.Model):
         if not user_request.has_perm("users.view_ban") and self.user != user_request:
             return (
                 False,
-                _("You don't have the right to view bans other than yours."),
+                _("You don't have the right to view other bans than yours."),
                 ("users.view_ban",),
             )
         else:
@@ -1713,7 +1712,7 @@ class Whitelist(RevMixin, AclMixin, models.Model):
         ):
             return (
                 False,
-                _("You don't have the right to view whitelists other than yours."),
+                _("You don't have the right to view other whitelists than yours."),
                 ("users.view_whitelist",),
             )
         else:
@@ -1910,10 +1909,10 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
     """
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, help_text=_("User of the local email account")
+        User, on_delete=models.CASCADE, help_text=_("User of the local email account.")
     )
     local_part = models.CharField(
-        unique=True, max_length=128, help_text=_("Local part of the email address")
+        unique=True, max_length=128, help_text=_("Local part of the email address.")
     )
 
     class Meta:
@@ -1990,7 +1989,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         return (
             False,
             _(
-                "You don't have the right to edit another user's local"
+                "You don't have the right to view another user's local"
                 " email account."
             ),
             ("users.view_emailaddress",),
@@ -2025,7 +2024,7 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
             False,
             _(
                 "You don't have the right to delete another user's"
-                " local email account"
+                " local email account."
             ),
             ("users.delete_emailaddress",),
         )

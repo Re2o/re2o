@@ -241,7 +241,7 @@ def stats_general(request):
                     Club.objects.filter(state=Club.STATE_ARCHIVE).count(),
                 ],
                 "full_archive_users": [
-                    _("Full Archived users"),
+                    _("Fully archived users"),
                     User.objects.filter(state=User.STATE_FULL_ARCHIVE).count(),
                     (
                         Adherent.objects.filter(
@@ -321,7 +321,7 @@ def stats_general(request):
                 _("Total number of IP addresses"),
                 _("Number of assigned IP addresses"),
                 _("Number of IP address assigned to an activated machine"),
-                _("Number of nonassigned IP addresses"),
+                _("Number of unassigned IP addresses"),
             ],
             ip_dict,  # Data already prepared
         ],
@@ -336,7 +336,7 @@ def stats_models(request):
     nombre d'users, d'écoles, de droits, de bannissements,
     de factures, de ventes, de banque, de machines, etc"""
     stats = {
-        _("Users"): {
+        _("Users (members and clubs)"): {
             "users": [User._meta.verbose_name, User.objects.count()],
             "adherents": [Adherent._meta.verbose_name, Adherent.objects.count()],
             "clubs": [Club._meta.verbose_name, Club.objects.count()],
@@ -350,14 +350,14 @@ def stats_models(request):
             "ban": [Ban._meta.verbose_name, Ban.objects.count()],
             "whitelist": [Whitelist._meta.verbose_name, Whitelist.objects.count()],
         },
-        _("Subscriptions"): {
+        Cotisation._meta.verbose_name_plural.title(): {
             "factures": [Facture._meta.verbose_name, Facture.objects.count()],
             "vente": [Vente._meta.verbose_name, Vente.objects.count()],
             "cotisation": [Cotisation._meta.verbose_name, Cotisation.objects.count()],
             "article": [Article._meta.verbose_name, Article.objects.count()],
             "banque": [Banque._meta.verbose_name, Banque.objects.count()],
         },
-        _("Machines"): {
+        Machine._meta.verbose_name_plural.title(): {
             "machine": [Machine._meta.verbose_name, Machine.objects.count()],
             "typemachine": [
                 MachineType._meta.verbose_name,
@@ -412,31 +412,31 @@ def stats_users(request):
     de moyens de paiements par user, de banque par user,
     de bannissement par user, etc"""
     stats = {
-        _("User"): {
-            _("Machines"): User.objects.annotate(num=Count("machine")).order_by("-num")[
+        User._meta.verbose_name: {
+            Machine._meta.verbose_name_plural: User.objects.annotate(num=Count("machine")).order_by("-num")[
                 :10
             ],
-            _("Invoice"): User.objects.annotate(num=Count("facture")).order_by("-num")[
+            Facture._meta.verbose_name_plural: User.objects.annotate(num=Count("facture")).order_by("-num")[
                 :10
             ],
-            _("Ban"): User.objects.annotate(num=Count("ban")).order_by("-num")[:10],
-            _("Whitelist"): User.objects.annotate(num=Count("whitelist")).order_by(
+            Ban._meta.verbose_name_plural: User.objects.annotate(num=Count("ban")).order_by("-num")[:10],
+            Whitelist._meta.verbose_name_plural: User.objects.annotate(num=Count("whitelist")).order_by(
                 "-num"
             )[:10],
-            _("Rights"): User.objects.annotate(num=Count("groups")).order_by("-num")[
+            _("rights"): User.objects.annotate(num=Count("groups")).order_by("-num")[
                 :10
             ],
         },
-        _("School"): {
-            _("User"): School.objects.annotate(num=Count("user")).order_by("-num")[:10]
+        School._meta.verbose_name: {
+            User._meta.verbose_name_plural: School.objects.annotate(num=Count("user")).order_by("-num")[:10]
         },
-        _("Payment method"): {
-            _("User"): Paiement.objects.annotate(num=Count("facture")).order_by("-num")[
+        Paiement._meta.verbose_name: {
+            User._meta.verbose_name_plural: Paiement.objects.annotate(num=Count("facture")).order_by("-num")[
                 :10
             ]
         },
-        _("Bank"): {
-            _("User"): Banque.objects.annotate(num=Count("facture")).order_by("-num")[
+        Banque._meta.verbose_name: {
+            User._meta.verbose_name_plural: Banque.objects.annotate(num=Count("facture")).order_by("-num")[
                 :10
             ]
         },
@@ -451,8 +451,8 @@ def stats_actions(request):
     utilisateurs.
     Affiche le nombre de modifications aggrégées par utilisateurs"""
     stats = {
-        _("User"): {
-            _("Action"): User.objects.annotate(num=Count("revision")).order_by("-num")[
+        User._meta.verbose_name: {
+            _("actions"): User.objects.annotate(num=Count("revision")).order_by("-num")[
                 :40
             ]
         }

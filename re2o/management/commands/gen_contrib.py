@@ -64,7 +64,7 @@ class Command(BaseCommand):
             for item in os.popen("git shortlog -s -n").read().split("\n")
             if "\t" in item
         ]
-        self.stdout.write(self.style.SUCCESS("Exportation Successful"))
+        self.stdout.write(self.style.SUCCESS("Exportation successful!"))
         with open("re2o/contributors.py", "w") as contrib_file:
             content = self._contrib_file_generator(contributors)
             contrib_file.write(content)

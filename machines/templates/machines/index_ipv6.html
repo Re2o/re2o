@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "List of the IPv6 addresses of the interface" %}</h2>
     {% can_create Ipv6List interface_id %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-ipv6list' interface_id %}">
-            <i class="fa fa-plus"></i>{% trans " Add an IPv6 address" %}
+            <i class="fa fa-plus"></i> {% trans "Add an IPv6 address" %}
         </a>
     {% acl_end %}
     {% include 'machines/aff_ipv6.html' with  ipv6_list=ipv6_list %}

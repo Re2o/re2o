@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "List of payment methods" %}</h2>
     {% can_create Paiement %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-paiement' %}">
-        <i class="fa fa-cart-plus"></i> {% trans "Add a payment method" %}
+        <i class="fa fa-plus"></i> {% trans "Add a payment method" %}
     </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-paiement' %}">

@@ -51,4 +51,4 @@ class FreePayment(PaymentMethodMixin, models.Model):
         """Checks that the price meets the requirement to be paid with user
         balance.
         """
-        return (price == 0, _("You cannot validate this invoice for free."))
+        return (price == 0, _("You can't pay this invoice for free."))

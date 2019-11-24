@@ -125,7 +125,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "All users are active by default" %}</th>
                     <td>{{ useroptions.all_users_active|tick }}</td>
-                    <th>{% trans "Allow archived users to log-in" %}</th>
+                    <th>{% trans "Allow archived users to log in" %}</th>
                     <td>{{ useroptions.allow_archived_connexion|tick }}</td>
                 </tr>
             </table>
@@ -156,7 +156,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel panel-default" id="machines">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_machines">
         <h4 class ="panel-title">
-            <a><i class="fa fa-desktop"></i>   {% trans "Machines preferences" %}</a>
+            <a><i class="fa fa-desktop"></i>   {% trans "Machine preferences" %}</a>
         </h4>
     </div>
 
@@ -177,7 +177,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Maximum number of DNS aliases allowed for a standard user" %}</th>
                 <td>{{ machineoptions.max_lambdauser_aliases }}</td>
-                <th>{% trans "Default Time To Live (TTL) for CNAME, A and AAA records." %}</th>
+                <th>{% trans "Default Time To Live (TTL) for CNAME, A and AAAA records." %}</th>
                 <td>{{ machineoptions.default_dns_ttl }}</td>
             </tr>
             <tr>
@@ -200,7 +200,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 	<h4>{% trans "RADIUS keys" %}</h4>
         {% can_create RadiusKey%}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i>{% trans " Add a RADIUS key" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiuskey'  %}"><i class="fa fa-plus"></i>{% trans "Add a RADIUS key" %}</a>
         {% acl_end %}
         {%  include 'preferences/aff_radiuskey.html' with  radiuskey_list=radiuskey_list %}
 
@@ -262,7 +262,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <h6>{% trans "Switch management credentials" %}</h6>
         {% can_create SwitchManagementCred%}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i>{% trans " Add switch management credentials" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-switchmanagementcred'  %}"><i class="fa fa-plus"></i>{% trans "Add switch management credentials" %}</a>
         {% acl_end %}
         <p>
         </p>
@@ -282,8 +282,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% trans "Edit" %}
         </a>
         {% include 'preferences/aff_radiusoptions.html' %}
-        <h5>{% trans "Available RADIUS attributes"%}</h5>
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiusattribute'  %}"><i class="fa fa-plus"></i>{% trans " Add an attribute" %}</a>
+        <h5>{% trans "Current RADIUS attributes"%}</h5>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-radiusattribute'  %}"><i class="fa fa-plus"></i>{% trans "Add an attribute" %}</a>
         {% include 'preferences/aff_radiusattributes.html' %}
     </div>
 </div>
@@ -346,7 +346,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="collapse_templates" class="panel-collapse panel-body collapse">
         {% can_create DocumentTemplate %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-document-template' %}">
-            <i class="fa fa-cart-plus"></i> {% trans "Add a document template" %}
+            <i class="fa fa-plus"></i> {% trans "Add a document template" %}
         </a>
         {% acl_end %}
         <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-document-template' %}">
@@ -359,7 +359,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div  class="panel panel-default" id="cotisation">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_cotisation">
         <h4 class="panel-title">
-            <a><i class="fa fa-eur"></i>   {% trans "Cotisation's options" %}</a>
+            <a><i class="fa fa-eur"></i>   {% trans "Subscription preferences" %}</a>
         </h4>
     </div>
     <div id="collapse_cotisation" class="panel-collapse panel-body collapse">
@@ -414,13 +414,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div  class="panel panel-default" id="rappels">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_rappels">
         <h4 class="panel-title">
-                <a><i class="fa fa-bell"></i> {% trans "Options for the membership's end email" %}</a>
+                <a><i class="fa fa-bell"></i> {% trans "Preferences for the membership's end email" %}</a>
         </h4>
     </div>
     <div id="collapse_rappels" class="panel-collapse panel-body collapse">
         {% can_create preferences.Reminder%}
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i>{% trans " Add a reminder" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-reminder'  %}"><i class="fa fa-plus"></i>{% trans "Add a reminder" %}</a>
         <p></p>
         {% acl_end %}
         {%  include 'preferences/aff_reminder.html' with  reminder_list=reminder_list %}
@@ -437,7 +437,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="collapse_services" class="panel-collapse panel-body collapse">
         {% can_create preferences.Service%}
 
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans " Add a service" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-service'  %}"><i class="fa fa-plus"></i>{% trans "Add a service" %}</a>
         <p></p>
         {% acl_end %}
         {%  include 'preferences/aff_service.html' with  service_list=service_list %}
@@ -454,9 +454,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="collapse_contact" class="panel-collapse panel-body collapse">
 
         {% can_create preferences.MailContact %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans " Add an address" %}</a>
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'preferences:add-mailcontact'  %}"><i class="fa fa-plus"></i>{% trans "Add an address" %}</a>
         {% acl_end %}
-        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several addresses" %}</a>
+        <a class="btn btn-danger btn-sm" role="button" href="{% url 'preferences:del-mailcontact'  %}"><i class="fa fa-trash"></i>{% trans "Delete one or several addresses" %}</a>
         <p></p>
         {%  include 'preferences/aff_mailcontact.html' with  mailcontact_list=mailcontact_list %}
     </div>
@@ -465,7 +465,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel panel-default" id="social">
     <div class="panel-heading" data-toggle="collapse" href="#collapse_social">
         <h4 class="panel-title">
-                <i class="fa fa-twitter"></i> {% trans "Social networks" %}</a>
+                <a><i class="fa fa-twitter"></i> {% trans "Social networks" %}</a>
         </h4>
     </div>
     <div id="collapse_social" class="panel-collapse panel-body collapse">

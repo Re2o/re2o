@@ -1,27 +1,31 @@
-<p>Bonjour {{nom}} </p>
+<p>Bonjour {{ nom }},</p>
 
 <p>Une nouvelle machine a automatiquement été inscrite sur votre compte.</p>
 
-<p>Si vous êtes à l'origine de la connexion de cet appareil en filaire ou wifi, ne tenez pas compte de cette notification</p>
+<p>Si vous êtes à l'origine de la connexion de cet appareil en filaire ou Wi-Fi, ne tenez pas compte de ce mail.</p>
 
-<p>La nouvelle machine possède l'adresse mac {{ mac_address }}, et s'est vu assigner le nom suivant : {{ interface_name }}</p>
+<p>La nouvelle machine possède l'adresse MAC {{ mac_address }}, et s'est vu assigner le nom suivant : {{ interface_name }}.</p>
 
-<p>Vous pouvez à tout moment modifier ces informations sur votre compte en ligne</p>
+<p>Vous pouvez à tout moment modifier ces informations sur votre compte en ligne.</p>
 
-<p>Si vous n'êtes pas à l'origine de cette connexion, merci de le signaler rapidement à {{asso_email}}</p>
+<p>Si vous n'êtes pas à l'origine de cette connexion, veuillez le signaler rapidement à {{ asso_email }}.</p>
 
-<p>À bientôt,<br>
-L'équipe de {{asso_name}}.</p>
+<p>Respectueusement,<br>
+L'équipe de {{ asso_name }}.</p>
 
 <p>---</p>
 
-<p>A new device has been automatically added on your account.</p>
+<p>Hello {{ nom }},</p>
 
-<p>If you connected a new device recently, please don't take this mail into account<p>
+<p>A new machine has been automatically added on your account.</p>
 
-<p>The new device has this mac address : {{ mac_address }}, and this name : {{ interface_name }}</p>
+<p>If you are the one who connected this machine with wire of Wi-Fi, don't take this mail into account.<p>
 
-<p>Please contact us if you didn't connect a new device with this mail address {{asso_email}}.</p>
+<p>The new machine has this MAC address: {{ mac_address }}, and has been assigned this name: {{ interface_name }}</p>
+
+<p>At any time, you can edit this information on your online account.</p>
+
+<p>If you didn't connect this machine, please report it quickly to {{ asso_email }}.</p>
 
 <p>Regards,<br>
-The {{asso_name}} team.</p>
+The {{ asso_name }} team.</p>

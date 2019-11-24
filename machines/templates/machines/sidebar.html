@@ -60,7 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% can_view_all Nas %}
     <a class="list-group-item list-group-item-info" href="{% url 'machines:index-nas' %}">
         <i class="fa fa-list-ul"></i>
-        {% trans "NAS devices" %}
+	{% trans "NAS devices" %}
     </a>
     {% acl_end %}
     {% can_view_all machines.Service %}

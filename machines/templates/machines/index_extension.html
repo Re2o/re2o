@@ -33,77 +33,76 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% trans "List of extensions" %}</h2>
     {% can_create Extension %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-extension' %}">
-            <i class="fa fa-plus"></i>
-            {% trans " Add an extension" %}</a>
+            <i class="fa fa-plus"></i> {% trans "Add an extension" %}</a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-extension' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several extensions" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several extensions" %}
     </a>
     {% include 'machines/aff_extension.html' with  extension_list=extension_list %}
 
     <h2>{% trans "List of SOA records" %}</h2>
     {% can_create SOA %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-soa' %}">
-            <i class="fa fa-plus"></i>{% trans " Add an SOA record" %}
+            <i class="fa fa-plus"></i> {% trans "Add an SOA record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-soa' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several SOA records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several SOA records" %}
     </a>
     {% include 'machines/aff_soa.html' with  soa_list=soa_list %}
 
     <h2>{% trans "List of MX records" %}</h2>
     {% can_create Mx %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-mx' %}">
-            <i class="fa fa-plus"></i>{% trans " Add an MX record" %}
+            <i class="fa fa-plus"></i> {% trans "Add an MX record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-mx' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several MX records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several MX records" %}
     </a>
     {% include 'machines/aff_mx.html' with  mx_list=mx_list %}
 
     <h2>{% trans "List of NS records" %}</h2>
     {% can_create Ns %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-ns' %}">
-            <i class="fa fa-plus"></i>{% trans " Add an NS record" %}
+            <i class="fa fa-plus"></i> {% trans "Add an NS record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-ns' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several NS records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several NS records" %}
     </a>
     {% include 'machines/aff_ns.html' with  ns_list=ns_list %}
 
     <h2>{% trans "List of TXT records" %}</h2>
     {% can_create Txt %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-txt' %}">
-            <i class="fa fa-plus"></i>{% trans " Add a TXT record" %}
+            <i class="fa fa-plus"></i> {% trans "Add a TXT record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-txt' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several TXT records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several TXT records" %}
     </a>
     {% include 'machines/aff_txt.html' with  txt_list=txt_list %}
 
     <h2>{% trans "List of DNAME records" %}</h2>
     {% can_create DName %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-dname' %}">
-            <i class="fa fa-plus"></i> {% trans " Add a DNAME record" %}
+            <i class="fa fa-plus"></i> {% trans "Add a DNAME record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-dname' %}">
-        <i class="fa fa-trash"></i> {% trans " Delete one or several DNAME records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several DNAME records" %}
     </a>
     {% include 'machines/aff_dname.html' with  dname_list=dname_list %}
 
     <h2>{% trans "List of SRV records" %}</h2>
     {% can_create Srv %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-srv' %}">
-            <i class="fa fa-plus"></i>{% trans " Add an SRV record" %}
+            <i class="fa fa-plus"></i> {% trans "Add an SRV record" %}
         </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-srv' %}">
-        <i class="fa fa-trash"></i>{% trans " Delete one or several SRV records" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several SRV records" %}
     </a>
     {% include 'machines/aff_srv.html' with  srv_list=srv_list %}
 {% endblock %}

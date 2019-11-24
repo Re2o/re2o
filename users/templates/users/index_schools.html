@@ -31,11 +31,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% block content %}
   <h2>{% trans "List of schools" %}</h2>
-  <h5>{% trans "List of schools for created users" %}</h5>
+  <h5>{% trans "List of schools for registered users" %}</h5>
   {% can_create School %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-school'  %}"><i class="fa fa-plus"></i>{% trans " Add a school" %}</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-school'  %}"><i class="fa fa-plus"></i> {% trans "Add a school" %}</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:del-school'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several schools" %}</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:del-school'  %}"><i class="fa fa-trash"></i> {% trans "Delete one or several schools" %}</a>
   <hr>
   {%  include 'users/aff_schools.html' with  school_list=school_list %}
   <br />

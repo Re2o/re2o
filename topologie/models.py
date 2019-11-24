@@ -84,7 +84,7 @@ class Stack(AclMixin, RevMixin, models.Model):
         """ Verification que l'id_max < id_min"""
         if self.member_id_max < self.member_id_min:
             raise ValidationError(
-                {"member_id_max": _("The maximum ID is less than the" " minimum ID.")}
+                {"member_id_max": _("The maximum ID is less than the minimum ID.")}
             )
 
 
@@ -96,7 +96,7 @@ class AccessPoint(AclMixin, Machine):
 
     location = models.CharField(
         max_length=255,
-        help_text=_("Details about the AP's location"),
+        help_text=_("Details about the AP's location."),
         blank=True,
         null=True,
     )
@@ -187,7 +187,7 @@ class Switch(AclMixin, Machine):
     Validation au save que l'id du stack est bien dans le range id_min
     id_max de la stack parente"""
 
-    number = models.PositiveIntegerField(help_text=_("Number of ports"))
+    number = models.PositiveIntegerField(help_text=_("Number of ports."))
     stack = models.ForeignKey(
         "topologie.Stack", blank=True, null=True, on_delete=models.SET_NULL
     )
@@ -197,7 +197,7 @@ class Switch(AclMixin, Machine):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text=_("Switch model"),
+        help_text=_("Switch model."),
     )
     switchbay = models.ForeignKey(
         "topologie.SwitchBay", blank=True, null=True, on_delete=models.SET_NULL
@@ -207,17 +207,17 @@ class Switch(AclMixin, Machine):
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        help_text=_("RADIUS key of the switch"),
+        help_text=_("RADIUS key of the switch."),
     )
     management_creds = models.ForeignKey(
         "preferences.SwitchManagementCred",
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        help_text=_("Management credentials for the switch"),
+        help_text=_("Management credentials for the switch."),
     )
     automatic_provision = models.BooleanField(
-        default=False, help_text=_("Automatic provision for the switch")
+        default=False, help_text=_("Automatic provision for the switch.")
     )
 
     class Meta:
@@ -245,14 +245,14 @@ class Switch(AclMixin, Machine):
                     )
             else:
                 raise ValidationError(
-                    {"stack_member_id": _("The stack member ID can't be" " void.")}
+                    {"stack_member_id": _("The stack member ID can't be void.")}
                 )
 
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
         sont cohérentes. """
         if end < begin:
-            raise ValidationError(_("The end port is less than the start" " port."))
+            raise ValidationError(_("The end port is less than the start port."))
         ports_to_create = range(begin, end + 1)
         existing_ports = Port.objects.filter(switch=self.switch).values_list(
             "port", flat=True
@@ -262,7 +262,7 @@ class Switch(AclMixin, Machine):
         if len(non_existing_ports) + existing_ports.count() > self.number:
             raise ValidationError(_("This switch can't have that many ports."))
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_comment(_("Creation"))
+            reversion.set_comment("Creation")
             Port.objects.bulk_create(
                 [
                     Port(switch=self.switch, port=port_id)
@@ -491,15 +491,15 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
 
     reference = models.CharField(
         max_length=255,
-        help_text=_("Reference of a module"),
-        verbose_name=_("Module reference"),
+        help_text=_("Reference of a module."),
+        verbose_name=_("module reference"),
     )
     comment = models.CharField(
         max_length=255,
         null=True,
         blank=True,
-        help_text=_("Comment"),
-        verbose_name=_("Comment"),
+        help_text=_("Comment."),
+        verbose_name=_("comment"),
     )
 
     class Meta:
@@ -517,14 +517,14 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
     module = models.ForeignKey("ModuleSwitch", on_delete=models.CASCADE)
     switch = models.ForeignKey("Switch", on_delete=models.CASCADE)
     slot = models.CharField(
-        max_length=15, help_text=_("Slot on switch"), verbose_name=_("Slot")
+        max_length=15, help_text=_("Slot on switch."), verbose_name=_("slot")
     )
 
     class Meta:
         permissions = (
             (
                 "view_moduleonswitch",
-                _("Can view a link between switch and" " module object"),
+                _("Can view a link between switch and module object"),
             ),
         )
         verbose_name = _("link between switch and module")
@@ -532,7 +532,7 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
         unique_together = ["slot", "switch"]
 
     def __str__(self):
-        return _("On slot ") + str(self.slot) + _(" of ") + str(self.switch)
+        return _("On slot %(slot)s of %(switch)s").format(slot=str(self.slot), switch=str(self.switch))
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
@@ -542,10 +542,10 @@ class ConstructorSwitch(AclMixin, RevMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_constructorswitch", _("Can view a switch constructor" " object")),
+            ("view_constructorswitch", _("Can view a switch constructor object")),
         )
         verbose_name = _("switch constructor")
-        verbose_name_plural = "switch constructors"
+        verbose_name_plural = _("switch constructors")
 
     def __str__(self):
         return self.name
@@ -655,8 +655,8 @@ class Port(AclMixin, RevMixin, models.Model):
     )
     state = models.BooleanField(
         default=True,
-        help_text=_("Port state Active"),
-        verbose_name=_("Port state Active"),
+        help_text=_("Port state Active."),
+        verbose_name=_("port state Active"),
     )
     details = models.CharField(max_length=255, blank=True)
 
@@ -809,13 +809,13 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         ("asso_machine", _("Organisation machine")),
         ("nothing", _("Nothing")),
     )
-    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    name = models.CharField(max_length=255, verbose_name=_("name"))
     profil_default = models.CharField(
         max_length=32,
         choices=PROFIL_DEFAULT,
         blank=True,
         null=True,
-        verbose_name=_("Default profile"),
+        verbose_name=_("default profile"),
     )
     on_dormitory = models.ForeignKey(
         "topologie.Dormitory",
@@ -823,7 +823,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        verbose_name=_("Profil on dormitory"),
+        verbose_name=_("profile on dormitory"),
     )
     vlan_untagged = models.ForeignKey(
         "machines.Vlan",
@@ -843,7 +843,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         max_length=32,
         choices=TYPES,
         help_text=_(
-            "Type of RADIUS authentication : inactive, MAC-address or" " 802.1X"
+            "Type of RADIUS authentication: inactive, MAC-address or 802.1X."
         ),
         verbose_name=_("RADIUS type"),
     )
@@ -852,44 +852,44 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         choices=MODES,
         default="COMMON",
         help_text=_(
-            "In case of MAC-authentication : mode COMMON or STRICT on" " this port"
+            "In case of MAC-authentication: mode COMMON or STRICT on this port."
         ),
         verbose_name=_("RADIUS mode"),
     )
     speed = models.CharField(
-        max_length=32, choices=SPEED, default="auto", help_text=_("Port speed limit")
+        max_length=32, choices=SPEED, default="auto", help_text=_("Port speed limit.")
     )
     mac_limit = models.IntegerField(
         null=True,
         blank=True,
-        help_text=_("Limit of MAC-address on this port"),
+        help_text=_("Limit of MAC-address on this port."),
         verbose_name=_("MAC limit"),
     )
-    flow_control = models.BooleanField(default=False, help_text=_("Flow control"))
+    flow_control = models.BooleanField(default=False, help_text=_("Flow control."))
     dhcp_snooping = models.BooleanField(
         default=False,
-        help_text=_("Protect against rogue DHCP"),
+        help_text=_("Protect against rogue DHCP."),
         verbose_name=_("DHCP snooping"),
     )
     dhcpv6_snooping = models.BooleanField(
         default=False,
-        help_text=_("Protect against rogue DHCPv6"),
+        help_text=_("Protect against rogue DHCPv6."),
         verbose_name=_("DHCPv6 snooping"),
     )
     arp_protect = models.BooleanField(
         default=False,
-        help_text=_("Check if IP adress is DHCP assigned"),
+        help_text=_("Check if IP address is DHCP assigned."),
         verbose_name=_("ARP protection"),
     )
     ra_guard = models.BooleanField(
         default=False,
-        help_text=_("Protect against rogue RA"),
+        help_text=_("Protect against rogue RA."),
         verbose_name=_("RA guard"),
     )
     loop_protect = models.BooleanField(
         default=False,
-        help_text=_("Protect against loop"),
-        verbose_name=_("Loop protection"),
+        help_text=_("Protect against loop."),
+        verbose_name=_("loop protection"),
     )
 
     class Meta:
@@ -933,7 +933,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
             raise ValidationError(
                 {
                     "profil_default": _(
-                        "A default profile for all dormitory of that type already exists."
+                        "A default profile for all dormitories of that type already exists."
                     )
                 }
             )

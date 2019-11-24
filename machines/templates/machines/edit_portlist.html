@@ -47,11 +47,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
 
         <p>
-            {% trans "Add a port" as value %}
-            <input class="btn btn-primary btn-sm" role="button" value="value" id="add_one">
+	<input class="btn btn-primary btn-sm" role="button" value="{% trans "Add a port" %}" id="add_one">
         </p>
-        {% trans "Create or edit" as tr_create_or_edit %}
-        {% bootstrap_button tr_create_or_edit icon='ok' button_class='btn-success' %}
+        {% trans "Confirm" as tr_confirm %}
+        {% bootstrap_button tr_confirm icon='ok' button_class='btn-success' %}
     </form>
     <script type="text/javascript">
         var template = `{{ports.empty_form}}`;

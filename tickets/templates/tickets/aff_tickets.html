@@ -32,13 +32,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <hr class="col-sm-12">
   <div class="row justify-content-start">
     <div class="col-sm-4">
-      <span class="badge badge-light">{{ nbr_tickets }}</span> {% trans "Tickets" %}
+      <span class="badge badge-light">{{ nbr_tickets }}</span> {% blocktrans count nb=nbr_tickets %}Ticket{% plural %}Tickets{% endblocktrans %}
     </div>
     <div class="col-sm-4">
-      <span class="badge badge-light"> {{ nbr_tickets_unsolved }}</span>{% trans "Not Solved Tickets" %}
+      <span class="badge badge-light"> {{ nbr_tickets_unsolved }}</span> {% blocktrans count nb=nbr_tickets_unsolved %}Ticket not solved{% plural %}Tickets not solved{% endblocktrans %}
     </div>
     <div class="col-sm-4">
-      <span>{% trans "Last Ticket:" %} {{ last_ticket_date }}</span>
+      <span>{% trans "Last ticket:" %} {{ last_ticket_date }}</span>
     </div>
   </div>
 <hr class="col-sm-12">
@@ -52,10 +52,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             <th scope="col"></th>
-            <th scope="col">User</th>
-            <th scope="col">Titre</th>
-            <th scope="col">Date</th>
-            <th scope="col">Résolu</th> 
+	    <th scope="col">{% trans "User" %}</th>
+	    <th scope="col">{% trans "Title" %}</th>
+	    <th scope="col">{% trans "Date" %}</th>
+	    <th scope="col">{% trans "Solved" %}</th> 
         </tr>
         {% for ticket in tickets_list %}
         <tr>
@@ -67,7 +67,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% if ticket.user %}
             <td><a href="{% url 'users:profil' ticket.user.id%}" role="button">{{ ticket.user.get_short_name }}</a></td>
             {% else %}
-            <td> Anonyme </td>
+	    <td>{% trans "Anonymous" %}</td>
             {% endif %}
             <td>{{ ticket.title }}</td>
             <td>{{ ticket.date }}</td>

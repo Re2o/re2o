@@ -45,12 +45,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <th>{% trans "Profile" %}</th>
                 <th>
-                    {% trans "Last name" as tr_last_name %}
-                    {% include 'buttons/sort.html' with prefix='control' col='name' text=tr_last_name %}
+                    {% trans "First name" as tr_first_name %}
+                    {% include 'buttons/sort.html' with prefix='control' col='name' text=tr_first_name %}
                 </th>
                 <th>
-                    {% trans "First name" as tr_first_name %}
-                    {% include 'buttons/sort.html' with prefix='control' col='surname' text=tr_first_name %}
+                    {% trans "Surname" as tr_surname %}
+                    {% include 'buttons/sort.html' with prefix='control' col='surname' text=tr_surname %}
                 </th>
                 <th>
                     {% trans "Invoice ID" as tr_invoice_id %}
@@ -104,8 +104,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
         {% endfor %}
     </table>
-    {% trans "Edit" as tr_edit %}
-    {% bootstrap_button tr_edit button_type='submit' icon='ok' button_class='btn-success' %}
+    {% trans "Confirm" as tr_confirm %}
+    {% bootstrap_button tr_confirm button_type='submit' icon='ok' button_class='btn-success' %}
 </form>
 
 {% endblock %}

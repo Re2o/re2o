@@ -44,14 +44,14 @@ def acl_error_message(msg, permissions):
     if permissions is None:
         return msg
     groups = ", ".join([g.name for g in get_group_having_permission(*permissions)])
-    message = msg or _("You don't have the right to edit" " this option.")
+    message = msg or _("You don't have the right to edit this option.")
     if groups:
         return (
             message
-            + _(" You need to be a member of one of those" " groups : %s") % groups
+            + _("You need to be a member of one of these groups: %s.") % groups
         )
     else:
-        return message + " No group have the %s permission(s) !" % " or ".join(
+        return message + _("No group has the %s permission(s)!") % " or ".join(
             [",".join(permissions[:-1]), permissions[-1]]
             if len(permissions) > 2
             else permissions
@@ -190,7 +190,7 @@ ModelC)
                 for msg in error_messages:
                     messages.error(
                         request,
-                        msg or _("You don't have the right to access" " this menu."),
+                        msg or _("You don't have the right to access this menu."),
                     )
                 if request.user.id is not None:
                     return redirect(

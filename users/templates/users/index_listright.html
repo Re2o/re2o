@@ -32,9 +32,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% trans "List of groups of rights" %}</h2>
   {% can_create ListRight %}
-  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-listright'  %}"><i class="fa fa-plus"></i>{% trans " Add a group of rights" %}</a>
+  <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-listright'  %}"><i class="fa fa-plus"></i> {% trans "Add a group of rights" %}</a>
   {% acl_end %}
-  <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:del-listright'  %}"><i class="fa fa-trash"></i>{% trans " Delete one or several groups of rights" %}</a>
+  <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:del-listright'  %}"><i class="fa fa-trash"></i> {% trans "Delete one or several groups of rights" %}</a>
   <br />
   <br />
   {%  include 'users/aff_listright.html' %}

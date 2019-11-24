@@ -32,7 +32,7 @@ from re2o.script_utils import get_user, get_system_user
 
 
 class Command(BaseCommand):
-    help = "Change the default shell of a user"
+    help = "Change the default shell of a user."
 
     def add_arguments(self, parser):
         parser.add_argument("target_username", nargs="?")
@@ -52,37 +52,36 @@ class Command(BaseCommand):
 
         shells = ListShell.objects.all()
 
-        current_shell = "inconnu"
+        current_shell = "unknown"
         if target_user.shell:
             current_shell = target_user.shell.get_pretty_name()
         self.stdout.write(
-            "Choisissez un shell pour l'utilisateur %s (le shell actuel est "
-            "%s) :" % (target_user.pseudo, current_shell)
+            "Choose a shell for the user %s (the current shell is"
+            " %s):" % (target_user.pseudo, current_shell)
         )
         for shell in shells:
             self.stdout.write(
                 "%d - %s (%s)" % (shell.id, shell.get_pretty_name(), shell.shell)
             )
-        shell_id = input("Entrez un nombre : ")
+        shell_id = input("Enter a number: ")
 
         try:
             shell_id = int(shell_id)
         except:
-            raise CommandError("Choix invalide")
+            raise CommandError("Invalid choice.")
 
         shell = ListShell.objects.filter(id=shell_id)
         if not shell:
-            raise CommandError("Choix invalide")
+            raise CommandError("Invalid choice.")
 
         target_user.shell = shell.first()
         with transaction.atomic(), reversion.create_revision():
             target_user.save()
             reversion.set_user(current_user)
-            reversion.set_comment("Shell modifié")
+            reversion.set_comment("Shell changed.")
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Shell modifié. La modification peut prendre quelques minutes "
-                "pour s'appliquer."
+                "Shell changed. The change may take a few minutes to apply."
             )
         )

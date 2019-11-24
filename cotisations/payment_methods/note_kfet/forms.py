@@ -30,5 +30,5 @@ class NoteCredentialForm(forms.Form):
     object.
     """
 
-    login = forms.CharField(label=_("pseudo note"))
+    login = forms.CharField(label=_("Username"))
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)

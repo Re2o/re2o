@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <td>{{ service.description }}</td>
             <td>{{ service.image }}</td>
             <td class="text-right">
-            {% can_edit service%}
+            {% can_edit service %}
             {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
             {% acl_end %}
             {% can_delete service %}

@@ -116,7 +116,7 @@ class DiscountForm(Form):
     """
 
     is_relative = forms.BooleanField(
-        label=_("Discount is on percentage."), required=False
+        label=_("Discount is in percentage."), required=False
     )
     discount = forms.DecimalField(
         label=_("Discount"),
@@ -136,7 +136,7 @@ class DiscountForm(Form):
         else:
             amount = discount
         if amount:
-            name = _("{}% discount") if is_relative else _("{}€ discount")
+            name = _("{}% discount") if is_relative else _("{} € discount")
             name = name.format(discount)
             Vente.objects.create(facture=invoice, name=name, prix=-amount, number=1)
 
@@ -184,7 +184,7 @@ class DelArticleForm(FormRevMixin, Form):
 
     articles = forms.ModelMultipleChoiceField(
         queryset=Article.objects.none(),
-        label=_("Available articles"),
+        label=_("Current articles"),
         widget=forms.CheckboxSelectMultiple,
     )
 
@@ -226,7 +226,7 @@ class DelPaiementForm(FormRevMixin, Form):
     # TODO : change paiement to payment
     paiements = forms.ModelMultipleChoiceField(
         queryset=Paiement.objects.none(),
-        label=_("Available payment methods"),
+        label=_("Current payment methods"),
         widget=forms.CheckboxSelectMultiple,
     )
 
@@ -266,7 +266,7 @@ class DelBanqueForm(FormRevMixin, Form):
     # TODO : change banque to bank
     banques = forms.ModelMultipleChoiceField(
         queryset=Banque.objects.none(),
-        label=_("Available banks"),
+        label=_("Current banks"),
         widget=forms.CheckboxSelectMultiple,
     )
 

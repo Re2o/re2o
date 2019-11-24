@@ -31,9 +31,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     <h2>{% trans "List of the aliases of the interface" %}</h2>
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-alias' interface_id %}"><i
-            class="fa fa-plus"></i>{% trans " Add an alias" %}</a>
+            class="fa fa-plus"></i> {% trans "Add an alias" %}</a>
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-alias'  interface_id %}"><i
-            class="fa fa-trash"></i>{% trans " Delete one or several aliases" %}</a>
+            class="fa fa-trash"></i> {% trans "Delete one or several aliases" %}</a>
     {% include 'machines/aff_alias.html' with  alias_list=alias_list %}
     <br/>
     <br/>

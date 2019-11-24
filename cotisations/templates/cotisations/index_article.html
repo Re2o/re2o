@@ -30,14 +30,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Articles" %}{% endblock %}
 
 {% block content %}
-    <h2>{% trans "List of article types" %}</h2>
+    <h2>{% trans "List of articles" %}</h2>
     {% can_create Article %}
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:add-article' %}">
-        <i class="fa fa-cart-plus"></i> {% trans "Add an article type" %}
+        <i class="fa fa-plus"></i> {% trans "Add an article" %}
     </a>
     {% acl_end %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:del-article' %}">
-        <i class="fa fa-trash"></i> {% trans "Delete one or several article types" %}
+        <i class="fa fa-trash"></i> {% trans "Delete one or several articles" %}
     </a>
     {% include 'cotisations/aff_article.html' with  article_list=article_list %}
 {% endblock %}

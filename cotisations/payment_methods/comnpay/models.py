@@ -51,9 +51,10 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         max_length=255, null=True, blank=True, verbose_name=_("ComNpay secret key")
     )
     minimum_payment = models.DecimalField(
-        verbose_name=_("Minimum payment"),
+        verbose_name=_("minimum payment"),
         help_text=_(
-            "The minimal amount of money you have to use when paying" " with ComNpay"
+            "The minimal amount of money you have to use when paying with"
+            " ComNpay."
         ),
         max_digits=5,
         decimal_places=2,
@@ -62,7 +63,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     production = models.BooleanField(
         default=True,
         verbose_name=_(
-            "Production mode enabled (production URL, instead of homologation)"
+            "production mode enabled (production URL, instead of homologation)"
         ),
     )
 
