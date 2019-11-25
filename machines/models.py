@@ -1662,7 +1662,7 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         if self.interface_parent:
             return self.interface_parent
         else:
-            return self.cname.get_parent_interface()
+            return self.cname.get_source_interface
 
     @staticmethod
     def can_create(user_request, interfaceid, *_args, **_kwargs):
