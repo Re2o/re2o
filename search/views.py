@@ -230,6 +230,60 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     return filters
 
 
+def apply_filters(filters, user, aff):
+    """ Apply the filters constructed by search_single_word.
+    It also takes into account the visual filters defined during
+    the search query.
+    """
+    # Results are later filled-in depending on the display filter
+    results = {
+        "users": Adherent.objects.none(),
+        "clubs": Club.objects.none(),
+        "machines": Machine.objects.none(),
+        "factures": Facture.objects.none(),
+        "bans": Ban.objects.none(),
+        "whitelists": Whitelist.objects.none(),
+        "rooms": Room.objects.none(),
+        "ports": Port.objects.none(),
+        "switches": Switch.objects.none(),
+    }
+
+    # Users and clubs
+    if "0" in aff:
+        results["users"] = Adherent.objects.filter(filters["users"])
+        results["clubs"] = Club.objects.filter(filters["clubs"])
+
+    # Machines
+    if "1" in aff:
+        results["machines"] = Machine.objects.filter(filters["machines"])
+
+    # Factures
+    if "2" in aff:
+        results["factures"] = Facture.objects.filter(filters["factures"])
+
+    # Bans
+    if "3" in aff:
+        results["bans"] = Ban.objects.filter(filters["bans"])
+
+    # Whitelists
+    if "4" in aff:
+        results["whitelists"] = Whitelist.objects.filter(filters["whitelists"])
+
+    # Rooms
+    if "5" in aff and Room.can_view_all(user):
+        results["rooms"] = Room.objects.filter(filters["rooms"])
+
+    # Switch ports
+    if "6" in aff and User.can_view_all(user):
+        results["ports"] = Port.objects.filter(filters["ports"])
+
+    # Switches
+    if "7" in aff and Switch.can_view_all(user):
+        results["switches"] = Switch.objects.filter(filters["switches"])
+
+    return results
+
+
 def get_words(query):
     """Function used to split the uery in different words to look for.
     The rules are simple :
@@ -304,18 +358,7 @@ def get_results(query, request, params):
             word, filters, request.user, start, end, user_state, aff
         )
 
-    results = {
-        "users": Adherent.objects.filter(filters["users"]),
-        "clubs": Club.objects.filter(filters["clubs"]),
-        "machines": Machine.objects.filter(filters["machines"]),
-        "factures": Facture.objects.filter(filters["factures"]),
-        "bans": Ban.objects.filter(filters["bans"]),
-        "whitelists": Whitelist.objects.filter(filters["whitelists"]),
-        "rooms": Room.objects.filter(filters["rooms"]),
-        "ports": Port.objects.filter(filters["ports"]),
-        "switches": Switch.objects.filter(filters["switches"]),
-    }
-
+    results = apply_filters(filters, request.user, aff)
     results = finish_results(results, request.GET.get("col"), request.GET.get("order"))
     results.update({"search_term": query})
 
