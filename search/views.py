@@ -5,6 +5,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2019  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -109,17 +110,22 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
 
     # Users
     if "0" in aff:
-        filter_users = (
+        filter_clubs = (
             Q(surname__icontains=word)
             | Q(pseudo__icontains=word)
             | Q(room__name__icontains=word)
             | Q(email__icontains=word)
             | Q(telephone__icontains=word)
-        ) & Q(state__in=user_state)
+        )
+        filter_users = (filter_clubs | Q(name__icontains=word))
+
         if not User.can_view_all(user)[0]:
+            filter_clubs &= Q(id=user.id)
             filter_users &= Q(id=user.id)
-        filter_clubs = filter_users
-        filter_users |= Q(name__icontains=word)
+
+        filter_clubs &= Q(state__in=user_state)
+        filter_users &= Q(state__in=user_state)
+
         filters["users"] |= filter_users
         filters["clubs"] |= filter_clubs
 
