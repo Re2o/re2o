@@ -46,7 +46,7 @@ from search.forms import (
     CHOICES_AFF,
     initial_choices,
 )
-from re2o.base import SortTable
+from re2o.base import SortTable, re2o_paginator
 from re2o.acl import can_view_all
 
 
@@ -61,7 +61,7 @@ def is_int(variable):
         return True
 
 
-def finish_results(results, col, order):
+def finish_results(request, results, col, order):
     """Sort the results by applying filters and then limit them to the
     number of max results. Finally add the info of the nmax number of results
     to the dict"""
@@ -93,7 +93,9 @@ def finish_results(results, col, order):
 
     max_result = GeneralOption.get_cached_value("search_display_page")
     for name, val in results.items():
-        results[name] = val.distinct()[:max_result]
+        page_arg = name + "_page"
+        results[name] = re2o_paginator(request, val.distinct(), max_result, page_arg=page_arg)
+
     results.update({"max_result": max_result})
 
     return results
@@ -316,7 +318,7 @@ def get_results(query, request, params):
         "switches": Switch.objects.filter(filters["switches"]),
     }
 
-    results = finish_results(results, request.GET.get("col"), request.GET.get("order"))
+    results = finish_results(request, results, request.GET.get("col"), request.GET.get("order"))
     results.update({"search_term": query})
 
     return results
