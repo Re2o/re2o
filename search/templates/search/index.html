@@ -34,62 +34,90 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <h2>{% trans "Results among users:" %}</h2>
         {% include 'pagination.html' with list=users page_arg='users_page' go_to_id='users_results' %}
         {% include 'users/aff_users.html' with users_list=users.object_list %}
+        {% include 'pagination.html' with list=users page_arg='users_page' go_to_id='users_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif%}
     {% if clubs %}
         <div id="clubs_results">
         <h2>{% trans "Results among clubs:" %}</h2>
         {% include 'pagination.html' with list=clubs page_arg='clubs_page' go_to_id='clubs_results' %}
         {% include 'users/aff_clubs.html' with clubs_list=clubs.object_list %}
+        {% include 'pagination.html' with list=clubs page_arg='clubs_page' go_to_id='clubs_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif%}
     {% if machines %}
         <div id="machines_results">
         <h2>{% trans "Results among machines:" %}</h2>
         {% include 'pagination.html' with list=machines page_arg='machines_page' go_to_id='machines_results' %}
         {% include 'machines/aff_machines.html' with machines_list=machines.object_list %}
+        {% include 'pagination.html' with list=machines page_arg='machines_page' go_to_id='machines_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if factures %}
         <div id="invoices_results">
         <h2>{% trans "Results among invoices:" %}</h2>
         {% include 'pagination.html' with list=factures page_arg='factures_page' go_to_id='invoices_results' %}
         {% include 'cotisations/aff_cotisations.html' with facture_list=factures.object_list %}
+        {% include 'pagination.html' with list=factures page_arg='factures_page' go_to_id='invoices_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if whitelists %}
         <div id="whitelists_results">
         <h2>{% trans "Results among whitelists:" %}</h2>
         {% include 'pagination.html' with list=whitelists page_arg='whitelists_page' go_to_id='whitelists_results' %}
         {% include 'users/aff_whitelists.html' with white_list=whitelists.object_list %}
+        {% include 'pagination.html' with list=whitelists page_arg='whitelists_page' go_to_id='whitelists_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if bans %}
         <div id="bans_results">
         <h2>{% trans "Results among bans:" %}</h2>
         {% include 'pagination.html' with list=bans page_arg='bans_page' go_to_id='bans_results' %}
         {% include 'users/aff_bans.html' with ban_list=bans.object_list %}
+        {% include 'pagination.html' with list=bans page_arg='bans_page' go_to_id='bans_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if rooms %}
         <div id="rooms_results">
         <h2>{% trans "Results among rooms:" %}</h2>
         {% include 'pagination.html' with list=rooms page_arg='rooms_page' go_to_id='rooms_results' %}
         {% include 'topologie/aff_chambres.html' with room_list=rooms.object_list %}
+        {% include 'pagination.html' with list=rooms page_arg='rooms_page' go_to_id='rooms_results' %}
+        </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if ports %}
         <div id="ports_results">
         <h2>{% trans "Results among ports:" %}</h2>
         {% include 'pagination.html' with list=ports page_arg='ports_page' go_to_id='ports_results' %}
         {% include 'topologie/aff_port.html' with port_list=ports.object_list search=True %}
+        {% include 'pagination.html' with list=ports page_arg='ports_page' go_to_id='ports_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if switches %}
         <div id="switches_results">
         <h2>{% trans "Results among switches:" %}</h2>
         {% include 'pagination.html' with list=switches page_arg='switches_page' go_to_id='switches_results' %}
         {% include 'topologie/aff_switch.html' with switch_list=switches.object_list %}
+        {% include 'pagination.html' with list=switches page_arg='switches_page' go_to_id='switches_results' %}
         </div>
+        <hr/>
+        <br/>
     {% endif %}
     {% if not users and not machines and not factures and not whitelists and not bans and not rooms and not ports and not switches %}
         <h3>{% trans "No result" %}</h3>
