@@ -242,13 +242,13 @@ class SortTable:
             return request
 
 
-def re2o_paginator(request, query_set, pagination_number):
+def re2o_paginator(request, query_set, pagination_number, page_arg="page"):
     """Paginator script for list display in re2o.
     :request:
     :query_set: Query_set to paginate
     :pagination_number: Number of entries to display"""
     paginator = Paginator(query_set, pagination_number)
-    page = request.GET.get("page")
+    page = request.GET.get(page_arg)
     try:
         results = paginator.page(page)
     except PageNotAnInteger:
