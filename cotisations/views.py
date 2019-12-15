@@ -144,6 +144,8 @@ def new_facture(request, user, userid):
                 price_ok = True
             if price_ok:
                 new_invoice_instance.save()
+                # Saving purchases so the invoice can find them. Invoice
+                # will modify them after being validated to put the right dates.
                 for p in purchases:
                     p.facture = new_invoice_instance
                     p.save()

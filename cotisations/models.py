@@ -292,15 +292,40 @@ class Facture(BaseInvoice):
         return bool(self.get_subscription())
 
     def reorder_purchases(self):
-        date = self.date
+        date_adh = max(self.date, self.user.end_adhesion())
+        date_con = max(self.date, self.user.end_connexion())
         for purchase in self.vente_set.all():
             if hasattr(purchase, "cotisation"):
                 cotisation = purchase.cotisation
-                cotisation.date_start = date
-                date += relativedelta(
-                    months=(purchase.duration or 0) * purchase.number,
-                    days=(purchase.duration_days or 0) * purchase.number,
-                )
+                if cotisation.type_cotisation == 'Connexion':
+                    cotisation.date_start = date_con
+                    date_con += relativedelta(
+                        months=(purchase.duration or 0) * purchase.number,
+                        days=(purchase.duration_days or 0) * purchase.number,
+                    )
+                    cotisation.date_end = date_con
+                elif cotisation.type_cotisation == 'Adhesion':
+                    cotisation.date_start = date_adh
+                    date_adh += relativedelta(
+                        months=(purchase.duration or 0) * purchase.number,
+                        days=(purchase.duration_days or 0) * purchase.number,
+                    )
+                    cotisation.date_end = date_adh
+                else: # it is assumed that adhesion is required for a connexion
+                    date = min(date_adh, date_con)
+                    cotisation.date_start = date
+                    date_adh += relativedelta(
+                        months=(purchase.duration or 0) * purchase.number,
+                        days=(purchase.duration_days or 0) * purchase.number,
+                    )
+                    date_con += relativedelta(
+                        months=(purchase.duration or 0) * purchase.number,
+                        days=(purchase.duration_days or 0) * purchase.number,
+                    )
+                    date = max(date_adh, date_con)
+                    cotisation.date_end = date
+                cotisation.save()
+                purchase.facture = self
                 purchase.save()
 
     def save(self, *args, **kwargs):
@@ -486,11 +511,9 @@ class Vente(RevMixin, AclMixin, models.Model):
             )
         return
 
-    def create_cotis(self, date_start=False):
+    def create_cotis(self):
         """
-        Update and create a 'cotisation' related object if there is a
-        cotisation_type defined (which means the article sold represents
-        a cotisation)
+        Creates a cotisation without initializing the dates (start and end ar set to self.facture.facture.date) and without saving it. You should use Facture.reorder_purchases to set the right dates.
         """
         try:
             invoice = self.facture.facture
@@ -499,34 +522,8 @@ class Vente(RevMixin, AclMixin, models.Model):
         if not hasattr(self, "cotisation") and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
-            if date_start:
-                end_cotisation = (
-                    Cotisation.objects.filter(
-                        vente__in=Vente.objects.filter(
-                            facture__in=Facture.objects.filter(
-                                user=invoice.user
-                            ).exclude(valid=False)
-                        )
-                    )
-                    .filter(
-                        Q(type_cotisation="All")
-                        | Q(type_cotisation=self.type_cotisation)
-                    )
-                    .filter(date_start__lt=date_start)
-                    .aggregate(Max("date_end"))["date_end__max"]
-                )
-            elif self.type_cotisation == "Adhesion":
-                end_cotisation = invoice.user.end_adhesion()
-            else:
-                end_cotisation = invoice.user.end_connexion()
-            date_start = date_start or timezone.now()
-            end_cotisation = end_cotisation or date_start
-            date_max = max(end_cotisation, date_start)
-            cotisation.date_start = date_max
-            cotisation.date_end = cotisation.date_start + relativedelta(
-                months=(self.duration or 0) * self.number,
-                days=(self.duration_days or 0) * self.number,
-            )
+            cotisation.date_start = invoice.date
+            cotisation.date_end = invoice.date
 
     def save(self, *args, **kwargs):
         """
