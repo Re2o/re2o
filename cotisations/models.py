@@ -511,7 +511,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             )
         return
 
-    def create_cotis(self):
+    def create_cotis(self, date_start=False):
         """
         Creates a cotisation without initializing the dates (start and end ar set to self.facture.facture.date) and without saving it. You should use Facture.reorder_purchases to set the right dates.
         """
@@ -522,8 +522,17 @@ class Vente(RevMixin, AclMixin, models.Model):
         if not hasattr(self, "cotisation") and self.type_cotisation:
             cotisation = Cotisation(vente=self)
             cotisation.type_cotisation = self.type_cotisation
-            cotisation.date_start = invoice.date
-            cotisation.date_end = invoice.date
+            if date_start:
+                cotisation.date_start = date_start
+                cotisation.date_end = cotisation.date_start + relativedelta(
+                    months=(self.duration or 0) * self.number,
+                    days=(self.duration_days or 0) * self.number,
+                )
+                self.save()
+                cotisation.save()
+            else:
+                cotisation.date_start = invoice.date
+                cotisation.date_end = invoice.date
 
     def save(self, *args, **kwargs):
         """

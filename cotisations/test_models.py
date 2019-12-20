@@ -79,6 +79,24 @@ class VenteModelTests(TestCase):
         self.assertEqual(end.month, expected_end.month)
         self.assertEqual(end.year, expected_end.year)
 
+    def test_date_start_cotisation(self):
+        """
+        It should be possible to add a cotisation with a specific start date
+        """
+        v = Vente(
+            facture=self.f,
+            number=1,
+            name="Test purchase",
+            duration=0,
+            duration_days=1,
+            type_cotisation = 'All',
+            prix=0
+        )
+        v.create_cotis(date_start=timezone.make_aware(datetime.datetime(1998, 10, 16)))
+        v.save()
+        self.assertEqual(v.cotisation.date_end, timezone.make_aware(datetime.datetime(1998, 10, 17)))
+
+
     def tearDown(self):
         self.f.delete()
         self.user.delete()
