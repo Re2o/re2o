@@ -449,6 +449,7 @@ class AdherentEditForm(AdherentForm):
             "shell",
             "gpg_fingerprint",
             "shortcuts_enabled",
+            "ssh_key",
         ]
 
 

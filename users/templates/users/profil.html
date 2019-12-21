@@ -312,6 +312,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <dt>{% trans "Shortcuts enabled" %}</dt>
                         <dd>{{ users.shortcuts_enabled | tick }}</dd>
                     </div>
+		    <div class="col-md-6 col-xs-12">
+                        <dt>{% trans "SSH key" %}</dt>
+			<dd>
+			    {% if users.ssh_key %}
+			    <button class="btn btn-default btn-xs" type="button" data-toggle="modal" data-target="#modalSSH">
+                                {% trans "Show key" %}
+                            </button>
+			    {% else %}
+			    {% trans "No public SSH key" %}
+			    {% endif %}
+			</dd>
+                    </div>
                 </dl>
             </div>
         </div>
@@ -540,6 +552,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {{ template }}
     {% endfor %}
 
+</div>
+<div class="modal fade" id="modalSSH" tabindex="-1" role="dialog" aria-labelledby="modalSSH">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title" id="myModalLabel">{% blocktrans with pseudo=users.pseudo %}SSH key of {{ pseudo }}{% endblocktrans %}</h4>
+      </div>
+      <div class="modal-body" style="word-break:break-all;">
+	      {{users.ssh_key}}
+      </div>
+      <div class="modal-footer">
+	      <button type="button" class="btn btn-default" data-dismiss="modal"> {% trans "Close" %}</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

@@ -224,6 +224,7 @@ class User(
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
+    ssh_key = models.TextField(blank=True, verbose_name=_("Public ssh key"))
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
@@ -676,6 +677,7 @@ class User(
                     self.surname.lower() + "_" + self.name.lower()[:3]
                 )
                 user_ldap.gid = LDAP["user_gid"]
+                user_ldap.ssh_key = self.ssh_key
                 if "{SSHA}" in self.password or "{SMD5}" in self.password:
                     # We remove the extra $ added at import from ldap
                     user_ldap.user_password = self.password[:6] + self.password[7:]
