@@ -775,7 +775,7 @@ class Article(RevMixin, AclMixin, models.Model):
             target_user: The user to sell articles
         """
         if target_user is None:
-            objects_pool = cls.objects.filter(Q(type_user="All"))
+            objects_pool = cls.objects.all()
         elif target_user.is_class_club:
             objects_pool = cls.objects.filter(Q(type_user="All") | Q(type_user="Club"))
         else:

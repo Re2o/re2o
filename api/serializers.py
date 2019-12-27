@@ -795,7 +795,7 @@ class UserSerializer(NamespacedHMSerializer):
             "access",
             "end_access",
             "uid",
-            "class_name",
+            "class_type",
             "api_url",
         )
         extra_kwargs = {"shell": {"view_name": "shell-detail"}}

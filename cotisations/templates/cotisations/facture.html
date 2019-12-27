@@ -87,7 +87,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% if articlesformset %}
 var prices = {};
 {% for article in articlelist %}
-prices[{{ article.id|escapejs }}] = {{ article.prix }};
+prices[{{ article.id|escapejs }}] = "{{ article.prix }}";
 {% endfor %}
 
 var template = `Article : &nbsp;
@@ -121,7 +121,7 @@ function update_price(){
         if (article == '') {
             continue;
         }
-        article_price = prices[article];
+        article_price = parseFloat(prices[article].replace(',', '.'));
         quantity = document.getElementById(
                 'id_form-' + i.toString() + '-quantity').value;
         price += article_price * quantity;
