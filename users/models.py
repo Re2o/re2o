@@ -283,8 +283,18 @@ class User(
             return str(self.emailaddress_set.get(local_part=self.pseudo.lower()))
 
     @cached_property
-    def class_name(self):
-        """Renvoie si il s'agit d'un adhérent ou d'un club"""
+    def class_type(self):
+        """Returns the type of that user; returns database keyname"""
+        if hasattr(self, "adherent"):
+            return "Adherent"
+        elif hasattr(self, "club"):
+            return "Club"
+        else:
+            raise NotImplementedError(_("Unknown type."))
+
+    @cached_property
+    def class_display(self):
+        """Returns the typename of that user to display for user interface"""
         if hasattr(self, "adherent"):
             return _("Member")
         elif hasattr(self, "club"):

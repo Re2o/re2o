@@ -102,7 +102,7 @@ def new_facture(request, user, userid):
     invoice = Facture(user=user)
     # The template needs the list of articles (for the JS part)
     article_list = Article.objects.filter(
-        Q(type_user="All") | Q(type_user=request.user.class_name)
+        Q(type_user="All") | Q(type_user=user.class_type)
     )
     # Building the invoice form and the article formset
     invoice_form = FactureForm(
@@ -184,9 +184,7 @@ def new_cost_estimate(request):
     point of view.
     """
     # The template needs the list of articles (for the JS part)
-    articles = Article.objects.filter(
-        Q(type_user="All") | Q(type_user=request.user.class_name)
-    )
+    articles = Article.objects.all()
     # Building the invocie form and the article formset
     cost_estimate_form = CostEstimateForm(request.POST or None)
 
@@ -241,9 +239,7 @@ def new_custom_invoice(request):
     point of view.
     """
     # The template needs the list of articles (for the JS part)
-    articles = Article.objects.filter(
-        Q(type_user="All") | Q(type_user=request.user.class_name)
-    )
+    articles = Article.objects.all()
     # Building the invocie form and the article formset
     invoice_form = CustomInvoiceForm(request.POST or None)
 
