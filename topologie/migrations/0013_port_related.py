@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0012_port_machine_interface'),
-    ]
+    dependencies = [("topologie", "0012_port_machine_interface")]
 
     operations = [
         migrations.AddField(
-            model_name='port',
-            name='related',
-            field=models.OneToOneField(null=True, to='topologie.Port', blank=True, related_name='related_port'),
-        ),
+            model_name="port",
+            name="related",
+            field=models.OneToOneField(
+                null=True, to="topologie.Port", blank=True, related_name="related_port"
+            ),
+        )
     ]

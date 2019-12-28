@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0033_extension_need_infra'),
-    ]
+    dependencies = [("machines", "0033_extension_need_infra")]
 
     operations = [
         migrations.AddField(
-            model_name='iplist',
-            name='need_infra',
+            model_name="iplist",
+            name="need_infra",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

@@ -5,7 +5,7 @@ se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
 
 This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
             {% if users.is_ban%}
             <div class="panel panel-danger">
-                <div class="panel-heading dashboard">{% trans "Your account has been banned" %}</div>
+                <div class="panel-heading dashboard">{% trans "Your account has been banned." %}</div>
                 <div class="panel-body dashboard">
                     <i class="text-danger">{% blocktrans with end_ban_date=users.end_ban|date:"SHORT_DATE_FORMAT" %}End of the ban: {{ end_ban_date }}{% endblocktrans %}</i>
                 </div>
@@ -57,7 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
                     </a>
                     {% acl_else %}
-                    {% trans "Ask for someone with the appropriate rights to pay for a connection." %}
+                    {% trans "Ask someone with the appropriate rights to pay for a connection." %}
                     {% acl_end %}
                 </div>
             </div>
@@ -94,11 +94,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <div class="panel panel-info">
                 <div class="panel-heading dashboard" data-parent="#accordion" data-toggle="collapse"
                      data-target="#machines">
-                <i class="fa fa-desktop"></i>{% trans " Machines" %} <span class="badge"> {{ nb_machines }}</span>
+                <i class="fa fa-desktop"></i> {% trans "Machines" %} <span class="badge"> {{ nb_machines }}</span>
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                        <i class="fa fa-desktop"></i>{% trans " Add a machine" %}
+                        <i class="fa fa-desktop"></i> {% trans "Add a machine" %}
                     </a>
                 </div>
             </div>
@@ -110,7 +110,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
                 <div class="panel-body dashboard">
                     <a class="btn btn-warning btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                        <i class="fa fa-desktop"></i>{% trans " Add a machine" %}
+                        <i class="fa fa-desktop"></i> {% trans "Add a machine" %}
                     </a>
                 </div>
             </div>
@@ -119,12 +119,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 </div>
 
+
 <div class="panel-group" id="accordion">
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
              data-target="#information">
             <h3 class="panel-title pull-left">
-                <i class="fa fa-user"></i>{% trans " Detailed information" %}
+                <i class="fa fa-user"></i> {% trans "Detailed information" %}
             </h3>
         </div>
         <div class="panel-collapse collapse collapse-default" id="information">
@@ -186,9 +187,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <div class="col-md-6">
                         <dt>{% trans "Room" %}</dt>
                         <dd>
-                            {{ users.room }} {% can_view_all Port %}{% if users.room.port_set.all %} /
-                            {{ users.room.port_set.all|join:", " }} {% endif %}{% acl_end %}
-                        </dd>
+			{{ users.room }} {% if users.room.port_set.all %}{% can_view_all Port %}/
+			{{ users.room.port_set.all|join:", " }}  {% acl_else %}
+			<i class="text-success">{% trans "Connected" %}</i>{% acl_end %}
+			{% else %}{% if users.room %}<i class="text-danger">{% trans "Pending connection..." %}</i>{% endif %}
+			{% endif %}
+			</dd>
                     </div>
 
                     <div class="col-md-6">
@@ -252,7 +256,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% elif users.state == 2 %}
                             <dd><i class="text-danger">{% trans "Archived" %}</i></dd>
                         {% elif users.state == 3 %}
-                            <dd><i class="text-danger">{% trans "Not yet member" %}</i></dd>
+                            <dd><i class="text-danger">{% trans "Not yet active" %}</i></dd>
+                        {% elif users.state == 4 %}
+                            <dd><i class="text-danger">{% trans "Fully archived" %}</i></dd>
                         {% endif %}
                     </div>
 
@@ -302,23 +308,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <dd>{{ users.shell }}</dd>
                         </div>
                     {% endif %}
+                    <div class="col-md-6 col-xs-12">
+                        <dt>{% trans "Shortcuts enabled" %}</dt>
+                        <dd>{{ users.shortcuts_enabled | tick }}</dd>
+                    </div>
                 </dl>
             </div>
         </div>
     </div>
     {% if users.is_class_club %}
     <div class="panel panel-default">
-        <div class="panel-heading clearfix" data-parent="#accordion" data-toggle="collapse" data-target="#club">
+        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#club">
             <h3 class="panel-title pull-left">
-		    <i class="fa fa-users"></i>{% trans " Manage the club" %}
+                <i class="fa fa-users"></i> {% trans "Manage the club" %}
             </h3>
         </div>
         <div class="panel-collapse collapse" id="club">
             <div class="panel-body">
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-club-admin-members' users.club.id %}">
+                <a class="btn btn-primary btn-sm" role="button"
+                   href="{% url 'users:edit-club-admin-members' users.club.id %}">
                     <i class="fa fa-lock"></i>
-		    {% trans "Manage the admins and members" %}
-                    </a>
+                    {% trans "Manage the admins and members" %}
+                </a>
             </div>
 	    <div class="panel-body">
 		<h4>{% trans "Club admins" %}</h4>
@@ -473,14 +484,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#email">
             <h3 class="panel-title pull-left">
-                <i class="fa fa-envelope"></i>{% trans " Email settings" %}
+                <i class="fa fa-envelope"></i> {% trans "Email settings" %}
             </h3>
         </div>
         <div id="email" class="panel-collapse collapse">
             <div class="panel-body">
                 {% can_edit users %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-email-settings' users.id %}">
-                    <i class="fa fa-pencil"></i>{% trans " Edit email settings" %}
+                    <i class="fa fa-pencil"></i> {% trans "Edit email settings" %}
                 </a>
                 {% acl_end %}
             </div>
@@ -499,12 +510,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <td>{{ users.local_email_redirect | tick }}</td>
                         </tr>
                     </table>
-                    <p>{% trans "The contact email address is the email address where we send emails to contact you. If you would like to use your external email address for that, you can either disable your local email address or enable the local email redirection." %}</p>
+                    <p>{% trans "The contact email address is the email address to which we send emails to contact you. If you would like to use your external email address for that, you can either disable your local email address or enable the local email redirection." %}</p>
                 </div>
                 {% if users.local_email_enabled %}
                 {% can_create EMailAddress users.id %}
                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:add-emailaddress' users.id %}">
-                    <i class="fa fa-plus-square"></i>{% trans " Add an email address" %}
+                    <i class="fa fa-plus-square"></i> {% trans "Add an email address" %}
                 </a>
                 {% acl_end %}
                 {% if emailaddress_list %}
@@ -524,6 +535,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </div>
         </div>
     </div>
+
+    {% for template in optionnal_templates_list %}
+        {{ template }}
+    {% endfor %}
+
 </div>
 {% endblock %}
 

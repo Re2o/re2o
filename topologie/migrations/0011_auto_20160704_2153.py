@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0010_auto_20160704_2148'),
-    ]
+    dependencies = [("topologie", "0010_auto_20160704_2148")]
 
     operations = [
         migrations.AlterField(
-            model_name='room',
-            name='name',
+            model_name="room",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
-        ),
+        )
     ]

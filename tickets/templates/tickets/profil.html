@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#ticket">
+        <h3 class="panel-title pull-left">
+            <i class="fa fa-ticket"></i> {% trans "Tickets" %}
+        </h3> 
+    </div>
+    <div id="ticket" class="panel-collapse collapse">
+        <div class="panel-body">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'tickets:new-ticket' %}">
+            <i class="fa fa-ticket"></i> {% trans "Open a ticket" %}
+        </a>
+        </div>
+        <div class="panel-body">
+        {% if tickets_list %} 
+            {% include 'tickets/aff_tickets.html' with tickets_list=tickets_list %}
+        {% else %}
+            <p>{% trans "No tickets" %}</p>
+        {% endif %}
+        </div>
+    </div>
+</div>

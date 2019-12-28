@@ -40,21 +40,21 @@ class BalancePayment(PaymentMethodMixin, models.Model):
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method',
-        editable=False
+        related_name="payment_method_balance",
+        editable=False,
     )
     minimum_balance = models.DecimalField(
-        verbose_name=_("Minimum balance"),
-        help_text=_("The minimal amount of money allowed for the balance"
-                     " at the end of a payment. You can specify negative "
-                     "amount."
-                     ),
+        verbose_name=_("minimum balance"),
+        help_text=_(
+            "The minimal amount of money allowed for the balance at the end"
+            " of a payment. You can specify a negative amount."
+        ),
         max_digits=5,
         decimal_places=2,
         default=0,
     )
     maximum_balance = models.DecimalField(
-        verbose_name=_("Maximum balance"),
+        verbose_name=_("maximum balance"),
         help_text=_("The maximal amount of money allowed for the balance."),
         max_digits=5,
         decimal_places=2,
@@ -63,8 +63,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         null=True,
     )
     credit_balance_allowed = models.BooleanField(
-        verbose_name=_("Allow user to credit their balance"),
-        default=False,
+        verbose_name=_("allow user to credit their balance"), default=False
     )
 
     def end_payment(self, invoice, request):
@@ -74,27 +73,17 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         user = invoice.user
         total_price = invoice.prix_total()
         if user.solde - total_price < self.minimum_balance:
-            messages.error(
-                request,
-                _("Your balance is too low for this operation.")
-            )
-            return redirect(reverse(
-                'users:profil',
-                kwargs={'userid': user.id}
-            ))
-        return invoice.paiement.end_payment(
-            invoice,
-            request,
-            use_payment_method=False
-        )
+            messages.error(request, _("Your balance is too low for this operation."))
+            return redirect(reverse("users:profil", kwargs={"userid": user.id}))
+        return invoice.paiement.end_payment(invoice, request, use_payment_method=False)
 
     def valid_form(self, form):
         """Checks that there is not already a balance payment method."""
         p = Paiement.objects.filter(is_balance=True)
         if len(p) > 0:
             form.add_error(
-                'payment_method',
-                _("There is already a payment method for user balance.")
+                "payment_method",
+                _("There is already a payment method for user balance."),
             )
 
     def alter_payment(self, payment):
@@ -107,12 +96,11 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         """
         return (
             user.solde - price >= self.minimum_balance,
-            _("Your balance is too low for this operation.")
+            _("Your balance is too low for this operation."),
         )
 
     def can_credit_balance(self, user_request):
         return (
-            len(Paiement.find_allowed_payments(user_request)
-                .exclude(is_balance=True)) > 0
+            len(Paiement.find_allowed_payments(user_request).exclude(is_balance=True))
+            > 0
         ) and self.credit_balance_allowed
-

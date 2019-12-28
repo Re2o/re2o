@@ -9,29 +9,40 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0066_srv'),
-    ]
+    dependencies = [("machines", "0066_srv")]
 
     operations = [
         migrations.AlterField(
-            model_name='srv',
-            name='port',
-            field=models.PositiveIntegerField(help_text='Port (tcp/udp)', validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="srv",
+            name="port",
+            field=models.PositiveIntegerField(
+                help_text="Port (tcp/udp)",
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
         migrations.AlterField(
-            model_name='srv',
-            name='priority',
-            field=models.PositiveIntegerField(help_text="La priorité du serveur cible (valeur entière non négative,            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)", validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="srv",
+            name="priority",
+            field=models.PositiveIntegerField(
+                help_text="La priorité du serveur cible (valeur entière non négative,            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)",
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
         migrations.AlterField(
-            model_name='srv',
-            name='target',
-            field=models.ForeignKey(help_text='Serveur cible', on_delete=django.db.models.deletion.PROTECT, to='machines.Domain'),
+            model_name="srv",
+            name="target",
+            field=models.ForeignKey(
+                help_text="Serveur cible",
+                on_delete=django.db.models.deletion.PROTECT,
+                to="machines.Domain",
+            ),
         ),
         migrations.AlterField(
-            model_name='srv',
-            name='weight',
-            field=models.PositiveIntegerField(help_text='Poids relatif pour les enregistrements de même priorité            (valeur entière de 0 à 65535)', validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="srv",
+            name="weight",
+            field=models.PositiveIntegerField(
+                help_text="Poids relatif pour les enregistrements de même priorité            (valeur entière de 0 à 65535)",
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
     ]

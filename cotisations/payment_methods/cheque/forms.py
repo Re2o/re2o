@@ -26,6 +26,7 @@ from cotisations.models import Facture as Invoice
 
 class InvoiceForm(FormRevMixin, forms.ModelForm):
     """A simple form to get the bank a the cheque number."""
+
     class Meta:
         model = Invoice
-        fields = ['banque', 'cheque']
+        fields = ["banque", "cheque"]

@@ -7,13 +7,19 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0071_auto_20171231_2100'),
-    ]
+    dependencies = [("machines", "0071_auto_20171231_2100")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='interface',
-            options={'permissions': (('view_interface', 'Peut voir un objet interface'), ('change_interface_machine', "Peut changer le propriétaire d'une interface"))},
-        ),
+            name="interface",
+            options={
+                "permissions": (
+                    ("view_interface", "Peut voir un objet interface"),
+                    (
+                        "change_interface_machine",
+                        "Peut changer le propriétaire d'une interface",
+                    ),
+                )
+            },
+        )
     ]

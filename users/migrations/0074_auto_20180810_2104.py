@@ -9,14 +9,22 @@ import users.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0073_auto_20180629_1614'),
-    ]
+    dependencies = [("users", "0073_auto_20180629_1614")]
 
     operations = [
         migrations.AddField(
-            model_name='adherent',
-            name='gpg_fingerprint',
-            field=models.CharField(blank=True, max_length=40, null=True, validators=[django.core.validators.RegexValidator('^[0-9A-F]{40}$', message='Une fingerprint GPG doit contenir 40 caractères hexadécimaux')]),
-        ),
+            model_name="adherent",
+            name="gpg_fingerprint",
+            field=models.CharField(
+                blank=True,
+                max_length=40,
+                null=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[0-9A-F]{40}$",
+                        message="Une fingerprint GPG doit contenir 40 caractères hexadécimaux",
+                    )
+                ],
+            ),
+        )
     ]

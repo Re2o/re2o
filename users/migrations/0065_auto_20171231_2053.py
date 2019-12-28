@@ -7,33 +7,53 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0064_auto_20171231_0150'),
-    ]
+    dependencies = [("users", "0064_auto_20171231_0150")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ban',
-            options={'permissions': (('view_ban', "Peut voir un objet ban quelqu'il soit"),)},
+            name="ban",
+            options={
+                "permissions": (("view_ban", "Peut voir un objet ban quelqu'il soit"),)
+            },
         ),
         migrations.AlterModelOptions(
-            name='listright',
-            options={'permissions': (('view_listright', 'Peut voir un objet Group/ListRight'),)},
+            name="listright",
+            options={
+                "permissions": (
+                    ("view_listright", "Peut voir un objet Group/ListRight"),
+                )
+            },
         ),
         migrations.AlterModelOptions(
-            name='school',
-            options={'permissions': (('view_school', 'Peut voir un objet school'),)},
+            name="school",
+            options={"permissions": (("view_school", "Peut voir un objet school"),)},
         ),
         migrations.AlterModelOptions(
-            name='serviceuser',
-            options={'permissions': (('view_serviceuser', 'Peut voir un objet serviceuser'),)},
+            name="serviceuser",
+            options={
+                "permissions": (("view_serviceuser", "Peut voir un objet serviceuser"),)
+            },
         ),
         migrations.AlterModelOptions(
-            name='user',
-            options={'permissions': (('change_user_password', "Peut changer le mot de passe d'un user"), ('change_user_state', "Peut éditer l'etat d'un user"), ('change_user_force', 'Peut forcer un déménagement'), ('change_user_shell', "Peut éditer le shell d'un user"), ('change_user_groups', "Peut éditer les groupes d'un user ! Permission critique"), ('view_user', 'Peut voir un objet user quelquonque'))},
+            name="user",
+            options={
+                "permissions": (
+                    ("change_user_password", "Peut changer le mot de passe d'un user"),
+                    ("change_user_state", "Peut éditer l'etat d'un user"),
+                    ("change_user_force", "Peut forcer un déménagement"),
+                    ("change_user_shell", "Peut éditer le shell d'un user"),
+                    (
+                        "change_user_groups",
+                        "Peut éditer les groupes d'un user ! Permission critique",
+                    ),
+                    ("view_user", "Peut voir un objet user quelquonque"),
+                )
+            },
         ),
         migrations.AlterModelOptions(
-            name='whitelist',
-            options={'permissions': (('view_whitelist', 'Peut voir un objet whitelist'),)},
+            name="whitelist",
+            options={
+                "permissions": (("view_whitelist", "Peut voir un objet whitelist"),)
+            },
         ),
     ]

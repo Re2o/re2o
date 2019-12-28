@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,23 +28,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0035_auto_20161224_1201'),
-    ]
+    dependencies = [("machines", "0035_auto_20161224_1201")]
 
     operations = [
-        migrations.RenameField(
-            model_name='domain',
-            old_name='alias',
-            new_name='name',
-        ),
+        migrations.RenameField(model_name="domain", old_name="alias", new_name="name"),
         migrations.AlterField(
-            model_name='domain',
-            name='interface_parent',
-            field=models.ForeignKey(to='machines.Interface', null=True, blank=True),
+            model_name="domain",
+            name="interface_parent",
+            field=models.ForeignKey(to="machines.Interface", null=True, blank=True),
         ),
         migrations.AlterUniqueTogether(
-            name='domain',
-            unique_together=set([('name', 'extension')]),
+            name="domain", unique_together=set([("name", "extension")])
         ),
     ]

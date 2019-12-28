@@ -8,19 +8,33 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0046_auto_20180326_0129'),
-    ]
-
-
+    dependencies = [("topologie", "0046_auto_20180326_0129")]
 
     operations = [
         migrations.CreateModel(
-            name='NewAccessPoint',
+            name="NewAccessPoint",
             fields=[
-                ('machine_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='machines.Machine')),
-                ('location', models.CharField(help_text="Détails sur la localisation de l'AP", max_length=255, null=True, blank=True)),
+                (
+                    "machine_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="machines.Machine",
+                    ),
+                ),
+                (
+                    "location",
+                    models.CharField(
+                        help_text="Détails sur la localisation de l'AP",
+                        max_length=255,
+                        null=True,
+                        blank=True,
+                    ),
+                ),
             ],
-            bases=('machines.machine',),
-        ),
+            bases=("machines.machine",),
+        )
     ]

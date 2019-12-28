@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,15 +29,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0041_remove_ns_interface'),
-    ]
+    dependencies = [("machines", "0041_remove_ns_interface")]
 
     operations = [
         migrations.AddField(
-            model_name='ns',
-            name='ns',
-            field=models.OneToOneField(to='machines.Domain', default=1, on_delete=django.db.models.deletion.PROTECT),
+            model_name="ns",
+            name="ns",
+            field=models.OneToOneField(
+                to="machines.Domain",
+                default=1,
+                on_delete=django.db.models.deletion.PROTECT,
+            ),
             preserve_default=False,
-        ),
+        )
     ]

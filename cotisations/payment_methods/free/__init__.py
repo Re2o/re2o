@@ -1,10 +1,9 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2019  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,10 +18,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""cotisations.tests
-The tests for the Cotisations module.
 """
+This module contains a method to pay online using user balance.
+"""
+from . import models
 
-# from django.test import TestCase
+NAME = "FREE"
 
-# Create your tests here.
+PaymentMethod = models.FreePayment

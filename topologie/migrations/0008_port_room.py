@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,15 +29,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0007_auto_20160703_1148'),
-    ]
+    dependencies = [("topologie", "0007_auto_20160703_1148")]
 
     operations = [
         migrations.AddField(
-            model_name='port',
-            name='room',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, default=1, to='topologie.Room'),
+            model_name="port",
+            name="room",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                blank=True,
+                default=1,
+                to="topologie.Room",
+            ),
             preserve_default=False,
-        ),
+        )
     ]

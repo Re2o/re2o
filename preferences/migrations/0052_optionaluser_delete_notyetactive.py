@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0051_auto_20180919_2225'),
-    ]
+    dependencies = [("preferences", "0051_auto_20180919_2225")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='delete_notyetactive',
-            field=models.IntegerField(default=15, help_text='Inactive users will be deleted after this number of days'),
-        ),
+            model_name="optionaluser",
+            name="delete_notyetactive",
+            field=models.IntegerField(
+                default=15,
+                help_text="Inactive users will be deleted after this number of days",
+            ),
+        )
     ]

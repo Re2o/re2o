@@ -8,14 +8,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0080_auto_20180502_2334'),
-    ]
+    dependencies = [("machines", "0080_auto_20180502_2334")]
 
     operations = [
         migrations.AlterField(
-            model_name='extension',
-            name='soa',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='machines.SOA'),
-        ),
+            model_name="extension",
+            name="soa",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="machines.SOA"
+            ),
+        )
     ]

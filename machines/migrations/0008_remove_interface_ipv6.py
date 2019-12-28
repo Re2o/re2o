@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,13 +28,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0007_auto_20160703_1816'),
-    ]
+    dependencies = [("machines", "0007_auto_20160703_1816")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='interface',
-            name='ipv6',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="interface", name="ipv6")]

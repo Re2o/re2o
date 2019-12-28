@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -34,12 +34,14 @@ def classname(obj):
     """ Returns the object class name """
     return obj.__class__.__name__
 
+
 @register.filter
 def is_facture(baseinvoice):
     """Returns True if a baseinvoice has a `Facture` child."""
-    return hasattr(baseinvoice, 'facture')
+    return hasattr(baseinvoice, "facture")
 
-@register.inclusion_tag('buttons/history.html')
+
+@register.inclusion_tag("buttons/history.html")
 def history_button(instance, text=False, html_class=True):
     """Creates the correct history button for an instance.
 
@@ -51,9 +53,9 @@ def history_button(instance, text=False, html_class=True):
 
     """
     return {
-        'application': instance._meta.app_label,
-        'name': instance._meta.model_name,
-        'id': instance.id,
-        'text': text,
-        'class': html_class,
+        "application": instance._meta.app_label,
+        "name": instance._meta.model_name,
+        "id": instance.id,
+        "text": text,
+        "class": html_class,
     }

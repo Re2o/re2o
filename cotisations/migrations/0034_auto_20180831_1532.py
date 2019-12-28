@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0033_auto_20180818_1319'),
-    ]
+    dependencies = [("cotisations", "0033_auto_20180818_1319")]
 
     operations = [
         migrations.AlterField(
-            model_name='facture',
-            name='valid',
-            field=models.BooleanField(default=False, verbose_name='validated'),
-        ),
+            model_name="facture",
+            name="valid",
+            field=models.BooleanField(default=False, verbose_name="validated"),
+        )
     ]

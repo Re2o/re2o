@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -33,11 +33,11 @@ from users.models import Club, Adherent
 class MailingSerializer(serializers.ModelSerializer):
     """ Serializer to build Mailing objects """
 
-    name = serializers.CharField(source='pseudo')
+    name = serializers.CharField(source="pseudo")
 
     class Meta:
         model = Club
-        fields = ('name',)
+        fields = ("name",)
 
 
 class MailingMemberSerializer(serializers.ModelSerializer):
@@ -46,4 +46,4 @@ class MailingMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adherent
-        fields = ('email',)
+        fields = ("email",)

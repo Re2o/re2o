@@ -7,14 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0034_borne'),
-    ]
+    dependencies = [("topologie", "0034_borne")]
 
     operations = [
         migrations.AlterField(
-            model_name='borne',
-            name='location',
-            field=models.CharField(blank=True, help_text="Détails sur la localisation de l'AP", max_length=255, null=True),
-        ),
+            model_name="borne",
+            name="location",
+            field=models.CharField(
+                blank=True,
+                help_text="Détails sur la localisation de l'AP",
+                max_length=255,
+                null=True,
+            ),
+        )
     ]

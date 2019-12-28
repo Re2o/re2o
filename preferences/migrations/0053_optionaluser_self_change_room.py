@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0052_optionaluser_delete_notyetactive'),
-    ]
+    dependencies = [("preferences", "0052_optionaluser_delete_notyetactive")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='self_change_room',
-            field=models.BooleanField(default=False, help_text='Users can edit their room'),
-        ),
+            model_name="optionaluser",
+            name="self_change_room",
+            field=models.BooleanField(
+                default=False, help_text="Users can edit their room"
+            ),
+        )
     ]

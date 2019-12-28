@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <h2>{% trans "Port profiles" %}</h2>
 {% can_create PortProfile %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port-profile' %}"><i class="fa fa-plus"></i>{% trans " Add a port profile" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-port-profile' %}"><i class="fa fa-plus"></i> {% trans "Add a port profile" %}</a>
 <hr>
 {% acl_end %}
 {% include 'topologie/aff_port_profile.html' with port_profile_list=port_profile_list %}

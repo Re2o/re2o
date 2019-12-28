@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,29 +28,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0005_auto_20160703_1123'),
-    ]
+    dependencies = [("topologie", "0005_auto_20160703_1123")]
 
     operations = [
         migrations.AddField(
-            model_name='room',
-            name='room',
+            model_name="room",
+            name="room",
             field=models.IntegerField(default=1),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='room',
-            name='building',
-            field=models.CharField(max_length=255),
+            model_name="room", name="building", field=models.CharField(max_length=255)
         ),
         migrations.AlterField(
-            model_name='room',
-            name='number',
-            field=models.IntegerField(blank=True),
+            model_name="room", name="number", field=models.IntegerField(blank=True)
         ),
         migrations.AlterUniqueTogether(
-            name='room',
-            unique_together=set([('building', 'room', 'number')]),
+            name="room", unique_together=set([("building", "room", "number")])
         ),
     ]

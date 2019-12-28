@@ -24,15 +24,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from cotisations.utils import find_payment_method
 
+
 class NoteCredentialForm(forms.Form):
     """A special form to get credential to connect to a NoteKfet2015 server throught his API
     object.
     """
-    login = forms.CharField(
-            label=_("pseudo note")
-        )
-    password = forms.CharField(
-            label=_("Password"),
-            widget=forms.PasswordInput
-        )
-   
+
+    login = forms.CharField(label=_("Username"))
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)

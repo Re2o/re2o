@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,12 @@ import macaddress.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0002_auto_20160703_1444'),
-    ]
+    dependencies = [("machines", "0002_auto_20160703_1444")]
 
     operations = [
         migrations.AlterField(
-            model_name='interface',
-            name='mac_address',
+            model_name="interface",
+            name="mac_address",
             field=macaddress.fields.MACAddressField(integer=True, unique=True),
-        ),
+        )
     ]

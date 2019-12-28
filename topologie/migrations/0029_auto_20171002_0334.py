@@ -7,14 +7,28 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0028_auto_20170913_1503'),
-    ]
+    dependencies = [("topologie", "0028_auto_20170913_1503")]
 
     operations = [
         migrations.AlterField(
-            model_name='port',
-            name='radius',
-            field=models.CharField(choices=[('NO', 'NO'), ('STRICT', 'STRICT'), ('BLOQ', 'BLOQ'), ('COMMON', 'COMMON'), ('3', '3'), ('7', '7'), ('8', '8'), ('13', '13'), ('20', '20'), ('42', '42'), ('69', '69')], default='NO', max_length=32),
-        ),
+            model_name="port",
+            name="radius",
+            field=models.CharField(
+                choices=[
+                    ("NO", "NO"),
+                    ("STRICT", "STRICT"),
+                    ("BLOQ", "BLOQ"),
+                    ("COMMON", "COMMON"),
+                    ("3", "3"),
+                    ("7", "7"),
+                    ("8", "8"),
+                    ("13", "13"),
+                    ("20", "20"),
+                    ("42", "42"),
+                    ("69", "69"),
+                ],
+                default="NO",
+                max_length=32,
+            ),
+        )
     ]

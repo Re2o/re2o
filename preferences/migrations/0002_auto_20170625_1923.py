@@ -7,34 +7,32 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0001_initial'),
-    ]
+    dependencies = [("preferences", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='pagination_large_number',
+            model_name="generaloption",
+            name="pagination_large_number",
             field=models.IntegerField(default=8),
         ),
         migrations.AddField(
-            model_name='generaloption',
-            name='pagination_number',
+            model_name="generaloption",
+            name="pagination_number",
             field=models.IntegerField(default=25),
         ),
         migrations.AddField(
-            model_name='optionaluser',
-            name='gpg_fingerprint',
+            model_name="optionaluser",
+            name="gpg_fingerprint",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='optionalmachine',
-            name='password_machine',
+            model_name="optionalmachine",
+            name="password_machine",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='optionaluser',
-            name='user_solde',
+            model_name="optionaluser",
+            name="user_solde",
             field=models.BooleanField(default=False),
         ),
     ]

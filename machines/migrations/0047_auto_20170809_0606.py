@@ -8,23 +8,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0046_auto_20170808_1423'),
-    ]
+    dependencies = [("machines", "0046_auto_20170808_1423")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='service',
-            name='time_regen',
+        migrations.RemoveField(model_name="service", name="time_regen"),
+        migrations.AddField(
+            model_name="service",
+            name="min_time_regen",
+            field=models.DurationField(
+                default=datetime.timedelta(0, 60),
+                help_text="Temps minimal avant nouvelle génération du service",
+            ),
         ),
         migrations.AddField(
-            model_name='service',
-            name='min_time_regen',
-            field=models.DurationField(default=datetime.timedelta(0, 60), help_text='Temps minimal avant nouvelle génération du service'),
-        ),
-        migrations.AddField(
-            model_name='service',
-            name='regular_time_regen',
-            field=models.DurationField(default=datetime.timedelta(0, 3600), help_text='Temps maximal avant nouvelle génération du service'),
+            model_name="service",
+            name="regular_time_regen",
+            field=models.DurationField(
+                default=datetime.timedelta(0, 3600),
+                help_text="Temps maximal avant nouvelle génération du service",
+            ),
         ),
     ]

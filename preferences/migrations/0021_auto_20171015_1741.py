@@ -7,14 +7,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0020_optionalmachine_ipv6'),
-    ]
+    dependencies = [("preferences", "0020_optionalmachine_ipv6")]
 
     operations = [
         migrations.AlterField(
-            model_name='optionaltopologie',
-            name='radius_general_policy',
-            field=models.CharField(choices=[('MACHINE', 'Sur le vlan de la plage ip machine'), ('DEFINED', 'Prédéfini dans "Vlan où placer les machines            après acceptation RADIUS"')], default='DEFINED', max_length=32),
-        ),
+            model_name="optionaltopologie",
+            name="radius_general_policy",
+            field=models.CharField(
+                choices=[
+                    ("MACHINE", "Sur le vlan de la plage ip machine"),
+                    (
+                        "DEFINED",
+                        'Prédéfini dans "Vlan où placer les machines            après acceptation RADIUS"',
+                    ),
+                ],
+                default="DEFINED",
+                max_length=32,
+            ),
+        )
     ]

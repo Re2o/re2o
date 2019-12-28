@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -30,32 +30,60 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0031_auto_20160726_0359'),
-    ]
+    dependencies = [("users", "0031_auto_20160726_0359")]
 
     operations = [
         migrations.CreateModel(
-            name='LdapServiceUser',
+            name="LdapServiceUser",
             fields=[
-                ('dn', models.CharField(max_length=200)),
-                ('name', ldapdb.models.fields.CharField(db_column='cn', max_length=200, serialize=False, primary_key=True)),
-                ('user_password', ldapdb.models.fields.CharField(db_column='userPassword', blank=True, max_length=200, null=True)),
+                ("dn", models.CharField(max_length=200)),
+                (
+                    "name",
+                    ldapdb.models.fields.CharField(
+                        db_column="cn",
+                        max_length=200,
+                        serialize=False,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "user_password",
+                    ldapdb.models.fields.CharField(
+                        db_column="userPassword", blank=True, max_length=200, null=True
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='ServiceUser',
+            name="ServiceUser",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, verbose_name='last login', null=True)),
-                ('pseudo', models.CharField(max_length=32, help_text='Doit contenir uniquement des lettres, chiffres, ou tirets', unique=True, validators=[users.models.linux_user_validator])),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, verbose_name="last login", null=True
+                    ),
+                ),
+                (
+                    "pseudo",
+                    models.CharField(
+                        max_length=32,
+                        help_text="Doit contenir uniquement des lettres, chiffres, ou tirets",
+                        unique=True,
+                        validators=[users.models.linux_user_validator],
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
     ]

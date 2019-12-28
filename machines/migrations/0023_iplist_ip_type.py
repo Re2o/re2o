@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,15 +29,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0022_auto_20161011_1829'),
-    ]
+    dependencies = [("machines", "0022_auto_20161011_1829")]
 
     operations = [
         migrations.AddField(
-            model_name='iplist',
-            name='ip_type',
-            field=models.ForeignKey(to='machines.MachineType', on_delete=django.db.models.deletion.PROTECT, default=1),
+            model_name="iplist",
+            name="ip_type",
+            field=models.ForeignKey(
+                to="machines.MachineType",
+                on_delete=django.db.models.deletion.PROTECT,
+                default=1,
+            ),
             preserve_default=False,
-        ),
+        )
     ]

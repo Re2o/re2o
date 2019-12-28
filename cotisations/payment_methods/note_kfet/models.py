@@ -41,25 +41,17 @@ class NotePayment(PaymentMethodMixin, models.Model):
 
     payment = models.OneToOneField(
         Paiement,
-        on_delete = models.CASCADE,
-        related_name = 'payment_method',
-        editable = False
+        on_delete=models.CASCADE,
+        related_name="payment_method_note",
+        editable=False,
     )
-    server = models.CharField(
-        max_length=255,
-        verbose_name=_("server")
-    )
-    port = models.PositiveIntegerField(
-        blank = True,
-        null = True
-    )
-    id_note = models.PositiveIntegerField(
-        blank = True,
-        null = True
-    )
+    server = models.CharField(max_length=255, verbose_name=_("server"))
+    port = models.PositiveIntegerField(blank=True, null=True)
+    id_note = models.PositiveIntegerField(blank=True, null=True)
 
     def end_payment(self, invoice, request):
-        return redirect(reverse(
-            'cotisations:note_kfet:note_payment',
-            kwargs={'factureid': invoice.id}
-        ))
+        return redirect(
+            reverse(
+                "cotisations:note_kfet:note_payment", kwargs={"factureid": invoice.id}
+            )
+        )

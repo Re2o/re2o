@@ -3,8 +3,9 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2019  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """The views for the search app, responsible for finding the matches
-Augustin lemesle, Gabriel Détraz, Goulven Kermarec, Maël Kervella
+Augustin lemesle, Gabriel Détraz, Lara Kermarec, Maël Kervella
 Gplv2"""
 
 
@@ -44,9 +45,9 @@ from search.forms import (
     SearchFormPlus,
     CHOICES_USER,
     CHOICES_AFF,
-    initial_choices
+    initial_choices,
 )
-from re2o.base import SortTable
+from re2o.base import SortTable, re2o_paginator
 from re2o.acl import can_view_all
 
 
@@ -61,70 +62,47 @@ def is_int(variable):
         return True
 
 
-def finish_results(results, col, order):
+def finish_results(request, results, col, order):
     """Sort the results by applying filters and then limit them to the
     number of max results. Finally add the info of the nmax number of results
     to the dict"""
 
-    results['users'] = SortTable.sort(
-        results['users'],
-        col,
-        order,
-        SortTable.USERS_INDEX
+    results["users"] = SortTable.sort(
+        results["users"], col, order, SortTable.USERS_INDEX
     )
-    results['machines'] = SortTable.sort(
-        results['machines'],
-        col,
-        order,
-        SortTable.MACHINES_INDEX
+    results["machines"] = SortTable.sort(
+        results["machines"], col, order, SortTable.MACHINES_INDEX
     )
-    results['factures'] = SortTable.sort(
-        results['factures'],
-        col,
-        order,
-        SortTable.COTISATIONS_INDEX
+    results["factures"] = SortTable.sort(
+        results["factures"], col, order, SortTable.COTISATIONS_INDEX
     )
-    results['bans'] = SortTable.sort(
-        results['bans'],
-        col,
-        order,
-        SortTable.USERS_INDEX_BAN
+    results["bans"] = SortTable.sort(
+        results["bans"], col, order, SortTable.USERS_INDEX_BAN
     )
-    results['whitelists'] = SortTable.sort(
-        results['whitelists'],
-        col,
-        order,
-        SortTable.USERS_INDEX_WHITE
+    results["whitelists"] = SortTable.sort(
+        results["whitelists"], col, order, SortTable.USERS_INDEX_WHITE
     )
-    results['rooms'] = SortTable.sort(
-        results['rooms'],
-        col,
-        order,
-        SortTable.TOPOLOGIE_INDEX_ROOM
+    results["rooms"] = SortTable.sort(
+        results["rooms"], col, order, SortTable.TOPOLOGIE_INDEX_ROOM
     )
-    results['ports'] = SortTable.sort(
-        results['ports'],
-        col,
-        order,
-        SortTable.TOPOLOGIE_INDEX_PORT
+    results["ports"] = SortTable.sort(
+        results["ports"], col, order, SortTable.TOPOLOGIE_INDEX_PORT
     )
-    results['switches'] = SortTable.sort(
-        results['switches'],
-        col,
-        order,
-        SortTable.TOPOLOGIE_INDEX
+    results["switches"] = SortTable.sort(
+        results["switches"], col, order, SortTable.TOPOLOGIE_INDEX
     )
 
-    max_result = GeneralOption.get_cached_value('search_display_page')
+    max_result = GeneralOption.get_cached_value("search_display_page")
     for name, val in results.items():
-        results[name] = val.distinct()[:max_result]
-    results.update({'max_result': max_result})
+        page_arg = name + "_page"
+        results[name] = re2o_paginator(request, val.distinct(), max_result, page_arg=page_arg)
+
+    results.update({"max_result": max_result})
 
     return results
 
 
-def search_single_word(word, filters, user,
-                       start, end, user_state, aff):
+def search_single_word(word, filters, user, start, end, user_state, aff):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match field are either CharField or IntegerField that will be displayed
@@ -133,45 +111,35 @@ def search_single_word(word, filters, user,
     to an int."""
 
     # Users
-    if '0' in aff:
-        filter_users = (
-            Q(
-                surname__icontains=word
-            ) | Q(
-                pseudo__icontains=word
-            ) | Q(
-                room__name__icontains=word
-            ) | Q(
-                email__icontains=word
-            ) | Q(
-                telephone__icontains=word
-            )
-        ) & Q(state__in=user_state)
+    if "0" in aff:
+        filter_clubs = (
+            Q(surname__icontains=word)
+            | Q(pseudo__icontains=word)
+            | Q(room__name__icontains=word)
+            | Q(email__icontains=word)
+            | Q(telephone__icontains=word)
+        )
+        filter_users = (filter_clubs | Q(name__icontains=word))
+
         if not User.can_view_all(user)[0]:
+            filter_clubs &= Q(id=user.id)
             filter_users &= Q(id=user.id)
-        filter_clubs = filter_users
-        filter_users |= Q(name__icontains=word)
-        filters['users'] |= filter_users
-        filters['clubs'] |= filter_clubs
+
+        filter_clubs &= Q(state__in=user_state)
+        filter_users &= Q(state__in=user_state)
+
+        filters["users"] |= filter_users
+        filters["clubs"] |= filter_clubs
 
     # Machines
-    if '1' in aff:
-        filter_machines = Q(
-            name__icontains=word
-        ) | (
-            Q(
-                user__pseudo__icontains=word
-            ) & Q(
-                user__state__in=user_state
-            )
-        ) | Q(
-            interface__domain__name__icontains=word
-        ) | Q(
-            interface__domain__related_domain__name__icontains=word
-        ) | Q(
-            interface__mac_address__icontains=word
-        ) | Q(
-            interface__ipv4__ipv4__icontains=word
+    if "1" in aff:
+        filter_machines = (
+            Q(name__icontains=word)
+            | (Q(user__pseudo__icontains=word) & Q(user__state__in=user_state))
+            | Q(interface__domain__name__icontains=word)
+            | Q(interface__domain__related_domain__name__icontains=word)
+            | Q(interface__mac_address__icontains=word)
+            | Q(interface__ipv4__ipv4__icontains=word)
         )
         try:
             _mac_addr = EUI(word, 48)
@@ -180,137 +148,148 @@ def search_single_word(word, filters, user,
             pass
         if not Machine.can_view_all(user)[0]:
             filter_machines &= Q(user__id=user.id)
-        filters['machines'] |= filter_machines
+        filters["machines"] |= filter_machines
 
     # Factures
-    if '2' in aff:
-        filter_factures = Q(
-            user__pseudo__icontains=word
-        ) & Q(
+    if "2" in aff:
+        filter_factures = Q(user__pseudo__icontains=word) & Q(
             user__state__in=user_state
         )
         if start is not None:
             filter_factures &= Q(date__gte=start)
         if end is not None:
             filter_factures &= Q(date__lte=end)
-        filters['factures'] |= filter_factures
+        filters["factures"] |= filter_factures
 
     # Bans
-    if '3' in aff:
+    if "3" in aff:
         filter_bans = (
-            Q(
-                user__pseudo__icontains=word
-            ) & Q(
-                user__state__in=user_state
-            )
-        ) | Q(
-            raison__icontains=word
-        )
+            Q(user__pseudo__icontains=word) & Q(user__state__in=user_state)
+        ) | Q(raison__icontains=word)
         if start is not None:
             filter_bans &= (
-                Q(date_start__gte=start) & Q(date_end__gte=start)
-            ) | (
-                Q(date_start__lte=start) & Q(date_end__gte=start)
-            ) | (
-                Q(date_start__gte=start) & Q(date_end__lte=start)
+                (Q(date_start__gte=start) & Q(date_end__gte=start))
+                | (Q(date_start__lte=start) & Q(date_end__gte=start))
+                | (Q(date_start__gte=start) & Q(date_end__lte=start))
             )
         if end is not None:
             filter_bans &= (
-                Q(date_start__lte=end) & Q(date_end__lte=end)
-            ) | (
-                Q(date_start__lte=end) & Q(date_end__gte=end)
-            ) | (
-                Q(date_start__gte=end) & Q(date_end__lte=end)
+                (Q(date_start__lte=end) & Q(date_end__lte=end))
+                | (Q(date_start__lte=end) & Q(date_end__gte=end))
+                | (Q(date_start__gte=end) & Q(date_end__lte=end))
             )
-        filters['bans'] |= filter_bans
+        filters["bans"] |= filter_bans
 
     # Whitelists
-    if '4' in aff:
+    if "4" in aff:
         filter_whitelists = (
-            Q(
-                user__pseudo__icontains=word
-            ) & Q(
-                user__state__in=user_state
-            )
-        ) | Q(
-            raison__icontains=word
-        )
+            Q(user__pseudo__icontains=word) & Q(user__state__in=user_state)
+        ) | Q(raison__icontains=word)
         if start is not None:
             filter_whitelists &= (
-                Q(date_start__gte=start) & Q(date_end__gte=start)
-            ) | (
-                Q(date_start__lte=start) & Q(date_end__gte=start)
-            ) | (
-                Q(date_start__gte=start) & Q(date_end__lte=start)
+                (Q(date_start__gte=start) & Q(date_end__gte=start))
+                | (Q(date_start__lte=start) & Q(date_end__gte=start))
+                | (Q(date_start__gte=start) & Q(date_end__lte=start))
             )
         if end is not None:
             filter_whitelists &= (
-                Q(date_start__lte=end) & Q(date_end__lte=end)
-            ) | (
-                Q(date_start__lte=end) & Q(date_end__gte=end)
-            ) | (
-                Q(date_start__gte=end) & Q(date_end__lte=end)
+                (Q(date_start__lte=end) & Q(date_end__lte=end))
+                | (Q(date_start__lte=end) & Q(date_end__gte=end))
+                | (Q(date_start__gte=end) & Q(date_end__lte=end))
             )
-        filters['whitelists'] |= filter_whitelists
+        filters["whitelists"] |= filter_whitelists
 
     # Rooms
-    if '5' in aff and Room.can_view_all(user):
-        filter_rooms = Q(
-            details__icontains=word
-        ) | Q(
-            name__icontains=word
-        ) | Q(
-            port__details=word
+    if "5" in aff and Room.can_view_all(user):
+        filter_rooms = (
+            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word)
         )
-        filters['rooms'] |= filter_rooms
+        filters["rooms"] |= filter_rooms
 
     # Switch ports
-    if '6' in aff and User.can_view_all(user):
-        filter_ports = Q(
-            room__name__icontains=word
-        ) | Q(
-            machine_interface__domain__name__icontains=word
-        ) | Q(
-            related__switch__interface__domain__name__icontains=word
-        ) | Q(
-            custom_profile__name__icontains=word
-        ) | Q(
-            custom_profile__profil_default__icontains=word
-        ) | Q(
-            details__icontains=word
+    if "6" in aff and User.can_view_all(user):
+        filter_ports = (
+            Q(room__name__icontains=word)
+            | Q(machine_interface__domain__name__icontains=word)
+            | Q(related__switch__interface__domain__name__icontains=word)
+            | Q(custom_profile__name__icontains=word)
+            | Q(custom_profile__profil_default__icontains=word)
+            | Q(details__icontains=word)
         )
         if is_int(word):
-            filter_ports |= Q(
-                port=word
-            )
-        filters['ports'] |= filter_ports
+            filter_ports |= Q(port=word)
+        filters["ports"] |= filter_ports
 
     # Switches
-    if '7' in aff and Switch.can_view_all(user):
-        filter_switches = Q(
-            interface__domain__name__icontains=word
-        ) | Q(
-            interface__ipv4__ipv4__icontains=word
-        ) | Q(
-            switchbay__building__name__icontains=word
-        ) | Q(
-            stack__name__icontains=word
-        ) | Q(
-            model__reference__icontains=word
-        ) | Q(
-            model__constructor__name__icontains=word
-        ) | Q(
-            interface__details__icontains=word
+    if "7" in aff and Switch.can_view_all(user):
+        filter_switches = (
+            Q(interface__domain__name__icontains=word)
+            | Q(interface__ipv4__ipv4__icontains=word)
+            | Q(switchbay__building__name__icontains=word)
+            | Q(stack__name__icontains=word)
+            | Q(model__reference__icontains=word)
+            | Q(model__constructor__name__icontains=word)
+            | Q(interface__details__icontains=word)
         )
         if is_int(word):
-            filter_switches |= Q(
-                number=word
-            ) | Q(
-                stack_member_id=word
-            )
-        filters['switches'] |= filter_switches
+            filter_switches |= Q(number=word) | Q(stack_member_id=word)
+        filters["switches"] |= filter_switches
 
     return filters
+
+
+def apply_filters(filters, user, aff):
+    """ Apply the filters constructed by search_single_word.
+    It also takes into account the visual filters defined during
+    the search query.
+    """
+    # Results are later filled-in depending on the display filter
+    results = {
+        "users": Adherent.objects.none(),
+        "clubs": Club.objects.none(),
+        "machines": Machine.objects.none(),
+        "factures": Facture.objects.none(),
+        "bans": Ban.objects.none(),
+        "whitelists": Whitelist.objects.none(),
+        "rooms": Room.objects.none(),
+        "ports": Port.objects.none(),
+        "switches": Switch.objects.none(),
+    }
+
+    # Users and clubs
+    if "0" in aff:
+        results["users"] = Adherent.objects.filter(filters["users"])
+        results["clubs"] = Club.objects.filter(filters["clubs"])
+
+    # Machines
+    if "1" in aff:
+        results["machines"] = Machine.objects.filter(filters["machines"])
+
+    # Factures
+    if "2" in aff:
+        results["factures"] = Facture.objects.filter(filters["factures"])
+
+    # Bans
+    if "3" in aff:
+        results["bans"] = Ban.objects.filter(filters["bans"])
+
+    # Whitelists
+    if "4" in aff:
+        results["whitelists"] = Whitelist.objects.filter(filters["whitelists"])
+
+    # Rooms
+    if "5" in aff and Room.can_view_all(user):
+        results["rooms"] = Room.objects.filter(filters["rooms"])
+
+    # Switch ports
+    if "6" in aff and User.can_view_all(user):
+        results["ports"] = Port.objects.filter(filters["ports"])
+
+    # Switches
+    if "7" in aff and Switch.can_view_all(user):
+        results["switches"] = Switch.objects.filter(filters["switches"])
+
+    return results
 
 
 def get_words(query):
@@ -329,13 +308,13 @@ def get_words(query):
     for char in query:
         if i >= len(words):
             # We are starting a new word
-            words.append('')
+            words.append("")
         if escaping_char:
             # The last char war a \ so we escape this char
             escaping_char = False
             words[i] += char
             continue
-        if char == '\\':
+        if char == "\\":
             # We need to escape the next char
             escaping_char = True
             continue
@@ -347,9 +326,9 @@ def get_words(query):
             # If we are between two ", ignore separators
             words[i] += char
             continue
-        if char == ' ' or char == ',':
+        if char == " " or char == ",":
             # If we encouter a separator outside of ", we create a new word
-            if words[i] is not '':
+            if words[i] is not "":
                 i += 1
             continue
         # If we haven't encountered any special case, add the char to the word
@@ -364,53 +343,32 @@ def get_results(query, request, params):
     single filter. Then it calls 'finish_results' and return the queryset of
     objects to display as results"""
 
-    start = params.get('s', None)
-    end = params.get('e', None)
-    user_state = params.get('u', initial_choices(CHOICES_USER))
-    aff = params.get('a', initial_choices(CHOICES_AFF))
+    start = params.get("s", None)
+    end = params.get("e", None)
+    user_state = params.get("u", initial_choices(CHOICES_USER))
+    aff = params.get("a", initial_choices(CHOICES_AFF))
 
     filters = {
-        'users': Q(),
-        'clubs': Q(),
-        'machines': Q(),
-        'factures': Q(),
-        'bans': Q(),
-        'whitelists': Q(),
-        'rooms': Q(),
-        'ports': Q(),
-        'switches': Q()
+        "users": Q(),
+        "clubs": Q(),
+        "machines": Q(),
+        "factures": Q(),
+        "bans": Q(),
+        "whitelists": Q(),
+        "rooms": Q(),
+        "ports": Q(),
+        "switches": Q(),
     }
 
     words = get_words(query)
     for word in words:
         filters = search_single_word(
-            word,
-            filters,
-            request.user,
-            start,
-            end,
-            user_state,
-            aff
+            word, filters, request.user, start, end, user_state, aff
         )
 
-    results = {
-        'users': Adherent.objects.filter(filters['users']),
-        'clubs': Club.objects.filter(filters['clubs']),
-        'machines': Machine.objects.filter(filters['machines']),
-        'factures': Facture.objects.filter(filters['factures']),
-        'bans': Ban.objects.filter(filters['bans']),
-        'whitelists': Whitelist.objects.filter(filters['whitelists']),
-        'rooms': Room.objects.filter(filters['rooms']),
-        'ports': Port.objects.filter(filters['ports']),
-        'switches': Switch.objects.filter(filters['switches'])
-    }
-
-    results = finish_results(
-        results,
-        request.GET.get('col'),
-        request.GET.get('order')
-    )
-    results.update({'search_term': query})
+    results = apply_filters(filters, request.user, aff)
+    results = finish_results(request, results, request.GET.get("col"), request.GET.get("order"))
+    results.update({"search_term": query})
 
     return results
 
@@ -423,14 +381,12 @@ def search(request):
     if search_form.is_valid():
         return render(
             request,
-            'search/index.html',
+            "search/index.html",
             get_results(
-                search_form.cleaned_data.get('q', ''),
-                request,
-                search_form.cleaned_data
-            )
+                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
+            ),
         )
-    return render(request, 'search/search.html', {'search_form': search_form})
+    return render(request, "search/search.html", {"search_form": search_form})
 
 
 @login_required
@@ -441,11 +397,9 @@ def searchp(request):
     if search_form.is_valid():
         return render(
             request,
-            'search/index.html',
+            "search/index.html",
             get_results(
-                search_form.cleaned_data.get('q', ''),
-                request,
-                search_form.cleaned_data
-            )
+                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
+            ),
         )
-    return render(request, 'search/search.html', {'search_form': search_form})
+    return render(request, "search/search.html", {"search_form": search_form})

@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0044_auto_20170808_0233'),
-    ]
+    dependencies = [("machines", "0044_auto_20170808_0233")]
 
     operations = [
         migrations.AlterField(
-            model_name='service_link',
-            name='asked_regen',
+            model_name="service_link",
+            name="asked_regen",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='service_link',
-            name='last_regen',
+            model_name="service_link",
+            name="last_regen",
             field=models.DateTimeField(auto_now_add=True),
         ),
     ]

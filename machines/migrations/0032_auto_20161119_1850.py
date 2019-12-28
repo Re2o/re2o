@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,19 +29,22 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0031_auto_20161119_1709'),
-    ]
+    dependencies = [("machines", "0031_auto_20161119_1709")]
 
     operations = [
         migrations.AddField(
-            model_name='extension',
-            name='origin',
-            field=models.OneToOneField(null=True, to='machines.IpList', blank=True, on_delete=django.db.models.deletion.PROTECT),
+            model_name="extension",
+            name="origin",
+            field=models.OneToOneField(
+                null=True,
+                to="machines.IpList",
+                blank=True,
+                on_delete=django.db.models.deletion.PROTECT,
+            ),
         ),
         migrations.AlterField(
-            model_name='extension',
-            name='name',
+            model_name="extension",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
     ]

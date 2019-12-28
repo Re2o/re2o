@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -31,29 +31,41 @@ import users.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0033_remove_ldapuser_loginshell'),
-    ]
+    dependencies = [("users", "0033_remove_ldapuser_loginshell")]
 
     operations = [
-        migrations.AddField(
-            model_name='ldapuser',
-            name='login_shell',
-            field=ldapdb.models.fields.CharField(blank=True, db_column='loginShell', max_length=200, null=True),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name="ldapuser",
+                    name="login_shell",
+                    field=ldapdb.models.fields.CharField(
+                        blank=True, db_column="loginShell", max_length=200, null=True
+                    ),
+                )
+            ],
+            database_operations=[
+                migrations.RunSQL(
+                    'ALTER TABLE users_ldapuser ADD COLUMN "loginShell" varchar(200) NULL;'
+                )
+            ],
         ),
         migrations.AddField(
-            model_name='user',
-            name='rezo_rez_uid',
+            model_name="user",
+            name="rezo_rez_uid",
             field=models.IntegerField(blank=True, unique=True, null=True),
         ),
         migrations.AddField(
-            model_name='user',
-            name='uid_number',
-            field=models.IntegerField(unique=True),
+            model_name="user", name="uid_number", field=models.IntegerField(unique=True)
         ),
         migrations.AlterField(
-            model_name='user',
-            name='school',
-            field=models.ForeignKey(blank=True, on_delete=django.db.models.deletion.PROTECT, to='users.School', null=True),
+            model_name="user",
+            name="school",
+            field=models.ForeignKey(
+                blank=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="users.School",
+                null=True,
+            ),
         ),
     ]

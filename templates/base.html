@@ -3,7 +3,7 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
 
 This program is free software; you can redistribute it and/or modify
@@ -33,13 +33,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <!DOCTYPE html>
 <html lang="fr">
     <head prefix="og: http://ogp.me/ns#">
-        <meta property="og:title" content="Re2o" />
+        {# Open Graph for social media #}
+        <meta property="og:title" content="{{ name_website }}" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}/" />
         <meta property="og:image" content="{% static 'images/logo_re2o.svg' %}"/>
         <meta property="og:image:type" content="image/svg"/>
         <meta property="og:image:alt" content="The Re2o logo"/>
-        <meta property="og:description" content="{% trans "Networking managing website endorsed by FedeRez." %}" />
+        <meta property="og:description" content="Networking managing website endorsed by FedeRez." />
 
         {# Preload JavaScript #}
         {% bootstrap_javascript %}
@@ -54,8 +55,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
         <link href="{% static 'css/base.css' %}" rel="stylesheet">
 
+        {# Favicon with iOS, Android, touchbar support #}
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+        <link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+        <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}">
+        <meta name="theme-color" content="#ffffff">
+
+        {# Do not allow zooming on devices #}
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" type="image/svg" href="{% static 'images/logo_re2o.svg' %}">
+
         <title>{{ name_website }} : {% block title %}{% trans "Home" %}{% endblock %}</title>
     </head>
 
@@ -82,13 +93,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 {% can_view_app users %}
                                 <li><a href="{% url 'users:index' %}"><i class="fa fa-user"></i> {% trans "Manage the users" %}</a></li>
                                 <li><a href="{% url 'users:index-clubs' %}"><i class="fa fa-users"></i> {% trans "Manage the clubs" %}</a></li>
-                                {% acl_end %}                              
+                                {% acl_end %}
                                 {% can_view_app machines %}
                                 <li><a href="{% url 'machines:index' %}"><i class="fa fa-desktop"></i> {% trans "Manage the machines" %}</a></li>
                                 {% acl_end %}
                                 {% can_view_app cotisations %}
                                 <li><a href="{% url 'cotisations:index' %}"><i class="fa fa-eur"></i> {% trans "Manage the subscriptions" %}</a></li>
                                 {% acl_end %}
+
+                                {% for app, template in optionnal_templates_navbar_user_list %}
+				    {% if app != 'topologie' %}
+                                       {{ template }}
+				    {% endif %}
+				{% endfor %}
                             </ul>
                         </li>
                         {% acl_end %}
@@ -99,6 +116,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                 <li><a href="{% url 'topologie:index' %}"><i class="fa fa-microchip"></i> {% trans "Switches" %}</a></li>
                                 <li><a href="{% url 'topologie:index-ap' %}"><i class="fa fa-wifi"></i> {% trans "Access points" %}</a></li>
                                 <li><a href="{% url 'topologie:index-room' %}"><i class="fa fa-home"></i> {% trans "Rooms" %}</a></li>
+                                {% for app, template in optionnal_templates_navbar_user_list %}
+				    {% if app == 'topologie' %}
+                                       {{ template }}
+				    {% endif %}
+				{% endfor %}
                             </ul>
                         </li>
                         {% acl_end %}
@@ -115,13 +137,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-info"></i> {% trans "More information" %}<span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-info"></i> {% trans "Information and contact" %}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> {% trans "About" %}</a></li>
                                 <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a></li>
+                                {% comment %}
+                                <li><a href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Open a ticket" %}</a><li>
+                                {% endcomment %}
                             </ul>
                         </li>
                         {% if not request.user.is_authenticated %}
+                            {% for template in optionnal_templates_navbar_logout_list %}
+                                {{ template }}
+                            {% endfor %}
                             {% if var_sa %}
                             <li>
                                 <a href="{% url 'users:new-user' %}">
@@ -256,7 +284,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <p class="pull-right">
                   <a href="#">{% trans "Back to top" %}</a>
                 </p>
-                <p>{{ name_website }} {% trans "powered by" %} Re2o 2016&ndash;2018</p>
+		<p>{{ name_website }} {% trans "powered by" %} Re2o 2016&ndash;2019</p>
                 <p>
                     {% blocktrans trimmed %}
                     Brought to you with <i class="fa fa-heart text-danger"></i>.
@@ -280,8 +308,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             let s = Sapphire();
             Konami(s.activate);
         </script>
+        {% if request.user.shortcuts_enabled %}
         <script src="/static/js/shortcuts.js"></script>
-
+        {% endif %}
         {# Read the documentation for more information #}
     </body>
 </html>

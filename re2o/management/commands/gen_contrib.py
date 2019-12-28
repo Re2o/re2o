@@ -30,7 +30,8 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     """ The command object for `gen_contrib` """
-    help = 'Update contributors list'
+
+    help = "Update contributors list"
 
     @staticmethod
     def _contrib_file_generator(contributors):
@@ -38,9 +39,9 @@ class Command(BaseCommand):
         Generate the content of contributors.py
         """
         buffer = "# -*- mode: python; coding: utf-8 -*-\n"
-        buffer += "\"\"\"re2o.contributors\n"
+        buffer += '"""re2o.contributors\n'
         buffer += "A list of the proud contributors to Re2o\n"
-        buffer += "\"\"\"\n"
+        buffer += '"""\n'
         buffer += "\n"
         buffer += "CONTRIBUTORS = [\n"
         for name in contributors:
@@ -59,11 +60,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         contributors = [
-            item.split('\t')[1]
+            item.split("\t")[1]
             for item in os.popen("git shortlog -s -n").read().split("\n")
-            if '\t' in item
+            if "\t" in item
         ]
-        self.stdout.write(self.style.SUCCESS("Exportation Successful"))
+        self.stdout.write(self.style.SUCCESS("Exportation successful!"))
         with open("re2o/contributors.py", "w") as contrib_file:
             content = self._contrib_file_generator(contributors)
             contrib_file.write(content)

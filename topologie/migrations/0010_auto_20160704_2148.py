@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,30 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0009_auto_20160703_1200'),
-    ]
+    dependencies = [("topologie", "0009_auto_20160703_1200")]
 
     operations = [
-        migrations.RenameField(
-            model_name='room',
-            old_name='building',
-            new_name='name',
-        ),
-        migrations.AlterUniqueTogether(
-            name='room',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='room',
-            name='details',
-        ),
-        migrations.RemoveField(
-            model_name='room',
-            name='number',
-        ),
-        migrations.RemoveField(
-            model_name='room',
-            name='room',
-        ),
+        migrations.RenameField(model_name="room", old_name="building", new_name="name"),
+        migrations.AlterUniqueTogether(name="room", unique_together=set([])),
+        migrations.RemoveField(model_name="room", name="details"),
+        migrations.RemoveField(model_name="room", name="number"),
+        migrations.RemoveField(model_name="room", name="room"),
     ]

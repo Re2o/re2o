@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+
 try:
     import preferences.aes_field as aes_field
 except ImportError:
@@ -11,19 +12,17 @@ except ImportError:
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0039_auto_20180115_0003'),
-    ]
+    dependencies = [("preferences", "0039_auto_20180115_0003")]
 
     operations = [
         migrations.AddField(
-            model_name='assooption',
-            name='payment_pass',
+            model_name="assooption",
+            name="payment_pass",
             field=aes_field.AESEncryptedField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='assooption',
-            name='payment_id',
-            field=models.CharField(default='', max_length=255),
+            model_name="assooption",
+            name="payment_id",
+            field=models.CharField(default="", max_length=255),
         ),
     ]

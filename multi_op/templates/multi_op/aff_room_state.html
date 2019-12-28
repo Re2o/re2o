@@ -1,0 +1,75 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load logs_extra %}
+{% load i18n %}
+
+{% if room_list.paginator %}
+    {% include 'pagination.html' with list=room_list %}
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            {% trans "Room" as tr_room %}
+            {% trans "Building" as tr_building %}
+            <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
+            <th>{% include 'buttons/sort.html' with prefix='room' col='name' text=tr_room %}</th>
+	    <th>{% trans "Connnected to" %}</th>
+	    <th>{% trans "User" %}</th>
+	    <th>{% trans "Details" %}</th>
+            <th>{% trans "End of subscription on" %}</th>
+            <th>{% trans "Internet access" %}</th>
+	    <th>{% trans "Action" %}</th>
+        </tr>
+    </thead>
+    {% for room in room_list %}
+    <tr>
+        <td>{{ room.building }}</td>
+        <td>{{ room.name }}</td>
+	<td>{% if room.port_set.all %}<span class="label label-success">{{ asso_name }}{% else %}<span class="label label-danger">{% trans "Other operator" %}{% endif %}</span></td>
+	<td>{% if room.adherent %}<a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>{% else %} {% trans "None" %}{% endif %}</td>
+        <td>{{ room.details }}</td>
+	<td>{% if room.adherent.is_adherent %}<i class="text-success">{% else %}<i class="text-danger">{% endif %}{% if room.adherent.end_adhesion %}{{ room.adherent.end_adhesion}}{% else %}{% trans "Non member" %}{% endif %}</i></td>
+        <td>
+            {% if room.adherent.has_access == True %}
+            <i class="text-success">{% trans "Active" %}</i>
+            {% else %}
+            <i class="text-danger">{% trans "Disabled" %}</i>
+            {% endif %}
+        </td>
+	<td>
+	{% if room.port_set.all %}
+	<a href="{% url 'multi_op:disconnect-room' room.id %}" class="btn btn-danger btn-sm" role="button"><i class="fa fa-expand"></i></a> 
+        {% endif %}
+	</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if room_list.paginator %}
+    {% include 'pagination.html' with list=room_list %}
+{% endif %}
+

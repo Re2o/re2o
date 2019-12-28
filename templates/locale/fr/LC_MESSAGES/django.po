@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-08 23:59+0100\n"
+"POT-Creation-Date: 2019-11-19 23:43+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,160 +30,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: base.html:42 errors/404.html:35
-msgid "Networking managing website endorsed by FedeRez."
-msgstr "Site de gestion de réseau soutenu par FedeRez."
-
-#: base.html:59
-msgid "Home"
-msgstr "Accueil"
-
-#: base.html:80
-msgid "Users"
-msgstr "Utilisateurs"
-
-#: base.html:83
-msgid "Manage the users"
-msgstr "Gérer les utilisateurs"
-
-#: base.html:84
-msgid "Manage the clubs"
-msgstr "Gérer les clubs"
-
-#: base.html:87
-msgid "Manage the machines"
-msgstr "Gérer les machines"
-
-#: base.html:90
-msgid "Manage the subscriptions"
-msgstr "Gérer les cotisations"
-
-#: base.html:97
-msgid "Topology"
-msgstr "Topologie"
-
-#: base.html:99
-msgid "Switches"
-msgstr "Commutateurs réseau"
-
-#: base.html:100
-msgid "Access points"
-msgstr "Points d'accès sans fil"
-
-#: base.html:101
-msgid "Rooms"
-msgstr "Chambres"
-
-#: base.html:106
-msgid "Statistics"
-msgstr "Statistiques"
-
-#: base.html:111
-msgid "Administration"
-msgstr "Administration"
-
-#: base.html:118
-msgid "More information"
-msgstr "Plus d'informations"
-
-#: base.html:120
-msgid "About"
-msgstr "À propos"
-
-#: base.html:121
-msgid "Contact"
-msgstr "Contact"
-
-#: base.html:128
-msgid "Sign up"
-msgstr "S'inscrire"
-
-#: base.html:134 registration/login.html:29 registration/login.html:36
-msgid "Log in"
-msgstr "Se connecter"
-
-#: base.html:142
-msgid "Search"
-msgstr "Rechercher"
-
-#: base.html:156
-msgid "My profile"
-msgstr "Mon profil"
-
-#: base.html:157
-msgid "Log out"
-msgstr "Se déconnecter"
-
-#: base.html:192
-msgid "Username"
-msgstr "Pseudo"
-
-#: base.html:196
-msgid "Room"
-msgstr "Chambre"
-
-#: base.html:200
-msgid "Internet access"
-msgstr "Accès Internet"
-
-#: base.html:203
-#, python-format
-msgid "Until %(end_access_date)s"
-msgstr "Jusqu'au %(end_access_date)s"
-
-#: base.html:205
-msgid "Disabled"
-msgstr "Désactivé"
-
-#: base.html:210
-msgid "Membership"
-msgstr "Adhésion"
-
-#: base.html:213
-#, python-format
-msgid "Until %(end_adhesion_date)s"
-msgstr "Jusqu'au %(end_adhesion_date)s"
-
-#: base.html:215
-msgid "Non member"
-msgstr "Non adhérent"
-
-#: base.html:223
-msgid "View my profile"
-msgstr "Voir mon profil"
-
-#: base.html:228
-msgid "You are not logged in."
-msgstr "Vous n'êtes pas connecté."
-
-#: base.html:235
-#, python-format
-msgid "%(nb)s active machine"
-msgid_plural "%(nb)s active machines"
-msgstr[0] "%(nb)s machine active"
-msgstr[1] "%(nb)s machines actives"
-
-#: base.html:244
-msgid "View my machines"
-msgstr "Voir mes machines"
-
-#: base.html:257
-msgid "Back to top"
-msgstr "Retour en haut"
-
-#: base.html:259
+#: templates/admin/base_site.html:65 templates/base.html:288
 msgid "powered by"
 msgstr "propulsé par"
 
-#: base.html:261
-msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
-msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
-
-#: base.html:264
-msgid "About this website"
-msgstr "À propos de ce site"
-
-#: base.html:267
+#: templates/admin/base_site.html:69 templates/base.html:296
 msgid ""
 "This software is under the terms of the <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
@@ -191,63 +42,253 @@ msgstr ""
 "Ce logiciel est sous les termes de la licence <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a>."
 
-#: buttons/add.html:27
-msgid "Add"
-msgstr "Ajouter"
+#: templates/admin/custom_index.html:11
+#, python-format
+msgid "Welcome to %(name_website)s"
+msgstr "Bienvenue sur %(name_website)s"
 
-#: buttons/edit.html:27
+#: templates/admin/custom_index.html:17
+msgid ""
+"You are on the operator interface. Here you will be able to manage the "
+"network and users from the top left menu. You can also go read the developer "
+"documentation."
+msgstr ""
+"Vous êtes dans l'interface opérateur. Ici vous pourrez gérer le réseau et "
+"les utilisateurs depuis le menu en haut à gauche. Vous pouvez aussi lire la "
+"documentation du développeur."
+
+#: templates/admin/custom_index.html:20
+msgid ""
+"To go back to the main site, click \"View site\" button in top right menu."
+msgstr ""
+"Pour revenir au site principal, cliquez sur le bouton « Voir le site » dans "
+"le menu en haut à droite."
+
+#: templates/admin/custom_index.html:28
+msgid "My account"
+msgstr "Mon compte"
+
+#: templates/admin/custom_index.html:29
+msgid "Recent actions"
+msgstr ""
+
+#: templates/admin/custom_index.html:33
+msgid "None available"
+msgstr ""
+
+#: templates/admin/custom_index.html:48
+msgid "Unknown content"
+msgstr ""
+
+#: templates/base.html:70 templates/registration/logged_out.html:11
+#: templates/registration/password_change_done.html:11
+#: templates/registration/password_change_form.html:11
+#: templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_confirm.html:11
+#: templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_form.html:11
+msgid "Home"
+msgstr ""
+
+#: templates/base.html:91
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: templates/base.html:94
+msgid "Manage the users"
+msgstr "Gérer les utilisateurs"
+
+#: templates/base.html:95
+msgid "Manage the clubs"
+msgstr "Gérer les clubs"
+
+#: templates/base.html:98
+msgid "Manage the machines"
+msgstr "Gérer les machines"
+
+#: templates/base.html:101
+msgid "Manage the subscriptions"
+msgstr "Gérer les cotisations"
+
+#: templates/base.html:114
+msgid "Topology"
+msgstr "Topologie"
+
+#: templates/base.html:116
+msgid "Switches"
+msgstr "Commutateurs réseau"
+
+#: templates/base.html:117
+msgid "Access points"
+msgstr "Points d'accès sans fil"
+
+#: templates/base.html:118
+msgid "Rooms"
+msgstr "Chambres"
+
+#: templates/base.html:128
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/base.html:133
+msgid "Administration"
+msgstr ""
+
+#: templates/base.html:140
+msgid "Information and contact"
+msgstr "Informations et contact"
+
+#: templates/base.html:142
+msgid "About"
+msgstr "À propos"
+
+#: templates/base.html:143
+msgid "Contact"
+msgstr "Contact"
+
+#: templates/base.html:157
+msgid "Sign up"
+msgstr "S'inscrire"
+
+#: templates/base.html:163 templates/registration/login.html:29
+#: templates/registration/login.html:36
+msgid "Log in"
+msgstr ""
+
+#: templates/base.html:171
+msgid "Search"
+msgstr ""
+
+#: templates/base.html:185
+msgid "My profile"
+msgstr "Mon profil"
+
+#: templates/base.html:186
+msgid "Log out"
+msgstr ""
+
+#: templates/base.html:221
+msgid "Username"
+msgstr "Pseudo"
+
+#: templates/base.html:225
+msgid "Room"
+msgstr "Chambre"
+
+#: templates/base.html:229
+msgid "Internet access"
+msgstr "Accès Internet"
+
+#: templates/base.html:232
+#, python-format
+msgid "Until %(end_access_date)s"
+msgstr "Jusqu'au %(end_access_date)s"
+
+#: templates/base.html:234
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: templates/base.html:239
+msgid "Membership"
+msgstr "Adhésion"
+
+#: templates/base.html:242
+#, python-format
+msgid "Until %(end_adhesion_date)s"
+msgstr "Jusqu'au %(end_adhesion_date)s"
+
+#: templates/base.html:244
+msgid "Non member"
+msgstr "Non adhérent"
+
+#: templates/base.html:252
+msgid "View my profile"
+msgstr "Voir mon profil"
+
+#: templates/base.html:257
+msgid "You are not logged in."
+msgstr "Vous n'êtes pas connecté."
+
+#: templates/base.html:264
+#, python-format
+msgid "%(nb)s active machine"
+msgid_plural "%(nb)s active machines"
+msgstr[0] "%(nb)s machine active"
+msgstr[1] "%(nb)s machines actives"
+
+#: templates/base.html:273
+msgid "View my machines"
+msgstr "Voir mes machines"
+
+#: templates/base.html:286
+msgid "Back to top"
+msgstr "Retour en haut"
+
+#: templates/base.html:290
+msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
+msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
+
+#: templates/base.html:293
+msgid "About this website"
+msgstr "À propos de ce site"
+
+#: templates/buttons/add.html:27
+msgid "Add"
+msgstr ""
+
+#: templates/buttons/edit.html:27
 msgid "Edit"
 msgstr "Modifier"
 
-#: buttons/history.html:26 buttons/history.html:27
+#: templates/buttons/history.html:26 templates/buttons/history.html:27
 msgid "History"
-msgstr "Historique"
+msgstr ""
 
-#: buttons/setlang.html:34
+#: templates/buttons/setlang.html:34
 msgid "Translation in development"
 msgstr "Traduction en développement"
 
-#: buttons/sort.html:35
+#: templates/buttons/sort.html:35
 msgid "Ascending sort"
 msgstr "Tri croissant"
 
-#: buttons/sort.html:36
+#: templates/buttons/sort.html:36
 msgid "Descending sort"
 msgstr "Tri décroissant"
 
-#: buttons/suppr.html:27
+#: templates/buttons/suppr.html:27
 msgid "Delete"
-msgstr "Supprimer"
+msgstr ""
 
-#: errors/404.html:39
+#: templates/errors/404.html:39
 msgid "404 error: page not found"
 msgstr "Erreur 404 : page non trouvée"
 
-#: errors/404.html:125
+#: templates/errors/404.html:125
 msgid "Score: "
 msgstr "Score : "
 
-#: errors/404.html:133
+#: templates/errors/404.html:133
 msgid "YOU LOST"
 msgstr "VOUS AVEZ PERDU"
 
-#: errors/404.html:220
+#: templates/errors/404.html:220
 msgid "Yup, that's a 404 error."
 msgstr "Yep, c'est une erreur 404."
 
-#: errors/404.html:220
+#: templates/errors/404.html:220
 msgid "(Go back to a safe page)"
 msgstr "(Retourner à une page sécurisée)"
 
-#: errors/404.html:222
+#: templates/errors/404.html:222
 msgid "Your browser does not support the HTML5 canvas tag."
 msgstr "Votre navigateur ne supporte pas la balise HTML5 canvas."
 
-#: errors/500.html:6 errors/500.html:31
+#: templates/errors/500.html:6 templates/errors/500.html:31
 msgid "500 error: Re2o internal server error"
 msgstr "Erreur 500 : Erreur interne du serveur Re2o"
 
-#: errors/500.html:34
+#: templates/errors/500.html:34
 msgid ""
 "Congratulations! You have discovered a bug on Re2o and you've reached a page "
 "we try to hide, you can be proud of youself. We try to track those bugs down "
@@ -260,7 +301,7 @@ msgstr ""
 "en avons raté un. Nous vous remercions sincèrement pour votre aide: ce n'est "
 "pas si facile de tous les attraper."
 
-#: errors/500.html:40
+#: templates/errors/500.html:40
 msgid ""
 "An email has been automatically sent to the site administrators. Please "
 "avoid spamming them by trigerring the same issue multiple times."
@@ -269,16 +310,16 @@ msgstr ""
 "site. Veuillez éviter de déclencher la même erreur de multiples fois pour ne "
 "pas renvoyer de courrier électronique."
 
-#: errors/500.html:41
+#: templates/errors/500.html:41
 msgid ""
-"The mail should contains all the details necessary to understand what went "
+"The email should contains all the details necessary to understand what went "
 "wrong but if your help were needed, you will probably be contacted by them."
 msgstr ""
 " Le courrier électronique devrait contenir tous les détails nécessaires à la "
 "compréhension de ce qui s'est mal passé mais si votre aide était requise, "
 "vous serez probablement contacté par eux."
 
-#: errors/500.html:46
+#: templates/errors/500.html:46
 msgid ""
 "This issue will be fixed as soon as possible but please take into "
 "consideration the administrators may not be always available. If your "
@@ -290,30 +331,73 @@ msgstr ""
 "temps disponibles. Si votre requête est vraiment urgente, informez votre "
 "association locale, elle vous aidra à corriger temporairement l'erreur."
 
-#: errors/500.html:54
+#: templates/errors/500.html:54
 msgid "If you have no idea what you've done:"
 msgstr "Si vous n'avez aucune idée de ce que vous avez fait :"
 
-#: errors/500.html:55
+#: templates/errors/500.html:55
 msgid "Go back to a safe page"
 msgstr "Retourner à une page sécurisée"
 
-#: pagination.html:34
+#: templates/pagination.html:34
 msgid "First"
 msgstr "Première page"
 
-#: pagination.html:40
+#: templates/pagination.html:40
 msgid "Previous"
 msgstr "Précédent"
 
-#: pagination.html:60
+#: templates/pagination.html:60
 msgid "Next"
 msgstr "Suivant"
 
-#: pagination.html:66
+#: templates/pagination.html:66
 msgid "Last"
 msgstr "Dernière page"
 
-#: registration/login.html:40
+#: templates/registration/logged_out.html:16
+msgid "Thanks for spending some quality time with the Web site today."
+msgstr ""
+
+#: templates/registration/logged_out.html:17
+msgid "Log in again"
+msgstr ""
+
+#: templates/registration/login.html:40
 msgid "Forgotten password?"
 msgstr "Mot de passe oublié ?"
+
+#: templates/registration/password_change_done.html:11
+#: templates/registration/password_change_form.html:11
+msgid "Password change"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_form.html:11
+msgid "Password reset"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:11
+msgid "Password reset confirmation"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+
+#: templates/registration/password_reset_email.html:4
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:9
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:11
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""

@@ -7,18 +7,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0026_auto_20170902_1245'),
-    ]
+    dependencies = [("topologie", "0026_auto_20170902_1245")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='room',
-            options={'ordering': ['name']},
-        ),
+        migrations.AlterModelOptions(name="room", options={"ordering": ["name"]}),
         migrations.AlterField(
-            model_name='port',
-            name='radius',
-            field=models.CharField(choices=[('NO', 'NO'), ('STRICT', 'STRICT'), ('BLOQ', 'BLOQ'), ('COMMON', 'COMMON')], default='NO', max_length=32),
+            model_name="port",
+            name="radius",
+            field=models.CharField(
+                choices=[
+                    ("NO", "NO"),
+                    ("STRICT", "STRICT"),
+                    ("BLOQ", "BLOQ"),
+                    ("COMMON", "COMMON"),
+                ],
+                default="NO",
+                max_length=32,
+            ),
         ),
     ]

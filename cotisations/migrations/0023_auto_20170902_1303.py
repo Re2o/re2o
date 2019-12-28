@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0022_auto_20170824_0128'),
-    ]
+    dependencies = [("cotisations", "0022_auto_20170824_0128")]
 
     operations = [
         migrations.AlterField(
-            model_name='paiement',
-            name='type_paiement',
-            field=models.IntegerField(choices=[(0, 'Autre'), (1, 'Chèque')], default=0),
-        ),
+            model_name="paiement",
+            name="type_paiement",
+            field=models.IntegerField(choices=[(0, "Autre"), (1, "Chèque")], default=0),
+        )
     ]

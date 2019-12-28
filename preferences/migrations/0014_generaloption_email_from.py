@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0013_generaloption_site_name'),
-    ]
+    dependencies = [("preferences", "0013_generaloption_site_name")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='email_from',
-            field=models.EmailField(default='www-data@serveur.net', max_length=254),
-        ),
+            model_name="generaloption",
+            name="email_from",
+            field=models.EmailField(default="www-data@serveur.net", max_length=254),
+        )
     ]

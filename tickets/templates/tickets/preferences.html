@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<div  class="panel panel-default" id="tickets">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_tickets">
+        <h4 class="panel-title">
+            <a><i class="fa fa-ticket"></i>   {% trans "Tickets" %}</a>
+        </h4>
+    </div>
+    
+	<div id="collapse_tickets" class="panel-collapse panel-body collapse">
+		
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'tickets:edit-preferences-tickets' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        <p></p>    
+            
+        <div class="table-responsive">
+        <table class="table">
+			<tr>
+                <th><p>{% trans "Publication email address" %}</p></th>
+                {% if preferences.publish_address %}
+			        <td><p>{{ preferences.publish_address }}</p></td>
+                {% else %}
+                    <td><p>{% trans "No email address, the tickets will not be published." %}</p></td>
+                {% endif %}
+			</tr>
+            <tr>
+                <th><p>{% trans "Email language" %}</p></th>
+                <td><p>{{ language }}</p></th>
+            </tr>
+  		<table class="table">
+  		</table>
+		</div>
+    </div>
+</div>

@@ -52,8 +52,9 @@ def get_user(pseudo):
     if len(user) == 0:
         raise CommandError("Invalid user.")
     if len(user) > 1:
-        raise CommandError("Several users match this username. This SHOULD"
-                           " NOT happen.")
+        raise CommandError(
+            "Several users match this username. This SHOULD NOT happen."
+        )
     return user[0]
 
 
@@ -73,8 +74,8 @@ def form_cli(Form, user, action, *args, **kwargs):
     data = {}
     dumb_form = Form(user=user, *args, **kwargs)
     for key in dumb_form.fields:
-        if not dumb_form.fields[key].widget.input_type == 'hidden':
-            if dumb_form.fields[key].widget.input_type == 'password':
+        if not dumb_form.fields[key].widget.input_type == "hidden":
+            if dumb_form.fields[key].widget.input_type == "password":
                 data[key] = getpass("%s : " % dumb_form.fields[key].label)
             else:
                 data[key] = input("%s : " % dumb_form.fields[key].label)
@@ -85,9 +86,7 @@ def form_cli(Form, user, action, *args, **kwargs):
         for err in form.errors:
             # Oui, oui, on gère du HTML là où d'autres ont eu la
             # lumineuse idée de le mettre
-            sys.stderr.write(
-                "\t%s : %s\n" % (err, strip_tags(form.errors[err]))
-            )
+            sys.stderr.write("\t%s : %s\n" % (err, strip_tags(form.errors[err])))
         raise CommandError("Invalid form.")
 
     with transaction.atomic(), reversion.create_revision():
@@ -95,5 +94,6 @@ def form_cli(Form, user, action, *args, **kwargs):
         reversion.set_user(user)
         reversion.set_comment(action)
 
-    sys.stdout.write("%s : done. The edit may take several minutes to"
-                     " apply.\n" % action)
+    sys.stdout.write(
+        "%s: done. The edit may take several minutes to apply.\n" % action
+    )

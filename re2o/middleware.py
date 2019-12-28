@@ -36,8 +36,11 @@ def show_debug_toolbar(request):
     Returns:
         The boolean indicating if the debug toolbar should be shown.
     """
-    if hasattr(settings, 'INTERNAL_IPS') and settings.INTERNAL_IPS and \
-            request.META.get('REMOTE_ADDR', None) not in settings.INTERNAL_IPS:
+    if (
+        hasattr(settings, "INTERNAL_IPS")
+        and settings.INTERNAL_IPS
+        and request.META.get("REMOTE_ADDR", None) not in settings.INTERNAL_IPS
+    ):
         return False
 
     return bool(settings.DEBUG)

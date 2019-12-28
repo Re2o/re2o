@@ -7,18 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0040_transferports'),
-    ]
+    dependencies = [("topologie", "0040_transferports")]
 
     operations = [
-    migrations.AlterUniqueTogether(
-        name='port',
-        unique_together=set([]),
-    ),
-    migrations.RemoveField(
-        model_name='port',
-        name='switch',
-    ),
-    migrations.RenameField('Port', 'new_switch', 'switch')
+        migrations.AlterUniqueTogether(name="port", unique_together=set([])),
+        migrations.RemoveField(model_name="port", name="switch"),
+        migrations.RenameField("Port", "new_switch", "switch"),
     ]

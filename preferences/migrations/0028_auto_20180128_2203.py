@@ -7,18 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0027_merge_20180106_2019'),
-    ]
+    dependencies = [("preferences", "0027_merge_20180106_2019")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='optionalmachine',
-            name='ipv6',
-        ),
+        migrations.RemoveField(model_name="optionalmachine", name="ipv6"),
         migrations.AddField(
-            model_name='optionalmachine',
-            name='ipv6_mode',
-            field=models.CharField(choices=[('SLAAC', 'Autoconfiguration par RA'), ('DHCPV6', 'Attribution des ip par dhcpv6'), ('DISABLED', 'Désactivé')], default='DISABLED', max_length=32),
+            model_name="optionalmachine",
+            name="ipv6_mode",
+            field=models.CharField(
+                choices=[
+                    ("SLAAC", "Autoconfiguration par RA"),
+                    ("DHCPV6", "Attribution des ip par dhcpv6"),
+                    ("DISABLED", "Désactivé"),
+                ],
+                default="DISABLED",
+                max_length=32,
+            ),
         ),
     ]

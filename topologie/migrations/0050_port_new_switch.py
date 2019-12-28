@@ -8,14 +8,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0049_switchs_machine'),
-    ]
+    dependencies = [("topologie", "0049_switchs_machine")]
 
     operations = [
         migrations.AddField(
-            model_name='port',
-            name='new_sw',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='ports', to='topologie.NewSw'),
-        ),
+            model_name="port",
+            name="new_sw",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ports",
+                to="topologie.NewSw",
+            ),
+        )
     ]

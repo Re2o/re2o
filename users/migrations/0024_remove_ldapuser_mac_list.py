@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,13 +28,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0023_auto_20160724_1908'),
-    ]
+    dependencies = [("users", "0023_auto_20160724_1908")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='ldapuser',
-            name='mac_list',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="ldapuser", name="mac_list")]

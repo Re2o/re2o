@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,27 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
+from re2o.utils import get_group_having_permission
+
+
+def acl_error_message(msg, permissions):
+    """Create an error message for msg and permissions."""
+    if permissions is None:
+        return msg
+    groups = ", ".join([g.name for g in get_group_having_permission(*permissions)])
+    message = msg or _("You don't have the right to edit this option.")
+    if groups:
+        return (
+            message
+            + _("You need to be a member of one of these groups: %s.") % groups
+        )
+    else:
+        return message + _("No group has the %s permission(s)!") % " or ".join(
+            [",".join(permissions[:-1]), permissions[-1]]
+            if len(permissions) > 2
+            else permissions
+        )
+
 
 def acl_base_decorator(method_name, *targets, on_instance=True):
     """Base decorator for acl. It checks if the `request.user` has the
@@ -53,9 +74,12 @@ def acl_base_decorator(method_name, *targets, on_instance=True):
             then no error will be triggered, the decorator will act as if
             permission was granted. This is to allow you to run ACL tests on
             fields only. If the method exists, it has to return a 2-tuple
-            `(can, reason)` with `can` being a boolean stating whether the
-            access is granted and `reason` a message to be displayed if `can`
-            equals `False` (can be `None`)
+            `(can, reason, permissions)` with `can` being a boolean stating
+            whether the access is granted, `reason` an arror message to be
+            displayed if `can` equals `False` (can be `None`) and `permissions`
+            a list of permissions needed for access (can be `None`). If can is
+            True and permission is not `None`, a warning message will be
+            displayed.
         *targets: The targets. Targets are specified like a sequence of models
             and fields names. As an example
             ```
@@ -124,6 +148,7 @@ ModelC)
     def decorator(view):
         """The decorator to use on a specific view
         """
+
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request"""
             instances = []
@@ -139,31 +164,44 @@ ModelC)
                         target = target.get_instance(*args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
-                        yield False, _("Nonexistent entry.")
+                        yield False, _("Nonexistent entry."), []
                         return
                 if hasattr(target, method_name):
                     can_fct = getattr(target, method_name)
                     yield can_fct(request.user, *args, **kwargs)
                 for field in fields:
-                    can_change_fct = getattr(target, 'can_change_' + field)
+                    can_change_fct = getattr(target, "can_change_" + field)
                     yield can_change_fct(request.user, *args, **kwargs)
 
-            error_messages = [
-                x[1] for x in chain.from_iterable(
-                    process_target(x[0], x[1]) for x in group_targets()
-                ) if not x[0]
-            ]
+            error_messages = []
+            warning_messages = []
+            for target, fields in group_targets():
+                for can, msg, permissions in process_target(target, fields):
+                    if not can:
+                        error_messages.append(acl_error_message(msg, permissions))
+                    elif msg:
+                        warning_messages.append(acl_error_message(msg, permissions))
+
+            if warning_messages:
+                for msg in warning_messages:
+                    messages.warning(request, msg)
+
             if error_messages:
                 for msg in error_messages:
                     messages.error(
-                        request, msg or _("You don't have the right to access"
-                                          " this menu."))
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                        request,
+                        msg or _("You don't have the right to access this menu."),
+                    )
+                if request.user.id is not None:
+                    return redirect(
+                        reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                    )
+                else:
+                    return redirect(reverse("index"))
             return view(request, *chain(instances, args), **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -172,7 +210,7 @@ def can_create(*models):
     `acl_base_decorator` with the flag `on_instance=False` and the method
     'can_create'. See `acl_base_decorator` documentation for further details.
     """
-    return acl_base_decorator('can_create', *models, on_instance=False)
+    return acl_base_decorator("can_create", *models, on_instance=False)
 
 
 def can_edit(*targets):
@@ -181,7 +219,7 @@ def can_edit(*targets):
     method 'can_edit'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_edit', *targets)
+    return acl_base_decorator("can_edit", *targets)
 
 
 def can_change(*targets):
@@ -191,7 +229,7 @@ def can_change(*targets):
     method 'can_change'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_change', *targets, on_instance=False)
+    return acl_base_decorator("can_change", *targets, on_instance=False)
 
 
 def can_delete(*targets):
@@ -200,22 +238,24 @@ def can_delete(*targets):
     method 'can_edit'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_delete', *targets)
+    return acl_base_decorator("can_delete", *targets)
 
 
 def can_delete_set(model):
     """Decorator which returns a list of detable models by request user.
     If none of them, return an error"""
+
     def decorator(view):
         """The decorator to use on a specific view
         """
+
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request
             """
             all_objects = model.objects.all()
             instances_id = []
             for instance in all_objects:
-                can, _msg = instance.can_delete(request.user)
+                can, _msg, _reason = instance.can_delete(request.user)
                 if can:
                     instances_id.append(instance.id)
             instances = model.objects.filter(id__in=instances_id)
@@ -223,12 +263,13 @@ def can_delete_set(model):
                 messages.error(
                     request, _("You don't have the right to access this menu.")
                 )
-                return redirect(reverse(
-                    'users:profil',
-                    kwargs={'userid': str(request.user.id)}
-                ))
+                return redirect(
+                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                )
             return view(request, instances, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -238,7 +279,7 @@ def can_view(*targets):
     method 'can_view'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_view', *targets)
+    return acl_base_decorator("can_view", *targets)
 
 
 def can_view_all(*targets):
@@ -247,7 +288,7 @@ def can_view_all(*targets):
     method 'can_view_all'. See `acl_base_decorator` documentation for further
     details.
     """
-    return acl_base_decorator('can_view_all', *targets, on_instance=False)
+    return acl_base_decorator("can_view_all", *targets, on_instance=False)
 
 
 def can_view_app(*apps_name):
@@ -256,7 +297,7 @@ def can_view_app(*apps_name):
     for app_name in apps_name:
         assert app_name in sys.modules.keys()
     return acl_base_decorator(
-        'can_view',
+        "can_view",
         *chain(sys.modules[app_name] for app_name in apps_name),
         on_instance=False
     )
@@ -264,18 +305,15 @@ def can_view_app(*apps_name):
 
 def can_edit_history(view):
     """Decorator to check if an user can edit history."""
+
     def wrapper(request, *args, **kwargs):
         """The wrapper used for a specific request
         """
-        if request.user.has_perm('admin.change_logentry'):
+        if request.user.has_perm("admin.change_logentry"):
             return view(request, *args, **kwargs)
-        messages.error(
-            request,
-            _("You don't have the right to edit the history.")
+        messages.error(request, _("You don't have the right to edit the history."))
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    return wrapper
 
+    return wrapper

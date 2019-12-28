@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 # Copyright © 2018  Maël Kervella
 #
@@ -30,11 +30,13 @@ fields of the models, some fields will be removed if the user don't have
 the rights to change them (can_change_{name})
 """
 
+
 class FieldPermissionModelMixin:
     """ The model mixin. Defines the `has_field_perm` function """
+
     field_permissions = {}  # {'field_name': callable}
-    FIELD_PERM_CODENAME = 'can_change_{model}_{name}'
-    FIELD_PERMISSION_GETTER = 'can_change_{name}'
+    FIELD_PERM_CODENAME = "can_change_{model}_{name}"
+    FIELD_PERMISSION_GETTER = "can_change_{name}"
     FIELD_PERMISSION_MISSING_DEFAULT = True
 
     def has_field_perm(self, user, field):
@@ -55,10 +57,9 @@ class FieldPermissionModelMixin:
 
             # Try to find a static permission for the field
             else:
-                perm_label = self.FIELD_PERM_CODENAME.format(**{
-                    'model': self._meta.model_name,
-                    'name': field,
-                })
+                perm_label = self.FIELD_PERM_CODENAME.format(
+                    **{"model": self._meta.model_name, "name": field}
+                )
                 if perm_label in dict(self._meta.permissions):
                     checks.append(perm_label)
 
@@ -69,7 +70,7 @@ class FieldPermissionModelMixin:
         # Try to find a user setting that qualifies them for permission.
         for perm in checks:
             if callable(perm):
-                result, _reason = perm(user_request=user)
+                result, _reason, _permissions = perm(user_request=user)
                 if result is not None:
                     return result
             else:
@@ -86,8 +87,9 @@ class FieldPermissionFormMixin:
     """
     Construit le formulaire et retire les champs interdits
     """
+
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+        user = kwargs.pop("user")
 
         super(FieldPermissionFormMixin, self).__init__(*args, **kwargs)
         to_be_deleted = []

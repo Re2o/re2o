@@ -8,15 +8,13 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0050_port_new_switch'),
-    ]
+    dependencies = [("topologie", "0050_port_new_switch")]
 
     def transfer_sw(apps, schema_editor):
         db_alias = schema_editor.connection.alias
         newswitch = apps.get_model("topologie", "NewSw")
         switch = apps.get_model("topologie", "Switch")
-        machine =  apps.get_model("machines", "Machine")
+        machine = apps.get_model("machines", "Machine")
         sw_list = switch.objects.using(db_alias).all()
         for sw in sw_list:
             new_sw = newswitch()
@@ -27,13 +25,10 @@ class Migration(migrations.Migration):
             new_sw.stack_member_id = sw.stack_member_id
             new_sw.model = sw.model
             new_sw.machine_ptr_id = sw.interface_ptr.machine.pk
-            new_sw.__dict__.update(sw.interface_ptr.machine.__dict__) 
+            new_sw.__dict__.update(sw.interface_ptr.machine.__dict__)
             new_sw.save()
 
     def untransfer_sw(apps, schema_editor):
         return
 
-
-    operations = [
-        migrations.RunPython(transfer_sw, untransfer_sw),
-    ]
+    operations = [migrations.RunPython(transfer_sw, untransfer_sw)]

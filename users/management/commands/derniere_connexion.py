@@ -33,28 +33,35 @@ from users.models import User
 # Elles doivent contenir un groupe 'date' et un groupe 'user'.
 # Pour le CAS on prend comme entrée
 # cat ~/cas.log | grep -B 2 -A 2 "ACTION: AUTHENTICATION_SUCCESS"| grep 'WHEN\|WHO'|sed 'N;s/\n/ /'
-COMPILED_REGEX = map(re.compile, [
-    r'^(?P<date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*(?:'r'dovecot.*Login: user=<|'r'sshd.*Accepted.*for 'r')(?P<user>[^ >]+).*$',
-    r'^(?P<date>.*) LOGIN INFO User logged in : (?P<user>.*)',
-    r'WHO: \[username: (?P<user>.*)\] WHEN: (?P<date>.* CET .*)',
-    r'WHO: \[username: (?P<user>.*)\] WHEN: (?P<date>.* CEST .*)'
-])
+COMPILED_REGEX = map(
+    re.compile,
+    [
+        r"^(?P<date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*(?:"
+        r"dovecot.*Login: user=<|"
+        r"sshd.*Accepted.*for "
+        r")(?P<user>[^ >]+).*$",
+        r"^(?P<date>.*) LOGIN INFO User logged in : (?P<user>.*)",
+        r"WHO: \[username: (?P<user>.*)\] WHEN: (?P<date>.* CET .*)",
+        r"WHO: \[username: (?P<user>.*)\] WHEN: (?P<date>.* CEST .*)",
+    ],
+)
 
 # Les formats de date en strftime associés aux expressions ci-dessus.
 DATE_FORMATS = [
     "%Y-%m-%dT%H:%M:%S",
     "%d/%b/%Y:%H:%M:%S",
     "%a %b %d CET %H:%M:%S%Y",
-    "%a %b %d CEST %H:%M:%S%Y"
+    "%a %b %d CEST %H:%M:%S%Y",
 ]
 
 
 class Command(BaseCommand):
-    help = ('Update the time of the latest connection for users by matching '
-            'stdin against a set of regular expressions')
+    help = (
+        "Update the time of the latest connection for users by matching"
+        " stdin against a set of regular expressions."
+    )
 
     def handle(self, *args, **options):
-
         def parse_logs(logfile):
             """
             Parse les logs sur l'entrée standard et rempli un dictionnaire
@@ -67,8 +74,8 @@ class Command(BaseCommand):
                 for i, regex in enumerate(COMPILED_REGEX):
                     m = regex.match(line)
                     if m:
-                        parsed_log[m.group('user')] = make_aware(
-                            datetime.strptime(m.group('date'), DATE_FORMATS[i])
+                        parsed_log[m.group("user")] = make_aware(
+                            datetime.strptime(m.group("date"), DATE_FORMATS[i])
                         )
             return parsed_log
 

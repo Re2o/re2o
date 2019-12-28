@@ -7,24 +7,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0051_iptype_vlan'),
-    ]
+    dependencies = [("machines", "0051_iptype_vlan")]
 
     operations = [
         migrations.RenameField(
-            model_name='iptype',
-            old_name='domaine_ip',
-            new_name='domaine_ip_start',
+            model_name="iptype", old_name="domaine_ip", new_name="domaine_ip_start"
         ),
-        migrations.RemoveField(
-            model_name='iptype',
-            name='domaine_range',
-        ),
+        migrations.RemoveField(model_name="iptype", name="domaine_range"),
         migrations.AddField(
-            model_name='iptype',
-            name='domaine_ip_stop',
-            field=models.GenericIPAddressField(default='255.255.254.254', protocol='IPv4'),
+            model_name="iptype",
+            name="domaine_ip_stop",
+            field=models.GenericIPAddressField(
+                default="255.255.254.254", protocol="IPv4"
+            ),
             preserve_default=False,
         ),
     ]

@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,10 @@ def can_view(user):
         A couple (allowed, msg) where allowed is a boolean which is True if
         viewing is granted and msg is a message (can be None).
     """
-    can = user.has_module_perms('preferences')
-    return can, None if can else _("You don't have the right to view this"
-                                   " application.")
-
+    can = user.has_module_perms("preferences")
+    return (
+        can,
+        None if can else _("You don't have the right to view this"
+                           " application."),
+        ("preferences",),
+    )

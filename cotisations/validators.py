@@ -12,11 +12,9 @@ def check_no_balance(is_balance):
         ValidationError: if such a Paiement exists.
     """
     from .models import Paiement
+
     if not is_balance:
         return
     p = Paiement.objects.filter(is_balance=True)
     if len(p) > 0:
-        raise ValidationError(
-            _("There is already a payment method for user balance.")
-        )
-
+        raise ValidationError(_("There is already a payment method for user balance."))

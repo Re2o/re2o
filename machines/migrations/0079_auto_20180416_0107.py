@@ -4,33 +4,31 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def rename_permission_soa_to_srv(apps, schema_editor):
-    Permission = apps.get_model('auth', 'Permission')
+    Permission = apps.get_model("auth", "Permission")
     # The Permission called 'view_soa' but in the Srv object
     try:
         to_rename = Permission.objects.get(
-            codename='view_soa',
-            content_type__model='srv'
+            codename="view_soa", content_type__model="srv"
         )
     except Permission.DoesNotExist:
         # The permission is missing so no problem
         pass
     else:
-        to_rename.name = 'Peut voir un object srv'
-        to_rename.codename = 'view_srv'
+        to_rename.name = "Peut voir un object srv"
+        to_rename.codename = "view_srv"
         to_rename.save()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0078_auto_20180415_1252'),
-    ]
+    dependencies = [("machines", "0078_auto_20180415_1252")]
 
     operations = [
         migrations.RunPython(rename_permission_soa_to_srv),
         migrations.AlterModelOptions(
-            name='srv',
-            options={'permissions': (('view_srv', 'Peut voir un objet srv'),)},
+            name="srv",
+            options={"permissions": (("view_srv", "Peut voir un objet srv"),)},
         ),
     ]

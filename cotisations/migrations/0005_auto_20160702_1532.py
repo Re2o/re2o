@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0004_auto_20160702_1528'),
-    ]
+    dependencies = [("cotisations", "0004_auto_20160702_1528")]
 
     operations = [
         migrations.AlterField(
-            model_name='facture',
-            name='cheque',
+            model_name="facture",
+            name="cheque",
             field=models.CharField(max_length=255, blank=True),
-        ),
+        )
     ]

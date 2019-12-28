@@ -8,20 +8,31 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0029_auto_20171002_0334'),
-        ('machines', '0049_vlan'),
-    ]
+    dependencies = [("topologie", "0029_auto_20171002_0334"), ("machines", "0049_vlan")]
 
     operations = [
         migrations.AddField(
-            model_name='port',
-            name='vlan_force',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='machines.Vlan'),
+            model_name="port",
+            name="vlan_force",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="machines.Vlan",
+            ),
         ),
         migrations.AlterField(
-            model_name='port',
-            name='radius',
-            field=models.CharField(choices=[('NO', 'NO'), ('STRICT', 'STRICT'), ('BLOQ', 'BLOQ'), ('COMMON', 'COMMON')], default='NO', max_length=32),
+            model_name="port",
+            name="radius",
+            field=models.CharField(
+                choices=[
+                    ("NO", "NO"),
+                    ("STRICT", "STRICT"),
+                    ("BLOQ", "BLOQ"),
+                    ("COMMON", "COMMON"),
+                ],
+                default="NO",
+                max_length=32,
+            ),
         ),
     ]

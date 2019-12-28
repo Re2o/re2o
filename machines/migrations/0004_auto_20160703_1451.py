@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0003_auto_20160703_1450'),
-    ]
+    dependencies = [("machines", "0003_auto_20160703_1450")]
 
     operations = [
         migrations.AlterField(
-            model_name='iplist',
-            name='ipv4',
-            field=models.GenericIPAddressField(protocol='IPv4', unique=True),
-        ),
+            model_name="iplist",
+            name="ipv4",
+            field=models.GenericIPAddressField(protocol="IPv4", unique=True),
+        )
     ]

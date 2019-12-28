@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0030_merge_20180320_1419'),
-    ]
+    dependencies = [("preferences", "0030_merge_20180320_1419")]
 
     operations = [
         migrations.AlterField(
-            model_name='generaloption',
-            name='email_from',
-            field=models.EmailField(default='www-data@example.com', max_length=254),
-        ),
+            model_name="generaloption",
+            name="email_from",
+            field=models.EmailField(default="www-data@example.com", max_length=254),
+        )
     ]

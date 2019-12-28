@@ -5,7 +5,7 @@ se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
 
 This program is free software; you can redistribute it and/or modify
@@ -29,8 +29,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "About Re2o" %}{% endblock %}
 
 {% block content %}
-    <h2>{% blocktrans %}About {{AssoName}}{% endblocktrans %}</h2>
-    {{ description | safe }}
+    <h2>{% trans "Legal notes" %}</h2>
+
+    <h4>{% trans "Legal entity" %}</h4>
+    <p>{{ option.name | safe}}</p>
+
+    <h4>{% trans "Registered office" %}</h4> 
+    <p>{{ option.adresse1 | safe }}</p>
+    <p>{{ option.adresse2 | safe }}</p>
+
+    <p>{% trans "SIRET: " %}{{ option.siret | safe }}</p>
+
+    <h4>{% trans "Publication manager" %}</h4>
+    <p>{{ president }} - {% trans "President of " %} {{ option.pseudo }}</p>
+
+    <h4>{% trans "General Terms of Use" %}</h4>
+    <p><a href='{{ gtu.url }}' download='CGU'>{{ gtu }}</a></p>
+
+    {% if option.description %}
+    <h4>{% trans "Additional information" %}</h4>
+    <p>{{ option.description | safe }}</p>
+    {% endif %}
 
     <h2>{% trans "About Re2o" %}</h2>
     <p>{% blocktrans trimmed %}
@@ -38,11 +57,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <a href="https://rezometz.org/">Rezo Metz</a> and a few
         members of other <a href="https://federez.net">FedeRez</a> associations
         around the summer 2016.<br />
-        It is intended to be a tool independant from any network infrastructure
+        It is intended to be a tool independent from any network infrastructure
         so it can be setup in "a few steps". This tool is entirely free and
         available under a GNU Public License v2 (GPLv2) license on
         <a href="https://gitlab.federez.net/federez/re2o/">FedeRez gitlab</a>.<br />
-		Re2o's mainteners are volunteers mainly from French schools. <br />
+		Re2o's maintainers are volunteers mainly from French schools. <br />
         If you want to get involved in the development process, we will be glad to
         welcome you so do not hesitate to contact us and come help us build the
         future of Re2o.

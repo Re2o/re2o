@@ -8,18 +8,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0081_auto_20180521_1413'),
-        ('topologie', '0059_auto_20180415_2249'),
+        ("machines", "0081_auto_20180521_1413"),
+        ("topologie", "0059_auto_20180415_2249"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Server',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-            },
-            bases=('machines.machine',),
-        ),
+            name="Server",
+            fields=[],
+            options={"proxy": True},
+            bases=("machines.machine",),
+        )
     ]

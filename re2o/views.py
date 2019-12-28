@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -39,10 +39,14 @@ from preferences.models import (
     Service,
     MailContact,
     AssoOption,
-    HomeOption
+    HomeOption,
+    GeneralOption,
+    Mandate,
 )
 
 from .contributors import CONTRIBUTORS
+from importlib import import_module
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def form(ctx, template, request):
@@ -57,17 +61,21 @@ def index(request):
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)
-    twitter_url = HomeOption.get_cached_value('twitter_url')
-    facebook_url = HomeOption.get_cached_value('facebook_url')
-    twitter_account_name = HomeOption.get_cached_value('twitter_account_name')
-    asso_name = AssoOption.get_cached_value('pseudo')
-    return form({
-        'services_urls': services,
-        'twitter_url': twitter_url,
-        'twitter_account_name': twitter_account_name,
-        'facebook_url': facebook_url,
-        'asso_name': asso_name
-    }, 're2o/index.html', request)
+    twitter_url = HomeOption.get_cached_value("twitter_url")
+    facebook_url = HomeOption.get_cached_value("facebook_url")
+    twitter_account_name = HomeOption.get_cached_value("twitter_account_name")
+    asso_name = AssoOption.get_cached_value("pseudo")
+    return form(
+        {
+            "services_urls": services,
+            "twitter_url": twitter_url,
+            "twitter_account_name": twitter_account_name,
+            "facebook_url": facebook_url,
+            "asso_name": asso_name,
+        },
+        "re2o/index.html",
+        request,
+    )
 
 
 def about_page(request):
@@ -75,6 +83,7 @@ def about_page(request):
     Fetch some info about the configuration of the project. If it can't
     get the info from the Git repository, fallback to default string """
     option = AssoOption.objects.get()
+    general = GeneralOption.objects.get()
     git_info_contributors = CONTRIBUTORS
     try:
         git_repo = git.Repo(settings.BASE_DIR)
@@ -96,16 +105,18 @@ def about_page(request):
         request,
         "re2o/about.html",
         {
-            'description': option.description,
-            'AssoName': option.name,
-            'git_info_contributors': git_info_contributors,
-            'git_info_remote': git_info_remote,
-            'git_info_branch': git_info_branch,
-            'git_info_commit': git_info_commit,
-            'git_info_commit_date': git_info_commit_date,
-            'dependencies': dependencies
-        }
+            "option": option,
+            "gtu": general.GTU,
+            "president": Mandate.get_mandate().president.get_full_name(),
+            "git_info_contributors": git_info_contributors,
+            "git_info_remote": git_info_remote,
+            "git_info_branch": git_info_branch,
+            "git_info_commit": git_info_commit,
+            "git_info_commit_date": git_info_commit_date,
+            "dependencies": dependencies,
+        },
     )
+
 
 def contact_page(request):
     """The view for the contact page
@@ -113,22 +124,29 @@ def contact_page(request):
     """
     address = MailContact.objects.all()
 
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
+    optionnal_templates_contact_list = [
+        app.views.contact(request)
+        for app in optionnal_apps
+        if hasattr(app.views, "contact")
+    ]
+
     return render(
         request,
         "re2o/contact.html",
         {
-            'contacts': address,
-            'asso_name': AssoOption.objects.first().name
-        }
+            "contacts": address,
+            "asso_name": AssoOption.objects.first().name,
+            "optionnal_templates_contact_list": optionnal_templates_contact_list,
+        },
     )
 
 
 def handler500(request):
     """The handler view for a 500 error"""
-    return render(request, 'errors/500.html')
+    return render(request, "errors/500.html", status=500)
 
 
 def handler404(request):
     """The handler view for a 404 error"""
-    return render(request, 'errors/404.html')
-
+    return render(request, "errors/404.html", status=404)

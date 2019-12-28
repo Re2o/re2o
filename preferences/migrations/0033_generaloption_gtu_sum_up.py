@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0032_optionaluser_min_online_payment'),
-    ]
+    dependencies = [("preferences", "0032_optionaluser_min_online_payment")]
 
     operations = [
         migrations.AddField(
-            model_name='generaloption',
-            name='GTU_sum_up',
-            field=models.TextField(blank=True, default='', help_text='Résumé des CGU'),
-        ),
+            model_name="generaloption",
+            name="GTU_sum_up",
+            field=models.TextField(blank=True, default="", help_text="Résumé des CGU"),
+        )
     ]

@@ -82,32 +82,30 @@ register = template.Library()
 
 def get_model(model_name):
     """Retrieve the model object from its name"""
-    splitted = model_name.split('.')
+    splitted = model_name.split(".")
     if len(splitted) > 1:
         try:
             app_label, name = splitted
         except ValueError:
             raise template.TemplateSyntaxError(
-                "%r is an inconsistent model name" % model_name
+                "%r is an inconsistent model name." % model_name
             )
     else:
         app_label, name = None, splitted[0]
     try:
         if app_label is not None:
             content_type = ContentType.objects.get(
-                model=name.lower(),
-                app_label=app_label
+                model=name.lower(), app_label=app_label
             )
         else:
             content_type = ContentType.objects.get(model=name.lower())
     except ContentType.DoesNotExist:
         raise template.TemplateSyntaxError(
-            "%r is not a valid model for an acl tag" % model_name
+            "%r is not a valid model for an acl tag." % model_name
         )
     except ContentType.MultipleObjectsReturned:
         raise template.TemplateSyntaxError(
-            "More than one model found for %r. Try with `app.model`."
-            % model_name
+            "More than one model found for %r. Try with `app.model`." % model_name
         )
     return content_type.model_class()
 
@@ -115,74 +113,72 @@ def get_model(model_name):
 def get_callback(tag_name, obj=None):
     """Return the right function to call back to check for acl"""
 
-    if tag_name == 'can_create':
+    if tag_name == "can_create":
         return acl_fct(obj.can_create, False)
-    if tag_name == 'cannot_create':
+    if tag_name == "cannot_create":
         return acl_fct(obj.can_create, True)
-    if tag_name == 'can_edit':
+    if tag_name == "can_edit":
         return acl_fct(obj.can_edit, False)
-    if tag_name == 'cannot_edit':
+    if tag_name == "cannot_edit":
         return acl_fct(obj.can_edit, True)
-    if tag_name == 'can_edit_all':
+    if tag_name == "can_edit_all":
         return acl_fct(obj.can_edit_all, False)
-    if tag_name == 'cannot_edit_all':
+    if tag_name == "cannot_edit_all":
         return acl_fct(obj.can_edit_all, True)
-    if tag_name == 'can_delete':
+    if tag_name == "can_delete":
         return acl_fct(obj.can_delete, False)
-    if tag_name == 'cannot_delete':
+    if tag_name == "cannot_delete":
         return acl_fct(obj.can_delete, True)
-    if tag_name == 'can_delete_all':
+    if tag_name == "can_delete_all":
         return acl_fct(obj.can_delete_all, False)
-    if tag_name == 'cannot_delete_all':
+    if tag_name == "cannot_delete_all":
         return acl_fct(obj.can_delete_all, True)
-    if tag_name == 'can_view':
+    if tag_name == "can_view":
         return acl_fct(obj.can_view, False)
-    if tag_name == 'cannot_view':
+    if tag_name == "cannot_view":
         return acl_fct(obj.can_view, True)
-    if tag_name == 'can_view_all':
+    if tag_name == "can_view_all":
         return acl_fct(obj.can_view_all, False)
-    if tag_name == 'cannot_view_all':
+    if tag_name == "cannot_view_all":
         return acl_fct(obj.can_view_all, True)
-    if tag_name == 'can_view_app':
+    if tag_name == "can_view_app":
         return acl_fct(
             lambda x: (
                 not any(not sys.modules[o].can_view(x)[0] for o in obj),
-                None
+                None,
+                None,
             ),
-            False
+            False,
         )
-    if tag_name == 'cannot_view_app':
+    if tag_name == "cannot_view_app":
         return acl_fct(
             lambda x: (
                 not any(not sys.modules[o].can_view(x)[0] for o in obj),
-                None
+                None,
+                None,
             ),
-            True
+            True,
         )
-    if tag_name == 'can_edit_history':
+    if tag_name == "can_edit_history":
         return acl_fct(
-            lambda user: (user.has_perm('admin.change_logentry'), None),
-            False
+            lambda user: (user.has_perm("admin.change_logentry"), None, None), False
         )
-    if tag_name == 'cannot_edit_history':
+    if tag_name == "cannot_edit_history":
         return acl_fct(
-            lambda user: (user.has_perm('admin.change_logentry'), None),
-            True
+            lambda user: (user.has_perm("admin.change_logentry"), None, None), True
         )
-    if tag_name == 'can_view_any_app':
+    if tag_name == "can_view_any_app":
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
-            False
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None, None),
+            False,
         )
-    if tag_name == 'cannot_view_any_app':
+    if tag_name == "cannot_view_any_app":
         return acl_fct(
-            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None),
-            True
+            lambda x: (any(sys.modules[o].can_view(x)[0] for o in obj), None, None),
+            True,
         )
 
-    raise template.TemplateSyntaxError(
-        "%r tag is not a valid can_xxx tag" % tag_name
-    )
+    raise template.TemplateSyntaxError("%r tag is not a valid can_xxx tag." % tag_name)
 
 
 def acl_fct(callback, reverse):
@@ -194,36 +190,36 @@ def acl_fct(callback, reverse):
 
     def acl_fct_reverse(user, *args, **kwargs):
         """The cannot_xxx checker callback"""
-        can, msg = callback(user, *args, **kwargs)
-        return not can, msg
+        can, msg, permissions = callback(user, *args, **kwargs)
+        return not can, msg, permissions
 
     return acl_fct_reverse if reverse else acl_fct_normal
 
 
-@register.tag('can_edit_history')
-@register.tag('cannot_edit_history')
+@register.tag("can_edit_history")
+@register.tag("cannot_edit_history")
 def acl_history_filter(parser, token):
     """Templatetag for acl checking on history."""
     tag_name, = token.split_contents()
 
     callback = get_callback(tag_name)
-    oknodes = parser.parse(('acl_else', 'acl_end'))
+    oknodes = parser.parse(("acl_else", "acl_end"))
     token = parser.next_token()
-    if token.contents == 'acl_else':
-        konodes = parser.parse(('acl_end'))
+    if token.contents == "acl_else":
+        konodes = parser.parse(("acl_end"))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
-    assert token.contents == 'acl_end'
+    assert token.contents == "acl_end"
 
-    return AclNode(callback, oknodes, konodes)
+    return AclNode(tag_name, callback, oknodes, konodes)
 
 
-@register.tag('can_view_any_app')
-@register.tag('cannot_view_any_app')
-@register.tag('can_view_app')
-@register.tag('cannot_view_app')
+@register.tag("can_view_any_app")
+@register.tag("cannot_view_any_app")
+@register.tag("can_view_app")
+@register.tag("cannot_view_app")
 def acl_app_filter(parser, token):
     """Templatetag for acl checking on applications."""
     try:
@@ -232,76 +228,74 @@ def acl_app_filter(parser, token):
         app_name = contents[1:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require 1 argument: an application"
-            % token.contents.split()[0]
+            "%r tag require 1 argument: an application" % token.contents.split()[0]
         )
     for name in app_name:
         if name not in sys.modules.keys():
             raise template.TemplateSyntaxError(
-                "%r is not a registered application for acl."
-                % name
+                "%r is not a registered application for acl." % name
             )
 
     callback = get_callback(tag_name, app_name)
 
-    oknodes = parser.parse(('acl_else', 'acl_end'))
+    oknodes = parser.parse(("acl_else", "acl_end"))
     token = parser.next_token()
-    if token.contents == 'acl_else':
-        konodes = parser.parse(('acl_end'))
+    if token.contents == "acl_else":
+        konodes = parser.parse(("acl_end"))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
-    assert token.contents == 'acl_end'
+    assert token.contents == "acl_end"
 
-    return AclNode(callback, oknodes, konodes)
+    return AclNode(tag_name, callback, oknodes, konodes)
 
 
-@register.tag('can_change')
-@register.tag('cannot_change')
+@register.tag("can_change")
+@register.tag("cannot_change")
 def acl_change_filter(parser, token):
     """Templatetag for acl checking a can_change_xxx function"""
 
     try:
         tag_content = token.split_contents()
-        # tag_name = tag_content[0]
+        tag_name = tag_content[0]
         model_name = tag_content[1]
         field_name = tag_content[2]
         args = tag_content[3:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 2 argument: the model and the field"
+            "%r tag require at least 2 argument: the model and the field."
             % token.contents.split()[0]
         )
 
     model = get_model(model_name)
-    callback = getattr(model, 'can_change_'+field_name)
+    callback = getattr(model, "can_change_" + field_name)
 
     # {% can_create %}
-    oknodes = parser.parse(('acl_else', 'acl_end'))
+    oknodes = parser.parse(("acl_else", "acl_end"))
     token = parser.next_token()
 
     # {% can_create_else %}
-    if token.contents == 'acl_else':
-        konodes = parser.parse(('acl_end'))
+    if token.contents == "acl_else":
+        konodes = parser.parse(("acl_end"))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
     # {% can_create_end %}
-    assert token.contents == 'acl_end'
+    assert token.contents == "acl_end"
 
-    return AclNode(callback, oknodes, konodes, *args)
+    return AclNode(tag_name, callback, oknodes, konodes, *args)
 
 
-@register.tag('can_create')
-@register.tag('cannot_create')
-@register.tag('can_edit_all')
-@register.tag('cannot_edit_all')
-@register.tag('can_delete_all')
-@register.tag('cannot_delete_all')
-@register.tag('can_view_all')
-@register.tag('cannot_view_all')
+@register.tag("can_create")
+@register.tag("cannot_create")
+@register.tag("can_edit_all")
+@register.tag("cannot_edit_all")
+@register.tag("can_delete_all")
+@register.tag("cannot_delete_all")
+@register.tag("can_view_all")
+@register.tag("cannot_view_all")
 def acl_model_filter(parser, token):
     """Generic definition of an acl templatetag for acl based on model"""
 
@@ -312,36 +306,35 @@ def acl_model_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument: the model"
-            % token.contents.split()[0]
+            "%r tag require at least 1 argument: the model." % token.contents.split()[0]
         )
 
     model = get_model(model_name)
     callback = get_callback(tag_name, model)
 
     # {% can_create %}
-    oknodes = parser.parse(('acl_else', 'acl_end'))
+    oknodes = parser.parse(("acl_else", "acl_end"))
     token = parser.next_token()
 
     # {% can_create_else %}
-    if token.contents == 'acl_else':
-        konodes = parser.parse(('acl_end'))
+    if token.contents == "acl_else":
+        konodes = parser.parse(("acl_end"))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
     # {% can_create_end %}
-    assert token.contents == 'acl_end'
+    assert token.contents == "acl_end"
 
-    return AclNode(callback, oknodes, konodes, *args)
+    return AclNode(tag_name, callback, oknodes, konodes, *args)
 
 
-@register.tag('can_edit')
-@register.tag('cannot_edit')
-@register.tag('can_delete')
-@register.tag('cannot_delete')
-@register.tag('can_view')
-@register.tag('cannot_view')
+@register.tag("can_edit")
+@register.tag("cannot_edit")
+@register.tag("can_delete")
+@register.tag("cannot_delete")
+@register.tag("can_view")
+@register.tag("cannot_view")
 def acl_instance_filter(parser, token):
     """Generic definition of an acl templatetag for acl based on instance"""
 
@@ -352,23 +345,23 @@ def acl_instance_filter(parser, token):
         args = tag_content[2:]
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag require at least 1 argument: the instance"
+            "%r tag require at least 1 argument: the instance."
             % token.contents.split()[0]
         )
 
     # {% can_create %}
-    oknodes = parser.parse(('acl_else', 'acl_end'))
+    oknodes = parser.parse(("acl_else", "acl_end"))
     token = parser.next_token()
 
     # {% can_create_else %}
-    if token.contents == 'acl_else':
-        konodes = parser.parse(('acl_end'))
+    if token.contents == "acl_else":
+        konodes = parser.parse(("acl_end"))
         token = parser.next_token()
     else:
         konodes = NodeList()
 
     # {% can_create_end %}
-    assert token.contents == 'acl_end'
+    assert token.contents == "acl_end"
 
     return AclInstanceNode(tag_name, instance_name, oknodes, konodes, *args)
 
@@ -377,7 +370,8 @@ class AclNode(Node):
     """A node for the compiled ACL block when acl callback doesn't require
     context."""
 
-    def __init__(self, callback, oknodes, konodes, *args):
+    def __init__(self, tag_name, callback, oknodes, konodes, *args):
+        self.tag_name = tag_name
         self.callback = callback
         self.oknodes = oknodes
         self.konodes = konodes
@@ -385,13 +379,16 @@ class AclNode(Node):
 
     def render(self, context):
         resolved_args = [arg.resolve(context) for arg in self.args]
-        if context['user'].is_anonymous():
+        if context["user"].is_anonymous():
             can = False
         else:
-            can, _ = self.callback(context['user'], *(resolved_args))
+            can, _, _ = self.callback(context["user"], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
+
+    def __repr__(self):
+        return "<AclNode %s>" % self.tag_name
 
 
 class AclInstanceNode(Node):
@@ -407,10 +404,13 @@ class AclInstanceNode(Node):
     def render(self, context):
         callback = get_callback(self.tag_name, self.instance.resolve(context))
         resolved_args = [arg.resolve(context) for arg in self.args]
-        if context['user'].is_anonymous():
+        if context["user"].is_anonymous():
             can = False
         else:
-            can, _ = callback(context['user'], *(resolved_args))
+            can, _, _ = callback(context["user"], *(resolved_args))
         if can:
             return self.oknodes.render(context)
         return self.konodes.render(context)
+
+    def __repr__(self):
+        return "<AclInstanceNode %s>" % self.tag_name

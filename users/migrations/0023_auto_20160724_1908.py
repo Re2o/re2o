@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,12 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0022_ldapuser_sambasid'),
-    ]
+    dependencies = [("users", "0022_ldapuser_sambasid")]
 
     operations = [
         migrations.AlterField(
-            model_name='ldapuser',
-            name='sambaSID',
-            field=ldapdb.models.fields.IntegerField(db_column='sambaSID', unique=True),
-        ),
+            model_name="ldapuser",
+            name="sambaSID",
+            field=ldapdb.models.fields.IntegerField(db_column="sambaSID", unique=True),
+        )
     ]

@@ -7,13 +7,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0081_auto_20180521_1413'),
-    ]
+    dependencies = [("machines", "0081_auto_20180521_1413")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='service_link',
-            options={'permissions': (('view_service_link', 'Peut voir un objet service_link'),)},
-        ),
+            name="service_link",
+            options={
+                "permissions": (
+                    ("view_service_link", "Peut voir un objet service_link"),
+                )
+            },
+        )
     ]

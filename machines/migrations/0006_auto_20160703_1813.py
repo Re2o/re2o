@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,19 +28,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0005_auto_20160703_1523'),
-    ]
+    dependencies = [("machines", "0005_auto_20160703_1523")]
 
     operations = [
         migrations.AlterField(
-            model_name='interface',
-            name='details',
+            model_name="interface",
+            name="details",
             field=models.CharField(max_length=255, blank=True),
         ),
         migrations.AlterField(
-            model_name='interface',
-            name='dns',
+            model_name="interface",
+            name="dns",
             field=models.CharField(max_length=255, unique=True),
         ),
     ]

@@ -5,7 +5,7 @@ se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
 
 This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% trans "Rooms" %}</h2>
 {% can_create Room %}
-<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-room' %}"><i class="fa fa-plus"></i>{% trans " Add a room" %}</a>
+<a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-room' %}"><i class="fa fa-plus"></i> {% trans "Add a room" %}</a>
 <hr>
 {% acl_end %}
     {% include 'topologie/aff_chambres.html' with room_list=room_list %}

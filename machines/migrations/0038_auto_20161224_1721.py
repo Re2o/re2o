@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0037_domain_cname'),
-    ]
+    dependencies = [("machines", "0037_domain_cname")]
 
     operations = [
         migrations.AlterField(
-            model_name='domain',
-            name='cname',
-            field=models.ForeignKey(null=True, to='machines.Domain', related_name='related_domain', blank=True),
-        ),
+            model_name="domain",
+            name="cname",
+            field=models.ForeignKey(
+                null=True,
+                to="machines.Domain",
+                related_name="related_domain",
+                blank=True,
+            ),
+        )
     ]

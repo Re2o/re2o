@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,16 @@ import machines.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0014_auto_20160706_1220'),
-    ]
+    dependencies = [("machines", "0014_auto_20160706_1220")]
 
     operations = [
         migrations.AlterField(
-            model_name='interface',
-            name='dns',
-            field=models.CharField(unique=True, help_text="Obligatoire et unique, doit se terminer en .example et ne pas comporter d'autres points", max_length=255),
-        ),
+            model_name="interface",
+            name="dns",
+            field=models.CharField(
+                unique=True,
+                help_text="Obligatoire et unique, doit se terminer en .example et ne pas comporter d'autres points",
+                max_length=255,
+            ),
+        )
     ]

@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,19 +29,30 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0005_auto_20160702_0006'),
-    ]
+    dependencies = [("users", "0005_auto_20160702_0006")]
 
     operations = [
         migrations.CreateModel(
-            name='Ban',
+            name="Ban",
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('raison', models.CharField(max_length=255)),
-                ('date_start', models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')),
-                ('date_end', models.DateTimeField(help_text='%m/%d/%y %H:%M:%S')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='users.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        serialize=False,
+                        auto_created=True,
+                        verbose_name="ID",
+                        primary_key=True,
+                    ),
+                ),
+                ("raison", models.CharField(max_length=255)),
+                ("date_start", models.DateTimeField(help_text="%m/%d/%y %H:%M:%S")),
+                ("date_end", models.DateTimeField(help_text="%m/%d/%y %H:%M:%S")),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="users.User"
+                    ),
+                ),
             ],
-        ),
+        )
     ]

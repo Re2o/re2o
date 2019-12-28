@@ -7,34 +7,28 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0030_auto_20171004_0235'),
-    ]
+    dependencies = [("topologie", "0030_auto_20171004_0235")]
 
     operations = [
         migrations.AlterField(
-            model_name='port',
-            name='port',
+            model_name="port", name="port", field=models.PositiveIntegerField()
+        ),
+        migrations.AlterField(
+            model_name="stack",
+            name="member_id_max",
             field=models.PositiveIntegerField(),
         ),
         migrations.AlterField(
-            model_name='stack',
-            name='member_id_max',
+            model_name="stack",
+            name="member_id_min",
             field=models.PositiveIntegerField(),
         ),
         migrations.AlterField(
-            model_name='stack',
-            name='member_id_min',
-            field=models.PositiveIntegerField(),
+            model_name="switch", name="number", field=models.PositiveIntegerField()
         ),
         migrations.AlterField(
-            model_name='switch',
-            name='number',
-            field=models.PositiveIntegerField(),
-        ),
-        migrations.AlterField(
-            model_name='switch',
-            name='stack_member_id',
+            model_name="switch",
+            name="stack_member_id",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
     ]

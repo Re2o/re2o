@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0035_notepayment'),
-    ]
+    dependencies = [("cotisations", "0035_notepayment")]
 
     operations = [
         migrations.AddField(
-            model_name='custominvoice',
-            name='remark',
-            field=models.TextField(blank=True, null=True, verbose_name='Remark'),
-        ),
+            model_name="custominvoice",
+            name="remark",
+            field=models.TextField(blank=True, null=True, verbose_name="Remark"),
+        )
     ]

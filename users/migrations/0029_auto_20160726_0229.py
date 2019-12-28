@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,14 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0028_auto_20160726_0227'),
-    ]
+    dependencies = [("users", "0028_auto_20160726_0227")]
 
     operations = [
         migrations.AlterField(
-            model_name='ldapuser',
-            name='display_name',
-            field=ldapdb.models.fields.CharField(db_column='displayName', max_length=200),
-        ),
+            model_name="ldapuser",
+            name="display_name",
+            field=ldapdb.models.fields.CharField(
+                db_column="displayName", max_length=200
+            ),
+        )
     ]

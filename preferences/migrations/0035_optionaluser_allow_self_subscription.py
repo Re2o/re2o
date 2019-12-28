@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0034_auto_20180416_1120'),
-    ]
+    dependencies = [("preferences", "0034_auto_20180416_1120")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='allow_self_subscription',
-            field=models.BooleanField(default=False, help_text="Autoriser les utilisateurs à cotiser par eux mêmes via les moyens de paiement permettant l'auto-cotisation."),
-        ),
+            model_name="optionaluser",
+            name="allow_self_subscription",
+            field=models.BooleanField(
+                default=False,
+                help_text="Autoriser les utilisateurs à cotiser par eux mêmes via les moyens de paiement permettant l'auto-cotisation.",
+            ),
+        )
     ]

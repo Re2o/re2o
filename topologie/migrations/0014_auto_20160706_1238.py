@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,21 +28,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0013_port_related'),
-    ]
+    dependencies = [("topologie", "0013_port_related")]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='port',
-            unique_together=set([('switch', 'port')]),
+            name="port", unique_together=set([("switch", "port")])
         ),
-        migrations.RemoveField(
-            model_name='port',
-            name='_content_type',
-        ),
-        migrations.RemoveField(
-            model_name='port',
-            name='_object_id',
-        ),
+        migrations.RemoveField(model_name="port", name="_content_type"),
+        migrations.RemoveField(model_name="port", name="_object_id"),
     ]

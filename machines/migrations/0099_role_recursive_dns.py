@@ -6,21 +6,15 @@ from django.db import migrations, models
 
 
 def migrate(apps, schema_editor):
-    Role = apps.get_model('machines', 'Role')
+    Role = apps.get_model("machines", "Role")
 
-    for role in Role.objects.filter(specific_role='dns-recursif-server'):
-        role.specific_role = 'dns-recursive-server'
+    for role in Role.objects.filter(specific_role="dns-recursif-server"):
+        role.specific_role = "dns-recursive-server"
         role.save()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0098_auto_20190102_1745'),
-    ]
+    dependencies = [("machines", "0098_auto_20190102_1745")]
 
-    operations = [
-        migrations.RunPython(migrate),
-    ]
-
-
+    operations = [migrations.RunPython(migrate)]

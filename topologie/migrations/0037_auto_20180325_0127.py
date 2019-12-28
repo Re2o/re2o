@@ -9,25 +9,50 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0076_auto_20180130_1623'),
-        ('topologie', '0036_transferborne'),
+        ("machines", "0076_auto_20180130_1623"),
+        ("topologie", "0036_transferborne"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='NewSwitch',
+            name="NewSwitch",
             fields=[
-                ('interface_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='machines.Interface')),
-                ('location', models.CharField(max_length=255)),
-                ('number', models.PositiveIntegerField()),
-                ('stack_member_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('model', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.ModelSwitch')),
-                ('stack', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='topologie.Stack')),
+                (
+                    "interface_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="machines.Interface",
+                    ),
+                ),
+                ("location", models.CharField(max_length=255)),
+                ("number", models.PositiveIntegerField()),
+                ("stack_member_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "model",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="topologie.ModelSwitch",
+                    ),
+                ),
+                (
+                    "stack",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="topologie.Stack",
+                    ),
+                ),
             ],
-            bases=('machines.interface',),
+            bases=("machines.interface",),
         ),
         migrations.AlterUniqueTogether(
-            name='newswitch',
-            unique_together=set([('stack', 'stack_member_id')]),
+            name="newswitch", unique_together=set([("stack", "stack_member_id")])
         ),
     ]

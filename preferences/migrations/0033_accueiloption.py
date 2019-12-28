@@ -8,22 +8,48 @@ import re2o.mixins
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0032_optionaluser_shell_default'),
-    ]
+    dependencies = [("preferences", "0032_optionaluser_shell_default")]
 
     operations = [
         migrations.CreateModel(
-            name='AccueilOption',
+            name="AccueilOption",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('facebook_url', models.URLField(blank=True, help_text='Url du compte facebook', null=True)),
-                ('twitter_url', models.URLField(blank=True, help_text='Url du compte twitter', null=True)),
-                ('twitter_account_name', models.CharField(blank=True, help_text='Nom du compte à afficher', max_length=32, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "facebook_url",
+                    models.URLField(
+                        blank=True, help_text="Url du compte facebook", null=True
+                    ),
+                ),
+                (
+                    "twitter_url",
+                    models.URLField(
+                        blank=True, help_text="Url du compte twitter", null=True
+                    ),
+                ),
+                (
+                    "twitter_account_name",
+                    models.CharField(
+                        blank=True,
+                        help_text="Nom du compte à afficher",
+                        max_length=32,
+                        null=True,
+                    ),
+                ),
             ],
             options={
-                'permissions': (('view_accueiloption', "Peut voir les options de l'accueil"),),
+                "permissions": (
+                    ("view_accueiloption", "Peut voir les options de l'accueil"),
+                )
             },
             bases=(re2o.mixins.AclMixin, models.Model),
-        ),
+        )
     ]

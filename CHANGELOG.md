@@ -178,3 +178,28 @@ Be carefull, you need the proper rights to edit a DocumentTemplate.
 Re2o now sends subscription voucher when an invoice is controlled. It uses one
 of the templates. You also need to set the name of the president of your association
 to be set in your settings.
+
+## MR 427: Tickets
+Manually edit `settings_local.py` to provide the new `OPTIONNAL_APPS` lists:
+```python
+OPTIONNAL_APPS_RE2O = ('tickets',)
+OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + (...,...,)
+```
+
+Don't forget to run migrations afterwards.
+
+## MR 433 : upgrade django-ldapdb to 1.3.0
+
+Uninstall the existing django-ldapdb installation
+
+    pip3 uninstall django-ldapdb
+    
+Install debian(buster) supported version 
+
+    apt install python3-django-ldapdb
+
+If you use MySQL, please run 
+
+```
+SET GLOBAL SQL_MODE=ANSI_QUOTES;
+```

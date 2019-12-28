@@ -33,21 +33,19 @@ class ChequePayment(PaymentMethodMixin, models.Model):
     """
 
     class Meta:
-        verbose_name = _("Cheque")
+        verbose_name = _("cheque")
 
     payment = models.OneToOneField(
         Paiement,
         on_delete=models.CASCADE,
-        related_name='payment_method',
-        editable=False
+        related_name="payment_method_cheque",
+        editable=False,
     )
 
     def end_payment(self, invoice, request):
         """Invalidates the invoice then redirect the user towards a view asking
         for informations to add to the invoice before validating it.
         """
-        return redirect(reverse(
-            'cotisations:cheque:validate',
-            kwargs={'invoice_pk': invoice.pk}
-        ))
-
+        return redirect(
+            reverse("cotisations:cheque:validate", kwargs={"invoice_pk": invoice.pk})
+        )

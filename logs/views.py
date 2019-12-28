@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2018  Gabriel Détraz
-# Copyright © 2018  Goulven Kermarec
+# Copyright © 2018  Lara Kermarec
 # Copyright © 2018  Augustin Lemesle
 # Copyright © 2018  Hugo Levy-Falk
 #
@@ -60,16 +60,9 @@ from users.models import (
     Ban,
     Whitelist,
     Adherent,
-    Club
+    Club,
 )
-from cotisations.models import (
-    Facture,
-    Vente,
-    Article,
-    Banque,
-    Paiement,
-    Cotisation
-)
+from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
 from machines.models import (
     Machine,
     MachineType,
@@ -84,7 +77,7 @@ from machines.models import (
     Nas,
     SOA,
     Mx,
-    Ns
+    Ns,
 )
 from topologie.models import (
     Switch,
@@ -93,7 +86,7 @@ from topologie.models import (
     Stack,
     ModelSwitch,
     ConstructorSwitch,
-    AccessPoint
+    AccessPoint,
 )
 from preferences.models import GeneralOption
 from re2o.views import form
@@ -104,37 +97,25 @@ from re2o.utils import (
     all_adherent,
     all_active_assigned_interfaces_count,
     all_active_interfaces_count,
-) 
-from re2o.base import (   
-    re2o_paginator,
-    SortTable
 )
-from re2o.acl import (
-    can_view_all,
-    can_view_app,
-    can_edit_history,
-)
+from re2o.base import re2o_paginator, SortTable
+from re2o.acl import can_view_all, can_view_app, can_edit_history
 
 
 @login_required
-@can_view_app('logs')
+@can_view_app("logs")
 def index(request):
     """Affiche les logs affinés, date reformatées, selectionne
     les event importants (ajout de droits, ajout de ban/whitelist)"""
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
     # The types of content kept for display
-    content_type_filter = ['ban', 'whitelist', 'vente', 'interface', 'user']
+    content_type_filter = ["ban", "whitelist", "vente", "interface", "user"]
     # Select only wanted versions
     versions = Version.objects.filter(
-        content_type__in=ContentType.objects.filter(
-            model__in=content_type_filter
-        )
-    ).select_related('revision')
+        content_type__in=ContentType.objects.filter(model__in=content_type_filter)
+    ).select_related("revision")
     versions = SortTable.sort(
-        versions,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.LOGS_INDEX
+        versions, request.GET.get("col"), request.GET.get("order"), SortTable.LOGS_INDEX
     )
     versions = re2o_paginator(request, versions, pagination_number)
     # Force to have a list instead of QuerySet
@@ -146,22 +127,21 @@ def index(request):
         if versions.object_list[i].object:
             version = versions.object_list[i]
             versions.object_list[i] = {
-                'rev_id': version.revision.id,
-                'comment': version.revision.comment,
-                'datetime': version.revision.date_created.strftime(
-                    '%d/%m/%y %H:%M:%S'
-                ),
-                'username':
-                    version.revision.user.get_username()
-                    if version.revision.user else '?',
-                'user_id': version.revision.user_id,
-                'version': version}
+                "rev_id": version.revision.id,
+                "comment": version.revision.comment,
+                "datetime": version.revision.date_created,
+                "username": version.revision.user.get_username()
+                if version.revision.user
+                else "?",
+                "user_id": version.revision.user_id,
+                "version": version,
+            }
         else:
             to_remove.insert(0, i)
     # Remove all tagged invalid items
     for i in to_remove:
         versions.object_list.pop(i)
-    return render(request, 'logs/index.html', {'versions_list': versions})
+    return render(request, "logs/index.html", {"versions_list": versions})
 
 
 @login_required
@@ -169,19 +149,20 @@ def index(request):
 def stats_logs(request):
     """Affiche l'ensemble des logs et des modifications sur les objets,
     classés par date croissante, en vrac"""
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
-    revisions = Revision.objects.all().select_related('user')\
-        .prefetch_related('version_set__object')
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
+    revisions = (
+        Revision.objects.all()
+        .select_related("user")
+        .prefetch_related("version_set__object")
+    )
     revisions = SortTable.sort(
         revisions,
-        request.GET.get('col'),
-        request.GET.get('order'),
-        SortTable.LOGS_STATS_LOGS
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.LOGS_STATS_LOGS,
     )
     revisions = re2o_paginator(request, revisions, pagination_number)
-    return render(request, 'logs/stats_logs.html', {
-        'revisions_list': revisions
-    })
+    return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
 
 
 @login_required
@@ -195,11 +176,12 @@ def revert_action(request, revision_id):
     if request.method == "POST":
         revision.revert()
         messages.success(request, _("The action was deleted."))
-        return redirect(reverse('logs:index'))
-    return form({
-        'objet': revision,
-        'objet_name': revision.__class__.__name__
-    }, 'logs/delete.html', request)
+        return redirect(reverse("logs:index"))
+    return form(
+        {"objet": revision, "objet_name": revision.__class__.__name__},
+        "logs/delete.html",
+        request,
+    )
 
 
 @login_required
@@ -209,274 +191,273 @@ def stats_general(request):
     range, et les statistiques générales sur les users : users actifs,
     cotisants, activés, archivés, etc"""
     ip_dict = dict()
-    for ip_range in IpType.objects.select_related('vlan').all():
+    for ip_range in IpType.objects.select_related("vlan").all():
         all_ip = IpList.objects.filter(ip_type=ip_range)
         used_ip = Interface.objects.filter(ipv4__in=all_ip).count()
-        active_ip = all_active_assigned_interfaces_count().filter(
-            ipv4__in=IpList.objects.filter(ip_type=ip_range)
-        ).count()
-        ip_dict[ip_range] = [ip_range, ip_range.vlan, all_ip.count(),
-                             used_ip, active_ip, all_ip.count()-used_ip]
-    _all_adherent = all_adherent()
-    _all_has_access = all_has_access()
+        active_ip = (
+            all_active_assigned_interfaces_count()
+            .filter(ipv4__in=IpList.objects.filter(ip_type=ip_range))
+            .count()
+        )
+        ip_dict[ip_range] = [
+            ip_range,
+            ip_range.vlan,
+            all_ip.count(),
+            used_ip,
+            active_ip,
+            all_ip.count() - used_ip,
+        ]
+    _all_adherent = all_adherent(including_asso=False)
+    _all_has_access = all_has_access(including_asso=False)
     _all_baned = all_baned()
     _all_whitelisted = all_whitelisted()
     _all_active_interfaces_count = all_active_interfaces_count()
-    _all_active_assigned_interfaces_count = \
-        all_active_assigned_interfaces_count()
+    _all_active_assigned_interfaces_count = all_active_assigned_interfaces_count()
     stats = [
-        [   # First set of data (about users)
-            [   # Headers
+        [  # First set of data (about users)
+            [  # Headers
                 _("Category"),
                 _("Number of users (members and clubs)"),
                 _("Number of members"),
-                _("Number of clubs")
+                _("Number of clubs"),
             ],
-            {   # Data
-                'active_users': [
+            {  # Data
+                "active_users": [
                     _("Activated users"),
                     User.objects.filter(state=User.STATE_ACTIVE).count(),
-                    (Adherent.objects
-                     .filter(state=Adherent.STATE_ACTIVE)
-                     .count()),
-                    Club.objects.filter(state=Club.STATE_ACTIVE).count()
+                    (Adherent.objects.filter(state=Adherent.STATE_ACTIVE).count()),
+                    Club.objects.filter(state=Club.STATE_ACTIVE).count(),
                 ],
-                'inactive_users': [
+                "inactive_users": [
                     _("Disabled users"),
                     User.objects.filter(state=User.STATE_DISABLED).count(),
-                    (Adherent.objects
-                     .filter(state=Adherent.STATE_DISABLED)
-                     .count()),
-                    Club.objects.filter(state=Club.STATE_DISABLED).count()
+                    (Adherent.objects.filter(state=Adherent.STATE_DISABLED).count()),
+                    Club.objects.filter(state=Club.STATE_DISABLED).count(),
                 ],
-                'archive_users': [
+                "archive_users": [
                     _("Archived users"),
                     User.objects.filter(state=User.STATE_ARCHIVE).count(),
-                    (Adherent.objects
-                     .filter(state=Adherent.STATE_ARCHIVE)
-                     .count()),
-                    Club.objects.filter(state=Club.STATE_ARCHIVE).count()
+                    (Adherent.objects.filter(state=Adherent.STATE_ARCHIVE).count()),
+                    Club.objects.filter(state=Club.STATE_ARCHIVE).count(),
                 ],
-                'not_active_users': [
+                "full_archive_users": [
+                    _("Fully archived users"),
+                    User.objects.filter(state=User.STATE_FULL_ARCHIVE).count(),
+                    (
+                        Adherent.objects.filter(
+                            state=Adherent.STATE_FULL_ARCHIVE
+                        ).count()
+                    ),
+                    Club.objects.filter(state=Club.STATE_FULL_ARCHIVE).count(),
+                ],
+                "not_active_users": [
                     _("Not yet active users"),
                     User.objects.filter(state=User.STATE_NOT_YET_ACTIVE).count(),
-                    (Adherent.objects
-                     .filter(state=Adherent.STATE_NOT_YET_ACTIVE)
-                     .count()),
-                    Club.objects.filter(state=Club.STATE_NOT_YET_ACTIVE).count()
+                    (
+                        Adherent.objects.filter(
+                            state=Adherent.STATE_NOT_YET_ACTIVE
+                        ).count()
+                    ),
+                    Club.objects.filter(state=Club.STATE_NOT_YET_ACTIVE).count(),
                 ],
-                'adherent_users': [
+                "adherent_users": [
                     _("Contributing members"),
                     _all_adherent.count(),
                     _all_adherent.exclude(adherent__isnull=True).count(),
-                    _all_adherent.exclude(club__isnull=True).count()
+                    _all_adherent.exclude(club__isnull=True).count(),
                 ],
-                'connexion_users': [
+                "connexion_users": [
                     _("Users benefiting from a connection"),
                     _all_has_access.count(),
                     _all_has_access.exclude(adherent__isnull=True).count(),
-                    _all_has_access.exclude(club__isnull=True).count()
+                    _all_has_access.exclude(club__isnull=True).count(),
                 ],
-                'ban_users': [
+                "ban_users": [
                     _("Banned users"),
                     _all_baned.count(),
                     _all_baned.exclude(adherent__isnull=True).count(),
-                    _all_baned.exclude(club__isnull=True).count()
+                    _all_baned.exclude(club__isnull=True).count(),
                 ],
-                'whitelisted_user': [
+                "whitelisted_user": [
                     _("Users benefiting from a free connection"),
                     _all_whitelisted.count(),
                     _all_whitelisted.exclude(adherent__isnull=True).count(),
-                    _all_whitelisted.exclude(club__isnull=True).count()
+                    _all_whitelisted.exclude(club__isnull=True).count(),
                 ],
-                'actives_interfaces': [
+                "actives_interfaces": [
                     _("Active interfaces (with access to the network)"),
                     _all_active_interfaces_count.count(),
-                    (_all_active_interfaces_count
-                     .exclude(machine__user__adherent__isnull=True)
-                     .count()),
-                    (_all_active_interfaces_count
-                     .exclude(machine__user__club__isnull=True)
-                     .count())
+                    (
+                        _all_active_interfaces_count.exclude(
+                            machine__user__adherent__isnull=True
+                        ).count()
+                    ),
+                    (
+                        _all_active_interfaces_count.exclude(
+                            machine__user__club__isnull=True
+                        ).count()
+                    ),
                 ],
-                'actives_assigned_interfaces': [
+                "actives_assigned_interfaces": [
                     _("Active interfaces assigned IPv4"),
                     _all_active_assigned_interfaces_count.count(),
-                    (_all_active_assigned_interfaces_count
-                     .exclude(machine__user__adherent__isnull=True)
-                     .count()),
-                    (_all_active_assigned_interfaces_count
-                     .exclude(machine__user__club__isnull=True)
-                     .count())
-                ]
-            }
+                    (
+                        _all_active_assigned_interfaces_count.exclude(
+                            machine__user__adherent__isnull=True
+                        ).count()
+                    ),
+                    (
+                        _all_active_assigned_interfaces_count.exclude(
+                            machine__user__club__isnull=True
+                        ).count()
+                    ),
+                ],
+            },
         ],
-        [   # Second set of data (about ip adresses)
-            [   # Headers
+        [  # Second set of data (about ip adresses)
+            [  # Headers
                 _("IP range"),
                 _("VLAN"),
                 _("Total number of IP addresses"),
                 _("Number of assigned IP addresses"),
                 _("Number of IP address assigned to an activated machine"),
-                _("Number of nonassigned IP addresses")
+                _("Number of unassigned IP addresses"),
             ],
-            ip_dict  # Data already prepared
-        ]
+            ip_dict,  # Data already prepared
+        ],
     ]
-    return render(request, 'logs/stats_general.html', {'stats_list': stats})
+    return render(request, "logs/stats_general.html", {"stats_list": stats})
 
 
 @login_required
-@can_view_app('users', 'cotisations', 'machines', 'topologie')
+@can_view_app("users", "cotisations", "machines", "topologie")
 def stats_models(request):
     """Statistiques générales, affiche les comptages par models:
     nombre d'users, d'écoles, de droits, de bannissements,
     de factures, de ventes, de banque, de machines, etc"""
     stats = {
-        _("Users"): {
-            'users': [User._meta.verbose_name, User.objects.count()],
-            'adherents': [Adherent._meta.verbose_name, Adherent.objects.count()],
-            'clubs': [Club._meta.verbose_name, Club.objects.count()],
-            'serviceuser': [ServiceUser._meta.verbose_name,
-                            ServiceUser.objects.count()],
-            'school': [School._meta.verbose_name, School.objects.count()],
-            'listright': [ListRight._meta.verbose_name, ListRight.objects.count()],
-            'listshell': [ListShell._meta.verbose_name, ListShell.objects.count()],
-            'ban': [Ban._meta.verbose_name, Ban.objects.count()],
-            'whitelist': [Whitelist._meta.verbose_name, Whitelist.objects.count()]
+        _("Users (members and clubs)"): {
+            "users": [User._meta.verbose_name, User.objects.count()],
+            "adherents": [Adherent._meta.verbose_name, Adherent.objects.count()],
+            "clubs": [Club._meta.verbose_name, Club.objects.count()],
+            "serviceuser": [
+                ServiceUser._meta.verbose_name,
+                ServiceUser.objects.count(),
+            ],
+            "school": [School._meta.verbose_name, School.objects.count()],
+            "listright": [ListRight._meta.verbose_name, ListRight.objects.count()],
+            "listshell": [ListShell._meta.verbose_name, ListShell.objects.count()],
+            "ban": [Ban._meta.verbose_name, Ban.objects.count()],
+            "whitelist": [Whitelist._meta.verbose_name, Whitelist.objects.count()],
         },
-        _("Subscriptions"): {
-            'factures': [
-                Facture._meta.verbose_name,
-                Facture.objects.count()
-            ],
-            'vente': [
-                Vente._meta.verbose_name,
-                Vente.objects.count()
-            ],
-            'cotisation': [
-                Cotisation._meta.verbose_name,
-                Cotisation.objects.count()
-            ],
-            'article': [
-                Article._meta.verbose_name,
-                Article.objects.count()
-            ],
-            'banque': [
-                Banque._meta.verbose_name,
-                Banque.objects.count()
-            ],
+        Cotisation._meta.verbose_name_plural.title(): {
+            "factures": [Facture._meta.verbose_name, Facture.objects.count()],
+            "vente": [Vente._meta.verbose_name, Vente.objects.count()],
+            "cotisation": [Cotisation._meta.verbose_name, Cotisation.objects.count()],
+            "article": [Article._meta.verbose_name, Article.objects.count()],
+            "banque": [Banque._meta.verbose_name, Banque.objects.count()],
         },
-        _("Machines"): {
-            'machine': [Machine._meta.verbose_name,
-                        Machine.objects.count()],
-            'typemachine': [MachineType._meta.verbose_name,
-                            MachineType.objects.count()],
-            'typeip': [IpType._meta.verbose_name,
-                       IpType.objects.count()],
-            'extension': [Extension._meta.verbose_name,
-                          Extension.objects.count()],
-            'interface': [Interface._meta.verbose_name,
-                          Interface.objects.count()],
-            'alias': [Domain._meta.verbose_name,
-                      Domain.objects.exclude(cname=None).count()],
-            'iplist': [IpList._meta.verbose_name,
-                       IpList.objects.count()],
-            'service': [Service._meta.verbose_name,
-                        Service.objects.count()],
-            'ouvertureportlist': [
+        Machine._meta.verbose_name_plural.title(): {
+            "machine": [Machine._meta.verbose_name, Machine.objects.count()],
+            "typemachine": [
+                MachineType._meta.verbose_name,
+                MachineType.objects.count(),
+            ],
+            "typeip": [IpType._meta.verbose_name, IpType.objects.count()],
+            "extension": [Extension._meta.verbose_name, Extension.objects.count()],
+            "interface": [Interface._meta.verbose_name, Interface.objects.count()],
+            "alias": [
+                Domain._meta.verbose_name,
+                Domain.objects.exclude(cname=None).count(),
+            ],
+            "iplist": [IpList._meta.verbose_name, IpList.objects.count()],
+            "service": [Service._meta.verbose_name, Service.objects.count()],
+            "ouvertureportlist": [
                 OuverturePortList._meta.verbose_name,
-                OuverturePortList.objects.count()
+                OuverturePortList.objects.count(),
             ],
-            'vlan': [Vlan._meta.verbose_name, Vlan.objects.count()],
-            'SOA': [SOA._meta.verbose_name, SOA.objects.count()],
-            'Mx': [Mx._meta.verbose_name, Mx.objects.count()],
-            'Ns': [Ns._meta.verbose_name, Ns.objects.count()],
-            'nas': [Nas._meta.verbose_name, Nas.objects.count()],
+            "vlan": [Vlan._meta.verbose_name, Vlan.objects.count()],
+            "SOA": [SOA._meta.verbose_name, SOA.objects.count()],
+            "Mx": [Mx._meta.verbose_name, Mx.objects.count()],
+            "Ns": [Ns._meta.verbose_name, Ns.objects.count()],
+            "nas": [Nas._meta.verbose_name, Nas.objects.count()],
         },
         _("Topology"): {
-            'switch': [Switch._meta.verbose_name,
-                       Switch.objects.count()],
-            'bornes': [AccessPoint._meta.verbose_name,
-                       AccessPoint.objects.count()],
-            'port': [Port._meta.verbose_name, Port.objects.count()],
-            'chambre': [Room._meta.verbose_name, Room.objects.count()],
-            'stack': [Stack._meta.verbose_name, Stack.objects.count()],
-            'modelswitch': [
+            "switch": [Switch._meta.verbose_name, Switch.objects.count()],
+            "bornes": [AccessPoint._meta.verbose_name, AccessPoint.objects.count()],
+            "port": [Port._meta.verbose_name, Port.objects.count()],
+            "chambre": [Room._meta.verbose_name, Room.objects.count()],
+            "stack": [Stack._meta.verbose_name, Stack.objects.count()],
+            "modelswitch": [
                 ModelSwitch._meta.verbose_name,
-                ModelSwitch.objects.count()
+                ModelSwitch.objects.count(),
             ],
-            'constructorswitch': [
+            "constructorswitch": [
                 ConstructorSwitch._meta.verbose_name,
-                ConstructorSwitch.objects.count()
+                ConstructorSwitch.objects.count(),
             ],
         },
-        _("Actions performed"):
-        {
-            'revision': [_("Number of actions"), Revision.objects.count()],
+        _("Actions performed"): {
+            "revision": [_("Number of actions"), Revision.objects.count()]
         },
     }
-    return render(request, 'logs/stats_models.html', {'stats_list': stats})
+    return render(request, "logs/stats_models.html", {"stats_list": stats})
 
 
 @login_required
-@can_view_app('users')
+@can_view_app("users")
 def stats_users(request):
     """Affiche les statistiques base de données aggrégées par user :
     nombre de machines par user, d'etablissements par user,
     de moyens de paiements par user, de banque par user,
     de bannissement par user, etc"""
     stats = {
-        _("User"): {
-            _("Machines"): User.objects.annotate(
-                num=Count('machine')
-            ).order_by('-num')[:10],
-            _("Invoice"): User.objects.annotate(
-                num=Count('facture')
-            ).order_by('-num')[:10],
-            _("Ban"): User.objects.annotate(
-                num=Count('ban')
-            ).order_by('-num')[:10],
-            _("Whitelist"): User.objects.annotate(
-                num=Count('whitelist')
-            ).order_by('-num')[:10],
-            _("Rights"): User.objects.annotate(
-                num=Count('groups')
-            ).order_by('-num')[:10],
+        User._meta.verbose_name: {
+            Machine._meta.verbose_name_plural: User.objects.annotate(num=Count("machine")).order_by("-num")[
+                :10
+            ],
+            Facture._meta.verbose_name_plural: User.objects.annotate(num=Count("facture")).order_by("-num")[
+                :10
+            ],
+            Ban._meta.verbose_name_plural: User.objects.annotate(num=Count("ban")).order_by("-num")[:10],
+            Whitelist._meta.verbose_name_plural: User.objects.annotate(num=Count("whitelist")).order_by(
+                "-num"
+            )[:10],
+            _("rights"): User.objects.annotate(num=Count("groups")).order_by("-num")[
+                :10
+            ],
         },
-        _("School"): {
-            _("User"): School.objects.annotate(
-                num=Count('user')
-            ).order_by('-num')[:10],
+        School._meta.verbose_name: {
+            User._meta.verbose_name_plural: School.objects.annotate(num=Count("user")).order_by("-num")[:10]
         },
-        _("Payment method"): {
-            _("User"): Paiement.objects.annotate(
-                num=Count('facture')
-            ).order_by('-num')[:10],
+        Paiement._meta.verbose_name: {
+            User._meta.verbose_name_plural: Paiement.objects.annotate(num=Count("facture")).order_by("-num")[
+                :10
+            ]
         },
-        _("Bank"): {
-            _("User"): Banque.objects.annotate(
-                num=Count('facture')
-            ).order_by('-num')[:10],
+        Banque._meta.verbose_name: {
+            User._meta.verbose_name_plural: Banque.objects.annotate(num=Count("facture")).order_by("-num")[
+                :10
+            ]
         },
     }
-    return render(request, 'logs/stats_users.html', {'stats_list': stats})
+    return render(request, "logs/stats_users.html", {"stats_list": stats})
 
 
 @login_required
-@can_view_app('users')
+@can_view_app("users")
 def stats_actions(request):
     """Vue qui affiche les statistiques de modifications d'objets par
     utilisateurs.
     Affiche le nombre de modifications aggrégées par utilisateurs"""
     stats = {
-        _("User"): {
-            _("Action"): User.objects.annotate(
-                num=Count('revision')
-            ).order_by('-num')[:40],
-        },
+        User._meta.verbose_name: {
+            _("actions"): User.objects.annotate(num=Count("revision")).order_by("-num")[
+                :40
+            ]
+        }
     }
-    return render(request, 'logs/stats_users.html', {'stats_list': stats})
+    return render(request, "logs/stats_users.html", {"stats_list": stats})
 
 
 def history(request, application, object_name, object_id):
@@ -503,33 +484,29 @@ def history(request, application, object_name, object_id):
         model = apps.get_model(application, object_name)
     except LookupError:
         raise Http404(_("No model found."))
-    object_name_id = object_name + 'id'
+    object_name_id = object_name + "id"
     kwargs = {object_name_id: object_id}
     try:
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
         messages.error(request, _("Nonexistent entry."))
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    can, msg = instance.can_view(request.user)
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
+    can, msg, _permissions = instance.can_view(request.user)
     if not can:
-        messages.error(request, msg or _("You don't have the right to access this menu."))
-        return redirect(reverse(
-            'users:profil',
-            kwargs={'userid': str(request.user.id)}
-        ))
-    pagination_number = GeneralOption.get_cached_value('pagination_number')
+        messages.error(
+            request, msg or _("You don't have the right to access this menu.")
+        )
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
     reversions = Version.objects.get_for_object(instance)
-    if hasattr(instance, 'linked_objects'):
+    if hasattr(instance, "linked_objects"):
         for related_object in chain(instance.linked_objects()):
-            reversions = (reversions |
-                          Version.objects.get_for_object(related_object))
+            reversions = reversions | Version.objects.get_for_object(related_object)
     reversions = re2o_paginator(request, reversions, pagination_number)
     return render(
-        request,
-        're2o/history.html',
-        {'reversions': reversions, 'object': instance}
+        request, "re2o/history.html", {"reversions": reversions, "object": instance}
     )
-

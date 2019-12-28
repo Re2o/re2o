@@ -8,19 +8,29 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0090_auto_20180805_1459'),
-    ]
+    dependencies = [("machines", "0090_auto_20180805_1459")]
 
     operations = [
         migrations.AddField(
-            model_name='iptype',
-            name='domaine_ip_netmask',
-            field=models.IntegerField(default=24, help_text='Netmask for the ipv4 range domain', validators=[django.core.validators.MaxValueValidator(31), django.core.validators.MinValueValidator(8)]),
+            model_name="iptype",
+            name="domaine_ip_netmask",
+            field=models.IntegerField(
+                default=24,
+                help_text="Netmask for the ipv4 range domain",
+                validators=[
+                    django.core.validators.MaxValueValidator(31),
+                    django.core.validators.MinValueValidator(8),
+                ],
+            ),
         ),
         migrations.AddField(
-            model_name='iptype',
-            name='domaine_ip_network',
-            field=models.GenericIPAddressField(blank=True, help_text='Network containing the ipv4 range domain ip start/stop. Optional', null=True, protocol='IPv4'),
+            model_name="iptype",
+            name="domaine_ip_network",
+            field=models.GenericIPAddressField(
+                blank=True,
+                help_text="Network containing the ipv4 range domain ip start/stop. Optional",
+                null=True,
+                protocol="IPv4",
+            ),
         ),
     ]

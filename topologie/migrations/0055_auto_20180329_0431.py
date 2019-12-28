@@ -7,13 +7,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0054_auto_20180326_1742'),
-    ]
+    dependencies = [("topologie", "0054_auto_20180326_1742")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='accesspoint',
-            options={'permissions': (('view_accesspoint', 'Peut voir une borne'),)},
-        ),
+            name="accesspoint",
+            options={"permissions": (("view_accesspoint", "Peut voir une borne"),)},
+        )
     ]

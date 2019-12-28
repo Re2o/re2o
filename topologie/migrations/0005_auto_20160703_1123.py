@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,13 +28,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('topologie', '0004_auto_20160703_1122'),
-    ]
+    dependencies = [("topologie", "0004_auto_20160703_1122")]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='room',
-            unique_together=set([('building', 'number')]),
-        ),
+            name="room", unique_together=set([("building", "number")])
+        )
     ]

@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-12 16:48+0100\n"
+"POT-Creation-Date: 2019-11-20 01:24+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,77 +30,128 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: acl.py:142
+#: re2o/acl.py:47
+msgid "You don't have the right to edit this option."
+msgstr "Vous n'avez pas le droit de modifier cette option."
+
+#: re2o/acl.py:51
+#, python-format
+msgid "You need to be a member of one of these groups: %s."
+msgstr "Vous devez être membre de l'un de ces groupes : %s."
+
+#: re2o/acl.py:54
+#, python-format
+msgid "No group has the %s permission(s)!"
+msgstr "Aucun groupe ne possède la ou les permissions %s !"
+
+#: re2o/acl.py:167
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: acl.py:159 acl.py:224
+#: re2o/acl.py:193 re2o/acl.py:264
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: acl.py:274
+#: re2o/acl.py:314
 msgid "You don't have the right to edit the history."
 msgstr "Vous n'avez pas le droit de modifier l'historique."
 
-#: base.py:76
+#: re2o/base.py:76
 msgid "This domain is already taken."
 msgstr "Ce domaine est déjà pris."
 
-#: base.py:78
+#: re2o/base.py:78
 msgid "SMTP unreachable."
 msgstr "SMTP injoignable."
 
-#: mixins.py:111
+#: re2o/base.py:99
+#, python-brace-format
+msgid "Format: {main} {more}"
+msgstr "Format : {main} {more}"
+
+#: re2o/base.py:101
+#, python-brace-format
+msgid "Format: {main}"
+msgstr "Format : {main}"
+
+#: re2o/mixins.py:113
 #, python-format
 msgid "You don't have the right to create a %s object."
 msgstr "Vous n'avez pas le droit de créer un objet %s."
 
-#: mixins.py:125
+#: re2o/mixins.py:129
 #, python-format
 msgid "You don't have the right to edit a %s object."
 msgstr "Vous n'avez pas le droit de modifier un objet %s."
 
-#: mixins.py:139
+#: re2o/mixins.py:145
 #, python-format
 msgid "You don't have the right to delete a %s object."
 msgstr "Vous n'avez pas le droit de supprimer un objet %s."
 
-#: mixins.py:153
+#: re2o/mixins.py:161
 #, python-format
 msgid "You don't have the right to view every %s object."
 msgstr "Vous n'avez pas le droit de voir tous les objets %s."
 
-#: mixins.py:167
+#: re2o/mixins.py:177
 #, python-format
 msgid "You don't have the right to view a %s object."
 msgstr "Vous n'avez pas le droit de voir un objet %s."
 
-#: settings.py:155
+#: re2o/settings.py:150
 msgid "English"
 msgstr "Anglais"
 
-#: settings.py:156
+#: re2o/settings.py:150
 msgid "French"
 msgstr "Français"
 
-#: templates/re2o/about.html:29 templates/re2o/about.html:35
+#: re2o/templates/re2o/about.html:29 re2o/templates/re2o/about.html:54
 msgid "About Re2o"
 msgstr "À propos de Re2o"
 
-#: templates/re2o/about.html:32
-#, python-format
-msgid "About %(AssoName)s"
-msgstr "À propos de %(AssoName)s"
+#: re2o/templates/re2o/about.html:32
+msgid "Legal notes"
+msgstr "Mentions légales"
 
-#: templates/re2o/about.html:36
+#: re2o/templates/re2o/about.html:34
+msgid "Legal entity"
+msgstr "Entité légale"
+
+#: re2o/templates/re2o/about.html:37
+msgid "Registered office"
+msgstr "Siège enregistré"
+
+#: re2o/templates/re2o/about.html:41
+msgid "SIRET: "
+msgstr "SIRET : "
+
+#: re2o/templates/re2o/about.html:43
+msgid "Publication manager"
+msgstr "Gestionnaire de publication"
+
+#: re2o/templates/re2o/about.html:44
+msgid "President of "
+msgstr "Président de "
+
+#: re2o/templates/re2o/about.html:46
+msgid "General Terms of Use"
+msgstr "Conditions Générales d'Utilisation"
+
+#: re2o/templates/re2o/about.html:50
+msgid "Additional information"
+msgstr "Informations supplémentaires"
+
+#: re2o/templates/re2o/about.html:55
 msgid ""
 "Re2o is an administration tool initiated by <a href=\"https://rezometz.org/"
 "\">Rezo Metz</a> and a few members of other <a href=\"https://federez.net"
 "\">FedeRez</a> associations around the summer 2016.<br /> It is intended to "
-"be a tool independant from any network infrastructure so it can be setup in "
+"be a tool independent from any network infrastructure so it can be setup in "
 "\"a few steps\". This tool is entirely free and available under a GNU Public "
 "License v2 (GPLv2) license on <a href=\"https://gitlab.federez.net/federez/"
-"re2o/\">FedeRez gitlab</a>.<br /> Re2o's mainteners are volunteers mainly "
+"re2o/\">FedeRez gitlab</a>.<br /> Re2o's maintainers are volunteers mainly "
 "from French schools. <br /> If you want to get involved in the development "
 "process, we will be glad to welcome you so do not hesitate to contact us and "
 "come help us build the future of Re2o."
@@ -109,7 +160,7 @@ msgstr ""
 "\">Rézo Metz</a> et quelques membres d'autres associations de <a href="
 "\"https://federez.net\">FedeRez</a> autour de l'été 2016.<br /> Il se veut "
 "être un outil indépendant de toute infrastructure réseau pour pouvoir être "
-"installé en \"quelques étapes\". Cet outil est entièrement gratuit et est "
+"installé en « quelques étapes ». Cet outil est entièrement gratuit et est "
 "disponible sous licence GNU Public Licence v2 (GPLv2) sur le <a href="
 "\"https://gitlab.federez.net/federez/re2o/\">gitlab de FedeRez</a>.<br />\n"
 "Les mainteneurs de Re2o sont de fiers bénévoles venant principalement "
@@ -119,90 +170,90 @@ msgstr ""
 "développement, nous serons heureux de vous accueillir donc n'hésitez pas à "
 "nous contacter et à venir nous aider à construire le futur de Re2o."
 
-#: templates/re2o/about.html:55
+#: re2o/templates/re2o/about.html:74
 msgid "Contributors list"
 msgstr "Liste des contributeurs"
 
-#: templates/re2o/about.html:64
+#: re2o/templates/re2o/about.html:83
 msgid "Version information"
 msgstr "Informations de versions"
 
-#: templates/re2o/about.html:66
+#: re2o/templates/re2o/about.html:85
 #, python-format
 msgid "<b>Remote URL</b>: %(git_info_remote)s"
 msgstr "<b>URL distante</b> : %(git_info_remote)s"
 
-#: templates/re2o/about.html:69
+#: re2o/templates/re2o/about.html:88
 #, python-format
 msgid "<b>Branch</b>: %(git_info_branch)s"
 msgstr "<b>Branche</b> : %(git_info_branch)s"
 
-#: templates/re2o/about.html:72
+#: re2o/templates/re2o/about.html:91
 #, python-format
 msgid "<b>Commit</b>: %(git_info_commit)s"
 msgstr "<b>Commit</b> : %(git_info_commit)s"
 
-#: templates/re2o/about.html:75
+#: re2o/templates/re2o/about.html:94
 #, python-format
 msgid "<b>Commit date</b>: %(git_info_commit_date)s"
 msgstr "<b>Date du commit</b> : %(git_info_commit_date)s"
 
-#: templates/re2o/about.html:80
+#: re2o/templates/re2o/about.html:99
 msgid "Dependencies"
 msgstr "Dépendances"
 
-#: templates/re2o/aff_history.html:30
+#: re2o/templates/re2o/aff_history.html:30
 msgid "Next"
 msgstr "Suivant"
 
-#: templates/re2o/aff_history.html:37
+#: re2o/templates/re2o/aff_history.html:37
 msgid "Previous"
 msgstr "Précédent"
 
-#: templates/re2o/aff_history.html:45
+#: re2o/templates/re2o/aff_history.html:45
 msgid "Date"
 msgstr "Date"
 
-#: templates/re2o/aff_history.html:46
+#: re2o/templates/re2o/aff_history.html:46
 msgid "Performed by"
 msgstr "Effectuée par"
 
-#: templates/re2o/aff_history.html:47
+#: re2o/templates/re2o/aff_history.html:47
 msgid "Comment"
 msgstr "Commentaire"
 
-#: templates/re2o/contact.html:29
+#: re2o/templates/re2o/contact.html:29
 msgid "Contact"
 msgstr "Contact"
 
-#: templates/re2o/contact.html:32
+#: re2o/templates/re2o/contact.html:32
 #, python-format
 msgid "Contact the organisation %(asso_name)s"
 msgstr "Contacter l'association %(asso_name)s"
 
-#: templates/re2o/history.html:29
+#: re2o/templates/re2o/history.html:29
 msgid "History"
 msgstr "Historique"
 
-#: templates/re2o/history.html:32
+#: re2o/templates/re2o/history.html:32
 #, python-format
 msgid "History of %(object)s"
 msgstr "Historique de %(object)s"
 
-#: templates/re2o/index.html:30
+#: re2o/templates/re2o/index.html:30
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/re2o/index.html:34
+#: re2o/templates/re2o/index.html:34
 #, python-format
 msgid "Welcome to %(name_website)s"
 msgstr "Bienvenue sur %(name_website)s"
 
-#: templates/re2o/index.html:43
+#: re2o/templates/re2o/index.html:43
 msgid "Registration"
 msgstr "Inscription"
 
-#: templates/re2o/index.html:44
+#: re2o/templates/re2o/index.html:44
 msgid ""
 "If you don't have an account yet and you want to access the Internet and the "
 "organisation's services, create your own personal account."
@@ -210,15 +261,15 @@ msgstr ""
 "Si vous n'avez pas encore de compte et que vous voulez accéder à Internet et "
 "aux services de l'association, créez votre espace personnel."
 
-#: templates/re2o/index.html:45
+#: re2o/templates/re2o/index.html:45
 msgid "Sign up"
 msgstr "S'inscrire"
 
-#: templates/re2o/index.html:55
+#: re2o/templates/re2o/index.html:55
 msgid "Logging in"
 msgstr "Identification"
 
-#: templates/re2o/index.html:56
+#: re2o/templates/re2o/index.html:56
 msgid ""
 "If you already have an account, log in. You can manage your subscriptions to "
 "the organisation, your machines and all your services."
@@ -226,15 +277,15 @@ msgstr ""
 "Si vous avez déjà un compte, identifiez-vous. Vous pouvez gérer vos "
 "cotisations à l'association, vos machines et tous vos services."
 
-#: templates/re2o/index.html:57
+#: re2o/templates/re2o/index.html:57
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/re2o/index.html:68
+#: re2o/templates/re2o/index.html:68
 msgid "My profile"
 msgstr "Mon profil"
 
-#: templates/re2o/index.html:69
+#: re2o/templates/re2o/index.html:69
 msgid ""
 "To manage your subscriptions, your machines and all your services, access "
 "your profile."
@@ -242,28 +293,32 @@ msgstr ""
 "Pour gérer vos cotisations, vos machines et tous vos services, accéder à "
 "votre profil."
 
-#: templates/re2o/index.html:70
+#: re2o/templates/re2o/index.html:70
 msgid "Access my profile"
 msgstr "Accéder à mon profil"
 
-#: templates/re2o/index.html:79
+#: re2o/templates/re2o/index.html:79
 msgid "Services of the organisation"
 msgstr "Services de l'association"
 
-#: templates/re2o/index.html:93
+#: re2o/templates/re2o/index.html:93
 msgid "Go there"
 msgstr "Accéder"
 
-#: templates/re2o/sidebar.html:47
+#: re2o/templates/re2o/sidebar.html:47
 #, python-format
 msgid "Tweets from @%(twitter_account_name)s"
 msgstr "Tweets de @%(twitter_account_name)s"
 
-#: templates/re2o/sidebar.html:50
+#: re2o/templates/re2o/sidebar.html:50
 #, python-format
 msgid "Follow @%(twitter_account_name)s"
 msgstr "Suivre @%(twitter_account_name)s"
 
-#: views.py:87
+#: re2o/urls.py:57
+msgid "Homepage"
+msgstr "Page d'accueil"
+
+#: re2o/views.py:96
 msgid "Unable to get the information."
 msgstr "Impossible d'obtenir l'information."

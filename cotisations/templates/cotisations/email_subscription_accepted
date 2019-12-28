@@ -1,22 +1,23 @@
 Bonjour {{name}} !
 
-Nous vous informons que votre cotisation auprès de {{asso_name}} a été acceptée. Vous voilà donc membre de l'association.
+Nous vous informons que votre cotisation auprès de {{asso_name}} a été acceptée. Vous voilà donc membre de l'association jusqu'au {{ date_end|date:"d/m/Y" }}.
 
 Vous trouverez en pièce jointe un reçu.
 
 Pour nous faire part de toute remarque, suggestion ou problème vous pouvez nous envoyer un mail à {{asso_email}}.
 
-À bientôt,
+Respectueusement,
 L'équipe de {{asso_name}}.
 
 ---
 
-Your subscription to {{asso_name}} has just been accepted. You are now a full member of {{asso_name}}.
+Hello {{name}}!
+
+Your subscription to {{asso_name}} has just been accepted. You are now a full member of {{asso_name}} until {{ date_end|date:"d/m/Y" }}.
 
 You will find with this email a subscription voucher.
 
-For any information, suggestion or problem, you can contact us via email at
-{{asso_email}}.
+To express any comment, suggestion or problem, you can send us an email to {{asso_email}}.
 
 Regards,
 The {{asso_name}} team.

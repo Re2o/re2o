@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,16 +28,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0024_remove_ldapuser_mac_list'),
-    ]
+    dependencies = [("users", "0024_remove_ldapuser_mac_list")]
 
     operations = [
         migrations.CreateModel(
-            name='ListShell',
+            name="ListShell",
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
-                ('shell', models.CharField(unique=True, max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        serialize=False,
+                        primary_key=True,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("shell", models.CharField(unique=True, max_length=255)),
             ],
-        ),
+        )
     ]

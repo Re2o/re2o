@@ -8,14 +8,23 @@ import ldapdb.models.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0051_user_telephone'),
-    ]
+    dependencies = [("users", "0051_user_telephone")]
 
     operations = [
-        migrations.AddField(
-            model_name='ldapuser',
-            name='shadowexpire',
-            field=ldapdb.models.fields.CharField(blank=True, db_column='shadowExpire', max_length=200, null=True),
-        ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name="ldapuser",
+                    name="shadowexpire",
+                    field=ldapdb.models.fields.CharField(
+                        blank=True, db_column="shadowExpire", max_length=200, null=True
+                    ),
+                )
+            ],
+            database_operations=[
+                migrations.RunSQL(
+                    'ALTER TABLE users_ldapuser ADD COLUMN "shadowExpire" varchar(200) NULL;'
+                )
+            ],
+        )
     ]

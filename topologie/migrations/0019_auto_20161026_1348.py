@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,29 +29,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('machines', '0026_auto_20161026_1348'),
-        ('topologie', '0018_room_details'),
+        ("machines", "0026_auto_20161026_1348"),
+        ("topologie", "0018_room_details"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='switch',
-            name='location',
-            field=models.CharField(default='test', max_length=255),
+            model_name="switch",
+            name="location",
+            field=models.CharField(default="test", max_length=255),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='switch',
-            name='switch_interface',
-            field=models.OneToOneField(default=1, to='machines.Interface'),
+            model_name="switch",
+            name="switch_interface",
+            field=models.OneToOneField(default=1, to="machines.Interface"),
             preserve_default=False,
         ),
-        migrations.AlterUniqueTogether(
-            name='switch',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='switch',
-            name='building',
-        ),
+        migrations.AlterUniqueTogether(name="switch", unique_together=set([])),
+        migrations.RemoveField(model_name="switch", name="building"),
     ]

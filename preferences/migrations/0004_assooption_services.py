@@ -7,31 +7,58 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0003_optionaluser_solde_negatif'),
-    ]
+    dependencies = [("preferences", "0003_optionaluser_solde_negatif")]
 
     operations = [
         migrations.CreateModel(
-            name='AssoOption',
+            name="AssoOption",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default="Association réseau de l'école machin", max_length=32)),
-                ('siret', models.CharField(default='00000000000000', max_length=32)),
-                ('adresse', models.CharField(default="1 Rue de l'exemple, 94230 Cachan", max_length=128)),
-                ('contact', models.EmailField(default='contact@example.org', max_length=254)),
-                ('telephone', models.CharField(default='0000000000', max_length=15)),
-                ('pseudo', models.CharField(default='Asso', max_length=32)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        default="Association réseau de l'école machin", max_length=32
+                    ),
+                ),
+                ("siret", models.CharField(default="00000000000000", max_length=32)),
+                (
+                    "adresse",
+                    models.CharField(
+                        default="1 Rue de l'exemple, 94230 Cachan", max_length=128
+                    ),
+                ),
+                (
+                    "contact",
+                    models.EmailField(default="contact@example.org", max_length=254),
+                ),
+                ("telephone", models.CharField(default="0000000000", max_length=15)),
+                ("pseudo", models.CharField(default="Asso", max_length=32)),
             ],
         ),
         migrations.CreateModel(
-            name='Services',
+            name="Services",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
-                ('url', models.URLField()),
-                ('description', models.TextField()),
-                ('image', models.ImageField(upload_to='logo')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
+                ("url", models.URLField()),
+                ("description", models.TextField()),
+                ("image", models.ImageField(upload_to="logo")),
             ],
         ),
     ]

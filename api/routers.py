@@ -74,9 +74,9 @@ class AllViewsRouter(DefaultRouter):
         Returns:
             The name to use for this route.
         """
-        return pattern.split('/')[-1]
+        return pattern.split("/")[-1]
 
-    def get_api_root_view(self, schema_urls=None):
+    def get_api_root_view(self, schema_urls=None, api_urls=None):
         """Create a class-based view to use as the API root.
 
         Highly inspired by the base class. See details on the implementation
@@ -102,12 +102,10 @@ class AllViewsRouter(DefaultRouter):
         if schema_urls and self.schema_title:
             view_renderers += list(self.schema_renderers)
             schema_generator = SchemaGenerator(
-                title=self.schema_title,
-                patterns=schema_urls
+                title=self.schema_title, patterns=schema_urls
             )
             schema_media_types = [
-                renderer.media_type
-                for renderer in self.schema_renderers
+                renderer.media_type for renderer in self.schema_renderers
             ]
 
         class APIRoot(views.APIView):
@@ -128,14 +126,14 @@ class AllViewsRouter(DefaultRouter):
                 namespace = request.resolver_match.namespace
                 for key, url_name in api_root_dict.items():
                     if namespace:
-                        url_name = namespace + ':' + url_name
+                        url_name = namespace + ":" + url_name
                     try:
                         ret[key] = reverse(
                             url_name,
                             args=args,
                             kwargs=kwargs,
                             request=request,
-                            format=kwargs.get('format', None)
+                            format=kwargs.get("format", None),
                         )
                     except NoReverseMatch:
                         # Don't bail out if eg. no list routes exist, only detail routes.

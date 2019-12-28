@@ -8,33 +8,59 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0009_assooption_utilisateur_asso'),
-    ]
+    dependencies = [("preferences", "0009_assooption_utilisateur_asso")]
 
     operations = [
         migrations.CreateModel(
-            name='OptionalTopologie',
+            name="OptionalTopologie",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                )
             ],
         ),
         migrations.CreateModel(
-            name='Vlan',
+            name="Vlan",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('vlan_id', models.IntegerField()),
-                ('comment', models.CharField(max_length=256)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("vlan_id", models.IntegerField()),
+                ("comment", models.CharField(max_length=256)),
             ],
         ),
         migrations.AddField(
-            model_name='optionaltopologie',
-            name='vlan_decision_nok',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='decision_nok', to='preferences.Vlan'),
+            model_name="optionaltopologie",
+            name="vlan_decision_nok",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="decision_nok",
+                to="preferences.Vlan",
+            ),
         ),
         migrations.AddField(
-            model_name='optionaltopologie',
-            name='vlan_decision_ok',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='decision_ok', to='preferences.Vlan'),
+            model_name="optionaltopologie",
+            name="vlan_decision_ok",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="decision_ok",
+                to="preferences.Vlan",
+            ),
         ),
     ]

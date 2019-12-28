@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-08 23:56+0100\n"
+"POT-Creation-Date: 2019-11-19 23:43+0100\n"
 "PO-Revision-Date: 2018-06-24 20:10+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,60 +30,64 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: forms.py:33
+#: search/forms.py:33
 msgid "Active"
 msgstr "Actifs"
 
-#: forms.py:34
+#: search/forms.py:34
 msgid "Disabled"
 msgstr "Désactivés"
 
-#: forms.py:35
+#: search/forms.py:35
 msgid "Archived"
 msgstr "Archivés"
 
-#: forms.py:36
+#: search/forms.py:36
 msgid "Not yet active"
 msgstr "Pas encore adhéré"
 
-#: forms.py:40
+#: search/forms.py:37
+msgid "Fully archived"
+msgstr "Complètement archivés"
+
+#: search/forms.py:41
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms.py:41
+#: search/forms.py:42
 msgid "Machines"
 msgstr "Machines"
 
-#: forms.py:42
+#: search/forms.py:43
 msgid "Invoices"
 msgstr "Factures"
 
-#: forms.py:43
+#: search/forms.py:44
 msgid "Bans"
 msgstr "Bannissements"
 
-#: forms.py:44
+#: search/forms.py:45
 msgid "Whitelists"
 msgstr "Accès gracieux"
 
-#: forms.py:45
+#: search/forms.py:46
 msgid "Rooms"
 msgstr "Chambres"
 
-#: forms.py:46
+#: search/forms.py:47
 msgid "Ports"
 msgstr "Ports"
 
-#: forms.py:47
+#: search/forms.py:48
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: forms.py:60 forms.py:72 templates/search/search.html:29
-#: templates/search/search.html:48
+#: search/forms.py:62 search/forms.py:77 search/templates/search/search.html:29
+#: search/templates/search/search.html:48
 msgid "Search"
 msgstr "Rechercher"
 
-#: forms.py:62 forms.py:74
+#: search/forms.py:65 search/forms.py:80
 msgid ""
 "Use « » and «,» to specify distinct words, «\"query\"» for an exact search "
 "and «\\» to escape a character."
@@ -91,77 +95,77 @@ msgstr ""
 "Utilisez « » et «,» pour spécifier différents mots, «\"query\"» pour une "
 "recherche exacte et «\\» pour échapper un caractère."
 
-#: forms.py:81
+#: search/forms.py:88
 msgid "Users filter"
 msgstr "Filtre utilisateurs"
 
-#: forms.py:88
+#: search/forms.py:95
 msgid "Display filter"
 msgstr "Filtre affichage"
 
-#: forms.py:96
+#: search/forms.py:101
 msgid "Start date"
 msgstr "Date de début"
 
-#: forms.py:100
+#: search/forms.py:102
 msgid "End date"
 msgstr "Date de fin"
 
-#: templates/search/index.html:29
+#: search/templates/search/index.html:29
 msgid "Search results"
 msgstr "Résultats de la recherche"
 
-#: templates/search/index.html:33
+#: search/templates/search/index.html:33
 msgid "Results among users:"
 msgstr "Résultats parmi les utilisateurs :"
 
-#: templates/search/index.html:37
+#: search/templates/search/index.html:37
 msgid "Results among clubs:"
 msgstr "Résultats parmi les clubs :"
 
-#: templates/search/index.html:41
+#: search/templates/search/index.html:41
 msgid "Results among machines:"
 msgstr "Résultats parmi les machines :"
 
-#: templates/search/index.html:45
+#: search/templates/search/index.html:45
 msgid "Results among invoices:"
 msgstr "Résultats parmi les factures :"
 
-#: templates/search/index.html:49
+#: search/templates/search/index.html:49
 msgid "Results among whitelists:"
 msgstr "Résultats parmi les accès à titre gracieux :"
 
-#: templates/search/index.html:53
+#: search/templates/search/index.html:53
 msgid "Results among bans:"
 msgstr "Résultats parmi les bannissements :"
 
-#: templates/search/index.html:57
+#: search/templates/search/index.html:57
 msgid "Results among rooms:"
 msgstr "Résultats parmi les chambres :"
 
-#: templates/search/index.html:61
+#: search/templates/search/index.html:61
 msgid "Results among ports:"
 msgstr "Résultats parmi les ports :"
 
-#: templates/search/index.html:65
+#: search/templates/search/index.html:65
 msgid "Results among switches:"
 msgstr "Résultats parmi les commutateurs réseau :"
 
-#: templates/search/index.html:69
+#: search/templates/search/index.html:69
 msgid "No result"
 msgstr "Pas de résultat"
 
-#: templates/search/index.html:71
+#: search/templates/search/index.html:71
 #, python-format
-msgid "(Only the first %(max_result)s results are displayed in each category)"
+msgid "Only the first %(max_result)s results are displayed in each category."
 msgstr ""
-"(Seulement les %(max_result)s premiers résultats sont affichés dans chaque "
-"catégorie)"
+"Seulement les %(max_result)s premiers résultats sont affichés dans chaque "
+"catégorie."
 
-#: templates/search/sidebar.html:31
+#: search/templates/search/sidebar.html:31
 msgid "Simple search"
 msgstr "Recherche simple"
 
-#: templates/search/sidebar.html:35
+#: search/templates/search/sidebar.html:35
 msgid "Advanced search"
 msgstr "Recherche avancée"

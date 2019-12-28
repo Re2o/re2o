@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,17 +28,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Switch',
+            name="Switch",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
-                ('building', models.CharField(max_length=10)),
-                ('number', models.IntegerField()),
-                ('details', models.CharField(max_length=255, blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        verbose_name="ID",
+                        serialize=False,
+                    ),
+                ),
+                ("building", models.CharField(max_length=10)),
+                ("number", models.IntegerField()),
+                ("details", models.CharField(max_length=255, blank=True)),
             ],
-        ),
+        )
     ]

@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,16 +29,18 @@ from django.contrib import messages
 from django.http import HttpRequest
 from preferences.models import GeneralOption, OptionalMachine
 from django.utils.translation import get_language
+from importlib import import_module
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def context_user(request):
     """Fonction de context lorsqu'un user est logué (ou non),
     renvoie les infos sur l'user, la liste de ses droits, ses machines"""
     user = request.user
-    if get_language()=='fr':
-        global_message = GeneralOption.get_cached_value('general_message_fr')
+    if get_language() == "fr":
+        global_message = GeneralOption.get_cached_value("general_message_fr")
     else:
-        global_message = GeneralOption.get_cached_value('general_message_en')
+        global_message = GeneralOption.get_cached_value("general_message_en")
     if global_message:
         if isinstance(request, HttpRequest):
             messages.warning(request, global_message)
@@ -49,12 +51,32 @@ def context_user(request):
     else:
         interfaces = None
     return {
-        'request_user': user,
-        'interfaces': interfaces,
+        "request_user": user,
+        "interfaces": interfaces,
         # Must takes a different name because djang.auth.contrib.views.login()
         # overrides 'site_name' context variable.
-        'name_website': GeneralOption.get_cached_value('site_name'),
-        'ipv6_enabled': OptionalMachine.get_cached_value('ipv6'),
+        "name_website": GeneralOption.get_cached_value("site_name"),
+        "ipv6_enabled": OptionalMachine.get_cached_value("ipv6"),
+    }
+
+
+def context_optionnal_apps(request):
+    """Fonction de context pour générer la navbar en fonction des
+    apps optionnels"""
+    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
+    optionnal_templates_navbar_user_list = [
+        app.views.navbar_user()
+        for app in optionnal_apps
+        if hasattr(app.views, "navbar_user")
+    ]
+    optionnal_templates_navbar_logout_list = [
+        app.views.navbar_logout()
+        for app in optionnal_apps
+        if hasattr(app.views, "navbar_logout")
+    ]
+    return {
+        "optionnal_templates_navbar_user_list": optionnal_templates_navbar_user_list,
+        "optionnal_templates_navbar_logout_list": optionnal_templates_navbar_logout_list,
     }
 
 
@@ -62,6 +84,6 @@ def date_now(request):
     """Add the current date in the context for quick informations and
     comparisons"""
     return {
-        'now_aware': datetime.datetime.now(datetime.timezone.utc),
-        'now_naive': datetime.datetime.now()
+        "now_aware": datetime.datetime.now(datetime.timezone.utc),
+        "now_naive": datetime.datetime.now(),
     }

@@ -32,6 +32,7 @@ class RevMixin(object):
     """ A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
     really happen """
+
     def save(self, *args, **kwargs):
         """ Creates a version of this object and save it to database """
         if self.pk is None:
@@ -50,17 +51,18 @@ class RevMixin(object):
 class FormRevMixin(object):
     """ A mixin to subclass the save function of a form
     to enforce the versionning of the object before it is really edited """
+
     def save(self, *args, **kwargs):
         """ Create a version of this object and save it to database """
         if reversion.get_comment() != "" and self.changed_data != []:
             reversion.set_comment(
-                reversion.get_comment() + ",%s"
-                % ', '.join(field for field in self.changed_data)
+                reversion.get_comment()
+                + ",%s" % ", ".join(field for field in self.changed_data)
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) altered : %s"
-                % ', '.join(field for field in self.changed_data)
+                "Field(s) edited: %s"
+                % ", ".join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
 
@@ -88,14 +90,14 @@ class AclMixin(object):
     @classmethod
     def get_modulename(cls):
         """ Returns the name of the module where this mixin is used """
-        return str(cls.__module__).split('.')[0].lower()
+        return str(cls.__module__).split(".")[0].lower()
 
     @classmethod
     def get_instance(cls, *_args, **kwargs):
         """Récupère une instance
         :param objectid: Instance id à trouver
         :return: Une instance de la classe évidemment"""
-        object_id = kwargs.get(cls.get_classname() + 'id')
+        object_id = kwargs.get(cls.get_classname() + "id")
         return cls.objects.get(pk=object_id)
 
     @classmethod
@@ -104,12 +106,14 @@ class AclMixin(object):
         un object
         :param user_request: instance utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
+        permission = cls.get_modulename() + ".add_" + cls.get_classname()
+        can = user_request.has_perm(permission)
         return (
-            user_request.has_perm(
-                cls.get_modulename() + '.add_' + cls.get_classname()
-            ),
-            (_("You don't have the right to create a %s object.")
-                % cls.get_classname())
+            can,
+            _("You don't have the right to create a %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
         )
 
     def can_edit(self, user_request, *_args, **_kwargs):
@@ -118,12 +122,14 @@ class AclMixin(object):
         :param self: Instance à editer
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
+        permission = self.get_modulename() + ".change_" + self.get_classname()
+        can = user_request.has_perm(permission)
         return (
-            user_request.has_perm(
-                self.get_modulename() + '.change_' + self.get_classname()
-            ),
-            (_("You don't have the right to edit a %s object.")
-                % self.get_classname())
+            can,
+            _("You don't have the right to edit a %s object.") % self.get_classname()
+            if not can
+            else None,
+            (permission,),
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
@@ -132,12 +138,14 @@ class AclMixin(object):
         :param self: Instance à delete
         :param user_request: Utilisateur qui fait la requête
         :return: soit True, soit False avec la raison de l'échec"""
+        permission = self.get_modulename() + ".delete_" + self.get_classname()
+        can = user_request.has_perm(permission)
         return (
-            user_request.has_perm(
-                self.get_modulename() + '.delete_' + self.get_classname()
-            ),
-            (_("You don't have the right to delete a %s object.")
-                % self.get_classname())
+            can,
+            _("You don't have the right to delete a %s object.") % self.get_classname()
+            if not can
+            else None,
+            (permission,),
         )
 
     @classmethod
@@ -146,12 +154,14 @@ class AclMixin(object):
         droit particulier view objet correspondant
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
+        permission = cls.get_modulename() + ".view_" + cls.get_classname()
+        can = user_request.has_perm(permission)
         return (
-            user_request.has_perm(
-                cls.get_modulename() + '.view_' + cls.get_classname()
-            ),
-            (_("You don't have the right to view every %s object.")
-                % cls.get_classname())
+            can,
+            _("You don't have the right to view every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
         )
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -160,11 +170,12 @@ class AclMixin(object):
         :param self: instance à voir
         :param user_request: instance user qui fait l'edition
         :return: True ou False avec la raison de l'échec le cas échéant"""
+        permission = self.get_modulename() + ".view_" + self.get_classname()
+        can = user_request.has_perm(permission)
         return (
-            user_request.has_perm(
-                self.get_modulename() + '.view_' + self.get_classname()
-            ),
-            (_("You don't have the right to view a %s object.")
-                % self.get_classname())
+            can,
+            _("You don't have the right to view a %s object.") % self.get_classname()
+            if not can
+            else None,
+            (permission,),
         )
-

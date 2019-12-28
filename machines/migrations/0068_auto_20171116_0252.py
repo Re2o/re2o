@@ -9,34 +9,55 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0067_auto_20171116_0152'),
-    ]
+    dependencies = [("machines", "0067_auto_20171116_0152")]
 
     operations = [
         migrations.AlterField(
-            model_name='extension',
-            name='name',
-            field=models.CharField(help_text='Nom de la zone, doit commencer par un point (.example.org)', max_length=255, unique=True),
+            model_name="extension",
+            name="name",
+            field=models.CharField(
+                help_text="Nom de la zone, doit commencer par un point (.example.org)",
+                max_length=255,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='extension',
-            name='origin',
-            field=models.OneToOneField(blank=True, help_text='Enregistrement A associé à la zone', null=True, on_delete=django.db.models.deletion.PROTECT, to='machines.IpList'),
+            model_name="extension",
+            name="origin",
+            field=models.OneToOneField(
+                blank=True,
+                help_text="Enregistrement A associé à la zone",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="machines.IpList",
+            ),
         ),
         migrations.AlterField(
-            model_name='extension',
-            name='origin_v6',
-            field=models.GenericIPAddressField(blank=True, help_text='Enregistremen AAAA associé à la zone', null=True, protocol='IPv6'),
+            model_name="extension",
+            name="origin_v6",
+            field=models.GenericIPAddressField(
+                blank=True,
+                help_text="Enregistremen AAAA associé à la zone",
+                null=True,
+                protocol="IPv6",
+            ),
         ),
         migrations.AlterField(
-            model_name='srv',
-            name='priority',
-            field=models.PositiveIntegerField(default=0, help_text="La priorité du serveur cible (valeur entière non négative,            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)", validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="srv",
+            name="priority",
+            field=models.PositiveIntegerField(
+                default=0,
+                help_text="La priorité du serveur cible (valeur entière non négative,            plus elle est faible, plus ce serveur sera utilisé s'il est disponible)",
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
         migrations.AlterField(
-            model_name='srv',
-            name='weight',
-            field=models.PositiveIntegerField(default=0, help_text='Poids relatif pour les enregistrements de même priorité            (valeur entière de 0 à 65535)', validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="srv",
+            name="weight",
+            field=models.PositiveIntegerField(
+                default=0,
+                help_text="Poids relatif pour les enregistrements de même priorité            (valeur entière de 0 à 65535)",
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
     ]

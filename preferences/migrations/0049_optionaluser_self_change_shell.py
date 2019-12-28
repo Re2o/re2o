@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('preferences', '0048_auto_20180811_1515'),
-    ]
+    dependencies = [("preferences", "0048_auto_20180811_1515")]
 
     operations = [
         migrations.AddField(
-            model_name='optionaluser',
-            name='self_change_shell',
-            field=models.BooleanField(default=False, help_text='Users can change their shell'),
-        ),
+            model_name="optionaluser",
+            name="self_change_shell",
+            field=models.BooleanField(
+                default=False, help_text="Users can change their shell"
+            ),
+        )
     ]

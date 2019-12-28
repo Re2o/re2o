@@ -1,5 +1,5 @@
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,19 +22,19 @@ from users.models import User
 
 
 class Command(BaseCommand):
-    help = 'Synchronise le ldap à partir du sql. A utiliser dans un cron'
+    help = "Synchronise the LDAP from SQL. To be used in a cron."
 
     def add_arguments(self, parser):
 
         # Named (optional) arguments
         parser.add_argument(
-            '--full',
-            action='store_true',
-            dest='full',
+            "--full",
+            action="store_true",
+            dest="full",
             default=False,
-            help='Régénération complète du ldap (y compris des machines)',
+            help="Complete regeneration of the LDAP (including machines).",
         )
 
     def handle(self, *args, **options):
         for usr in User.objects.all():
-            usr.ldap_sync(mac_refresh=options['full'])
+            usr.ldap_sync(mac_refresh=options["full"])

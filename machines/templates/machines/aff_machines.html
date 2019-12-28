@@ -4,7 +4,7 @@ se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Goulven Kermarec
+Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
 
 This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <td colspan="4">
                         {% trans "No name" as tr_no_name %}
                         {% trans "View the profile" as tr_view_the_profile %}
-                        <b>{{ machine.get_name|default:tr_no_name }}</b> <i class="fa fa-angle-right"></i>
+                        {% if machine.active %}
+                        <span class="text-success">
+                        {% else %}
+                        <span class="text-warning">{% trans "Deactivated" %}: 
+                        {% endif %}
+                        <b>{{ machine.get_name|default:tr_no_name }}</b> </span><i class="fa fa-angle-right"></i>
                         <a href="{% url 'users:profil' userid=machine.user.id %}" title=tr_view_the_profile>
                             <i class="fa fa-user"></i> {{ machine.user }}
                         </a>
@@ -83,10 +88,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% endif %}
                     </td>
                     <td>
-                        {{ interface.type }}
+                        {{ interface.machine_type }}
                     </td>
                     <td>
                         {{ interface.mac_address }}
+                            <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
+                                    data-target="#collapseVendor_{{ interface.id }}" aria-expanded="true"
+                                    aria-controls="collapseVendor_{{ interface.id }}">
+                                {% trans "Display the vendor" %}
+                            </button>
                     </td>
                     <td>
                         <b>IPv4</b> {{ interface.ipv4 }}
@@ -113,7 +123,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         <li>
                                             <a href="{% url 'machines:edit-interface' interface.id %}">
                                                 <i class="fa fa-edit"></i>
-                                                {% trans " Edit" %}
+                                                {% trans "Edit" %}
                                             </a>
                                         </li>
                                     {% acl_end %}
@@ -121,7 +131,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         <li>
                                             <a href="{% url 'machines:index-alias' interface.id %}">
                                                 <i class="fa fa-edit"></i>
-                                                {% trans " Manage the aliases" %}
+                                                {% trans "Manage the aliases" %}
                                             </a>
                                         </li>
                                     {% acl_end %}
@@ -129,7 +139,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         <li>
                                             <a href="{% url 'machines:index-ipv6' interface.id %}">
                                                 <i class="fa fa-edit"></i>
-                                                {% trans " Manage the IPv6 addresses" %}
+                                                {% trans "Manage the IPv6 addresses" %}
                                             </a>
                                         </li>
                                     {% acl_end %}
@@ -137,7 +147,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         <li>
                                             <a href="{% url 'machines:index-sshfp' interface.machine.id %}">
                                                 <i class="fa fa-edit"></i>
-                                                {% trans " Manage the SSH fingerprints" %}
+                                                {% trans "Manage the SSH fingerprints" %}
                                             </a>
                                         </li>
                                     {% acl_end %}
@@ -145,7 +155,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                         <li>
                                             <a href="{% url 'machines:port-config' interface.id %}">
                                                 <i class="fa fa-edit"></i>
-                                                {% trans " Manage the ports configuration" %}
+                                                {% trans "Manage the ports configuration" %}
                                             </a>
                                         </li>
                                     {% acl_end %}
@@ -158,6 +168,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                     </td>
                 </tr>
+                    <tr>
+                        <td colspan=5 style="border-top: none; padding: 1px;">
+                            <div class="collapse in" id="collapseVendor_{{ interface.id }}">
+                                <ul class="list-group" style="margin-bottom: 0;">
+                                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                                            {{ interface.get_vendor }}
+                                        </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
                 {% if ipv6_enabled and interface.ipv6 != 'None' %}
                     <tr>
                         <td colspan=5 style="border-top: none; padding: 1px;">
@@ -210,6 +231,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             var ipv6_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.ipv6.all %}$("#collapseIpv6_{{ interface.id }}"), {% endif %}{% endfor %}{% endfor %}];
             for (var i = 0; i < ipv6_div.length; i++) {
                 ipv6_div[i].collapse('hide');
+            }
+        });
+        $("#machines_table").ready(function () {
+                var vendor_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.get_vendor %}$("#collapseVendor_{{ interface.id }}"), {% endif %}{% endfor %}{% endfor %}];
+            for (var i = 0; i < vendor_div.length; i++) {    
+                vendor_div[i].collapse('hide');
             }
         });
     </script>

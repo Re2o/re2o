@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,14 +29,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('cotisations', '0011_auto_20160702_1911'),
-    ]
+    dependencies = [("cotisations", "0011_auto_20160702_1911")]
 
     operations = [
         migrations.AlterField(
-            model_name='cotisation',
-            name='facture',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, to='cotisations.Facture'),
-        ),
+            model_name="cotisation",
+            name="facture",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT, to="cotisations.Facture"
+            ),
+        )
     ]

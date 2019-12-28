@@ -3,7 +3,7 @@
 # quelques clics.
 #
 # Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
+# Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,19 +28,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('machines', '0012_auto_20160704_0118'),
-    ]
+    dependencies = [("machines", "0012_auto_20160704_0118")]
 
     operations = [
         migrations.AddField(
-            model_name='machine',
-            name='active',
-            field=models.BooleanField(default=True),
+            model_name="machine", name="active", field=models.BooleanField(default=True)
         ),
         migrations.AlterField(
-            model_name='interface',
-            name='dns',
-            field=models.CharField(max_length=255, unique=True, help_text='Obligatoire et unique, doit se terminer en .rez et ne pas comporter de points'),
+            model_name="interface",
+            name="dns",
+            field=models.CharField(
+                max_length=255,
+                unique=True,
+                help_text="Obligatoire et unique, doit se terminer en .rez et ne pas comporter de points",
+            ),
         ),
     ]
