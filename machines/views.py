@@ -817,9 +817,9 @@ def edit_ns(request, ns_instance, **_kwargs):
 @can_delete_set(Ns)
 def del_ns(request, instances):
     """ View used to delete a NS object """
-    ns = DelNsForm(request.POST or None, instances=instances)
-    if ns.is_valid():
-        ns_dels = ns.cleaned_data["ns"]
+    nss = DelNsForm(request.POST or None, instances=instances)
+    if nss.is_valid():
+        ns_dels = nss.cleaned_data["nss"]
         for ns_del in ns_dels:
             try:
                 ns_del.delete()
@@ -830,7 +830,7 @@ def del_ns(request, instances):
                 )
         return redirect(reverse("machines:index-extension"))
     return form(
-        {"nsform": ns, "action_name": _("Delete")}, "machines/machine.html", request
+        {"nsform": nss, "action_name": _("Delete")}, "machines/machine.html", request
     )
 
 
