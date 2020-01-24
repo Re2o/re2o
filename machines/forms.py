@@ -160,11 +160,6 @@ class DomainForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         fields = ["name", "ttl"]
 
     def __init__(self, *args, **kwargs):
-        if "user" in kwargs:
-            user = kwargs["user"]
-            initial = kwargs.get("initial", {})
-            initial["name"] = user.get_next_domain_name()
-            kwargs["initial"] = initial
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(DomainForm, self).__init__(*args, prefix=prefix, **kwargs)
 
