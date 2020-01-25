@@ -228,7 +228,7 @@ def new_machine(request, user, **_kwargs):
 
     machine = NewMachineForm(request.POST or None, user=request.user)
     interface = AddInterfaceForm(request.POST or None, user=request.user)
-    domain = DomainForm(request.POST or None, user=user)
+    domain = DomainForm(request.POST or None, user=user, initial={'name': user.get_next_domain_name()})
     if machine.is_valid() and interface.is_valid():
         new_machine_obj = machine.save(commit=False)
         new_machine_obj.user = user
@@ -325,7 +325,7 @@ def new_interface(request, machine, **_kwargs):
     """ Ajoute une interface et son domain associé à une machine existante"""
 
     interface_form = AddInterfaceForm(request.POST or None, user=request.user)
-    domain_form = DomainForm(request.POST or None, user=request.user)
+    domain_form = DomainForm(request.POST or None, user=request.user, initial={'name': machine.user.get_next_domain_name()})
     if interface_form.is_valid():
         new_interface_obj = interface_form.save(commit=False)
         domain_form.instance.interface_parent = new_interface_obj
