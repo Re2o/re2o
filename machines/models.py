@@ -1131,7 +1131,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         try:
             oui = mac.oui
             vendor = oui.registration().org
-        except NotRegisteredError:
+        except (IndexError, NotRegisteredError) as error:
             vendor = _("Unknown vendor.")
         return vendor
 
