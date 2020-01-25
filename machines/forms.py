@@ -400,7 +400,7 @@ class NsForm(FormRevMixin, ModelForm):
 class DelNsForm(FormRevMixin, Form):
     """Suppresion d'un ou plusieurs NS"""
 
-    ns = forms.ModelMultipleChoiceField(
+    nss = forms.ModelMultipleChoiceField(
         queryset=Ns.objects.none(),
         label=_("Current NS records"),
         widget=forms.CheckboxSelectMultiple,
@@ -410,9 +410,9 @@ class DelNsForm(FormRevMixin, Form):
         instances = kwargs.pop("instances", None)
         super(DelNsForm, self).__init__(*args, **kwargs)
         if instances:
-            self.fields["ns"].queryset = instances
+            self.fields["nss"].queryset = instances
         else:
-            self.fields["ns"].queryset = Ns.objects.all()
+            self.fields["nss"].queryset = Ns.objects.all()
 
 
 class TxtForm(FormRevMixin, ModelForm):
