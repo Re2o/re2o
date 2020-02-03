@@ -48,7 +48,7 @@ class IpTypeField(serializers.RelatedField):
     """ Serializer for an IpType object field """
 
     def to_representation(self, value):
-        return value.type
+        return str(value)
 
     def to_internal_value(self, data):
         pass
@@ -164,7 +164,7 @@ class TypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IpType
         fields = (
-            "type",
+            "name",
             "extension",
             "domaine_ip_start",
             "domaine_ip_stop",
