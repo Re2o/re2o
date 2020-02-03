@@ -23,7 +23,7 @@
 """
 
 from rest_framework import permissions, exceptions
-
+from django.http import Http404
 from . import acl
 
 
@@ -272,6 +272,8 @@ class AutodetectACLPermission(permissions.BasePermission):
             # If the user does not have permissions we need to determine if
             # they have read permissions to see 403, or not, and simply see
             # a 404 response.
+
+            SAFE_METHODS = ("GET", "OPTIONS", "HEAD", "POST", "PUT", "PATCH", "DELETE")
 
             if request.method in SAFE_METHODS:
                 # Read permissions already checked and failed, no need
