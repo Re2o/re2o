@@ -47,7 +47,7 @@ def cheque(request, invoice_pk):
     form = InvoiceForm(request.POST or None, instance=invoice)
     if form.is_valid():
         form.instance.valid = True
-        form.save()
+        # For is saved in call to end_payment
         return form.instance.paiement.end_payment(
             form.instance, request, use_payment_method=False
         )
