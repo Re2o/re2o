@@ -1168,11 +1168,12 @@ class HostMacIpSerializer(serializers.ModelSerializer):
     hostname = serializers.CharField(source="domain.name", read_only=True)
     extension = serializers.CharField(source="domain.extension.name", read_only=True)
     mac_address = serializers.CharField(read_only=True)
+    ip_type = serializers.CharField(source="machine_type.ip_type", read_only=True)
     ipv4 = serializers.CharField(source="ipv4.ipv4", read_only=True)
 
     class Meta:
         model = machines.Interface
-        fields = ("hostname", "extension", "mac_address", "ipv4")
+        fields = ("hostname", "extension", "mac_address", "ipv4", "ip_type")
 
 
 # DNS
