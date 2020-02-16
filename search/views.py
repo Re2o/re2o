@@ -121,6 +121,12 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
         )
         filter_users = (filter_clubs | Q(name__icontains=word))
 
+        if len(word.split(" ")) >= 2:
+            # Assume the room is in 1 word, and the building may be in multiple words
+            building = " ".join(word.split(" ")[:-1])
+            room = word.split(" ")[-1]
+            filter_users |= (Q(room__name__icontains=room) & Q(room__building__name__icontains=building))
+
         if not User.can_view_all(user)[0]:
             filter_clubs &= Q(id=user.id)
             filter_users &= Q(id=user.id)
@@ -204,6 +210,13 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
         filter_rooms = (
             Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word)
         )
+
+        if len(word.split(" ")) >= 2:
+            # Assume the room is in 1 word, and the building may be in multiple words
+            building = " ".join(word.split(" ")[:-1])
+            room = word.split(" ")[-1]
+            filter_rooms |= (Q(name__icontains=room) & Q(building__name__icontains=building))
+
         filters["rooms"] |= filter_rooms
 
     # Switch ports
@@ -325,6 +338,10 @@ def get_words(query):
         if keep_intact:
             # If we are between two ", ignore separators
             words[i] += char
+            continue
+        if char == "+":
+            # If we encouter a + outside of ", we replace it with a space
+            words[i] += " "
             continue
         if char == " " or char == ",":
             # If we encouter a separator outside of ", we create a new word
