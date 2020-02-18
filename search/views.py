@@ -43,7 +43,7 @@ from search.forms import (
 )
 from re2o.acl import can_view_all
 
-from engine import *
+from .engine import *
 
 
 def get_results(query, request, params):
