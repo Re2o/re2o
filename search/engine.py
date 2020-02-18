@@ -210,8 +210,10 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
 
     # Factures
     if "2" in aff:
-        filter_factures = contains_filter("user__pseudo", word, case_sensitive)
-                          & Q(user__state__in=user_state)
+        filter_factures = (
+            contains_filter("user__pseudo", word, case_sensitive)
+            & Q(user__state__in=user_state)
+        )
         if start is not None:
             filter_factures &= Q(date__gte=start)
         if end is not None:
@@ -266,7 +268,6 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
             | contains_filter("building__name", word, case_sensitive)
             | Q(port__details=word)
         )
-
         filters["rooms"] |= filter_rooms
 
     # Switch ports
@@ -376,7 +377,7 @@ def search_single_query(query, filters, user, start, end, user_state, aff):
         return filters
 
     # Handle standard queries
-    return search_single_word(query.text, filters, user, start, end, user_state, aff, q.case_sensitive)
+    return search_single_word(query.text, filters, user, start, end, user_state, aff, query.case_sensitive)
 
 
 def create_queries(query):
