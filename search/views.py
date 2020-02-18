@@ -69,6 +69,13 @@ class Query:
         self.subqueries.append(Query(self.text))
         self.text = ""
 
+    @property
+    def plaintext(self):
+        if self.operator is not None:
+            return self.operator.join([q.plaintext for q in self.subqueries])
+
+        return self.text
+
 
 def is_int(variable):
     """ Check if the variable can be casted to an integer """
@@ -236,9 +243,8 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Rooms
     if "5" in aff and Room.can_view_all(user):
         filter_rooms = (
-            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word) | Q(building__name__icontains=building)
+            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word) | Q(building__name__icontains=word)
         )
-        filter_rooms |= (Q(name__icontains=room) & Q(building__name__icontains=building))
 
         filters["rooms"] |= filter_rooms
 
