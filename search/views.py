@@ -62,11 +62,22 @@ def is_int(variable):
         return True
 
 
+def filter_fields():
+    """Return the list of fields the search applies to"""
+    return ["users", "clubs", "machines", "factures", "bans", "whitelists", "rooms", "ports", "switches"]
+
+
+def empty_filters():
+    """Build empty filters used by Django"""
+    filters = [Q() for f in filter_fields()]
+
+
 def finish_results(request, results, col, order):
     """Sort the results by applying filters and then limit them to the
     number of max results. Finally add the info of the nmax number of results
     to the dict"""
 
+    results["users"] += results["clubs"]
     results["users"] = SortTable.sort(
         results["users"], col, order, SortTable.USERS_INDEX
     )
@@ -120,12 +131,6 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
             | Q(telephone__icontains=word)
         )
         filter_users = (filter_clubs | Q(name__icontains=word))
-
-        if len(word.split(" ")) >= 2:
-            # Assume the room is in 1 word, and the building may be in multiple words
-            building = " ".join(word.split(" ")[:-1])
-            room = word.split(" ")[-1]
-            filter_users |= (Q(room__name__icontains=room) & Q(room__building__name__icontains=building))
 
         if not User.can_view_all(user)[0]:
             filter_clubs &= Q(id=user.id)
@@ -211,12 +216,6 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
             Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word)
         )
 
-        if len(word.split(" ")) >= 2:
-            # Assume the room is in 1 word, and the building may be in multiple words
-            building = " ".join(word.split(" ")[:-1])
-            room = word.split(" ")[-1]
-            filter_rooms |= (Q(name__icontains=room) & Q(building__name__icontains=building))
-
         filters["rooms"] |= filter_rooms
 
     # Switch ports
@@ -252,7 +251,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
 
 
 def apply_filters(filters, user, aff):
-    """ Apply the filters constructed by search_single_word.
+    """ Apply the filters constructed by search_single_query.
     It also takes into account the visual filters defined during
     the search query.
     """
@@ -305,53 +304,117 @@ def apply_filters(filters, user, aff):
     return results
 
 
-def get_words(query):
-    """Function used to split the uery in different words to look for.
-    The rules are simple :
+def search_single_query(query, filters, user, start, end, user_state, aff):
+    """ Handle different queries an construct the correct filters using
+    search_single_word"""
+    if query["operator"] == "+":
+        # Special queries with "+" operators should use & rather than |
+        for q in query["subqueries"]:
+            # Construct an independent filter for each subquery
+            subfilters = empty_filters()
+            subfilters = search_single_word(q, subfilters, user, start, end, user_state, aff)
+
+            # Apply the new filter
+            for field in filter_fields():
+                filters[field] &= subfilters[field]
+
+        return filters
+
+    # Handle standard queries
+    q = query["text"]
+    return search_single_word(q, filters, user, start, end, user_state, aff)
+
+
+def create_queries(query):
+    """Function used to split the query in different words to look for.
+    The rules are the following :
         - anti-slash ('\\') is used to escape characters
         - anything between quotation marks ('"') is kept intact (not
             interpreted as separators) excepts anti-slashes used to escape
+            Values in between quotation marks are not searched accross
+            multiple field in the database (contrary to +)
         - spaces (' ') and commas (',') are used to separated words
+        - "+" signs are used as "and" operators
     """
+    # A dict representing the different queries extracted from the user's text
+    queries = []
 
-    words = []
-    i = 0
+    # Format: {
+    #   "text": "",  # Content of the query
+    #   "operator": None,  # Whether a special char ("+") was used
+    #   "subqueries": None  # When splitting the query in subparts (ex when using "+")
+    # }
+    current_query = None
+
+    # Whether the query is between "
     keep_intact = False
+
+    # Whether the previous char was a \
     escaping_char = False
+
     for char in query:
-        if i >= len(words):
+        if current_query is None:
             # We are starting a new word
-            words.append("")
+            current_query = { "text": "", "operator": None, "subqueries": None }
+
         if escaping_char:
             # The last char war a \ so we escape this char
             escaping_char = False
-            words[i] += char
+            current_query["text"] += char
             continue
+
         if char == "\\":
             # We need to escape the next char
             escaping_char = True
             continue
+
         if char == '"':
             # Toogle the keep_intact state, if true, we are between two "
             keep_intact = not keep_intact
             continue
+
         if keep_intact:
             # If we are between two ", ignore separators
-            words[i] += char
+            current_query["text"] += char
             continue
+
         if char == "+":
-            # If we encouter a + outside of ", we replace it with a space
-            words[i] += " "
+            # Can't sart a query with a "+", consider it escaped
+            if len(current_query["text"]) == 0:
+                current_query["text"] = char
+                continue
+
+            # Build a slightly more complicate data structure
+            # This is need for queries like '"A B"+C'
+            if current_query["operator"] is None:
+                current_query["operator"] = "+"
+                current_query["subqueries"] = []
+
+            current_query["subqueries"].append(current_query["text"])
+            current_query["text"] = ""
             continue
+
         if char == " " or char == ",":
             # If we encouter a separator outside of ", we create a new word
-            if words[i] is not "":
-                i += 1
-            continue
-        # If we haven't encountered any special case, add the char to the word
-        words[i] += char
 
-    return words
+            if len(current_query["text"]) == 0:
+                # Discard empty queries
+                continue
+
+            if current_query["operator"] is not None:
+                # If we were building a special structure, finish building it
+                current_query["subqueries"].append(current_query["text"])
+                current_query["text"] = ""
+
+            # Save the query and start a new one
+            queries.append(current_query)
+            current_query = None
+            continue
+
+        # If we haven't encountered any special case, add the char to the word
+        current_query["text"].append(char)
+
+    return queries
 
 
 def get_results(query, request, params):
@@ -365,22 +428,12 @@ def get_results(query, request, params):
     user_state = params.get("u", initial_choices(CHOICES_USER))
     aff = params.get("a", initial_choices(CHOICES_AFF))
 
-    filters = {
-        "users": Q(),
-        "clubs": Q(),
-        "machines": Q(),
-        "factures": Q(),
-        "bans": Q(),
-        "whitelists": Q(),
-        "rooms": Q(),
-        "ports": Q(),
-        "switches": Q(),
-    }
+    filters = empty_filters()
 
-    words = get_words(query)
-    for word in words:
-        filters = search_single_word(
-            word, filters, request.user, start, end, user_state, aff
+    queries = create_queries(query)
+    for query in queries:
+        filters = search_single_query(
+            query, filters, request.user, start, end, user_state, aff
         )
 
     results = apply_filters(filters, request.user, aff)
