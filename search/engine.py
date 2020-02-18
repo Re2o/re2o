@@ -43,10 +43,11 @@ class Query:
     """Class representing a query.
     It can contain the user-entered text, the operator for the query,
     and a list of subqueries"""
-    def __init__(self, text=""):
+    def __init__(self, text="", case_sensitive=False):
         self.text = text  # Content of the query
         self.operator = None  # Whether a special char (ex "+") was used
         self.subqueries = None   # When splitting the query in subparts
+        self.case_sensitive = case_sensitive
 
     def add_char(self, char):
         """Add the given char to the query's text"""
@@ -61,14 +62,18 @@ class Query:
         if self.subqueries is None:
             self.subqueries = []
 
-        self.subqueries.append(Query(self.text))
+        self.subqueries.append(Query(self.text, self.case_sensitive))
         self.text = ""
+        self.case_sensitive = False
 
     @property
     def plaintext(self):
         """Returns a textual representation of the query's content"""
         if self.operator is not None:
             return self.operator.join([q.plaintext for q in self.subqueries])
+
+        if self.case_sensitive:
+            return "\"{}\"".format(self.text)
 
         return self.text
 
@@ -143,7 +148,18 @@ def finish_results(request, results, col, order):
     return results
 
 
-def search_single_word(word, filters, user, start, end, user_state, aff):
+def contains_filter(attribute, word, case_sensitive=False):
+    """Create a django model filtering whether the given attribute
+    contains the specified value."""
+    if case_sensitive:
+        attr = "{}__{}".format(attribute, "contains")
+    else:
+        attr = "{}__{}".format(attribute, "icontains")
+
+    return Q(**{attr: word})
+
+
+def search_single_word(word, filters, user, start, end, user_state, aff, case_sensitive=False):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match field are either CharField or IntegerField that will be displayed
@@ -154,15 +170,14 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Users
     if "0" in aff:
         filter_clubs = (
-            Q(surname__icontains=word)
-            | Q(pseudo__icontains=word)
-            | Q(room__name__icontains=word)
-            | Q(email__icontains=word)
-            | Q(telephone__icontains=word)
-            | Q(room__name__icontains=word)
-            | Q(room__building__name__icontains=word)
+            contains_filter("surname", word, case_sensitive)
+            | contains_filter("pseudo", word, case_sensitive)
+            | contains_filter("email", word, case_sensitive)
+            | contains_filter("telephone", word, case_sensitive)
+            | contains_filter("room__name", word, case_sensitive)
+            | contains_filter("room__building__name", word, case_sensitive)
         )
-        filter_users = (filter_clubs | Q(name__icontains=word))
+        filter_users = (filter_clubs | contains_filter("name", word, case_sensitive))
 
         if not User.can_view_all(user)[0]:
             filter_clubs &= Q(id=user.id)
@@ -177,12 +192,12 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Machines
     if "1" in aff:
         filter_machines = (
-            Q(name__icontains=word)
-            | (Q(user__pseudo__icontains=word) & Q(user__state__in=user_state))
-            | Q(interface__domain__name__icontains=word)
-            | Q(interface__domain__related_domain__name__icontains=word)
-            | Q(interface__mac_address__icontains=word)
-            | Q(interface__ipv4__ipv4__icontains=word)
+            contains_filter("name", word, case_sensitive)
+            | contains_filter("user__pseudo", word, case_sensitive) & Q(user__state__in=user_state)
+            | contains_filter("interface__domain__name", word, case_sensitive)
+            | contains_filter("interface__domain__related_domain__name", word, case_sensitive)
+            | contains_filter("interface__mac_address", word, case_sensitive)
+            | contains_filter("interface__ipv4__ipv4", word, case_sensitive)
         )
         try:
             _mac_addr = EUI(word, 48)
@@ -195,9 +210,8 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
 
     # Factures
     if "2" in aff:
-        filter_factures = Q(user__pseudo__icontains=word) & Q(
-            user__state__in=user_state
-        )
+        filter_factures = contains_filter("user__pseudo", word, case_sensitive)
+                          & Q(user__state__in=user_state)
         if start is not None:
             filter_factures &= Q(date__gte=start)
         if end is not None:
@@ -207,8 +221,9 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Bans
     if "3" in aff:
         filter_bans = (
-            Q(user__pseudo__icontains=word) & Q(user__state__in=user_state)
-        ) | Q(raison__icontains=word)
+            contains_filter("user__pseudo", word, case_sensitive)
+            & Q(user__state__in=user_state)
+        ) | contains_filter("raison", word, case_sensitive)
         if start is not None:
             filter_bans &= (
                 (Q(date_start__gte=start) & Q(date_end__gte=start))
@@ -226,8 +241,9 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Whitelists
     if "4" in aff:
         filter_whitelists = (
-            Q(user__pseudo__icontains=word) & Q(user__state__in=user_state)
-        ) | Q(raison__icontains=word)
+            contains_filter("user__pseudo", word, case_sensitive)
+            & Q(user__state__in=user_state)
+        ) | contains_filter("raison", word, case_sensitive)
         if start is not None:
             filter_whitelists &= (
                 (Q(date_start__gte=start) & Q(date_end__gte=start))
@@ -245,7 +261,10 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Rooms
     if "5" in aff and Room.can_view_all(user):
         filter_rooms = (
-            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word) | Q(building__name__icontains=word)
+            contains_filter("details", word, case_sensitive)
+            | contains_filter("name", word, case_sensitive)
+            | contains_filter("building__name", word, case_sensitive)
+            | Q(port__details=word)
         )
 
         filters["rooms"] |= filter_rooms
@@ -253,12 +272,12 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Switch ports
     if "6" in aff and User.can_view_all(user):
         filter_ports = (
-            Q(room__name__icontains=word)
-            | Q(machine_interface__domain__name__icontains=word)
-            | Q(related__switch__interface__domain__name__icontains=word)
-            | Q(custom_profile__name__icontains=word)
-            | Q(custom_profile__profil_default__icontains=word)
-            | Q(details__icontains=word)
+            contains_filter("room__name", word, case_sensitive)
+            | contains_filter("machine_interface__domain__name", word, case_sensitive)
+            | contains_filter("related__switch__interface__domain__name", word, case_sensitive)
+            | contains_filter("custom_profile__name", word, case_sensitive)
+            | contains_filter("custom_profile__profil_default", word, case_sensitive)
+            | contains_filter("details", word, case_sensitive)
         )
         if is_int(word):
             filter_ports |= Q(port=word)
@@ -267,13 +286,13 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Switches
     if "7" in aff and Switch.can_view_all(user):
         filter_switches = (
-            Q(interface__domain__name__icontains=word)
-            | Q(interface__ipv4__ipv4__icontains=word)
-            | Q(switchbay__building__name__icontains=word)
-            | Q(stack__name__icontains=word)
-            | Q(model__reference__icontains=word)
-            | Q(model__constructor__name__icontains=word)
-            | Q(interface__details__icontains=word)
+            contains_filter("interface__domain__name", word, case_sensitive)
+            | contains_filter("interface__ipv4__ipv4", word, case_sensitive)
+            | contains_filter("switchbay__building__name", word, case_sensitive)
+            | contains_filter("stack__name", word, case_sensitive)
+            | contains_filter("model__reference", word, case_sensitive)
+            | contains_filter("model__constructor__name", word, case_sensitive)
+            | contains_filter("interface__details", word, case_sensitive)
         )
         if is_int(word):
             filter_switches |= Q(number=word) | Q(stack_member_id=word)
@@ -357,7 +376,7 @@ def search_single_query(query, filters, user, start, end, user_state, aff):
         return filters
 
     # Handle standard queries
-    return search_single_word(query.text, filters, user, start, end, user_state, aff)
+    return search_single_word(query.text, filters, user, start, end, user_state, aff, q.case_sensitive)
 
 
 def create_queries(query):
@@ -400,6 +419,10 @@ def create_queries(query):
         if char == '"':
             # Toogle the keep_intact state, if true, we are between two "
             keep_intact = not keep_intact
+
+            if keep_intact:
+                current_query.case_sensitive = True
+
             continue
 
         if keep_intact:
