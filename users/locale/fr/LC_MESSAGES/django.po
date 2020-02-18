@@ -825,10 +825,6 @@ msgstr "Group d'accès"
 msgid "Shell"
 msgstr "Interface en ligne de commande"
 
-#: users/templates/users/aff_users.html:35
-msgid "First name"
-msgstr "Prénom"
-
 #: users/templates/users/delete.html:29
 msgid "Deletion of users"
 msgstr "Suppression d'utilisateurs"
