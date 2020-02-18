@@ -51,6 +51,25 @@ from re2o.base import SortTable, re2o_paginator
 from re2o.acl import can_view_all
 
 
+class Query:
+    def __init__(self, text=""):
+        self.text = text  # Content of the query
+        self.operator = None  # Whether a special char (ex "+") was used
+        self.subqueries = None   # When splitting the query in subparts (ex when using "+")
+
+    def add_char(self, char):
+        self.text += char
+
+    def add_operator(self, operator):
+        self.operator = operator
+
+        if self.subqueries is None:
+            self.subqueries = []
+
+        self.subqueries.append(Query(self.text))
+        self.text = ""
+
+
 def is_int(variable):
     """ Check if the variable can be casted to an integer """
 
@@ -69,7 +88,7 @@ def filter_fields():
 
 def empty_filters():
     """Build empty filters used by Django"""
-    filters = [Q() for f in filter_fields()]
+    return {f: Q() for f in filter_fields()}
 
 
 def finish_results(request, results, col, order):
@@ -77,9 +96,11 @@ def finish_results(request, results, col, order):
     number of max results. Finally add the info of the nmax number of results
     to the dict"""
 
-    results["users"] += results["clubs"]
     results["users"] = SortTable.sort(
         results["users"], col, order, SortTable.USERS_INDEX
+    )
+    results["clubs"] = SortTable.sort(
+        results["clubs"], col, order, SortTable.USERS_INDEX
     )
     results["machines"] = SortTable.sort(
         results["machines"], col, order, SortTable.MACHINES_INDEX
@@ -129,6 +150,8 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
             | Q(room__name__icontains=word)
             | Q(email__icontains=word)
             | Q(telephone__icontains=word)
+            | Q(room__name__icontains=word)
+            | Q(room__building__name__icontains=word)
         )
         filter_users = (filter_clubs | Q(name__icontains=word))
 
@@ -213,8 +236,9 @@ def search_single_word(word, filters, user, start, end, user_state, aff):
     # Rooms
     if "5" in aff and Room.can_view_all(user):
         filter_rooms = (
-            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word)
+            Q(details__icontains=word) | Q(name__icontains=word) | Q(port__details=word) | Q(building__name__icontains=building)
         )
+        filter_rooms |= (Q(name__icontains=room) & Q(building__name__icontains=building))
 
         filters["rooms"] |= filter_rooms
 
@@ -307,22 +331,25 @@ def apply_filters(filters, user, aff):
 def search_single_query(query, filters, user, start, end, user_state, aff):
     """ Handle different queries an construct the correct filters using
     search_single_word"""
-    if query["operator"] == "+":
+    if query.operator == "+":
         # Special queries with "+" operators should use & rather than |
-        for q in query["subqueries"]:
+        newfilters = empty_filters()
+        for q in query.subqueries:
             # Construct an independent filter for each subquery
-            subfilters = empty_filters()
-            subfilters = search_single_word(q, subfilters, user, start, end, user_state, aff)
+            subfilters = search_single_query(q, empty_filters(), user, start, end, user_state, aff)
 
-            # Apply the new filter
+            # Apply the subfilter
             for field in filter_fields():
-                filters[field] &= subfilters[field]
+                newfilters[field] &= subfilters[field]
+
+        # Add these filters to the existing ones
+        for field in filter_fields():
+            filters[field] |= newfilters[field]
 
         return filters
 
     # Handle standard queries
-    q = query["text"]
-    return search_single_word(q, filters, user, start, end, user_state, aff)
+    return search_single_word(query.text, filters, user, start, end, user_state, aff)
 
 
 def create_queries(query):
@@ -338,12 +365,6 @@ def create_queries(query):
     """
     # A dict representing the different queries extracted from the user's text
     queries = []
-
-    # Format: {
-    #   "text": "",  # Content of the query
-    #   "operator": None,  # Whether a special char ("+") was used
-    #   "subqueries": None  # When splitting the query in subparts (ex when using "+")
-    # }
     current_query = None
 
     # Whether the query is between "
@@ -355,12 +376,12 @@ def create_queries(query):
     for char in query:
         if current_query is None:
             # We are starting a new word
-            current_query = { "text": "", "operator": None, "subqueries": None }
+            current_query = Query()
 
         if escaping_char:
             # The last char war a \ so we escape this char
             escaping_char = False
-            current_query["text"] += char
+            current_query.add_char(char)
             continue
 
         if char == "\\":
@@ -375,36 +396,28 @@ def create_queries(query):
 
         if keep_intact:
             # If we are between two ", ignore separators
-            current_query["text"] += char
+            current_query.add_char(char)
             continue
 
         if char == "+":
-            # Can't sart a query with a "+", consider it escaped
-            if len(current_query["text"]) == 0:
-                current_query["text"] = char
+            if len(current_query.text) == 0:
+                # Can't sart a query with a "+", consider it escaped
+                current_query.add_char(char)
                 continue
 
-            # Build a slightly more complicate data structure
-            # This is need for queries like '"A B"+C'
-            if current_query["operator"] is None:
-                current_query["operator"] = "+"
-                current_query["subqueries"] = []
-
-            current_query["subqueries"].append(current_query["text"])
-            current_query["text"] = ""
+            current_query.add_operator("+")
             continue
 
         if char == " " or char == ",":
             # If we encouter a separator outside of ", we create a new word
 
-            if len(current_query["text"]) == 0:
+            if len(current_query.text) == 0:
                 # Discard empty queries
                 continue
 
-            if current_query["operator"] is not None:
+            if current_query.operator is not None:
                 # If we were building a special structure, finish building it
-                current_query["subqueries"].append(current_query["text"])
-                current_query["text"] = ""
+                current_query.add_operator(current_query.operator)
 
             # Save the query and start a new one
             queries.append(current_query)
@@ -412,7 +425,17 @@ def create_queries(query):
             continue
 
         # If we haven't encountered any special case, add the char to the word
-        current_query["text"].append(char)
+        current_query.add_char(char)
+
+    # Save the current working query if necessary
+    if current_query is not None:
+        if current_query.operator is not None:
+            # There was an operator supposed to split multiple words
+            if len(current_query.text) > 0:
+                # Finish the current search
+                current_query.add_operator(current_query.operator)
+
+        queries.append(current_query)
 
     return queries
 
@@ -431,9 +454,9 @@ def get_results(query, request, params):
     filters = empty_filters()
 
     queries = create_queries(query)
-    for query in queries:
+    for q in queries:
         filters = search_single_query(
-            query, filters, request.user, start, end, user_state, aff
+            q, filters, request.user, start, end, user_state, aff
         )
 
     results = apply_filters(filters, request.user, aff)
