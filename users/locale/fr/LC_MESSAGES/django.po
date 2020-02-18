@@ -826,7 +826,7 @@ msgid "Shell"
 msgstr "Interface en ligne de commande"
 
 #: users/templates/users/aff_users.html:35
-msgid "Firt name"
+msgid "First name"
 msgstr "Prénom"
 
 #: users/templates/users/delete.html:29
