@@ -31,6 +31,9 @@ from __future__ import unicode_literals
 from netaddr import EUI, AddrFormatError
 
 from django.db.models import Q
+from django.db.models import Value
+from django.db.models.functions import Concat
+
 from users.models import User, Adherent, Club, Ban, Whitelist
 from machines.models import Machine
 from topologie.models import Port, Switch, Room
@@ -174,9 +177,10 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
             | contains_filter("pseudo", word, case_sensitive)
             | contains_filter("email", word, case_sensitive)
             | contains_filter("telephone", word, case_sensitive)
-            | contains_filter("room__name", word, case_sensitive)
-            | contains_filter("room__building__name", word, case_sensitive)
+            | contains_filter("room_full_name", word, case_sensitive)  # Added through annotate
         )
+
+        # Users have a name whereas clubs only have a surname
         filter_users = (filter_clubs | contains_filter("name", word, case_sensitive))
 
         if not User.can_view_all(user)[0]:
@@ -264,8 +268,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
     if "5" in aff and Room.can_view_all(user):
         filter_rooms = (
             contains_filter("details", word, case_sensitive)
-            | contains_filter("name", word, case_sensitive)
-            | contains_filter("building__name", word, case_sensitive)
+            | contains_filter("full_name", word, case_sensitive)  # Added through annotate
             | Q(port__details=word)
         )
         filters["rooms"] |= filter_rooms
@@ -273,7 +276,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
     # Switch ports
     if "6" in aff and User.can_view_all(user):
         filter_ports = (
-            contains_filter("room__name", word, case_sensitive)
+            contains_filter("room_full_name", word, case_sensitive)  # Added through annotate
             | contains_filter("machine_interface__domain__name", word, case_sensitive)
             | contains_filter("related__switch__interface__domain__name", word, case_sensitive)
             | contains_filter("custom_profile__name", word, case_sensitive)
@@ -308,6 +311,10 @@ def apply_filters(filters, user, aff):
     the search query.
     """
     # Results are later filled-in depending on the display filter
+    # In some cases, annotations are used to match what is displayed in the results
+    # For example, the displayed room is actually "room__building__name room__name"
+    # So queries wouldn't match what the user expects if we just kept the
+    # database's format
     results = {
         "users": Adherent.objects.none(),
         "clubs": Club.objects.none(),
@@ -322,8 +329,12 @@ def apply_filters(filters, user, aff):
 
     # Users and clubs
     if "0" in aff:
-        results["users"] = Adherent.objects.filter(filters["users"])
-        results["clubs"] = Club.objects.filter(filters["clubs"])
+        results["users"] = Adherent.objects.annotate(
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+        ).filter(filters["users"])
+        results["clubs"] = Club.objects.annotate(
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+        ).filter(filters["clubs"])
 
     # Machines
     if "1" in aff:
@@ -343,11 +354,15 @@ def apply_filters(filters, user, aff):
 
     # Rooms
     if "5" in aff and Room.can_view_all(user):
-        results["rooms"] = Room.objects.filter(filters["rooms"])
+        results["rooms"] = Room.objects.annotate(
+            full_name=Concat("building__name", Value(" "), "name"),
+        ).filter(filters["rooms"])
 
     # Switch ports
     if "6" in aff and User.can_view_all(user):
-        results["ports"] = Port.objects.filter(filters["ports"])
+        results["ports"] = Port.objects.annotate(
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+        ).filter(filters["ports"])
 
     # Switches
     if "7" in aff and Switch.can_view_all(user):
