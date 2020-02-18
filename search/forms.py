@@ -63,7 +63,7 @@ class SearchForm(Form):
         help_text=(
             _(
                 'Use « » and «,» to specify distinct words, «"query"» for'
-                " an exact search and «\\» to escape a character."
+                " an exact search, «\\» to escape a character and «+» to combine keywors."
             )
         ),
         max_length=100,
@@ -78,7 +78,7 @@ class SearchFormPlus(Form):
         help_text=(
             _(
                 'Use « » and «,» to specify distinct words, «"query"» for'
-                " an exact search and «\\» to escape a character."
+                " an exact search, «\\» to escape a character and «+» to combine keywors."
             )
         ),
         max_length=100,
