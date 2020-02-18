@@ -90,10 +90,10 @@ msgstr "Rechercher"
 #: search/forms.py:65 search/forms.py:80
 msgid ""
 "Use « » and «,» to specify distinct words, «\"query\"» for an exact search "
-"and «\\» to escape a character."
+"an exact search, «\\» to escape a character and «+» to combine keywors."
 msgstr ""
-"Utilisez « » et «,» pour spécifier différents mots, «\"query\"» pour une "
-"recherche exacte et «\\» pour échapper un caractère."
+"Utilisez « » et «,» pour spécifier différents mots, «\"mot\"» pour une "
+"recherche exacte, «\\» pour échapper un caractère et «+» pour combiner des mots clés."
 
 #: search/forms.py:88
 msgid "Users filter"
