@@ -43,7 +43,8 @@ from search.forms import (
 )
 from re2o.acl import can_view_all
 
-from .engine import *
+from .engine import empty_filters, create_queries, search_single_query
+from .engine import apply_filters, finish_results
 
 
 def get_results(query, request, params):
@@ -66,7 +67,12 @@ def get_results(query, request, params):
         )
 
     results = apply_filters(filters, request.user, aff)
-    results = finish_results(request, results, request.GET.get("col"), request.GET.get("order"))
+    results = finish_results(
+        request,
+        results,
+        request.GET.get("col"),
+        request.GET.get("order")
+    )
     results.update({"search_term": query})
 
     return results
@@ -82,7 +88,9 @@ def search(request):
             request,
             "search/index.html",
             get_results(
-                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
+                search_form.cleaned_data.get("q", ""),
+                request,
+                search_form.cleaned_data
             ),
         )
     return render(request, "search/search.html", {"search_form": search_form})
@@ -98,7 +106,9 @@ def searchp(request):
             request,
             "search/index.html",
             get_results(
-                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
+                search_form.cleaned_data.get("q", ""),
+                request,
+                search_form.cleaned_data
             ),
         )
     return render(request, "search/search.html", {"search_form": search_form})
