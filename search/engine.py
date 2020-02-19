@@ -178,6 +178,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
             | contains_filter("email", word, case_sensitive)
             | contains_filter("telephone", word, case_sensitive)
             | contains_filter("room_full_name", word, case_sensitive)  # Added through annotate
+            | contains_filter("room_full_name_stuck", word, case_sensitive)  # Added through annotate
         )
 
         # Users have a name whereas clubs only have a surname
@@ -269,6 +270,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
         filter_rooms = (
             contains_filter("details", word, case_sensitive)
             | contains_filter("full_name", word, case_sensitive)  # Added through annotate
+            | contains_filter("full_name_stuck", word, case_sensitive)  # Added through annotate
             | Q(port__details=word)
         )
         filters["rooms"] |= filter_rooms
@@ -277,6 +279,7 @@ def search_single_word(word, filters, user, start, end, user_state, aff, case_se
     if "6" in aff and User.can_view_all(user):
         filter_ports = (
             contains_filter("room_full_name", word, case_sensitive)  # Added through annotate
+            | contains_filter("room_full_name_stuck", word, case_sensitive)  # Added through annotate
             | contains_filter("machine_interface__domain__name", word, case_sensitive)
             | contains_filter("related__switch__interface__domain__name", word, case_sensitive)
             | contains_filter("custom_profile__name", word, case_sensitive)
@@ -331,9 +334,11 @@ def apply_filters(filters, user, aff):
     if "0" in aff:
         results["users"] = Adherent.objects.annotate(
             room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+            room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["users"])
         results["clubs"] = Club.objects.annotate(
             room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+            room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["clubs"])
 
     # Machines
@@ -356,12 +361,14 @@ def apply_filters(filters, user, aff):
     if "5" in aff and Room.can_view_all(user):
         results["rooms"] = Room.objects.annotate(
             full_name=Concat("building__name", Value(" "), "name"),
+            full_name_stuck=Concat("building__name", "name"),
         ).filter(filters["rooms"])
 
     # Switch ports
     if "6" in aff and User.can_view_all(user):
         results["ports"] = Port.objects.annotate(
             room_full_name=Concat("room__building__name", Value(" "), "room__name"),
+            room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["ports"])
 
     # Switches
