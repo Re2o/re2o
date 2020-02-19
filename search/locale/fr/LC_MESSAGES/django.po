@@ -89,7 +89,7 @@ msgstr "Rechercher"
 
 #: search/forms.py:65 search/forms.py:80
 msgid ""
-"Use « » and «,» to specify distinct words, «"query"» for"
+"Use « » and «,» to specify distinct words, «\"query\"» for"
 " search, «\\» to escape a character and «+» to"
 " combine keywords."
 msgstr ""
