@@ -1090,7 +1090,7 @@ class User(
         :returns: a message and a boolean which is True if the user has
         the right to change a group
         """
-        can = user_request.has_perm("users.change_user_grou")
+        can = user_request.has_perm("users.change_user_groups")
         return (
             can,
             _("You don't have the right to edit the user's groups of rights.")
