@@ -1,3 +1,5 @@
+**Note:** English version below.
+
 # Re2o
 
 GNU public license v2.0
@@ -73,3 +75,34 @@ Il est ensuite aisé de faire des requêtes, par exemple
 
 Des exemples et la documentation complète sur les requêtes django sont
 disponible sur le site officiel.
+
+----
+
+# Re2o
+
+GNU Public license v2.0
+
+## Foreword
+
+Re2o is a management software initialy developed at [rezometz](https://www.rezometz.org/). It is now in use in several student organizations. It aims to remain agnostic of the organization that uses it and be easy to setup.
+
+Re2o is based on the Django framework and Python3. It's core functionalities includes managing the members, their machines, their invoices and their access to the network but also the topology of the network and its devices.
+On top of this, it is possible to plug services to enhance the possibilities and fit the need of each organization.
+
+# Setup
+
+A tutorial is available on the [Wiki](https://gitlab.federez.net/federez/re2o/wikis/User%20Documentation/Quick%20Start) to describe the setup process.
+
+# General Functioning
+
+Re2o follow the general functioning of a Django project and split its components between the models (describe the database objects), the templates (that define the front end), the views (that populate and serve the templates) and the forms (that provide front end object edition/creation/removal). This framework provide an abstraction layer to manipulate SQL objects as Python objects.
+
+Functionalities are grouped in apps (users, machines, topologie,...). Along the core functionalities, optional functionalities are available and can be activated in the preferences.
+
+## Rest API
+
+Re2o provide a Rest API to allow external services (dhcp, dns, firewall,...) installed on remote machines to access database informations in Json format. Those services are optional and should be installed and activated to fit each organization needs.
+
+# Wiki
+
+The [Wiki](https://gitlab.federez.net/federez/re2o/-/wikis/home) is available to provide information and instruction for most components of Re2o.
