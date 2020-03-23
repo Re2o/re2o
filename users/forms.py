@@ -144,14 +144,17 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use an internal address as your external address.")
-            )
+        if self.cleaned_data.get("email"):
+            if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
+                "email"
+            ):
+                return self.cleaned_data.get("email").lower()
+            else:
+                raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain
+                    )
+                )
 
     class Meta:
         model = Adherent
@@ -349,16 +352,17 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     )
 
     def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
+        if self.cleaned_data.get("email"):
+            if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
+                "email"
+            ):
+                return self.cleaned_data.get("email").lower()
+            else:
+                raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain
+                    )
                 )
-            )
 
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
@@ -756,16 +760,17 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["local_email_enabled"].label = _("Use local emails")
 
     def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
+        if self.cleaned_data.get("email"):
+            if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
+                "email"
+            ):
+                return self.cleaned_data.get("email").lower()
+            else:
+                raise forms.ValidationError(
+                    _("You can't use a {} address.").format(
+                        OptionalUser.objects.first().local_email_domain
+                    )
                 )
-            )
 
     class Meta:
         model = User
