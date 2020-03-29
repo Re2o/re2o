@@ -30,6 +30,7 @@ import datetime
 
 from django.conf import settings
 from django.db.models import Q
+from django.contrib.auth.models import Group
 from rest_framework import viewsets, generics, views
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -759,7 +760,15 @@ class StandardMailingView(views.APIView):
         adherents_data = serializers.MailingMemberSerializer(
             all_has_access(), many=True
         ).data
+        
         data = [{"name": "adherents", "members": adherents_data}]
+        groups = Group.objects.all()
+        for group in groups:
+            group_data = serializers.MailingMemberSerializer(
+                group.user_set.all(), many=True
+            ).data
+            data.append({"name": group.name, "members": group_data})
+
         paginator = self.pagination_class()
         paginator.paginate_queryset(data, request)
         return paginator.get_paginated_response(data)
