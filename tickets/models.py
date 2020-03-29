@@ -74,13 +74,13 @@ class Ticket(AclMixin, models.Model):
         """ Check that the user has the right to view the ticket
         or that it is the author"""
         if (
-            not user_request.has_perm("tickets.view_ticket")
+            not user_request.has_perm("tickets.view_tickets")
             and self.user != user_request
         ):
             return (
                 False,
                 _("You don't have the right to view other tickets than yours."),
-                ("tickets.view_ticket",),
+                ("tickets.view_tickets",),
             )
         else:
             return True, None, None
