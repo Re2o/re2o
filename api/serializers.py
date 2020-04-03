@@ -342,7 +342,7 @@ class DomainSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.Domain
-        fields = ("interface_parent", "name", "extension", "cname", "api_url")
+        fields = ("interface_parent", "name", "extension", "cname", "api_url", "ttl")
 
 
 class IpListSerializer(NamespacedHMSerializer):
@@ -473,6 +473,7 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
             "ipv6_mode",
             "create_machine",
             "ipv6",
+            "default_dns_ttl"
         )
 
 
@@ -1206,7 +1207,7 @@ class NSRecordSerializer(NsSerializer):
     target = serializers.CharField(source="ns", read_only=True)
 
     class Meta(NsSerializer.Meta):
-        fields = ("target",)
+        fields = ("target", "ttl")
 
 
 class MXRecordSerializer(MxSerializer):
@@ -1217,7 +1218,7 @@ class MXRecordSerializer(MxSerializer):
     target = serializers.CharField(source="name", read_only=True)
 
     class Meta(MxSerializer.Meta):
-        fields = ("target", "priority")
+        fields = ("target", "priority", "ttl")
 
 
 class TXTRecordSerializer(TxtSerializer):
@@ -1226,7 +1227,7 @@ class TXTRecordSerializer(TxtSerializer):
     """
 
     class Meta(TxtSerializer.Meta):
-        fields = ("field1", "field2")
+        fields = ("field1", "field2", "ttl")
 
 
 class SRVRecordSerializer(SrvSerializer):
@@ -1269,10 +1270,11 @@ class ARecordSerializer(serializers.ModelSerializer):
 
     hostname = serializers.CharField(source="domain.name", read_only=True)
     ipv4 = serializers.CharField(source="ipv4.ipv4", read_only=True)
+    ttl = serializers.IntegerField(source="domain.ttl", read_only=True)
 
     class Meta:
         model = machines.Interface
-        fields = ("hostname", "ipv4")
+        fields = ("hostname", "ipv4", "ttl")
 
 
 class AAAARecordSerializer(serializers.ModelSerializer):
@@ -1282,10 +1284,11 @@ class AAAARecordSerializer(serializers.ModelSerializer):
 
     hostname = serializers.CharField(source="domain.name", read_only=True)
     ipv6 = Ipv6ListSerializer(many=True, read_only=True)
+    ttl = serializers.IntegerField(source="domain.ttl", read_only=True)
 
     class Meta:
         model = machines.Interface
-        fields = ("hostname", "ipv6")
+        fields = ("hostname", "ipv6", "ttl")
 
 
 class CNAMERecordSerializer(serializers.ModelSerializer):
@@ -1298,7 +1301,7 @@ class CNAMERecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.Domain
-        fields = ("alias", "hostname")
+        fields = ("alias", "hostname", "ttl")
 
 
 class DNAMERecordSerializer(serializers.ModelSerializer):
@@ -1311,7 +1314,7 @@ class DNAMERecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = machines.DName
-        fields = ("alias", "zone")
+        fields = ("alias", "zone", "ttl")
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):
