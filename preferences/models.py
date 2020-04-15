@@ -89,6 +89,9 @@ class OptionalUser(AclMixin, PreferencesModel):
     self_change_room = models.BooleanField(
         default=False, help_text=_("Users can edit their room.")
     )
+    self_force_move_disabled_user_room = models.BooleanField(
+        default=False, help_text=_("Users can select a room occupied by a user with a disabled connection.")
+    )
     local_email_accounts_enabled = models.BooleanField(
         default=False, help_text=_("Enable local email accounts for users.")
     )

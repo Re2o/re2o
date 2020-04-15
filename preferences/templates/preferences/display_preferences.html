@@ -147,10 +147,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "Users can edit their room" %}</th>
                     <td>{{ useroptions.self_change_room|tick }}</td>
-                    <th>{% trans "Telephone number required" %}</th>
-                    <td>{{ useroptions.is_tel_mandatory|tick }}</td>
+                    <th>{% trans "Users can select a room occupied by a user with a disabled connection" %}</th>
+                    <td>{{ useroptions.self_force_move_disabled_user_room|tick }}</td>
                 </tr>
                 <tr>
+                    <th>{% trans "Telephone number required" %}</th>
+                    <td>{{ useroptions.is_tel_mandatory|tick }}</td>
                     <th>{% trans "GPG fingerprint field" %}</th>
                     <td>{{ useroptions.gpg_fingerprint|tick }}</td>
                 </tr>
