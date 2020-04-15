@@ -351,29 +351,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         label=_("Force the move?"), initial=False, required=False
     )
 
-    def clean(self):
-        # Handle case where regular users can force move
-        can_force_move = OptionalUser.get_cached_value("self_force_move_disabled_user_room")
-        if not can_force_move:
-            return super(AdherentForm, self).clean()
-
-        # Ensure the user entered a proper room
-        room = self.cleaned_data.get("room")
-        if not room:
-            return super(AdherentForm, self).clean()
-
-        try:
-            # If a user already is register for this room
-            # but their connection has expired, allow force move
-            user = Adherent.objects.get(room=room)
-            if user and not user.has_access():
-                remove_user_room(room)
-        except Adherent.DoesNotExist:
-            pass
-
-        # Run standard clean process
-        return super(AdherentForm, self).clean()
-
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
             "email"
@@ -401,6 +378,21 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         if self.cleaned_data.get("force", False) and room:
             remove_user_room(room)
         return
+
+    def clean_room(self):
+        """On supprime l'ancien user de la chambre si l'option est activée,
+        et que l'ancien user a une connexion désactivée"""
+        # Handle case where regular users can force move
+        room = self.cleaned_data.get("room")
+        can_force_move = OptionalUser.get_cached_value("self_force_move_disabled_user_room")
+        if not can_force_move or not room:
+            return room
+
+        # Remove the previous user's room, if allowed and necessary
+        remove_user_room(room, force=False)
+
+        # Run standard clean process
+        return room
 
 
 class AdherentCreationForm(AdherentForm):

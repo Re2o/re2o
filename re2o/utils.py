@@ -203,11 +203,13 @@ def all_active_assigned_interfaces_count():
     return all_active_interfaces_count().filter(ipv4__isnull=False)
 
 
-def remove_user_room(room):
+def remove_user_room(room, force=True):
     """ Déménage de force l'ancien locataire de la chambre """
     try:
         user = Adherent.objects.get(room=room)
     except Adherent.DoesNotExist:
         return
-    user.room = None
-    user.save()
+
+    if force or not user.has_access():
+        user.room = None
+        user.save()
