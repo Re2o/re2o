@@ -366,7 +366,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             # If a user already is register for this room
             # but their connection has expired, allow force move
             user = Adherent.objects.get(room=room)
-            if user and not user.is_connected():
+            if user and not user.has_access():
                 remove_user_room(room)
         except Adherent.DoesNotExist:
             pass
