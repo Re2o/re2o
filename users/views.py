@@ -119,12 +119,13 @@ def new_user(request):
     user = AdherentCreationForm(request.POST or None, user=request.user)
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
     GTU = GeneralOption.get_cached_value("GTU")
+    is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
 
     if user.is_valid():
         user = user.save()
 
         # Use "is False" so that if None, the email is sent
-        if user.should_send_password_reset_email is False:
+        if is_set_password_allowed and user.should_send_password_reset_email is False:
             messages.success(
                 request,
                 _("The user %s was created.")
@@ -143,30 +144,17 @@ def new_user(request):
     # Anonymous users are allowed to create new accounts
     # but they should be treated differently
     params = {
-            "userform": user,
-            "GTU_sum_up": GTU_sum_up,
-            "GTU": GTU,
-            "showCGU": True,
-            "action_name": _("Commit"),
-        }
+        "userform": user,
+        "GTU_sum_up": GTU_sum_up,
+        "GTU": GTU,
+        "showCGU": True,
+        "action_name": _("Commit"),
+    }
 
-    if request.user.is_anonymous:
+    if is_set_password_allowed:
         params["load_js_file"] = "/static/js/toggle_password_fields.js"
 
     return form(params, "users/user.html", request)
-    """
-    return form(
-        {
-            "userform": user,
-            "GTU_sum_up": GTU_sum_up,
-            "GTU": GTU,
-            "showCGU": True,
-            "action_name": _("Commit"),
-        },
-        "users/user.html",
-        request,
-    )
-    """
 
 
 @login_required

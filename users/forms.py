@@ -382,26 +382,27 @@ class AdherentCreationForm(AdherentForm):
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
     doublons d'utilisateurs et, optionnellement,
     un champ mot de passe"""
-    # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
-    init_password_by_mail = forms.BooleanField(required=False, initial=True)
-    init_password_by_mail.label = _("Send password reset link by email.")
+    if OptionalUser.get_cached_value("allow_set_password_during_user_creation"):
+        # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
+        init_password_by_mail = forms.BooleanField(required=False, initial=True)
+        init_password_by_mail.label = _("Send password reset link by email.")
 
-    # Champs pour initialiser le mot de passe
-    # Validators are handled manually since theses fields aren't always required
-    password1 = forms.CharField(
-        required=False,
-        label=_("Password"),
-        widget=forms.PasswordInput,
-    #    validators=[MinLengthValidator(8)],
-        max_length=255,
-    )
-    password2 = forms.CharField(
-        required=False,
-        label=_("Password confirmation"),
-        widget=forms.PasswordInput,
-    #    validators=[MinLengthValidator(8)],
-        max_length=255,
-    )
+        # Champs pour initialiser le mot de passe
+        # Validators are handled manually since theses fields aren't always required
+        password1 = forms.CharField(
+            required=False,
+            label=_("Password"),
+            widget=forms.PasswordInput,
+            #validators=[MinLengthValidator(8)],
+            max_length=255,
+        )
+        password2 = forms.CharField(
+            required=False,
+            label=_("Password confirmation"),
+            widget=forms.PasswordInput,
+            #validators=[MinLengthValidator(8)],
+            max_length=255,
+        )
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
     former_user_check_info = _(
@@ -476,7 +477,8 @@ class AdherentCreationForm(AdherentForm):
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
 
-        send_email = self.cleaned_data.get("init_password_by_mail")
+        is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
+        send_email = not is_set_password_allowed or self.cleaned_data.get("init_password_by_mail")
         if not send_email:
             user.set_password(self.cleaned_data["password1"])
 

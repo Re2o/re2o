@@ -117,6 +117,15 @@ class OptionalUser(AclMixin, PreferencesModel):
             " If False, only when a valid registration has been paid."
         ),
     )
+    allow_set_password_during_user_creation = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If True, users have the choice to receive an email containing"
+            " a link to reset their password during creation, or to directly"
+            " set their password in the page."
+            " If False, an email is always sent."
+        ),
+    )
     allow_archived_connexion = models.BooleanField(
         default=False, help_text=_("If True, archived users are allowed to connect.")
     )

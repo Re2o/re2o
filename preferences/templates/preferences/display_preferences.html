@@ -125,6 +125,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "All users are active by default" %}</th>
                     <td>{{ useroptions.all_users_active|tick }}</td>
+                    <th>{% trans "Allow directly entering a password during account creation" %}</th>
+                    <td>{{ useroptions.allow_set_password_during_user_creation|tick }}</td>
+                </tr>
+                <tr>
                     <th>{% trans "Allow archived users to log in" %}</th>
                     <td>{{ useroptions.allow_archived_connexion|tick }}</td>
                 </tr>
