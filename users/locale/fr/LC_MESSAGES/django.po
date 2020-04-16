@@ -157,7 +157,23 @@ msgstr "Vous ne pouvez pas utiliser une adresse {}."
 msgid "A valid telephone number is required."
 msgstr "Un numéro de téléphone valide est requis."
 
-#: users/forms.py:387
+#: users/forms.py:404
+msgid ""
+"If this options is set, you will receive a link to set"
+" your initial password by email. If you do not have"
+" any means of accessing your emails, you can disable"
+" this option to set your password immediatly."
+msgstr ""
+"Si cette option est activée, vous recevrez un lien pour choisir"
+" votre mot de passe par email. Si vous n'avez pas accès"
+" à vos mails, vous pouvez désactiver cette option"
+" pour immédiatement entrer votre mot de passe."
+
+#: users/forms.py:442
+msgid "Send password reset link by email."
+msgstr "Envoyer le lien de modification du mot de passe par mail."
+
+#: users/forms.py:435
 msgid ""
 "If you already have an account, please use it. If your lost access to it, "
 "please consider using the forgotten password button on the login page or "
@@ -187,6 +203,10 @@ msgstr "Laissez vide si vous n'avez pas de clé GPG."
 #: users/forms.py:436
 msgid "Default shell"
 msgstr "Interface en ligne de commande par défaut"
+
+#: users/forms.py:166 users/forms.py:481
+msgid "Password must contain at least 8 characters."
+msgstr "Le mot de passe doit contenir au moins 8 caractères."
 
 #: users/forms.py:463 users/templates/users/aff_clubs.html:36
 #: users/templates/users/aff_serviceusers.html:32
@@ -1241,6 +1261,11 @@ msgstr "Connecté avec l'appareil :"
 #, python-format
 msgid "MAC address %(mac)s"
 msgstr "Adresse MAC %(mac)s"
+
+#: users/views.py:131
+#, python-format
+msgid "The user %s was created."
+msgstr "L'utilisateur %s a été créé."
 
 #: users/views.py:127
 #, python-format

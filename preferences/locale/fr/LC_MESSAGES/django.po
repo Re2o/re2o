@@ -57,6 +57,11 @@ msgid "Self registration"
 msgstr "Autoinscription"
 
 #: preferences/forms.py:70
+#: preferences/templates/preferences/display_preferences.html:120
+msgid "Allow directly setting a password during account creation"
+msgstr "Permettre le choix d'un mot de passe directement lors de la création du compte"
+
+#: preferences/forms.py:70
 msgid "Default shell"
 msgstr "Interface en ligne de commande par défaut"
 
@@ -291,6 +296,18 @@ msgid ""
 msgstr ""
 "Si True, tous les nouveaux utilisations créés et connectés sont actifs. Si "
 "False, seulement quand une inscription validée a été payée."
+
+#: preferences/models.py:116
+msgid ""
+"If True, users have the choice to receive an email containing"
+" a link to reset their password during creation, or to directly"
+" set their password in the page."
+" If False, an email is always sent."
+msgstr ""
+"Si True, les utilisateurs ont le choix de recevoir un email avec"
+" un lien pour changer leur mot de passe lors de la création de leur compte, "
+" ou alors de choisir leur mot de passe immédiatement."
+" Si False, un email est toujours envoyé."
 
 #: preferences/models.py:121
 msgid "If True, archived users are allowed to connect."
@@ -1049,7 +1066,10 @@ msgstr "%(delete_notyetactive)s jours"
 msgid "All users are active by default"
 msgstr "Tous les utilisateurs sont actifs par défault"
 
-#: preferences/templates/preferences/display_preferences.html:128
+msgid "Allow directly entering a password during account creation"
+msgstr "Permettre le choix d'un mot de passe directement lors de la création du compte"
+
+#: preferences/templates/preferences/display_preferences.html:130
 msgid "Allow archived users to log in"
 msgstr "Autoriser les utilisateurs archivés à se connecter"
 
