@@ -27,16 +27,17 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Delete non members users (not yet active)."
+    help = "Disable users who haven't confirmed their email."
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
-        days = OptionalUser.get_cached_value("delete_notyetactive")
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
         users_to_disable = (
             User.objects.filter(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
             .filter(registered__lte=timezone.now() - timedelta(days=days))
             .distinct()
         )
         print("Disabling " + str(users_to_disable.count()) + " users.")
-        
-        users_to_disable.delete()
+
+        for user in users_to_disable:
+            self.state = User.STATE_DISABLED
