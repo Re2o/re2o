@@ -42,6 +42,7 @@ urlpatterns = [
     url(r"^state/(?P<userid>[0-9]+)$", views.state, name="state"),
     url(r"^groups/(?P<userid>[0-9]+)$", views.groups, name="groups"),
     url(r"^password/(?P<userid>[0-9]+)$", views.password, name="password"),
+    url(r"^confirm_email/(?P<userid>[0-9]+)$", views.resend_confirmation_email, name="resend-confirmation-email"),
     url(
         r"^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$",
         views.del_group,

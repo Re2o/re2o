@@ -38,7 +38,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% blocktrans with name=users.name surname=users.surname %}Profile of {{ name }} {{ surname }}{% endblocktrans %}</h2>
     {% endif %}
 </div>
+
 <div class="dashboard_container">
+    {% if users.state == Users.STATE_NOT_YET_ACTIVE %}
+    <h2>{% blocktrans with name=users.name surname=users.surname %}Welcome {{ name }} {{ surname }}{% endblocktrans %}</h2>
+    {% else %}
+    <h2>{% blocktrans with name=users.name surname=users.surname %}Profile of {{ name }} {{ surname }}{% endblocktrans %}</h2>
+    {% endif %}
+</div>
+
+
+
+<div class="dashboard_container">
+    {% if users.state == Users.STATE_NOT_YET_ACTIVE %}
+    <div class="row">
+        <div class="alert alert-warning">
+            {% blocktrans %}Please confirm your email address{% endblocktrans %}
+            <br/>
+            <a href="{% url 'users:resend-confirmation-email' users.id %}">
+                {% blocktrans %}Resend the email{% endblocktrans %}
+            </a>
+        </div>
+    </div>
+    {% elif users.state == Users.STATE_DISABLED %}
+    <div class="row">
+        <div class="alert alert-danger">
+            {% blocktrans %}Your account has been disabled{% endblocktrans %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
             {% if users.is_ban%}
@@ -181,7 +210,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
                     <div class="col-md-6">
                         <dt>{% trans "Email address" %}</dt>
-                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a></dd>
+                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_change_date is not None %}<i class="text-danger">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
                     </div>
 
                     <div class="col-md-6">

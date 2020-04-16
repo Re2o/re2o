@@ -299,6 +299,11 @@ class ResetPasswordForm(forms.Form):
     email = forms.EmailField(max_length=255)
 
 
+class ResendConfirmationEmailForm(forms.Form):
+    """Formulaire de renvoie du mail de confirmation"""
+    pass
+
+
 class MassArchiveForm(forms.Form):
     """Formulaire d'archivage des users inactif. Prend en argument
     du formulaire la date de depart avant laquelle archiver les
@@ -344,6 +349,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["room"].label = _("Room")
             self.fields["room"].empty_label = _("No room")
         self.fields["school"].empty_label = _("Select a school")
+        self.initial["email"] = kwargs["instance"].email
 
     class Meta:
         model = Adherent
@@ -389,6 +395,22 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         if self.cleaned_data.get("force", False) and room:
             remove_user_room(room)
         return
+
+    def save(self, commit=True):
+        """On met à jour l'état de l'utilisateur en fonction de son mail"""
+        user = super(AdherentForm, self).save(commit=False)
+
+        if user.email != self.initial["email"]:
+            # Send a confirmation email
+            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
+                user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
+                user.confirm_email_address_mail()
+
+            # Always keep the oldest change date
+            if user.email_change_date is None:
+                user.email_change_date = timezone.now()
+
+        return user
 
 
 class AdherentCreationForm(AdherentForm):
