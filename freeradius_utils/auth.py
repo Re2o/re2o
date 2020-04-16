@@ -469,7 +469,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 RadiusOption.get_attributes("non_member_attributes", attributes_kwargs),
             )
         for user in room_user:
-            if user.is_ban() or user.state != User.STATE_ACTIVE:
+            if user.is_ban() or user.state not in [User.STATE_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
                 return (
                     sw_name,
                     room,

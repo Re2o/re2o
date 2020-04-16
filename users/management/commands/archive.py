@@ -77,6 +77,7 @@ class Command(BaseCommand):
             .exclude(id__in=all_has_access(search_time=date))
             .exclude(state=User.STATE_NOT_YET_ACTIVE)
             .exclude(state=User.STATE_FULL_ARCHIVE)
+            .exclude(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
         )
 
         if show:
