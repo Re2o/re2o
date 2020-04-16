@@ -176,12 +176,14 @@ class User(
     STATE_ARCHIVE = 2
     STATE_NOT_YET_ACTIVE = 3
     STATE_FULL_ARCHIVE = 4
+    STATE_EMAIL_NOT_YET_CONFIRMED = 5
     STATES = (
         (0, _("Active")),
         (1, _("Disabled")),
         (2, _("Archived")),
         (3, _("Not yet active")),
         (4, _("Fully archived")),
+        (5, _("Waiting for email confirmation")),
     )
 
     surname = models.CharField(max_length=255)
@@ -326,6 +328,7 @@ class User(
         return (
             self.state == self.STATE_ACTIVE
             or self.state == self.STATE_NOT_YET_ACTIVE
+            or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
             or (
                 allow_archived
                 and self.state in (self.STATE_ARCHIVE, self.STATE_FULL_ARCHIVE)
@@ -480,7 +483,7 @@ class User(
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return (
-            self.state == User.STATE_ACTIVE
+            self.state in [User.STATE_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]
             and not self.is_ban()
             and (self.is_connected() or self.is_whitelisted())
         ) or self == AssoOption.get_cached_value("utilisateur_asso")
@@ -665,6 +668,7 @@ class User(
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         if sys.version_info[0] >= 3 and (
             self.state == self.STATE_ACTIVE
+            or self.state == STATE_EMAIL_NOT_YET_CONFIRMED
             or self.state == self.STATE_ARCHIVE
             or self.state == self.STATE_DISABLED
         ):
@@ -783,6 +787,34 @@ class User(
         )
         return
 
+    def confirm_email_address_mail(self, request):
+        """Prend en argument un request, envoie un mail pour
+        confirmer l'adresse"""
+        req = Request()
+        req.type = Request.EMAIL
+        req.user = self
+        req.save()
+        template = loader.get_template("users/email_confirmation_request")
+        context = {
+            "name": req.user.get_full_name(),
+            "asso": AssoOption.get_cached_value("name"),
+            "asso_mail": AssoOption.get_cached_value("contact"),
+            "site_name": GeneralOption.get_cached_value("site_name"),
+            "url": request.build_absolute_uri(
+                reverse("users:process", kwargs={"token": req.token})
+            ),
+            "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
+        }
+        send_mail(
+            "Confirmation de l'email de %(name)s / Email confirmation for "
+            "%(name)s" % {"name": AssoOption.get_cached_value("name")},
+            template.render(context),
+            GeneralOption.get_cached_value("email_from"),
+            [req.user.email],
+            fail_silently=False,
+        )
+        return
+
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
@@ -844,6 +876,12 @@ class User(
         super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
+
+    def confirm_mail(self):
+        """Marque l'email de l'utilisateur comme confirmé"""
+        # Let the "set_active" method handle 
+        self.state = self.STATE_NOT_YET_ACTIVE
+        self.set_active()
 
     @cached_property
     def email_address(self):

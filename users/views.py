@@ -105,6 +105,7 @@ from .forms import (
     ClubForm,
     MassArchiveForm,
     PassForm,
+    ConfirmMailForm,
     ResetPasswordForm,
     ClubAdminandMembersForm,
     GroupForm,
@@ -126,6 +127,7 @@ def new_user(request):
 
         # Use "is False" so that if None, the email is sent
         if is_set_password_allowed and user.should_send_password_reset_email is False:
+            user.confirm_email_address_mail(request)
             messages.success(
                 request,
                 _("The user %s was created.")
@@ -737,6 +739,7 @@ def mass_archive(request):
             .exclude(id__in=all_has_access(search_time=date))
             .exclude(state=User.STATE_NOT_YET_ACTIVE)
             .exclude(state=User.STATE_FULL_ARCHIVE)
+            .exclude(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
         )
         if not full_archive:
             to_archive_list = to_archive_list.exclude(state=User.STATE_ARCHIVE)
@@ -1015,6 +1018,38 @@ def process_passwd(request, req):
         return redirect(reverse("index"))
     return form(
         {"userform": u_form, "action_name": _("Change the password")},
+        "users/user.html",
+        request,
+    )
+
+
+def confirm_email(request, token):
+    """Lien pour la confirmation de l'email"""
+    valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
+    req = get_object_or_404(valid_reqs, token=token)
+
+    if req.type == Request.EMAIL:
+        return process_email(request, req)
+    else:
+        messages.error(request, _("Error: please contact an admin."))
+        redirect(reverse("index"))
+
+
+def process_email(request, req):
+    """Process la confirmation de mail, renvoie le formulaire
+    de validation"""
+    user = req.user
+    u_form = ConfirmMailForm(request.POST or None, instance=user, user=request.user)
+    if u_form.is_valid():
+        with transaction.atomic(), reversion.create_revision():
+            u_form.save()
+            reversion.set_comment("Email confirmation")
+        req.delete()
+        messages.success(request, _("The email was confirmed."))
+        return redirect(reverse("index"))
+
+    return form(
+        {"userform": u_form, "action_name": _("Confirm the email")},
         "users/user.html",
         request,
     )
