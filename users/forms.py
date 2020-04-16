@@ -380,7 +380,28 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
-    doublons d'utilisateurs"""
+    doublons d'utilisateurs et, optionnellement,
+    un champ mot de passe"""
+    # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
+    init_password_by_mail = forms.BooleanField(required=False, initial=True)
+    init_password_by_mail.label = _("Send password reset link by email.")
+
+    # Champs pour initialiser le mot de passe
+    # Validators are handled manually since theses fields aren't always required
+    password1 = forms.CharField(
+        required=False,
+        label=_("Password"),
+        widget=forms.PasswordInput,
+    #    validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
+    password2 = forms.CharField(
+        required=False,
+        label=_("Password confirmation"),
+        widget=forms.PasswordInput,
+    #    validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
     former_user_check_info = _(
@@ -421,6 +442,47 @@ class AdherentCreationForm(AdherentForm):
                 _("General Terms of Use"),
             )
         )
+
+    def clean_password1(self):
+        """Ignore ce champs si la case init_password_by_mail est décochée"""
+        send_email = self.cleaned_data.get("init_password_by_mail")
+        if send_email:
+            return None
+
+        password1 = self.cleaned_data.get("password1")
+        if len(password1) < 8:
+            raise forms.ValidationError(_("Password must contain at least 8 characters."))
+
+        return password1
+
+    def clean_password2(self):
+        """Verifie que password1 et 2 sont identiques (si nécessaire)"""
+        send_email = self.cleaned_data.get("init_password_by_mail")
+        if send_email:
+            return None
+
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(_("The passwords don't match."))
+
+        return password2
+
+    def save(self, commit=True):
+        """Set the user's password, if entered
+        Returns the user and a bool indicating whether
+        an email to init the password should be sent"""
+        # Save the provided password in hashed format
+        user = super(AdherentForm, self).save(commit=False)
+
+        send_email = self.cleaned_data.get("init_password_by_mail")
+        if not send_email:
+            user.set_password(self.cleaned_data["password1"])
+
+        user.should_send_password_reset_email = send_email
+        user.save()
+        return user
 
 
 class AdherentEditForm(AdherentForm):
