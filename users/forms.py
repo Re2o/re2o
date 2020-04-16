@@ -384,7 +384,18 @@ class AdherentCreationForm(AdherentForm):
     un champ mot de passe"""
     if OptionalUser.get_cached_value("allow_set_password_during_user_creation"):
         # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
-        init_password_by_mail = forms.BooleanField(required=False, initial=True)
+        init_password_by_mail_info = _(
+            "If this options is set, you will receive a link to set"
+            " your initial password by email. If you do not have"
+            " any means of accessing your emails, you can disable"
+            " this option to set your password immediatly."
+        )
+
+        init_password_by_mail = forms.BooleanField(
+            help_text=init_password_by_mail_info,
+            required=False,
+            initial=True
+        )
         init_password_by_mail.label = _("Send password reset link by email.")
 
         # Champs pour initialiser le mot de passe
