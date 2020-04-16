@@ -668,7 +668,7 @@ class User(
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         if sys.version_info[0] >= 3 and (
             self.state == self.STATE_ACTIVE
-            or self.state == STATE_EMAIL_NOT_YET_CONFIRMED
+            or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
             or self.state == self.STATE_ARCHIVE
             or self.state == self.STATE_DISABLED
         ):
