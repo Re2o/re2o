@@ -68,6 +68,7 @@ class EditOptionalUserForm(ModelForm):
         self.fields["all_can_create_adherent"].label = _("All can create a member")
         self.fields["self_adhesion"].label = _("Self registration")
         self.fields["shell_default"].label = _("Default shell")
+        self.fields["allow_set_password_during_user_creation"].label = _("Allow directly setting a password during account creation")
 
 
 class EditOptionalMachineForm(ModelForm):
