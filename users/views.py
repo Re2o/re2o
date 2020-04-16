@@ -119,15 +119,42 @@ def new_user(request):
     user = AdherentCreationForm(request.POST or None, user=request.user)
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
     GTU = GeneralOption.get_cached_value("GTU")
+
     if user.is_valid():
         user = user.save()
-        user.reset_passwd_mail(request)
-        messages.success(
-            request,
-            _("The user %s was created, an email to set the password was sent.")
-            % user.pseudo,
-        )
+
+        # Use "is False" so that if None, the email is sent
+        if user.should_send_password_reset_email is False:
+            messages.success(
+                request,
+                _("The user %s was created.")
+                % user.pseudo,
+            )
+        else:
+            user.reset_passwd_mail(request)
+            messages.success(
+                request,
+                _("The user %s was created, an email to set the password was sent.")
+                % user.pseudo,
+            )
+
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
+
+    # Anonymous users are allowed to create new accounts
+    # but they should be treated differently
+    params = {
+            "userform": user,
+            "GTU_sum_up": GTU_sum_up,
+            "GTU": GTU,
+            "showCGU": True,
+            "action_name": _("Commit"),
+        }
+
+    if request.user.is_anonymous:
+        params["load_js_file"] = "/static/js/toggle_password_fields.js"
+
+    return form(params, "users/user.html", request)
+    """
     return form(
         {
             "userform": user,
@@ -139,6 +166,7 @@ def new_user(request):
         "users/user.html",
         request,
     )
+    """
 
 
 @login_required
