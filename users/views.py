@@ -107,6 +107,7 @@ from .forms import (
     PassForm,
     ConfirmMailForm,
     ResetPasswordForm,
+    ResendConfirmationEmailForm,
     ClubAdminandMembersForm,
     GroupForm,
     InitialRegisterForm,
@@ -1020,6 +1021,19 @@ def process_passwd(request, req):
         {"userform": u_form, "action_name": _("Change the password")},
         "users/user.html",
         request,
+    )
+
+
+def resend_confirmation_email(request):
+    """ Renvoie du mail de confirmation """
+    userform = ResendConfirmationEmailForm(request.POST or None)
+    if userform.is_valid():
+        request.user.confirm_email_address_mail()
+        messages.success(request, _("An email to confirm your address was sent."))
+        return redirect(reverse("index"))
+
+    return form(
+        {"userform": userform, "action_name": _("Send")}, "users/user.html", request
     )
 
 

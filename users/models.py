@@ -226,6 +226,7 @@ class User(
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
+    email_change_date = None
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
@@ -879,7 +880,10 @@ class User(
 
     def confirm_mail(self):
         """Marque l'email de l'utilisateur comme confirmé"""
-        # Let the "set_active" method handle 
+        # Reset the email change date
+        self.email_change_date = None
+
+        # Let the "set_active" method handle the rest
         self.state = self.STATE_NOT_YET_ACTIVE
         self.set_active()
 

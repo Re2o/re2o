@@ -34,7 +34,8 @@ class Command(BaseCommand):
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
         users_to_disable = (
             User.objects.filter(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
-            .filter(registered__lte=timezone.now() - timedelta(days=days))
+            .exclude(email_change_date__is_null=True)
+            .filter(email_change_date__lte=timezone.now() - timedelta(days=days))
             .distinct()
         )
         print("Disabling " + str(users_to_disable.count()) + " users.")
