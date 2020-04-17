@@ -333,7 +333,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["room"].label = _("Room")
             self.fields["room"].empty_label = _("No room")
         self.fields["school"].empty_label = _("Select a school")
-        self.is_anon = kwargs["user"].is_anonymous()
 
     class Meta:
         model = Adherent
@@ -381,23 +380,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         if self.cleaned_data.get("force", False) and room:
             remove_user_room(room)
         return
-
-    def save(self, commit=True):
-        """On met à jour l'état de l'utilisateur en fonction de son mail"""
-        user = super(AdherentForm, self).save(commit=commit)
-
-        if not self.is_anon and self.initial["email"] and user.email != self.initial["email"]:
-            # Send a confirmation email
-            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE]:
-                user.email_state = User.EMAIL_STATE_PENDING
-                self.should_send_confirmation_email = True
-
-                # Always keep the oldest change date
-                if user.email_change_date is None:
-                    user.email_change_date = timezone.now()
-
-        user.save()
-        return user
 
 
 class AdherentCreationForm(AdherentForm):
@@ -518,7 +500,6 @@ class AdherentCreationForm(AdherentForm):
         an email to init the password should be sent"""
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
-        user.email_change_date = timezone.now()
 
         is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
         send_email = not is_set_password_allowed or self.cleaned_data.get("init_password_by_mail")
