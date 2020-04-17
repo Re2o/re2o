@@ -223,6 +223,14 @@ msgstr "Nom"
 msgid "Use a mailing list"
 msgstr "Utiliser une liste de diffusion"
 
+#: users/forms.py:662
+msgid "State"
+msgstr "État"
+
+#: users/forms.py:663
+msgid "Email state"
+msgstr "État du mail"
+
 #: users/forms.py:601 users/templates/users/aff_listright.html:38
 msgid "Superuser"
 msgstr "Superutilisateur"
@@ -1366,6 +1374,10 @@ msgstr "Les états ont été modifié."
 #: users/views.py:242
 msgid "The groups were edited."
 msgstr "Les groupes ont été modifiés."
+
+#: users/views.py:249
+msgid "An email to confirm the address was sent."
+msgstr "Un mail pour confirmer l'adresse a été envoyé."
 
 #: users/views.py:261 users/views.py:998
 msgid "The password was changed."

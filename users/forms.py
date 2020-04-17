@@ -654,11 +654,13 @@ class StateForm(FormRevMixin, ModelForm):
 
     class Meta:
         model = User
-        fields = ["state" ,"email_state"]
+        fields = ["state", "email_state"]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields["state"].label = _("State")
+        self.fields["email_state"].label = _("Email state")
 
 
 class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
