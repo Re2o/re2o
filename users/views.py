@@ -1067,7 +1067,7 @@ def process_email(request, req):
         return redirect(reverse("index"))
 
     return form(
-        {"email": user.email, "firstname": user.firstname, "lastname": user.surname},
+        {"email": user.email, "firstname": user.name, "lastname": user.surname},
         "users/confirm_email.html",
         request
     )
