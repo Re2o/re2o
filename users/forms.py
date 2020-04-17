@@ -853,14 +853,12 @@ class EMailAddressForm(FormRevMixin, ModelForm):
 
 class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Edit email-related settings"""
+    should_send_confirmation_email = False
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
-
-        self.should_send_confirmation_email = False
         self.fields["email"].label = _("Main email address")
-
         if "local_email_redirect" in self.fields:
             self.fields["local_email_redirect"].label = _("Redirect local emails")
         if "local_email_enabled" in self.fields:
