@@ -409,6 +409,9 @@ class AdherentCreationForm(AdherentForm):
             " your initial password by email. If you do not have"
             " any means of accessing your emails, you can disable"
             " this option to set your password immediatly."
+            " You will still receive an email to confirm your address."
+            " Failure to confirm your address will result in an"
+            " automatic suspension of your account until you do."
         )
 
         init_password_by_mail = forms.BooleanField(

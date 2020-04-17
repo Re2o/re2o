@@ -163,11 +163,17 @@ msgid ""
 " your initial password by email. If you do not have"
 " any means of accessing your emails, you can disable"
 " this option to set your password immediatly."
+" You will still receive an email to confirm your address."
+" Failure to confirm your address will result in an"
+" automatic suspension of your account until you do."
 msgstr ""
 "Si cette option est activée, vous recevrez un lien pour choisir"
 " votre mot de passe par email. Si vous n'avez pas accès"
 " à vos mails, vous pouvez désactiver cette option"
 " pour immédiatement entrer votre mot de passe."
+" Vous recevrez tous de même un email de confirmation."
+" Si vous ne confirmez pas votre adresse dans les délais"
+" impartis, votre connexion sera automatiquement suspendue."
 
 #: users/forms.py:442
 msgid "Send password reset link by email."
@@ -961,6 +967,21 @@ msgstr ""
 "débrancher et rebrancher votre câble Ethernet pour bénéficier d'une "
 "connexion filaire."
 
+#: users/templates/users/confirm_email.html:35
+#, python-format
+msgid "Confirmation email"
+msgstr "Email de confirmation"
+
+#: users/templates/users/confirm_email.html:36
+#, python-format
+msgid "Confirm the email"
+msgstr "Confirmer l'email"
+
+#: users/templates/users/confirm_email.html:36
+#, python-format
+msgid "for %(name)s."
+msgstr "pour %(name)s."
+
 #: users/templates/users/profil.html:36
 #, python-format
 msgid "Welcome %(name)s %(surname)s"
@@ -970,6 +991,25 @@ msgstr "Bienvenue %(name)s %(surname)s"
 #, python-format
 msgid "Profile of %(name)s %(surname)s"
 msgstr "Profil de %(name)s %(surname)s"
+
+#: users/templates/users/profil.html:43
+#, python-format
+msgid ""
+"Please confirm your email address before %(confirm_before_date)s,"
+" or your account will be suspended."
+msgstr ""
+"Veuillez confirmer votre adresse mail avant le %(confirm_before_date)s,"
+" sous peine de suspension de votre compte."
+
+#: users/templates/users/profil.html:48
+#, python-format
+msgid "Didn't receive the email?"
+msgstr "Vous n'avez pas reçu le mail ?"
+
+#: users/templates/users/profil.html:53
+#, python-format
+msgid "Your account has been suspended."
+msgstr "Votre compte a été suspendu."
 
 #: users/templates/users/profil.html:46
 msgid "Your account has been banned."
@@ -1053,6 +1093,10 @@ msgstr "Envoi de mails désactivé"
 #: users/templates/users/profil.html:192
 msgid "Connected"
 msgstr "Connecté"
+
+#: users/templates/users/profil.html:201
+msgid "Pending confirmation..."
+msgstr "En attente de confirmation..."
 
 #: users/templates/users/profil.html:193
 msgid "Pending connection..."
@@ -1203,6 +1247,16 @@ msgstr ""
 msgid "Add an email address"
 msgstr "Ajouter une adresse mail"
 
+#: users/templates/users/resend_confirmation_email.html:35
+#, python-format
+msgid "Re-send confirmation email?"
+msgstr "Renvoyer l'email de confirmation ?"
+
+#: users/templates/users/resend_confirmation_email.html:36
+#, python-format
+msgid "The confirmation email will be sent to"
+msgstr "L'email de confirmation sera envoyé à"
+
 #: users/templates/users/sidebar.html:33
 msgid "Create a club or organisation"
 msgstr "Créer un club ou une association"
@@ -1264,10 +1318,11 @@ msgstr "Adresse MAC %(mac)s"
 
 #: users/views.py:131
 #, python-format
-msgid "The user %s was created."
-msgstr "L'utilisateur %s a été créé."
+msgid "The user %s was created, a confirmation email was sent."
+msgstr ""
+"L'utilisateur %s a été créé, un mail de confirmation a été envoyé."
 
-#: users/views.py:127
+#: users/views.py:130
 #, python-format
 msgid "The user %s was created, an email to set the password was sent."
 msgstr ""
@@ -1295,6 +1350,10 @@ msgstr "Le club a été modifié."
 #: users/views.py:208
 msgid "The user was edited."
 msgstr "L'utilisateur a été modifié."
+
+#: users/views.py:229
+msgid "Sent a new confirmation email."
+msgstr "Un nouveau mail de confirmation a été envoyé."
 
 #: users/views.py:225
 msgid "The state was edited."
@@ -1476,6 +1535,14 @@ msgid ""
 msgstr ""
 "Enregistrement réussi ! Veuillez débrancher et rebrancher votre câble "
 "Ethernet pour avoir accès à Internet."
+
+#: users/views.py:1044
+msgid "The %s address was confirmed."
+msgstr "L'adresse mail %s a été confirmée."
+
+#: users/views.py:1068
+msgid "An email to confirm your address was sent."
+msgstr "Un mail pour confirmer votre adresse a été envoyé."
 
 #: users/views.py:1072 users/views.py:1096 users/views.py:1111
 msgid "The mailing list doesn't exist."

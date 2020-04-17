@@ -50,6 +50,10 @@ msgstr "Pas encore adhéré"
 msgid "Fully archived"
 msgstr "Complètement archivés"
 
+#: search/forms.py:38
+msgid "Waiting for email confirmation"
+msgstr "En attente de confirmation d'email"
+
 #: search/forms.py:41
 msgid "Users"
 msgstr "Utilisateurs"
