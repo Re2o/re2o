@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-18 00:48+0200\n"
+"POT-Creation-Date: 2020-04-18 01:38+0200\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -1093,7 +1093,7 @@ msgstr "Informations détaillées"
 msgid "Edit"
 msgstr "Modifier"
 
-#: users/templates/users/profil.html:165 users/views.py:288 users/views.py:1034
+#: users/templates/users/profil.html:165 users/views.py:288 users/views.py:1035
 msgid "Change the password"
 msgstr "Changer le mot de passe"
 
@@ -1383,7 +1383,7 @@ msgstr "Un mail pour confirmer l'adresse a été envoyé."
 msgid "The groups were edited."
 msgstr "Les groupes ont été modifiés."
 
-#: users/views.py:285 users/views.py:1031
+#: users/views.py:285 users/views.py:1032
 msgid "The password was changed."
 msgstr "Le mot de passe a été changé."
 
@@ -1470,7 +1470,7 @@ msgstr "adresse mail"
 msgid "The email settings were edited."
 msgstr "Les paramètres mail ont été modifiés."
 
-#: users/views.py:551 users/views.py:1075
+#: users/views.py:551 users/views.py:1077
 msgid "An email to confirm your address was sent."
 msgstr "Un mail pour confirmer votre adresse a été envoyé."
 
@@ -1532,7 +1532,7 @@ msgstr ""
 msgid "%s users were archived."
 msgstr "%s utilisateurs ont été archivés."
 
-#: users/views.py:990 users/views.py:1071
+#: users/views.py:990 users/views.py:1073
 msgid "The user doesn't exist."
 msgstr "L'utilisateur n'existe pas."
 
@@ -1548,16 +1548,16 @@ msgstr "Un mail pour réinitialiser le mot de passe a été envoyé."
 msgid "Error: please contact an admin."
 msgstr "Erreur : veuillez contacter un admin."
 
-#: users/views.py:1051
+#: users/views.py:1053
 #, python-format
 msgid "The %s address was confirmed."
 msgstr "L'adresse mail %s a été confirmée."
 
-#: users/views.py:1098
+#: users/views.py:1100
 msgid "Incorrect URL, or already registered device."
 msgstr "URL incorrect, ou appareil déjà enregistré."
 
-#: users/views.py:1110
+#: users/views.py:1112
 msgid ""
 "Successful registration! Please disconnect and reconnect your Ethernet cable "
 "to get Internet access."
@@ -1565,7 +1565,7 @@ msgstr ""
 "Enregistrement réussi ! Veuillez débrancher et rebrancher votre câble "
 "Ethernet pour avoir accès à Internet."
 
-#: users/views.py:1150 users/views.py:1174 users/views.py:1189
+#: users/views.py:1152 users/views.py:1176 users/views.py:1191
 msgid "The mailing list doesn't exist."
 msgstr "La liste de diffusion n'existe pas."
 

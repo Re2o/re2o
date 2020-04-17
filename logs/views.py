@@ -285,13 +285,13 @@ def stats_general(request):
                     _all_whitelisted.exclude(club__isnull=True).count(),
                 ],
                 "email_state_verified_users": [
-                    _("Users with a verified email"),
+                    _("Users with a confirmed email"),
                     User.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
                     Adherent.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
                     Club.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
                 ],
                 "email_state_unverified_users": [
-                    _("Users with an unverified email"),
+                    _("Users with an unconfirmed email"),
                     User.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),
                     Adherent.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),
                     Club.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),

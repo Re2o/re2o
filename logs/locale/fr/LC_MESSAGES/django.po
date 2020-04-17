@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-18 00:48+0200\n"
+"POT-Creation-Date: 2020-04-18 01:38+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -159,7 +159,7 @@ msgid "Statistics"
 msgstr "Statistiques"
 
 #: logs/templates/logs/index.html:32 logs/templates/logs/stats_logs.html:32
-#: logs/views.py:400
+#: logs/views.py:418
 msgid "Actions performed"
 msgstr "Actions effectuées"
 
@@ -260,65 +260,77 @@ msgid "Users benefiting from a free connection"
 msgstr "Utilisateurs bénéficiant d'une connexion gratuite"
 
 #: logs/views.py:288
+msgid "Users with a confirmed email"
+msgstr "Utilisateurs ayant un mail confirmé"
+
+#: logs/views.py:294
+msgid "Users with an unconfirmed email"
+msgstr "Utilisateurs ayant un mail non confirmé"
+
+#: logs/views.py:300
+msgid "Users pending email confirmation"
+msgstr "Utilisateurs en attente de confirmation du mail"
+
+#: logs/views.py:306
 msgid "Active interfaces (with access to the network)"
 msgstr "Interfaces actives (ayant accès au réseau)"
 
-#: logs/views.py:302
+#: logs/views.py:320
 msgid "Active interfaces assigned IPv4"
 msgstr "Interfaces actives assignées IPv4"
 
-#: logs/views.py:319
+#: logs/views.py:337
 msgid "IP range"
 msgstr "Plage d'IP"
 
-#: logs/views.py:320
+#: logs/views.py:338
 msgid "VLAN"
 msgstr "VLAN"
 
-#: logs/views.py:321
+#: logs/views.py:339
 msgid "Total number of IP addresses"
 msgstr "Nombre total d'adresses IP"
 
-#: logs/views.py:322
+#: logs/views.py:340
 msgid "Number of assigned IP addresses"
 msgstr "Nombre d'adresses IP assignées"
 
-#: logs/views.py:323
+#: logs/views.py:341
 msgid "Number of IP address assigned to an activated machine"
 msgstr "Nombre d'adresses IP assignées à une machine activée"
 
-#: logs/views.py:324
+#: logs/views.py:342
 msgid "Number of unassigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: logs/views.py:339
+#: logs/views.py:357
 msgid "Users (members and clubs)"
 msgstr "Utilisateurs (adhérents et clubs)"
 
-#: logs/views.py:385
+#: logs/views.py:403
 msgid "Topology"
 msgstr "Topologie"
 
-#: logs/views.py:401
+#: logs/views.py:419
 msgid "Number of actions"
 msgstr "Nombre d'actions"
 
-#: logs/views.py:426
+#: logs/views.py:444
 msgid "rights"
 msgstr "droits"
 
-#: logs/views.py:455
+#: logs/views.py:473
 msgid "actions"
 msgstr "actions"
 
-#: logs/views.py:486
+#: logs/views.py:504
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
 
-#: logs/views.py:492
+#: logs/views.py:510
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: logs/views.py:499
+#: logs/views.py:517
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
