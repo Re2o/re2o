@@ -124,11 +124,9 @@ def new_user(request):
     is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
 
     if user.is_valid():
-        user = user.save()
-
         # Use "is False" so that if None, the email is sent
-        if is_set_password_allowed and user.should_send_password_reset_email is False:
-            user.confirm_email_address_mail(request)
+        if is_set_password_allowed and user.should_send_password_reset_email:
+            user.send_confirm_email_if_necessary(request)
             messages.success(
                 request,
                 _("The user %s was created, a confirmation email was sent.")
@@ -142,6 +140,7 @@ def new_user(request):
                 % user.pseudo,
             )
 
+        user = user.save()
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
 
     # Anonymous users are allowed to create new accounts
@@ -223,12 +222,11 @@ def edit_info(request, user, userid):
         )
     if user_form.is_valid():
         if user_form.changed_data:
+            if user.send_confirm_email_if_necessary(request):
+                messages.success(request, _("Sent a new confirmation email."))
+
             user = user_form.save()
             messages.success(request, _("The user was edited."))
-
-            if user_form.should_send_confirmation_email:
-                user.confirm_email_address_mail(request)
-                messages.success(request, _("Sent a new confirmation email."))
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
@@ -544,13 +542,11 @@ def edit_email_settings(request, user_instance, **_kwargs):
     )
     if email_settings.is_valid():
         if email_settings.changed_data:
+            if user_instance.send_confirm_email_if_necessary(request):
+                messages.success(request, _("An email to confirm your address was sent."))
+
             email_settings.save()
             messages.success(request, _("The email settings were edited."))
-
-        # Send confirmation email if necessary
-        if email_settings.should_send_confirmation_email is True:
-            user_instance.confirm_email_address_mail(request)
-            messages.success(request, _("An email to confirm your address was sent."))
 
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
@@ -1073,7 +1069,7 @@ def resend_confirmation_email(request, logged_user, userid):
         messages.error(request, _("The user doesn't exist."))
 
     if request.method == "POST":
-        user.confirm_email_address_mail(request)
+        user.send_confirm_email_if_necessary(request)
         messages.success(request, _("An email to confirm your address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 

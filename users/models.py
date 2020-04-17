@@ -800,6 +800,26 @@ class User(
         )
         return
 
+    def send_confirm_email_if_necessary(self, request):
+        """Update the user's email state
+        Returns whether an email was sent"""
+        # Only update the state if the email changed
+        if self.__original_email == self.email:
+            return False
+
+        # Archived users shouldn't get an email
+        if self.state not in [self.STATE_ACTIVE, self.STATE_DISABLED, self.STATE_NOT_YET_ACTIVE]:
+            return False
+
+        # Always keep the oldest change date
+        if self.email_change_date is None:
+            self.email_change_date = timezone.now()
+
+        self.email_state = self.EMAIL_STATE_PENDING
+        self.confirm_email_address_mail(request)
+
+        return True
+
     def confirm_email_before_date(self):
         if self.email_change_date is None or self.email_state == self.EMAIL_STATE_VERIFIED:
             return None
@@ -810,6 +830,7 @@ class User(
     def confirm_email_address_mail(self, request):
         """Prend en argument un request, envoie un mail pour
         confirmer l'adresse"""
+        # Create the request and send the email
         req = Request()
         req.type = Request.EMAIL
         req.user = self
