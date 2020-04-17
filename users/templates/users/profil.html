@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% if users.state == users.STATE_EMAIL_NOT_YET_CONFIRMED %}
 <div class="alert alert-warning">
-    {% blocktrans %}Please confirm your email address.{% endblocktrans %}
+    {% blocktrans %}Please confirm your email address before {{ users.confirm_email_before_date }}, or your account will be suspended.{% endblocktrans %}
     <br/>
     <a href="{% url 'users:resend-confirmation-email' users.id %}">
         {% blocktrans %}Didn't receive the email?{% endblocktrans %}

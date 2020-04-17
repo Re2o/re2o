@@ -62,6 +62,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -803,6 +804,13 @@ class User(
         )
         return
 
+    def confirm_email_before_date(self):
+        if self.email_change_date is None or self.state != self.STATE_EMAIL_NOT_YET_CONFIRMED:
+            return None
+
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
+        return str(self.email_change_date + timedelta(days=days))
+
     def confirm_email_address_mail(self, request):
         """Prend en argument un request, envoie un mail pour
         confirmer l'adresse"""
@@ -821,6 +829,7 @@ class User(
                 reverse("users:process", kwargs={"token": req.token})
             ),
             "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
+            "confirm_before": self.confirm_email_before_date(),
         }
         send_mail(
             "Confirmation de l'email de %(name)s / Email confirmation for "

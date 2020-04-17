@@ -9,6 +9,9 @@ de vos équipements, votre compte, vos factures, et tous les services proposés 
 Contactez les administrateurs si vous n'êtes pas à l'origine de cette requête.
 
 Ce lien expirera dans {{ expire_in }} heures.
+S'il a expiré, vous pouvez renvoyer un mail de confirmation depuis votre compte {{ site_name }}.
+
+<strong>Attention :</strong> Si vous ne confirmez pas votre email avant le {{ confirm_before }}, votre compte sera suspendu.
 
 Respectueusement,
 
@@ -27,6 +30,9 @@ the services offered on the network.
 Contact the administrators if you didn't request this.
 
 This link will expire in {{ expire_in }} hours.
+If it has expired, you can send a new confirmation email from your account on {{ site_name }}.
+
+<strong>Warning:</strong> If you do not confirm your email before {{ confirm_before }}, your account will be suspended.
 
 Regards,
 
