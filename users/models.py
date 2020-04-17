@@ -147,8 +147,7 @@ class UserManager(BaseUserManager):
         )
 
         user.set_password(password)
-        user.email_change_date = None
-        user.email_state = User.EMAIL_STATE_VERIFIED
+        user.confirm_mail()
         if su:
             user.is_superuser = True
         user.save(using=self._db)
