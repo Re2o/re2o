@@ -675,6 +675,7 @@ class StateForm(FormRevMixin, ModelForm):
         if self.cleaned_data["state"]:
             user.state = self.cleaned_data.get("state")
             user.state_sync()
+            user.email_change_date_sync()
         user.save()
 
 
