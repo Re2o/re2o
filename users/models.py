@@ -807,15 +807,16 @@ class User(
         if self.__original_email == self.email:
             return False
 
-        # Archived users shouldn't get an email
-        if self.state not in [self.STATE_ACTIVE, self.STATE_DISABLED, self.STATE_NOT_YET_ACTIVE]:
+        self.email_state = self.EMAIL_STATE_PENDING
+
+        # Fully archived users shouldn't get an email
+        if self.state != self.STATE_FULL_ARCHIVE:
             return False
 
         # Always keep the oldest change date
         if self.email_change_date is None:
             self.email_change_date = timezone.now()
 
-        self.email_state = self.EMAIL_STATE_PENDING
         self.confirm_email_address_mail(request)
 
         return True
