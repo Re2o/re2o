@@ -638,12 +638,11 @@ class User(
         self.ldap_sync()
 
     def state_sync(self):
-        """Handle archiving/unarchiving, and manually confirming a user's email address"""
+        """Archive, or unarchive, if the user was not active/or archived before"""
         if (
             self.__original_state != self.STATE_ACTIVE
             and self.state == self.STATE_ACTIVE
         ):
-            self.email_change_date = None
             self.unarchive()
         elif (
             self.__original_state != self.STATE_ARCHIVE
@@ -655,11 +654,21 @@ class User(
             and self.state == self.STATE_FULL_ARCHIVE
         ):
             self.full_archive()
+
+    def email_change_date_sync(self):
+        """Update user's email_change_date based on state update"""
+        if (
+            self.__original_state != self.STATE_ACTIVE
+            and self.state == self.STATE_ACTIVE
+        ):
+            self.email_change_date = None
+            self.save()
         elif (
             self.__original_state != self.STATE_EMAIL_NOT_YET_CONFIRMED
             and self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
         ):
             self.email_change_date = timezone.now()
+            self.save()
 
     def ldap_sync(
         self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
