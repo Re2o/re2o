@@ -25,19 +25,19 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Suspend users who haven't confirmed their email."
+    help = "Disable users who haven't confirmed their email."
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
-        days = OptionalUser.get_cached_value("suspend_emailnotyetconfirmed")
-        users_to_suspend = (
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
+        users_to_disable = (
             User.objects.filter(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
             .filter(email_change_date__lte=timezone.now() - timedelta(days=days))
             .distinct()
         )
-        print("Suspending " + str(users_to_suspend.count()) + " users.")
+        print("Disabling " + str(users_to_disable.count()) + " users.")
 
-        for user in users_to_suspend:
-            user.state = User.STATE_SUSPENDED
-            user.notif_suspension()
+        for user in users_to_disable:
+            user.state = User.STATE_DISABLED
+            user.notif_disable()
             user.save()

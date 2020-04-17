@@ -388,13 +388,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
         if not self.is_anon and self.initial["email"] and user.email != self.initial["email"]:
             # Send a confirmation email
-            # Don't do this for archived or disabled users
-            if user.state not in [User.STATE_ARCHIVE, User.STATE_FULL_ARCHIVE, User.STATE_DISABLED]:
+            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
+                user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
                 self.should_send_confirmation_email = True
-
-                # Suspend users stay suspended
-                if user.state == User.STATE_SUSPENDED:
-                    user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
 
                 # Always keep the oldest change date
                 if user.email_change_date is None:
