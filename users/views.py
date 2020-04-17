@@ -124,8 +124,7 @@ def new_user(request):
     is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
 
     if user.is_valid():
-        # Use "is False" so that if None, the email is sent
-        if is_set_password_allowed and user.should_send_password_reset_email:
+        if user.did_set_initial_passwd:
             user.send_confirm_email_if_necessary(request)
             messages.success(
                 request,
