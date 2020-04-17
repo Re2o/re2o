@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form" method="post">
     {% csrf_token %}
     <h4>{% blocktrans %}Confirmation email{% endblocktrans %}</h4>
-    <p>{% blocktrans %}Confirm the email{% endblocktrans %} <a href="mailto:{{ email }}">{{ email }}</a> {% blocktrans %}for user {{ firstname }} {{ lastname }}.{% endblocktrans %}.</p>
+    <p>{% blocktrans %}Confirm the email{% endblocktrans %} <a href="mailto:{{ email }}">{{ email }}</a> {% blocktrans %}for user {{ firstname }} {{ lastname }}.{% endblocktrans %}</p>
     {% trans "Confirm" as tr_confirm %}
     {% bootstrap_button tr_confirm button_type="submit" icon="ok" button_class="btn-success" %}
 </form>
