@@ -1051,8 +1051,9 @@ def process_email(request, req):
     )
 
 
+@login_required
 @can_edit(User)
-def resend_confirmation_email(request, userid):
+def resend_confirmation_email(request, logged_user, userid):
     """ Renvoi du mail de confirmation """
     try:
         user = User.objects.get(
