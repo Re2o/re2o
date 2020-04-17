@@ -117,20 +117,6 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         user.save()
 
 
-class ConfirmMailForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
-    """Formulaire de confirmation de l'email de l'utilisateur"""
-    class Meta:
-        model = User
-        fields = []
-
-    def save(self, commit=True):
-        """Confirmation de l'email"""
-        user = super(ConfirmMailForm, self).save(commit=False)
-        user.confirm_mail()
-        user.set_active()
-        user.save()
-
-
 class UserCreationForm(FormRevMixin, forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password.
