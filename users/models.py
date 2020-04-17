@@ -810,15 +810,15 @@ class User(
         self.email_state = self.EMAIL_STATE_PENDING
 
         # Fully archived users shouldn't get an email
-        if self.state != self.STATE_FULL_ARCHIVE:
+        if self.state == self.STATE_FULL_ARCHIVE:
             return False
 
         # Always keep the oldest change date
         if self.email_change_date is None:
             self.email_change_date = timezone.now()
 
+        self.save()
         self.confirm_email_address_mail(request)
-
         return True
 
     def confirm_email_before_date(self):
