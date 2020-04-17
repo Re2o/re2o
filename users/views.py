@@ -1027,7 +1027,8 @@ def process_passwd(request, req):
             u_form.save()
             reversion.set_comment("Password reset")
 
-        req.delete()
+        # Delete all remaining requests
+        Request.objects.filter(user=user, type=Request.PASSWD).delete()
         messages.success(request, _("The password was changed."))
         return redirect(reverse("index"))
     return form(
@@ -1047,7 +1048,8 @@ def process_email(request, req):
             user.save()
             reversion.set_comment("Email confirmation")
 
-        req.delete()
+        # Delete all remaining requests
+        Request.objects.filter(user=user, type=Request.EMAIL).delete()
         messages.success(request, _("The %s address was confirmed." % user.email))
         return redirect(reverse("index"))
 
