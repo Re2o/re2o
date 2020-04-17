@@ -200,7 +200,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
                     <div class="col-md-6">
                         <dt>{% trans "Email address" %}</dt>
-                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_change_date is not None %}<br/><i class="text-warning">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
+                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_state != users.EMAIL_STATE_VERIFIED %}<br/><i class="text-warning">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
                     </div>
 
                     <div class="col-md-6">
