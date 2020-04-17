@@ -1291,6 +1291,7 @@ class User(
             "room": self.can_change_room,
         }
         self.__original_state = self.state
+        self.__original_email = self.email
 
     def clean(self, *args, **kwargs):
         """Check if this pseudo is already used by any mailalias.
