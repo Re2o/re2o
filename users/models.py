@@ -335,6 +335,7 @@ class User(
             self.state == self.STATE_ACTIVE
             or self.state == self.STATE_NOT_YET_ACTIVE
             or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
+            or self.state == self.STATE_SUSPENDED
             or (
                 allow_archived
                 and self.state in (self.STATE_ARCHIVE, self.STATE_FULL_ARCHIVE)
@@ -344,7 +345,7 @@ class User(
     def set_active(self):
         """Enable this user if he subscribed successfully one time before
         Reenable it if it was archived
-        Do nothing if disabled or waiting for email confirmation"""
+        Do nothing if suspended, disabled or waiting for email confirmation"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(
                 Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
