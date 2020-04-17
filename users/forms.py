@@ -518,6 +518,7 @@ class AdherentCreationForm(AdherentForm):
         an email to init the password should be sent"""
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
+        user.email_change_date = timezone.now()
 
         is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
         send_email = not is_set_password_allowed or self.cleaned_data.get("init_password_by_mail")
