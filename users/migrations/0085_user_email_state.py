@@ -16,11 +16,14 @@ class Migration(migrations.Migration):
         users = apps.get_model("users", "User")
         users.objects.using(db_alias).all().update(email_state=0)
 
+    def undo_flag_verified(apps, schema_editor):
+        return
+
     operations = [
         migrations.AddField(
             model_name='user',
             name='email_state',
             field=models.IntegerField(choices=[(0, 'Verified'), (1, 'Unverified'), (2, 'Waiting for email confirmation')], default=2),
         ),
-        migrations.RunPython(flag_verified),
+        migrations.RunPython(flag_verified, undo_flag_verified),
     ]
