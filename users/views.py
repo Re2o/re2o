@@ -223,8 +223,13 @@ def edit_info(request, user, userid):
         )
     if user_form.is_valid():
         if user_form.changed_data:
-            user_form.save()
+            user = user_form.save()
             messages.success(request, _("The user was edited."))
+
+            if user_form.should_send_confirmation_email:
+                user.confirm_email_address_mail(request)
+                messages.warning(request, _("Sent a new confirmation email"))
+
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
         {"userform": user_form, "action_name": _("Edit")},
@@ -994,12 +999,15 @@ def reset_password(request):
 
 
 def process(request, token):
-    """Process, lien pour la reinitialisation du mot de passe"""
+    """Process, lien pour la reinitialisation du mot de passe
+    et la confirmation de l'email"""
     valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
     req = get_object_or_404(valid_reqs, token=token)
 
     if req.type == Request.PASSWD:
         return process_passwd(request, req)
+    elif req.type == Request.EMAIL:
+        return process_email(request, req)
     else:
         messages.error(request, _("Error: please contact an admin."))
         redirect(reverse("index"))
@@ -1024,29 +1032,29 @@ def process_passwd(request, req):
     )
 
 
-def resend_confirmation_email(request):
+def resend_confirmation_email(request, userid):
     """ Renvoie du mail de confirmation """
     userform = ResendConfirmationEmailForm(request.POST or None)
     if userform.is_valid():
-        request.user.confirm_email_address_mail()
+        try:
+            user = User.objects.get(
+                id=userid,
+                state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
+            )
+        except User.DoesNotExist:
+            messages.error(request, _("The user doesn't exist."))
+            return form(
+                {"userform": userform, "action_name": _("Reset")},
+                "users/user.html",
+                request,
+            )
+        user.confirm_email_address_mail(request)
         messages.success(request, _("An email to confirm your address was sent."))
-        return redirect(reverse("index"))
+        return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
     return form(
         {"userform": userform, "action_name": _("Send")}, "users/user.html", request
     )
-
-
-def confirm_email(request, token):
-    """Lien pour la confirmation de l'email"""
-    valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
-    req = get_object_or_404(valid_reqs, token=token)
-
-    if req.type == Request.EMAIL:
-        return process_email(request, req)
-    else:
-        messages.error(request, _("Error: please contact an admin."))
-        redirect(reverse("index"))
 
 
 def process_email(request, req):

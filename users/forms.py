@@ -368,6 +368,8 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         label=_("Force the move?"), initial=False, required=False
     )
 
+    should_send_confirmation_email = False
+
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
             "email"
@@ -398,18 +400,19 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     def save(self, commit=True):
         """On met à jour l'état de l'utilisateur en fonction de son mail"""
-        user = super(AdherentForm, self).save(commit=False)
+        user = super(AdherentForm, self).save(commit=commit)
 
         if user.email != self.initial["email"]:
             # Send a confirmation email
             if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
                 user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
-                user.confirm_email_address_mail()
+                self.should_send_confirmation_email = True
 
-            # Always keep the oldest change date
-            if user.email_change_date is None:
-                user.email_change_date = timezone.now()
+                # Always keep the oldest change date
+                if user.email_change_date is None:
+                    user.email_change_date = timezone.now()
 
+        user.save()
         return user
 
 
