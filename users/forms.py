@@ -504,7 +504,6 @@ class AdherentCreationForm(AdherentForm):
         if set_passwd:
             user.set_password(self.cleaned_data["password1"])
 
-        user.did_set_initial_passwd = set_passwd
         user.save()
         return user
 
