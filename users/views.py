@@ -107,7 +107,6 @@ from .forms import (
     PassForm,
     ConfirmMailForm,
     ResetPasswordForm,
-    ResendConfirmationEmailForm,
     ClubAdminandMembersForm,
     GroupForm,
     InitialRegisterForm,
@@ -228,7 +227,7 @@ def edit_info(request, user, userid):
 
             if user_form.should_send_confirmation_email:
                 user.confirm_email_address_mail(request)
-                messages.warning(request, _("Sent a new confirmation email"))
+                messages.success(request, _("Sent a new confirmation email"))
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
@@ -1034,26 +1033,24 @@ def process_passwd(request, req):
 
 def resend_confirmation_email(request, userid):
     """ Renvoie du mail de confirmation """
-    userform = ResendConfirmationEmailForm(request.POST or None)
+    try:
+        user = User.objects.get(
+            id=userid,
+            state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
+        )
+    except User.DoesNotExist:
+        messages.error(request, _("The user doesn't exist."))
+        return redirect(reverse("users:profil", kwargs={"userid": userid}))
+
     if userform.is_valid():
-        try:
-            user = User.objects.get(
-                id=userid,
-                state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
-            )
-        except User.DoesNotExist:
-            messages.error(request, _("The user doesn't exist."))
-            return form(
-                {"userform": userform, "action_name": _("Reset")},
-                "users/user.html",
-                request,
-            )
         user.confirm_email_address_mail(request)
         messages.success(request, _("An email to confirm your address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
     return form(
-        {"userform": userform, "action_name": _("Send")}, "users/user.html", request
+        {"email": user.email},
+        "users/resend_confirmation_email.html",
+        request,
     )
 
 

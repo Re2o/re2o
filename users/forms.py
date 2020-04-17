@@ -299,11 +299,6 @@ class ResetPasswordForm(forms.Form):
     email = forms.EmailField(max_length=255)
 
 
-class ResendConfirmationEmailForm(forms.Form):
-    """Formulaire de renvoie du mail de confirmation"""
-    pass
-
-
 class MassArchiveForm(forms.Form):
     """Formulaire d'archivage des users inactif. Prend en argument
     du formulaire la date de depart avant laquelle archiver les
