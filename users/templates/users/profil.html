@@ -50,7 +50,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% blocktrans %}Didn't receive the email?{% endblocktrans %}
     </a>
 </div>
-{% elif users.state == users.STATE_DISABLED %}
+{% elif users.state == users.STATE_SUSPENDED %}
 <div class="alert alert-danger">
     {% blocktrans %}Your account has been suspended.{% endblocktrans %}
 </div>

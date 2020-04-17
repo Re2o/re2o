@@ -54,6 +54,10 @@ msgstr "Complètement archivés"
 msgid "Waiting for email confirmation"
 msgstr "En attente de confirmation d'email"
 
+#: search/forms.py:39
+msgid "Suspended"
+msgstr "Suspendu"
+
 #: search/forms.py:41
 msgid "Users"
 msgstr "Utilisateurs"

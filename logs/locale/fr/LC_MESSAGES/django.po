@@ -248,6 +248,10 @@ msgid "Waiting for email confirmation users"
 msgstr "Utilisateurs en attente de confirmation d'email"
 
 #: logs/views.py:273
+msgid "Suspended users"
+msgstr "Utilisateurs suspendus"
+
+#: logs/views.py:273
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
