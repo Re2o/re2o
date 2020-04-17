@@ -1025,8 +1025,10 @@ def process_passwd(request, req):
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
         with transaction.atomic(), reversion.create_revision():
+            user.confirm_mail()
             u_form.save()
             reversion.set_comment("Password reset")
+
         req.delete()
         messages.success(request, _("The password was changed."))
         return redirect(reverse("index"))
