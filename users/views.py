@@ -546,6 +546,12 @@ def edit_email_settings(request, user_instance, **_kwargs):
         if email_settings.changed_data:
             email_settings.save()
             messages.success(request, _("The email settings were edited."))
+
+        # Send confirmation email if necessary
+        if email_settings.should_send_confirmation_email is True:
+            user_instance.confirm_email_address_mail(request)
+            messages.success(request, _("An email to confirm your address was sent."))
+
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
         )
