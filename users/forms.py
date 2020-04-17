@@ -405,41 +405,40 @@ class AdherentCreationForm(AdherentForm):
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
     doublons d'utilisateurs et, optionnellement,
     un champ mot de passe"""
-    if OptionalUser.get_cached_value("allow_set_password_during_user_creation"):
-        # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
-        init_password_by_mail_info = _(
-            "If this options is set, you will receive a link to set"
-            " your initial password by email. If you do not have"
-            " any means of accessing your emails, you can disable"
-            " this option to set your password immediatly."
-            " You will still receive an email to confirm your address."
-            " Failure to confirm your address will result in an"
-            " automatic suspension of your account until you do."
-        )
+    # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
+    init_password_by_mail_info = _(
+        "If this options is set, you will receive a link to set"
+        " your initial password by email. If you do not have"
+        " any means of accessing your emails, you can disable"
+        " this option to set your password immediatly."
+        " You will still receive an email to confirm your address."
+        " Failure to confirm your address will result in an"
+        " automatic suspension of your account until you do."
+    )
 
-        init_password_by_mail = forms.BooleanField(
-            help_text=init_password_by_mail_info,
-            required=False,
-            initial=True
-        )
-        init_password_by_mail.label = _("Send password reset link by email.")
+    init_password_by_mail = forms.BooleanField(
+        help_text=init_password_by_mail_info,
+        required=False,
+        initial=True
+    )
+    init_password_by_mail.label = _("Send password reset link by email.")
 
-        # Champs pour initialiser le mot de passe
-        # Validators are handled manually since theses fields aren't always required
-        password1 = forms.CharField(
-            required=False,
-            label=_("Password"),
-            widget=forms.PasswordInput,
-            #validators=[MinLengthValidator(8)],
-            max_length=255,
-        )
-        password2 = forms.CharField(
-            required=False,
-            label=_("Password confirmation"),
-            widget=forms.PasswordInput,
-            #validators=[MinLengthValidator(8)],
-            max_length=255,
-        )
+    # Champs pour initialiser le mot de passe
+    # Validators are handled manually since theses fields aren't always required
+    password1 = forms.CharField(
+        required=False,
+        label=_("Password"),
+        widget=forms.PasswordInput,
+        #validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
+    password2 = forms.CharField(
+        required=False,
+        label=_("Password confirmation"),
+        widget=forms.PasswordInput,
+        #validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
     former_user_check_info = _(
@@ -480,6 +479,12 @@ class AdherentCreationForm(AdherentForm):
                 _("General Terms of Use"),
             )
         )
+
+        # Remove password fields if option is disabled
+        if not OptionalUser.get_cached_value("allow_set_password_during_user_creation"):
+            self.fields.pop("init_password_by_mail")
+            self.fields.pop("password1")
+            self.fields.pop("password2")
 
     def clean_password1(self):
         """Ignore ce champs si la case init_password_by_mail est décochée"""
