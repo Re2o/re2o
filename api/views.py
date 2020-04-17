@@ -513,6 +513,7 @@ class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = users.User.objects.exclude(
         Q(state=users.User.STATE_DISABLED)
         | Q(state=users.User.STATE_NOT_YET_ACTIVE)
+        | Q(state=users.STATE_EMAIL_NOT_YET_CONFIRMED)
         | Q(state=users.User.STATE_FULL_ARCHIVE)
     )
     serializer_class = serializers.BasicUserSerializer
