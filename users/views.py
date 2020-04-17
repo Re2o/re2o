@@ -124,6 +124,8 @@ def new_user(request):
     is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
 
     if user.is_valid():
+        user = user.save()
+
         if user.did_set_initial_passwd:
             user.send_confirm_email_if_necessary(request)
             messages.success(
@@ -139,7 +141,6 @@ def new_user(request):
                 % user.pseudo,
             )
 
-        user = user.save()
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
 
     # Anonymous users are allowed to create new accounts
@@ -221,11 +222,11 @@ def edit_info(request, user, userid):
         )
     if user_form.is_valid():
         if user_form.changed_data:
-            if user.send_confirm_email_if_necessary(request):
-                messages.success(request, _("Sent a new confirmation email."))
-
             user = user_form.save()
             messages.success(request, _("The user was edited."))
+
+            if user.send_confirm_email_if_necessary(request):
+                messages.success(request, _("Sent a new confirmation email."))
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
@@ -541,11 +542,11 @@ def edit_email_settings(request, user_instance, **_kwargs):
     )
     if email_settings.is_valid():
         if email_settings.changed_data:
-            if user_instance.send_confirm_email_if_necessary(request):
-                messages.success(request, _("An email to confirm your address was sent."))
-
             email_settings.save()
             messages.success(request, _("The email settings were edited."))
+
+            if user_instance.send_confirm_email_if_necessary(request):
+                messages.success(request, _("An email to confirm your address was sent."))
 
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
